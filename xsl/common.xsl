@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.52 2002/06/20 13:05:53 robbod Exp $
+$Id: common.xsl,v 1.53 2002/06/21 09:35:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1699,11 +1699,15 @@ $Id: common.xsl,v 1.52 2002/06/20 13:05:53 robbod Exp $
     <xsl:param name="module_root"/>
     <xsl:param name="module_name"/>
     <small>
-      <xsl:apply-templates select="menuitem">
+      <xsl:apply-templates select="menuitem|menubreak">
         <xsl:with-param name="module_root" select="$module_root"/>
         <xsl:with-param name="module_name" select="$module_name"/>
     </xsl:apply-templates>
     </small>
+  </xsl:template>
+
+  <xsl:template match="menubreak">
+    <br/>
   </xsl:template>
 
   <xsl:template match="menuitem">

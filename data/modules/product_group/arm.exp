@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.6 2003/09/29 13:43:56 robbod Exp $
+ $Id: arm.exp,v 1.7 2003/10/09 09:15:07 robbod Exp $
  ISO TC184/SC4/WG12 N2342 - ISO/TS 10303-1278 Product group - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1595
 *) 
@@ -19,6 +19,8 @@ USE FROM Product_identification_arm;    -- ISO/TS 10303-1017
 
 USE FROM Product_version_arm;    -- ISO/TS 10303-1018
 
+USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
+
 
 TYPE product_group_classification_item = SELECT BASED_ON classification_item WITH 
    (Product_group, 
@@ -26,8 +28,13 @@ TYPE product_group_classification_item = SELECT BASED_ON classification_item WIT
 END_TYPE; 
 
 TYPE product_group_effectivity_item = SELECT BASED_ON effectivity_item WITH 
-   (Product_group_membership, 
+   (Product_group, 
+    Product_group_membership, 
     Product_group_relationship);
+END_TYPE; 
+
+TYPE product_group_property_assignment_select = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH 
+   (Product_group_membership);
 END_TYPE; 
 
 TYPE product_select = EXTENSIBLE SELECT
@@ -42,7 +49,7 @@ ENTITY Product_group;
   id : STRING;
   description : OPTIONAL STRING;
   purpose : STRING;
-  membership_rule : OPTIONAL STRING;
+  membership_rule : OPTIONAL LIST[1:?] OF STRING;
   product_group_context : OPTIONAL STRING;
 END_ENTITY;
 
@@ -59,4 +66,5 @@ ENTITY Product_group_relationship;
 END_ENTITY;
 
 END_SCHEMA;  -- Product_group_arm
+
 

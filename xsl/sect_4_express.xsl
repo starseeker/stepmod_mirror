@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
 <!--
-     $Id: sect_4_express.xsl,v 1.16 2002/02/15 12:24:15 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.17 2002/02/24 23:14:01 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
 <!--
-$Id: sect_2_refs.xsl,v 1.2 2002/01/15 10:18:15 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.3 2002/01/29 17:25:16 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page

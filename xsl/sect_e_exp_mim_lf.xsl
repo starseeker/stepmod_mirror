@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
 <!--
-$Id: sect_e_exp_mim_lf.xsl,v 1.1 2001/11/22 12:37:15 robbod Exp $
+$Id: sect_e_exp_mim_lf.xsl,v 1.2 2002/02/24 23:14:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the MIM long form express 

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
 <!--
-$Id: sect_5_mapping.xsl,v 1.12 2002/02/18 13:17:25 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.13 2002/02/24 23:14:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -95,19 +97,19 @@ NOT USED
   <table border="1" width="622">
     <tr>
       <td VALIGN="TOP" width="21%">
-        <font size="-1"><b>Application element</b></font>
+        <small><b>Application element</b></small>
       </td>
       <td VALIGN="TOP" width="21%">
-        <font size="-1"><b>MIM element</b></font>
+        <small><b>MIM element</b></small>
       </td>
       <td VALIGN="TOP" width="6%">
-        <font size="-1"><b>Source</b></font>
+        <small><b>Source</b></small>
       </td>
       <td VALIGN="TOP" width="5%">
-        <font size="-1"><b>Rules</b></font>
+        <small><b>Rules</b></small>
       </td>
       <td VALIGN="TOP" width="47%">
-        <font size="-1"><b>Reference path</b></font>
+        <small><b>Reference path</b></small>
       </td>
     </tr>
 
@@ -154,13 +156,12 @@ NOT USED
     select="translate(@entity,$LOWER,$UPPER)"/>
 
 
-
   <td VALIGN="TOP" width="21%">
-    <font size="-1">
+    <small>
       <a href="{$ae_xref}">
         <xsl:value-of select="$arm_entity"/>
       </a>
-    </font>
+    </small>
     <xsl:apply-templates select="./alt"/>
   </td>
 
@@ -187,7 +188,7 @@ NOT USED
 
   <tr>
     <td VALIGN="TOP" width="21%">
-      <font size="-1">
+      <small>
         <xsl:choose>
           <xsl:when test="@assertion_to">
             <xsl:value-of select="../@entity"/> 
@@ -201,7 +202,7 @@ NOT USED
             </a>
           </xsl:otherwise>
         </xsl:choose>
-      </font>
+      </small>
       <xsl:apply-templates select="./alt"/>
     </td>
 
@@ -228,11 +229,11 @@ NOT USED
 </xsl:template>
 
 <xsl:template match="aimelt">
-  <font size="-1">
+  <small>
     <xsl:call-template name="output_string_with_linebreaks">
       <xsl:with-param name="string" select="string(.)"/>
     </xsl:call-template>
-  </font>
+  </small>
 </xsl:template>
 
 <xsl:template match="aimelt" mode="old">
@@ -267,11 +268,11 @@ NOT USED
         </xsl:call-template>
       </xsl:variable>
 
-      <font size="-1">
+      <small>
         <a href="{$aim_xref}">
           <xsl:value-of select="$aimelt"/>
         </a>
-      </font>
+      </small>
     </xsl:otherwise>
   </xsl:choose>
 
@@ -291,7 +292,7 @@ NOT USED
 </xsl:template>
 
 <xsl:template match="source">
-  <font size="-1">
+  <small>
     <xsl:choose>
       <xsl:when test="string-length(string(.))=0">
         <!-- no source so setup empty cell -->
@@ -303,7 +304,7 @@ NOT USED
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
-  </font>
+  </small>
 </xsl:template>
 
 
@@ -323,11 +324,11 @@ NOT USED
 
 <!-- output alt text in the mapping table -->
 <xsl:template match="alt">
-  <font size="-1">
+  <small>
     <xsl:call-template name="output_string_with_linebreaks">
       <xsl:with-param name="string" select="string(.)"/>
     </xsl:call-template>
-  </font>  
+  </small>
 </xsl:template>
 
 
@@ -344,11 +345,11 @@ NOT USED
 </xsl:template>
 
 <xsl:template match="refpath">
-    <font size="-1">
-      <xsl:call-template name="output_string_with_linebreaks">
-        <xsl:with-param name="string" select="string(.)"/>
-      </xsl:call-template>
-    </font>  
+  <small>
+    <xsl:call-template name="output_string_with_linebreaks">
+      <xsl:with-param name="string" select="string(.)"/>
+    </xsl:call-template>
+  </small>
 </xsl:template>
 
 

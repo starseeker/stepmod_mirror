@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
 <!--
-$Id: sect_d_mim_expg.xsl,v 1.2 2001/12/28 16:03:19 robbod Exp $
+$Id: sect_d_mim_expg.xsl,v 1.3 2002/01/04 18:58:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:

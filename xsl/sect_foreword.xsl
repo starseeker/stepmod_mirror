@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
 <!--
-$Id: sect_foreword.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
+$Id: sect_foreword.xsl,v 1.2 2001/11/16 08:41:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:

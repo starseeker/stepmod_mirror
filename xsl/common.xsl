@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.146 2004/12/21 23:34:19 thendrix Exp $
+$Id: common.xsl,v 1.147 2004/12/23 22:23:51 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -195,7 +195,7 @@ $Id: common.xsl,v 1.146 2004/12/21 23:34:19 thendrix Exp $
     <xsl:call-template name="get_module_wg_group"/>
   </xsl:variable>  
   <xsl:variable name="id"
-    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+    select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@wg.number)"/>
   <xsl:variable name="clause_of">
     <xsl:if test="$clause">
       <xsl:value-of select="concat('Clause of ',$clause)"/>
@@ -208,12 +208,12 @@ $Id: common.xsl,v 1.146 2004/12/21 23:34:19 thendrix Exp $
 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.module.rcs.date'"/>
-    <xsl:with-param name="content" select="translate(./@rcs.date,'$','')"/>
+    <xsl:with-param name="content" select="normalize-space(translate(./@rcs.date,'$/',' -'))"/>
   </xsl:call-template>
 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.module.rcs.revision'"/>
-    <xsl:with-param name="content" select="translate(./@rcs.revision,'$','')"/>
+    <xsl:with-param name="content" select="normalize-space(translate(./@rcs.revision,'$',''))"/>
   </xsl:call-template>
 
   <!-- now get meta data for arm and mim -->
@@ -226,14 +226,14 @@ $Id: common.xsl,v 1.146 2004/12/21 23:34:19 thendrix Exp $
   <xsl:variable name="arm_express" select="document($arm_xml)/express"/>
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.arm.rcs.revision'"/>
-    <xsl:with-param name="content" select="translate($arm_express/@rcs.revision,'$','')"/>
+    <xsl:with-param name="content" select="normalize-space(translate($arm_express/@rcs.revision,'$',''))"/>
   </xsl:call-template>
 
   <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
   <xsl:variable name="mim_express" select="document($mim_xml)/express"/>
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.mim.rcs.revision'"/>
-    <xsl:with-param name="content" select="translate($mim_express/@rcs.date,'$','')"/>
+    <xsl:with-param name="content" select="normalize-space(translate($mim_express/@rcs.revision,'$',''))"/>
   </xsl:call-template>
   </xsl:template>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.34 2004/12/20 22:07:31 thendrix Exp $
+$Id: common.xsl,v 1.35 2004/12/21 01:40:10 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -508,7 +508,7 @@ $Id: common.xsl,v 1.34 2004/12/20 22:07:31 thendrix Exp $
 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Description'"/>
-    <xsl:with-param name="content" select="concat('The application module ',$protocol_name)"/>
+    <xsl:with-param name="content" select="concat('The application protocol ',$protocol_name)"/>
   </xsl:call-template>
 
   <xsl:variable name="keywords">
@@ -536,12 +536,12 @@ $Id: common.xsl,v 1.34 2004/12/20 22:07:31 thendrix Exp $
 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.module.rcs.date'"/>
-    <xsl:with-param name="content" select="translate(./@rcs.date,'$','')"/>
+    <xsl:with-param name="content" select="normalize-space(translate(./@rcs.date,'$/',' -'))"/>
   </xsl:call-template>
 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.module.rcs.revision'"/>
-    <xsl:with-param name="content" select="translate(./@rcs.revision,'$','')"/>
+    <xsl:with-param name="content" select="normalize-space(translate(./@rcs.revision,'$',''))"/>
   </xsl:call-template>  
   </xsl:template>
 

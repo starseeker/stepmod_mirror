@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-$ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+<!--  $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -2434,7 +2433,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
-e      </xsl:element>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.2 2004/12/15 05:10:55 thomasrthurman Exp $ -->
+<!-- $Id: issues.xml,v 1.3 2004/12/17 23:14:51 thomasrthurman Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="analytical_model">
@@ -67,9 +67,10 @@ the 'analog' representation.
 </description>
 
 <comment
-   by="" 
-   date="">
+   by="trt" 
+   date="2004-12-20">
 <description>
+Decided not to accept this proposed solution, since digital port already has a name.  I do agree to add an external_definition to attribute digital_analytical_model_port.port_type, but not sure how the current syntax for external_definition works.
 </description>
 </comment>
  </issue>
@@ -94,6 +95,150 @@ Should not the Analytical_model_application_assignment also reference a set of A
 </description>
 </comment>
  </issue>
+
+<issue
+  id="trt 2004-12-20"
+  type="general"
+  linkend=""
+  category="major_technical"
+  by=""
+  date="2004-12-20"
+  status="open"
+  seds="no">
+<description>
+
+This AO is redundant once the proposed change to analytical_model_port_assignment is implemented
+
+  ENTITY Analytical_model_application_assignment; --- was analytical_model_definition_assignment;
+	assigned_analytical_model: Analytical_model_application;
+	assigned_item: analytical_model_application_assignment_select;
+  END_ENTITY; -- Analytical_model_application_assignment
+
+</description>
+<comment
+   by="" 
+   date="">
+<description>
+</description>
+</comment>
+</issue>
+<issue
+  id="trt 2004-12-20-2"
+  type="general"
+  linkend=""
+  category="major_technical"
+  by=""
+  date="2004-12-20"
+  status="open"
+  seds="no">
+<description>
+
+renamed Port_variable to be Analog_port_variable since it helps to compose analog ports
+</description>
+<comment
+   by="" 
+   date="">
+<description>
+</description>
+</comment>
+</issue>
+
+<issue
+  id="trt 2004-12-20-3"
+  type="general"
+  linkend=""
+  category="major_technical"
+  by=""
+  date="2004-12-20"
+  status="open"
+  seds="no">
+<description>
+Analytical_model_port_assignment has never been directly related to Analytical_model_application (using current terminology).  The introduction of the Analytical_model_application_assignment made this problem more obvious since there was no connection between amaa and ampa.  There is obviously cause for concern since it is possible for
+an amaa to be made and there be no ampa and vice versa.  when a relationship is built between an amaa and a set of ampa, that builds in redundant paths that have to be managed.  In actuality all that is needed is to relate an ampa to an ama.  Then the paths that need to be managed are straightformward:
+
+ampa[#22]->ama[any]->Analytical_model_definition[#1]
+ampa[#22]->Analytical_model_port[any]->Analytical_model_definition[#1]
+
+Unique rule on ampa potentially could help alleviate confusion but that is tbd.
+
+ampa modification:::
+  ENTITY Analytical_model_port_assignment;
+	assigned_analytical_model_port	: analytical_model_port;
+	assigned_item					: analytical_model_port_assignment_select;
+	associated_analytical_model_application :analytical_model_application;
+(* where rule
+   we can now write a sensible where rule that states that the
+   associated_analytical_model_port.accessed_analytical_model =
+   associated_analytical_model_application.model_representation
+   *)
+   WHERE
+    WR1 : associated_analytical_model_port.accessed_analytical_model =
+   associated_analytical_model_application.model_representation;
+  END_ENTITY; -- analytical_model_port_assignment
+(*mapping of analytical_model_port_assignment::
+   complex subtype of prop_def_rep,representation_relationship
+   prop_def_rep.used_rep->self
+   prop_def_rep.definition -> same as now
+   representation_relationship.rep_1 ->associated_ama
+   representation_relationship.rep_2 ->assigned_analytical_model_port
+*)
+   </description>
+<comment
+   by="" 
+   date="">
+<description>
+</description>
+</comment>
+</issue>
+
+<issue
+  id="trt 2004-12-20-4"
+  type="general"
+  linkend=""
+  category="major_technical"
+  by=""
+  date="2004-12-20"
+  status="open"
+  seds="no">
+
+<description>
+solution for scalar port and vector port correct representation
+this provides a solution that will allow explicit representation of the structure of a vector port.
+It requires that the vector_port be also a subtype of rep_item, specifically a compound_representation_item
+where a rule that the type of the compound_representation_item.item_element is a list_representation_item
+
+
+
+modified amsp, amvp::
+
+  ENTITY Analytical_model_scalar_port
+    SUBTYPE OF (Analytical_model_vector_port);
+    WHERE
+      WR1 : SIZEOF(SELF\element_port) = 1;
+      WR2 : SELF = SELF\analytical_model_vector_port.element_port[1];
+  END_ENTITY; -- analytical_model_scalar_port
+
+  ENTITY Analytical_model_vector_port
+    SUPERTYPE OF (analytical_model_scalar_port)
+    SUBTYPE OF (Analytical_model_port);
+    element_port : LIST [1:?] OF analytical_model_scalar_port;
+  DERIVE    
+      size : INTEGER := SIZEOF(element_port); -- positive_integer;      
+  END_ENTITY; -- analytical_model_vector_port
+
+mapping mod::
+[analytical_model_vector_port &lt;= representation]
+[analytical_model_vector_port &lt;= compound_representation_item]
+[compound_representation_item.item_element ->
+list_representation_item]
+</description>
+<comment
+   by="" 
+   date="">
+<description>
+</description>
+</comment>
+</issue>
 
 
 </issues>

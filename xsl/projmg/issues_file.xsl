@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: issues_file.xsl,v 1.16 2003/10/22 10:54:39 robbod Exp $
+     $Id: issues_file.xsl,v 1.17 2003/10/22 11:21:07 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -152,82 +152,102 @@
         <!-- Order the issues -->
         <xsl:apply-templates select="issue[@type='general']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='keywords']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='contacts']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='purpose']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='inscope']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='outscope']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='normrefs']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='definition']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='abbreviations']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='arm']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='armexpg']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='arm_lf']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='armexpg_lf']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='mapping_table']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='mim']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='mimexpg']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='mim_lf']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='mimexpg_lf']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='usage_guide']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='bibliography']">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
 
         <!-- deal with unknown type -->
@@ -252,6 +272,7 @@
                                      and (@type!='usage_guide')
                                      and (@type!='bibliography')]">
           <xsl:sort select="./@status" order="descending"/>
+          <xsl:sort select="./@id" order="ascending"/>
         </xsl:apply-templates>
       </body>
     </html>

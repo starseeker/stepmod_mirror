@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.2 2002/10/17 19:21:56 thendrix Exp $
+$Id: express.xsl,v 1.3 2003/03/16 01:26:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -63,9 +63,71 @@ $Id: express.xsl,v 1.2 2002/10/17 19:21:56 thendrix Exp $
          stepmod/data/module/?resource_schema?/?resource_schema?.xml
        Hence the relative root is: ../../../
        -->
+
   <xsl:variable 
     name="relative_root"
     select="'../../../'"/>
+
+  <!-- this stuff would work if it were in the modules express schema, which seems to be what resdocs use
+
+  <xsl:variable name="schema_name_tmp" select="//schema/@name" />
+
+  <xsl:variable name="repo_index_xml" select="document('../repository_index.xml')" />
+
+
+    <xsl:variable name="resdoc_number">
+      <xsl:choose>
+        <xsl:when
+          test="$repo_index_xml/repository_index/resources/resource[@name=$schema_name_tmp]">
+        <xsl:value-of select="$repo_index_xml/repository_index/resources/resource[@name=$schema_name_tmp]/@part"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of 
+            select="concat('ERROR : ', $schema_name_tmp, 
+                    ' not found in repository_index as a resource')"/>
+      </xsl:otherwise>
+    </xsl:choose>        
+  </xsl:variable>
+
+    <xsl:variable name="resdoc_part" >
+    <xsl:value-of select="substring-after($resdoc_number,'-')"/>
+  </xsl:variable>
+  
+  <xsl:variable name="resdoc_name" >
+    <xsl:choose>
+      <xsl:when
+        test="$repo_index_xml/repository_index/resource_docs/resource_doc[@part=$resdoc_part]">
+        <xsl:value-of select="$repo_index_xml/repository_index/resource_docs/resource_doc[@part=$resdoc_part]/@name"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of 
+          select="concat('ERROR : ', $resdoc_part, 
+                  ' not found in repository index as  a resource doc')"/>
+      </xsl:otherwise>
+    </xsl:choose>        
+  </xsl:variable>
+    
+
+<xsl:variable name="resdoc_dir">
+    <xsl:call-template name="resdoc_directory">
+      <xsl:with-param name="resdoc" select="$resdoc_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="resdoc">
+    <xsl:value-of select="imgfile.content/@module"/>
+  </xsl:variable>
+
+ 
+ 
+  <xsl:variable name="resdoc_file" select="concat($resdoc_dir,'/resource.xml')"/>
+
+
+  <xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>    
+
+-->
+  <!--  not sure about this <xsl:variable name="resdoc_root" select="concat('../',$resdoc_dir)"/> -->
+
 
   <!-- +++++++++++++++++++
          Templates
@@ -75,6 +137,11 @@ $Id: express.xsl,v 1.2 2002/10/17 19:21:56 thendrix Exp $
 <xsl:template match="/">
   <HTML>
     <HEAD>
+      <!-- stuff commented out above is to add meta tags but I dont think it is needed
+since the schema htm files that are actually *in* the standard are in sys dir 
+Anyway as mentioned above they need to be in the other express.xsl 
+           If try to run from here, the path from xsl to stepmod needs to be ../../
+-->
       <xsl:apply-templates select="./application" mode="meta"/>
         <!-- apply a cascading stylesheet.
              the stylesheet will only be applied if the parameter output_css

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.13 2004/01/27 00:06:29 thendrix Exp $
+$Id: imgfile.xsl,v 1.14 2004/01/29 23:55:26 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -13,7 +13,7 @@ $Id: imgfile.xsl,v 1.13 2004/01/27 00:06:29 thendrix Exp $
 
 
   <xsl:import href="sect_4_express.xsl"/>
-
+  <xsl:import href="parameters.xsl" />
 
   <xsl:import href="res_toc.xsl"/>
 
@@ -214,10 +214,12 @@ $Id: imgfile.xsl,v 1.13 2004/01/27 00:06:29 thendrix Exp $
     </xsl:choose>
   </xsl:variable>
 
+  <!--    <xsl:if test="$output_background ='NO'" >  -->
+
   <xsl:element name="AREA">
-    <xsl:attribute name="href">
-      <xsl:value-of select="$href"/>
-    </xsl:attribute>
+      <xsl:attribute name="href">
+        <xsl:value-of select="$href"/>
+      </xsl:attribute>
     <xsl:attribute name="shape">
       <xsl:value-of select="@shape"/>
     </xsl:attribute>
@@ -228,6 +230,8 @@ $Id: imgfile.xsl,v 1.13 2004/01/27 00:06:29 thendrix Exp $
       <xsl:value-of select="@coords" /> 
       </xsl:attribute>
     </xsl:element>
+    <!--    </xsl:if> -->
+
 </xsl:template>
 
 <xsl:template match="imgfile" mode="title">

@@ -1,10 +1,12 @@
 (*
-  $Id: arm.exp,v 1.6 2002/07/02 07:18:31 robbod Exp $
-  N1201 - ISO/CD TS - 10303-1126 Document properties - EXPRESS ARM 
+  $Id: arm.exp,v 1.7 2002/07/05 14:10:24 robbod Exp $
+  N1201 - ISO TS - 10303-1126 Document properties - EXPRESS ARM 
 *)
 SCHEMA Document_properties_arm;
 
 USE FROM Document_definition_arm;    -- ISO/TS 10303-1123
+
+USE FROM File_identification_arm;    -- ISO/TS 10303-1127
 
 USE FROM Foundation_representation_arm;    -- ISO/CD-TS 10303-1006
 
@@ -12,16 +14,21 @@ USE FROM Measure_representation_arm;    -- ISO/TS 10303-1118
 
 USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
 
+TYPE document_property_item = SELECT 
+  (Document_definition,
+   File);
+END_TYPE;
+
 ENTITY Descriptive_document_property;
   property_type : STRING;
   property_name : STRING;
   property_value : STRING;
-  described_element : Document_definition;
+  described_element : document_property_item;
 END_ENTITY;
 
 ENTITY Numerical_document_property;
   property_type : STRING;
-  described_element : Document_definition;
+  described_element : document_property_item;
   representation_item : Numerical_item_with_unit;
 DERIVE
   property_name : STRING := representation_item.name;

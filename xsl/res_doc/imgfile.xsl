@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.4 2002/12/15 22:21:27 thendrix Exp $
+$Id: imgfile.xsl,v 1.5 2002/12/20 14:42:38 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -235,6 +235,11 @@ $Id: imgfile.xsl,v 1.4 2002/12/15 22:21:27 thendrix Exp $
           <xsl:when test="contains(@file,'schemaexpg')">
             <xsl:call-template name="set_file_ext">
               <xsl:with-param name="filename" select="concat('../../resource_docs/',$resdoc,'/sys/d_expg.xml')"/>
+            </xsl:call-template>            
+            </xsl:when>
+          <xsl:when test="contains(@file,'schema_diagexpg')">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="concat('../../resource_docs/',$resdoc,'/sys/introduction.xml')"/>
             </xsl:call-template>            
             </xsl:when>
         </xsl:choose>

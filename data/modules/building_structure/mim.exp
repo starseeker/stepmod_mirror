@@ -1,6 +1,118 @@
 (*
-   $Id: mkmodule.js,v 1.24 2002/09/30 09:10:26 robbod Exp $
+   $Id: mim.exp,v 1.1 2002/10/10 08:53:41 whaas Exp $
    N - ISO/CD-TS - 10303- building_structure - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Building_structure_mim;
+
+USE FROM management_resource_schema 		-- ISO 10303-41
+  (organization_assignment,
+   person_assignment);
+
+USE FROM person_organization_schema 		-- ISO 10303-41
+  (organization,
+   organization_role,
+   person,
+   person_role);
+
+USE FROM product_definition_schema 			-- ISO 10303-41
+  (product,
+   product_definition,
+   product_definition_formation,
+   product_definition_relationship);
+  
+USE FROM product_property_definition_schema 	-- ISO 10303-41
+  (characterized_product_definition,
+   property_definition);
+
+USE FROM product_structure_schema 			-- ISO 10303-44
+  (assembly_component_usage,
+   product_definition_usage);
+
+USE FROM product_property_representation_schema	-- ISO 10303-41
+  (property_definition_representation);
+
+USE FROM qualified_measure_schema 			-- ISO 10303-45
+  (descriptive_representation_item);
+
+USE FROM representation_schema 			-- ISO 10303-43
+  (representation,
+   representation_item);
+
+TYPE building_design_organization_item = SELECT
+  (building);
+END_TYPE;
+
+TYPE building_design_person_item = SELECT
+(building);
+END_TYPE;
+
+ENTITY building
+  SUBTYPE OF (product_definition);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF, ’BUILDING_STRUCTURE_MIM.’+
+       ’PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION’) |
+       ’BUILDING_STRUCTURE_MIM.BUILDING_SECTION’
+       IN TYPEOF (pdr.related_product_definition))) >= 1;
+  WR2: SIZEOF (QUERY (bdpa <* USEDIN (SELF, ’BUILDING_STRUCTURE_MIM.’ +
+       ’BUILDING_DESIGN_PERSON_ASSIGNMENT.ITEMS’) |
+       bdpa.role.name = ’owner’)) +
+       SIZEOF (QUERY (bdoa <* USEDIN (SELF, ’BUILDING_STRUCTURE_MIM.’ +
+       ’BUILDING_DESIGN_ORGANIZATION_ASSIGNMENT.ITEMS’) |
+       bdoa.role.name = ’owner’)) = 1;
+END_ENTITY;
+
+ENTITY building_design_organization_assignment
+  SUBTYPE OF (organization_assignment);
+  items : SET[1:?] OF building_design_organization_item;
+END_ENTITY;
+
+ENTITY building_design_person_assignment
+  SUBTYPE OF (person_assignment);
+  items : SET[1:?] OF building_design_person_item;
+END_ENTITY;
+
+ENTITY building_element_assembly
+  SUBTYPE OF (product_definition);
+WHERE
+   WR1: SIZEOF (QUERY (acu <* QUERY (pdr <* USEDIN (SELF,
+       ’BUILDING_STRUCTURE_MIM.PRODUCT_DEFINITION_RELATIONSHIP.’ +
+       ’RELATING_PRODUCT_DEFINITION’) |
+       ’BUILDING_STRUCTURE_MIM.ASSEMBLY_COMPONENT_USAGE’ IN
+       TYPEOF (pdr)) |
+       SIZEOF (TYPEOF (acu.related_product_definition) *
+       [’BUILDING_ITEM_MIM.BUILDING_ELEMENT’,
+       ’BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT’,
+       ’BUILDING_ITEM_MIM.SERVICE_ELEMENT’,
+       ’BUILDING_ITEM_MIM.SPACE_ELEMENT’,
+       ’BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT’,
+       ’BUILDING_STRUCTURE_MIM.BUILDING_ELEMENT_ASSEMBLY’]) = 1)) >= 1;
+END_ENTITY;
+
+ENTITY building_level
+  SUBTYPE OF (product_definition);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF, ’’BUILDING_STRUCTURE_MIM.’ +
+       ’PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION’) |
+       ’’BUILDING_STRUCTURE_MIM.BUILDING_SECTION’ IN
+       TYPEOF (pdr.relating_product_definition))) = 1;
+END_ENTITY;
+
+ENTITY building_section
+  SUBTYPE OF (product_definition);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN(SELF,’’BUILDING_STRUCTURE_MIM.’+
+       ’PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION’) |
+       ’’BUILDING_STRUCTURE_MIM.BUILDING’ IN
+       TYPEOF (pdr.relating_product_definition))) = 1;
+  WR2: SIZEOF (QUERY (pdr <* USEDIN (SELF,’BUILDING_ITEM_MIM.’ +
+       ’PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION’) |
+       SIZEOF (TYPEOF (pdr.related_product_definition) *
+       [’BUILDING_STRUCTURE_MIM.BUILDING_LEVEL’,
+       ’BUILDING_ITEM_MIM.BUILDING_ELEMENT’,
+       ’BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT’,
+       ’BUILDING_ITEM_MIM.SERVICE_ELEMENT’,
+       ’BUILDING_ITEM_MIM.SPACE_ELEMENT’,
+       ’BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT’]) = 1)) >= 1;
+END_ENTITY;
+
 END_SCHEMA;

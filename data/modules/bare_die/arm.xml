@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-16T17:36:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-11-19T10:54:43" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="bare_die_arm schema_instance"/>
    <schema name="Bare_die_arm">
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
@@ -11,7 +11,6 @@
          <interfaced.item name="Part_mounting_feature"/>
       </interface>
       <interface kind="use" schema="Geometric_dimensioning_and_tolerance_arm"/>
-      <interface kind="use" schema="Connection_zone_in_usage_view_arm"/>
       <interface kind="use" schema="Pdm_material_aspects_arm"/>
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
       <interface kind="use" schema="Network_functional_usage_view_arm"/>
@@ -23,9 +22,6 @@
          <interfaced.item name="Definition_based_product_occurrence"/>
       </interface>
       <entity name="Connection_zone_bare_die_interface_plane_relationship">
-         <inverse name="associated_bare_die_terminal" entity="Bare_die_terminal" attribute="seating_plane_zone">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
          <explicit name="derived_zone_shape_class">
             <builtintype type="STRING"/>
          </explicit>
@@ -38,6 +34,9 @@
          <explicit name="interface_plane">
             <typename name="Seating_plane"/>
          </explicit>
+         <inverse name="associated_bare_die_terminal" entity="Bare_die_terminal" attribute="seating_plane_zone">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <unique label="ur1">
             <unique.attribute entity-ref="Connection_zone_bare_die_interface_plane_relationship" attribute="interface_plane"/>
             <unique.attribute entity-ref="Connection_zone_bare_die_interface_plane_relationship" attribute="mating_zone"/>
@@ -45,10 +44,6 @@
          <where label="wr1" expression=" derived_zone_shape_class IN [ 'area' , 'edge' ] "/>
       </entity>
       <entity name="Bare_die" supertypes="Part_usage_view">
-         <inverse name="die_seating_plane" entity="Non_feature_shape_element" attribute="scope"/>
-         <inverse name="access_mechanisms" entity="Minimally_defined_bare_die_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="2"/>
-         </inverse>
          <explicit name="implemented_function">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
@@ -61,13 +56,17 @@
          <explicit name="least_material_condition_centroid_location" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
+         <inverse name="die_seating_plane" entity="Non_feature_shape_element" attribute="scope"/>
+         <inverse name="access_mechanisms" entity="Minimally_defined_bare_die_terminal" attribute="associated_definition">
+            <inverse.aggregate type="SET" lower="2"/>
+         </inverse>
          <unique label="ur1">
             <unique.attribute entity-ref="Bare_die" attribute="implemented_function"/>
          </unique>
          <where label="WR4" expression=" 'AP210_ARM.SEATING_PLANE' IN TYPEOF ( die_seating_plane ) "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.PART_FEATURE.ASSOCIATED_DEFINITION' ) | ( 'AP210_ARM.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.PART_FEATURE.ASSOCIATED_DEFINITION' ) | ( 'AP210_ARM.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.PART_FEATURE.ASSOCIATED_DEFINITION' ) | ( 'AP210_ARM.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
+         <where label="WR3" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.shape_element.containing_shape' ) | ( 'AP210_ARM.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.shape_element.containing_shape' ) | ( 'AP210_ARM.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.shape_element.containing_shape' ) | ( 'AP210_ARM.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
       </entity>
       <entity name="Bare_die_bottom_surface" supertypes="Bare_die_surface"/>
       <entity name="Bare_die_edge_segment_surface" supertypes="Bare_die_surface">
@@ -80,7 +79,7 @@
          <explicit name="composed_surface">
             <typename name="Bare_die_edge_surface"/>
          </explicit>
-         <where label="wr2" expression=" SELF \ part_feature . associated_definition :=: composed_surface \ part_feature . associated_definition "/>
+         <where label="wr2" expression=" SELF \ shape_element . containing_shape :=: composed_surface \ shape_element . containing_shape "/>
          <where label="wr1" expression=" start_vertex :&lt;&gt;: end_vertex "/>
       </entity>
       <entity name="Bare_die_edge_surface" supertypes="Bare_die_surface"/>

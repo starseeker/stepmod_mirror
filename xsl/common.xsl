@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.97 2003/06/07 20:52:06 thendrix Exp $
+$Id: common.xsl,v 1.98 2003/06/08 19:30:04 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3135,7 +3135,6 @@ is case sensitive.')"/>
          This only happens in the mapping tables when and ARM object is
          being remapped from another module. -->
     <xsl:param name="original_schema"/>
-   xxxxxx 
     <xsl:variable name="schema">
       <xsl:choose>
         <!-- original_module specified then the ARM object is declared in

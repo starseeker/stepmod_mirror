@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.1 2001/11/14 17:07:19 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.2 2001/11/15 18:16:54 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -14,17 +14,57 @@
 	version="1.0"
 >
 
-  <xsl:import href="common.xsl"/>
-  <xsl:import href="sect_4_express_link.xsl"/>
+
+  <xsl:import href="express_link.xsl"/> 
 
   <xsl:output method="html"/>
+
+  <!-- loop through all the interface specifications in the express and 
+       build a reference table of all the URLS for the entties and types
+       build_xref_list is defined in express_link
+       This variable is used in express_link.xsl;
+       link_object
+       link_list
+       -->
+  <xsl:variable name="global_xref_list">
+    <!-- debug 
+    <xsl:message>
+      global_xref_list defined in sect_4_express.xsl
+    </xsl:message> -->
+    <xsl:choose>
+      <xsl:when test="/module_clause">
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="/module_clause/@directory"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="express_xml" select="concat($module_dir,'/arm.xml')"/>
+        <xsl:call-template name="build_xref_list">
+          <xsl:with-param name="express" select="document($express_xml)/express"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="/module">
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="/module/@name"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="express_xml" select="concat($module_dir,'/arm.xml')"/>
+        <xsl:call-template name="build_xref_list">
+          <xsl:with-param name="express" select="document($express_xml)/express"/>
+        </xsl:call-template>        
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+
 
 
 <xsl:template match="interface">
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
-
   <xsl:if test="position()=1">
     <xsl:variable name="clause_number">
       <xsl:call-template name="express_clause_number">
@@ -76,8 +116,9 @@
             <xsl:with-param 
               name="schema_name" 
               select="@schema"/>
+            <xsl:with-param name="clause" select="'section'"/>
           </xsl:call-template>
-          <xsl:apply-templates select="./interfaced.item"/>
+          <xsl:apply-templates select="./interfaced.item"/>;
         </xsl:when>
         <xsl:when test="@kind='use'">
           USE FROM
@@ -86,8 +127,9 @@
             <xsl:with-param 
               name="schema_name" 
               select="@schema"/>
+            <xsl:with-param name="clause" select="'section'"/>
           </xsl:call-template>
-          <xsl:apply-templates select="./interfaced.item"/>
+          <xsl:apply-templates select="./interfaced.item"/>;
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">
@@ -109,7 +151,7 @@
 
 <xsl:template match="interfaced.item">
   <xsl:if test="position()=1">
-    &#160; (<br/>
+    (<br/>
   </xsl:if>
 
   &#160;&#160;
@@ -117,12 +159,12 @@
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../@name"/>
+    <xsl:with-param name="clause" select="'section'"/>
   </xsl:call-template>
-
 
   <xsl:if test="position()!=last()">,<br/></xsl:if>
 
-  <xsl:if test="position()=last()">);</xsl:if>
+  <xsl:if test="position()=last()">)</xsl:if>
 
 </xsl:template>
 
@@ -195,7 +237,7 @@
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('No description provided for ',@name)"/>
+              select="concat('No description provided for ',$aname)"/>
           </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>
@@ -284,7 +326,7 @@
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('No description provided for ',@name)"/>
+              select="concat('No description provided for ',$aname)"/>
           </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>
@@ -313,6 +355,7 @@
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../../@name"/>
+    <xsl:with-param name="clause" select="'section'"/>
   </xsl:call-template>
 </xsl:template>
 
@@ -331,15 +374,24 @@
     GENERIC_ENTITY
   </xsl:if>
 
-  SELECT 
+  SELECT
 
   <xsl:if test="@basedon">
-    BASED ON <xsl:value-of select="@basedon"/> WITH 
+    BASED ON 
+      <xsl:call-template name="link_object">
+        <xsl:with-param name="object_name" select="@basedon"/>
+        <xsl:with-param name="object_used_in_schema_name" 
+          select="../../@name"/>
+        <xsl:with-param name="clause" select="'section'"/>
+      </xsl:call-template>  
+      WITH 
   </xsl:if>
   (<xsl:call-template name="link_list">
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="list" select="@selectitems"/>
-    <xsl:with-param name="object_used_in_schema_name" select="../../@name"/>
+    <xsl:with-param name="object_used_in_schema_name"
+      select="../../@name"/>
+    <xsl:with-param name="clause" select="'section'"/>
   </xsl:call-template>)</xsl:template>
 
 
@@ -467,6 +519,7 @@
       <xsl:with-param name="list" select="@supertypes"/>
         <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+      <xsl:with-param name="clause" select="'section'"/>
     </xsl:call-template>)
   </xsl:if>
 </xsl:template>
@@ -509,6 +562,7 @@
     <xsl:with-param name="object_name" select="../@entity"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../../@name"/>
+    <xsl:with-param name="clause" select="'section'"/>
   </xsl:call-template>  
   <xsl:value-of select="concat(' FOR ', ../@attribute)"/>
 </xsl:template>
@@ -538,7 +592,14 @@
 
 
 <xsl:template match="aggregate" mode="code">
-  <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+  <xsl:choose>
+    <xsl:when test="@lower">
+      <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="concat(@type, ' OF ')"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="where" mode="code">
@@ -581,7 +642,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',@name)"/>
+            select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
@@ -618,7 +679,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',@name)"/>
+            select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
@@ -653,7 +714,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',@name)"/>
+            select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
@@ -690,7 +751,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',@label)"/>
+            select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
@@ -726,7 +787,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',@label)"/>
+            select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_clause.xsl,v 1.2 2001/10/22 09:32:34 robbod Exp $
+$Id: module_clause.xsl,v 1.3 2001/11/14 17:23:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -39,6 +39,7 @@ $Id: module_clause.xsl,v 1.2 2001/10/22 09:32:34 robbod Exp $
         </TITLE>
       </HEAD>
       <BODY>
+        <!-- debug <xsl:message><xsl:value-of select="$global_xref_list"/></xsl:message> -->
         <!-- output the Table of contents banner -->
         <xsl:apply-templates 
           select="document($module_xml_file)/module"

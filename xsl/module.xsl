@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.9 2001/11/16 08:41:14 robbod Exp $
+$Id: module.xsl,v 1.10 2001/11/16 09:16:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -138,16 +138,16 @@ $Id: module.xsl,v 1.9 2001/11/16 08:41:14 robbod Exp $
 <xsl:template match="module" mode="annexe">
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="'Annex E'"/>
-    <xsl:with-param name="aname" select="'annexa'"/>
+    <xsl:with-param name="aname" select="'annexe'"/>
   </xsl:call-template>
 
   <xsl:variable name="arm">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'../arm.xml'"/>
+        <xsl:value-of select="'e_exp_arm.xml'"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="'../arm.htm'"/>
+        <xsl:value-of select="'e_exp_arm.htm'"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -155,10 +155,21 @@ $Id: module.xsl,v 1.9 2001/11/16 08:41:14 robbod Exp $
   <xsl:variable name="mim">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'../mim.xml'"/>
+        <xsl:value-of select="'e_exp_mim.xml'"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="'../mim.htm'"/>
+        <xsl:value-of select="'e_exp_mim.htm'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="mim_lf">
+    <xsl:choose>
+      <xsl:when test="$FILE_EXT='.xml'">
+        <xsl:value-of select="'e_exp_mim_lf.xml'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'e_exp_mim_lf.htm'"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -211,13 +222,13 @@ $Id: module.xsl,v 1.9 2001/11/16 08:41:14 robbod Exp $
           <TD VALIGN="MIDDLE">HTML version</TD>
           <TD VALIGN="MIDDLE"><A HREF="{$arm}">ARM EXPRESS</A></TD>
           <TD VALIGN="MIDDLE"><A HREF="{$mim}">MIM SF EXPRESS</A></TD>
-          <TD VALIGN="MIDDLE"><A HREF="long_form">MIM LF EXPRESS</A></TD>
+          <TD VALIGN="MIDDLE"><A HREF="{$mim_lf}">MIM LF EXPRESS</A></TD>
         </TR>
         <TR>
           <TD VALIGN="MIDDLE">Text version</TD>
           <TD VALIGN="MIDDLE"><A HREF="../arm.exp">ARM EXPRESS text</A></TD>
           <TD VALIGN="MIDDLE"><A HREF="../mim.exp">MIM SF EXPRESS text</A></TD>
-          <TD VALIGN="MIDDLE"><A HREF="long_form.exp">MIM LF EXPRESS text</A></TD>
+          <TD VALIGN="MIDDLE"><A HREF="../mim_lf.exp">MIM LF EXPRESS text</A></TD>
         </TR>
       </TABLE>
     </CENTER>
@@ -239,7 +250,6 @@ $Id: module.xsl,v 1.9 2001/11/16 08:41:14 robbod Exp $
     </BLOCKQUOTE>
 
 </xsl:template>
-
 
 
 <xsl:template match="arm">

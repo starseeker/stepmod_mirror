@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.7 2001/11/15 18:16:11 robbod Exp $
+$Id: common.xsl,v 1.8 2001/11/16 08:41:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -10,7 +10,7 @@ $Id: common.xsl,v 1.7 2001/11/15 18:16:11 robbod Exp $
                 version="1.0">
 
   <!-- 
-       Template to detemine whether the output is XML or HTML 
+       Template to determine whether the output is XML or HTML 
        Sets variable global FILE_EXT
        -->
   <xsl:import href="file_ext.xsl"/>
@@ -344,24 +344,31 @@ $Id: common.xsl,v 1.7 2001/11/15 18:16:11 robbod Exp $
     </xsl:choose>
   </xsl:template>
 
-  <!-- output a warning message
+  <!-- output a warning message. If $inline is yes then the error message
+       will be included  in the HTML output.
        -->
   <xsl:template name="error_message">
     <xsl:param name="message"/>
-      <!-- default -->
+    <xsl:param name="inline" select="'yes'"/>
     <xsl:param name="warning_gif"
       select="'../../../../images/warning.gif'"/>
-    <br/> 
-    <IMG 
-      SRC="{$warning_gif}" ALT="[warning:]" 
-      align="absbottom" border="0"
-      width="20" height="20"/>
-    <font color="#FF0000" size="-1">
-      <i>
-        <xsl:value-of select="$message"/>
-      </i>
-    </font>
-    <br/>
+      
+    <xsl:if test="contains($inline,'yes')">
+      <br/> 
+      <IMG 
+        SRC="{$warning_gif}" ALT="[warning:]" 
+        align="absbottom" border="0"
+        width="20" height="20"/>
+      <font color="#FF0000" size="-1">
+        <i>
+          <xsl:value-of select="$message"/>
+        </i>
+      </font>
+      <br/>
+    </xsl:if>
+    <xsl:message>
+      <xsl:value-of select="$message"/>
+    </xsl:message>
   </xsl:template>
 
 

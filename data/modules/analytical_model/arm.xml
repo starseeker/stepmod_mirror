@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-16T15:01:26" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-11-19T09:24:39" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="analytical_model_arm schema_instance"/>
    <schema name="Analytical_model_arm">
       <interface kind="use" schema="Model_parameter_arm"/>
@@ -24,18 +24,18 @@
       <type name="signal_flow_direction">
          <enumeration items="unknown_direction not_applicable output_direction input_direction bidirectional"/>
       </type>
-      <type name="analytical_model_definition_assignment_select">
+      <type name="analytical_model_application_assignment_select">
          <select extensible="YES" genericentity="YES"/>
       </type>
       <type name="analytical_model_port_assignment_select">
          <select extensible="YES" genericentity="YES"/>
       </type>
-      <entity name="Analytical_model_definition_assignment">
+      <entity name="Analytical_model_application_assignment">
          <explicit name="assigned_item">
-            <typename name="analytical_model_definition_assignment_select"/>
+            <typename name="analytical_model_application_assignment_select"/>
          </explicit>
          <explicit name="assigned_analytical_model">
-            <typename name="Analytical_model_definition"/>
+            <typename name="Analytical_model_application"/>
          </explicit>
       </entity>
       <entity name="Analytical_model_port_assignment">
@@ -79,12 +79,6 @@
          </inverse>
       </entity>
       <entity name="Analytical_representation">
-         <inverse name="parameter" entity="Analytical_model_parameter" attribute="accessed_analytical_model">
-            <inverse.aggregate type="SET" lower="1"/>
-         </inverse>
-         <inverse name="access_mechanism" entity="Analytical_model_port" attribute="accessed_analytical_model">
-            <inverse.aggregate type="SET" lower="1"/>
-         </inverse>
          <explicit name="associated_definition">
             <typename name="Analytical_model_definition"/>
          </explicit>
@@ -100,16 +94,22 @@
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
+         <inverse name="parameter" entity="Analytical_model_parameter" attribute="accessed_analytical_model">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
+         <inverse name="access_mechanism" entity="Analytical_model_port" attribute="accessed_analytical_model">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
          <unique label="ur1">
             <unique.attribute entity-ref="Analytical_representation" attribute="associated_definition"/>
          </unique>
       </entity>
       <entity name="Analytical_model_definition" supertypes="Software_definition">
-         <inverse name="associated_model_occurrence" entity="Analytical_representation" attribute="associated_definition"/>
          <explicit name="defined_version">
             <typename name="Analytical_model_version"/>
             <redeclaration entity-ref="Product_view_definition" old_name="defined_version"/>
          </explicit>
+         <inverse name="associated_model_occurrence" entity="Analytical_representation" attribute="associated_definition"/>
       </entity>
       <entity name="Analytical_model_make_from_relationship" supertypes="Document_definition_relationship">
          <explicit name="resultant_model">

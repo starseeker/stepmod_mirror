@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.128 2004/06/30 16:33:17 thendrix Exp $
+$Id: common.xsl,v 1.129 2004/07/09 11:52:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2489,10 +2489,21 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       </xsl:choose>
     </xsl:variable>
 
+    <xsl:variable name="language">
+      <xsl:choose>
+        <xsl:when test="string-length($application_protocol/@language)">
+          <xsl:value-of select="$application_protocol/@language"/>
+        </xsl:when>
+        <xsl:otherwise>
+          E
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:variable name="orgname" select="'ISO'"/>
 
     <xsl:value-of 
-      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
+      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
 			
 </xsl:template>
 

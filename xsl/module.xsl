@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.76 2002/07/01 15:05:35 robbod Exp $
+$Id: module.xsl,v 1.77 2002/07/14 15:05:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -652,9 +652,10 @@ o=isocs; s=central<br/>
     A complete list of parts of ISO 10303 is available from the Internet: 
   </p>
   <blockquote>
-    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf/">
-      &lt;http://www.tc184-sc4.org/titles/STEP_Titles.rtf/&gt;
-    </A>.
+    &lt;
+    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf">
+      http://www.tc184-sc4.org/titles/STEP_Titles.rtf
+    </A>&gt;.
   </blockquote>
 
 

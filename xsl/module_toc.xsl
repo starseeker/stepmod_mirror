@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.40 2004/10/11 23:58:54 thendrix Exp $
+$Id: module_toc.xsl,v 1.41 2004/10/12 00:02:32 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -44,28 +44,9 @@ $Id: module_toc.xsl,v 1.40 2004/10/11 23:58:54 thendrix Exp $
     <TR>
       <TD valign="TOP">
         <p class="toc">
-          <!-- added to support iso and sc4 cover page -->
-          <xsl:choose>
-            <xsl:when test="$publication='YES'">
-              <!--              <A HREF="{$module_root}/sys/isocover{$FILE_EXT}">Cover page</A><BR/> 
-                   for publication, isocover.htm  is copied to cover.htm -->
-              <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
-            </xsl:when>
-            <xsl:when test="$ballot='YES'">
-              <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
-            </xsl:when>
-            <xsl:otherwise>
-              <A HREF="{$module_root}/sys/cover{$FILE_EXT}">SC4 cover page</A><BR/>
-              <A HREF="{$module_root}/sys/isocover{$FILE_EXT}">ISO cover page</A><BR/>
-
-            </xsl:otherwise>
-          </xsl:choose>
-
-          <!--          <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/> -->
-      
+          <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
           <A HREF="{$module_root}/sys/contents{$FILE_EXT}">Table of contents</A><BR/>
-
-          <A HREF="{$module_root}/sys/cover{$FILE_EXT}#copyright">Copyright</A><BR/>
+                    <A HREF="{$module_root}/sys/cover{$FILE_EXT}#copyright">Copyright</A><BR/>
         
           <!-- use #foreword to link direct -->
           <A HREF="{$module_root}/sys/foreword{$FILE_EXT}">Foreword</A><BR/>

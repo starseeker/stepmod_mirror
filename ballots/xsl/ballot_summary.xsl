@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.11 2003/02/27 02:22:23 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.12 2003/03/09 16:53:31 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -85,6 +85,7 @@ $Id: ballot_summary.xsl,v 1.11 2003/02/27 02:22:23 thendrix Exp $
           <td><b>Version</b></td>
           <td><b>Status</b></td>
           <td><b>Year</b></td>
+          <td><b>Abstract</b></td>
           <td><b>ARM EXPRESS</b></td>
           <td><b>ARM LF EXPRESS</b></td>          
           <td><b>MIM EXPRESS</b></td>
@@ -345,6 +346,14 @@ $Id: ballot_summary.xsl,v 1.11 2003/02/27 02:22:23 thendrix Exp $
           </xsl:choose>
         </td>
 
+        <!-- Abstract -->
+        <td>
+          <xsl:variable name="abstract_xref"
+            select="concat($stepmodhome,'/data/modules/',@name,'/sys/abstract',$FILE_EXT)"/>
+          <a href="{$abstract_xref}">
+            abstract
+          </a>
+        </td>
 
         <xsl:variable name="status"
           select="translate(translate($module_node/@status,$UPPER,$LOWER),'-_ ','')"/>        

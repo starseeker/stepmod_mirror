@@ -478,6 +478,16 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+          <xsl:attribute name="name">ABSTRACTXML</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:apply-templates select="ballot_package/module">
+              <xsl:with-param name="prefix" select="'data/modules/'"/>
+              <xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
+            </xsl:apply-templates>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
           <xsl:attribute name="name">ASHORTNAMESXML</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:apply-templates select="ballot_package/module">
@@ -1386,7 +1396,48 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-      
+
+      <!--
+<style includes="${ABSTRACTXML}" destdir="${ISODIR}"
+        extension=".htm"
+        style="${STEPMODSTYLES}/sect_abstract.xsl">
+        <param name="output_type" expression="HTM"/>
+        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+        <param name="menubar_file" expression="${ISOMENU}"/>
+</style> -->      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${ABSTRACTXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_abstract.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+
       <!--
 <style includes="${ASHORTNAMESXML}" destdir="${ISODIR}"
         extension=".htm"

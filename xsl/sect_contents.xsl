@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.27 2003/07/28 07:27:21 robbod Exp $
+$Id: sect_contents.xsl,v 1.28 2003/08/15 07:14:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -29,7 +29,9 @@ $Id: sect_contents.xsl,v 1.27 2003/07/28 07:27:21 robbod Exp $
 <xsl:template match="module">
   <xsl:apply-templates select="../module" mode="contents"/>
   <xsl:apply-templates select="../module" mode="contents_tables_figures"/>
-  <xsl:apply-templates select="../module" mode="copyright"/>
+  <!-- no longer required by ISO
+       <xsl:apply-templates select="../module" mode="copyright"/>
+       -->
 </xsl:template>
 
 <xsl:template match="module" mode="contents">
@@ -1058,6 +1060,7 @@ $Id: sect_contents.xsl,v 1.27 2003/07/28 07:27:21 robbod Exp $
 </xsl:template>
 
 
+<!-- Note - this is no longer required on the contents page by ISO -->
 <xsl:template match="module" mode="copyright">
   <!-- the copyright is already at the bottom of the page from
        module_clause.xsl -->

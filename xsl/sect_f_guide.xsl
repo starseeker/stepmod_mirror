@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_f_guide.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_f_guide.xsl,v 1.4 2002/09/02 09:09:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -30,7 +30,17 @@ $Id: sect_f_guide.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
     <xsl:with-param name="aname" select="'annexf'"/>
   </xsl:call-template>
 
-  <xsl:apply-templates select="usage_guide"/>
+  <xsl:choose>
+    <xsl:when test="usage_guide">
+      <xsl:apply-templates select="usage_guide"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <p>
+        An Application module implementation and usage guide has not been
+        provided.
+      </p>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

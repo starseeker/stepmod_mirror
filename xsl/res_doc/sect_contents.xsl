@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.20 2003/11/14 06:21:00 thendrix Exp $
+$Id: sect_contents.xsl,v 1.21 2004/02/10 23:46:03 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -30,7 +30,9 @@ $Id: sect_contents.xsl,v 1.20 2003/11/14 06:21:00 thendrix Exp $
  <xsl:template match="resource">
    <xsl:apply-templates select="../resource" mode="contents"/>
    <xsl:apply-templates select="../resource" mode="contents_tables_figures"/>
-   <xsl:apply-templates select="../resource" mode="copyright"/>
+    <!-- no longer required by ISO
+         <xsl:apply-templates select="../resource" mode="copyright"/>
+         -->
  </xsl:template>
  <xsl:template match="resource" mode="contents">
 
@@ -737,6 +739,7 @@ $Id: sect_contents.xsl,v 1.20 2003/11/14 06:21:00 thendrix Exp $
    </xsl:if>
  </xsl:template>
 
+<!-- Note - this is no longer required on the contents page by ISO -->
 
  <xsl:template match="resource" mode="copyright">
   <!-- the copyright is already at the bottom of the page from

@@ -1,0 +1,451 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.2 2001/11/21 15:38:19 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.2"
+    source="../data/modules/shape_property_assignment/mim_lf.exp"/>
+
+  <schema name="shape_property_assignment_mim">
+    <type name="characterized_definition">
+      <select
+        selectitems="characterized_product_definition shape_definition">
+      </select>
+
+    </type>
+    <type name="characterized_product_definition">
+      <select
+        selectitems="product_definition">
+      </select>
+
+    </type>
+    <type name="derived_property_select">
+      <select
+        selectitems="property_definition">
+      </select>
+
+    </type>
+    <type name="description_attribute_select">
+      <select
+        selectitems="application_context">
+      </select>
+
+    </type>
+    <type name="id_attribute_select">
+      <select
+        selectitems="application_context">
+      </select>
+
+    </type>
+    <type name="identifier">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <type name="label">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <type name="name_attribute_select">
+      <select
+        selectitems="product_definition">
+      </select>
+
+    </type>
+    <type name="shape_definition">
+      <select
+        selectitems="product_definition_shape shape_aspect shape_aspect_relationship">
+      </select>
+
+    </type>
+    <type name="text">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <entity
+      name="application_context">
+      <explicit
+        name="application">
+        <typename
+          name="label"/>
+      </explicit>
+      <derived
+        name="description"
+        expression="get_description_value(SELF)">
+        <typename
+          name="text "/>
+      </derived>
+      <derived
+        name="id"
+        expression="get_id_value(SELF)">
+        <typename
+          name="identifier "/>
+      </derived>
+      <inverse
+        name="context_elements"
+        entity="application_context_element"
+        attribute="frame_of_reference">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+      </inverse>
+      <where
+        label="wr1"
+        expression="(SIZEOF(USEDIN(SELF,'SHAPE_PROPERTY_ASSIGNMENT_MIM.' +                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1)">
+      </where>
+      <where
+        label="wr2"
+        expression="(SIZEOF(USEDIN(SELF,'SHAPE_PROPERTY_ASSIGNMENT_MIM.' +                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1)">
+      </where>
+    </entity>
+
+    <entity
+      name="application_context_element"
+      super.expression="(ONEOF (product_context,product_definition_context))">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="frame_of_reference">
+        <typename
+          name="application_context"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="description_attribute">
+      <explicit
+        name="attribute_value">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="described_item">
+        <typename
+          name="description_attribute_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="id_attribute">
+      <explicit
+        name="attribute_value">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="identified_item">
+        <typename
+          name="id_attribute_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="name_attribute">
+      <explicit
+        name="attribute_value">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="named_item">
+        <typename
+          name="name_attribute_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="product">
+      <explicit
+        name="id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="frame_of_reference">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="product_context"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="product_context"
+      supertypes="application_context_element">
+      <explicit
+        name="discipline_type">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="product_definition">
+      <explicit
+        name="id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="formation">
+        <typename
+          name="product_definition_formation"/>
+      </explicit>
+      <explicit
+        name="frame_of_reference">
+        <typename
+          name="product_definition_context"/>
+      </explicit>
+      <derived
+        name="name"
+        expression="get_name_value(SELF)">
+        <typename
+          name="label "/>
+      </derived>
+      <where
+        label="wr1"
+        expression="(SIZEOF(USEDIN(SELF,'SHAPE_PROPERTY_ASSIGNMENT_MIM.' +                'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1)">
+      </where>
+    </entity>
+
+    <entity
+      name="product_definition_context"
+      supertypes="application_context_element">
+      <explicit
+        name="life_cycle_stage">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="product_definition_formation">
+      <explicit
+        name="id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="of_product">
+        <typename
+          name="product"/>
+      </explicit>
+      <unique
+        label="ur1">
+        <unique.attribute
+          attribute="id"/>
+        <unique.attribute
+          attribute="of_product"/>
+      </unique>
+    </entity>
+
+    <entity
+      name="product_definition_shape"
+      supertypes="property_definition">
+      <unique
+        label="ur1">
+        <unique.attribute
+          attribute="definition"/>
+      </unique>
+      <where
+        label="wr1"
+        expression="(SIZEOF(['SHAPE_PROPERTY_ASSIGNMENT_MIM.CHARACTERIZED_PRODUCT_DEFINITION',               'SHAPE_PROPERTY_ASSIGNMENT_MIM.CHARACTERIZED_OBJECT'] *                TYPEOF(SELF\property_definition.definition)) &gt; 0)">
+      </where>
+    </entity>
+
+    <entity
+      name="property_definition">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="definition">
+        <typename
+          name="characterized_definition"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="shape_aspect">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="of_shape">
+        <typename
+          name="product_definition_shape"/>
+      </explicit>
+      <explicit
+        name="product_definitional">
+        <builtintype
+          type="LOGICAL"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="shape_aspect_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_shape_aspect">
+        <typename
+          name="shape_aspect"/>
+      </explicit>
+      <explicit
+        name="related_shape_aspect">
+        <typename
+          name="shape_aspect"/>
+      </explicit>
+    </entity>
+
+    <function
+      name="get_description_value">
+      <typename
+        name="text"/>
+      <parameter
+        name="obj">
+        <typename
+          name="description_attribute_select"/>
+      </parameter>
+      <algorithm>
+
+    LOCAL
+      description_bag : BAG OF description_attribute := USEDIN(obj,
+                         'SHAPE_PROPERTY_ASSIGNMENT_MIM.' + 
+                         'DESCRIPTION_ATTRIBUTE.' + 'DESCRIBED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(description_bag) = 1 THEN
+      RETURN(description_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+      </algorithm>
+
+    </function>
+
+    <function
+      name="get_id_value">
+      <typename
+        name="identifier"/>
+      <parameter
+        name="obj">
+        <typename
+          name="id_attribute_select"/>
+      </parameter>
+      <algorithm>
+
+    LOCAL
+      id_bag : BAG OF id_attribute := USEDIN(obj,
+                'SHAPE_PROPERTY_ASSIGNMENT_MIM.' + 'ID_ATTRIBUTE.' + 
+                'IDENTIFIED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(id_bag) = 1 THEN
+      RETURN(id_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+      </algorithm>
+
+    </function>
+
+    <function
+      name="get_name_value">
+      <typename
+        name="label"/>
+      <parameter
+        name="obj">
+        <typename
+          name="name_attribute_select"/>
+      </parameter>
+      <algorithm>
+
+    LOCAL
+      name_bag : BAG OF name_attribute := USEDIN(obj,
+                  'SHAPE_PROPERTY_ASSIGNMENT_MIM.' + 'NAME_ATTRIBUTE.' + 
+                  'NAMED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(name_bag) = 1 THEN
+      RETURN(name_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

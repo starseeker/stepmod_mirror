@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.4 2002/11/06 00:54:15 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -129,7 +129,7 @@
        -->
   <xsl:variable 
     name="relative_root"
-    select="'../../../'"/>
+    select="'../../../../'"/>
 
 
   <!-- +++++++++++++++++++

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.13 2002/06/21 09:35:52 robbod Exp $
+$Id: imgfile.xsl,v 1.14 2002/07/15 01:29:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -188,10 +188,10 @@ $Id: imgfile.xsl,v 1.13 2002/06/21 09:35:52 robbod Exp $
         <img align="middle" border="0" 
           alt="Index of Express-G pages" src="../../../images/home.gif"/>
       </a>
-
       <xsl:variable name="img_position">
         <xsl:number/>
       </xsl:variable>
+
       <xsl:if test="$img_position != 1">
         <!-- not first page, so start page and previous page -->
         <xsl:variable name="start">
@@ -203,12 +203,14 @@ $Id: imgfile.xsl,v 1.13 2002/06/21 09:35:52 robbod Exp $
           <img align="middle" border="0" 
             alt="First page" src="../../../images/start.gif"/>
         </a>
-        
+        <xsl:variable name="prevpos" select="position()-1"/>
         <xsl:variable name="previous">
           <xsl:call-template name="set_file_ext">
-            <xsl:with-param name="filename" select="preceding-sibling::*/@file"/>
+            <xsl:with-param name="filename" 
+              select="../imgfile[$prevpos]/@file"/>
           </xsl:call-template>
-        </xsl:variable>          
+        </xsl:variable>   
+
         <a href="./{$previous}">
           <img align="middle" border="0" 
             alt="Previous page" src="../../../images/prev.gif"/>

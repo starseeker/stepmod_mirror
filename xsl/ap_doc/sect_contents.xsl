@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.27 2003/07/31 07:29:41 robbod Exp $
+$Id: sect_contents.xsl,v 1.28 2003/07/31 08:57:57 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -538,6 +538,12 @@ $Id: sect_contents.xsl,v 1.27 2003/07/31 07:29:41 robbod Exp $
       <br/>
     </xsl:for-each>
   </xsl:if>
+  &#160;&#160;&#160;&#160;&#160;
+  <a href="./annex_aam{$FILE_EXT}#activity_diags" target="{$target}">
+      F.2 Application activity model diagrams 
+  </a>
+  <br/>
+
 </xsl:template>
 
 <xsl:template match="reqtover" mode="toc">

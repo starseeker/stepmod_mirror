@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_aam.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
+$Id: sect_annex_aam.xsl,v 1.5 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -36,7 +36,11 @@ $Id: sect_annex_aam.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
 		</xsl:variable>
 		
 		<xsl:apply-templates select="document(string($aam_path))/idef0"/>
-		<h2>F.2 Application activity model diagrams</h2>
+		<h2>
+                  <a name="activity_diags">
+                    F.2 Application activity model diagrams
+                  </a>
+                </h2>
 		<xsl:apply-templates select="aam"/>
 	</xsl:template>
 

@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.13 2004/10/20 10:23:14 robbod Exp $
+//$Id: checkModuleMain.js,v 1.14 2004/12/07 21:12:47 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -151,8 +151,6 @@ function NameModule(module) {
 } 
 
 function normalizeSpace(str) {
-    // Use a regular expression to replace leading and trailing 
-    // spaces with the empty string
     var strN = str.replace(/(^\s*)|(\s*$)/g, "");
     // no whitespace replace with  _
     re = / /g;
@@ -209,33 +207,36 @@ function getExpXml(moduleName,armmim) {
 }
 
 function getExpId(moduleName,armmim) {
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
-    var expFileName = "../data/modules/"+moduleName+"/"+armmim+".exp";
-    if (fso.FileExists(expFileName)) {
+  var fso = new ActiveXObject("Scripting.FileSystemObject");
+  var expFileName = "../data/modules/"+moduleName+"/"+armmim+".exp";
+  if (fso.FileExists(expFileName)) {
 	var expF = fso.GetFile(expFileName);
 	var expTs = expF.OpenAsTextStream(ForReading, TristateUseDefault);
 	while (!expTs.AtEndOfStream)
-	    {
+	  {
 		var l = expTs.ReadLine();
 		// find (* then read the next three lines
 		var reg = /\(\*/;
 		if (l.match(reg)) {
 		    
-		    var l1 = expTs.ReadLine(); //ID
-		    var l2 = expTs.ReadLine(); // Number
-		    var l3 = expTs.ReadLine(); // *) or Supersedes
-		    reg = /\*\)/;
-		    if (l3.match(reg)) {
+		  var l1 = expTs.ReadLine(); //ID
+		  var l2 = expTs.ReadLine(); // Number
+		  var l3 = expTs.ReadLine(); // *) or Supersedes
+		  reg = /\*\)/;
+		  if (l3.match(reg)) {
 			return(normalizeSpace(l2));
-		    } else {
+		  } else {
 			return(normalizeSpace(l2)+normalizeSpace(l3));
-		    }
-		}
+		  }
+		} else {
+		  errorMessage(expFileName+" getExpId can not find header");
+		  return("");		  
 	    }
-    } else {
+	  }
+  } else {
 	errorMessage(expFileName+" does not exist");
 	return("");
-    }
+  }
 }
 
 function getExpSchema(moduleName,armmim) {
@@ -608,7 +609,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.13 2004/10/20 10:23:14 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.14 2004/12/07 21:12:47 robbod Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1 2002/04/30 20:52:52 joshualubell Exp $ -->
+<!-- $Id: build.xml,v 1.2 2002/05/07 16:24:13 joshualubell Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -67,6 +67,7 @@ tar.gz format)
   <target name="init" description="initialize variables">
     <tstamp/>
     <property name="STYLES"  value="xsl"/>
+    <property name="DTDDIR" value="dtd"/>
     <property name="RESOURCESDIR" value="data/resources"/>
     <property name="RESOURCES" value="${RESOURCESDIR}/**"/>
     <property name="MODULESDIR" value="data/modules"/>
@@ -82,17 +83,18 @@ tar.gz format)
   <target name="clean" depends="init" description="delete generated files">
     <delete>
       <fileset dir="." includes="repository_index.htm*"/>
-    </delete>
-    <delete>
       <fileset dir="${RESOURCESDIR}" includes="**/*.htm*"/>
-    </delete>
-    <delete>
       <fileset dir="${MODULESDIR}" includes="**/*.htm*"/>
     </delete>
   </target>
 
   <target name="index" depends="init" 
           description="generate repository index">
+    <dependset>
+      <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="repository_index.htm*"/>
+    </dependset>
     <style includes="repository_index.xml" destdir="."
 	   extension=".htm"
 	   style="${STYLES}/repository_index.xsl">
@@ -102,6 +104,11 @@ tar.gz format)
 
   <target name="resources" depends="init" 
           description="generate integrated resources">
+    <dependset>
+      <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="${RESOURCES}/*.htm*"/>
+    </dependset>
     <style includes="${RESOURCES}/*.xml"
            destdir="." extension=".htm"
 	   style="${STYLES}/express.xsl">
@@ -111,6 +118,11 @@ tar.gz format)
 
   <target name="modules" depends="init" 
           description="generate modules">
+    <dependset>
+      <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="${MODULES}/*.htm*"/>
+    </dependset>
     <style includes="${MODULES}/arm.xml, ${MODULES}/mim.xml,
 	   ${MODULES}/mim_lf.xml" destdir="." extension=".htm"
 	   style="${STYLES}/express.xsl">

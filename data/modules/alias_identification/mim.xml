@@ -1,27 +1,77 @@
 <?xml version="1.0"?>
-<!-- $Id: mim.xml,v 1.9 2002/05/27 22:05:27 darla Exp $ -->
+<!-- $Id: express2xml.js,v 1.12 2002/06/06 07:52:56 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/05/27 22:05:27 $"
-  rcs.revision="$Revision: 1.9 $"
-  description.file="mim_descriptions.xml">
-  
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.12"
+    source="../data/modules/alias_identification/mim.exp"/>
+
   <schema name="Alias_identification_mim">
     <interface
       kind="use"
       schema="Identification_assignment_mim">
     </interface>
 
-    <type name="alias_identification_item">
+    <type name="aliasable_item">
       <select
-        extensible="YES"
-        basedon="identification_item"
-        selectitems="null">
+        extensible="YES">
       </select>
 
     </type>
+    <rule
+      name="aliases_are_valid"
+      appliesto="applied_identification_assignment">
+      <algorithm>
+WHERE
+  WR1: SIZEOF(QUERY(aia &lt;* applied_identification_assignment | 
+		NOT alias_assignment_is_valid(aia)))=0;
+      </algorithm>
+
+    </rule>
+
+    <function
+      name="alias_assignment_is_valid">
+      <parameter
+        name="aia">
+        <typename
+          name="applied_identification_assignment"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+LOCAL
+  item: identification_item;
+  role: identification_role;
+END_LOCAL;
+
+role:= aia.role;
+IF role.name='alias' THEN
+  REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
+    item:= aia.items[i];
+
+    IF (SIZEOF(['ALIAS_IDENTIFICATION_MIM.' + 'ALIASABLE_ITEM']*TYPEOF(item))=0) THEN
+-- item invalid if item does not belong to aliasable types
+	RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+
+ELSE		-- case where aia does not convey an alias
+  RETURN(TRUE);
+END_IF;
+      </algorithm>
+
+    </function>
+
   </schema>
 
 </express>

@@ -1,150 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.13 2002/05/09 18:45:44 buchanan Exp $ -->
+<!-- $Id: module.xml,v 1.14 2002/05/27 22:46:15 darla Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 
 <module 
-		name="approval" 
-		part="1012" 
-		wg.number="N711" 
-		version="1" 
-		status="TS" 
-		language="E" 
-		publication.year="2002" 
-		published="n" 
-		rcs.date="$Date: 2002/05/09 18:45:44 $" 
-		rcs.revision="$Revision: 1.13 $">
+	name="approval" 
+	part="1012" 
+	wg.number="1086"
+	wg.number.supersedes="711"
+	checklist.internal_review="1056"
+	checklist.project_leader="1057"
+	checklist.convener="1058"	  
+	version="1" 
+	status="TS" 
+	language="E" 
+	publication.year="2002" 
+	published="y" 
+	rcs.date="$Date: 2002/05/27 22:46:15 $" 
+	rcs.revision="$Revision: 1.14 $">
 	<keywords>
-   		 module, approval
+   		 module, approval, approval status
  	</keywords>
 	<contacts>
 		<projlead ref="pdmmodules.projlead"/>
 		<editor ref="pdmmodules.editor"/>
 	</contacts>
-	<purpose>The Approval application module supports the requirement to record that an organization or person in an organization is to provide or has provided some degree of consent or dissent on a particular date or date and time for some product data.</purpose>
+	<purpose>The Approval application module supports the requirement for describing approval. 
+	</purpose>
 	<inscope>
-		<li>indicating an approval is needed;</li>
-		<li>indicating the status of the represented approval;</li>
-		<li>relating the approval to product data;</li>
-		<li>erelating approvals to one another;</li>
-		<li>indicating what organization's concurrence is requested or has been given;</li>
-		<li>indicating what discipline/function in an organization's concurrence is requested or has been given;</li>
-		<li>indicating what person in a discipline/function in an organization's concurrence is requested or has been given;</li>
-		<li>indicating what person in an organization's concurrence is requested or has been given;</li>
-		<li>indicating that a requested approval was denied;</li>
-		<li>indicating when an approval was given or was denied by means of a date and optionally a time;</li>
-		<li>indicating what the approval is for.</li>
-	</inscope>
+		<li>characterization of an approval;</li>
+		<li>assignment of an approval to product or activity data;</li>
+		<li>relationship between two approvals;</li>
+		<li>identification of an approval status.</li>
+  </inscope>
 	<outscope>
-		<li>the delineation of what elements of product data may be appproved or disapproved;</li>
-		<li>all concepts not involved in the specification of Approval.</li>
+		<li>delineation of what elements of product or activity data may be appproved or disapproved;</li>
 	</outscope>
 	<normrefs>
 		<normref.inc normref="ref10303-41.2000"/>
 	</normrefs>
 	<arm>
 		<uof name="Approval">
-			<description>The Approval UoF specifies the definitional information for the concept of approval.</description>
+			<description>The Approval UoF specifies the data structure for the representation of
+approval information assigne to activity or to product data.
+			</description>
 			<uof.ae entity="Approval"/>
 			<uof.ae entity="Approval_assignment"/>
 			<uof.ae entity="Approval_relationship"/>
+			<uof.ae entity="Approval_status"/>
+			<uof.ae entity="Approving_person_organization"/>
 		</uof>
-	<!--
-		<uoflink module="date_time" uof="Date_Time"/>
-		<uoflink module="person_organization" uof="Person_Organization"/>
-	-->
 		<express-g>
 			<imgfile file="armexpg1.xml"/>
-				<imgfile file="armexpg2.xml"/>
+			<imgfile file="armexpg2.xml"/>
 		</express-g>
 	</arm>
 	<mapping_table>
-		<ae entity="APPROVAL">
+		<ae entity="Approval">
 			<aimelt>approval</aimelt>
 			<source>41</source>
-			<aa attribute="approver">
-				<aimelt>approval_person_organization.person_organization</aimelt>
-				<source>41</source>
-				<refpath>approval &lt;- 
-approval_person_organization.authorized_approval
-approval_person_organization
-approval_person_organization.person_organization -&gt;
-person_organization_select
-(person_organization_select = person_and_organization
-person_and_organization)
-(person_organization_select = organization
-organization)</refpath>
-			</aa>
-			<aa attribute="discipline">
-				<aimelt>approval_role.role</aimelt>
-				<source>41</source>
-				<refpath>approval &lt;- 
-approval_person_organization.authorized_approval
-approval_person_organization
-approval_person_organization.role -&gt;
-approval_role
-approval_role.role</refpath>
-			</aa>
-			<aa attribute="planned_date">
-				<aimelt>PATH</aimelt>
-				<source>41</source>
-				<refpath>approval &lt;- 
-approval_date_time.dated_approval
-approval_date_time
-{approval_date_time.role -&gt;
-object_role
-object_role.name='planned'}
-approval_date_time.date_time -&gt;
-date_time_select
-(date_time_select = date_and_time
-date_and_time)
-(date_time_select = date
-date =&gt; calendar_date)</refpath>
-			</aa>
-			<aa attribute="actual_date">
-				<aimelt>PATH</aimelt>
-				<source>41</source>
-				<refpath>approval &lt;-
-approval_date_time.dated_approval
-approval_date_time
-{approval_date_time.role -&gt;
-object_role
-object_role.name='actual'}
-approval_date_time.date_time-&gt;
-date_time_select
-(date_time_select = date_and_time
-date_and_time)
-(date_time_select = date
-date =&gt; calendar_date)</refpath>
+			<aa attribute="status" assertion_to="Approval_status">
+				<aimelt>approval_status.name</aimelt>
+				<source>PATH</source>
+				<refpath>
+				  approval.status-&gt;
+					approval_status
+					approval_status.name
+				</refpath>
 			</aa>
 			<aa attribute="purpose">
 				<aimelt>approval.level</aimelt>
 				<source>41</source>
 			</aa>
-			<aa attribute="status">
-				<aimelt>approval_status.name</aimelt>
+			<aa attribute="planned_date" assertion_to="date_or_date_time_select">
+				<aimelt>PATH</aimelt>
+				<refpath>approval &lt;- 
+				  approval_date_time.dated_approval
+					approval_date_time
+					{approval_date_time.role -&gt;
+					object_role
+					object_role.name='planned'}
+					approval_date_time.date_time -&gt;
+					date_time_select
+					{(date_time_select = date_and_time)
+					(date_time_select = date
+					date =&gt; calendar_date)}
+				</refpath>
+			</aa>
+			<aa attribute="actual_date" assertion_to="date_or_date_time_select">
+				<aimelt>PATH</aimelt>
+				<refpath>approval &lt;-
+				  approval_date_time.dated_approval
+					approval_date_time
+					{approval_date_time.role -&gt;
+					object_role
+					object_role.name='actual'}
+					approval_date_time.date_time -&gt;
+					date_time_select
+					{(date_time_select = date_and_time)
+					(date_time_select = date
+					date =&gt; calendar_date)}
+				</refpath>
+			</aa>
+			<aa attribute="approvers" assertion_to="Approving_person_organization">
+				<aimelt>PATH</aimelt>
 				<source>41</source>
-				<refpath>approval
-approval.status-&gt;
-approval_status
-approval_status.name</refpath>
+				<refpath>approval &lt;- 
+					approval_person_organization.authorized_approval
+				  approval_person_organization				
+				</refpath>
 			</aa>
 		</ae>
-		<ae entity="APPROVAL_ASSIGNMENT">
-			<aimelt>approval_assignment</aimelt>
+
+
+		<ae entity="Approval_assignment">
+			<aimelt>applied_approval_assignment</aimelt>
 			<source>41</source>
-			<aa attribute="assigned_approval">
-				<aimelt>approval_assignment.assigned_approval</aimelt>
-				<source>41</source>
+			<refpath>
+			approval_assignment &lt;= applied_approval_assignment
+			</refpath>
+			<aa attribute="assigned_approval" assertion_to="Approval">
+				<aimelt>PATH</aimelt>
+				<refpath>
+					approval_assignment.assigned_approval -&gt; approval
+			  </refpath>
 			</aa>
-			<aa attribute="items">
-				<aimelt>applied_approval_assignment.items</aimelt>
-				<source>1012</source>
-				<refpath>approval_assignment &lt;=
-applied_approval_assignment
-applied_approval_assignment.items</refpath>
+			<aa attribute="items" assertion_to="approval_item">
+				<aimelt>PATH</aimelt>
+				<refpath>
+					applied_approval_assignment.items[i] -&gt; approval_item
+				</refpath>
 			</aa>
 		</ae>
-		<ae entity="APPROVAL_RELATIONSHIP">
+		
+		<ae entity="Approval_relationship">
 			<aimelt>approval_relationship</aimelt>
 			<source>41</source>
 			<aa attribute="relation_type">
@@ -155,49 +143,98 @@ applied_approval_assignment.items</refpath>
 				<aimelt>approval_relationship.description</aimelt>
 				<source>41</source>
 			</aa>
-			<aa attribute="approval1">
-				<aimelt>approval_relationship.relating_approval</aimelt>
-				<source>41</source>
+			<aa attribute="relating_approval" assertion_to="Approval">
+				<aimelt>PATH</aimelt>
+				<refpath>
+				approval_relationship.relating_approval -&gt; approval
+				</refpath>
 			</aa>
-			<aa attribute="approval2">
-				<aimelt>approval_relationship.related_approval</aimelt>
+			<aa attribute="related_approval" assertion_to="Approval">
+				<aimelt>PATH</aimelt>
+				<refpath>
+				approval_relationship.related_approval -&gt; approval
+				</refpath>
+			</aa>
+		</ae>
+		<ae entity="Approval_status">
+			<aimelt>approval_status</aimelt>
+			<source>41</source>
+			<aa attribute="status_name">
+				<aimelt>approval_status.name</aimelt>
 				<source>41</source>
 			</aa>
 		</ae>
+
+		<ae entity="Approving_person_organization">
+			<aimelt>approval_person_organization</aimelt>
+			<alt>
+			#1: if a calendar date is specified for the date of approval  sign-off
+			#2: if a date and time is specified for the date of approval sign-off
+			</alt>
+			<source>41</source>
+			<aa attribute="person_organisation" assertion_to="organization_or_person_in_organization_select" >
+				<aimelt>PATH</aimelt>
+				<refpath>
+				  approval_person_organization 
+					approval_person_organization.person_organization -&gt; person_organization_select
+					{(person_organization_select = organization)
+				  (person_organization_select = person_and_organization)}					
+			  </refpath>
+			</aa>
+			<aa attribute="approval_date" assertion_to="date_or_date_time_select">
+				<aimelt>PATH</aimelt>
+				<refpath>
+(#1: date_item = approval_person_organization
+date_item &lt;-
+applied_date_assignment.items[i]
+applied_date_assignment &lt;=
+date_assignment
+{date_assignment.role -&gt;
+date_role
+date_role.name = 'sign off'}
+{date_assignment.assigned_date -&gt; date
+date =&gt; calendar_date})
+(#2: date_and_time_item = approval_person_organization
+date_and_time_item &lt;-
+applied_date_and_time_assignment.items[i]
+applied_date_and_time_assignment &lt;=
+date_and_time_assignment
+{date_and_time_assignment.role -&gt;
+date_time_role
+date_time_role.name = 'sign off'})
+
+				</refpath>
+			</aa>
+		</ae>
+		
 	</mapping_table>
-        <note number="1">The status is 'approved', 'dissaproved' or 'withdrawn', the actual_date shall exist.</note>
 	<mim>
 		<express-g>
 			<imgfile file="mimexpg1.xml"/>
 		</express-g>
+  	<shortnames>
+      <shortname name="APAPAS" entity="applied_aproval_assignment"/> 
+ 	  </shortnames>
 	</mim>
-	<usage_guide><description><p>This clause describes usages of this module. This module shall be used in the context of another module (e.g. Product and version identification) in order to define what elements of product data can have approvals.</p>
-			<p>The recording of an approval involves an organization (and typically a person in that organization), a status, a role and a date.</p>
-			<example number="1"><p>If Joe J. User from NATO approved an item for release by design engineering on 4/1/1999, the data structure would appear as:</p>
-				<screen>
+	  <usage_guide>
+	    <description>
+	      <p>This clause describes usages of this module. </p>	
+<example>
+Joe J. User from ISO approved an item for release by tool procurement on 4/1/1999.  
+	     A representation of his approval is:
+<screen>
 #1110=APPROVAL_STATUS('approved');
-
-#1111=APPROVAL(#1110,'release for tool procurement');
-
+#1111=APPROVAL(#1110,'Release for tool procurement');
 #1113=PERSON('joejuser','User','Joe',('J'),$,$);
-
-#1114=ORGANIZATION('nato.int','NATO','North Atlantic Treaty Organization');
-
+#1114=ORGANIZATION('iso.org','ISO','International Standardization Organization');
 #1115=PERSON_AND_ORGANIZATION(#1113,#1114);
-
-#1118=APPROVAL_ROLE('DESIGN ENGINEERING Manager');
-
+#1118=APPROVAL_ROLE('Quality Insurance');
 #1119=APPROVAL_PERSON_ORGANIZATION(#1115,#1111,#1118);
-
 #1120=CALENDAR_DATE(1999,1,4);
-
 #1125=APPROVAL_DATE_TIME(#1120,#1111);
 </screen>
-			</example>
-			<example number="2">The Approval of an assembly is dependent on the Approval of all of the constituents of the assembly.
-			</example>
-			<example number="3">In two parallel sequences of approvals for two assemblies a certain approval of one assembly may be dependent on a certain approval of the second assembly.
-			</example>
-		</description>
-	</usage_guide>
+	 </example>
+
+	</description>
+ </usage_guide>
 </module>

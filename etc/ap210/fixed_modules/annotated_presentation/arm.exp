@@ -1,0 +1,131 @@
+(*
+  $Id: arm.exp,v 1.2 2005/03/04 20:52:01 thendrix Exp $
+  ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Annotated presentation - EXPRESS ARM
+*) 
+
+
+SCHEMA Annotated_presentation_arm;
+
+USE FROM Appearance_assignment_arm;    -- ISO/TS 10303-1001
+
+USE FROM Associative_text_arm;    -- ISO/TS 10303-1132
+
+-- USE FROM Construction_geometry_arm;    -- ISO/TS 10303-1131 -- TO be removed as covered by basic_geometry_arm used by fill_area
+
+USE FROM Contextual_shape_positioning_arm;    -- ISO/TS 10303-1027
+
+USE FROM Curve_appearance_arm;    -- ISO/TS 10303-1003
+
+USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
+
+USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
+
+USE FROM General_surface_appearance_arm;    -- ISO/CD-TS 10303-1007
+
+USE FROM Group_arm;    -- ISO/TS 10303-1113
+
+USE FROM Layer_assignment_arm;    -- ISO/TS 10303-1008
+
+USE FROM Fill_area_arm; -- ISO/TS 10303-1672
+
+TYPE annotated_appearance_context = SELECT BASED_ON appearance_context WITH 
+   (Group, 
+    Layer, 
+    View, 
+    View_area);
+END_TYPE; 
+
+TYPE annotation_select = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Annotation_element, 
+    Draughting_callout);
+END_TYPE; 
+
+TYPE area_select = EXTENSIBLE GENERIC_ENTITY SELECT
+   (View_area);
+END_TYPE; 
+
+TYPE draughting_callout_content_select = SELECT
+   (Annotation_curve, 
+    Annotation_subfigure, 
+    Annotation_symbol, 
+    Text);
+END_TYPE; 
+
+TYPE presentation_association_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+TYPE symbol_definition_select = SELECT
+   (Dimension_symbol, 
+    General_symbol, 
+    Geometric_tolerance_symbol, 
+    Marker, 
+    Surface_condition_symbol, 
+    Terminator);
+END_TYPE; 
+
+TYPE view_placement_select = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Axis_placement_mapping, 
+    Cartesian_transformation_2d, 
+    Mapping_based_template_instance);
+END_TYPE; 
+
+ENTITY Annotation_subfigure
+  SUBTYPE OF (Annotation_element);
+END_ENTITY;
+
+ENTITY Annotation_symbol
+  SUBTYPE OF (Annotation_element);
+  symbol_definition : symbol_definition_select;
+END_ENTITY;
+
+ENTITY Dimension_symbol;
+END_ENTITY;
+
+ENTITY Draughting_callout
+  SUBTYPE OF (Representation_item);
+  contents : LIST[1:?] OF draughting_callout_content_select;
+END_ENTITY;
+
+ENTITY General_symbol;
+END_ENTITY;
+
+ENTITY Geometric_tolerance_symbol;
+END_ENTITY;
+
+ENTITY Styled_annotation_model
+  SUBTYPE OF (Styled_model);
+  is_defined_in : Geometric_coordinate_space;
+END_ENTITY;
+
+ENTITY Surface_condition_symbol;
+END_ENTITY;
+
+ENTITY View;
+  id : OPTIONAL STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  layout : area_select;
+  view_placement : view_placement_select;
+  view_space : Geometric_coordinate_space;
+END_ENTITY;
+
+ENTITY View_area;
+  name : OPTIONAL STRING;
+  description : OPTIONAL STRING;
+  size : REAL;
+END_ENTITY;
+
+ENTITY View_area_assignment;
+  associated_view_area : View_area;
+  is_describing : presentation_association_select;
+END_ENTITY;
+
+ENTITY View_area_relationship;
+  description : OPTIONAL STRING;
+  related : View_area;
+  relating : View_area;
+  relationship_type : STRING;
+END_ENTITY;
+
+END_SCHEMA;  -- Annotated_presentation_arm
+

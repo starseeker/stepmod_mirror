@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.16 2003/03/19 00:36:23 thendrix Exp $
+$Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -321,7 +321,7 @@ $Id: sect_contents.xsl,v 1.16 2003/03/19 00:36:23 thendrix Exp $
 
    <xsl:apply-templates select="./inscope//figure" mode="toc"/>
    <xsl:apply-templates select="./outscope//figure" mode="toc"/>
-   <!-- collect up the EXpressG figures from the schemas -->
+   <!-- collect up the EXPRESS-G figures from the schemas -->
    <xsl:apply-templates 
      select="./schema//imgfile" mode="expressg_figure"/>
    <!-- collect up the figures from the remaining annexes --> 

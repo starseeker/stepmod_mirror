@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.88 2003/03/13 19:17:05 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.89 2003/04/09 10:48:13 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2364,7 +2364,7 @@
   <xsl:apply-templates select="./*" mode="underlying"/>
   <xsl:choose>
     <xsl:when test="position()!=last()">
-      <xsl:text>, </xsl:text>
+      <xsl:text>; </xsl:text>
     </xsl:when>
     <xsl:otherwise>
       <xsl:text>)</xsl:text>

@@ -4,10 +4,22 @@
 	
 	<!-- xsl:variable name="namespace_prefix" select="string('ap239:')"/ -->
 	<xsl:variable name="module_directory_name" select="//module_clause/@directory"/>
-	<xsl:variable name="ap_namespace_file" select="document(concat('../../data/modules/', $module_directory_name, '/ap_namespace.xml'))"/>
+	<xsl:variable name="dex_directory_name" select="//dex_clause/@directory"/>
+	<xsl:variable name="directory_name">
+		<xsl:choose>
+			<xsl:when test="string-length($dex_directory_name)>0">
+				<xsl:value-of select="$dex_directory_name"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$module_directory_name"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	
+	<xsl:variable name="ap_namespace_file" select="document(concat('../../data/modules/', $directory_name, '/ap_namespace.xml'))"/>
 	<xsl:variable name="schema_name" select="$ap_namespace_file//dummy/@schema_name"/>
 	<xsl:variable name="namespace_prefix" select="concat($ap_namespace_file//dummy/@ns_prefix_name, ':')"/>
-	<!-- xsl:variable name="configuration" select="document('p28_config.xml')"/ -->
+	
 	
 	<xsl:template match="/">
 				<xsl:apply-templates select="express"/>
@@ -23,7 +35,7 @@
 		<xsl:element name="xs:schema">
 			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:xs/', $schema_name)"/></xsl:attribute>
 			<xsl:copy-of select="document('../../dtd/part28/ex_namespace.xml')/*/namespace::ex"/>
-			<xsl:copy-of select="document(concat('../../data/modules/', $module_directory_name, '/ap_namespace.xml'))/*/namespace::*"/>
+			<xsl:copy-of select="document(concat('../../data/modules/', $directory_name, '/ap_namespace.xml'))/*/namespace::*"/>
 			<xsl:text>&#xa;</xsl:text>
 			
 			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
@@ -80,7 +92,7 @@
 			<xsl:text>&#xa;</xsl:text>
 			
 			<!-- SYNTHETIC ENTITIES -->
-			<xsl:variable name="configuration" select="document(concat('../../data/modules/', $module_directory_name, '/p28_config.xml'))"/>
+			<xsl:variable name="configuration" select="document(concat('../../data/modules/', $directory_name, '/p28_config.xml'))"/>
 			
 			<xsl:for-each select="$configuration//ex:entity">
 				<xsl:variable name="synthetic_entity_name" select="./@name"/>
@@ -95,7 +107,7 @@
 				</xsl:call-template>
 			</xsl:for-each>
 		</xsl:element>
-		<xsl:text>&#xa;</xsl:text>FUCK
+		<xsl:text>&#xa;</xsl:text>
 	</xsl:template>
 	
 	<!-- xsl:template match="entity" mode="and_ors">

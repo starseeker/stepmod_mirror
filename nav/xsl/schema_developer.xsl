@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.1 2002/09/15 21:44:48 robbod Exp $
+$Id: schema_developer.xsl,v 1.1 2002/09/16 09:25:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -118,7 +118,7 @@ $Id: developer.xsl,v 1.1 2002/09/15 21:44:48 robbod Exp $
   </xsl:variable>
   <xsl:value-of 
       select="concat('&lt;express_ref linkend=&quot;',
-              $module,':ir_express:'$linkend,'&quot;/&gt;')"/>  
+              $module,':ir_express:',$linkend,'&quot;/&gt;')"/>  
 </xsl:template>
 
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.59 2002/08/12 06:36:38 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.60 2002/08/14 06:45:28 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1759,9 +1759,12 @@
 </xsl:template>
 
 <xsl:template match="algorithm" mode="code">
-  <pre>
-    <xsl:value-of select="."/>
-  </pre>
+  <!-- empty algorithms are sometimes output so ignore -->
+  <xsl:if test="string-length(normalize-space(.))>0">
+    <pre>
+      <xsl:value-of select="."/>
+    </pre>
+  </xsl:if>
 </xsl:template>
 
 <!-- empty template to prevent the algorithm element being out put along
@@ -1900,6 +1903,7 @@
 
 <xsl:template name="output_rule_argument">
   <xsl:param name="arg"/>
+  <p class="expressdescription">
     <b>
       <xsl:value-of select="concat($arg,' : ')"/>
     </b>
@@ -1910,7 +1914,8 @@
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
       <xsl:with-param name="clause" select="'section'"/>
-    </xsl:call-template>  
+    </xsl:call-template>
+  </p>
 </xsl:template>
 
 

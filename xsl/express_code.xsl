@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.39 2002/08/12 06:36:38 goset1 Exp $
+     $Id: express_code.xsl,v 1.40 2002/08/14 06:45:28 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -669,9 +669,12 @@
 
 
 <xsl:template match="algorithm" mode="code">
-  <pre>
-    <xsl:value-of select="."/>
-  </pre>
+  <!-- empty algorithms are sometimes output so ignore -->
+  <xsl:if test="string-length(normalize-space(.))>0">
+    <pre>
+      <xsl:value-of select="."/>
+    </pre>
+  </xsl:if>
 </xsl:template>
 
 <!-- empty template to prevent the algorithm element being out put along

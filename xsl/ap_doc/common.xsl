@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.17 2003/06/02 10:34:48 robbod Exp $
+$Id: common.xsl,v 1.18 2003/06/02 14:12:48 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -75,10 +75,9 @@ $Id: common.xsl,v 1.17 2003/06/02 10:34:48 robbod Exp $
         <xsl:template match="application_protocol" mode="TOCbannertitle">
 		<xsl:param name="selected"/>
 		<xsl:param name="module_root" select="'..'"/>
-		<xsl:call-template name="rcs_output_ap">
-			<xsl:with-param name="module" select="@module_name"/>
-			<xsl:with-param name="module_root" select="$module_root"/>
-		</xsl:call-template>
+		<xsl:apply-templates select="." mode="rcs_output_ap">
+                  <xsl:with-param name="apdoc_root" select="$module_root"/>
+                </xsl:apply-templates>
 
 		<TABLE cellspacing="0" border="0" width="100%">
 			<tr>
@@ -116,20 +115,18 @@ $Id: common.xsl,v 1.17 2003/06/02 10:34:48 robbod Exp $
 		</TABLE>
 	</xsl:template>
 	
-	<xsl:template name="rcs_output_ap">
-          <xsl:param name="module" select="@name"/>
-          <xsl:param name="module_root" select="'..'"/>
-          <xsl:variable name="icon_path" select="concat($module_root,'/../../../images/')"/>
+
+	<xsl:template match="application_protocol" mode="rcs_output_ap">
+          <xsl:param name="apdoc_root" select="'..'"/>
+          <xsl:variable name="icon_path" select="concat($apdoc_root,'/../../../images/')"/>
           <xsl:if test="$output_rcs='YES'">
             <xsl:variable name="ap_mod_dir">
               <xsl:call-template name="application_protocol_directory">
-                <xsl:with-param name="application_protocol" select="$module"/>
+                <xsl:with-param name="application_protocol" select="@name"/>
               </xsl:call-template>
             </xsl:variable>
             <xsl:variable name="fldr_gif" select="concat($icon_path,'folder.gif')"/>
-            <xsl:variable name="proj_gif"
-              select="concat($icon_path,'project.gif')"/>
-
+            <xsl:variable name="proj_gif" select="concat($icon_path,'project.gif')"/>
             <xsl:variable name="ap_file" select="document(concat($ap_mod_dir,'/application_protocol.xml'))"/>
             <xsl:variable name="ap_date" select="translate($ap_file/application_protocol/@rcs.date,'$','')"/>
             <xsl:variable name="ap_rev" select="translate($ap_file/application_protocol/@rcs.revision,'$','')"/>
@@ -138,17 +135,17 @@ $Id: common.xsl,v 1.17 2003/06/02 10:34:48 robbod Exp $
               <tr>
                 <td>
                   <p class="rcs">
-                    <a href="{$module_root}">
+                    <a href="{$apdoc_root}">
                       <img alt="module folder" border="0" align="middle" src="{$fldr_gif}"/>
                     </a>&#160;
                     <xsl:if test="@development.folder">
                       <xsl:variable name="prjmg_href" 
-                        select="concat($module_root,'/',@development.folder,'/projmg',$FILE_EXT)"/>
+                        select="concat($apdoc_root,'/',@development.folder,'/projmg',$FILE_EXT)"/>
                       <a href="{$prjmg_href}">
                         <img alt="project management summary" border="0" align="middle" src="{$proj_gif}"/>
                       </a>&#160;
                       <xsl:variable name="issue_href" 
-                        select="concat($module_root,'/',@development.folder,'/issues',$FILE_EXT)"/>
+                        select="concat($apdoc_root,'/',@development.folder,'/issues',$FILE_EXT)"/>
                       <xsl:variable name="issues_file" 
                         select="concat($ap_mod_dir,'/',@development.folder,'/issues.xml')"/>
 
@@ -197,53 +194,14 @@ $Id: common.xsl,v 1.17 2003/06/02 10:34:48 robbod Exp $
                     </p>
                   </font>
                 </td>
-
-                <!--
-                <td>&#160;&#160;</td>
-                <xsl:variable name="arm_file" select="concat($ap_mod_dir,'/arm.xml')"/>
-                <xsl:variable name="arm_date" select="translate(document($arm_file)/express/@rcs.date,'$','')"/>
-                <xsl:variable name="arm_rev" select="translate(document($arm_file)/express/@rcs.revision,'$','')"/>
-                <td>
-                  <font size="-2">
-                    <p class="rcs">
-                      <xsl:value-of select="'arm.xml'"/>
-                    </p>
-                  </font>
-                </td>
-                <td>
-                  <font size="-2">
-                    <p class="rcs">
-                      <xsl:value-of select="concat('(', $arm_date,' ',$arm_rev,')')"/>
-                    </p>
-                  </font>
-                </td>
-                <td>&#160;&#160;</td>
-                <xsl:variable name="mim_file" select="concat($ap_mod_dir,'/mim.xml')"/>
-                <xsl:variable name="mim_date" select="translate(document($mim_file)/express/@rcs.date,'$','')"/>
-                <xsl:variable name="mim_rev" select="translate(document($mim_file)/express/@rcs.revision,'$','')"/>
-                <td>
-                  <font size="-2">
-                    <p class="rcs">
-                      <xsl:value-of select="'mim.xml'"/>
-                    </p>
-                  </font>
-                </td>
-                <td>
-                  <font size="-2">
-                    <p class="rcs">
-                      <xsl:value-of select="concat('(', $mim_date, ' ', $mim_rev, ')')"/>
-                    </p>
-                  </font>
-                </td>
-                -->
               </tr>
             </table>
           </xsl:if>
         </xsl:template>
-	
+
 	
 	<xsl:template match="img">
-  <xsl:param name="alt"/>
+          <xsl:param name="alt"/>
 
   <xsl:variable name="src">
     <xsl:choose>

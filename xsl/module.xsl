@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.134 2003/03/13 19:16:56 robbod Exp $
+$Id: module.xsl,v 1.135 2003/03/18 14:28:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -457,6 +457,46 @@ o=isocs; s=central<br/>
       </xsl:if>
       and is ready for 
       <xsl:value-of select="$ballot_cycle_or_pub"/>.
+
+
+      <xsl:variable name="dvlp_fldr" select="@development.folder"/>
+      <xsl:if test="string-length($dvlp_fldr)>0">
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="@name"/>
+          </xsl:call-template>
+        </xsl:variable>        
+        <xsl:variable name="seds" 
+          select="document(concat($module_dir,'/dvlp/issues.xml'))/issues/issue[@seds='yes' and @status='closed']"/>
+        <xsl:if test="count($seds)>0">
+          <p>
+            <xsl:variable name="seds_list">
+              <xsl:apply-templates select="$seds" mode="seds_cover"/>
+            </xsl:variable>
+            <xsl:variable name="nseds_list">
+              <xsl:call-template name="remove_duplicates">
+                <xsl:with-param name="list" select="$seds_list"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="seds_comma_list">
+              <xsl:call-template name="output_comma_separated_list">
+                <xsl:with-param name="string" select="$nseds_list"/>
+              </xsl:call-template>
+            </xsl:variable>
+
+            <xsl:choose>
+              <xsl:when test="contains($seds_comma_list,',')">
+                The following SEDS have been addressed by this edition:
+              </xsl:when>
+              <xsl:otherwise>
+                The following SEDS has been addressed by this edition:              
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:value-of select="normalize-space($seds_comma_list)"/>.
+          </p>
+        </xsl:if>
+      </xsl:if>
+
     </td>
   </tr>
  
@@ -470,6 +510,22 @@ o=isocs; s=central<br/>
     </td>
   </tr>
   </table>
+
+</xsl:template>
+
+<xsl:template match="issue" mode="seds_cover">
+  <xsl:value-of select="concat(@id,' ')"/>
+</xsl:template>
+
+<xsl:template match="issue" mode="seds_coverx">
+  <xsl:choose>
+    <xsl:when test="position()= last()">
+      <xsl:value-of select="concat(@id,'.')"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="concat(@id,', ')"/>
+    </xsl:otherwise>
+  </xsl:choose>
 
 </xsl:template>
 

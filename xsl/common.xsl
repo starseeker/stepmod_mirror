@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.88 2003/03/18 14:28:07 robbod Exp $
+$Id: common.xsl,v 1.89 2003/04/23 10:25:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2038,6 +2038,35 @@ $Id: common.xsl,v 1.88 2003/03/18 14:28:07 robbod Exp $
       <xsl:with-param name="string" select="$string1"/>
     </xsl:call-template>
   </xsl:template>
+
+
+  <!-- Given a list of words, return a string, replacing all the whitespace with
+       ,
+       -->
+  <xsl:template name="output_comma_separated_list">
+    <xsl:param name="string"/>
+    <xsl:variable name="nstring" select="normalize-space($string)"/>
+        <xsl:choose>
+      <xsl:when test="contains($nstring,' ')">
+        <xsl:variable
+          name="first"
+          select="substring-before($nstring,' ')"/>
+        <xsl:variable
+          name="rest"
+          select="substring-after($nstring,' ')"/>
+
+        <xsl:value-of select="concat($first,', ')"/>
+        <xsl:call-template name="output_string_with_linebreaks">
+          <xsl:with-param name="string" select="$rest"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$nstring"/>
+      </xsl:otherwise>
+    </xsl:choose>
+
+  </xsl:template>
+
 
 
 

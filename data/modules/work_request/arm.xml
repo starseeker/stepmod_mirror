@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $ -->
+<!-- $Id: arm.xml,v 1.4 2002/01/16 14:25:40 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2002/01/16 14:25:40 $"
+  rcs.revision="$Revision: 1.4 $">
 
   <application
     name="express2xml.js"
@@ -41,12 +41,19 @@
     </interface>
 
     <type name="affected_item_select">
+      <description>
+        This selects between a particular version, view definition, or
+        occurrence of a part.  
+      </description>
       <select
         selectitems="Product_version Product_view_definition View_definition_relationship">
       </select>
 
     </type>
     <type name="status_value">
+      <description>
+        This provides an enumeration of valid status values for a Work_request.
+      </description>
       <enumeration
         items="proposed in-work issued hold">
       </enumeration>
@@ -54,6 +61,10 @@
 
     </type>
     <type name="work_request_organisation_or_person_in_organisation_item">
+      <description>
+        This select extends the assignments of an organization or a person
+        in an organization to <b>Work_request</b> instances. 
+      </description>
       <select
         basedon="organisation_or_person_in_organisation_item"
         selectitems="Work_request">
@@ -61,6 +72,10 @@
 
     </type>
     <type name="work_request_date_or_date_time_item">
+      <description>
+        This select is a extends the assignments of a date or a date and
+        time to Work_request instances. 
+      </description>
       <select
         basedon="date_or_date_time_item"
         selectitems="Work_request">
@@ -68,6 +83,10 @@
 
     </type>
     <type name="work_request_approval_item">
+      <description>
+        This select extends an approval_assignment to apply to Work_request
+        instances. 
+      </description>
       <select
         basedon="approval_item"
         selectitems="Work_request">
@@ -76,19 +95,40 @@
     </type>
     <entity
       name="Activity_method">
+      <description>
+        An <b>Activity_method</b> is a way and/or means to accomplish an
+      activity's objectives and effects. 
+      </description>
+      <explicit
+        name="name">
+      <description>
+        words by which the Activity_method is known.
+      </description>
+        <builtintype
+          type="STRING"/>
+      </explicit>
       <explicit
         name="description"
         optional="YES">
+      <description>
+        text which describes the Activity_method.
+      </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="consequence">
+      <description>
+        the result (positive and/or negative) of this method.
+      </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="purpose">
+      <description>
+        an informal description of the reason for the Activity_method.
+      </description>
         <builtintype
           type="STRING"/>
       </explicit>
@@ -96,23 +136,44 @@
 
     <entity
       name="Work_request">
+      <description>
+        A <b>Work_request</b> is an official request that identifies the
+        need for a potential release or change of functionality of a
+        part. These requests may or may not ever actually be incorporated,
+        depending upon the level of authorization granted to the request and
+        its associated work order. 
+      </description>
       <explicit
         name="version_id">
+        <description>
+          specifies the identification of the version of the
+          Work_request.
+        </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="status">
+        <description>
+          a user interpretable designation for the level of completion
+          of the Work_request.
+        </description>
         <typename
           name="status_value"/>
       </explicit>
       <explicit
         name="purpose">
+        <description>
+          an informal description of the reason for the Work_request.
+        </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="potential_solutions">
+        <description>
+          specifies potential solutions associated with the Work_request.
+        </description>
         <aggregate
           type="SET"
           lower="0"
@@ -122,6 +183,10 @@
       </explicit>
       <explicit
         name="affected_items">
+        <description>
+          a set of the items of product data that are potentially within
+          the scope of the Work request. 
+        </description>
         <aggregate
           type="SET"
           lower="0"
@@ -133,6 +198,9 @@
         name="requestor"
         entity="Organisation_or_person_in_organisation_assignment"
         attribute="items">
+        <description>
+          the organisation or person in organisation that requested the work.
+        </description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -142,6 +210,9 @@
         name="request_date"
         entity="Date_or_date_time_assignment"
         attribute="items">
+        <description>
+          the date or date and time the request was created.
+        </description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -151,6 +222,9 @@
         name="approval"
         entity="Approval_assignment"
         attribute="items">
+        <description>
+          the approvals for the Work request.
+        </description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -158,11 +232,19 @@
       </inverse>
       <where
         label="WR1"
-        expression="SELF.requestor.role = 'requestor' OR NOT EXISTS(requestor)">
+        expression="SELF.requestor.role = 'requestor' OR NOT EXISTS(requestor)">        <description>
+          The <b>requestor</b> role must be 'requestor' or the
+        <b>requestor</b> may not exist.
+        </description>
       </where>
       <where
         label="WR2"
-        expression="SELF.request_date.role = 'request date' OR NOT EXISTS(request_date)">
+        expression="SELF.request_date.role = 'request date' OR NOT
+EXISTS(request_date)">        
+      <description>
+          The <b>request_date</b> role must be 'request_date' or the
+        <b>request_date</b> may not exist.
+        </description>
       </where>
     </entity>
 

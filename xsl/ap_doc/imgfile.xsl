@@ -7,12 +7,8 @@
 	<xsl:import href="../imgfile.xsl"/>
 	<xsl:import href="sect_4_express.xsl"/>
 	<xsl:import href="application_protocol_toc.xsl"/>
-	<xsl:output
-		method="html"
-		doctype-system="http://www.w3.org/TR/html4/loose.dtd"
-		doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
-		indent="yes"
-	/>
+	<xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
+
 	<xsl:template match="ap.imgfile.content">
 		<HTML>
 			<HEAD>
@@ -82,6 +78,107 @@
 		</HTML>
 	</xsl:template>
 	
+	<xsl:template match="imgfile.content">
+		<xsl:variable name="ap_module_dir">
+			<xsl:call-template name="ap_module_directory">
+				<xsl:with-param name="application_protocol" select="@module"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="ap_dir">
+			<xsl:call-template name="application_protocol_directory">
+				<xsl:with-param name="application_protocol" select="@module"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="module_file" select="concat($ap_module_dir,'/module.xml')"/>
+		<xsl:variable name="ap_file" select="string(concat($ap_dir,'/application_protocol.xml'))"/>
+
+		<xsl:variable name="fig_title">
+			<xsl:choose>
+				<xsl:when test="./@file">
+					<xsl:apply-templates select="document($module_file)/module/*/express-g/imgfile" mode="title">
+						<xsl:with-param name="file" select="@file"/>
+					</xsl:apply-templates>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="@title"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		
+		<html>
+			<head>
+				<title>
+					<xsl:choose>
+						<xsl:when test="@module">
+							<xsl:value-of select="concat(@module,' : ',$fig_title)"/>
+						</xsl:when>
+						<xsl:otherwise>
+							title not specified.
+						</xsl:otherwise>
+					</xsl:choose>
+				</title>
+			</head>
+			<body>
+				<xsl:variable name="module" select="@module"/>
+				<xsl:variable name="self" select="."/>
+				<xsl:choose>
+					<xsl:when test="@module">
+						
+						<xsl:apply-templates select="document($ap_file)/application_protocol" mode="TOCmultiplePage">
+							<xsl:with-param name="application_protocol_root" select="'.'"/>
+						</xsl:apply-templates>
+						<xsl:choose>
+							<xsl:when test="./@file">
+								<xsl:apply-templates select="document($module_file)/module/*/express-g/imgfile" mode="nav_arrows">
+									<xsl:with-param name="file" select="@file"/>
+								</xsl:apply-templates>
+							</xsl:when>
+							<xsl:otherwise>
+								To enable navigation, add file parameter to expressg file
+								<xsl:call-template name="error_message">
+									<xsl:with-param name="inline" select="'no'"/>
+									<xsl:with-param name="message">
+										<xsl:value-of select="'Warning IM2: To enable navigation, add file parameter to expressg file'"/>
+									</xsl:with-param>
+									<xsl:with-param name="warning_gif" select="'../../../images/warning.gif'"/>
+								</xsl:call-template>
+							</xsl:otherwise>
+						</xsl:choose>
+						<xsl:apply-templates select="img">
+							<xsl:with-param name="alt" select="$fig_title"/>
+						</xsl:apply-templates>
+						<div align="center">
+							<br/>
+							<br/>
+							<b>
+								<xsl:value-of select="$fig_title"/>
+							</b>
+							<br/>
+						</div>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="error_message">
+							<xsl:with-param name="message">
+								<xsl:value-of select="'Error IM1: Error in image file - module or application protocol not specified'"/>
+							</xsl:with-param>
+							<xsl:with-param name="warning_gif" select="'../../../images/warning.gif'"/>
+						</xsl:call-template>
+						<xsl:apply-templates select="img"/>
+						<div align="center">
+							<br/>
+							<br/>
+							<b>
+								<xsl:value-of select="@title"/>
+							</b>
+							<br/>
+						</div>
+					</xsl:otherwise>
+				</xsl:choose>
+			</body>
+		</html>
+	</xsl:template>
+
+	
 	<xsl:template match="imgfile" mode="title">
 		<xsl:param name="file"/>
 			<xsl:if test="$file=@file">
@@ -93,20 +190,20 @@
 						<xsl:when test="name(../..)='arm'">
 							<xsl:choose>
 								<xsl:when test="$number=1">
-									<xsl:value-of select="concat('Figure C.',$number, ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
+									<xsl:value-of select="concat('Figure A.',$number, ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
 								</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="concat('Figure C.',$number, ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
+									<xsl:value-of select="concat('Figure A.',$number, ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
 								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:when>
 						<xsl:when test="name(../..)='mim'">
 							<xsl:choose>
 								<xsl:when test="$number=1">
-									<xsl:value-of select="concat('Figure D.',$number, ' - aim Schema level EXPRESS-G diagram ',$number)"/>
+									<xsl:value-of select="concat('Figure F.',$number, ' - aim Schema level EXPRESS-G diagram ',$number)"/>
 								</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="concat('Figure D.',$number, ' - aim Entity level EXPRESS-G diagram ',($number - 1))"/>
+									<xsl:value-of select="concat('Figure F.',$number, ' - aim Entity level EXPRESS-G diagram ',($number - 1))"/>
 								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:when>
@@ -204,7 +301,7 @@
 		</xsl:if>
 	</xsl:template>
 	
-	<xsl:template match="imgfile">
+	<!-- xsl:template match="imgfile">
 		<xsl:variable name="href">
 			<xsl:call-template name="set_file_ext">
 				<xsl:with-param name="filename" select="@file"/>
@@ -214,7 +311,7 @@
 			<xsl:value-of select="position()"/>
 		</a>
 		&#160;
-	</xsl:template>
+	</xsl:template -->
 
 </xsl:stylesheet>
 

@@ -1097,185 +1097,99 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
-
-
-
-
-<xsl:template match="mim">
-  <!--
-  <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'5 Module interpreted model'"/>
-    <xsl:with-param name="aname" select="'mim'"/>
-  </xsl:call-template>
-
-
-  <h3>
-    <a name="mapping">5.1 Mapping specification</a>
-  </h3>
-  <xsl:choose>
-    <xsl:when test="string-length(../mapping_table)>0">
-      <xsl:apply-templates select="../mapping_table" mode="toc"/>
-    </xsl:when>
-    <xsl:otherwise>
-      No mappings are specified in this application module.
-    </xsl:otherwise>
-  </xsl:choose>
-  -->
-
-  <h3>
-    <a name="aim_express">5.2 AIM EXPRESS short listing</a>
-  </h3>
-  <p>
-    This clause specifies the EXPRESS schema that uses elements from the
-    common resources or from the application
-    modules and contains the types, entity specializations, rules, and
-    functions that are specific to this part of ISO 10303.</p> 
-  <p>This clause also
-    specifies the modifications that apply to the constructs 
-    imported from the common resources.</p>
-  <p>The following restrictions apply to the use, in this schema, of constructs defined in common resources or in application
-    modules:</p>
-  <ul>
-    <li>
-      Use of a supertype entity does not make applicable any of its
-      specializations, unless the specialization is also imported in the
-      AIM schema.
-    </li> 
-    <li>
-      Use of a SELECT type does not make applicable any of its listed types
-      unless the listed type is also imported in the AIM schema.
-    </li>
-  </ul>
-
-  <!-- output all the EXPRESS specifications -->
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="ap_module_directory">
-      <xsl:with-param name="application_protocol" select="../@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-<xsl:variable name="application_protocol_dir">
-    <xsl:call-template name="application_protocol_directory">
-      <xsl:with-param name="application_protocol" select="../@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-
-  <xsl:variable 
-    name="aim_xml"
-    select="concat($application_protocol_dir,'/aim.xml')"/>
-
-  <xsl:variable 
-    name="schema_name" 
-    select="document($aim_xml)/express/schema/@name"/>
-
-
-
-  <xsl:variable name="xref">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <code>
-    <u>EXPRESS specification: </u>
-    <br/>    <br/>
-    *)
-    <br/>    <br/>
-    <a name="{$xref}">
-      SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
-  </a>
-</code>
-
-
-  <!-- display the EXPRESS for the interfaces in the MIM.
-       The template is in sect4_express.xsl -->
-  <!-- there is only one schema in a module -->
-  <xsl:apply-templates 
-    select="document($aim_xml)/express/schema/interface"/>
-
-  <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="document($aim_xml)/express/schema[@name=$schema_name]/constant"/>
-  <!-- display any imported Constant constructs that have been described by 
-       description.item in the interface -->
-  <xsl:call-template name="imported_constructs">
-    <xsl:with-param name="desc_item" 
-      select="document($aim_xml)/express/schema/interface/described.item[@kind='CONSTANT']"/>
-  </xsl:call-template>
-
-
-  <!-- display the EXPRESS for the types in the schema.
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="document($aim_xml)/express/schema/type"/>
-  <!-- display any imported type constructs that have been described by 
-       description.item in the interface -->
-  <xsl:call-template name="imported_constructs">
-    <xsl:with-param name="desc_item" 
-      select="document($aim_xml)/express/schema/interface/described.item[@kind='TYPE']"/>
-  </xsl:call-template>
-
-
-  
-  <!-- display the EXPRESS for the entities in the MIM.
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="document($aim_xml)/express/schema/entity"/>
-
-  <!-- display any imported entity constructs that have been described by 
-       description.item in the interface -->
-  <xsl:call-template name="imported_constructs">
-    <xsl:with-param name="desc_item" 
-      select="document($aim_xml)/express/schema/interface/described.item[@kind='ENTITY']"/>
-  </xsl:call-template>
-
-
-
-  <!-- display the EXPRESS for the functions in the MIM
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="document($aim_xml)/express/schema/function"/>
-  <!-- display any imported function constructs that have been described by 
-       description.item in the interface -->
-  <xsl:call-template name="imported_constructs">
-    <xsl:with-param name="desc_item" 
-      select="document($aim_xml)/express/schema/interface/described.item[@kind='FUNCTION']"/>
-  </xsl:call-template>
-
-
-  <!-- display the EXPRESS for the entities in the MIM. 
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="document($aim_xml)/express/schema/rule"/>
-  <!-- display any imported rule constructs that have been described by 
-       description.item in the interface -->
-  <xsl:call-template name="imported_constructs">
-    <xsl:with-param name="desc_item" 
-      select="document($aim_xml)/express/schema/interface/described.item[@kind='RULE']"/>
-  </xsl:call-template>
-
-  <!-- display the EXPRESS for the procedures in the MIM. 
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="document($aim_xml)/express/schema/procedure"/>
-  <!-- display any imported procedure constructs that have been described by 
-       description.item in the interface -->
-  <xsl:call-template name="imported_constructs">
-    <xsl:with-param name="desc_item" 
-      select="document($aim_xml)/express/schema/interface/described.item[@kind='PROCEDURE']"/>
-  </xsl:call-template>
-
-  <code>
-    <br/>    <br/>
-    *)
-    <br/>    <br/>
-    END_SCHEMA;
-    <br/>    <br/>
-    (*
-  </code>
-
-</xsl:template>
+	
+	<xsl:template match="mim">
+		<h3>
+			<a name="aim_express">5.2 AIM EXPRESS short listing</a>
+		</h3>
+		<p>
+			This clause specifies the EXPRESS schema that uses elements from the common resources or from the application
+    modules and contains the types, entity specializations, rules, and functions that are specific to this part of ISO 10303.
+		</p>
+		<p>
+			This clause also specifies the modifications that apply to the constructs imported from the common resources.
+		</p>
+		<p>
+			The following restrictions apply to the use, in this schema, of constructs defined in common resources or in application modules:
+		</p>
+		<ul>
+			<li>
+				Use of a supertype entity does not make applicable any of its specializations, unless the specialization is also imported in the AIM schema.
+			</li>
+			<li>
+				Use of a SELECT type does not make applicable any of its listed types unless the listed type is also imported in the AIM schema.
+			</li>
+		</ul>
+		<xsl:variable name="ap_module_dir">
+			<xsl:call-template name="ap_module_directory">
+				<xsl:with-param name="application_protocol" select="../@name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		
+		<xsl:variable name="application_protocol_dir">
+			<xsl:call-template name="application_protocol_directory">
+				<xsl:with-param name="application_protocol" select="../@name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		
+		<xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
+		<xsl:variable name="schema_name" select="document($aim_xml)/express/schema/@name"/>
+		<xsl:variable name="xref">
+			<xsl:call-template name="express_a_name">
+				<xsl:with-param name="section1" select="$schema_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<code>
+			<u>
+				EXPRESS specification:
+			</u>
+			<br/>
+			<br/>
+			*)
+			<br/>
+			<br/>
+			<a name="{$xref}">
+				SCHEMA
+				<xsl:value-of select="concat($schema_name,';')"/>
+			</a>
+		</code>
+		<xsl:apply-templates select="document($aim_xml)/express/schema/interface"/>
+		<xsl:apply-templates select="document($aim_xml)/express/schema[@name=$schema_name]/constant"/>
+		<xsl:call-template name="imported_constructs">
+			<xsl:with-param name="desc_item" select="document($aim_xml)/express/schema/interface/described.item[@kind='CONSTANT']"/>
+		</xsl:call-template>
+		<xsl:apply-templates select="document($aim_xml)/express/schema/type"/>
+		<xsl:call-template name="imported_constructs">
+			<xsl:with-param name="desc_item" select="document($aim_xml)/express/schema/interface/described.item[@kind='TYPE']"/>
+		</xsl:call-template>
+		<xsl:apply-templates select="document($aim_xml)/express/schema/entity"/>
+		<xsl:call-template name="imported_constructs">
+			<xsl:with-param name="desc_item" select="document($aim_xml)/express/schema/interface/described.item[@kind='ENTITY']"/>
+		</xsl:call-template>
+		<xsl:apply-templates select="document($aim_xml)/express/schema/function"/>
+		<xsl:call-template name="imported_constructs">
+			<xsl:with-param name="desc_item" select="document($aim_xml)/express/schema/interface/described.item[@kind='FUNCTION']"/>
+		</xsl:call-template>
+		<xsl:apply-templates select="document($aim_xml)/express/schema/rule"/>
+		<xsl:call-template name="imported_constructs">
+			<xsl:with-param name="desc_item" select="document($aim_xml)/express/schema/interface/described.item[@kind='RULE']"/>
+		</xsl:call-template>
+		<xsl:apply-templates select="document($aim_xml)/express/schema/procedure"/>
+		<xsl:call-template name="imported_constructs">
+			<xsl:with-param name="desc_item" select="document($aim_xml)/express/schema/interface/described.item[@kind='PROCEDURE']"/>
+		</xsl:call-template>
+		<code>
+			<br/>
+			<br/>
+			*)
+			<br/>
+			<br/>
+			END_SCHEMA;
+			<br/>
+			<br/>
+			(*
+		</code>
+	</xsl:template>
 
 <xsl:template match="ae" mode="toc">
   <xsl:variable name="xref" 

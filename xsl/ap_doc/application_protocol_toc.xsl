@@ -2,16 +2,18 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: application_protocol_toc.xsl,v 1.7 2002/09/18 09:50:07 mikeward Exp $
+     $Id: $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:template match="application_protocol" mode="TOCmultiplePage">
 		<xsl:param name="selected"/>
 		<xsl:param name="application_protocol_root" select="'..'"/>
+		
 		<h1>NB THIS AP IS FOR DEMONSTRATION PURPOSES ONLY</h1>
+		
 		<xsl:apply-templates select="." mode="TOCbannertitle">
-			<xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
+			<xsl:with-param name="module_root" select="$application_protocol_root"/>
 		</xsl:apply-templates>
 		<xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
 		<xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>
@@ -435,7 +437,7 @@
 <xsl:template match="application_protocol" mode="TOCsinglePage">
   <xsl:param name="application_protocol_root" select="'..'"/>
   <xsl:apply-templates select="." mode="TOCbannertitle">
-    <xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
+    <xsl:with-param name="module_root" select="$application_protocol_root"/>
   </xsl:apply-templates>
   <table border="1" cellspacing="1" width="100%">
     <tr>

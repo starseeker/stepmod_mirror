@@ -1,4 +1,4 @@
-# $Id: express_model.rnc,v 1.3 2004/09/27 21:14:49 joshualubell Exp $
+# $Id: express_model.rnc,v 1.4 2004/10/05 20:41:35 joshualubell Exp $
 
 # EXPRESS MODEL DECLARATION MODULE
 
@@ -23,12 +23,13 @@ description.content = text
 
 # The rcs attributes are keywords for RCS source control systems
 
-# rcs.date      $Date: 2004/09/27 21:14:49 $
+# rcs.date      $Date: 2004/10/05 20:41:35 $
 
-# rcs.revision  $Revision: 1.3 $
+# rcs.revision  $Revision: 1.4 $
 
 # reference is the source of the schema, e.g. ISO 10303-41
 express =
+   ## EXPRESS specification containing one or more EXPRESS schemas
   element express {
     express.attlist, description?, application?, schema+
   }
@@ -89,20 +90,24 @@ interface.attlist &=
    ## name of schema being interfaced
   attribute schema { xsd:NMTOKEN }
 interfaced.item =
+   ## object imported from another EXPRESS schema
   element interfaced.item { interfaced.item.attlist, empty }
 interfaced.item.attlist &=
-  attribute name { xsd:NMTOKEN },
-  attribute alias { xsd:NMTOKEN }?
-# A description of any item in the interface. In other words the
-# documentation of an imported construct.         
-# item is the name of the imported construct
-# attribute is only used if the imported construct is an entity in whihc
-# case, item is the name of the entty and item is the name of the attribute
+   ## name of object imported
+attribute name { xsd:NMTOKEN },
+   ## alias in this schema for the imported object
+attribute alias { xsd:NMTOKEN }?
 described.item =
-  element described.item { described.item.attlist, description? }
+   ## A description of any item in the interface. In other words the
+## documentation of an imported construct.         
+element described.item { described.item.attlist, description? }
 described.item.attlist &=
+   ## the name of the imported construct
   attribute item { xsd:NMTOKEN },
+   ## only used if the imported construct is an entity in which case, item is
+   ## the name of the entity and attribute is the name of the attribute
   attribute attribute { xsd:NMTOKEN }?,
+   ## the kind of item being imported
   [ a:defaultValue = "ENTITY" ]
   attribute kind {
     "ENTITY"
@@ -113,11 +118,15 @@ described.item.attlist &=
     | "CONSTANT"
   }?
 constant =
+   ## constant declaration
   element constant { constant.attlist, description?, underlying }
 constant.attlist &=
+   ## constant name
   attribute name { xsd:NMTOKEN },
+   ## constant expression
   attribute expression { text }
 type =
+   ## type declaration
   element type {
     type.attlist,
     description?,
@@ -126,12 +135,20 @@ type =
     where*,
     graphic.element?
   }
-type.attlist &= attribute name { xsd:NMTOKEN }
-typename = element typename { typename.attlist, empty }
-typename.attlist &= attribute name { xsd:NMTOKEN }
+type.attlist &= 
+   ## type name
+   attribute name { xsd:NMTOKEN }
+typename = 
+   ## reference to another type declaration
+   element typename { typename.attlist, empty }
+typename.attlist &= 
+   ## name of the referenced type
+   attribute name { xsd:NMTOKEN }
 builtintype =
+   ## EXPRESS built-in type
   element builtintype { builtintype.attlist, graphic.element? }
 builtintype.attlist &=
+   ## specifies which built-in type
   [ a:defaultValue = "STRING" ]
   attribute type {
     "BINARY"
@@ -144,44 +161,69 @@ builtintype.attlist &=
     | "REAL"
     | "STRING"
   }?,
+   ## expression specifying width of binary or string (ignored for other
+## built-in types)
   attribute width { text }?,
+   ## expression specifying whether the width is fixed (applies only to binary
+## and string types)
   [ a:defaultValue = "NO" ] attribute fixed { "YES" | "NO" }?,
+   ## expression specifying the number of significant digits for a real type
   attribute precision { text }?,
+   ## type label
   attribute typelabel { xsd:NMTOKEN }?
-# Width to allow for Binary and string
-
-# Fixed to allow for Binary and string
-
-# Precision to allow for REAL
-aggregate = element aggregate { aggregate.attlist, empty }
+aggregate = 
+   ## aggregate type
+   element aggregate { aggregate.attlist, empty }
 aggregate.attlist &=
+   ## the kind of aggregate
   [ a:defaultValue = "SET" ]
   attribute type { "AGGREGATE" | "ARRAY" | "BAG" | "LIST" | "SET" }?,
+   ## whether the aggregate type is optional
   [ a:defaultValue = "NO" ] attribute optional { "YES" | "NO" }?,
+   ## whether the aggregate type is unique
   [ a:defaultValue = "NO" ] attribute unique { "YES" | "NO" }?,
+   ## lower bound
   attribute lower { text }?,
+   ## upper bound
   attribute upper { text }?,
+   ## type label
   attribute typelabel { xsd:NMTOKEN }?
-select = element select { select.attlist, graphic.element? }
+select = 
+   ## select type
+   element select { select.attlist, graphic.element? }
 select.attlist &=
+   ## whether select type is extensible
   [ a:defaultValue = "NO" ] attribute extensible { "YES" | "NO" }?,
+   ## whether extensible select type is constrained to have only entity
+## instances in its domain
   [ a:defaultValue = "NO" ] attribute genericentity { "YES" | "NO" }?,
+   ## type which this select type extends
   attribute basedon { xsd:NMTOKEN }?,
+   ## select list
   attribute selectitems { xsd:NMTOKENS }?
 graphic.element =
+   ## reference to EXPRESS-G representation of an EXPRESS item
   element graphic.element { graphic.element.attlist, empty }
 graphic.element.attlist &=
   attribute image { text }?,
+   ## the graphic's page number
   attribute page { text },
+   ## x-coordinate of the graphic's position on the page
   attribute xcoord { text }?,
+   ## y-coordinate of the graphic's position on the page
   attribute ycoord { text }?
 enumeration =
+   ## EXPRESS enumeration type
   element enumeration { enumeration.attlist, graphic.element? }
 enumeration.attlist &=
+   ## whether the enumeration is extensible
   [ a:defaultValue = "NO" ] attribute extensible { "YES" | "NO" }?,
+   ## type which this enumeration extends
   attribute basedon { xsd:NMTOKEN }?,
+   ## enumeration choices
   attribute items { xsd:NMTOKENS }?
 entity =
+   ## EXPRESS entity type
   element entity {
     entity.attlist,
     description?,
@@ -193,58 +235,92 @@ entity =
     graphic.element?
   }
 entity.attlist &=
+   ## name of the entity type
   attribute name { xsd:NMTOKEN },
+   ## whether the entity type is abstract (instantiable)
   [ a:defaultValue = "NO" ] attribute abstract.entity { "YES" | "NO" }?,
+   ## whether the entity is an abstract supertype
   [ a:defaultValue = "NO" ]
   attribute abstract.supertype { "YES" | "NO" }?,
+   ## supertypes of this entity
   attribute supertypes { xsd:NMTOKENS }?,
+   ## supertype expression
   attribute super.expression { text }?
 explicit =
+   ## explicit EXPRESS attribute
   element explicit {
     explicit.attlist, description?, underlying, redeclaration?
   }
 explicit.attlist &=
+   ## EXPRESS attribute name
   attribute name { xsd:NMTOKEN },
+   ## specifies whether optional
   [ a:defaultValue = "NO" ] attribute optional { "YES" | "NO" }?
 derived =
+   ## derived EXPRESS attribute
   element derived {
     derived.attlist, description?, underlying, redeclaration?
   }
 derived.attlist &=
+   ## EXPRESS attribute name
   attribute name { xsd:NMTOKEN },
+   ## expression for computing the EXPRESS attribute's value
   attribute expression { text }
 inverse =
+   ## EXPRESS inverse attribute
   element inverse {
     inverse.attlist, description?, inverse.aggregate?, redeclaration?
   }
 inverse.attlist &=
+   ## EXPRESS attribute name
   attribute name { xsd:NMTOKEN },
+   ## name of entity to which inverted EXPRESS attribute belongs
   attribute entity { xsd:NMTOKEN },
+   ## inverted EXPRESS attribute name
   attribute attribute { xsd:NMTOKEN }
 inverse.aggregate =
+   ## aggregate as part of an inverse EXPRESS attribute
   element inverse.aggregate { inverse.aggregate.attlist, empty }
 inverse.aggregate.attlist &=
+   ## kind of aggregate
   [ a:defaultValue = "SET" ] attribute type { "BAG" | "SET" }?,
+   ## lower bound
   attribute lower { text }?,
+   ## upper bound
   attribute upper { text }?
-redeclaration = element redeclaration { redeclaration.attlist, empty }
+redeclaration = 
+   ## redeclared EXPRESS attribute
+   element redeclaration { redeclaration.attlist, empty }
 redeclaration.attlist &=
+   ## entity containing the old EXPRESS attribute
   attribute entity-ref { xsd:NMTOKEN },
+   ## old EXPRESS attribute name
   attribute old_name { xsd:NMTOKEN }?
-where = element where { where.attlist, description? }
+where = 
+   ## domain rule
+   element where { where.attlist, description? }
 where.attlist &=
+   ## domain rule label
   attribute label { xsd:NMTOKEN }?,
+   ## domain rule expression
   attribute expression { text }?
 # <!ELEMENT unique (description?, unique.attribute)>
 unique =
+   ## uniqueness rule
   element unique { unique.attlist, description?, unique.attribute+ }
-unique.attlist &= attribute label { xsd:NMTOKEN }?
+unique.attlist &= 
+   ## uniqueness rule label
+   attribute label { xsd:NMTOKEN }?
 unique.attribute =
+   ## EXPRESS attribute in a uniqueness rule
   element unique.attribute { unique.attribute.attlist, empty }
 unique.attribute.attlist &=
+   ## name of entity
   attribute entity-ref { xsd:NMTOKEN }?,
+   ## name of EXPRESS attribute
   attribute attribute { xsd:NMTOKEN }
 subtype.constraint =
+   ## subtype constraint
   element subtype.constraint {
     subtype.constraint.attlist, description?, graphic.element?
   }
@@ -256,22 +332,37 @@ subtype.constraint.attlist &=
   attribute totalover { xsd:NMTOKENS }?,
   attribute super.expression { text }?
 function =
+   ## EXPRESS function
   element function {
     function.attlist, description?, parameter*, underlying, algorithm
   }
-function.attlist &= attribute name { xsd:NMTOKEN }
+function.attlist &= 
+   ## function name
+   attribute name { xsd:NMTOKEN }
 parameter =
+   ## argument to a function or procedure
   element parameter { parameter.attlist, description?, underlying }
-parameter.attlist &= attribute name { xsd:NMTOKEN }
+parameter.attlist &= 
+   ## name of argument
+   attribute name { xsd:NMTOKEN }
 procedure =
+   ## EXPRESS procedure
   element procedure {
     procedure.attlist, description?, parameter*, algorithm?
   }
-procedure.attlist &= attribute name { xsd:NMTOKEN }
-rule = element rule { rule.attlist, description?, algorithm?, where+ }
+procedure.attlist &= 
+   ## procedure name
+   attribute name { xsd:NMTOKEN }
+rule = 
+   ## WHERE rule
+   element rule { rule.attlist, description?, algorithm?, where+ }
 rule.attlist &=
+   ## rule name
   attribute name { xsd:NMTOKEN },
+   ## names of entities to which rule applies
   attribute appliesto { xsd:NMTOKENS }
-algorithm = element algorithm { algorithm.attlist, text }
+algorithm = 
+   ## EXPRESS algorithm
+   element algorithm { algorithm.attlist, text }
 algorithm.attlist &= empty
 start = express

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.20 2003/03/13 19:33:06 robbod Exp $
+$Id: modules_list.xsl,v 1.21 2003/04/17 12:30:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -107,6 +107,10 @@ $Id: modules_list.xsl,v 1.20 2003/03/13 19:33:06 robbod Exp $
       <xsl:with-param name="image_root" select="'../images'"/>
     </xsl:apply-templates>
     <xsl:apply-templates select="." mode="developer_sub_menus">
+      <xsl:with-param name="module_root" select="concat('../data/modules/',@name)"/>
+      <xsl:with-param name="image_root" select="'../images'"/>
+    </xsl:apply-templates>
+    <xsl:apply-templates select="." mode="p28_sub_menus">
       <xsl:with-param name="module_root" select="concat('../data/modules/',@name)"/>
       <xsl:with-param name="image_root" select="'../images'"/>
     </xsl:apply-templates>
@@ -408,6 +412,56 @@ $Id: modules_list.xsl,v 1.20 2003/03/13 19:33:06 robbod Exp $
             border="false" align="middle"/> 
         </a>
         <a href="{$developer}" target="content">Developer View</a>
+      </p>
+    </div>
+</xsl:template>
+
+<xsl:template match="module" mode="p28_sub_menus">
+  <xsl:param name="part_no" select="'no'"/>
+  <xsl:param name="module_root" select="''"/>
+  <xsl:param name="image_root" select="''"/>
+  <xsl:variable name="Menu" select="concat('Menu',@name)"/>
+  <xsl:variable name="NoMenu" select="concat('NoMenu',@name)"/>
+
+  <xsl:variable name="part_name">
+    <xsl:choose>
+      <xsl:when test="$part_no='yes'">
+        <xsl:value-of select="concat(@part,':',@name)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@name"/>
+      </xsl:otherwise>
+    </xsl:choose>    
+  </xsl:variable>
+
+
+  <!-- Xml view menu (OPEN) -->
+  <xsl:variable name="p28" 
+    select="concat($module_root,'/sys/p28xsd',$FILE_EXT)"/>
+  <xsl:variable name="imp_form" 
+    select="concat($module_root,'/impl',$FILE_EXT)"/>
+  <div id="{$Menu}Xml" style="display:none">
+    <p class="menulist1">
+      <a href="javascript:swap({$NoMenu}Xml, {$Menu}Xml);">
+        <img src="{$image_root}/minus.gif" alt="Close menu" 
+          border="false" align="middle"/>    
+      </a>
+      <a href="{$imp_form}" target="content">Implementation forms</a>
+    </p>
+    
+    <p class="menuitem2">
+      <a href="{$p28}" target="content">P28 XML Schema</a>
+    </p>
+    </div>
+
+    <!-- Xml view menu (CLOSED) -->
+    <div id="{$NoMenu}Xml">
+      <p class="menulist1">
+        <a href="javascript:swap({$Menu}Xml, {$NoMenu}Xml);">
+          <img src="{$image_root}/plus.gif" alt="Open menu" 
+            border="false" align="middle"/> 
+        </a>
+        <a href="{$imp_form}" target="content">Implementation forms</a>
       </p>
     </div>
 </xsl:template>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.42 2002/09/05 07:52:26 robbod Exp $
+     $Id: express_code.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -120,50 +120,12 @@
 
 <!-- output the trailing comment that shows where the express came from -->
 <xsl:template match="interface" mode="source">
-  <xsl:variable name="module" select="string(@schema)"/> 
-  <xsl:choose>
-    <xsl:when 
-      test="contains($module,'_arm') or contains($module,'_mim')">
-      <!-- must be a module -->
-      <xsl:variable name="module_ok">
-        <xsl:call-template name="check_module_exists">
-          <xsl:with-param name="module" select="$module"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:choose>
-        <xsl:when test="$module_ok='true'">
-          <xsl:variable name="mod_dir">
-            <xsl:call-template name="module_directory">
-              <xsl:with-param name="module" select="$module"/>
-            </xsl:call-template>
-          </xsl:variable>
-          <xsl:variable name="part">
-            <xsl:value-of
-              select="document(concat($mod_dir,'/module.xml'))/module/@part"/>
-          </xsl:variable>
-              <xsl:variable name="status">
-            <xsl:value-of
-              select="document(concat($mod_dir,'/module.xml'))/module/@status"/>
-          </xsl:variable>
-          <xsl:value-of select="concat('&#160;&#160;&#160;-- ISO/',$status,'&#160;10303-',$part)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of 
-                select="concat('Error IF-1: The module ',
-                        $module,' cannot be found in repository_index.xml ')"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:when>
+  <xsl:variable name="resource" select="string(@schema)"/> 
+      <!-- In our case it is always  an integrated resource -->
 
-    <xsl:otherwise>
-      <!-- must be an integrated resource -->
       <xsl:variable name="resource_ok">
         <xsl:call-template name="check_resource_exists">
-          <xsl:with-param name="schema" select="$module"/>
+          <xsl:with-param name="schema" select="$resource"/>
         </xsl:call-template>
       </xsl:variable>
 
@@ -175,7 +137,7 @@
           <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
           <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
           <xsl:variable name="lmodule" 
-            select="translate($module,$UPPER,$LOWER)"/>
+            select="translate($resource,$UPPER,$LOWER)"/>
 
           <!-- found integrated resource schema, so get IR title -->
           <xsl:variable name="reference">
@@ -192,7 +154,7 @@
                 <xsl:with-param name="message">
                   <xsl:value-of 
                     select="concat('Error IF-3: The reference parameter for ',
-                            $module,' has not been specified ')"/>
+                            $resource,' has not been specified ')"/>
                 </xsl:with-param>
               </xsl:call-template>
             </xsl:otherwise>
@@ -206,8 +168,6 @@
         </xsl:otherwise>
       </xsl:choose>
 
-    </xsl:otherwise>
-  </xsl:choose>
 </xsl:template>
 
 

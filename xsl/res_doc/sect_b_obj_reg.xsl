@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.7 2002/05/30 08:37:28 robbod Exp $
+$Id: sect_b_obj_reg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -40,12 +40,6 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2002/05/30 08:37:28 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
-
-  <!-- there is only one schema in a module -->
-  <xsl:variable 
-    name="schema_name" 
-    select="document($arm_xml)/express/schema/@name"/>
-
   <xsl:variable
     name="object_reg" 
     select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
@@ -60,37 +54,15 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2002/05/30 08:37:28 robbod Exp $
   in ISO/IEC 8824-1, and is described in ISO 10303-1.  
 
   <h3>B.2 Schema identification</h3>
-  <!-- get the name of the ARM schema from the express -->
-  <xsl:variable name="arm_schema" 
-    select="document($arm_xml)/express/schema/@name"/>
-  <xsl:variable name="arm_schema_reg" 
-    select="translate($arm_schema,$UPPER, $LOWER)"/>
 
 
-  <h3>B.2.1 <xsl:value-of select="$arm_schema"/> schema identification</h3>
+  <!-- there is are potentially several  schemas in an integrated resource -->
+  <!-- for now I will just get the names from the resource.xml rather than go to the schemas --> 
+ 
+ <xsl:for-each select="./schema">
+   <xsl:variable name="schema" select="@name"/>
 
-  <p>
-    To provide for unambiguous identification of the schema specifications
-    given in this application module in an open information system, the object
-    identifiers are assigned as follows: 
-  </p>
-  <p align="center">
-    <xsl:value-of 
-      select="concat($object_reg,' schema(1) ', $arm_schema_reg,'(1) }' )"/>
-  </p>
-  <p>
-    is assigned to the <xsl:value-of select="$arm_schema"/> schema. 
-    The meaning of this value is defined in ISO 8824-1, and is described in
-    ISO 10303-1.  
-  </p>
-
-  <!-- get the name of the MIM schema from the express -->
-  <xsl:variable name="mim_schema" 
-    select="document($mim_xml)/express/schema/@name"/>
-  <xsl:variable name="mim_schema_reg" 
-    select="translate($mim_schema,$UPPER, $LOWER)"/>
-
-  <h3>B.2.2 <xsl:value-of select="$mim_schema"/> schema identification</h3>
+   <h3>B.2.<xsl:value-of select="position()"/> <xsl:value-of select="$schema"/> schema identification</h3>
 
   <p>
     To provide for unambiguous identification of the schema specifications
@@ -99,14 +71,18 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2002/05/30 08:37:28 robbod Exp $
   </p>
   <p align="center">
     <xsl:value-of 
-      select="concat($object_reg,' schema(1) ', $mim_schema_reg,'(2) }' )"/>
+      select="concat($object_reg,' schema(1) ', $schema,'(1) }' )"/>
   </p>
   <p>
-    is assigned to the <xsl:value-of select="$mim_schema"/> schema. 
+    is assigned to the <xsl:value-of select="$schema"/> schema. 
     The meaning of this value is defined in ISO 8824-1, and is described in
     ISO 10303-1.  
   </p>
+
+
+</xsl:for-each>
 
 </xsl:template>
   
 </xsl:stylesheet>
+

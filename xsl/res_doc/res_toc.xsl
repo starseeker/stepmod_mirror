@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: res_toc.xsl,v 1.2 2002/10/17 19:21:56 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -348,11 +348,12 @@ NEED TO FIX up the hrefs -->
         <!-- use #annexb to link direct -->
         <A HREF="{$resdoc_root}/sys/b_obj_reg{$FILE_EXT}">B Information object
         registration</A><BR/>
-        <!-- use #annexc to link direct -->
-        <A HREF="{$resdoc_root}/sys/e_exp{$FILE_EXT}">C Computer interpretable listings</A><BR/>
 
         <!-- use #annexd to link direct -->
-        <A HREF="{$resdoc_root}/sys/d_mim_expg{$FILE_EXT}">
+        <A HREF="{$resdoc_root}/sys/c_exp{$FILE_EXT}">C Computer interpretable listings</A><BR/>
+
+        <!-- use #annexd to link direct -->
+        <A HREF="{$resdoc_root}/sys/d_expg{$FILE_EXT}">
           D EXPRESS-G diagrams
         </A>
         <!-- This will output links to the ExpresG diagrams (1 2) 
@@ -366,6 +367,7 @@ NEED TO FIX up the hrefs -->
           <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
         </xsl:call-template>
         <BR/>
+
         <xsl:if test="./tech_discussion">
         <!-- use #annexa to link direct -->
           <A HREF="{$resdoc_root}/sys/tech_discussion{$FILE_EXT}">
@@ -415,8 +417,8 @@ NEED TO FIX up the hrefs -->
         <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}#mim">5 Schema 2 FIX </A><BR/>
         <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}#annexa">A Short names of entities</A><BR/>
         <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}#annexb">B Information object registration</A><BR/>
-        <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}#annexc">C Computer interpretable listings</A><BR/>
-        <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}#annexd">D EXPRESS-G diagrams</A>
+        <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}#annexc">C EXPRESS-G diagrams</A><BR/>
+        <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}#annexd">D Computer interpretable listings</A>
       </TD>
       <TD valign="TOP">
         <xsl:if test="./tech_discussion">

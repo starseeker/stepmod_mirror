@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.106 2002/09/30 13:36:41 robbod Exp $
+$Id: resource.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -814,35 +814,14 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 
-<xsl:template match="resource" mode="annexe">
+<xsl:template match="resource" mode="annexc">
   <xsl:call-template name="annex_header">
-    <xsl:with-param name="annex_no" select="'E'"/>
+    <xsl:with-param name="annex_no" select="'C'"/>
     <xsl:with-param name="heading" 
       select="'Computer interpretable listings'"/>
-    <xsl:with-param name="aname" select="'annexe'"/>
+    <xsl:with-param name="aname" select="'annexc'"/>
   </xsl:call-template>
 
-  <xsl:variable name="arm">
-    <xsl:choose>
-      <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_arm.xml'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'e_exp_arm.htm'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <xsl:variable name="mim">
-    <xsl:choose>
-      <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_mim.xml'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'e_exp_mim.htm'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
 
   <xsl:variable name="UPPER"
     select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
@@ -871,7 +850,7 @@ o=isocs; s=central<br/>
     corresponding short names as specified or referenced in this part of ISO
     10303. It also provides a listing of each EXPRESS schema specified in this
     part of ISO 10303 without comments nor other explanatory text. These
-    listings are available in computer-interpretable form in Table E.1 and can
+    listings are available in computer-interpretable form in Table C.1 and can
     be found at the following URLs:
   </p>
   <blockquote>
@@ -890,14 +869,7 @@ o=isocs; s=central<br/>
   <div align="center">
     <a name="table_e1">
       <b>
-        <xsl:choose>
-          <xsl:when test="./mim_lf or ./arm_lf">
-            Table E.1 &#8212; ARM and MIM EXPRESS short and long form listings
-          </xsl:when>
-          <xsl:otherwise>
-            Table E.1 &#8212; ARM and MIM EXPRESS listings
-          </xsl:otherwise>
-        </xsl:choose>
+            Table C.1 &#8212; EXPRESS short form listings
       </b>
     </a>
   </div>
@@ -920,52 +892,54 @@ o=isocs; s=central<br/>
         <td><b>ASCII file</b></td>
         <td><b>Identifier</b></td>
       </tr>
-      
-      <!-- ARM HTML row -->
-      <tr>
-        <xsl:choose>
-          <xsl:when test="$FILE_EXT='.xml'">
-            <td>ARM short form EXPRESS</td>
-          </xsl:when>
-          <xsl:otherwise>
-            <td>ARM short form EXPRESS</td>
-          </xsl:otherwise>
-        </xsl:choose>
+
+
+
+
+      <xsl:for-each select="./schema" >
+
+        <xsl:variable name="resource_dir">
+          <xsl:call-template name="resource_directory">
+            <xsl:with-param name="resource" select="@name"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="express_exp" select="concat($resource_dir,'/',@name,'.exp')"/>
+
+          
+        <xsl:variable name="pos" select="position()+3"/>
+        <xsl:variable name="schema_file" select="./@name" />
+        <xsl:variable name="schema_url">
+          <xsl:choose>
+            <xsl:when test="$FILE_EXT='.xml'">
+              <xsl:value-of select="concat('c_exp_schema_',$pos,'.xml')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat('c_exp_schema_',$pos,'.htm')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+
+       <tr>
+         <td>EXPRESS</td>
         <td>
-          <a href="{$arm}">
-            <xsl:value-of select="concat('arm',$FILE_EXT)"/>
+          <a href="{$schema_url}">
+            <xsl:value-of select="concat($schema_file,$FILE_EXT)"/>
           </a>
         </td>
 
         <xsl:call-template name="output_express_links">
-          <xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
-          <xsl:with-param name="file" select="'arm.exp'"/>
+          <!-- I am told an IR does not require a WG number for each schema --> 
+         <!--          <xsl:with-param name="wgnumber" select="./@wg.number.arm"/> -->
+          <xsl:with-param name="wgnumber" select="./@wg.number"/>
+          <xsl:with-param name="file" select="concat($schema_file,'.exp')"/>
+          <xsl:with-param name="express_exp" select="$express_exp" />
         </xsl:call-template>        
       </tr>
-      <xsl:apply-templates select="arm_lf" mode="annexe"/>
+      <!--      <xsl:apply-templates select="arm_lf" mode="annexe"/> -->
 
-      <!-- MIM HTML row -->
-      <tr>
-        <xsl:choose>
-          <xsl:when test="$FILE_EXT='.xml'">
-            <td>MIM short form EXPRESS</td>
-          </xsl:when>
-          <xsl:otherwise>
-            <td>MIM short form EXPRESS</td>
-          </xsl:otherwise>
-        </xsl:choose>
-        <td>
-          <a href="{$mim}">
-            <xsl:value-of select="concat('mim',$FILE_EXT)"/>
-          </a>
-        </td>
-        <xsl:call-template name="output_express_links">
-          <xsl:with-param name="wgnumber" 
-            select="./@wg.number.mim"/>
-          <xsl:with-param name="file" select="'mim.exp'"/>
-        </xsl:call-template>        
-      </tr>
-      <xsl:apply-templates select="mim_lf" mode="annexe"/>
+    </xsl:for-each>
+
     </table>
   </div>
   <p>
@@ -987,9 +961,9 @@ o=isocs; s=central<br/>
 <xsl:template name="output_express_links">
   <xsl:param name="wgnumber"/>
   <xsl:param name="file"/>
-
+  <xsl:param name="express_exp"/>
   <td>
-    <a href="../{$file}"><xsl:value-of select="$file"/></a>
+    <a href="../../{$express_exp}"><xsl:value-of select="$file"/></a>
   </td>
   <td>
     <xsl:variable name="test_wg_number">
@@ -997,22 +971,12 @@ o=isocs; s=central<br/>
         <xsl:with-param name="wgnumber" select="$wgnumber"/>
       </xsl:call-template>
     </xsl:variable>
-    <xsl:variable name="type">
-      <xsl:choose>
-        <xsl:when test="$file='arm.exp'">
-          arm
-        </xsl:when>
-        <xsl:otherwise>
-          mim
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
     <xsl:choose>
       <xsl:when test="contains($test_wg_number,'Error')">
         <xsl:call-template name="error_message">
           <xsl:with-param name="message">
             <xsl:value-of select="concat('(Error in
-                                  resource.xml/resource/@wg.number.',$type,' - ',
+                                  resource.xml/resource/@wg.number.',$file,' - ',
                                   $test_wg_number)"/>
           </xsl:with-param>
         </xsl:call-template>

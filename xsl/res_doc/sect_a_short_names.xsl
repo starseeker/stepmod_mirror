@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.12 2002/08/18 23:16:20 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -38,27 +38,29 @@ $Id: sect_a_short_names.xsl,v 1.12 2002/08/18 23:16:20 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
-  <!-- fix this to work as in res_toc
-
-  <xsl:variable name="mim_xml"
-    select="concat($resdoc_dir,'/mim.xml')"/>
 
   <xsl:variable name="shortnames"
     select="/resource/shortnames/shortname"/>
-
-  <xsl:for-each select="document($mim_xml)/express/schema/entity">
-    <xsl:variable name="mim_entity" select="@name"/>
-    <xsl:if test="not($shortnames[@entity=$mim_entity])">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error sn1: the MIM entity ',$mim_entity,
-                  ' has not had a shortname declared.')"/>
+  
+  <xsl:for-each select="schema">
+    <xsl:variable name="resource_dir">
+      <xsl:call-template name="resource_directory">
+        <xsl:with-param name="resource" select="./@name"/>            
       </xsl:call-template>
-    </xsl:if>
+    </xsl:variable>
+    <xsl:variable name="express_xml" select="concat($resource_dir,'/',@name,'.xml')"/>  
+    <xsl:for-each select="document($express_xml)/express/schema/entity">
+      <xsl:variable name="entity" select="@name"/>
+      <xsl:if test="not($shortnames[@entity=$entity])">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error sn1: the entity ',$entity,
+                  ' has not had a shortname declared.')"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:for-each>
   </xsl:for-each>
-
--->
   <xsl:choose>
     <xsl:when test="shortnames">
       <xsl:apply-templates select="shortnames"/>
@@ -140,28 +142,24 @@ $Id: sect_a_short_names.xsl,v 1.12 2002/08/18 23:16:20 robbod Exp $
 <xsl:template match="shortname">
   <tr>
     <td width="77%" align="left">
-      <!-- check that the entity exists -->
-      <xsl:variable name="module_dir">
-        <xsl:call-template name="module_directory">
-          <xsl:with-param name="module" select="../../../@name"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:variable name="mim_entity" select="@entity"/>
-      <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
-      <xsl:choose>
-        <xsl:when
-          test="document($mim_xml)/express/schema/entity[@name=$mim_entity]">
-          <xsl:value-of select="$mim_entity"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$mim_entity"/>
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('Error sn2: ',$mim_entity,' is not in mim.xml.')"/>
+      <!-- check that the entity exists well we will do this later -->
+
+      <xsl:variable name="entity" select="@entity"/>
+
+      <xsl:for-each select="../../schema">
+        <xsl:variable name="resource_dir">
+          <xsl:call-template name="resource_directory">
+            <xsl:with-param name="resource" select="./@name"/>            
           </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
+        </xsl:variable>
+        <xsl:variable name="express_xml" select="concat($resource_dir,'/',@name,'.xml')"/>  
+        <xsl:choose>
+          <xsl:when
+            test="document($express_xml)/express/schema/entity[@name=$entity]">
+            <xsl:value-of select="$entity"/>
+          </xsl:when>
+        </xsl:choose>
+        </xsl:for-each>
     </td>
     <td width="23%" align="left">
       <xsl:choose>

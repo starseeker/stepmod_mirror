@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.3 2001/11/21 08:11:54 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.4 2001/11/21 15:37:28 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -209,7 +209,6 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <hr/>
   <xsl:if test="position()=1">
     <xsl:variable name="clause_header">
       <xsl:choose>
@@ -241,6 +240,17 @@
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
+  <xsl:if test="position()=1">
+    <p><u>EXPRESS specification</u></p>
+    *)
+    <blockquote>
+      <code>
+        CONSTANT
+      </code>
+    </blockquote>
+    (*
+  </xsl:if>
+  
   <xsl:variable name="aname">
     <xsl:call-template name="express_a_name">
       <xsl:with-param name="section1" select="$schema_name"/>
@@ -249,10 +259,11 @@
   </xsl:variable>    
   <h3>
     <A NAME="{$aname}">
-      <xsl:value-of select="@name" />  
+      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  <blockquote>
+  
+  <!-- output description -->
     <p>
       <xsl:choose>
         <xsl:when test="./description">
@@ -267,16 +278,28 @@
         </xsl:otherwise>
       </xsl:choose>
     </p>
+
+    <!-- output EXPRESS -->
+    <p><u>EXPRESS specification</u></p>
     *)
     <blockquote>
       <code>
-        CONSTANT<br/>
-        <xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/><br/>
-        END_CONSTANT;
+        &#160;&#160;<xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/>
       </code>
     </blockquote>
     (*
-  </blockquote>
+    
+    <xsl:if test="position()=last()">
+      <br/>
+      *)
+      <blockquote>
+        <code>
+          END_CONSTANT;
+        </code>
+      </blockquote>
+      (*
+    </xsl:if>
+
 </xsl:template>
 
 <xsl:template match="type" >
@@ -341,34 +364,33 @@
     </A>
   </h3>
   
+  <p>
+    <xsl:choose>
+      <xsl:when test="./description">
+        <xsl:apply-templates select="./description"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </p>
+  <p><u>EXPRESS specification</u></p>
+  *)
   <blockquote>
-    <p>
-      <xsl:choose>
-        <xsl:when test="./description">
-          <xsl:apply-templates select="./description"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',$aname)"/>
-          </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
-    </p>
-    *)
-    <blockquote>
-      <code>
-        TYPE 
-        <xsl:value-of select="@name" />
+    <code>
+      TYPE 
+      <xsl:value-of select="@name" />
         =
         <xsl:apply-templates select="./aggregate" mode="code"/>        
         <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
-        END_TYPE; <br/>
-      </code>
-    </blockquote>
-    (*
+      END_TYPE; <br/>
+    </code>
   </blockquote>
+  (*
 </xsl:template>
 
 <!-- empty template to prevent the description element being out put along
@@ -489,44 +511,42 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  <u>Express specification</u>
+  <p>
+    <xsl:choose>
+      <xsl:when test="./description">
+        <xsl:apply-templates select="./description"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',@name)"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </p>
+  <p><u>EXPRESS specification</u></p>
+  *)
   <blockquote>
-    <p>
-      <xsl:choose>
-        <xsl:when test="./description">
-          <xsl:apply-templates select="./description"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',@name)"/>
-          </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
-    </p>
-    *)
-    <blockquote>
-      <code>
-        ENTITY <xsl:value-of select="@name"/>
-        <xsl:call-template name="super.expression-code"/>
-        <xsl:call-template name="supertypes-code"/>;    
-        <br/>
-        <xsl:apply-templates select="./explicit" mode="code"/>
-        <xsl:apply-templates select="./derived" mode="code"/>
-        <xsl:apply-templates select="./inverse" mode="code"/>
-        <xsl:apply-templates select="./unique" mode="code"/>
-        <xsl:apply-templates select="./where" mode="code"/>
-        END_ENTITY;<br/>
-      </code>
-    </blockquote>
-    (*
-    <xsl:apply-templates select="./explicit" mode="description"/>    
-    <xsl:apply-templates select="./derived" mode="description"/>    
-    <xsl:apply-templates select="./inverse" mode="description"/>  
-    <xsl:apply-templates select="./unique" mode="description"/>
-    <xsl:apply-templates select="./where" mode="description"/>
+    <code>
+      ENTITY <xsl:value-of select="@name"/>
+      <xsl:call-template name="super.expression-code"/>
+      <xsl:call-template name="supertypes-code"/>;    
+      <br/>
+      <xsl:apply-templates select="./explicit" mode="code"/>
+      <xsl:apply-templates select="./derived" mode="code"/>
+      <xsl:apply-templates select="./inverse" mode="code"/>
+      <xsl:apply-templates select="./unique" mode="code"/>
+      <xsl:apply-templates select="./where" mode="code"/>
+      END_ENTITY;<br/>
+    </code>
   </blockquote>
+  (*
+  <xsl:apply-templates select="./explicit" mode="description"/>    
+  <xsl:apply-templates select="./derived" mode="description"/>    
+  <xsl:apply-templates select="./inverse" mode="description"/>  
+  <xsl:apply-templates select="./unique" mode="description"/>
+  <xsl:apply-templates select="./where" mode="description"/>
 </xsl:template>
 
 
@@ -893,7 +913,34 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  <u>Express specification</u>
+  <!-- output the description -->
+  <xsl:choose>
+    <xsl:when test="./description">
+      <xsl:apply-templates select="./description"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+
+  <!-- output the EXPRESS -->
+  <p><u>EXPRESS specification</u></p>
+  *)
+  <blockquote>
+    <code>
+      FUNCTION <xsl:value-of select="@name"/>
+      <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
+      <xsl:apply-templates select="./*" mode="underlying"/>;
+      <pre>
+        <xsl:apply-templates select="./algorithm" mode="code"/>
+      </pre>
+      END_FUNCTION;
+    </code>
+  </blockquote>
 
 
 </xsl:template>
@@ -952,9 +999,66 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  <u>Express specification</u>
 
+  <!-- output the description -->
+  <xsl:choose>
+    <xsl:when test="./description">
+      <xsl:apply-templates select="./description"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+
+  <!-- output the EXPRESS -->
+  <p><u>EXPRESS specification</u></p>
+  *)
+  <blockquote>
+    <code>
+      PROCEDURE <xsl:value-of select="@name"/>
+    <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
+    <xsl:apply-templates select="./*" mode="underlying"/>;
+    <pre>
+      <xsl:apply-templates select="./algorithm" mode="code"/>
+    </pre>
+    END_PROCEDURE;
+    </code>
+  </blockquote>
+  (*
 </xsl:template>
+
+<!-- empty template to prevent the algorithm element being out put along
+     with the code -->
+<xsl:template match="parameter" mode="underlying"/>
+
+
+<xsl:template match="parameter" mode="code">
+  <xsl:if test="position()=1">&#160;(</xsl:if>
+  <xsl:value-of select="@name"/><xsl:text> : </xsl:text>
+  <xsl:apply-templates select="./aggregate" mode="code"/>
+  <xsl:apply-templates select="./*" mode="underlying"/>
+  <xsl:choose>
+    <xsl:when test="position()!=last()">
+      <xsl:text>, </xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>)</xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+<xsl:template match="algorithm" mode="code">
+  <xsl:value-of select="."/>
+</xsl:template>
+
+<!-- empty template to prevent the algorithm element being out put along
+     with the code -->
+<xsl:template match="algorithm" mode="underlying"/>
 
 
 <xsl:template match="rule">  
@@ -1009,8 +1113,36 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  <u>Express specification</u>
 
+  <!-- output the description -->
+  <xsl:choose>
+    <xsl:when test="./description">
+      <xsl:apply-templates select="./description"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+
+  <!-- output the EXPRESS -->
+  <p><u>EXPRESS specification</u></p>
+  *)
+  <blockquote>
+    <code>
+      RULE <xsl:value-of select="@name"/> FOR
+      <br/>
+      &#160;(<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
+      <pre>
+        <xsl:apply-templates select="./algorithm" mode="code"/>
+      </pre>
+      END_RULE;
+    </code>
+  </blockquote>
+  (*
 </xsl:template>
 
 <!-- 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     $Id: issues_file.xsl,v 1.7 2002/09/13 08:31:25 robbod Exp $
+     $Id: resource_issues_file.xsl,v 1.1 2002/10/16 21:35:44 thendrix Exp $
 
   Author: Tom Hendrix
   Owner:  
@@ -26,15 +26,14 @@
 
         <!-- Output a Table of contents -->
         <xsl:variable name="resdoc_name" select="@resource"/>
-        DEBUG resdoc_name <xsl:value-of select="$resdoc_name" />
         <xsl:variable name="resdoc_file"
           select="concat('../../data/resource_docs/',@resource,'/resource.xml')"/>
-        DEBUG resdoc_file <xsl:value-of select="$resdoc_file" />
+        
         <xsl:variable name="index_file" select="'../../data/resource_docs/resdoc_index.xml'" />
-        DEBUG index_file <xsl:value-of select="$index_file" />
+        
         <xsl:variable name="in_repo"
           select="document($index_file)/resource_docs/resource_doc[@name=$resdoc_name]"/>
-        DEBUG in_repo  <xsl:value-of select="$in_repo" />
+      
         <xsl:choose>
           <!-- the resource doc is present in the STEP mod repository -->
           <xsl:when test="$in_repo">
@@ -65,7 +64,7 @@
           <xsl:value-of select="@resource"/>
         </h3>
 
-        <p>DEBUG index_file <xsl:value-of select="$index_file" /></p>
+
 
         
         <xsl:if test="issue[@type='general']">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.48 2004/11/09 12:06:45 robbod Exp $
+$Id: resource.xsl,v 1.49 2004/11/23 16:12:36 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -615,7 +615,6 @@ o=isocs; s=central<br/>
     </xsl:when>
     <xsl:otherwise>
       <P>
-
         <xsl:value-of select="$resdoc_stdnumber"/>  specifies the integrated resource 
         <xsl:value-of select="$resdoc_name"/>.
       </P>
@@ -633,22 +632,27 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <xsl:template match="abstract">
+
+
   <xsl:variable name="resdoc_name">
     <xsl:call-template name="res_display_name">
       <xsl:with-param name="res" select="/resource/@name"/>
     </xsl:call-template>           
   </xsl:variable>
 
-  <P>
-    This part of ISO 10303 specifies the generic resource for 
-    <xsl:value-of select="$resdoc_name"/>.
-  </P>
-  <P>
-    The following are within the scope of this part of ISO 10303:
-  </P>
-  <UL>
-    <xsl:apply-templates select="./li"/>
-  </UL>  
+
+<xsl:variable name="resdoc_stdnumber">
+  <xsl:call-template name="get_resdoc_stdnumber">
+    <xsl:with-param name="resdoc" select=".."/>
+  </xsl:call-template>           
+</xsl:variable>
+
+<P>
+  <xsl:value-of select="$resdoc_stdnumber"/>  specifies the integrated resource 
+  <xsl:value-of select="$resdoc_name"/>.
+</P>
+
+    <xsl:apply-templates select="*"/>
 </xsl:template>
 
 

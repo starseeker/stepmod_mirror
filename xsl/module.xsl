@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.43 2002/04/19 09:48:45 goset1 Exp $
+$Id: module.xsl,v 1.44 2002/04/20 08:04:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2307,7 +2307,7 @@ defines it. Use: normref.inc')"/>
     select="count(./bibitem)"/>
 
   <xsl:apply-templates select="./bibitem.inc">
-    <xsl:with-param name="number_start" select="$bibitem_cnt"/>
+    <xsl:with-param name="number_start" select="$bibitem_cnt+1"/>
   </xsl:apply-templates>
 </xsl:template>
 
@@ -2329,7 +2329,7 @@ defines it. Use: normref.inc')"/>
         <xsl:value-of select="$number_inc"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:number count="bibitem | bibitem.inc"/>
+        <xsl:number count="bibitem"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

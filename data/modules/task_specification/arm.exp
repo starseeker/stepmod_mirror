@@ -1,44 +1,51 @@
-SCHEMA Task_specification_arm;
+(*
+  $Id: mim.exp,v 1.14 2002/08/02 13:53:41 nigelshaw Exp $
+  ISO TC184/SC4/WG12 N1451 - ISO/CD-TS 10303-1262 Task specification - EXPRESS ARM
+*) 
 
-USE FROM Classification_arm;
 
-USE FROM State_definition_arm;
+SCHEMA Task_specification_arm; 
 
-USE FROM State_observed_arm;
+USE FROM Classification_arm;    -- ISO/CD-TS 10303-1212
 
-TYPE condition_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
-END_TYPE;
+USE FROM State_definition_arm;    -- ISO/CD-TS 10303-1255
 
-TYPE state_or_state_definition_select = SELECT 
-  (State,
-   State_definition);
-END_TYPE;
+USE FROM State_observed_arm;    -- ISO/CD-TS 10303-1256
 
-TYPE task_classified_select = SELECT BASED_ON classified_select WITH
-  (Task,
-   Task_method,
-   Task_method_relationship,
-   Task_method_state_relationship,
-   Task_relationship,
-   Task_result,
-   Task_result_state_relationship,
-   Task_state_relationship);
-END_TYPE;
 
-TYPE task_item = EXTENSIBLE SELECT ;
-END_TYPE;
+TYPE condition_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+TYPE state_or_state_definition_select = SELECT
+   (State, 
+    State_definition);
+END_TYPE; 
+
+TYPE task_classified_select = SELECT BASED_ON classified_select WITH 
+   (Task, 
+    Task_method, 
+    Task_method_relationship, 
+    Task_method_state_relationship, 
+    Task_relationship, 
+    Task_result, 
+    Task_result_state_relationship, 
+    Task_state_relationship);
+END_TYPE; 
+
+TYPE task_item = EXTENSIBLE SELECT;
+END_TYPE; 
 
 ENTITY Advisory_task_step
-SUBTYPE OF (Task_step);
+  SUBTYPE OF (Task_step);
 END_ENTITY;
 
 ENTITY Concurrent_methods
-SUBTYPE OF (Structured_task_method);
-  methods : SET [2 : ?] OF Task_method;
+  SUBTYPE OF (Structured_task_method);
+  methods : SET[2:?] OF Task_method;
 END_ENTITY;
 
 ENTITY Decision_point
-SUBTYPE OF (Structured_task_method);
+  SUBTYPE OF (Structured_task_method);
   condition : condition_select;
   true_case_method : OPTIONAL Task_method;
   false_case_method : OPTIONAL Task_method;
@@ -46,78 +53,75 @@ SUBTYPE OF (Structured_task_method);
 END_ENTITY;
 
 ENTITY End_task
-SUBTYPE OF (Task_method);
+  SUBTYPE OF (Task_method);
 END_ENTITY;
 
-(*   *)
 ENTITY Exit_loop
-SUBTYPE OF (Task_method);
+  SUBTYPE OF (Task_method);
 END_ENTITY;
 
-(* 
- *)
 ENTITY Looping_method
-SUBTYPE OF (Structured_task_method);
+  SUBTYPE OF (Structured_task_method);
   repeated_method : Task_method;
 END_ENTITY;
 
-(* 
- *)
 ENTITY Method_constraint
-SUBTYPE OF (Task_method_relationship);
+  SUBTYPE OF (Task_method_relationship);
   applies_in : OPTIONAL Task_method;
 END_ENTITY;
 
 ENTITY Repeat_count
-SUBTYPE OF (Looping_method);
+  SUBTYPE OF (Looping_method);
   count : INTEGER;
 END_ENTITY;
 
 ENTITY Repeat_until
-SUBTYPE OF (Looping_method);
+  SUBTYPE OF (Looping_method);
   condition : condition_select;
 END_ENTITY;
 
 ENTITY Repeat_while
-SUBTYPE OF (Looping_method);
+  SUBTYPE OF (Looping_method);
   condition : condition_select;
 END_ENTITY;
 
 ENTITY Simultaneous_methods
-SUBTYPE OF (Concurrent_methods);
+  SUBTYPE OF (Concurrent_methods);
 END_ENTITY;
 
-ENTITY Structured_task_method ABSTRACT SUPERTYPE
-SUBTYPE OF (Task_method);
+ENTITY Structured_task_method
+  ABSTRACT SUPERTYPE 
+  SUBTYPE OF (Task_method);
 END_ENTITY;
 
 ENTITY Task;
   name : STRING;
   description : STRING;
-  objective : SET [1 : ?] OF Task_result;
+  objective : SET[1:?] OF Task_result;
   method : OPTIONAL Task_method;
 END_ENTITY;
 
 ENTITY Task_assignment;
   assigned_task : Task;
-  items : SET [1 : ?] OF task_item;
+  items : SET[1:?] OF task_item;
   role : STRING;
 END_ENTITY;
 
 ENTITY Task_invocation
-SUBTYPE OF (Task_method);
+  SUBTYPE OF (Task_method);
   task : Task;
 END_ENTITY;
 
-ENTITY Task_method ABSTRACT SUPERTYPE;
+ENTITY Task_method
+  ABSTRACT SUPERTYPE ;
   name : STRING;
   description : STRING;
-  notes : OPTIONAL LIST [1 : ?] OF Advisory_task_step;
+  notes : OPTIONAL LIST[1:?] OF Advisory_task_step;
 END_ENTITY;
 
 ENTITY Task_method_levels
-SUBTYPE OF (Task_method);
-  alternatives : SET [2 : ?] OF Task_method;
+  SUBTYPE OF (Task_method);
+  alternatives : SET[2:?] OF Task_method;
 END_ENTITY;
 
 ENTITY Task_method_relationship;
@@ -126,8 +130,8 @@ ENTITY Task_method_relationship;
 END_ENTITY;
 
 ENTITY Task_method_sequence
-SUBTYPE OF (Structured_task_method);
-  methods : LIST [2 : ?] OF Task_method;
+  SUBTYPE OF (Structured_task_method);
+  methods : LIST[2:?] OF Task_method;
 END_ENTITY;
 
 ENTITY Task_method_state_relationship;
@@ -156,10 +160,9 @@ ENTITY Task_state_relationship;
 END_ENTITY;
 
 ENTITY Task_step
-SUBTYPE OF (Task_method);
+  SUBTYPE OF (Task_method);
   step_text : STRING;
 END_ENTITY;
 
-END_SCHEMA;
-
+END_SCHEMA;  -- Task_specification_arm
 

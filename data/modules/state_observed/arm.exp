@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.17 2003/03/05 15:22:46 magnevs Exp $
+   $Id: arm.exp,v 1.18 2003/03/19 15:26:56 magnevs Exp $
    N1436 - ISO/CD-TS - 10303-1256 State_observed - EXPRESS ARM
 *)
 
@@ -10,7 +10,7 @@ USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
 USE FROM State_definition_arm;    -- ISO/CD-TS 10303-1255
 
 
-TYPE state_classified_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+TYPE state_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
    (Applied_state_assignment, 
     State, 
     State_relationship);
@@ -27,8 +27,8 @@ END_ENTITY;
 
 ENTITY Composition_of_state
   SUBTYPE OF (State_relationship);
-  SELF\State_relationship.relating RENAMED whole : State;
-  SELF\State_relationship.related RENAMED part : State;
+  SELF\State_relationship.relating RENAMED whole : SET[1:?] OF State;
+  SELF\State_relationship.related RENAMED part : SET[1:?] OF State;
 END_ENTITY;
 
 ENTITY Defined_state_relationship;
@@ -40,8 +40,8 @@ END_ENTITY;
 
 ENTITY Sequence_of_state
   SUBTYPE OF (State_relationship);
-  SELF\State_relationship.relating RENAMED successor : State;
-  SELF\State_relationship.related RENAMED predecessor : State;
+  SELF\State_relationship.relating RENAMED successor : SET[1:?] OF State;
+  SELF\State_relationship.related RENAMED predecessor : SET[1:?] OF State;
 END_ENTITY;
 
 ENTITY State
@@ -67,8 +67,8 @@ END_ENTITY;
 
 ENTITY State_cause_effect
   SUBTYPE OF (State_relationship);
-  SELF\State_relationship.relating RENAMED effect : State;
-  SELF\State_relationship.related RENAMED cause : State;
+  SELF\State_relationship.relating RENAMED effect : SET[1:?] OF State;
+  SELF\State_relationship.related RENAMED cause : SET[1:?] OF State;
 END_ENTITY;
 
 ENTITY State_observed
@@ -81,15 +81,15 @@ END_ENTITY;
 
 ENTITY State_predicted_to_observed
   SUBTYPE OF (State_relationship);
-  SELF\State_relationship.relating RENAMED observed_state : State_observed;
-  SELF\State_relationship.related RENAMED predicted_state : State_predicted;
+  SELF\State_relationship.relating RENAMED observed_state : SET[1:?] OF State_observed;
+  SELF\State_relationship.related RENAMED predicted_state : SET[1:?] OF State_predicted;
 END_ENTITY;
 
 ENTITY State_relationship;
   name : STRING;
   description : OPTIONAL STRING;
-  relating : State;
-  related : State;
+  relating : SET[1:?] OF State;
+  related : SET[1:?] OF State;
 END_ENTITY;
 
 ENTITY State_role;
@@ -99,9 +99,8 @@ END_ENTITY;
 
 ENTITY State_transition
   SUBTYPE OF (State_relationship);
-  SELF\State_relationship.relating RENAMED end_state : State;
-  SELF\State_relationship.related RENAMED start_state : State;
+  SELF\State_relationship.relating RENAMED end_state : SET[1:?] OF State;
+  SELF\State_relationship.related RENAMED start_state : SET[1:?] OF State;
 END_ENTITY;
 
 END_SCHEMA;  -- State_observed_arm
-

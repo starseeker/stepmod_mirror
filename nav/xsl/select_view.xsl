@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.13 2003/02/09 22:42:17 nigelshaw Exp $
+$Id: select_view.xsl,v 1.14 2003/03/03 11:07:09 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -268,11 +268,41 @@ $Id: select_view.xsl,v 1.13 2003/02/09 22:42:17 nigelshaw Exp $
 				<br/>
 				Now includes:
 				<blockquote>
-				<xsl:apply-templates select="." mode="basedon">
-					<xsl:with-param name="this-schema" select="$this-schema"/>
-					<xsl:with-param name="called-schemas" select="$called-schemas" />
-					<xsl:with-param name="done" select="' '" />
-				</xsl:apply-templates>
+					<xsl:variable name="sel-items">
+						<xsl:apply-templates select="." mode="basedon">
+							<xsl:with-param name="this-schema" select="$this-schema"/>
+							<xsl:with-param name="called-schemas" select="$called-schemas" />
+							<xsl:with-param name="done" select="' '" />
+						</xsl:apply-templates>
+					</xsl:variable>
+
+					<xsl:value-of select="$sel-items" />
+
+	<!-- note the following will not find entities with multiple supertypes 
+	Need to change in the long term -->
+
+					<xsl:variable name="subs">
+						<xsl:apply-templates select="$this-schema//entity[
+						contains($sel-items, concat(' ',@name,' '))]
+							| $called-schemas//entity[
+						contains($sel-items, concat(' ',@name,' '))]"
+						mode="subtypes">
+							<xsl:with-param name="this-schema" select="$this-schema"/>
+							<xsl:with-param name="called-schemas" select="$called-schemas" />
+							<xsl:with-param name="done" select="' '" />
+							<xsl:with-param name="output" select="concat(' ',$sel-items,' ')" />
+						</xsl:apply-templates>
+					</xsl:variable>
+
+					<xsl:if test="string-length($subs) > 3" >
+						<blockquote>
+							The following are also included by inheritance:
+							<br/>
+							<br/>
+							<xsl:value-of select="$subs" />
+						</blockquote>
+					</xsl:if>
+				
 				</blockquote>
 
 
@@ -564,7 +594,7 @@ $Id: select_view.xsl,v 1.13 2003/02/09 22:42:17 nigelshaw Exp $
 	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
 	
 		<xsl:if test="select/@selectitems" >
-			<xsl:value-of select="select/@selectitems" /> <!-- [<xsl:value-of select="./@name" />] -->
+			<xsl:value-of select="concat(' ',select/@selectitems)" /> <!-- [<xsl:value-of select="./@name" />] -->
 			<br/>
 		</xsl:if>
 
@@ -591,7 +621,7 @@ $Id: select_view.xsl,v 1.13 2003/02/09 22:42:17 nigelshaw Exp $
 	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
 	
 		<xsl:if test="select/@selectitems" >
-			<xsl:value-of select="select/@selectitems" /> <!-- [<xsl:value-of select="./@name" />] -->
+			<xsl:value-of select="concat(' ',select/@selectitems)" /> <!-- [<xsl:value-of select="./@name" />] -->
 			<br/>
 		</xsl:if>
 
@@ -607,6 +637,34 @@ $Id: select_view.xsl,v 1.13 2003/02/09 22:42:17 nigelshaw Exp $
 
 </xsl:template>
 
+<xsl:template match="entity" mode="subtypes">
+	<xsl:param name="this-schema" />
+	<xsl:param name="called-schemas" />
+	<xsl:param name="done" select="' '" />
+	<xsl:param name="output" select="' '" />
+
+	<xsl:variable name="this_entity" select="concat(' ',@name,' ')" />
+
+	<xsl:if test="not(contains($done, $this_entity))" >
+
+		<xsl:if test="not(contains($output, $this_entity))" >
+			<xsl:value-of select="$this_entity" /> 
+		</xsl:if>
+
+		<xsl:apply-templates select="$this-schema//entity[
+							contains(concat(' ',@supertypes,' '),$this_entity)] 
+							| $called-schemas//entity[
+							contains(concat(' ',@supertypes,' '),$this_entity)]" 
+						mode="subtypes">
+			<xsl:with-param name="this-schema" select="$this-schema"/>
+			<xsl:with-param name="called-schemas" select="$called-schemas" />
+			<xsl:with-param name="done" select="concat($done,$this_entity)" />
+			<xsl:with-param name="output" select="concat($output,$this_entity)" />
+		</xsl:apply-templates>
+
+	</xsl:if>
+
+</xsl:template>
 
 <xsl:template match="x" >
 	<br/>x: <xsl:value-of select="." />

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.41 2002/04/16 09:38:38 goset1 Exp $
+$Id: module.xsl,v 1.42 2002/04/16 13:36:59 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -89,7 +89,7 @@ $Id: module.xsl,v 1.41 2002/04/16 09:38:38 goset1 Exp $
   <xsl:variable name="status_words">
     <xsl:choose>
       <xsl:when test="@status='CD'">
-        working draft or Committee Draft
+        Committee Draft
       </xsl:when>
       <xsl:when test="@status='FDIS'">
         Final Draft International Standard
@@ -636,8 +636,7 @@ $Id: module.xsl,v 1.41 2002/04/16 09:38:38 goset1 Exp $
   <small>
     NOTE 2 The mapping specification is specified in 
     <a href="{$sect51}#mapping">5.1</a>. It shows how
-    the information requirements are met, using common resources of ISO
-    10303 and of ISO 13584 and constructs defined or imported in the MIM schema of this application module.
+    the information requirements are met, using common resources and constructs defined or imported in the MIM schema of this application module.
   </small>
 </p>
   <xsl:variable name="module_dir">
@@ -953,13 +952,13 @@ found in module ',$module )"/>
   </h3>
   <p>
     This clause specifies the EXPRESS schema that uses elements from the
-    common resources, application interpreted constructs or application
+    common resources or from other application
     modules and contains the types, entity specializations, rules, and
-    functions that are specific to this part of ISO 10303. </p> 
+    functions that are specific to this part of ISO 10303.</p> 
 		<p>This clause also
     specifies the modifications that apply to the constructs 
-    imported from the common resources or from application interpreted constructs .</p>
-		<p>The following restrictions apply onto the use, in this schema, of constructs defined in common resources, in application interpreted constructs or in application
+    imported from the common resources.</p>
+		<p>The following restrictions apply onto the use, in this schema, of constructs defined in common resources or in application
     modules:</p>
 		<ul>
 		<li>Use of a supertype entity does not make applicable any of its specializations, unless the specialization is also imported in the MIM schema.</li>
@@ -1114,16 +1113,16 @@ found in module ',$module )"/>
 
 <!-- build a list of normrefs that are used by the module.
      The list comprises:
-     All default normrefs listed in ../data/basic/normrefs.xml
+     All default normrefs listed in ../data/basic/normrefs_default.xml
      All normrefs explicitly included in the module by normref.inc
-     All normrefs that define terms for which abbreviations are provided
+     All default normrefs that define terms for which abbreviations are provided and listed in ../data/basic/abbreviations_default.xml
      All modules referenced by a USE FROM in the ARM
      All modules referenced by a USE FROM in the MIM
      All integrated resources referenced by a USE FROM in the MIM
 -->
 <xsl:template name="normrefs_list">
 
-  <!-- get all default normrefs listed in ../data/basic/normrefs.xml -->
+  <!-- get all default normrefs listed in ../data/basic/normrefs_default.xml -->
   <xsl:variable name="normref_list1">
     <xsl:call-template name="get_normref">
       <xsl:with-param 
@@ -1299,7 +1298,6 @@ found in module ',$module )"/>
         <xsl:variable name="abbr.inc" select="$abbrvinc_nodes[1]/@linkend"/>
         <xsl:variable name="abbr" 
           select="document('../data/basic/abbreviations.xml')/abbreviation.list/abbreviation[@id=$abbr.inc]"/>
-
 
         <xsl:variable name="first">
           <xsl:choose>
@@ -2146,7 +2144,6 @@ defines it. Use: normref.inc')"/>
   </xsl:variable>
   <xsl:value-of select="floor($section1 div 2)"/>
 </xsl:template>
-
 
 
 <!-- output the section header for terms defined in a module -->

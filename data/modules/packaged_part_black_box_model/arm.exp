@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.3 2004/11/19 12:12:09 budreckytej Exp $
+   $Id: arm.exp,v 1.4 2004/11/30 12:23:15 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Packaged part black box model - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
 
@@ -13,19 +13,13 @@ USE FROM Physical_unit_usage_view_arm;
 
 USE FROM Part_terminal_arm;
 
+USE FROM Package_arm;
+
 USE FROM Network_functional_usage_view_arm;
-
-	TYPE package_or_package_external_reference = 
-		EXTENSIBLE GENERIC_ENTITY SELECT;
-	END_TYPE;
-
-	TYPE package_terminal_or_package_terminal_external_reference = 
-		EXTENSIBLE GENERIC_ENTITY SELECT;
-	END_TYPE;
 
   ENTITY Packaged_part
     SUBTYPE OF (part_usage_view);
-      used_package         : SET[1:?] OF package_or_package_external_reference;
+      used_package         : SET[1:?] OF Package;
       potting_compound     : OPTIONAL material_identification;
       implemented_function : OPTIONAL functional_unit_usage_view;
     INVERSE
@@ -42,7 +36,7 @@ USE FROM Network_functional_usage_view_arm;
   ENTITY Packaged_part_terminal
   	ABSTRACT SUPERTYPE
     SUBTYPE OF (part_terminal);
-      terminal_of_package                     : SET[1:?] OF package_terminal_or_package_terminal_external_reference;
+      terminal_of_package                     : SET[1:?] OF Package_terminal;
       SELF\part_feature.associated_definition : packaged_part;
     WHERE
       WR1 : disjoint_package_terminals(SELF);

@@ -9,13 +9,8 @@
       <interface kind="use" schema="Pdm_material_aspects_arm"/>
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
       <interface kind="use" schema="Part_terminal_arm"/>
+	  <interface kind="use" schema="Package_arm"/>
       <interface kind="use" schema="Network_functional_usage_view_arm"/>
-      <type name="package_or_package_external_reference">
-         <select extensible="YES" genericentity="YES"/>
-      </type>
-      <type name="package_terminal_or_package_terminal_external_reference">
-         <select extensible="YES" genericentity="YES"/>
-      </type>
       <entity name="Packaged_part" supertypes="Part_usage_view">
          <explicit name="implemented_function" optional="YES">
             <typename name="Functional_unit_usage_view"/>
@@ -25,10 +20,10 @@
          </explicit>
          <explicit name="used_package">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="package_or_package_external_reference"/>
+            <typename name="Package"/>
          </explicit>
          <inverse name="access_mechanisms" entity="Packaged_part_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="0"/>
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression=" NOT ( EXISTS ( implemented_function ) XOR ( SIZEOF ( access_mechanisms ) &gt; 0 ) ) "/>
          <where label="WR2" expression=" single_package_version ( SELF ) "/>
@@ -41,7 +36,7 @@
          </explicit>
          <explicit name="terminal_of_package">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="package_terminal_or_package_terminal_external_reference"/>
+            <typename name="Package_terminal"/>
          </explicit>
          <where label="WR1" expression=" disjoint_package_terminals ( SELF ) "/>
          <where label="WR2" expression=" NOT EXISTS ( SELF \ part_feature . precedent_feature ) "/>

@@ -300,17 +300,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
 
         <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCMAINXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/main.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
           <xsl:attribute name="name"></xsl:attribute>
           <xsl:attribute name="value">
             <xsl:apply-templates select="ballot_package/resource">
@@ -3869,54 +3858,6 @@ utable as in buildscript -->
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCMAINXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_main.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCASHORTNAMESXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
@@ -4412,6 +4353,7 @@ utable as in buildscript -->
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <param name="view" expression="ballot"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.9 2003/04/18 22:04:11 thendrix Exp $
+$Id: imgfile.xsl,v 1.10 2003/09/02 23:54:49 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -60,7 +60,7 @@ $Id: imgfile.xsl,v 1.9 2003/04/18 22:04:11 thendrix Exp $
       <xsl:when test="contains(@file,'schema_diag')">
         
             <xsl:value-of 
-              select="concat('Figure 1. ', 
+              select="concat('Figure 1 ', 
                       ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture')" />
       </xsl:when>
       <xsl:when test="contains(@file,'schemaexpg')">       
@@ -187,7 +187,14 @@ $Id: imgfile.xsl,v 1.9 2003/04/18 22:04:11 thendrix Exp $
           <xsl:with-param name="schema_name" select="$this-schema"/>
         </xsl:apply-templates>
       </xsl:variable>
-      <xsl:value-of select="concat($resdoc_root,'/sys/',$clauseno,'_schema',$FILE_EXT,$hash,$frag)"/>
+        <xsl:choose>
+          <xsl:when test="string-length($clauseno) > 0">
+            <xsl:value-of select="concat($resdoc_root,'/sys/',$clauseno,'_schema',$FILE_EXT,$hash,$frag)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat('../',$this-schema,'/',$this-schema,$FILE_EXT,$hash,$frag)"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -273,7 +280,7 @@ $Id: imgfile.xsl,v 1.9 2003/04/18 22:04:11 thendrix Exp $
             <xsl:otherwise>
               <xsl:if test="string-length(@title) > 3" >
                 <xsl:value-of 
-                  select="concat('Figure  1.  &#8212; ',@title)" />
+                  select="concat('Figure  1  &#8212; ',@title)" />
                 </xsl:if>
         </xsl:otherwise>
       </xsl:choose>

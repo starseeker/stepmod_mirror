@@ -1,0 +1,88 @@
+(*
+   $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
+   N - ISO/CD-TS - 10303- building_item - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Building_item_arm;
+
+TYPE fixture_equipment_functional_type = ENUMERATION OF
+	(ceiling,
+	 covering_element,
+	 door,
+	 floor_covering,
+	 furniture,
+	 wall_covering,
+	 window);
+END_TYPE;
+
+TYPE fixture_equipment_type = SELECT
+	(fixture_equipment_type_name,
+	 fixture_equipment_functional_type);
+END_TYPE;
+
+TYPE fixture_equipment_type_name = STRING;
+END_TYPE;
+
+TYPE service_functional_type = ENUMERATION OF
+	(electrical_system,
+	 HVAC_system,
+	 plumbing_system,
+	 transport_system);
+END_TYPE;
+
+TYPE service_type = SELECT
+	(service_type_name,
+	 service_functional_type);
+END_TYPE;
+
+TYPE service_type_name = STRING;
+END_TYPE;
+
+TYPE structure_enclosure_functional_type = ENUMERATION OF
+	(beam,
+	 brace,
+	 column,
+	 floor,
+	 foundation,
+	 structural_wire,
+	 wall);
+END_TYPE;
+
+TYPE structure_enclosure_type = SELECT
+	(structure_enclosure_type_name,
+	 structure_enclosure_functional_type);
+END_TYPE;
+
+TYPE structure_enclosure_type_name = STRING;
+END_TYPE;
+
+ENTITY Building_element
+	SUPERTYPE OF (ONEOF(Structure_enclosure_element,Fixture_equipment_element,Service_element))
+	SUBTYPE OF (Building_item);
+END_ENTITY;
+
+ENTITY Building_item
+	ABSTRACT SUPERTYPE OF (ONEOF(Space,Building_element));
+	status : STRING;
+END_ENTITY;
+
+ENTITY Fixture_equipment_element
+	SUBTYPE OF (Building_element);
+	functional_type : Fixture_equipment_type;
+END_ENTITY;
+
+ENTITY Service_element
+	SUBTYPE OF (Building_element);
+	functional_type : service_type;
+END_ENTITY;
+
+ENTITY Space
+	SUBTYPE OF (Building_item);
+END_ENTITY;
+
+ENTITY Structure_enclosure_element
+	SUBTYPE OF (Building_element);
+	functional_type : structure_enclosure_type;
+	load_bearing : LOGICAL;
+END_ENTITY;
+
+END_SCHEMA;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.91 2002/08/06 06:20:41 robbod Exp $
+$Id: module.xsl,v 1.92 2002/08/06 14:40:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1076,7 +1076,15 @@ o=isocs; s=central<br/>
     <table border="1" cellspacing="1">
       <tr>
         <td><b>Description</b></td>
-        <td><b>HTMLfile</b></td>
+        <xsl:choose>
+          <xsl:when test="$FILE_EXT='.xml'">
+            <td><b>XML file</b></td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td><b>HTML file</b></td>
+          </xsl:otherwise>
+        </xsl:choose>
+
         <td><b>ASCII file</b></td>
         <td><b>Identifier</b></td>
       </tr>

@@ -1,8 +1,9 @@
 (*
- $Id: mim.exp,v 1.28 2004/12/29 12:40:52 robbod Exp $
+ $Id: mim.exp,v 1.29 2004/12/30 10:58:49 robbod Exp $
  ISO TC184/SC4/WG3 N1563 - ISO/TS 10303-1292 AP239 product definition information - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG3 N1391
 *) 
+
 
 SCHEMA Ap239_product_definition_information_mim;
 
@@ -11,6 +12,9 @@ USE FROM Alias_identification_mim;    -- ISO/TS 10303-1025
 USE FROM Ap239_part_definition_information_mim;    -- ISO/TS 10303-1293
 
 USE FROM Approval_mim;    -- ISO/TS 10303-1012
+
+USE FROM approval_schema   -- ISO 10303-41
+  (approval); 
 
 USE FROM Assembly_structure_mim;    -- ISO/TS 10303-1026
 
@@ -55,6 +59,11 @@ USE FROM document_schema   -- ISO 10303-41
 USE FROM Document_structure_mim;    -- ISO/TS 10303-1124
 
 USE FROM Effectivity_application_mim;    -- ISO/TS 10303-1059
+
+USE FROM Effectivity_mim;    -- ISO/TS 10303-1057
+
+USE FROM effectivity_schema   -- ISO 10303-41
+  (effectivity); 
 
 USE FROM External_item_identification_assignment_mim;    -- ISO/TS 10303-1128
 
@@ -112,7 +121,9 @@ USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
 USE FROM product_property_definition_schema   -- ISO 10303-41
   (characterized_object,
    product_definition_shape,
-   property_definition); 
+   property_definition,
+   shape_aspect,
+   shape_aspect_relationship); 
 
 USE FROM Product_relationship_mim;    -- ISO/TS 10303-1024
 
@@ -168,7 +179,8 @@ TYPE ap239_prdi_aliasable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON alias
     product_definition_formation, 
     product_definition_relationship, 
     product_definition_shape, 
-    product_relationship);
+    product_relationship, 
+    shape_aspect_relationship);
 END_TYPE; 
 
 TYPE ap239_prdi_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
@@ -185,6 +197,7 @@ TYPE ap239_prdi_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approv
     breakdown_element_group_assignment, 
     breakdown_element_usage, 
     configuration_item, 
+    effectivity, 
     in_zone, 
     product, 
     product_definition, 
@@ -307,8 +320,11 @@ TYPE ap239_prdi_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED
     product, 
     product_definition_formation, 
     product_definition_group_assignment, 
+    product_definition_relationship, 
     product_relationship, 
-    selected_item);
+    selected_item, 
+    shape_aspect, 
+    shape_aspect_relationship);
 END_TYPE; 
 
 TYPE ap239_prdi_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH 
@@ -369,7 +385,8 @@ TYPE ap239_prdi_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
     product_definition_formation, 
     product_definition_relationship, 
     product_definition_shape, 
-    product_relationship);
+    product_relationship, 
+    shape_aspect_relationship);
 END_TYPE; 
 
 TYPE ap239_prdi_in_zone_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON in_zone_groupable_item WITH 
@@ -378,6 +395,7 @@ END_TYPE;
 
 TYPE ap239_prdi_ir_usage_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usage_item WITH 
    (alternate_product_relationship, 
+    applied_usage_right, 
     assembly_component_usage, 
     assembly_component_usage_substitute, 
     attachment_slot_design_to_planned, 
@@ -413,6 +431,7 @@ END_TYPE;
 
 TYPE ap239_prdi_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
    (alternate_product_relationship, 
+    approval, 
     assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
@@ -428,6 +447,7 @@ END_TYPE;
 
 TYPE ap239_prdi_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
    (alternate_product_relationship, 
+    approval, 
     assembly_component_usage, 
     assembly_component_usage_substitute, 
     breakdown_element_group_assignment, 
@@ -565,8 +585,9 @@ END_SUBTYPE_CONSTRAINT;
 RULE ap239_prdi_restrict_product_category_for_product FOR 
 (product);
 WHERE
-  WR1: SIZEOF(QUERY(p <* product | SIZEOF(QUERY(prpc <* USEDIN(p,'AP239_PRODUCT_DEFINITION_INFORMATION_MIM.' +'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name IN ['attachment slot', 'breakdown', 'breakdown element', 'conceptual product', 'document', 'envelope', 'functional breakdown', 'functionality', 'hybrid breakdown', 'hybrid element', 'interface connector', 'interface specification', 'justification', 'message', 'part', 'physical breakdown', 'physically realized product', 'raw material', 'requirement', 'system breakdown', 'system element', 'tool', 'zone breakdown', 'zone element'])) <> 1)) = 0;
+  WR1: SIZEOF(QUERY(p <* product | SIZEOF(QUERY(prpc <* USEDIN(p,'AP239_PRODUCT_DEFINITION_INFORMATION_MIM.' +'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name IN ['assembly', 'attachment slot', 'breakdown', 'breakdown element', 'conceptual product', 'detail', 'document', 'envelope', 'functional breakdown', 'functionality', 'hybrid breakdown', 'hybrid element', 'interface connector', 'interface specification', 'justification', 'message', 'part', 'physical breakdown', 'physically realized product', 'prototype part', 'raw material', 'requirement', 'spare part', 'standard', 'system breakdown', 'system element', 'tool', 'zone breakdown', 'zone element'])) <> 1)) = 0;
 END_RULE; 
 
 END_SCHEMA;  -- Ap239_product_definition_information_mim
+
 

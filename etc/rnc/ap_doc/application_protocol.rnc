@@ -1,4 +1,4 @@
-# $Id: application_protocol.dtd,v 1.19 2004/10/09 17:14:29 thendrix Exp $
+# $Id: application_protocol.dtd,v 1.22 2004/10/20 06:37:26 robbod Exp $
 # Author:  Mike Ward, David Price, Rob Bodington, Nigel Shaw,  Eurostep Limited
 # Owner:   Developed by Eurostep and supplied to PDES / NIST under contract.
 # Purpose: DTD for AP document
@@ -60,8 +60,8 @@ application_protocol =
 #        checklist.project_leader 
 #        checklist.convener 
 # Attributes for source control software like RCS or CVS
-#        rcs.date      $Date: 2004/10/09 17:14:29 $     
-#        rcs.revision  $Revision: 1.19 $                
+#        rcs.date      $Date: 2004/10/20 06:37:26 $     
+#        rcs.revision  $Revision: 1.22 $                
 application_protocol-attlist &=
   attribute name { xsd:NMTOKEN },
   attribute name.french { text }?,
@@ -102,7 +102,9 @@ change_summary =
   }
 change_summary-attlist &= empty
 change_detail =
-  element change_detail { change_detail-attlist, description.content* }
+  element change_detail {
+    change_detail-attlist, (description.content | annex_clause)*
+  }
 change_detail-attlist &= empty
 # Clause 4
 inforeqt =
@@ -131,8 +133,16 @@ imp_meth-attlist &=
   attribute part {
     "21" | "22" | "23" | "24" | "25" | "27" | "28" | "29"
   }?
+# A clause in the  usage_guide or tech_disc sections
+annex_clause =
+  element annex_clause {
+    annex_clause-attlist, (description.content | annex_clause)*
+  }
+annex_clause-attlist &= attribute title { text }
 tech_disc =
-  element tech_disc { tech_disc-attlist, description.content* }
+  element tech_disc {
+    tech_disc-attlist, (description.content | annex_clause)*
+  }
 tech_disc-attlist &= empty
 # Terminology map
 terminology_map =

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_modindex.xsl,v 1.4 2003/07/29 16:05:27 robbod Exp $
+$Id: sect_modindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -220,7 +220,7 @@ $Id: sect_modindex.xsl,v 1.4 2003/07/29 16:05:27 robbod Exp $
 
 
 <xsl:template
-  match="entity|subtype.constraint"
+  match="entity"
   mode="get_arm_object">
   <arm_entity>
     <xsl:variable name="aname">

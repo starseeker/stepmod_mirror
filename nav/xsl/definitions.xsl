@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.6 2002/09/29 08:46:22 robbod Exp $
+$Id: definitions.xsl,v 1.1 2002/09/30 10:24:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
-  Owner:   Developed by Eurostep Limited
-  Purpose: A set of imported templates to set up a list of modules
-     The importing file will define the modules template which
-     displays the list of modules
+  Owner:   Developed by Eurostep Limited under contract to NIST
+  Purpose: Create an index on definitions defined in the modules.
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -35,7 +33,7 @@ $Id: modules_list.xsl,v 1.6 2002/09/29 08:46:22 robbod Exp $
     <head>
       <link rel="stylesheet" type="text/css" href="./css/nav.css"/>
       <title>
-        <xsl:value-of select="Modules" />
+        Definition index
       </title>
 
       <script language="JavaScript"><![CDATA[

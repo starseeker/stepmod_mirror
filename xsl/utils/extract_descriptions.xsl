@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.6 2002/01/14 13:28:57 robbod Exp $
+     $Id: extract_descriptions.xsl,v 1.1 2002/03/19 13:24:23 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -21,7 +21,8 @@
 <xsl:output 
   method="xml"
   indent="yes"
-  omit-xml-declaration="no"
+  omit-xml-declaration="yes"
+  encoding="utf-8"
   />
 
 
@@ -29,13 +30,11 @@
 
 
 <xsl:template match="express">
-  <xsl:text>
-  </xsl:text>
+
 <xsl:processing-instruction name="xml-stylesheet">
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"</xsl:processing-instruction>
-<xsl:text>
-</xsl:text>
+
 <xsl:processing-instruction name="DOCTYPE">
   express SYSTEM "../../../dtd/description.dtd"</xsl:processing-instruction>
   <xsl:element name="ext_descriptions">
@@ -60,10 +59,10 @@
     </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="concat('$Date: ','$')"/>
+    <xsl:value-of select="'$Date: 2002/03/19 13:24:23 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="concat('$Revision: ','$')"/>
+    <xsl:value-of select="'$Revision: 1.1 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      
@@ -93,10 +92,6 @@
   <xsl:variable name="linkend" select="translate(@name,$UPPER, $LOWER)"/>
   -->
   <xsl:variable name="linkend" select="@name"/>
-  <xsl:text>
-
-
-  </xsl:text>
   <xsl:comment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',@name,' ')"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ </xsl:comment>
@@ -127,9 +122,6 @@
   -->
   <xsl:variable name="linkend" 
     select="concat(../@name, '.', @name)"/>
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
@@ -163,9 +155,6 @@
   -->
   <xsl:variable name="linkend" 
     select="concat(../../@name,'.',../@name,'.',@name)"/>
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../../@name,' ')"/>
@@ -196,9 +185,6 @@
   -->
   <xsl:variable name="linkend" 
     select="concat(../../@name,'.',../@name,'.wr:',@label)"/>
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../../@name,' ')"/>
@@ -230,9 +216,6 @@
   -->
   <xsl:variable name="linkend" 
     select="concat(../../@name,'.',../@name,'.ur:',@label)"/>
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../../@name,' ')"/>
@@ -263,9 +246,6 @@
   -->
   <xsl:variable name="linkend" 
     select="concat(../@name,'.',@name)"/>
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
@@ -294,9 +274,6 @@
 -->
   <xsl:variable name="linkend" 
     select="concat(../@name,'.',@name)"/>
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
@@ -324,9 +301,6 @@
 -->
   <xsl:variable name="linkend" 
     select="concat(../@name,'.',@name)"/>
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
@@ -355,9 +329,6 @@
   <xsl:variable name="linkend" 
     select="concat(../@name,'.',@name)"/>
 
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
@@ -387,9 +358,6 @@
 -->
   <xsl:variable name="linkend" 
     select="concat(../@name,'.',@name)"/>
-  <xsl:text>
-
-  </xsl:text>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.119 2004/10/21 16:18:48 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.120 2005/01/04 07:40:17 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1721,7 +1721,14 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 </xsl:template>
 
 <xsl:template match="inverse.aggregate" mode="code">
-  <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+  <xsl:choose>
+    <xsl:when test="@lower">
+      <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="concat(@type, ' OF ')"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="unique" mode="code">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_index.xsl,v 1.2 2003/05/22 22:30:38 nigelshaw Exp $
+$Id: sect_contents.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -88,7 +88,7 @@ $Id: frame_index.xsl,v 1.2 2003/05/22 22:30:38 nigelshaw Exp $
     <br/>
     <a href="./a_exp_lf{$FILE_EXT}" target="{$target}">A EXPRESS expanded listing</a>
     <br/>
-    <a href="./b_shortnames{$FILE_EXT}">
+    <a href="./b_shortnames{$FILE_EXT}" target="{$target}">
       B AIM short names
     </a>
     <br/>
@@ -120,8 +120,10 @@ $Id: frame_index.xsl,v 1.2 2003/05/22 22:30:38 nigelshaw Exp $
       <a href="./j_tech_disc{$FILE_EXT}" target="{$target}">J Technical discussions</a>
       <br/>
     </xsl:if>
+    <!--
     <a href="./k_ae_index{$FILE_EXT}#k_ae_index" target="{$target}">K Application object index</a>
     <br/>			
+    -->
     <a href="./biblio{$FILE_EXT}#biblio"
       target="{$target}">Bibliography</a>
     <xsl:apply-templates select="." mode="copyright"/>

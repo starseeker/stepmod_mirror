@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_index.xsl,v 1.2 2003/05/22 22:30:38 nigelshaw Exp $
+$Id: application_protocol_toc.xsl,v 1.19 2003/05/23 15:52:56 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -132,10 +132,12 @@ $Id: frame_index.xsl,v 1.2 2003/05/22 22:30:38 nigelshaw Exp $
 							</a>
 							<br/>
 						</xsl:if>
+                                                <!--
 						<a href="{$application_protocol_root}/sys/k_ae_index{$FILE_EXT}">
 							K Application object index
 						</a>
-						<br/>
+						<br/
+                                                  -->
 						<a href="{$application_protocol_root}/sys/biblio{$FILE_EXT}#biblio">
 							Bibliography
 						</a>

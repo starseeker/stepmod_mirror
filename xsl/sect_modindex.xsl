@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_modindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
+$Id: sect_modindex.xsl,v 1.6 2003/10/17 15:11:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -424,12 +424,14 @@ $Id: sect_modindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
       <xsl:value-of select="$clause_no"/>
     </a>
   </div>
-  <div>
-    &#160;&#160;&#160;ARM EXPRESS-G
-    <a href="{$expg_href}">
-      <xsl:value-of select="$expg_figure"/>
-    </a>
-  </div> 
+  <xsl:if test="string-length(@expg_href)>0">
+    <div>
+      &#160;&#160;&#160;ARM EXPRESS-G
+      <a href="{$expg_href}">
+        <xsl:value-of select="$expg_figure"/>
+      </a>
+    </div>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template match="arm_entity" mode="output_index">
@@ -476,12 +478,14 @@ $Id: sect_modindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
       <xsl:value-of select="$clause_no"/>
     </a>
   </div>
-  <div>
-    &#160;&#160;&#160;MIM EXPRESS-G
-    <a href="{$expg_href}">
-      <xsl:value-of select="$expg_figure"/>
-    </a>
-  </div>
+  <xsl:if test="string-length(@expg_href)>0">
+    <div>
+      &#160;&#160;&#160;MIM EXPRESS-G
+      <a href="{$expg_href}">
+        <xsl:value-of select="$expg_figure"/>
+      </a>
+    </div>
+  </xsl:if>
 </xsl:template>
 
 

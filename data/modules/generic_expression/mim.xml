@@ -15,16 +15,16 @@
     version="1.25"
     source="../data/modules/generic_expression/mim.exp"/>
 
-  <schema name="Generic_expression_mim">
+  <schema name="generic_expression_mim">
     <interface
       kind="use"
-      schema="Expression_arm">
+      schema="Expression_mim">
     </interface>
 
     <entity
-      name="Generic_expression"
+      name="generic_expression"
       abstract.supertype="YES"
-      super.expression="(ONEOF(Simple_generic_expression,			    Unary_generic_expression,			    Binary_generic_expression,			    Multiple_arity_generic_expression))">
+      super.expression="(ONEOF(simple_generic_expression,			    unary_generic_expression,			    binary_generic_expression,			    multiple_arity_generic_expression))">
       <where
         label="WR1"
         expression="Is_Acyclic(SELF)">
@@ -32,64 +32,64 @@
     </entity>
 
     <entity
-      name="Simple_generic_expression"
+      name="simple_generic_expression"
       abstract.supertype="YES"
-      super.expression="(ONEOF(Generic_literal, Generic_variable))"
-      supertypes="Generic_expression">
+      super.expression="(ONEOF(generic_literal, generic_variable))"
+      supertypes="generic_expression">
     </entity>
 
     <entity
-      name="Generic_literal"
+      name="generic_literal"
       abstract.supertype="YES"
-      supertypes="Simple_generic_expression">
+      supertypes="simple_generic_expression">
     </entity>
 
     <entity
-      name="Generic_variable"
+      name="generic_variable"
       abstract.supertype="YES"
-      super.expression="(Variable)"
-      supertypes="Simple_generic_expression">
+      super.expression="(variable)"
+      supertypes="simple_generic_expression">
       <inverse
         name="interpretation"
-        entity="Environment"
+        entity="environment"
         attribute="syntactic_representation">
       </inverse>
     </entity>
 
     <entity
-      name="Variable_semantics"
+      name="variable_semantics"
       abstract.supertype="YES">
     </entity>
 
     <entity
-      name="Environment">
+      name="environment">
       <explicit
         name="syntactic_representation">
         <typename
-          name="Generic_variable"/>
+          name="generic_variable"/>
       </explicit>
       <explicit
         name="semantics">
         <typename
-          name="Variable_semantics"/>
+          name="variable_semantics"/>
       </explicit>
     </entity>
 
     <entity
-      name="Unary_generic_expression"
+      name="unary_generic_expression"
       abstract.supertype="YES"
-      supertypes="Generic_expression">
+      supertypes="generic_expression">
       <explicit
         name="operand">
         <typename
-          name="Generic_expression"/>
+          name="generic_expression"/>
       </explicit>
     </entity>
 
     <entity
-      name="Binary_generic_expression"
+      name="binary_generic_expression"
       abstract.supertype="YES"
-      supertypes="Generic_expression">
+      supertypes="generic_expression">
       <explicit
         name="operands">
         <aggregate
@@ -97,14 +97,14 @@
           lower="2"
           upper="2"/>
         <typename
-          name="Generic_expression"/>
+          name="generic_expression"/>
       </explicit>
     </entity>
 
     <entity
-      name="Multiple_arity_generic_expression"
+      name="multiple_arity_generic_expression"
       abstract.supertype="YES"
-      supertypes="Generic_expression">
+      supertypes="generic_expression">
       <explicit
         name="operands">
         <aggregate
@@ -112,7 +112,7 @@
           lower="2"
           upper="?"/>
         <typename
-          name="Generic_expression"/>
+          name="generic_expression"/>
       </explicit>
     </entity>
 
@@ -121,7 +121,7 @@
       <parameter
         name="arg">
         <typename
-          name="Generic_expression"/>
+          name="generic_expression"/>
       </parameter>
       <builtintype
         type="BOOLEAN"/>
@@ -136,14 +136,14 @@ RETURN (Acyclic (arg, []));
       <parameter
         name="arg1">
         <typename
-          name="Generic_expression"/>
+          name="generic_expression"/>
       </parameter>
       <parameter
         name="arg2">
         <aggregate
           type="SET"/>
         <typename
-          name="Generic_expression"/>
+          name="generic_expression"/>
       </parameter>
       <builtintype
         type="BOOLEAN"/>
@@ -153,7 +153,7 @@ LOCAL
 	result: BOOLEAN;
 END_LOCAL;
 
-IF ('ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Simple_generic_expression'
+IF ('ISO13584_generic_expressionS_SCHEMA.simple_generic_expression'
 	IN TYPEOF (arg1)) 
 THEN
 	RETURN (TRUE);
@@ -164,31 +164,31 @@ THEN
 	RETURN (FALSE);
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
+IF 'ISO13584_generic_expressionS_SCHEMA.unary_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	RETURN 
-	(Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
+	(Acyclic(arg1\unary_generic_expression.operand,arg2+[arg1]));
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression' 
+IF 'ISO13584_generic_expressionS_SCHEMA.binary_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	RETURN 
-	(Acyclic(arg1\Binary_generic_expression.operands[1],arg2+[arg1])
+	(Acyclic(arg1\binary_generic_expression.operands[1],arg2+[arg1])
 	AND
-	Acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
+	Acyclic(arg1\binary_generic_expression.operands[2],arg2+[arg1]));
 END_IF;
 
 IF 
-'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
+'ISO13584_generic_expressionS_SCHEMA.multiple_arity_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	result := TRUE;
 	REPEAT i := 1 TO 
-			SIZEOF (arg1\Multiple_arity_generic_expression.operands);
+			SIZEOF (arg1\multiple_arity_generic_expression.operands);
 		result := result AND
-		Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2+[arg1]);
+		Acyclic(arg1\multiple_arity_generic_expression.operands[i], arg2+[arg1]);
 	END_REPEAT;
 
 	RETURN (result);
@@ -203,51 +203,51 @@ END_IF;
       <parameter
         name="arg">
         <typename
-          name="Generic_expression"/>
+          name="generic_expression"/>
       </parameter>
       <aggregate
         type="SET"/>
       <typename
-        name="Generic_variable"/>
+        name="generic_variable"/>
       <algorithm>
 
 LOCAL
-	result : SET OF Generic_variable := [];
+	result : SET OF generic_variable := [];
 END_LOCAL;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Generic_variable' 
+IF 'ISO13584_generic_expressionS_SCHEMA.generic_variable' 
 	IN TYPEOF (arg) 
 THEN 
 	RETURN ([arg]);
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
+IF 'ISO13584_generic_expressionS_SCHEMA.unary_generic_expression' 
 	IN TYPEOF (arg)
 THEN 
-	RETURN (Used_variables (arg\Unary_generic_expression.operand));
+	RETURN (Used_variables (arg\unary_generic_expression.operand));
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression'
+IF 'ISO13584_generic_expressionS_SCHEMA.binary_generic_expression'
 	IN TYPEOF (arg)
 THEN 
-	RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
-		+ Used_variables (arg\Binary_generic_expression.operands[2]));
+	RETURN(Used_variables(arg\binary_generic_expression.operands[1])
+		+ Used_variables (arg\binary_generic_expression.operands[2]));
 END_IF;
 
 IF
-'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
+'ISO13584_generic_expressionS_SCHEMA.multiple_arity_generic_expression' 
 	IN TYPEOF (arg)
 THEN
 	REPEAT i := 1 TO 
-		SIZEOF(arg\Multiple_arity_generic_expression.operands);
+		SIZEOF(arg\multiple_arity_generic_expression.operands);
 		result := result + Used_variables(
-			arg\Multiple_arity_generic_expression.operands[i]);
+			arg\multiple_arity_generic_expression.operands[i]);
 	END_REPEAT;
 	
 	RETURN (result);
 END_IF;
 RETURN ([ ]);      -- in this case the subtype shall not contain
-			            -- any Variable (see IP1 in Generic_expression)
+			            -- any variable (see IP1 in generic_expression)
       </algorithm>
 
     </function>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: $
+	$Id: express_toc.xsl,v 1.2 2002/10/08 10:20:08 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../express_toc.xsl"/>
@@ -54,7 +54,7 @@
 		<xsl:if test="./constant">
 			<xsl:variable name="schema-ref" select="concat('index_',@name)"/>
 			<xsl:variable name="constant_refs" select="concat('constant_declarations.',@name)"/>
-			<H3>
+			<H2>
 				<A NAME="{$constant_refs}">
 					CONSTANT Declarations
 				</A>
@@ -65,7 +65,7 @@
 					</A>
 					]
 				</font>
-			</H3>
+			</H2>
 			<xsl:variable name="constantcount" select="(count(./constant)+1) div 2"/>
 			<blockquote>
 				<table width="90%" cellspacing="0" cellpadding="4">
@@ -94,7 +94,7 @@
 		<xsl:variable name="schema-ref" select="concat('index_',@name)"/>
 			<xsl:if test="./type">
 				<xsl:variable name="type_refs" select="concat('type_declarations.',@name)"/>
-				<H3>
+				<H2>
 					<A NAME="{$type_refs}">
 						TYPE Declarations
 					</A>
@@ -105,7 +105,7 @@
 						</A>
 						]
 					</font>
-				</H3>
+				</HD23>
 				<xsl:variable name="typecount" select="(count(./type)+1) div 2"/>
 				<blockquote>
 					<table width="90%" cellspacing="0" cellpadding="4">

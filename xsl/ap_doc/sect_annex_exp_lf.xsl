@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_a_exp_lf.xsl,v 1.1 2003/05/23 15:50:29 robbod Exp $
+$Id: sect_annex_exp_lf.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -70,7 +70,7 @@ $Id: sect_a_exp_lf.xsl,v 1.1 2003/05/23 15:50:29 robbod Exp $
       select="concat('../../../modules/',$module,'/sys/e_exp_arm_lf',$FILE_EXT)"/>
     <p>
       The EXPRESS expanded listing provided in      
-      Annex <a href="{$arm_lf_href}">E</a> of the AP module, 
+      annex <a href="{$arm_lf_href}">E</a> of the AP module, 
     <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>
       shall be used as the expanded listing for this part of
       ISO-10303. 
@@ -84,7 +84,7 @@ $Id: sect_a_exp_lf.xsl,v 1.1 2003/05/23 15:50:29 robbod Exp $
       select="concat('../../../modules/',$module,'/sys/e_exp_mim_lf',$FILE_EXT)"/>
     <p>
       The EXPRESS expanded listing provided in      
-      Annex <a href="{$mim_lf_href}">E</a> of the AP module, 
+      annex <a href="{$mim_lf_href}">E</a> of the AP module, 
     <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>
       shall be used as the expanded listing for this part of
       ISO-10303. 

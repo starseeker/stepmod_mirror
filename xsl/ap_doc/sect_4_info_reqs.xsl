@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.13 2003/06/01 13:56:35 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.14 2003/06/06 10:28:22 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -68,7 +68,7 @@ $Id: sect_4_info_reqs.xsl,v 1.13 2003/06/01 13:56:35 robbod Exp $
       <small>
         NOTE&#160;1&#160;&#160;The information requirements correspond to those of the activities 
         identified as being within the scope of this application protocol,
-        in Annex <a href="{$annex_aam}">E</a>.
+        in annex <a href="{$annex_aam}">E</a>.
       </small>
     </p>
 
@@ -76,7 +76,7 @@ $Id: sect_4_info_reqs.xsl,v 1.13 2003/06/01 13:56:35 robbod Exp $
     <p class="note">
       <small>
         NOTE&#160;2&#160;&#160;A graphical representation of the information requirements is given in 
-        Annex <a href="{$f_expg}">G</a>.
+        annex <a href="{$f_expg}">G</a>.
         XXXX NEED TO TEST WHETHER THERE IS ANNEX G
       </small>
     </p> -->
@@ -86,7 +86,7 @@ $Id: sect_4_info_reqs.xsl,v 1.13 2003/06/01 13:56:35 robbod Exp $
      <h2><a name="42">4.2&#160;Information requirements model</a></h2>
      <xsl:variable name="module_clause4" select="concat('../../../modules/',$module,'/sys/4_info_reqs',$FILE_EXT)"/>
      The detailed information requirements for this AP are defined in
-     Clause <a href="{$module_clause4}">4</a> of the AP module, 
+     clause <a href="{$module_clause4}">4</a> of the AP module, 
      <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
      <p class="note">
        <small>
@@ -95,7 +95,7 @@ $Id: sect_4_info_reqs.xsl,v 1.13 2003/06/01 13:56:35 robbod Exp $
          <a href="index_arm_express{$FILE_EXT}" target="toc">index</a>
          contains a complete list of all
          ARM objects identified in the information requirements in
-         Clause <a href="{$module_clause4}">4</a> of the AP module 
+         clause <a href="{$module_clause4}">4</a> of the AP module 
          (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
        </small>
      </p>
@@ -156,7 +156,7 @@ $Id: sect_4_info_reqs.xsl,v 1.13 2003/06/01 13:56:35 robbod Exp $
        <p> 
        <a name="terminology"/>
        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<br/>
-       XSLe1: XSL INCOMPLETE
+       XSLe1: XSL INCOMPLETE - XSL for terminology map not implented
          The application module that provides the detailed information
          requirements for this AP may be shared across multiple domains and the
          terminology used therein may differ from that of the business users of this

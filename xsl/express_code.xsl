@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_code.xsl,v 1.5 2002/01/31 18:09:48 robbod Exp $
+     $Id: express_code.xsl,v 1.6 2002/02/08 08:19:15 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -242,18 +242,21 @@
     </xsl:if>
   </xsl:variable>
 
-  <xsl:if test="@abstract.supertype='YES'">
-    <br/>
-    &#160; ABSTRACT SUPERTYPE
-    <xsl:if test="@super.expression">
-      OF 
-    </xsl:if>
-  </xsl:if>
-
-  <xsl:if test="@super.expression">
-    <br/>
-    &#160; <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
-  </xsl:if>
+  <xsl:choose>
+    <xsl:when test="@abstract.supertype='YES'">
+      <br/>
+      &#160; ABSTRACT SUPERTYPE
+      <xsl:if test="@super.expression">
+        &#160; OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+      </xsl:if>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:if test="@super.expression">
+        <br/>
+        &#160; SUPERTYPE OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+    </xsl:if>      
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template name="supertypes-code">

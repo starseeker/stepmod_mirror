@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.13 2002/02/08 08:18:15 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.14 2002/02/13 11:10:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -606,19 +606,22 @@
       )
     </xsl:if>
   </xsl:variable>
+  <xsl:choose>
+    <xsl:when test="@abstract.supertype='YES'">
+      <br/>
+      &#160; ABSTRACT SUPERTYPE
+      <xsl:if test="@super.expression">
+        &#160; OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+      </xsl:if>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:if test="@super.expression">
+      <br/>
+      &#160; SUPERTYPE OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+    </xsl:if>      
+    </xsl:otherwise>
+  </xsl:choose>
 
-  <xsl:if test="@abstract.supertype='YES'">
-    <br/>
-    &#160; ABSTRACT SUPERTYPE
-    <xsl:if test="@super.expression">
-      OF 
-    </xsl:if>
-  </xsl:if>
-
-  <xsl:if test="@super.expression">
-    <br/>
-    &#160; <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
-  </xsl:if>
 </xsl:template>
 
 <xsl:template name="supertypes-code">
@@ -662,18 +665,18 @@
   </xsl:if>
   &#160;&#160;&#160;
   <xsl:value-of select="concat(@name, ' : ')"/>
-  <xsl:apply-templates select="./inverse.aggregate" mode="code"/>;<br/>
+  <xsl:apply-templates select="./inverse.aggregate" mode="code"/>
+  <xsl:call-template name="link_object">
+    <xsl:with-param name="object_name" select="@entity"/>
+    <xsl:with-param name="object_used_in_schema_name" 
+      select="../../@name"/>
+    <xsl:with-param name="clause" select="'section'"/>
+  </xsl:call-template>  
+  <xsl:value-of select="concat(' FOR ', @attribute)"/>;<br/>
 </xsl:template>
 
 <xsl:template match="inverse.aggregate" mode="code">
   <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
-  <xsl:call-template name="link_object">
-    <xsl:with-param name="object_name" select="../@entity"/>
-    <xsl:with-param name="object_used_in_schema_name" 
-      select="../../../@name"/>
-    <xsl:with-param name="clause" select="'section'"/>
-  </xsl:call-template>  
-  <xsl:value-of select="concat(' FOR ', ../@attribute)"/>
 </xsl:template>
 
 <xsl:template match="unique" mode="code">

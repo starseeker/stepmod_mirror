@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.8 2002/05/16 19:37:39 darla Exp $ -->
+<!-- $Id: module.xml,v 1.9 2002/05/28 19:27:29 darla Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
-<module name="certification" part="1063" version="1" status="TS" wg.number="N768" language="E" publication.year="2002" published="n" rcs.date="$Date: 2002/05/16 19:37:39 $" rcs.revision="$Revision: 1.8 $">
+<module 
+	 name="certification" 
+	 part="1044" 
+	 version="1" 
+	 status="TS" 
+   wg.number="1146" 
+	 wg.number.supersedes="768" 
+	 checklist.internal_review="1059"
+	 checklist.project_leader="1060"
+	 checklist.convener="1061"	 
+	 language="E" 
+	 publication.year="2002" 
+	 published="n" 
+	 rcs.date="$Date: 2002/05/28 19:27:29 $" 
+	 rcs.revision="$Revision: 1.9 $">
 	<keywords>
     module, certification
  </keywords>
@@ -9,36 +23,38 @@
 		<projlead ref="pdmmodules.projlead"/>
 		<editor ref="pdmmodules.editor"/>
 	</contacts>
-	<purpose>The Certification application module supports the requirement to record that a certification exists for product configuration information.
+	<purpose>The Certification application module supports the requirement 
+	to describe documentation that asserts facts that assure or validate activity or product data.
  </purpose>
 	<inscope>
-		<li>indicating product configuration information is related to a certification;</li>
-		<li>recording of optional approvals for the certification.</li>
+		<li>definition of a certificate;</li>
+		<li>assignment of a certificate to activity or product data;</li>
 	</inscope>
-	<outscope>
-		<li>all concepts not involved in the representation of certification information and applying it to product configuration information.</li>
-	</outscope>
 	<normrefs>
 		<normref.inc normref="ref10303-41.2000"/>
 	</normrefs>
 	<arm>
 		<uof name="Certification">
-			<description>The Certification UoF specifies the definitional information for the concept of representing the certification information for product configuration information.</description>
+			<description>The Certification UoF specifies the definitional information for representing 
+			certification information that may be attached to an activity or to any aspect of product data.
+			</description>
 			<uof.ae entity="Certification"/>
 			<uof.ae entity="Certification_assignment"/>
 		</uof>
-<!--		<uoflink module="date_time" uof="Date_Time"/>
-		<uoflink module="person_organization" uof="Person_Organization"/>
-		<uoflink module="approval" uof="Approval"/> -->
+
 		<express-g>
 			<imgfile file="armexpg1.xml"/>
 			<imgfile file="armexpg2.xml"/>
 		</express-g>
 	</arm>
 	<mapping_table>
-		<ae entity="CERTIFICATION">
+		<ae entity="Certification">
 			<aimelt>certification</aimelt>
 			<source>41</source>
+			<aa attribute="name">
+				<aimelt>certification.name</aimelt>
+				<source>41</source>
+			</aa>
 			<aa attribute="description">
 				<aimelt>certification.purpose</aimelt>
 				<source>41</source>
@@ -46,36 +62,55 @@
 			<aa attribute="type">
 				<aimelt>certification_type.description</aimelt>
 				<source>41</source>
-			</aa>
+        <refpath>
+			 	 certification.kind -&gt; certification_type
+				 certification_type.description
+			  </refpath>
+		  </aa>
 		</ae>
-		<ae entity="CERTIFICATION_ASSIGNMENT">
-			<aimelt>certification_assignment</aimelt>
-			<source>41</source>
-			<aa attribute="assigned_certification">
-				<aimelt>certification_assignment.assigned_certification</aimelt>
-				<source>41</source>
-			</aa>
-			<aa attribute="items">
-				<aimelt>applied_certification_assignment.items</aimelt>
-				<source>1063</source>
-				<refpath>certification_assignment &lt;=
-applied_certification_assignment
-applied_certification_assignment.items</refpath>
-			</aa>
-			<aa attribute="role">
-				<aimelt>object_role.name</aimelt>
-				<source>41</source>
+		
+		<ae entity="Certification_assignment">
+			<aimelt>applied_certification_assignment</aimelt>
+			<source>1044</source>
+      <refpath>
+			 		applied_certification_assignment &lt;=
+			 		certification_assignment
+			</refpath>     
+  		<aa attribute="assigned_certification" assertion_to="certification">
+       <aimelt>PATH</aimelt>
+       <refpath>
+			    certification_assignment
+			 		certification_assignment.assigned_certification -&gt; certification
+			 </refpath>			 
+      </aa>
+      <aa attribute="items" assertion_to="certification_item">
+       <aimelt>PATH</aimelt>
+       <refpath>
+			 		certification_assignment =&gt;
+			 		applied_certification_assignment
+					applied_certification_assignment.items[i] -&gt;
+					certification_item 
+			 </refpath>			 
+      </aa>
+
+			<aa attribute="role" assertion_to="object_role">
+				<aimelt>PATH</aimelt>
 				<refpath>
-					applied_certification_assignment &lt;- role_association.item_with_role
+					applied_certification_assignment &lt;- 
+					role_association.item_with_role
 					role_association.role -&gt; object_role
 					object_role.name
 				</refpath>
-			</aa>
+			 </aa>
 		</ae>
 	</mapping_table>
+	
 	<mim>
 		<express-g>
 			<imgfile file="mimexpg1.xml"/>
 		</express-g>
+		<shortnames>
+      <shortname name="APCRAS" entity="applied_certification_assignment"/> 
+ 	  </shortnames>
 	</mim>
 </module>

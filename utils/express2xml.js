@@ -1,4 +1,4 @@
-//  $Id: express2xml.js,v 1.31 2003/03/12 04:59:55 thendrix Exp $
+//  $Id: express2xml.js,v 1.32 2003/05/02 07:56:57 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -461,7 +461,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.31 2003/03/12 04:59:55 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.32 2003/05/02 07:56:57 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -475,7 +475,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.31 $";
+    var appCVSRevision = "$Revision: 1.32 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -677,7 +677,7 @@ function xmlSupertypes(statement, outTs) {
 function xmlOpenEntity(statement,outTs,expTs) {
     xmlOpenElement("<entity",outTs);
     var entity = getWord(2,statement);
-    entity = entity.toLowerCase();
+//    entity = entity.toLowerCase();
     xmlAttr("name",entity,outTs);
     if (getAbstractSuper(statement)) xmlAbstract(outTs);
     xmlSuperExpression(statement,outTs);

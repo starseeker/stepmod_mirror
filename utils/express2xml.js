@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.13 2002/06/13 06:13:52 robbod Exp $
+//$Id: express2xml.js,v 1.14 2002/06/18 07:54:58 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -330,7 +330,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.13 2002/06/13 06:13:52 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.14 2002/06/18 07:54:58 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -340,7 +340,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.13 $";
+    var appCVSRevision = "$Revision: 1.14 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -481,8 +481,12 @@ function xmlCloseEntity(outTs) {
 function xmlEntityStructure(outTs,expTs,mode) {
     var l = expTs.ReadLine();
     lNumber = expTs.Line;
-    var token = readToken(l);
+    var token = readToken(l)+"";
     switch( token ) {
+    case "-1" :
+	// must have read an empty line
+	xmlEntityStructure(outTs,expTs,mode);
+	break;
     case "DERIVE" :	
 	xmlEntityStructure(outTs,expTs,"derive");
 	break;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.138 2004/11/08 12:49:49 robbod Exp $
+$Id: normref_check.xsl,v 1.1 2004/11/18 12:27:48 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -115,55 +115,90 @@ $Id: common.xsl,v 1.138 2004/11/08 12:49:49 robbod Exp $
 
   <!-- applies to module in ballot_publication_index -->
   <xsl:template match="module" mode="read_normref">
+    <xsl:param name="type"/>
     <xsl:variable name="mod_path" select="concat('../../data/modules/',@name,'/module.xml')"/>
-    <xsl:apply-templates select="document($mod_path)/module/normrefs/normref.inc" mode="generate_normref_node"/>
+    <xsl:apply-templates
+      select="document($mod_path)/module/normrefs/normref.inc" 
+      mode="generate_normref_node">
+      <xsl:with-param name="type" select="$type"/>
+    </xsl:apply-templates>
   </xsl:template>
 
   <!-- applies to module.xml -->
   <xsl:template match="normref.inc" mode="generate_normref_node">
     <xsl:param name="type"/>
     <xsl:variable name="root" select="/*"/>
-    <xsl:if test="string-length(@normref)!=0">
-      <xsl:element name="normref_node">
-        <xsl:attribute name="normref.inc">
-          <xsl:value-of select="@normref"/>
-        </xsl:attribute>
-        <xsl:element name="module">
-          <xsl:attribute name="name">
-            <xsl:value-of  select="//@name"/>
+    <xsl:element name="normref_node">
+      <xsl:attribute name="normref">
+        <xsl:value-of select="@normref"/>
+      </xsl:attribute>
+      <xsl:attribute name="module.name">
+        <xsl:value-of select="@module.name"/>
+      </xsl:attribute>
+      <xsl:element name="module">
+        <xsl:attribute name="name">
+          <xsl:value-of  select="//@name"/>
           </xsl:attribute>
           <xsl:attribute name="type">
             <xsl:value-of select="$type"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-  </xsl:if>
   </xsl:template>
 
 
   <xsl:template match="normref_node" mode="display_normref">
-    <xsl:variable name="this_normref_inc" select="@normref.inc"/>
-    <xsl:if test="count(preceding-sibling::*[@normref.inc = $this_normref_inc])=0">
-      <hr/>
-      <h3>
-        Normref.inc: <xsl:value-of select="@normref.inc"/>
-      </h3>
-      <p>Normative reference</p>
-      <xsl:apply-templates select="$normref_doc/normref.list/normref[@id=$this_normref_inc]">
-        <xsl:with-param name="current_module" select="./module/@name"/>
-      </xsl:apply-templates>
-      <p>Parts:</p>
-      <ul>
-        <!-- now output the rest -->
-        <xsl:apply-templates select="../normref_node[@normref.inc = $this_normref_inc]" mode="display_normref_modules"/>
-      </ul>
-    </xsl:if> 
-    
+    <xsl:choose>
+      <xsl:when test="string-length(@normref)!=0">
+        <xsl:variable name="this_normref_inc" select="@normref"/>
+        <xsl:if test="count(preceding-sibling::*[@normref = $this_normref_inc])=0">
+          <hr/>
+          <h3>
+            <xsl:value-of select="concat('&lt;normref.inc normref=&quot;',@normref,'&quot;/>')"/>
+          </h3>
+        <p>Normative reference</p>
+        <xsl:apply-templates select="$normref_doc/normref.list/normref[@id=$this_normref_inc]">
+          <xsl:with-param name="current_module" select="./module/@name"/>
+        </xsl:apply-templates>
+        <p>Referenced from the following parts:</p>
+        <ul>
+          <!-- now output the rest -->
+          <xsl:apply-templates select="../normref_node[@normref = $this_normref_inc]" mode="display_normref_modules"/>
+        </ul>
+      </xsl:if> 
+    </xsl:when>
+    <xsl:when test="string-length(@module.name)!=0">
+      <xsl:variable name="this_normref_inc" select="@module.name"/>
+      <xsl:if test="count(preceding-sibling::*[@module.name = $this_normref_inc])=0">
+          <hr/>
+          <h3>
+            <xsl:value-of select="concat('&lt;normref.inc module.name=&quot;',@module.name,'&quot;/>')"/>
+        </h3>
+        <p>Normative reference</p>
+        <xsl:variable name="module_xml" select="concat('../../data/modules/',@module.name,'/module.xml')"/>
+        <xsl:apply-templates select="document($module_xml)/module" mode="normref">
+          <xsl:with-param name="current_module" select="./module/@name"/>
+        </xsl:apply-templates>
+        <p>Referenced from the following parts:</p>
+        <ul>
+          <!-- now output the rest -->
+          <xsl:apply-templates select="../normref_node[@module.name = $this_normref_inc]" mode="display_normref_modules"/>
+        </ul>
+      </xsl:if> 
+    </xsl:when>
+  </xsl:choose>
   </xsl:template>
   
   <xsl:template match="normref_node" mode="display_normref_modules">
     <li>
-      <xsl:value-of select="concat(./module/@type,' ',./module/@name,'=',@normref.inc)"/>
+      <xsl:choose>
+        <xsl:when test="string-length(@normref)!=0">
+          <xsl:value-of select="concat(./module/@type,' ',./module/@name,' = ',@normref)"/>
+        </xsl:when>
+        <xsl:when test="string-length(@module.name)!=0">
+          <xsl:value-of select="concat(./module/@type,' ',./module/@name,' = ',@module.name)"/>
+        </xsl:when>
+      </xsl:choose>
     </li>
   </xsl:template>
 

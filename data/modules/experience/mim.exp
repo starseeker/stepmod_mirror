@@ -10,7 +10,11 @@ USE FROM action_schema   -- ISO 10303-41
    action_resource,
    executed_action); 
 
+USE FROM Activity_as_realized_mim;    -- ISO/CD-TS 10303-1259
+
 USE FROM Activity_method_mim;    -- ISO/TS 10303-1049
+
+USE FROM Activity_mim;    -- ISO/TS 10303-1047
 
 USE FROM Classification_assignment_mim;    -- ISO/TS 10303-1114
 
@@ -41,6 +45,8 @@ USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
 
 USE FROM Required_resource_mim;    -- ISO/CD-TS 10303-1267
 
+USE FROM Resource_as_realized_mim;    -- ISO/CD-TS 10303-1269
+
 
 TYPE experience_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH 
    (applied_experience_assignment, 
@@ -53,7 +59,8 @@ TYPE experience_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item 
 END_TYPE; 
 
 TYPE experience_item = EXTENSIBLE GENERIC_ENTITY SELECT
-   (action_resource, 
+   (action_actual, 
+    action_resource, 
     experience_type, 
     experience_type_classification_item);
 END_TYPE; 
@@ -65,6 +72,7 @@ END_TYPE;
 TYPE experience_type_item = EXTENSIBLE GENERIC_ENTITY SELECT
    (action_method, 
     action_resource_requirement, 
+    executed_action, 
     organization, 
     person, 
     person_and_organization);
@@ -72,12 +80,12 @@ END_TYPE;
 
 ENTITY applied_experience_assignment
   SUBTYPE OF (experience_assignment);
-  items : experience_item;
+  items : SET[1:?] OF experience_item;
 END_ENTITY;
 
 ENTITY applied_experience_type_assignment
   SUBTYPE OF (experience_type_assignment);
-  items : experience_type_item;
+  items : SET[1:?] OF experience_type_item;
 END_ENTITY;
 
 ENTITY characterized_experience

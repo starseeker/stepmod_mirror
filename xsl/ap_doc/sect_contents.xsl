@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.35 2004/08/03 12:19:52 robbod Exp $
+$Id: sect_contents.xsl,v 1.36 2004/10/19 21:23:27 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -283,7 +283,7 @@ $Id: sect_contents.xsl,v 1.35 2004/08/03 12:19:52 robbod Exp $
     <br/>
 
     <a href="./annex_shortnames{$FILE_EXT}#table_b1" target="{$target}">
-      Table B.1 &#8212; ARM to MIM EXPRESS short and long form listing.
+      Table B.1 &#8212; MIM short names of entities 
     </a>
     <br/>
 
@@ -319,7 +319,7 @@ $Id: sect_contents.xsl,v 1.35 2004/08/03 12:19:52 robbod Exp $
   <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
 
     <xsl:choose>
-      <xsl:when test="module_xml/module/mim_lf or module_xml/module/arm_lf">
+      <xsl:when test="$module_xml/module/mim_lf or $module_xml/module/arm_lf">
         <a href="./annex_comp_int{$FILE_EXT}#table_e1" target="{$target}">
           Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS short and long form listings
         </a>

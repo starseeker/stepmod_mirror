@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -33,7 +33,7 @@ $Id: imgfile.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   </xsl:variable>
 
   <xsl:variable name="resdoc_file" select="concat($resdoc_dir,'/resource.xml')"/>
-
+                  
   <!-- if a file is specified then might be able to deduce the figure title -->
   <xsl:variable name="fig_title">
     <xsl:choose>
@@ -66,6 +66,17 @@ $Id: imgfile.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
       <TITLE>
         <xsl:choose>
           <xsl:when test="@module">
+            <xsl:variable name="resdoc_root">
+              <xsl:choose>
+                <xsl:when test="contains(@file,'schema_diag')">
+                  <xsl:value-of select="'.'"/>                  
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="$resdoc_dir"/>                  
+                </xsl:otherwise>
+              </xsl:choose>           
+            </xsl:variable>
+  
             <xsl:value-of select="concat(@module,' : ',$fig_title)"/>
           </xsl:when>
           <xsl:otherwise>
@@ -83,7 +94,7 @@ $Id: imgfile.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
           <xsl:apply-templates 
             select="document($resdoc_file)/resource"
             mode="TOCmultiplePage">
-            <xsl:with-param name="resdoc_root" select="'.'"/>
+            <xsl:with-param name="resdoc_root" select="concat('../',$resdoc_dir)"/>
           </xsl:apply-templates>
 
           <!-- display navigation arrows -->

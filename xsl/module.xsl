@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.53 2002/05/17 05:25:16 robbod Exp $
+$Id: module.xsl,v 1.54 2002/05/19 07:55:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -67,6 +67,55 @@ $Id: module.xsl,v 1.53 2002/05/17 05:25:16 robbod Exp $
       <td>&#x20;</td>
       <td valign="top"><b>Date:&#x20;</b><xsl:value-of select="$date"/></td>
     </tr>
+    <xsl:if test="not(@wg.number)">
+      <tr>
+        <td>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              Error 14: No WG number provided.
+            </xsl:with-param>
+          </xsl:call-template>  
+        </td>
+      </tr>
+    </xsl:if>
+    <xsl:if test="@wg.number = 00000">
+      <!-- the default provided by mkmodule -->
+      <tr>
+        <td>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              Error 15: No WG number provided.
+            </xsl:with-param>
+          </xsl:call-template>  
+        </td>
+      </tr>
+    </xsl:if>
+
+    <xsl:if test="@wg.number.supersedes">      
+      <tr>
+        <td>
+          <h3>              
+          Supersedes 
+            <xsl:choose>
+              <xsl:when test="contains(@wg.number.supersedes, 'ISO')">
+                <xsl:value-of select="@wg.number.supersedes"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of 
+                  select="concat('ISO&#160;TC184/SC4/WG12&#160;',@wg.number.supersedes)"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </h3>
+          <xsl:if test="@wg.number.supersedes = @wg.number">
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message">
+                Error 16: New WG number is the same as superseded WG number.
+              </xsl:with-param>
+            </xsl:call-template>            
+          </xsl:if>
+        </td>
+      </tr>
+    </xsl:if>
   </table>
 
   <xsl:variable name="module_name">
@@ -685,7 +734,7 @@ $Id: module.xsl,v 1.53 2002/05/17 05:25:16 robbod Exp $
   This subclause specifies the units of functionality (UoF) for this part
   ISO 10303 as well as any support elements needed for the application module
   definition. This part of ISO 10303 specifies the following units of
-  functionality and application objects.
+  functionality and application objects:
   <ul>
     <xsl:apply-templates select="uof" mode="toc"/>
   </ul>
@@ -968,15 +1017,22 @@ found in module ',$module )"/>
     common resources or from other application
     modules and contains the types, entity specializations, rules, and
     functions that are specific to this part of ISO 10303.</p> 
-		<p>This clause also
+  <p>This clause also
     specifies the modifications that apply to the constructs 
     imported from the common resources.</p>
-		<p>The following restrictions apply to the use, in this schema, of constructs defined in common resources or in application
+  <p>The following restrictions apply to the use, in this schema, of constructs defined in common resources or in application
     modules:</p>
-		<ul>
-		<li>Use of a supertype entity does not make applicable any of its specializations, unless the specialization is also imported in the MIM schema.</li>
-		<li>Use of a SELECT type does not make applicable any of its listed types unless the listed type is also imported in the MIM schema.</li>
-		</ul>
+  <ul>
+    <li>
+      Use of a supertype entity does not make applicable any of its
+      specializations, unless the specialization is also imported in the
+      MIM schema.
+    </li> 
+    <li>
+      Use of a SELECT type does not make applicable any of its listed types
+      unless the listed type is also imported in the MIM schema.
+    </li>
+  </ul>
 
   <!-- output all the EXPRESS specifications -->
   <xsl:variable name="module_dir">
@@ -1008,9 +1064,7 @@ found in module ',$module )"/>
     <a name="{$xref}">
       SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
   </a>
-    <br/>    <br/>
-    (*
-  </code>
+</code>
 
 
   <!-- display the EXPRESS for the interfaces in the MIM.
@@ -1581,7 +1635,11 @@ found in module ',$module )"/>
   </xsl:variable>
 
   <xsl:if test="$footnote='y'">
-    <p>1) To be published.</p>
+    <p>
+      <a name="tobepub">
+        1) To be published.
+      </a>      
+    </p>
   </xsl:if>
 </xsl:template>
 
@@ -1723,14 +1781,18 @@ defines it. Use: normref.inc')"/>
     </xsl:variable>
 
     <xsl:variable name="subtitle"
-      select="concat('- Part ',$part,': Application module: ', $module_name)"/>
+      select="concat('- Part ',$part,': Application module: ', $module_name,'.')"/>
     
 
     <xsl:value-of select="$stdnumber"/>
 
     <xsl:if test="@published='n'">
-      <sup>1</sup>
-    </xsl:if>,&#x20;
+      <sup>
+        <a href="#tobepub">
+          1
+        </a>
+      </sup>
+    </xsl:if>,&#160;
     <i>
       <xsl:value-of select="$stdtitle"/>
       <xsl:value-of select="$subtitle"/>
@@ -1743,11 +1805,26 @@ defines it. Use: normref.inc')"/>
   <p>
     <xsl:value-of select="concat(stdref/orgname,' ',stdref/stdnumber)"/>
     <xsl:if test="stdref[@published='n']">
-      <sup>1</sup>
-    </xsl:if>,&#x20;
+      <sup>
+        <a href="#tobepub">
+          1
+        </a>
+      </sup>
+    </xsl:if>,&#160;
     <i>
       <xsl:value-of select="stdref/stdtitle"/>
-      <xsl:value-of select="stdref/subtitle"/>
+      <!-- make sure that the title ends with a . -->
+      <xsl:variable 
+        name="subtitle"
+        select="normalize-space(stdref/subtitle)"/>
+      <xsl:choose>
+        <xsl:when test="substring($subtitle, string-length($subtitle)) != '.'">
+          <xsl:value-of select="concat($subtitle,'.')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$subtitle"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </i>
   </p>
 </xsl:template>

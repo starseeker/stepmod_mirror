@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.70 2002/08/12 13:22:41 robbod Exp $
+$Id: common.xsl,v 1.71 2002/08/16 14:02:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -124,6 +124,7 @@ $Id: common.xsl,v 1.70 2002/08/12 13:22:41 robbod Exp $
 
     <xsl:variable name="fldr_gif" select="concat($icon_path,'folder.gif')"/>
     <xsl:variable name="proj_gif" select="concat($icon_path,'project.gif')"/>
+    <xsl:variable name="issue_gif" select="concat($icon_path,'issues.gif')"/>
 
     <table cellspacing="0" border="0">
       <xsl:variable
@@ -138,7 +139,7 @@ $Id: common.xsl,v 1.70 2002/08/12 13:22:41 robbod Exp $
       <tr>
         <td>
           <p class="rcs">
-          <a href="..">
+          <a href="{$module_root}">
             <img alt="module folder" 
               border="0"
               align="middle"
@@ -154,6 +155,22 @@ $Id: common.xsl,v 1.70 2002/08/12 13:22:41 robbod Exp $
                 align="middle"
                 src="{$proj_gif}"/>
             </a>&#160;
+            <xsl:variable name="issue_href"
+              select="concat($module_root,'/',@development.folder,'/issues',$FILE_EXT)"/>
+            <xsl:variable name="issues_file" 
+              select="concat($mod_dir,'/',@development.folder,'/issues.xml')"/>
+ 
+           <xsl:variable name="no_issues"
+              select="count(document($issues_file)/issues/issue)"/>
+
+           <xsl:if test="$no_issues > 0">
+             <a href="{$issue_href}">
+               <img alt="issues" 
+                 border="0"
+                 align="middle"
+                 src="{$issue_gif}"/><small>[<xsl:value-of select="$no_issues"/>]</small>
+             </a>&#160;
+           </xsl:if>
           </xsl:if>
         </p>
         </td>

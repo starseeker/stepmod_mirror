@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.97 2002/08/09 08:55:52 robbod Exp $
+$Id: module.xsl,v 1.98 2002/08/16 14:02:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -333,7 +333,11 @@ o=isocs; s=central<br/>
       of the application module for 
       <xsl:value-of select="$module_name"/>.
 
-      <h3>KEYWORDS:</h3>
+      <h3>
+        <a name="keywords">
+          KEYWORDS:
+        </a>
+      </h3>
       <xsl:apply-templates select="./keywords"/>
       
       <h3>COMMENTS TO READER:</h3>
@@ -421,6 +425,7 @@ o=isocs; s=central<br/>
  
   <tr>
     <td width="50%" valign="TOP" height="88">
+      <a name="contacts"/>
       <xsl:apply-templates select="./contacts/projlead"/>
     </td>
     <td width="50%" valign="TOP" height="88">
@@ -2700,7 +2705,9 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 <xsl:template name="output_abbreviations">
   <xsl:param name="section"/>
   <h3>
-    <xsl:value-of select="concat('3.',$section)"/> Abbreviations
+    <a name="abbrv">
+      <xsl:value-of select="concat('3.',$section)"/> Abbreviations
+    </a>
   </h3>
   <p>
     For the purposes of this part of ISO 10303, the following abbreviations

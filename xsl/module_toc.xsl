@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.23 2002/08/07 06:37:49 robbod Exp $
+$Id: module_toc.xsl,v 1.24 2002/08/14 07:05:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -10,14 +10,6 @@ $Id: module_toc.xsl,v 1.23 2002/08/07 06:37:49 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
-
-
-  <!-- 
-       PLCS specific menu bar - this should not used in the ISO documents
-       If this line in uncommented, then it has been checked in error
-       so comment out and check back in
-  <xsl:import href="../../plcsmod/xsl/module_menu.xsl"/>
-       -->
 
 
 <!--

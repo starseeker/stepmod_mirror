@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.43 2002/08/09 08:03:36 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.44 2002/08/09 08:27:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -427,8 +427,12 @@ $Id: sect_5_mapping.xsl,v 1.43 2002/08/09 08:03:36 robbod Exp $
   -->
   <xsl:variable name="ae" select="@entity"/>
 
+  <xsl:variable name="ae_map_aname">
+    <xsl:apply-templates select="." mode="map_attr_aname"/>  
+  </xsl:variable>
+
   <h3>
-    <a name="{$aname}">
+    <a name="{$ae_map_aname}">
       <xsl:value-of select="concat('5.1.',$sect_no,' ')"/>
     </a>
     <a href="{$ae_xref}">
@@ -633,8 +637,12 @@ $Id: sect_5_mapping.xsl,v 1.43 2002/08/09 08:03:36 robbod Exp $
     </xsl:choose>
   </xsl:variable> <!-- module_aok -->
 
+  <xsl:variable name="aa_map_aname">
+    <xsl:apply-templates select="." mode="map_attr_aname"/>  
+  </xsl:variable>
+
   <h3>
-    <a name="{$aa_aname}"/>
+    <a name="{$aa_map_aname}"/>
     <xsl:choose>
       <xsl:when test="@assertion_to">
         
@@ -951,5 +959,25 @@ the mapping specification')"/>
   </xsl:variable>
   <xsl:value-of select="$entity"/>
 </xsl:template>
+
+
+<xsl:template match="ae" mode="map_attr_aname">
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:value-of select="translate(concat('aeentity',@entity),$UPPER,$LOWER)"/>
+</xsl:template>
+
+<xsl:template match="aa" mode="map_attr_aname">
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:value-of
+    select="translate(concat('aeentity',../@entity,'aaattribute',@attribute),
+            $UPPER,$LOWER)"/>
+  <xsl:if test="@assertion_to">
+    <xsl:value-of
+      select="translate(concat('assertion_to',@assertion_to),$UPPER,$LOWER)"/>
+  </xsl:if>
+</xsl:template>
+
 
 </xsl:stylesheet>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.22 2005/02/02 22:10:00 thendrix Exp $
+<!--  $Id: build.xsl,v 1.23 2005/02/04 21:02:11 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -18,6 +18,10 @@
 
     <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
+
+
+<!-- used to check for existence of dependent long form -->
         
   <xsl:template match="publication_index">
     <xsl:variable name="index_ok1">      
@@ -29,7 +33,8 @@
     </xsl:variable>
 
     <xsl:choose>
-      <xsl:when test="contains($index_ok1,'false') or contains($index_ok2,'false')">
+<!--      <xsl:when test="contains($index_ok1,'false') or contains($index_ok2,'false')">  -->
+      <xsl:when test="''">
         <xsl:message>
 ************************************************************
   ABORTING THE BUILD
@@ -47,6 +52,7 @@
           ant -buildfile buildbuild.xml
           ${START_TIME}
         </xsl:comment>
+
 
         <!-- 
              note the use of xsl:extension-element-prefixes to prevent the
@@ -69,6 +75,7 @@
           </xsl:if>
           <xsl:if test="./application_protocols/ap_doc">
             <xsl:apply-templates select="." mode="target_isoapdocs"/>
+	    <xsl:apply-templates select="." mode="target_isodepmodules"/>
             <xsl:apply-templates select="." mode="target_publish_isoapdocs"/>
           </xsl:if>
           <xsl:if test="./resource_docs/res_doc">
@@ -252,7 +259,6 @@
       </xsl:if>
 
       <xsl:if test="./modules">
-        <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
         <xsl:apply-templates select="."  mode="modules_variables"/>
       </xsl:if>
 
@@ -1883,6 +1889,8 @@
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
+
+
     
     <xsl:element name="property">
       <xsl:attribute name="name">DMODEEXPMIMXML</xsl:attribute>
@@ -2910,16 +2918,34 @@
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:variable name="dlongforms">
-        <xsl:apply-templates select="modules/module" mode="long_form">
-          <xsl:with-param name="prefix" select="'data/modules/'"/>
-          <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
-        </xsl:apply-templates> 
+<!-- THX check if any long forms in dependent modules
+Under current process 2004-04-04 this should always be true, because all dep modules of an
+AP are required and at least one will have a long form.  And no dep modules are
+created for modules builds.
+ -->
+ 
+     <xsl:variable name="local_mim_modules">
+	<xsl:call-template name="get_mod_node_set"/>
       </xsl:variable>
 
-      <!-- RBN the test need to be run on the dependent modules       
-      <xsl:if test="string-length($dlongforms)>0"></xsl:if> -->
-        <xsl:element name="style">
+      <xsl:apply-templates select="." mode="dependent_variables">
+	<xsl:with-param name="mim_modules" select="$local_mim_modules"/>
+      </xsl:apply-templates>
+
+      <xsl:variable name="local_mim_modules_node_set" select="exslt:node-set($local_mim_modules)"/>
+
+      <xsl:variable name="dlongforms">
+	<xsl:apply-templates select="$local_mim_modules_node_set/module" mode="long_form">
+	  <xsl:with-param name="prefix" select="'data/modules/'"/>
+	  <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
+	</xsl:apply-templates> 
+      </xsl:variable>
+
+ <!-- RBN the test need to be run on the dependent modules  -->   
+
+      <xsl:if test="string-length($dlongforms)>0" >
+
+       <xsl:element name="style">
           <xsl:attribute name="includes">
             <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
           </xsl:attribute>
@@ -2931,6 +2957,22 @@
           </xsl:apply-templates>
         </xsl:element>
 
+         <xsl:element name="style">
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="style">
+            <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
+          </xsl:attribute>
+          <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+            <xsl:with-param name="menu" select="$menu"/>
+          </xsl:apply-templates>
+        </xsl:element>
+
+      </xsl:if>
+
+<!--  end RBN the test need to be run on the dependent modules  -->   
+   
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2943,22 +2985,6 @@
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
       </xsl:element>
-      
-      <!-- RBN the test need to be run on the dependent modules       
-           <xsl:if test="string-length($dlongforms)>0"></xsl:if> -->
-        <xsl:element name="style">
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
-          </xsl:attribute>
-          <xsl:attribute name="style">
-            <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
-          </xsl:attribute>
-          <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-            <xsl:with-param name="menu" select="$menu"/>
-          </xsl:apply-templates>
-        </xsl:element>
-
-
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3314,10 +3340,6 @@
   <!-- generate the target "isoapdocs" -->
   <xsl:template match="publication_index" mode="target_isoapdocs">
     <xsl:param name="menu"/>
-
-    <!-- generate the target for all the modules that the AP is dependent
-         on. These will be published as well -->
-    <xsl:apply-templates select="." mode="target_isodepmodules"/>
     <xsl:text>
     </xsl:text>
      <target
@@ -5521,8 +5543,10 @@
 </xsl:template>
 
 <!-- return a node set of all the dependent modules and resources,
-     excluding any that are explicitly part of the ballot -->
+     -->
 <xsl:template name="get_mod_node_set">
+
+<!-- dont need, used exclude modules explicitly being published, as dep mods are for the ap 
   <xsl:variable name="modules">
     <xsl:for-each select="/publication_index/modules/module">
       <xsl:variable name="mod_schema">
@@ -5534,6 +5558,8 @@
       <xsl:value-of select="concat(' ',$mod_schema,' ')"/>
     </xsl:for-each>
   </xsl:variable>
+
+-->
 
   <xsl:variable name="aps">
     <xsl:for-each select="/publication_index/application_protocols/ap_doc">
@@ -5552,7 +5578,8 @@
     </xsl:for-each>
   </xsl:variable>
   
-  <xsl:variable name="todo_schema_list" select="concat(string($aps),string($modules))"/>
+<!--   <xsl:variable name="todo_schema_list" select="concat(string($aps),string($modules))"/> -->
+  <xsl:variable name="todo_schema_list" select="string($aps)"/>
 
   <xsl:variable name="mim_schemas">
     <xsl:call-template name="depends-on-recurse-mim-x">
@@ -5606,13 +5633,15 @@
                 <xsl:with-param name="arm_mim" select="'mim'"/>
               </xsl:call-template>
             </xsl:variable>
-            <xsl:if test="not(contains($modules,concat(' ',$mod_schema,' ')))">
+
+<!-- dont exclude explicitly published modules from dep mods.
+            <xsl:if test="not(contains($modules,concat(' ',$mod_schema,' ')))"> -->
               <module>
                 <xsl:attribute name="name">
                   <xsl:value-of select="$module"/>
                 </xsl:attribute>
               </module>
-            </xsl:if>
+<!--            </xsl:if>  -->
           </xsl:when>
           <xsl:otherwise>
             <error>

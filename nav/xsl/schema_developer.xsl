@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: schema_developer.xsl,v 1.3 2002/09/30 07:01:13 robbod Exp $
+$Id: schema_developer.xsl,v 1.4 2004/08/11 22:49:13 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -76,7 +76,15 @@ $Id: schema_developer.xsl,v 1.3 2002/09/30 07:01:13 robbod Exp $
   <xsl:variable name="href" 
     select="translate(concat(../@name,$FILE_EXT,'#',$linkend),$UPPER,$LOWER)"/>
   <p class="hrefname">
-    Entity: <a href="{$href}">
+    <xsl:choose>
+      <xsl:when test="name(.)='type'">
+Type:
+      </xsl:when>
+      <xsl:otherwise>
+Entity:       
+      </xsl:otherwise>
+   </xsl:choose>
+       <a href="{$href}">
       <xsl:value-of select="@name"/>
     </a>
   </p>

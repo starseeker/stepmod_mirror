@@ -2,13 +2,35 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:47" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_2d_shape_mim schema_instance"/>
    <schema name="Part_template_2d_shape_mim">
-      <interface kind="use" schema="Component_grouping_mim"/>
-      <interface kind="use" schema="Layered_2d_shape_mim"/>
-      <interface kind="use" schema="Non_feature_shape_element_mim"/>
-      <interface kind="use" schema="Part_template_extension_mim"/>
-      <interface kind="use" schema="Part_template_shape_with_parameters_mim"/>
+      <interface kind="use" schema="COMPONENT_GROUPING_MIM"/>
+      <interface kind="use" schema="LAYERED_2D_SHAPE_MIM"/>
+      <interface kind="use" schema="NON_FEATURE_SHAPE_ELEMENT_MIM"/>
+      <interface kind="use" schema="PART_TEMPLATE_EXTENSION_MIM"/>
+      <interface kind="use" schema="PART_TEMPLATE_SHAPE_WITH_PARAMETERS_MIM"/>
+      <entity name="design_layer_type_specific_padstack_definition" supertypes="padstack_definition"/>
+      <entity name="footprint_definition" supertypes="product_definition">
+         <where label="wr1" expression=" ( not ( 'electronic_assembly_interconnect_and_packaging_design.' + 'product_definition_with_associated_documents' in typeof ( self ) ) ) or ( sizeof ( query ( docs &lt;* self \ product_definition_with_associated_documents . documentation_ids | docs . kind \ document_type . product_data_type = 'cad filename' ) ) &lt;= 1 ) "/>
+         <where label="wr2" expression=" sizeof ( query ( adta &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_date_and_time_assignment.items' ) | adta . role \ date_time_role . name = 'creation date' ) ) + sizeof ( query ( ada &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_date_assignment.items' ) | ada . role \ date_role . name = 'creation date' ) ) = 1 "/>
+         <where label="wr3" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_approval_assignment.items' ) ) = 1 "/>
+         <where label="wr4" expression=" sizeof ( query ( apoa &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_person_and_organization_assignment.items' ) | apoa . role \ person_and_organization_role . name = 'creator' ) ) + sizeof ( query ( apoa &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_organization_assignment.items' ) | apoa . role \ organization_role . name = 'creator' ) ) &gt;= 1 "/>
+         <where label="wr5" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_security_classification_assignment.items' ) ) = 1 "/>
+         <where label="wr6" expression=" sizeof ( typeof ( self ) - ( typeof ( self \ product_definition || self \ footprint_definition ) ) ) = 0 "/>
+         <where label="wr7" expression=" self . frame_of_reference . name in [ 'layout design usage' ] "/>
+         <where label="wr8" expression=" sizeof ( query ( prpc &lt;* usedin ( self . formation . of_product , 'electronic_assembly_interconnect_and_packaging_design.' + 'product_related_product_category.' + 'products' ) | prpc \ product_category . name = 'template model' ) ) = 1 "/>
+      </entity>
+      <entity name="padstack_definition" supertypes="product_definition" super.expression="ONEOF (design_layer_type_specific_padstack_definition, stratum_type_independent_padstack_definition)">
+         <where label="wr1" expression=" ( not ( 'electronic_assembly_interconnect_and_packaging_design.' + 'product_definition_with_associated_documents' in typeof ( self ) ) ) or ( sizeof ( query ( docs &lt;* self \ product_definition_with_associated_documents . documentation_ids | docs . kind \ document_type . product_data_type = 'cad filename' ) ) &lt;= 1 ) "/>
+         <where label="wr2" expression=" sizeof ( query ( adta &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_date_and_time_assignment.items' ) | adta . role \ date_time_role . name = 'creation date' ) ) + sizeof ( query ( ada &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_date_assignment.items' ) | ada . role \ date_role . name = 'creation date' ) ) = 1 "/>
+         <where label="wr3" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_approval_assignment.items' ) ) = 1 "/>
+         <where label="wr4" expression=" sizeof ( query ( apoa &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_person_and_organization_assignment.items' ) | apoa . role \ person_and_organization_role . name = 'creator' ) ) + sizeof ( query ( apoa &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_organization_assignment.items' ) | apoa . role \ organization_role . name = 'creator' ) ) &gt;= 1 "/>
+         <where label="wr5" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_security_classification_assignment.items' ) ) = 1 "/>
+         <where label="wr6" expression=" sizeof ( typeof ( self ) - ( typeof ( self \ product_definition || self \ padstack_definition ) ) ) = 0 "/>
+         <where label="wr7" expression=" self . frame_of_reference . name in [ 'layout design usage' ] "/>
+         <where label="wr9" expression=" sizeof ( query ( prpc &lt;* usedin ( self . formation . of_product , 'electronic_assembly_interconnect_and_packaging_design.' + 'product_related_product_category.' + 'products' ) | prpc \ product_category . name = 'template model' ) ) = 1 "/>
+      </entity>
+      <entity name="stratum_type_independent_padstack_definition" supertypes="padstack_definition"/>
    </schema>
 </express>

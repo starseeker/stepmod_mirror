@@ -2,12 +2,24 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:47" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_mim schema_instance"/>
    <schema name="Part_template_extension_mim">
-      <interface kind="use" schema="Manufacturing_technology_mim"/>
-      <interface kind="use" schema="Styled_curve_mim"/>
-      <interface kind="use" schema="Styled_text_mim"/>
-      <interface kind="reference" schema="Layered_interconnect_module_design_mim"/>
+      <interface kind="use" schema="MANUFACTURING_TECHNOLOGY_MIM"/>
+      <interface kind="use" schema="STYLED_CURVE_MIM"/>
+      <interface kind="use" schema="STYLED_TEXT_MIM"/>
+      <interface kind="use" schema="PRESENTATION_DEFINITION_SCHEMA"/>
+      <interface kind="reference" schema="LAYERED_INTERCONNECT_MODULE_DESIGN_MIM"/>
+      <entity name="part_text_template_definition" supertypes="part_template_definition">
+         <where label="wr1" expression=" ( sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | sizeof ( query ( it &lt;* pdr . used_representation . items | 'electronic_assembly_interconnect_and_packaging_design.' + 'text_literal' in typeof ( it ) ) ) = 1 ) ) = 1 ) ) ) = 0 ) "/>
+         <where label="wr2" expression=" ( sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | sizeof ( query ( it &lt;* pdr . used_representation . items | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' , 'electronic_assembly_interconnect_and_packaging_design.' + 'length_measure_with_unit' ] * typeof ( it ) ) = 2 ) and ( it \ representation_item . name = 'maximum font vertical extent' ) ) ) = 1 ) ) = 1 ) ) ) = 0 ) "/>
+         <where label="wr3" expression=" ( sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | sizeof ( query ( it &lt;* pdr . used_representation . items | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' , 'electronic_assembly_interconnect_and_packaging_design.' + 'length_measure_with_unit' ] * typeof ( it ) ) = 2 ) and ( it \ representation_item . name = 'maximum font horizontal extent' ) ) ) = 1 ) ) = 1 ) ) ) = 0 ) "/>
+      </entity>
+      <entity name="reference_packaged_part_interconnect_implementation" supertypes="physical_unit">
+         <where label="wr1" expression=" exists ( self \ product_definition . name ) "/>
+         <where label="wr2" expression=" ( sizeof ( query ( prpc &lt;* usedin ( self . formation . of_product , 'electronic_assembly_interconnect_and_packaging_design.' + 'product_related_product_category.products' ) | prpc \ product_category . name = 'template model' ) ) &gt;= 1 ) and ( self \ product_definition . name = 'interconnect module' ) "/>
+         <where label="wr3" expression=" sizeof ( query ( du &lt;* query ( pdr &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'product_definition_relationship.' + 'related_product_definition' ) | pdr \ product_definition_relationship . name = 'design usage' ) | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'physical_unit' , 'electronic_assembly_interconnect_and_packaging_design.' + 'externally_defined_physical_unit' , 'electronic_assembly_interconnect_and_packaging_design.' + 'library_defined_physical_unit' ] * typeof ( du . relating_product_definition ) ) = 1 ) and ( du . relating_product_definition . frame_of_reference . name = 'physical design usage' ) and ( du . relating_product_definition \ product_definition . name = 'interconnect module' ) and ( sizeof ( query ( prpc &lt;* usedin ( du . relating_product_definition . formation . of_product , 'electronic_assembly_interconnect_and_packaging_design.' + 'product_related_product_category.products' ) | prpc \ product_category . name = 'template model' ) ) &gt;= 1 ) ) ) &lt;= 1 "/>
+         <where label="wr4" expression=" self . frame_of_reference . name = 'physical design' "/>
+      </entity>
    </schema>
 </express>

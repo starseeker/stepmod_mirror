@@ -32,7 +32,7 @@
 
 		<xsl:apply-templates select="document(string($aam_path))/idef0"/>
 
-		<h3>F2 Application activity model diagrams</h3>
+		<h3>E2 Application activity model diagrams</h3>
 
 		<xsl:apply-templates select="aam"/>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.75 2003/12/04 00:07:52 thendrix Exp $
+$Id: sect_5_mapping.xsl,v 1.76 2004/02/05 07:42:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -783,12 +783,11 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
     </xsl:choose>
   </xsl:variable> <!-- module_aok -->
 
-  <xsl:variable name="aa_map_aname">
-    <xsl:apply-templates select="." mode="map_attr_aname"/>  
-  </xsl:variable>
+  
+
 
   <h2>
-    <a name="{$aa_map_aname}"/>
+    <xsl:apply-templates select="." mode="map_attr_aname_output"/>  
     <xsl:choose>
       <xsl:when test="@assertion_to">
         
@@ -1370,15 +1369,51 @@ the mapping specification')"/>
 </xsl:template>
 
 <!-- give the A NAME for the mapping of the entity attribute in sect 5 -->
-<xsl:template match="aa" mode="map_attr_aname">
+<xsl:template match="aa" mode="map_attr_aname_output">
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-  <xsl:value-of
-    select="translate(concat('aeentity',../@entity,'aaattribute',@attribute),$UPPER,$LOWER)"/>
-  <xsl:if test="@assertion_to">
-    <xsl:value-of
-      select="translate(concat('assertion_to',@assertion_to),$UPPER,$LOWER)"/>
-  </xsl:if>
+
+  <xsl:variable name="attr">
+    <xsl:choose>
+      <xsl:when test="@assertion_to">
+        <xsl:value-of
+          select="translate(concat('aeentity',../@entity,'aaattribute',@attribute,'assertion_to',@assertion_to),$UPPER,$LOWER)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of
+          select="translate(concat('aeentity',../@entity,'aaattribute',@attribute),$UPPER,$LOWER)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <a name="{$attr}"/>
+
+  <!-- cater for the fact that the assertion may be written as:
+       aa attribute="SELF\Applied_activity_assignment.assigned_activity"
+       or
+       aa attribute="assigned_activity" 
+       so output both anchours for both
+       -->
+  <xsl:if test="starts-with(translate(@attribute,$UPPER,$LOWER),'self\')">
+    <xsl:variable name="redcl_attr">
+      <!-- the attribute may be redeclared i.e. SELF\product.of_product -->
+      <xsl:call-template name="get_last_section">
+        <xsl:with-param name="path" select="@attribute"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="attr1">
+      <xsl:choose>
+        <xsl:when test="@assertion_to">
+          <xsl:value-of
+            select="translate(concat('aeentity',../@entity,'aaattribute',$redcl_attr,'assertion_to',@assertion_to),$UPPER,$LOWER)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of
+            select="translate(concat('aeentity',../@entity,'aaattribute',$redcl_attr),$UPPER,$LOWER)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <a name="{$attr1}"/>
+  </xsl:if>  
 </xsl:template>
 
 <!-- TEH added to support mapping of subtype constraints -->

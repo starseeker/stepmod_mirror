@@ -44,7 +44,9 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
 
         <target name="checks"> 
-        <xsl:apply-templates select="ballot_package/module"/>
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="cycle" select="@name" />
+        </xsl:apply-templates>
       </target>
 
 
@@ -59,7 +61,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:template>
 
   <xsl:template match="module">
-
+    <xsl:param name="cycle" />
       <xsl:element name="exec">
         <xsl:attribute name="executable">
           <xsl:value-of select="'bash'"/>
@@ -68,7 +70,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'false'"/>
         </xsl:attribute>
         <xsl:attribute name="output">
-          <xsl:value-of select="'plcs_bp3_ant_checks.txt'"/>
+          <xsl:value-of select="concat($cycle,'_ant_checks.txt')"/>
         </xsl:attribute>
         <xsl:attribute name="append">
           <xsl:value-of select="'true'"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.7 2002/07/13 22:52:12 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.8 2002/07/29 15:15:03 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -26,19 +26,25 @@ $Id: sect_5_mapping_check.xsl,v 1.7 2002/07/13 22:52:12 robbod Exp $
   </xsl:variable>
   <xsl:variable name="ae_nodes" select="./ae"/>
   <xsl:variable name="aa_nodes" select="./ae//aa"/>
+
   <xsl:for-each
     select="document(concat($module_dir,'/arm.xml'))/express/schema/entity">
     <xsl:variable name="entity" select="@name"/>
+    <xsl:variable name="ae_node" select="$ae_nodes[@entity=$entity]"/>
     <xsl:choose>
       <!-- check mapping for entity exists -->
-      <xsl:when test="not($ae_nodes[@entity=$entity])">
+      <xsl:when test="not($ae_node)">
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('Error mc5: the entity ',$entity,' has not been mapped.')"/>
         </xsl:call-template>    
       </xsl:when>
-    <xsl:otherwise>
+      
+      <!-- Do not check if the entity is mapped using a SUBTYPE constraint -->
+      <xsl:when test="contains(string($ae_node/aimelt),'/SUBTYPE')"/>
+
+      <xsl:otherwise>
       <!-- check that all the attributes have been mapped -->      
       <xsl:for-each select="./explicit">
         <xsl:choose>

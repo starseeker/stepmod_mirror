@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.4 2004/02/11 10:47:22 mikeward Exp $
+$Id: p28xsd.xsl,v 1.5 2004/02/11 17:06:12 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -62,6 +62,10 @@ $Id: p28xsd.xsl,v 1.4 2004/02/11 10:47:22 mikeward Exp $
                 <xsl:variable name="p28_node_set" select="msxsl:node-set($p28_xml)"/>
                 <xsl:apply-templates select="$p28_node_set" mode="schema"/>
               </xsl:when>
+              <xsl:when test="function-available('exslt:node-set')">
+                <xsl:variable name="p28_node_set" select="exslt:node-set($p28_xml)"/>
+                <xsl:apply-templates select="$p28_node_set" mode="schema"/>
+              </xsl:when>
             </xsl:choose>
           </xsl:when>
           <xsl:otherwise>
@@ -77,13 +81,12 @@ $Id: p28xsd.xsl,v 1.4 2004/02/11 10:47:22 mikeward Exp $
   </xsl:template>
   
   <xsl:template match="/" mode="schema">
-		
-			<xsl:call-template name="generate_xsd">
-				<xsl:with-param name="schema_node_param" select="."/>
-				<xsl:with-param name="indent_param" select="string('')"/>
-			</xsl:call-template>
-		
-	</xsl:template>
+    <xsl:call-template name="generate_xsd">
+      <xsl:with-param name="schema_node_param" select="."/>
+      <xsl:with-param name="indent_param" select="string('')"/>
+    </xsl:call-template>		
+  </xsl:template>
+
 	<xsl:template name="generate_xsd">
 		<xsl:param name="schema_node_param"/>
 		<xsl:param name="indent_param"/>

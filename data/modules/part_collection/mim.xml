@@ -1,45 +1,20 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.27 2003/02/10 13:57:21 goset1 Exp $ -->
+<!-- $Id: mim.xml,v 1.6 2003/02/11 16:31:00 rugarcia Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="mim_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.27"
-    source="../data/modules/part_collection/mim.exp"/>
-
-  <schema name="Part_collection_mim">
-    <interface
-      kind="use"
-      schema="Product_occurrence_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Part_view_definition_mim">
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="Single_part_representation_mim">
-      <interfaced.item
-        name="categories_of_product"/>
-    </interface>
-
-    <constant name="schema_name"
-      expression="STRING := 'PART_COLLECTION_MIM';">
-    </constant>
-    <rule
-      name="restrict_collection_category"
-      appliesto="product_definition">
-      <algorithm>
+<express language_version="2" description.file="mim_descriptions.xml" rcs.date="$Date: 2003/02/11 16:31:00 $" rcs.revision="$Revision: 1.6 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.27" source="../data/modules/part_collection/mim.exp"/>
+	<schema name="Part_collection_mim">
+		<interface kind="use" schema="Product_occurrence_mim"/>
+		<interface kind="use" schema="Part_view_definition_mim"/>
+		<interface kind="reference" schema="Single_part_representation_mim">
+			<interfaced.item name="categories_of_product"/>
+		</interface>
+		<constant name="schema_name" expression="'PART_COLLECTION_MIM'">
+			<builtintype type="STRING"/>
+		</constant>
+		<rule name="restrict_collection_category" appliesto="product_definition">
+			<algorithm>
 LOCAL
   collection_definitions: SET OF product_definition := [];
 END_LOCAL;
@@ -47,27 +22,11 @@ END_LOCAL;
   SIZEOF( QUERY( pdca &lt;* USEDIN( pd, schema_name + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
   pdca.frame_of_reference.name= 'collection definition')) &gt; 0 );
       </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF( QUERY( pd &lt;* collection_definitions | 	NOT ('collection' IN categories_of_product(pd.formation.of_product)) ))= 0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_product_definitions_for_collection"
-      appliesto="product_definition_relationship">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |     ( pdr. name = 'collection membership' ) AND 	( ( pdr.relating_product_definition.frame_of_reference.name&lt;&gt;'part definition' ) OR 	( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'part occurrence' ) OR 	( SIZEOF ( QUERY ( pdca &lt;* USEDIN (pdr.relating_product_definition ,     schema_name + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') | 	( pdca.role.name = 'part definition type' ) AND 	( pdca.frame_of_reference.name = 'collection definition' ) )) =0 ) ) ) ) =0">
-      </where>
-
-    </rule>
-
-  </schema>
-
+			<where label="WR1" expression="SIZEOF( QUERY( pd &lt;* collection_definitions | 	NOT ('collection' IN categories_of_product(pd.formation.of_product)) ))= 0"/>
+		</rule>
+		<rule name="restrict_product_definitions_for_collection" appliesto="product_definition_relationship">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |     ( pdr. name = 'collection membership' ) AND 	( ( pdr.relating_product_definition.frame_of_reference.name&lt;&gt;'part definition' ) OR 	( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'part occurrence' ) OR 	( SIZEOF ( QUERY ( pdca &lt;* USEDIN (pdr.relating_product_definition ,     schema_name + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') | 	( pdca.role.name = 'part definition type' ) AND 	( pdca.frame_of_reference.name = 'collection definition' ) )) =0 ) ) ) ) =0"/>
+		</rule>
+	</schema>
 </express>

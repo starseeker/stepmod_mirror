@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.4 2003/01/31 14:41:09 seanbarker Exp $
+$Id: arm.exp,v 1.5 2003/02/10 17:50:08 seanbarker Exp $
 ISO TC184/SC4/WG12 N1580 - ISO/CD-TS 10303-1258 Observation - EXPRESS ARM
 *) 
 
@@ -26,17 +26,11 @@ TYPE observation_classification_item = SELECT BASED_ON classification_item WITH
     Observation_relationship);
 END_TYPE; 
 
-TYPE observation_contents = EXTENSIBLE SELECT;
-END_TYPE; 
-
 TYPE observation_date_time = SELECT BASED_ON mri_date_or_date_time_item WITH 
    (Observation);
 END_TYPE; 
 
 TYPE observed_context = EXTENSIBLE SELECT;
-END_TYPE; 
-
-TYPE observed_item = EXTENSIBLE SELECT;
 END_TYPE; 
 
 TYPE observing_person = SELECT BASED_ON mri_organization_or_person_in_organization_item WITH 
@@ -51,11 +45,11 @@ ENTITY Observation;
   id : STRING;
   name : STRING;
   description : STRING;
-  applies_to : SET[0:?] OF observed_item;
+  applies_to : SET[0:?] OF Observation_item;
   in_context : SET[0:?] OF observed_context;
   observed_by : SET[0:?] OF obsesrvation_recorder;
   observed_during : OPTIONAL Activity_actual;
-  related_records : SET[0:?] OF observation_contents;
+  related_records : SET[0:?] OF Observation_item;
 END_ENTITY;
 
 ENTITY Observation_consequence;
@@ -64,6 +58,12 @@ ENTITY Observation_consequence;
   infered_from : Observation;
   requests : Work_request;
   role : STRING;
+END_ENTITY;
+
+ENTITY Observation_item;
+  access_comment : STRING;
+  item_identifier : STRING;
+  item_type : STRING;
 END_ENTITY;
 
 ENTITY Observation_relationship;

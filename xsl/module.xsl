@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.67 2002/06/06 13:01:59 robbod Exp $
+$Id: module.xsl,v 1.68 2002/06/07 08:22:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -681,7 +681,7 @@ o=isocs; s=central<br/>
   <h3>
     <a name="introduction"/>
     <a href="../../../basic/introduction.htm">
-      Introduction
+      0&#160;Introduction
     </a>
   </h3>
   <xsl:apply-templates/>

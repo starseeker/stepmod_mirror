@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.17 2002/05/31 08:36:46 robbod Exp $
+$Id: module_toc.xsl,v 1.18 2002/06/05 06:38:30 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -55,7 +55,7 @@ $Id: module_toc.xsl,v 1.17 2002/05/31 08:36:46 robbod Exp $
           <A HREF="{$module_root}/sys/foreword{$FILE_EXT}">Foreword</A><BR/>
         
           <!-- use #intro to link direct -->
-          <A HREF="{$module_root}/sys/introduction{$FILE_EXT}">Introduction</A><BR/>
+          <A HREF="{$module_root}/sys/introduction{$FILE_EXT}">0 Introduction</A><BR/>
           
           <!-- use #scope to link direct -->
           <A HREF="{$module_root}/sys/1_scope{$FILE_EXT}">1 Scope</A><BR/>
@@ -301,7 +301,7 @@ $Id: module_toc.xsl,v 1.17 2002/05/31 08:36:46 robbod Exp $
         <!-- use #mim to link direct -->
         <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}">5 Module interpreted model</A><BR/>
         <small>
-          <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mapping">&#160; &#160;5.1 Mapping specification</A><BR/>
+          <A HREF="{$module_root}/sys/5_mapping{$FILE_EXT}">&#160; &#160;5.1 Mapping specification</A><BR/>
           <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mim_express">&#160; &#160;5.2 MIM EXPRESS short listing</A><BR/>
           <!-- only output if there are constants defined and therefore a
                section -->

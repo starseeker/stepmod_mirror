@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.19 2002/06/05 10:46:08 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.20 2002/06/05 11:25:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -53,6 +53,10 @@ NOT USED
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
   <xsl:apply-templates select="./mapping_table" mode="toc"/>
+  <h3>
+    <a name="mapping">5.1 Mapping specification</a>
+  </h3>
+
   <xsl:apply-templates select="./mapping_table/ae" mode="table"/>
 </xsl:template>
 
@@ -89,17 +93,29 @@ NOT USED
 </xsl:template>
 
 <xsl:template match="ae" mode="toc">
+  <xsl:variable name="sect_no">
+    <xsl:number/>
+  </xsl:variable>
   <xsl:variable name="aname" select="@entity"/>
   <a href="#{$aname}">
-    <xsl:value-of select="concat('Table: ', $aname)"/>
+    <!-- <xsl:value-of select="concat('Table: ', $aname)"/> -->
+    <xsl:value-of select="concat('5.1.',$sect_no,' ',@entity)"/>
   </a>
   <br/>
 </xsl:template>
 
 <xsl:template match="ae" mode="table">
+  <xsl:variable name="sect_no">
+    <xsl:number/>
+  </xsl:variable>
   <xsl:variable name="aname" select="@entity"/>
+  <h3>
+    <a name="{$aname}">
+      <xsl:value-of select="concat('5.1.',$sect_no,' ',@entity)"/>
+    </a>
+  </h3>
+
   <center>
-  <a name="{$aname}" /> 
   <table border="1" width="722">
     <tr>
       <td VALIGN="TOP" width="21%">

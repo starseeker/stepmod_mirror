@@ -124,7 +124,7 @@
 		<xsl:value-of select="source" />
 	</xsl:element>
 
-	<xsl:apply-templates select="refpath" mode="parse"/>
+	<xsl:apply-templates select="refpath | refpath_extend" mode="parse"/>
 
    </alt-map>
 
@@ -151,6 +151,28 @@
 	</refpath>
 		   
 </xsl:template>
+
+<xsl:template match="refpath_extend" mode="parse" >
+
+	<refpath>
+
+		<xsl:attribute name="extension">TRUE</xsl:attribute>		
+		<xsl:attribute name="assertion_to"><xsl:value-of select="@assertion_to" /></xsl:attribute>		
+	
+		<xsl:variable name="this-path" >
+			<xsl:call-template name="space-out-path" >
+				<xsl:with-param name="path" select="." />
+			</xsl:call-template>		
+		</xsl:variable>
+		
+		<xsl:call-template name="parse-refpath" >
+			<xsl:with-param name="path" select="normalize-space($this-path)" />
+		</xsl:call-template>
+
+	</refpath>
+		   
+</xsl:template>
+
 
 <xsl:template match="aa">
 
@@ -184,7 +206,7 @@
 		<xsl:value-of select="source" />
 	</xsl:element>
 
-	<xsl:apply-templates select="refpath" mode="parse"  />
+	<xsl:apply-templates select="refpath | refpath_extend" mode="parse"  />
 	<xsl:apply-templates select="alt_map" mode="parse"/>
 
    </mapping>

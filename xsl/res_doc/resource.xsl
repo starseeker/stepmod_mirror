@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.6 2002/11/06 00:54:15 thendrix Exp $
+$Id: resource.xsl,v 1.7 2002/11/08 17:45:11 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -733,7 +733,7 @@ o=isocs; s=central<br/>
     for archiving.
   </p>
   <xsl:choose>
-    <xsl:when test="count(../schema)!=1">
+    <xsl:when test="count(../schema)>1">
       <p>This part of ISO 10303 is a member of the integrated resources series. 
       Major subdivisions of this part of ISO 10303 are: 
       <ul>
@@ -758,7 +758,8 @@ o=isocs; s=central<br/>
 </xsl:when>
 
 <xsl:otherwise>
- <p>This part of ISO 10303 is a member of the integrated resources series. This part of ISO 10303 specifies the $schema_name_list</p>
+ <p>This part of ISO 10303 is a member of the integrated resources series. This part of ISO 10303 specifies the 
+ <xsl:value-of select="../schema[1]/@name" />.</p>
 </xsl:otherwise></xsl:choose>
 
   <!-- output any issues -->

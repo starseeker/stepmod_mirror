@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.8 2002/01/21 14:22:10 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.9 2002/01/23 14:24:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -16,7 +16,7 @@ $Id: sect_5_mapping.xsl,v 1.8 2002/01/21 14:22:10 robbod Exp $
        -->
   <xsl:import href="module_clause.xsl"/>
 
-
+  <xsl:preserve-space elements="aimelt"/>
   <xsl:output method="html"/>
 
 
@@ -227,7 +227,9 @@ $Id: sect_5_mapping.xsl,v 1.8 2002/01/21 14:22:10 robbod Exp $
 </xsl:template>
 
 <xsl:template match="aimelt">
-  <xsl:apply-templates />  
+  <xsl:call-template name="output_string_with_linebreaks">
+    <xsl:with-param name="string" select="string(.)"/>
+  </xsl:call-template>
 </xsl:template>
 
 <xsl:template match="aimelt" mode="old">

@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.25 2002/01/23 14:24:56 robbod Exp $
+$Id: module.xsl,v 1.26 2002/01/23 15:20:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -756,10 +756,8 @@ $Id: module.xsl,v 1.25 2002/01/23 14:24:56 robbod Exp $
 </xsl:template>
 
 <xsl:template match="uoflink" mode="toc">
-  <xsl:variable name="module"
-    select="substring-before(@linkend,'.')"/>
-  <xsl:variable name="uof"
-    select="substring-after(@linkend,'.')"/>
+  <xsl:variable name="module" select="@module"/>
+  <xsl:variable name="uof" select="@uof"/>
   <xsl:variable name="xref" 
     select="concat('#uof',$uof)"/>
   <li>
@@ -799,15 +797,13 @@ $Id: module.xsl,v 1.25 2002/01/23 14:24:56 robbod Exp $
 </xsl:template>
 
 <xsl:template match="uoflink" mode="uof_toc">
-  <xsl:variable name="module"
-    select="substring-before(@linkend,'.')"/>
-  <xsl:variable name="uof"
-    select="substring-after(@linkend,'.')"/>
+  <xsl:variable name="module" select="@module"/>
+  <xsl:variable name="uof" select="@uof"/>
   <xsl:variable name="xref" 
     select="concat('../../',$module,'/sys/4_info_reqs',$FILE_EXT,'#uof',$uof)"/>
   <xsl:variable name="current_module">
     <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="./@name"/>
+      <xsl:with-param name="module" select="/module/@name"/>
     </xsl:call-template>           
   </xsl:variable>
   <h3>
@@ -817,11 +813,22 @@ $Id: module.xsl,v 1.25 2002/01/23 14:24:56 robbod Exp $
     </a>
   </h3>
   This UoF is defined in the
-  <a href="{$xref}"><xsl:value-of select="$module"/></a>
+  <a href="{$xref}">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="$module"/>
+    </xsl:call-template>   
+  </a>
   module. The following application entities from this UoF are referenced
   in the 
   <xsl:value-of select="$current_module"/> module:  
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="$module"/>
+    </xsl:call-template>
+  </xsl:variable>
   <ul>
+    <xsl:apply-templates
+      select="document(concat($module_dir,'/module.xml'))/module/arm/uof[@name=$uof]/uof.ae"/>
   </ul>
 </xsl:template>
 
@@ -1729,6 +1736,7 @@ defines it. Use: normref.inc')"/>
 
   <xsl:apply-templates select="/module/definition">
     <xsl:with-param name="section" select="concat('3.',$def_section1)"/>
+    <xsl:sort select="term"/>
   </xsl:apply-templates>
 
   <xsl:call-template name="output_abbreviations">
@@ -2127,9 +2135,9 @@ defines it. Use: normref.inc')"/>
   <xsl:template match="definition">
     <xsl:param name="section"/>
     <h4>
-      <xsl:value-of select="$section"/>.<xsl:number/>
+      <xsl:value-of select="$section"/>.<xsl:number/><br/>
+      <xsl:apply-templates select="term"/>
     </h4>
-    <b><xsl:apply-templates select="term"/></b><br/>
     <xsl:apply-templates select="def"/>
   </xsl:template>
   

@@ -31,7 +31,7 @@
 				<xsl:value-of select="string('../../../../stepmod/dtd/part28/ex.xsd')"/>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:value-of select="string('../../../dtd/part28/ex.xsdl')"/>
+				<xsl:value-of select="string('../../../dtd/part28/ex.xsd')"/>
 			</xsl:otherwise>
 		</xsl:choose>
 	

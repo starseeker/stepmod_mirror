@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.7 2003/07/28 07:28:41 robbod Exp $
+$Id: expressg_icon.xsl,v 1.1 2003/08/26 05:32:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -67,12 +67,12 @@ $Id: expressg_icon.xsl,v 1.7 2003/07/28 07:28:41 robbod Exp $
       <xsl:when test="function-available('msxsl:node-set')">
         <xsl:variable name="schema_expressg_node_set" select="msxsl:node-set($schema_expressg)"/>
         <xsl:apply-templates
-          select="$schema_expressg_node_set/expg_nodes/object[@object=$object]" mode="get_href"/>
+          select="$schema_expressg_node_set/expg_nodes/object[@object=$object][1]" mode="get_href"/>
       </xsl:when>
       <xsl:when test="function-available('exslt:node-set')">
         <xsl:variable name="schema_expressg_node_set" select="exslt:node-set($schema_expressg)"/>
         <xsl:apply-templates
-          select="$schema_expressg_node_set/expg_nodes/object[@object=$object]" mode="get_href"/>
+          select="$schema_expressg_node_set/expg_nodes/object[@object=$object][1]" mode="get_href"/>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
@@ -122,7 +122,7 @@ $Id: expressg_icon.xsl,v 1.7 2003/07/28 07:28:41 robbod Exp $
         <xsl:variable name="file">
           <xsl:call-template name="set_file_ext">
             <xsl:with-param name="filename" select="/imgfile.content/@file"/>
-          </xsl:call-template>
+         </xsl:call-template>
         </xsl:variable>
 
         <xsl:variable name="resource" select="$lschema"/>

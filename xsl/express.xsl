@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.11 2003/03/13 19:16:54 robbod Exp $
+$Id: express.xsl,v 1.12 2003/05/06 21:26:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -87,7 +87,7 @@ $Id: express.xsl,v 1.11 2003/03/13 19:16:54 robbod Exp $
     <xsl:element name="body">
       <xsl:if test="$output_background='YES'">
         <xsl:attribute name="background">
-            <xsl:value-of select="concat('../../../../images/',$background_image)"/>
+            <xsl:value-of select="concat('../../../images/',$background_image)"/>
           </xsl:attribute>
 
           <xsl:attribute name="bgproperties" >

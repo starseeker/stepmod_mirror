@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.25 2002/11/26 13:40:55 goset1 Exp $ -->
+<!-- $Id: module.xml,v 1.26 2002/11/28 08:11:57 goset1 Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 
 <module 
@@ -17,8 +17,8 @@
 	language="E" 
 	publication.year="2003" 
 	published="y" 
-	rcs.date="$Date: 2002/11/26 13:40:55 $" 
-	rcs.revision="$Revision: 1.25 $">
+	rcs.date="$Date: 2002/11/28 08:11:57 $" 
+	rcs.revision="$Revision: 1.26 $">
 	<keywords>
    		 module, approval, approval status
  	</keywords>
@@ -103,14 +103,6 @@ approval information assigned to activity or to product data.
 					date =&gt; calendar_date)}
 				</refpath>
 			</aa>
-			<aa attribute="approvers" assertion_to="Approving_person_organization">
-				<aimelt>PATH</aimelt>
-				<source>ISO 10303-41</source>
-				<refpath>approval &lt;- 
-					approval_person_organization.authorized_approval
-				  approval_person_organization				
-				</refpath>
-			</aa>
 		</ae>
 
 
@@ -124,13 +116,24 @@ approval information assigned to activity or to product data.
 			<aimelt>PATH</aimelt>
 			<refpath>
 			approval_assignment.assigned_approval -&gt; approval
-			  </refpath>
+			</refpath>
 			</aa>
 			<aa attribute="items" assertion_to="approval_item">
 			<aimelt>PATH</aimelt>
 			<refpath>
 			applied_approval_assignment.items[i] -&gt; approval_item
 			</refpath>
+			</aa>
+			<aa attribute="role">
+			<aimelt>object_role.name</aimelt>
+			<source>ISO 10303-41</source>
+			<refpath>
+			applied_approval_assignment &lt;= approval_assignment
+			approval_assignment = role_select
+			role_select &lt;- role_association.item_with_role
+			role_association.role -&gt; object_role
+			object_role.name
+		  </refpath>
 			</aa>
 		</ae>
 		
@@ -187,12 +190,9 @@ approval information assigned to activity or to product data.
 			<aimelt>PATH</aimelt>
 			<refpath>
 (date_item = approval_person_organization
-date_item &lt;-
-applied_date_assignment.items[i]
-applied_date_assignment &lt;=
-date_assignment
-{date_assignment.role -&gt;
-date_role
+date_item &lt;- applied_date_assignment.items[i]
+applied_date_assignment &lt;= date_assignment
+{date_assignment.role -&gt; date_role
 date_role.name = 'sign off'}
 {date_assignment.assigned_date -&gt; date
 date =&gt; calendar_date})
@@ -214,6 +214,21 @@ date_time_role
 date_time_role.name = 'sign off'})
 				</refpath>
 			</alt_map>
+			</aa>
+			<aa attribute="authorized_approval" assertion_to="Approval">
+				<aimelt>PATH</aimelt>
+				<source>ISO 10303-41</source>
+				<refpath>
+				approval_person_organization.authorized_approval -&gt; approval 
+				</refpath>
+			</aa>
+			<aa attribute="role">
+				<aimelt>approval_role.role</aimelt>
+				<source>ISO 10303-41</source>
+	<refpath>
+	approval_person_organization.role -&gt; approval_role
+	approval_role.role
+	</refpath>			
 			</aa>
 		</ae>
 		

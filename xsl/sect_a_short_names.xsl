@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -21,7 +21,12 @@ $Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-  <h3>MIM short names</h3>
+  <xsl:call-template name="annex_header">
+    <xsl:with-param name="annex_no" select="'A'"/>
+    <xsl:with-param name="heading" select="'MIM short names'"/>
+    <xsl:with-param name="aname" select="'annexa'"/>
+  </xsl:call-template>
+
   Entity names in this part of ISO 10303 have been defined in other parts of
   ISO 10303. Requirements on the use of the short names are found in the
   implementation methods included in ISO 10303.  

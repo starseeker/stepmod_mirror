@@ -1,4 +1,4 @@
-//$Id: imagemap2xml.js,v 1.2 2002/01/29 17:23:38 robbod Exp $
+//$Id: extractDescriptionsMain.js,v 1.1 2002/03/19 15:11:15 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -53,6 +53,7 @@ function extractDescription(exprXmlFile, descXmlFile) {
 
 	var source = new ActiveXObject("Msxml2.DOMDocument.3.0");
 	source.async = false;
+	source.validateOnParse = false;
 	source.load(exprXmlFile);
 	
 	var xsl = "../xsl/utils/extract_descriptions.xsl";

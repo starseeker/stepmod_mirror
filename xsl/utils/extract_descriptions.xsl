@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: extract_descriptions.xsl,v 1.3 2002/03/19 16:29:42 robbod Exp $
+     $Id: extract_descriptions.xsl,v 1.4 2002/03/28 13:14:19 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -21,6 +21,7 @@
   method="xml"
   indent="yes"
   omit-xml-declaration="yes"
+  doctype-system="../../../dtd/description.dtd"
   encoding="utf-8"
   />
 
@@ -34,8 +35,6 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"</xsl:processing-instruction>
 
-<xsl:processing-instruction name="DOCTYPE">
-  express SYSTEM "../../../dtd/description.dtd"</xsl:processing-instruction>
   <xsl:element name="ext_descriptions">
     <xsl:attribute name="module_directory">
       <xsl:call-template name="module_name">
@@ -58,10 +57,10 @@
     </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="'$Date: 2002/03/19 16:29:42 $'"/>
+    <xsl:value-of select="'$Date: 2002/03/28 13:14:19 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="'$Revision: 1.3 $'"/>
+    <xsl:value-of select="'$Revision: 1.4 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.57 2002/08/05 09:41:09 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.58 2002/08/06 08:05:47 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -412,10 +412,6 @@
     </p>
 
 </xsl:template>
-
-
-
-
 
 <xsl:template match="interfaced.item">
   <xsl:choose>
@@ -982,7 +978,7 @@
     <xsl:otherwise>
       <xsl:if test="@super.expression">
       <br/>
-      &#160;SUPERTYPE OF&#160;<xsl:call-template name="link_super_expression_list">
+&#160;&#160;SUPERTYPE OF&#160;<xsl:call-template name="link_super_expression_list">
         <xsl:with-param name="list" select="$sup_expr"/>
         <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
         <xsl:with-param name="clause" select="'section'"/>
@@ -997,8 +993,8 @@
 
 <xsl:template name="supertypes-code">
   <xsl:if test="@supertypes">
-    <br/>
-    &#160; SUBTYPE OF (<xsl:call-template name="link_list">
+<br/>
+&#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list">
       <xsl:with-param name="list" select="@supertypes"/>
         <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -1017,8 +1013,7 @@
   <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
 </xsl:template>
 
-<xsl:template match="redeclaration" mode="code">
-SELF\<xsl:call-template name="link_object">
+<xsl:template match="redeclaration" mode="code">SELF\<xsl:call-template name="link_object">
       <xsl:with-param name="object_name" select="@entity-ref"/>
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
@@ -1035,8 +1030,7 @@ SELF\<xsl:call-template name="link_object">
 </xsl:template>
 
 <xsl:template match="derived" mode="code">
-  <xsl:if test="position()=1">
-    DERIVE<br/>
+  <xsl:if test="position()=1">DERIVE<br/>
   </xsl:if>
   &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <!-- need to clarify the XML for derive --> 
@@ -1047,11 +1041,9 @@ SELF\<xsl:call-template name="link_object">
 </xsl:template>
 
 <xsl:template match="inverse" mode="code">
-  <xsl:if test="position()=1">
-    &#160;&#160;INVERSE<br/>
+  <xsl:if test="position()=1">INVERSE<br/>
   </xsl:if>
-  &#160;&#160;&#160;
-  <xsl:apply-templates select="./redeclaration" mode="code"/>
+  &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:apply-templates select="./inverse.aggregate" mode="code"/>
   <xsl:call-template name="link_object">
@@ -1071,11 +1063,9 @@ SELF\<xsl:call-template name="link_object">
 </xsl:template>
 
 <xsl:template match="unique" mode="code">
-  <xsl:if test="position()=1">
-    &#160;&#160;UNIQUE<br/>
+  <xsl:if test="position()=1">UNIQUE<br/>
   </xsl:if>
-  &#160;&#160;&#160;
-  <xsl:value-of select="concat(@label, ': ')"/>
+  &#160;&#160;<xsl:value-of select="concat(@label, ': ')"/>
   <xsl:apply-templates select="./unique.attribute" mode="code"/>
   <br/>
 </xsl:template>

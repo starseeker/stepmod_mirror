@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.37 2002/08/07 09:40:47 goset1 Exp $
+     $Id: express_code.xsl,v 1.38 2002/08/09 08:03:36 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -436,7 +436,7 @@
   <xsl:choose>
     <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       <br/>
-      &#160;&#160;ABSTRACT SUPERTYPE
+&#160;&#160;ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
         OF&#160;<xsl:call-template name="link_super_expression_list">
           <xsl:with-param name="list" select="$sup_expr"/>
@@ -449,7 +449,7 @@
     <xsl:otherwise>
       <xsl:if test="@super.expression">
         <br/>
-        &#160; SUPERTYPE OF 
+&#160;&#160;SUPERTYPE OF 
       <xsl:call-template name="link_super_expression_list">
         <xsl:with-param name="list" select="$sup_expr"/>
         <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -464,7 +464,7 @@
 <xsl:template name="supertypes-code">
   <xsl:if test="@supertypes">
     <br/>
-    &#160; SUBTYPE OF (<xsl:call-template name="link_list">
+&#160;&#160;SUBTYPE OF (<xsl:call-template name="link_list">
     <xsl:with-param name="list" select="@supertypes"/>
     <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
@@ -481,7 +481,7 @@
       <xsl:with-param name="section3" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
- &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
+&#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:if test="@optional='YES' or @optional='yes'">
     OPTIONAL 
@@ -490,8 +490,7 @@
   <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
 </xsl:template>
 
-<xsl:template match="redeclaration" mode="code">
-SELF\<xsl:call-template name="link_object">
+<xsl:template match="redeclaration" mode="code">SELF\<xsl:call-template name="link_object">
       <xsl:with-param name="object_name" select="@entity-ref"/>
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
@@ -516,12 +515,11 @@ SELF\<xsl:call-template name="link_object">
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:if test="position()=1">
-    DERIVE<br/>
+  <xsl:if test="position()=1">DERIVE<br/>
   </xsl:if>
-  &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
+&#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <!-- need to clarify the XML for derive --> 
-  <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
+<A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:apply-templates select="./aggregate" mode="code"/>
   <xsl:apply-templates select="./*" mode="underlying"/> 
   <xsl:value-of select="concat(' := ',@expression,';')"/><br/>
@@ -536,11 +534,9 @@ SELF\<xsl:call-template name="link_object">
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:if test="position()=1">
-    &#160;&#160;INVERSE<br/>
+  <xsl:if test="position()=1">INVERSE<br/>
   </xsl:if>
-  &#160;&#160;&#160;
-  <xsl:apply-templates select="./redeclaration" mode="code"/>
+&#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:apply-templates select="./inverse.aggregate" mode="code"/>
   <xsl:call-template name="link_object">
@@ -568,11 +564,9 @@ SELF\<xsl:call-template name="link_object">
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:if test="position()=1">
-    &#160;&#160;UNIQUE<br/>
+  <xsl:if test="position()=1">UNIQUE<br/>
   </xsl:if>
-  &#160;&#160;&#160;
-  <A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ')"/></A>
+&#160;&#160;<A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ')"/></A>
   <xsl:apply-templates select="./unique.attribute" mode="code"/>
   <br/>
 </xsl:template>
@@ -622,8 +616,9 @@ SELF\<xsl:call-template name="link_object">
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:if test="position()=1">WHERE<br/></xsl:if>  
-  &#160;&#160;<A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ', @expression, ';')"/></A>
+  <xsl:if test="position()=1">WHERE<br/>
+	</xsl:if>
+&#160;&#160;<A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ', @expression, ';')"/></A>
   <br/>
 </xsl:template>
 
@@ -753,10 +748,10 @@ SELF\<xsl:call-template name="link_object">
   ;<br/>
 
     <xsl:if test="@abstract.supertype='YES' or @abstract.supertype='yes'">
-      &#160; ABSTRACT SUPERTYPE;<br/>
+&#160;&#160;ABSTRACT SUPERTYPE;<br/>
       </xsl:if>
    <xsl:if test="@super.expression">
-        &#160; <xsl:value-of select="@super.expression"/>;<br/>
+&#160;&#160; <xsl:value-of select="@super.expression"/>;<br/>
     </xsl:if>      
   END_SUBTYPE_CONSTRAINT;<br/>
 </xsl:template>

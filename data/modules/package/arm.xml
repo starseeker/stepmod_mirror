@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:28:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="package_arm schema_instance"/>
+   <schema name="Package_arm">
+      <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
+      <interface kind="use" schema="Value_with_unit_extension_arm"/>
+      <interface kind="use" schema="Physical_unit_usage_view_arm"/>
+      <interface kind="use" schema="Part_feature_function_arm"/>
+      <interface kind="use" schema="Part_feature_location_arm"/>
+      <type name="mounting_technology_type">
+         <enumeration items="surface_mount through_hole"/>
+      </type>
+      <type name="lead_form_type">
+         <select selectitems="predefined_lead_form External_item_identification"/>
+      </type>
+      <type name="predefined_lead_form">
+         <enumeration items="gull_wing j_lead reversed_j_lead integral_terminal undefined ball straight"/>
+      </type>
+      <type name="seating_plane_intersection_type">
+         <enumeration items="surface_intersection through_intersection does_not_intersect"/>
+      </type>
+      <entity name="Connection_zone_package_interface_plane_relationship">
+         <explicit name="derived_zone_shape_class">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="derived_zone">
+            <typename name="Connection_zone_in_usage_view"/>
+         </explicit>
+         <explicit name="mating_zone">
+            <typename name="Connection_zone_in_usage_view"/>
+         </explicit>
+         <explicit name="interface_plane">
+            <typename name="Seating_plane"/>
+         </explicit>
+         <inverse name="associated_package_terminal" entity="Package_terminal" attribute="seating_plane_zone">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Connection_zone_package_interface_plane_relationship" attribute="interface_plane"/>
+            <unique.attribute entity-ref="Connection_zone_package_interface_plane_relationship" attribute="mating_zone"/>
+         </unique>
+         <where label="wr1" expression=" derived_zone_shape_class IN [ 'area' , 'edge' ] "/>
+      </entity>
+      <entity name="Guided_wave_terminal" supertypes="Package_terminal"/>
+      <entity name="Package" supertypes="Part_usage_view">
+         <explicit name="least_lead_length_below_seating_plane" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_lead_length_below_seating_plane" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="minimum_body_clearance_below_seating_plane" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="minimum_body_clearance_above_seating_plane" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_body_clearance_below_seating_plane" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_body_clearance_above_seating_plane" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_body_height_below_seating_plane" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_body_height_above_seating_plane">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="nominal_mounting_lead_span" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="nominal_mounting_lead_pitch" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="surface_mount_lead_form" optional="YES">
+            <typename name="lead_form_type"/>
+         </explicit>
+         <explicit name="maximum_seating_plane_installation_offset" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="mounting_technology">
+            <typename name="mounting_technology_type"/>
+         </explicit>
+         <derived name="maximum_installed_height" expression=" add_data_element ( maximum_body_height_above_seating_plane , maximum_seating_plane_installation_offset ) ">
+            <typename name="Length_data_element"/>
+         </derived>
+         <derived name="cutout_required" expression=" ( maximum_body_height_below_seating_plane \ value_with_unit . value_component &gt; 0.0 ) ">
+            <builtintype type="BOOLEAN"/>
+         </derived>
+         <derived name="maximum_package_total_vertical_extent" expression=" max_data_element ( add_data_element ( maximum_body_height_above_seating_plane , maximum_body_height_below_seating_plane ) , add_data_element ( maximum_body_height_above_seating_plane , maximum_lead_length_below_seating_plane ) ) ">
+            <typename name="Length_data_element"/>
+         </derived>
+         <inverse name="of_datum_reference_frame" entity="Non_feature_shape_element" attribute="scope">
+            <inverse.aggregate type="SET" lower="0"/>
+         </inverse>
+         <inverse name="package_tertiary_orientation_feature" entity="Shape_element" attribute="containing_shape">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="package_secondary_orientation_feature" entity="Shape_element" attribute="containing_shape">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="package_primary_orientation_feature" entity="Shape_element" attribute="containing_shape">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="package_polarity_indication" entity="Shape_element" attribute="containing_shape">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="package_accesses" entity="Package_terminal" attribute="associated_definition">
+            <inverse.aggregate type="SET" lower="0"/>
+         </inverse>
+         <inverse name="interface_plane" entity="Non_feature_shape_element" attribute="scope">
+            <inverse.aggregate type="SET" lower="0"/>
+         </inverse>
+         <inverse name="package_seating_plane" entity="Non_feature_shape_element" attribute="scope"/>
+         <inverse name="body" entity="Package_body" attribute="associated_definition">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <where label="WR15" expression=" SIZEOF ( QUERY ( pa &lt;* package_accesses | 'AP210_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF ( pa ) ) ) = 1 "/>
+         <where label="WR14" expression=" NOT ( SIZEOF ( of_datum_reference_frame ) &gt; 0 ) OR ( SIZEOF ( QUERY ( odrf &lt;* of_datum_reference_frame | NOT ( 'AP210_ARM.DATUM_REFERENCE_FRAME' IN TYPEOF ( odrf ) ) ) ) = 0 ) "/>
+         <where label="WR13" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ product_view_definition . defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . name = 'package' ) ) ) &gt; 0 "/>
+         <where label="WR12" expression=" NOT ( SIZEOF ( interface_plane ) &gt; 0 ) OR ( SIZEOF ( QUERY ( ip &lt;* interface_plane | NOT ( package_seating_plane &lt;&gt; ip ) ) ) = 0 ) "/>
+         <where label="WR11" expression=" NOT ( SIZEOF ( interface_plane ) &gt; 0 ) OR ( SIZEOF ( QUERY ( ip &lt;* interface_plane | NOT ( ip \ shape_element . element_name = 'interface plane' ) ) ) = 0 ) "/>
+         <where label="WR10" expression=" package_seating_plane \ shape_element . element_name = 'package seating plane' "/>
+         <where label="WR9" expression=" ( NOT ( mounting_technology = surface_mount ) AND NOT ( EXISTS ( surface_mount_lead_form ) ) ) OR ( ( mounting_technology = surface_mount ) AND ( EXISTS ( surface_mount_lead_form ) ) ) "/>
+         <where label="WR8" expression=" NOT ( EXISTS ( least_lead_length_below_seating_plane ) ) OR ( least_lead_length_below_seating_plane \ value_with_unit . value_component &gt; 0.0 ) "/>
+         <where label="WR7" expression=" NOT ( EXISTS ( maximum_lead_length_below_seating_plane ) ) OR ( maximum_lead_length_below_seating_plane \ value_with_unit . value_component &gt; 0.0 ) "/>
+         <where label="WR6" expression=" NOT ( mounting_technology = surface_mount ) OR ( NOT ( EXISTS ( maximum_lead_length_below_seating_plane ) OR EXISTS ( least_lead_length_below_seating_plane ) ) ) "/>
+         <where label="WR5" expression=" 'AP210_ARM.SEATING_PLANE' IN TYPEOF ( interface_plane ) "/>
+         <where label="WR4" expression=" 'AP210_ARM.SEATING_PLANE' IN TYPEOF ( package_seating_plane ) "/>
+         <where label="WR3" expression=" NOT ( SIZEOF ( package_tertiary_orientation_feature ) &gt; 0 ) OR ( 'AP210_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF ( package_tertiary_orientation_feature [ 1 ] ) ) "/>
+         <where label="WR2" expression=" NOT ( SIZEOF ( package_secondary_orientation_feature ) &gt; 0 ) OR ( 'AP210_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF ( package_secondary_orientation_feature [ 1 ] ) ) "/>
+         <where label="WR1" expression=" NOT ( SIZEOF ( package_primary_orientation_feature ) &gt; 0 ) OR ( 'AP210_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF ( package_primary_orientation_feature [ 1 ] ) ) "/>
+      </entity>
+      <entity name="Package_body" supertypes="Part_feature">
+         <explicit name="associated_definition">
+            <typename name="Package"/>
+            <redeclaration entity-ref="Part_feature" old_name="associated_definition"/>
+         </explicit>
+         <explicit name="body_material">
+            <typename name="Material_identification"/>
+         </explicit>
+         <where label="WR3" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY' ) | ( 'AP210_ARM.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY' ) | ( 'AP210_ARM.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pf &lt;* USEDIN ( SELF , 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY' ) | ( 'AP210_ARM.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF ( pf ) ) ) ) &lt;= 1 "/>
+      </entity>
+      <entity name="Package_body_bottom_surface" supertypes="Package_body_surface"/>
+      <entity name="Package_body_edge_segment_surface" supertypes="Package_body_surface">
+         <explicit name="end_vertex">
+            <typename name="Edge_segment_vertex"/>
+         </explicit>
+         <explicit name="start_vertex">
+            <typename name="Edge_segment_vertex"/>
+         </explicit>
+         <explicit name="composed_surface">
+            <typename name="Package_body_edge_surface"/>
+         </explicit>
+         <where label="wr1" expression=" start_vertex :&lt;&gt;: end_vertex "/>
+      </entity>
+      <entity name="Package_body_edge_surface" supertypes="Package_body_surface"/>
+      <entity name="Package_body_surface" abstract.entity="YES" supertypes="Part_feature" super.expression="ONEOF (Package_body_bottom_surface, Package_body_top_surface, Package_body_edge_segment_surface, Package_body_edge_surface)">
+         <explicit name="associated_definition">
+            <typename name="Package_body"/>
+            <redeclaration entity-ref="Part_feature" old_name="associated_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Package_body_top_surface" supertypes="Package_body_surface"/>
+      <entity name="Package_terminal" supertypes="Part_feature">
+         <explicit name="seating_plane_zone" optional="YES">
+            <typename name="Connection_zone_package_interface_plane_relationship"/>
+         </explicit>
+         <explicit name="maximum_terminal_diametrical_extent" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="minimum_terminal_diametrical_extent" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="terminal_core_material" optional="YES">
+            <typename name="Material_identification"/>
+         </explicit>
+         <explicit name="terminal_characteristic" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="characteristic"/>
+         </explicit>
+         <explicit name="terminal_surface_material">
+            <typename name="Material_identification"/>
+         </explicit>
+         <explicit name="seating_plane_intersection">
+            <typename name="seating_plane_intersection_type"/>
+         </explicit>
+         <explicit name="internal_connection_zone" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Connection_zone_in_usage_view"/>
+         </explicit>
+         <explicit name="external_connection_zone" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Connection_zone_in_usage_view"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Package"/>
+            <redeclaration entity-ref="Part_feature" old_name="associated_definition"/>
+         </explicit>
+         <derived name="mates_with_substrate" expression=" ( EXISTS ( seating_plane_zone ) ) AND ( associated_definition . package_seating_plane :=: seating_plane_zone . interface_plane ) ">
+            <builtintype type="BOOLEAN"/>
+         </derived>
+         <inverse name="feature_shape" entity="Usage_concept_usage_relationship" attribute="associated_usage">
+            <inverse.aggregate type="SET" lower="1"/>
+            <redeclaration entity-ref="Part_feature" old_name="feature_shape"/>
+         </inverse>
+         <where label="WR5" expression=" NOT ( ( seating_plane_intersection = does_not_intersect ) AND ( EXISTS ( seating_plane_zone ) ) ) "/>
+         <where label="WR4" expression=" NOT ( EXISTS ( seating_plane_zone ) ) OR ( ( seating_plane_intersection = surface_intersection ) OR ( seating_plane_intersection = through_intersection ) ) "/>
+         <where label="WR3" expression=" NOT ( EXISTS ( seating_plane_zone ) ) OR ( ( associated_definition . package_seating_plane :=: seating_plane_zone . interface_plane ) OR ( associated_definition . interface_plane [ 1 ] :=: seating_plane_zone . interface_plane ) ) "/>
+         <where label="WR2" expression=" NOT ( EXISTS ( seating_plane_zone ) ) OR ( SIZEOF ( QUERY ( cz &lt;* external_connection_zone | ( seating_plane_zone . mating_zone = cz ) ) ) = 1 ) "/>
+         <where label="WR1" expression=" NOT ( EXISTS ( seating_plane_zone ) ) OR ( SIZEOF ( QUERY ( cz &lt;* external_connection_zone | ( seating_plane_zone . derived_zone = cz ) ) ) = 1 ) "/>
+      </entity>
+      <entity name="Package_terminal_surface_constituent_relationship" supertypes="Shape_element_constituent_relationship">
+         <explicit name="related">
+            <typename name="Package_terminal"/>
+            <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Package_body_surface"/>
+            <redeclaration entity-ref="Shape_element_relationship" old_name="relating"/>
+         </explicit>
+      </entity>
+      <entity name="Primary_reference_terminal" supertypes="Package_terminal">
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ part_feature . precedent_feature ) ) "/>
+      </entity>
+      <entity name="Functional_orientation_feature" supertypes="Part_feature">
+         <explicit name="associated_terminal">
+            <typename name="Primary_reference_terminal"/>
+         </explicit>
+         <explicit name="associated_body_vertical_extent" optional="YES">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Package_body_surface"/>
+         </explicit>
+      </entity>
+      <entity name="Polarity_indication_feature" supertypes="Part_feature">
+         <explicit name="associated_terminal">
+            <typename name="Package_terminal"/>
+         </explicit>
+         <explicit name="associated_body_vertical_extent" optional="YES">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Package_body_surface"/>
+         </explicit>
+      </entity>
+      <entity name="Primary_orientation_feature" supertypes="Part_feature Datum_feature">
+         <explicit name="associated_body_vertical_extent" optional="YES">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Package_body_surface"/>
+         </explicit>
+      </entity>
+      <entity name="Secondary_orientation_feature" supertypes="Part_feature Datum_feature">
+         <explicit name="associated_body_vertical_extent" optional="YES">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Package_body_surface"/>
+         </explicit>
+      </entity>
+      <entity name="Tertiary_orientation_feature" supertypes="Part_feature Datum_feature">
+         <explicit name="associated_body_vertical_extent" optional="YES">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Package_body_surface"/>
+         </explicit>
+      </entity>
+      <entity name="Wire_terminal" supertypes="Package_terminal">
+         <explicit name="minimum_wire_terminal_length">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_wire_terminal_length">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="internal_connection_zone">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Connection_zone_in_usage_view"/>
+            <redeclaration entity-ref="Package_terminal" old_name="internal_connection_zone"/>
+         </explicit>
+      </entity>
+      <function name="add_data_element">
+         <parameter name="input1">
+            <typename name="Length_data_element"/>
+         </parameter>
+         <parameter name="input2">
+            <typename name="Length_data_element"/>
+         </parameter>
+         <typename name="Length_data_element"/>
+         <algorithm> RETURN ( input1 ) ; </algorithm>
+      </function>
+      <function name="max_data_element">
+         <parameter name="input1">
+            <typename name="Length_data_element"/>
+         </parameter>
+         <parameter name="input2">
+            <typename name="Length_data_element"/>
+         </parameter>
+         <typename name="Length_data_element"/>
+         <algorithm> RETURN ( input1 ) ; </algorithm>
+      </function>
+   </schema>
+</express>

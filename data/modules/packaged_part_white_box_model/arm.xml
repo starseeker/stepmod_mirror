@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:28:25" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_part_white_box_model_arm schema_instance"/>
+   <schema name="Packaged_part_white_box_model_arm">
+      <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
+      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
+      <interface kind="use" schema="Contextual_shape_positioning_arm"/>
+      <interface kind="use" schema="Physical_unit_3d_shape_arm"/>
+      <interface kind="use" schema="Physical_unit_2d_shape_arm"/>
+      <interface kind="use" schema="Bare_die_arm"/>
+      <entity name="Device_2d_position" supertypes="Mapping_based_template_instance">
+         <explicit name="part_shape">
+            <typename name="Physical_unit_planar_shape"/>
+         </explicit>
+         <explicit name="placed_device">
+            <typename name="Part_device"/>
+         </explicit>
+      </entity>
+      <entity name="Device_3d_position" supertypes="Mapping_based_template_instance">
+         <explicit name="part_shape">
+            <typename name="Physical_unit_3d_shape"/>
+         </explicit>
+         <explicit name="placed_device">
+            <typename name="Part_device"/>
+         </explicit>
+      </entity>
+      <entity name="Device_terminal_map">
+         <explicit name="mapped_device_terminal">
+            <typename name="Part_device_terminal"/>
+         </explicit>
+         <explicit name="target_terminal">
+            <typename name="Packaged_part_terminal"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Device_terminal_map" attribute="mapped_device_terminal"/>
+            <unique.attribute entity-ref="Device_terminal_map" attribute="target_terminal"/>
+         </unique>
+      </entity>
+      <entity name="Device_terminal_map_relationship">
+         <explicit name="relating_device_terminal_map">
+            <typename name="Device_terminal_map"/>
+         </explicit>
+         <explicit name="related_device_terminal_map">
+            <typename name="Device_terminal_map"/>
+         </explicit>
+      </entity>
+      <entity name="Part_device">
+         <explicit name="bonding_agent" optional="YES">
+            <typename name="Material_identification"/>
+         </explicit>
+         <explicit name="item_identification">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="included_device">
+            <typename name="Bare_die"/>
+         </explicit>
+         <explicit name="defined_packaged_part">
+            <typename name="Packaged_part"/>
+         </explicit>
+         <inverse name="device_2d_position" entity="Device_2d_position" attribute="placed_device">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="device_3d_position" entity="Device_3d_position" attribute="placed_device">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Part_device" attribute="defined_packaged_part"/>
+            <unique.attribute entity-ref="Part_device" attribute="item_identification"/>
+         </unique>
+      </entity>
+      <entity name="Part_device_terminal">
+         <explicit name="terminated_device">
+            <typename name="Part_device"/>
+         </explicit>
+         <explicit name="used_bare_die_terminal">
+            <typename name="Minimally_defined_bare_die_terminal"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Part_device_terminal" attribute="used_bare_die_terminal"/>
+            <unique.attribute entity-ref="Part_device_terminal" attribute="terminated_device"/>
+         </unique>
+      </entity>
+   </schema>
+</express>

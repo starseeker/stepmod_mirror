@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:30:31" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_arm schema_instance"/>
+   <schema name="Physical_unit_design_view_arm">
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <interface kind="use" schema="Physical_unit_usage_view_arm"/>
+      <interface kind="use" schema="Item_definition_structure_arm"/>
+      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
+      <interface kind="use" schema="Product_occurrence_arm"/>
+      <type name="physical_unit_or_part_template_or_fp_or_pd">
+         <select extensible="YES" genericentity="YES" selectitems="Part_view_definition"/>
+      </type>
+      <entity name="Component_to_physical_usage_view_assignment" supertypes="View_definition_relationship">
+         <explicit name="design_view_component">
+            <typename name="Assembly_component"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         </explicit>
+         <explicit name="usage_view_component">
+            <typename name="Assembly_component"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         </explicit>
+         <where label="WR1" expression=" design_view_component &lt;&gt; usage_view_component "/>
+      </entity>
+      <entity name="Connection_zone_in_design_view" supertypes="Connection_zone">
+         <explicit name="associated_definition">
+            <typename name="Part_design_view"/>
+            <redeclaration entity-ref="Part_feature" old_name="associated_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Part_design_view" supertypes="Assembly_definition Item_shape Part_view_definition">
+         <explicit name="usage_view" optional="YES">
+            <typename name="Part_usage_view"/>
+         </explicit>
+         <derived name="described_element" expression=" SELF ">
+            <typename name="shapeable_item"/>
+            <redeclaration entity-ref="Item_shape" old_name="described_element"/>
+         </derived>
+         <where label="WR1" expression=" ( 'AP210_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF ( SELF ) ) OR EXISTS ( usage_view ) "/>
+      </entity>
+      <entity name="Assembly_component" supertypes="Definition_based_product_occurrence Item_shape">
+         <explicit name="derived_from">
+            <typename name="physical_unit_or_part_template_or_fp_or_pd"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
+         </explicit>
+         <derived name="described_element" expression=" SELF ">
+            <typename name="shapeable_item"/>
+            <redeclaration entity-ref="Item_shape" old_name="described_element"/>
+         </derived>
+         <inverse name="assembly" entity="Assembly_component_relationship" attribute="related_view">
+            <inverse.aggregate type="SET" lower="0"/>
+         </inverse>
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ definition_based_product_occurrence . derived_from ) ) OR ( ( ( 'AP210_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF ( SELF ) ) AND ( 'AP210_ARM.FOOTPRINT_DEFINITION' IN TYPEOF ( derived_from ) ) ) OR ( NOT ( 'AP210_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF ( SELF ) ) AND NOT ( 'AP210_ARM.FOOTPRINT_DEFINITION' IN TYPEOF ( SELF \ definition_based_product_occurrence . derived_from ) ) ) OR ( ( 'AP210_ARM.PADSTACK_OCCURRENCE' IN TYPEOF ( SELF ) ) AND ( 'AP210_ARM.PADSTACK_DEFINITION' IN TYPEOF ( SELF \ definition_based_product_occurrence . derived_from ) ) ) OR ( NOT ( 'AP210_ARM.PADSTACK_OCCURRENCE' IN TYPEOF ( SELF ) ) AND NOT ( 'AP210_ARM.PADSTACK_DEFINITION' IN TYPEOF ( SELF \ definition_based_product_occurrence . derived_from ) ) ) ) "/>
+      </entity>
+      <entity name="Component_make_from_relationship" supertypes="View_definition_relationship">
+         <explicit name="resultant_component">
+            <typename name="Assembly_component"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         </explicit>
+         <explicit name="reusable_component">
+            <typename name="Assembly_component"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         </explicit>
+         <where label="WR1" expression=" resultant_component &lt;&gt; reusable_component "/>
+      </entity>
+      <entity name="Physical_component" supertypes="Assembly_component Definition_based_part_occurrence"/>
+      <entity name="Thermal_component" supertypes="Assembly_component"/>
+   </schema>
+</express>

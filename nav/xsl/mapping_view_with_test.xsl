@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.9 2003/07/04 20:42:34 nigelshaw Exp $
+$Id: mapping_view_with_test.xsl,v 1.10 2003/07/28 07:29:58 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -30,12 +30,6 @@ $Id: mapping_view_with_test.xsl,v 1.9 2003/07/04 20:42:34 nigelshaw Exp $
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
   <xsl:variable name="NUMBERS" select="'0123456789'"/>
 
-
-
-  <xsl:variable name="module_file" 
-                select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/module.xml')"/>
-
-  <xsl:variable name="module_node" select="document($module_file)/module"/>
 
   <xsl:variable name="mappings-result">
               <xsl:call-template name="mapping-full-parse"/>
@@ -184,6 +178,14 @@ $Id: mapping_view_with_test.xsl,v 1.9 2003/07/04 20:42:34 nigelshaw Exp $
 </xsl:template>
 
 <xsl:template name="mapping-full-parse">
+
+
+  <xsl:variable name="module_file" 
+                select="concat('../../data/modules/',/stylesheet_application/@directory,'/module.xml')"/>
+
+
+  <xsl:variable name="module_node" select="document($module_file)/module"/>
+
 	
 	<module>
 	<xsl:attribute name="name">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.16 2003/04/29 23:00:05 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.17 2003/07/28 07:29:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -32,11 +32,6 @@ $Id: mapping_view.xsl,v 1.16 2003/04/29 23:00:05 nigelshaw Exp $
   <xsl:variable name="NUMBERS" select="'0123456789'"/>
 
 
-
-  <xsl:variable name="module_file" 
-                select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/module.xml')"/>
-
-  <xsl:variable name="module_node" select="document($module_file)/module"/>
 
   <xsl:variable name="mappings-result">
               <xsl:call-template name="mapping-full-parse"/>
@@ -175,7 +170,12 @@ $Id: mapping_view.xsl,v 1.16 2003/04/29 23:00:05 nigelshaw Exp $
 </xsl:template>
 
 <xsl:template name="mapping-full-parse">
-	
+	  <xsl:variable name="module_file" 
+                select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/module.xml')"/>
+
+  <xsl:variable name="module_node" select="document($module_file)/module"/>
+
+
 	<module>
 	<xsl:attribute name="name">
 		<xsl:value-of select="/stylesheet_application/@directory" />

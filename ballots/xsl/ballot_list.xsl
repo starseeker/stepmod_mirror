@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_list.xsl,v 1.6 2003/01/22 01:50:49 thendrix Exp $
+$Id: ballot_list.xsl,v 1.7 2003/07/25 00:33:31 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -110,29 +110,43 @@ Ballot package:
                 <xsl:with-param name="mid_point" select="$module_mid_point"/>
                 <xsl:sort select="@name"/>
               </xsl:apply-templates>
-        </td>
-        <td align="left" valign="top">
-          <xsl:apply-templates select="./module" mode="col2">
-            <xsl:with-param name="mid_point" select="$module_mid_point"/>
-            <xsl:sort select="@name"/>
-          </xsl:apply-templates>
-        </td>
-            </xsl:when> 
-            <xsl:when test="./resource">
+            </td>
             <td align="left" valign="top">
-          <xsl:apply-templates select="./resource" mode="col1">
-            <xsl:with-param name="mid_point" select="$module_mid_point"/>
-            <xsl:sort select="@name"/>
-          </xsl:apply-templates>
-        </td>
-        <td align="left" valign="top">
-          <xsl:apply-templates select="./resource" mode="col2">
-            <xsl:with-param name="mid_point" select="$module_mid_point"/>
-            <xsl:sort select="@name"/>
-          </xsl:apply-templates>
-        </td>
-      </xsl:when>
-    </xsl:choose>
+              <xsl:apply-templates select="./module" mode="col2">
+                <xsl:with-param name="mid_point" select="$module_mid_point"/>
+                <xsl:sort select="@name"/>
+              </xsl:apply-templates>
+            </td>
+          </xsl:when> 
+          <xsl:when test="./resource">
+            <td align="left" valign="top">
+              <xsl:apply-templates select="./resource" mode="col1">
+                <xsl:with-param name="mid_point" select="$module_mid_point"/>
+                <xsl:sort select="@name"/>
+              </xsl:apply-templates>
+            </td>
+            <td align="left" valign="top">
+              <xsl:apply-templates select="./resource" mode="col2">
+                <xsl:with-param name="mid_point" select="$module_mid_point"/>
+                <xsl:sort select="@name"/>
+              </xsl:apply-templates>
+            </td>
+          </xsl:when>
+          <xsl:when test="./ap_doc">
+            <td align="left" valign="top">
+              <xsl:apply-templates select="./ap_doc" mode="col1">
+                <xsl:with-param name="mid_point" select="$module_mid_point"/>
+                <xsl:sort select="@name"/>
+              </xsl:apply-templates>
+            </td>
+            <td align="left" valign="top">
+              <xsl:apply-templates select="./ap_doc" mode="col2">
+                <xsl:with-param name="mid_point" select="$module_mid_point"/>
+                <xsl:sort select="@name"/>
+              </xsl:apply-templates>
+            </td>
+          </xsl:when>
+        </xsl:choose>
       </tr>
     </table>
   </blockquote>
@@ -261,6 +275,72 @@ Ballot package:
           <xsl:with-param name="message">
             <xsl:value-of select="concat('Error B1: Resource part ',
                                   $resdoc_name,
+                                  ' does not exist in stepmod/repository_index.xml')"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </p>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+<xsl:template match="ap_doc" mode="col1">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="not(position()>$mid_point)">
+    <xsl:apply-templates select="." mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="ap_doc" mode="col2">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="position()>$mid_point">
+    <xsl:apply-templates select="."  mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+
+<xsl:template match="ap_doc" mode="output">
+  <xsl:variable name="xref"
+    select="concat('../../../data/application_protocols/',@name,'/sys/introduction',$FILE_EXT)"/>
+  <a href="{$xref}">
+    <small>
+      <b>
+        <xsl:value-of select="@name"/>&#160;
+        <xsl:call-template name="get_apdoc_part">
+          <xsl:with-param name="resdoc_name" select="@name"/>
+        </xsl:call-template>
+      </b>
+    </small>
+  </a>
+  <br/>
+</xsl:template>
+
+
+<xsl:template name="get_apdoc_part">
+  <xsl:variable name="apdoc_name" select="@name"/>
+  <xsl:variable name="apdoc_file"
+    select="concat('../../data/application_protocols/',@name,'/application_protocol.xml')"/>
+
+  <xsl:variable name="in_repo"
+    select="document('../../repository_index.xml')/repository_index/application_protocols/application_protocol[@name=$apdoc_name]"/>
+  <xsl:choose>
+    <!-- the module is present in the STEP mod repository -->
+    <xsl:when test="$in_repo">
+      <xsl:variable name="apdoc_node"
+        select="document($apdoc_file)/application_protocol[@name=$apdoc_name]"/>
+      <xsl:variable name="part" select="$apdoc_node/@part"/>
+      (<xsl:value-of select="$part"/>)
+    </xsl:when>
+
+    <xsl:otherwise>
+      <p>
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="warning_gif"
+            select="'../../../images/warning.gif'"/>
+          
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error B1: Application protocol part ',
+                                  $apdoc_name,
                                   ' does not exist in stepmod/repository_index.xml')"/>
           </xsl:with-param>
         </xsl:call-template>

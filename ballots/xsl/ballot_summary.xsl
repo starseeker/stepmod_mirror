@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.24 2004/07/30 21:59:38 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.25 2004/07/31 20:56:41 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -11,7 +11,9 @@ $Id: ballot_summary.xsl,v 1.24 2004/07/30 21:59:38 thendrix Exp $
                 version="1.0">
 
  <xsl:import href="../../xsl/common.xsl"/> 
- <xsl:import href="../../xsl/res_doc/common.xsl"/>     
+ <!-- RBN - Commented out to avoid duplication of  ERROR_CHECK_LIST_ITEMS
+      <xsl:import href="../../xsl/res_doc/common.xsl"/>  
+      -->
  
 
   <xsl:output 
@@ -285,6 +287,55 @@ $Id: ballot_summary.xsl,v 1.24 2004/07/30 21:59:38 thendrix Exp $
     <xsl:apply-templates select="//*/resource"/>
   </table>
 </xsl:template>
+
+
+
+  <!-- RBN - 
+       COPIED FROM stepmod/xsl/res_doc/common.xsl to avoid duplication of
+       ERROR_CHECK_LIST_ITEMS
+       given the name of a resource document , return the name of resource document - dont ask
+       -->
+  <xsl:template name="resdoc_name">
+    <xsl:param name="resdoc"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="first_char" 
+      select="translate(substring($resdoc,1,1),$UPPER,$LOWER)"/>
+    <xsl:value-of 
+      select="concat($first_char,substring($resdoc,2))"/>
+  </xsl:template>
+
+  <!-- RBN - 
+       COPIED FROM stepmod/xsl/res_doc/common.xsl to avoid duplication of
+       ERROR_CHECK_LIST_ITEMS
+       given the name of a resource doc, check to see whether it has been
+       included in the repository_index.xml file
+       Return true or if not found, an error message.
+       -->
+  <xsl:template name="check_resdoc_exists">
+    <xsl:param name="resdoc"/>
+
+    <xsl:variable name="resdoc_name">
+      <xsl:call-template name="resdoc_name">
+        <xsl:with-param name="resdoc" select="$resdoc"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="ret_val">
+        <xsl:choose>
+          <xsl:when
+            test="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc_name]">
+            <xsl:value-of select="'true'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of
+              select="concat(' The resource document ', $resdoc_name,
+                      ' is not identified as a resource document  in repository_index.xml')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:value-of select="$ret_val"/>
+  </xsl:template>
 
 <xsl:template match="resource">
   <xsl:variable name="resdoc_ok">

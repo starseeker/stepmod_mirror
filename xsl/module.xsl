@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.128 2003/03/06 08:16:37 robbod Exp $
+$Id: module.xsl,v 1.129 2003/03/09 16:51:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -349,11 +349,7 @@ o=isocs; s=central<br/>
     <tr>
     <td valign="TOP" colspan="2" height="88">
       <h3>ABSTRACT:</h3>
-      This document is the
-      <xsl:value-of select="$status_words"/>
-      of the application module for 
-      <xsl:value-of select="$module_name"/>.
-
+      <xsl:apply-templates select="." mode="abstract"/>
       <h3>
         <a name="keywords">
           KEYWORDS:
@@ -475,6 +471,62 @@ o=isocs; s=central<br/>
   </table>
 
 </xsl:template>
+
+<xsl:template match="module" mode="abstract">
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
+
+  <!-- replaced by below  
+  <P>
+    This document is the
+    <xsl:value-of select="$status_words"/>
+    of the application module for 
+    <xsl:value-of select="$module_name"/>.
+  </P>
+  -->
+  <xsl:choose>
+    <xsl:when test="./abstract">
+      <xsl:apply-templates select="./abstract"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <P>
+        This part of ISO 10303 specifies the application module for 
+        <xsl:value-of select="$module_name"/>.
+      </P>
+      <P>
+        The following are within the scope of this part of ISO 10303:
+      </P>
+
+      <UL>
+        <xsl:apply-templates select="./inscope/li"/>
+      </UL>
+    </xsl:otherwise>
+  </xsl:choose>
+      
+</xsl:template>
+
+<xsl:template match="abstract">
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="/module/@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
+
+  <P>
+    This part of ISO 10303 specifies the application module for 
+    <xsl:value-of select="$module_name"/>.
+  </P>
+  <P>
+    The following are within the scope of this part of ISO 10303:
+  </P>
+  <UL>
+    <xsl:apply-templates select="./li"/>
+  </UL>  
+</xsl:template>
+
 
 <xsl:template match="keywords">
   <xsl:if test="not(contains(.,'STEP'))">
@@ -1337,52 +1389,14 @@ o=isocs; s=central<br/>
       4.1&#160;Units of functionality
     </a>
   </h3>
-  This subclause specifies the units of functionality (UoF) for this part
-  ISO 10303 as well as any support elements needed for the application module
-  definition. 
 
-  <xsl:choose>
-    <xsl:when test="(./uof.ae)">
-      This part of ISO 10303 specifies the following units of
-      functionality and application objects:
-    </xsl:when>
-    <xsl:otherwise>
-      This part of ISO 10303 specifies the following units of
-      functionality:
-    </xsl:otherwise>
-  </xsl:choose>
-  <ul>
-    <xsl:apply-templates select="uof" mode="toc"/>
-  </ul>
-  <!-- output any UoFs in other modules -->
-  <xsl:choose>
-    <xsl:when test="(./uoflink)">
-      <p>
-        This part of ISO 10303 also includes the following units of
-        functionality: 
-      </p>
-      <ul>
-        <xsl:apply-templates select="./uoflink" mode="toc"/>
-      </ul>
-    </xsl:when>
-    <xsl:otherwise>
-      <p>
-        <!--
-        This part of ISO 10303 uses no other units of functionality. 
-             -->
-        This part of ISO 10303 also includes the units of functionality
-        defined in the application modules that are imported with the USE
-        FROM statements specified in clause 4.2  
-      </p>        
-    </xsl:otherwise>
-  </xsl:choose>
-  <p>
-    The content of the units of functionality is listed below.  
-  </p>
+    <!-- Note a UoF section is no longer required so this is commented out -->
+    <!-- <xsl:apply-templates select="." mode="uof"/> -->
 
-  <xsl:apply-templates select="uof" mode="uof_toc"/>
-
-  <xsl:apply-templates select="uoflink" mode="uof_toc"/>
+    <!-- Note a UoF section is no longer required so this default text is provided -->
+    The application objects defined within this part of ISO 10303 
+    <!-- and those imported with the USE FROM statements specified in clause 4.2, -->
+    constitute the units of functionality.      
 
   <!-- output all the EXPRESS specifications -->
   <!-- display the EXPRESS for the interfaces in the ARM.
@@ -1432,6 +1446,55 @@ o=isocs; s=central<br/>
     <br/>(*
   </code>
 
+</xsl:template>
+
+<!-- Note a UoF section is no longer required -->
+<xsl:template match="arm" mode="uof">
+      This subclause specifies the units of functionality (UoF) for this
+      part of ISO 10303 as well as any support elements needed for the
+      application module definition.       
+      <xsl:choose>
+        <xsl:when test="(./uof.ae)">
+          This part of ISO 10303 specifies the following units of
+          functionality and application objects:
+        </xsl:when>
+        <xsl:otherwise>
+          This part of ISO 10303 specifies the following units of
+          functionality:
+        </xsl:otherwise>
+      </xsl:choose>
+      <ul>
+        <xsl:apply-templates select="uof" mode="toc"/>
+      </ul>
+      <!-- output any UoFs in other modules -->
+      <xsl:choose>
+        <xsl:when test="(./uoflink)">
+          <p>
+            This part of ISO 10303 also includes the following units of
+            functionality: 
+          </p>
+          <ul>
+            <xsl:apply-templates select="./uoflink" mode="toc"/>
+          </ul>
+        </xsl:when>
+        <xsl:otherwise>
+          <p>
+            <!--
+                 This part of ISO 10303 uses no other units of functionality. 
+                 -->
+            This part of ISO 10303 also includes the units of functionality
+            defined in the application modules that are imported with the USE
+            FROM statements specified in clause 4.2  
+          </p>        
+        </xsl:otherwise>
+      </xsl:choose>
+      <p>
+        The content of the units of functionality is listed below.  
+      </p>
+      
+      <xsl:apply-templates select="uof" mode="uof_toc"/>
+      
+      <xsl:apply-templates select="uoflink" mode="uof_toc"/>
 </xsl:template>
 
 <xsl:template match="uof" mode="toc">

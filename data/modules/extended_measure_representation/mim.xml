@@ -1,108 +1,112 @@
-<?xml version="1.0"?>
-<?xml-stylesheet 
-  type="text/xsl" 
-  href="../../../xsl/express.xsl"
-?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $"
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.36 2004/05/25 20:27:05 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
   description.file="mim_descriptions.xml"
->
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="extended_measure_representation_mim_v007.vsd" />
-<schema name="Extended_measure_representation_mim">
-<interface kind="use" schema="Measure_representation_mim">
-</interface>
-<interface kind="use" schema="qualified_measure_schema">
-<interfaced.item name="measure_representation_item" />
-<interfaced.item name="precision_qualifier" />
-<interfaced.item name="qualified_representation_item" />
-<interfaced.item name="type_qualifier" />
-</interface>
-<interface kind="use" schema="representation_schema">
-<interfaced.item name="compound_representation_item" />
-<interfaced.item name="list_representation_item" />
-</interface>
-<interface kind="use" schema="Value_with_unit_mim">
-</interface>
-<interface kind="reference" schema="support_resource_schema">
-</interface>
-<type name="list_of_two_representation_items">
-<typename name="list_representation_item" />
-<where label="WR1" expression="HIINDEX(SELF) = 2">
-</where>
-<graphic.element page="2" xcoord="175" ycoord="98" />
-</type>
-<entity name="double_toleranced_measure_item" supertypes="compound_representation_item">
-<explicit name="item_element">
-<typename name="list_of_two_representation_items" />
-<redeclaration entity-ref="compound_representation_item" />
-</explicit>
-<graphic.element page="2" xcoord="160" ycoord="170" />
-</entity>
-<entity name="value_range" supertypes="compound_representation_item">
-<where label="WR1" expression="( 'VALUE_WITH_UNIT_MIM.'+ 'SET_REPRESENTATION_ITEM' IN&#xA;     TYPEOF ( item_element ) ) AND value_range_wr1 (&#xA;     item_element )">
-</where>
-<where label="WR2" expression="value_range_wr2 ( item_element )">
-</where>
-<where label="WR3" expression="value_range_wr3 ( item_element )">
-</where>
-<graphic.element page="2" xcoord="290" ycoord="170" />
-</entity>
-      <rule
-        name="subtype_exclusiveness_representation_item"
-        appliesto="representation_item">
-        <where
-          label="WR1"
-          expression="SIZEOF(QUERY (cri &lt;* representation_item | NOT (type_check_function(cri, ['EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM', 'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_REPRESENTATION_ITEM', 'EXTENDED_MEASURE_REPRESENTATION_MIM.COMPOUND_REPRESENTATION_ITEM'] , 3)))) = 0">
-        </where>
-      </rule>
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
-      <rule
-        name="subtype_exclusiveness_compound_representation_item"
-        appliesto="compound_representation_item">
-        <where
-          label="WR1"
-          expression="SIZEOF(QUERY (cri &lt;* compound_representation_item | NOT (type_check_function(cri, ['EXTENDED_MEASURE_REPRESENTATION_MIM.DOUBLE_TOLERANCED_MEASURE_ITEM', 'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_RANGE'] , 3)))) = 0">
-        </where>
-      </rule>
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.36"
+    source="../data/modules/extended_measure_representation/mim.exp"/>
 
-      <function
-        name="value_range_wr1">
-        <parameter
-          name="agg">
-          <aggregate
-            type="AGGREGATE"/>
-          <typename
-            name="representation_item"/>
-        </parameter>
-        <builtintype
-          type="BOOLEAN"/>
-        <algorithm>
+  <schema name="Extended_measure_representation_mim">
+
+    <interface
+      kind="use"
+      schema="Measure_representation_mim">
+    </interface>
+    <interface
+      kind="use"
+      schema="qualified_measure_schema">
+      <interfaced.item
+        name="measure_representation_item"/>
+      <interfaced.item
+        name="precision_qualifier"/>
+      <interfaced.item
+        name="qualified_representation_item"/>
+      <interfaced.item
+        name="standard_uncertainty"/>
+      <interfaced.item
+        name="type_qualifier"/>
+      <interfaced.item
+        name="uncertainty_qualifier"/>
+    </interface>
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="compound_representation_item"/>
+    </interface>
+    <interface
+      kind="use"
+      schema="Value_with_unit_mim">
+    </interface>
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+    </interface>
+    <entity
+      name="value_range"
+      supertypes="compound_representation_item">
+      <where
+        label="WR1"
+        expression="('REPRESENTATION_SCHEMA.'+ 'SET_REPRESENTATION_ITEM' IN TYPEOF (item_element)) AND value_range_wr1 (item_element)">
+      </where>
+      <where
+        label="WR2"
+        expression="value_range_wr2 (item_element)">
+      </where>
+      <where
+        label="WR3"
+        expression="value_range_wr3 (item_element)">
+      </where>
+    </entity>
+
+    <function
+      name="value_range_wr1">
+      <parameter
+        name="agg">
+        <aggregate
+          type="AGGREGATE"/>
+        <typename
+          name="AGGREGATE"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
 BEGIN
 IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY (i1 &lt;* agg | (
-'EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
+'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
 (i1)))) = 2) OR
 (SIZEOF(QUERY (i2 &lt;* agg | (
-'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_REPRESENTATION_ITEM' IN TYPEOF
+'REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM' IN TYPEOF
 (i2)))) = 2)) THEN
 RETURN(TRUE);
 ELSE
 RETURN(FALSE);
 END_IF;
 END;
-        </algorithm>
-      </function>
+      </algorithm>
+    </function>
 
-      <function
-        name="value_range_wr2">
-        <parameter
-          name="agg">
-          <aggregate
-            type="AGGREGATE"/>
-          <typename
-            name="representation_item"/>
-        </parameter>
-        <builtintype
-          type="BOOLEAN"/>
-        <algorithm>
+    <function
+      name="value_range_wr2">
+      <parameter
+        name="agg">
+        <aggregate
+          type="AGGREGATE"/>
+        <typename
+          name="AGGREGATE"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
 BEGIN
 IF (SIZEOF(QUERY (i &lt;* agg | (i.name = 'upper limit'))) = 1)
 AND (SIZEOF(QUERY (i &lt;* agg | (i.name = 'lower limit'))) = 1)
@@ -112,26 +116,26 @@ ELSE
 RETURN(FALSE);
 END_IF;
 END;
-        </algorithm>
-      </function>
+      </algorithm>
+    </function>
 
-      <function
-        name="value_range_wr3">
-        <parameter
-          name="agg">
-          <aggregate
-            type="AGGREGATE"/>
-          <typename
-            name="representation_item"/>
-        </parameter>
-        <builtintype
-          type="BOOLEAN"/>
-        <algorithm>
+    <function
+      name="value_range_wr3">
+      <parameter
+        name="agg">
+        <aggregate
+          type="AGGREGATE"/>
+        <typename
+          name="AGGREGATE"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
 BEGIN
 IF (SIZEOF(QUERY(i1 &lt;* agg |
-('EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i1)) AND
+('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i1)) AND
 (SIZEOF (QUERY (i2 &lt;* agg |
-('EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i2)) AND
+('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i2)) AND
 (i1 :&lt;&gt;: i2) AND (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component))) = 1))) = 2)
 THEN
 RETURN (TRUE);
@@ -139,8 +143,17 @@ ELSE
 RETURN (FALSE);
 END_IF;
 END;
-        </algorithm>
-      </function>
-<graphic.element page="1" xcoord="283" ycoord="187" />
-</schema>
+      </algorithm>
+    </function>
+
+    <rule
+      name="subtype_exclusiveness_representation_item"
+      appliesto="representation_item">
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY (cri &lt;* representation_item | NOT (type_check_function(cri,['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM','REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM','REPRESENTATION_SCHEMA.COMPOUND_REPRESENTATION_ITEM'] , 3)))) = 0">
+      </where>
+    </rule>
+
+  </schema>
 </express>

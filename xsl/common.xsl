@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.141 2004/11/25 15:16:22 thendrix Exp $
+$Id: common.xsl,v 1.142 2004/11/25 18:36:56 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -799,8 +799,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       
               </xsl:call-template>
   </xsl:if>
-
- 
+  <AREA shape="{$shape}" coords="{$coords}" href="{$href}" alt="{$href}"/>
 </xsl:template>
 
 <!--

@@ -287,14 +287,13 @@ USE FROM Basic_curve_arm;
 
   ENTITY Default_component_termination_passage_definition
     SUBTYPE OF (passage_technology);
-      minimum_allowed_component_terminal_extent                        								: length_data_element;
-      maximum_allowed_component_terminal_extent                        								: length_data_element;
+      minimum_allowed_component_terminal_extent	: length_data_element;
+      maximum_allowed_component_terminal_extent	: length_data_element;
+      SELF\passage_technology.deposition_material : material_identification;
     DERIVE
-      deposition_material 											: material_identification := SELF\passage_technology.of_technology.deposition_material;
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\passage_technology.of_technology.minimum_as_finished_passage_extent;
     WHERE
-      WR1 : EXISTS(deposition_material);
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR3 : EXISTS(minimum_as_finished_passage_extent);
   END_ENTITY; -- default_component_termination_passage_definition
@@ -341,12 +340,11 @@ USE FROM Basic_curve_arm;
 
   ENTITY Default_via_definition
     SUBTYPE OF (passage_technology);
+	    SELF\passage_technology.deposition_material : Material_identification;
     DERIVE
-      deposition_material 											: material_identification := SELF\passage_technology.of_technology.deposition_material;
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\passage_technology.of_technology.minimum_as_finished_passage_extent;
     WHERE
-      WR1 : EXISTS(deposition_material);
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR3 : EXISTS(minimum_as_finished_passage_extent);
   END_ENTITY; -- default_via_definition
@@ -577,7 +575,7 @@ USE FROM Basic_curve_arm;
     INVERSE
       padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view; --related_component;      
       footprint_occurrence_assembly : SET[0:1] OF footprint_occurrence_sub_assembly_relationship FOR related_view;
-			cad_layer											: SET[0:1] OF External_source_identification FOR item;      
+	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      
     WHERE
       WR1 : ((SIZEOF(padstack_occurrence_assembly) = SIZEOF(footprint_occurrence_assembly)) AND (SIZEOF(padstack_occurrence_assembly) = 0) AND (SIZEOF(SELF\definition_based_product_occurrence.occurrence_contexts) > 0)) OR ((SIZEOF(padstack_occurrence_assembly) <> SIZEOF(footprint_occurrence_assembly)) AND (SIZEOF(SELF\definition_based_product_occurrence.occurrence_contexts) = 0));
       -- SEDS 1351
@@ -742,7 +740,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 	  of_technology						: Passage_technology_parameters;
       associated_definition				: Interconnect_module;
       as_finished_inter_stratum_extent	: Inter_stratum_extent;      
-      deposition_material               : OPTIONAL material_identification;
+      deposition_material               : OPTIONAL Material_identification;
 	END_ENTITY;
 
   ENTITY Pcb
@@ -816,7 +814,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
       of_average_surface 	: SET[0:1] OF stratum_average_surface FOR of_stratum;
       of_surface         	: SET[1:2] OF stratum_surface FOR of_stratum;
       assembly           	: SET[1:?] OF interconnect_module_stratum_assembly_relationship FOR component;
-			stratum_usage				: SET[0:1] OF External_source_identification FOR item;      
+	  stratum_usage			: SET[0:1] OF External_source_identification FOR item;      
   END_ENTITY; -- stratum
 
   ENTITY Stratum_average_surface;
@@ -882,7 +880,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 
   ENTITY Thermal_isolation_laminate_component
     SUBTYPE OF (Filled_area_material_removal_laminate_component);
-      SELF\definition_based_product_occurrence.derived_from : thermal_isolation_removal_template;
+      SELF\definition_based_product_occurrence.derived_from : Thermal_isolation_removal_template;
   END_ENTITY; -- thermal_isolation_laminate_component
 
   ENTITY Unrouted_conductive_interconnect_element

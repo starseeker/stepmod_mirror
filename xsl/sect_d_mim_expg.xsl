@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_d_mim_expg.xsl,v 1.5 2002/04/11 10:43:52 goset1 Exp $
+$Id: sect_d_mim_expg.xsl,v 1.6 2002/04/16 09:37:53 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -46,7 +46,7 @@ that are specialized or referred to by the constructs of the MIM schema of this 
 The entity level representation does not present the imported constructs that are not specialized or referred to by the constructs of the MIM schema of this application module.
 </small>
 	<p>The EXPRESS-G graphical notation is defined in annex D of ISO 10303-11.</p>
-
+<a name="mimexpg"/>
 
   <xsl:apply-templates select="mim/express-g"/>
 </xsl:template>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_arm_expg.xsl,v 1.4 2002/04/11 10:43:52 goset1 Exp $
+$Id: sect_c_arm_expg.xsl,v 1.5 2002/04/16 09:37:53 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -39,7 +39,9 @@ that are specialized or referred to by the constructs of the ARM schema of this 
 </ul>
 <small>NOTE Both these representations are partial. The schema level representation does not present the ARM schema of modules that are indirectly imported.
 The entity level representation does not present the imported constructs that are not specialized or referred to by the constructs of the ARM schema of this application module.</small>
-<p>The EXPRESS-G  graphical notation is defined in annex D of ISO 10303-11.</p> 
+<p>The EXPRESS-G  graphical notation is defined in annex D of ISO
+10303-11.</p> 
+<a name="armexpg"/>
 
   <xsl:apply-templates select="arm/express-g"/>
 </xsl:template>

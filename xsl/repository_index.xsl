@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.9 2002/04/18 13:33:38 robbod Exp $
+     $Id: repository_index.xsl,v 1.10 2002/04/21 15:06:39 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -139,13 +139,13 @@
     select="concat('./data/modules/',@name,'/sys/4_info_reqs',$FILE_EXT,'#arm')"/>
 
   <xsl:variable name="arm_expg"
-    select="concat('./data/modules/',@name,'/armexpg1',$FILE_EXT,'#arm')"/>
+    select="concat('./data/modules/',@name,'/sys/c_arm_expg',$FILE_EXT,'#armexpg')"/>
   
   <xsl:variable name="xref5"
     select="concat('./data/modules/',@name,'/sys/5_mim',$FILE_EXT,'#mim')"/>
 
   <xsl:variable name="mim_expg"
-    select="concat('./data/modules/',@name,'/mimexpg1',$FILE_EXT,'#arm')"/>
+    select="concat('./data/modules/',@name,'/sys/d_mim_expg',$FILE_EXT,'#mimexpg')"/>
 
   <xsl:variable name="mod_directory"
     select="concat('./data/modules/',@name)"/>

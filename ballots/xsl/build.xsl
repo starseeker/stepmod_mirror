@@ -1061,6 +1061,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
       </xsl:element>
 
       <xsl:element name="copy">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: impl.xsl,v 1.5 2004/02/11 10:14:08 mikeward Exp $
+$Id: impl.xsl,v 1.6 2004/02/11 17:22:32 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose:
@@ -37,7 +37,16 @@ $Id: impl.xsl,v 1.5 2004/02/11 10:14:08 mikeward Exp $
           Implementation methods for module: 
           <a href="./sys/introduction{$FILE_EXT}"><xsl:value-of select="@module"/></a>
         </h2>
-        <b>WARNING THIS IS UNDER DEVELOPMENT</b>
+        <p>
+          <b>WARNING:</b>
+        </p>
+        <p>
+          <b>
+            This xml schema is based on the 2004 CD draft of ISO 10303-28 Edition 2. It
+            is subject to further change and is awaiting resolution of technical
+            issues. Do not use.
+          </b>
+        </p>
         
         <xsl:choose>
           <xsl:when test="child::*">

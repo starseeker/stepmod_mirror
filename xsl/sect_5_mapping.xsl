@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.25 2002/06/19 06:46:48 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.26 2002/06/19 06:54:38 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -12,6 +12,7 @@ $Id: sect_5_mapping.xsl,v 1.25 2002/06/19 06:46:48 robbod Exp $
                 version="1.0">
 
   <xsl:import href="module.xsl"/>
+  <xsl:import href="sect_5_mapping_check.xsl"/>
 
   <!-- 
        the stylesheet that allows different stylesheets to be applied 
@@ -437,6 +438,7 @@ $Id: sect_5_mapping.xsl,v 1.25 2002/06/19 06:46:48 robbod Exp $
     </xsl:when>
   </xsl:choose>
   <h3>
+    <a name="{$aa_aname}">
     <xsl:choose>
       <xsl:when test="@assertion_to">
         
@@ -466,6 +468,7 @@ $Id: sect_5_mapping.xsl,v 1.25 2002/06/19 06:46:48 robbod Exp $
         </a>
       </xsl:otherwise>
     </xsl:choose>
+  </a>
   </h3>
   <xsl:apply-templates select="./alt"/>
   <table>
@@ -477,7 +480,7 @@ $Id: sect_5_mapping.xsl,v 1.25 2002/06/19 06:46:48 robbod Exp $
 </xsl:template>
 
 <xsl:template match="aimelt" mode="specification">
-  <xsl:apply-templates select="." mode="check_ref_path"/>
+  <xsl:apply-templates select="." mode="check_aimelt"/>
   <tr valign="top">
     <td>AIM element:</td>
     <td>
@@ -532,62 +535,9 @@ $Id: sect_5_mapping.xsl,v 1.25 2002/06/19 06:46:48 robbod Exp $
      Error checking 
      ************************************************************
 -->
-<xsl:template match="mapping_table" mode="check_all_arm_mapped">
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="module_directory">
-      <xsl:with-param name="module" select="/module/@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="ae_nodes" select="./ae"/>
-  <xsl:for-each
-    select="document(concat($module_dir,'/arm.xml'))/express/schema/entity">
-    <xsl:variable name="entity" select="@name"/>
-    <xsl:if test="not($ae_nodes[@entity=$entity])">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error mc5: the entity ',$entity,' has not been mapped.')"/>
-      </xsl:call-template>    
-
-    </xsl:if>
-  </xsl:for-each>
-
-</xsl:template>
-
-<xsl:template name="check_entity_exists">
-  <xsl:param name="entity"/>
-  <xsl:if test="$check_mapping='yes'">
-    <xsl:if
-      test="not(contains($global_xref_list,concat('.',$entity,'|')))">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error mc1: the entity ',$entity,' has not been
-                  interfaced from an integrated resource or MIM.')"/>
-      </xsl:call-template>    
-    </xsl:if>
-  </xsl:if>
-</xsl:template>
 
 
-<xsl:template name="check_valid_attribute">
-  <xsl:param name="entity"/>
-  <xsl:param name="attribute"/>
-  <!-- not yet implemented -->
-</xsl:template>
 
-
-<xsl:template match="refpath|aimelt" mode="check_ref_path">
-  <xsl:if test="not(string(.)='PATH')">
-    <!-- make sure that refpath ends in $ -->
-    <xsl:variable name="refpath" 
-      select="translate(concat(.,'$'),'&#xA;&#xD;','$')"/>
-    <!-- process line at a time -->
-    <xsl:call-template name="check_ref_path_line">
-      <xsl:with-param name="refpath" select="$refpath"/>
-    </xsl:call-template>
-  </xsl:if>
-</xsl:template>
 
 
 <!-- to be done -->

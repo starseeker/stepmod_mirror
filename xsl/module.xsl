@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.3 2001/10/22 09:32:34 robbod Exp $
+$Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -134,10 +134,10 @@ $Id: module.xsl,v 1.3 2001/10/22 09:32:34 robbod Exp $
   <xsl:variable name="arm">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        '../arm.xml'
+        <xsl:value-of select="'../arm.xml'"/>
       </xsl:when>
       <xsl:otherwise>
-        '../arm.htm'
+        <xsl:value-of select="'../arm.htm'"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -145,10 +145,10 @@ $Id: module.xsl,v 1.3 2001/10/22 09:32:34 robbod Exp $
   <xsl:variable name="mim">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        ../mim.xml
+        <xsl:value-of select="'../mim.xml'"/>
       </xsl:when>
       <xsl:otherwise>
-        ../mim.htm
+        <xsl:value-of select="'../mim.htm'"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

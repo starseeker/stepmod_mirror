@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.19 2004/10/11 16:08:26 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.20 2004/11/04 22:42:36 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -421,6 +421,7 @@
 </xsl:template>
 
 <xsl:template match="constant">
+  <!-- some day add the support for constant that is aggregate. -->
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -1927,7 +1928,9 @@
       <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> :</xsl:text>
       <xsl:apply-templates select="./aggregate" mode="code"/>
       <xsl:apply-templates select="./*" mode="underlying"/>;
+    </code>
       <xsl:apply-templates select="./algorithm" mode="code"/>
+      <code>
       END_FUNCTION;
       <br/>(*
     </code>
@@ -2025,7 +2028,9 @@
     <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
     <xsl:apply-templates select="./aggregate" mode="code"/>
     <xsl:apply-templates select="./*" mode="underlying"/>;
+  </code>
     <xsl:apply-templates select="./algorithm" mode="code"/><br/>
+    <code>
     END_PROCEDURE;
     <br/>(*
     </code>
@@ -2217,7 +2222,9 @@
       RULE <xsl:value-of select="@name"/> FOR
     <br/>
       (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);<br/>
+  </code>
     <xsl:apply-templates select="./algorithm" mode="code"/>
+    <code>
     <xsl:apply-templates select="./where" mode="code"/>
       END_RULE;
     <br/>(*

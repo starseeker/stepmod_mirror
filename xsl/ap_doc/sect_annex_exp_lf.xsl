@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_exp_lf.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
+$Id: sect_annex_exp_lf.xsl,v 1.4 2003/08/11 16:48:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -87,7 +87,7 @@ $Id: sect_annex_exp_lf.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
     <p>
       The MIM EXPRESS expanded listing for this part of ISO 10303 is
       provided in Annex
-      <a href="{$arm_lf_href}">E</a>
+      <a href="{$mim_lf_href}">E</a>
       of the AP module, 
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>

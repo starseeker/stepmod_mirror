@@ -1,0 +1,68 @@
+# $Id: isodoc.ent,v 1.3 2003/05/23 16:05:01 robbod Exp $
+# Author:  Mike Ward, David Price, Rob Bodington, Nigel Shaw,  Eurostep Limited
+# Owner:   Developed by Eurostep and supplied to PDES / NIST under contract.
+# Purpose: DTD of general ISO elements for AP document
+
+# External entity sets
+
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+
+include "text.ent.rnc"
+# use the %description.content defined in text.ent
+description =
+  element description { description-attlist, description.content* }
+description-attlist &= empty
+# normative references, definitions, and terms
+include "refs-and-defs.ent.rnc"
+# Contacts
+include "contacts.ent.rnc"
+# Data planning model
+data_plan = element data_plan { data_plan-attlist, imgfile+ }
+data_plan-attlist &= empty
+# purpose of module
+purpose =
+  element purpose {
+    purpose-attlist, (text-elts | block-elts | single-block-elts)*
+  }
+purpose-attlist &= empty
+# in scope
+# If from_module is YES then XSL will copy the in scope statement from the module
+inscope = element inscope { inscope-attlist, li* }
+inscope-attlist &=
+  [ a:defaultValue = "YES" ] attribute from_module { "NO" | "YES" }?,
+  attribute context { text }
+# out of scope 
+# If from_module is YES then XSL will copy the out scope statement from the module
+outscope = element outscope { outscope-attlist, li* }
+outscope-attlist &=
+  [ a:defaultValue = "YES" ] attribute from_module { "NO" | "YES" }?
+# abstract
+abstract = element abstract { abstract-attlist, li+ }
+abstract-attlist &= empty
+# usage guide
+usage_guide =
+  element usage_guide {
+    usage_guide-attlist, (description.content | guide_subclause)*
+  }
+usage_guide-attlist &= empty
+guide_subclause =
+  element guide_subclause {
+    guide_subclause-attlist, (description.content | guide_subclause)*
+  }
+guide_subclause-attlist &= attribute title { text }
+# bibliography
+bibliography =
+  element bibliography {
+    bibliography-attlist, (bibitem.inc | bibitem)+
+  }
+bibliography-attlist &= empty
+# bibiographic item
+bibitem = element bibitem { bibitem-attlist, bib-elts* }
+# an identifer for the bibliographic item.  It should be unique to the repository
+bibitem-attlist &= attribute id { xsd:ID }?
+# A list of bibitems that can be included in module.xml
+bibitem.list = element bibitem.list { bibitem.list-attlist, bibitem+ }
+bibitem.list-attlist &= empty
+# included bibilographic item
+bibitem.inc = element bibitem.inc { bibitem.inc-attlist, empty }
+bibitem.inc-attlist &= attribute ref { xsd:NMTOKEN }

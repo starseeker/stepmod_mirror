@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.24 2004/05/05 17:56:20 thendrix Exp $
+$Id: modules_list.xsl,v 1.25 2004/10/15 00:25:28 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -161,9 +161,15 @@ $Id: modules_list.xsl,v 1.24 2004/05/05 17:56:20 thendrix Exp $
       <a href="{$iso_href}" target="content">ISO view</a>
     </p>
     <xsl:variable name="cover" 
-      select="concat($module_root,'/sys/isocover',$FILE_EXT)"/>
+				  select="concat($module_root,'/sys/isocover',$FILE_EXT)"/>
+	<xsl:variable name="abstract" 
+				  select="concat($module_root,'/sys/abstract',$FILE_EXT)"/>
+
     <p class="menuitem2">
       <a href="{$cover}" target="content">Cover</a>
+        &#160;
+      <a href="{$abstract}" target="content">Abstract</a>
+        &#160;
     </p>
     <xsl:variable name="scope" 
       select="concat($module_root,'/sys/1_scope',$FILE_EXT)"/>

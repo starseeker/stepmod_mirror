@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.39 2002/07/29 15:15:04 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.40 2002/08/02 15:58:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -122,211 +122,210 @@ $Id: sect_5_mapping.xsl,v 1.39 2002/07/29 15:15:04 robbod Exp $
 
 <xsl:template name="mapping_syntax">
   <!-- boiler plate text for mapping syntax -->
+  <xsl:variable name="sect4" 
+    select="concat('4_info_reqs',$FILE_EXT)"/>
+  <xsl:variable name="sect52" 
+    select="concat('5_mim',$FILE_EXT,'#mim_express')"/>
   <p>
     This clause contains the mapping specification that shows how each UoF and
-    application object of this part of ISO 10303 (see clause 4) maps to one or
-    more AIM constructs (see annex A). Each mapping specifies up to five
-    elements.
+    application object of this part of ISO 10303 (see clause 
+    <a href="{$sect4}">4</a>) maps to one
+    or more MIM constructs (see clause <a href="{$sect52}">5.2</a>)
   </p>
 
+  <p>
+    In the following, &quot;Application element&quot; designate any entity data
+    type defined in clause <a href="{$sect4}">4</a> and any of its 
+    explicit attributes. 
+    &quot;MIM element&quot; designates any entity data type defined in 
+    clause <a href="{$sect52}">5.2</a> or imported with a USE FROM
+    statement, from another EXPRESS schema and any of its 
+    attributes.
+  </p>
+  <p>
+    Each mapping specification sub-clause specifies up to five elements.
+  </p>
   <p>
     <b>Application element:</b>
-    The mapping for each application element is specified in a separate
-    subclause below. Application object names are given in title
-    case. Attribute names and assertions are listed after the application
-    object to which they belong and are given in lower case.
+    The mapping for each application element is
+    specified in a separate sub-clause below. ARM entity names are given in
+    title case. Attribute names and assertions are listed after the
+    application object to which they belong and are given in lower case.
   </p>
 
   <p>
-    <b>AIM element:</b>
-    The name of one or more AIM entity data types (see annex A), the term
-    "IDENTICAL MAPPING", or the term "PATH". Entity data type names are given in
-    lower case. Attributes of AIM entity data types are referred to as
-    &lt;entity name&gt;.&lt;attribute name&gt;. The mapping of an application 
-    element may involve more than one AIM element. Each of these AIM elements
-    is presented on a separate line in the mapping specification. 
-    The term "IDENTICAL MAPPING" indicates that both application objects
-    involved in an application assertion map to the same instance of an AIM
-    entity data type. The term "PATH" indicates that the application
-    assertion maps to a collection of related AIM entity instances specified
-    by the entire reference path. 
+    <b>MIM element:</b> 
+    The name of one or more MIM entity data types , the term
+    &quot;IDENTICAL MAPPING&quot;, or the term &quot;PATH&quot;. Entity
+    data type names are presented in lower case. Attributes of MIM entity
+    data types are referred to as &lt;entity name&gt;.&lt;attribute
+    name&gt;. The mapping of an application element may involve more than
+    one MIM element. Each of these MIM elements is 
+    presented on a separate line in the mapping specification. The term
+    &quot;IDENTICAL MAPPING&quot; indicates that both application objects
+    involved in an application assertion map to the same instance of a MIM
+    entity data type. 
+    The term &quot;PATH&quot; indicates that the application assertion maps
+    to a collection of related MIM entity instances specified by the entire
+    reference path.
   </p>
 
-  <p>
-    <b>Source:</b>
-    For those AIM elements that are interpreted from any common resource,
-    this is the ISO standard number and part number in which the resource is
-    defined. For those AIM elements that are created for the purpose of this
-    part of ISO 10303, this is "ISO 10303-" followed by the number of
-    this part.
-  </p>
 
   <p>
-    <b>Rules:</b>
-    One or more global rules may be specified that apply to the population of
-    the AIM entity data types specified as the AIM element or in the
-    reference path. For rules that are derived from relationships between
-    application objects, the same rule is referred to by the mapping entries of
-    all the involved AIM elements. A reference to a global rule may be
-    accompanied by a reference to the sub-clause in which the rule is defined.
-  </p>
-
+    <b>Source:</b> 
+    For those MIM elements that are interpreted from any common
+    resource, this is the ISO standard number and part number in which the
+    resource is defined. For those MIM elements that are created for the
+    purpose of this part of ISO 10303, this is the ISO standard number and
+    part number of this part.
+  </p> 
   <p>
-    <b>Reference path:</b>
+    <b>Rules:</b> 
+    One or more global rules may be specified that apply to the
+    population of the MIM entity data types specified as the MIM element or
+    in the reference path. For rules that are derived from relationships
+    between application objects, the same rule is referred to by the
+    mapping entries of all the involved MIM elements. A reference to a
+    global rule may be accompanied by a reference to the sub-clause in
+    which the rule is defined.
+  </p> 
+  <p>
+    <b>Reference path:</b> 
     To describe fully the mapping of an application object, it may be
-    necessary to specify a reference path involving several related AIM
-    elements. Each line in the reference path documents the role of an AIM
-    element relative to the AIM element in the line following it. Two or more
-    such related AIM elements define the interpretation of the integrated
-    resources that satisfies the requirement specified by the application
-    object. For each AIM element that has been created for use within this part
-    of ISO 10303, a reference path to its supertype from an integrated resource
-    is specified. 
-    For the expression of reference paths and the relationships between AIM
-    elements the following notational conventions apply: 
-  </p>
+    necessary to specify a reference path involving several related MIM
+    elements. Two or more such related MIM elements define the
+    interpretation of the common resources that satisfies the requirement
+    specified by the application element. Each line in the reference path
+    documents the role of a MIM element relative to the referring MIM
+    element or to the next referred MIM element. For each MIM element
+    that has been created for use within this part of ISO 10303, a
+    reference path to its supertype from a common resource 
+    is specified. For the expression of reference paths and the
+    relationships between MIM elements the following notational conventions
+    apply:
+  </p> 
+
   <table cellspacing="4">
-    <tr valign="top">
-      <td valign="top">[]</td>
-      <td valign="top">
-        enclosed section constrains multiple AIM elements or sections of
-        the reference path are required to satisfy an information
-        requirement;
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">()</td>
-      <td valign="top">
-        enclosed section constrains multiple AIM elements or sections of
-        the reference path are identified as alternatives within the mapping to
-        satisfy an information requirement; 
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">{}</td>
-      <td valign="top">
-        enclosed section constrains the reference path to satisfy an
-        information requirement; 
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">&lt;&gt;</td>
-      <td valign="top">
-        enclosed section constrains at one or more required reference path;   
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">||</td>
-      <td valign="top">
-        enclosed section constrains the supertype entity;
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">-&gt;</td>
-      <td valign="top">
-        attribute references the entity or select type given in the
-        following row; 
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">&lt;-</td>
-      <td valign="top">
-        entity or select type is referenced by the attribute in the
-        following row; 
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">[i]</td>
-      <td valign="top">
-        attribute is an aggregation of which a single member is given in
-        the following row; 
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">[n]</td>
-      <td valign="top">
-        attribute is an aggregation of which member n is given in the
-        following row; 
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">=&gt;</td>
-      <td valign="top">
-        entity is a supertype of the entity given in the following row;
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">&lt;=</td>
-      <td valign="top">
-        entity is a subtype of the entity given in the following row;
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">=</td>
-      <td valign="top">
-        the string, select, or enumeration type is constrained to a choice
-        or value; 
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">\</td>
-      <td valign="top">
-        the reference path expression continues on the next line;
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">*</td>
-      <td valign="top">
-        used in conjunction with braces to indicate that any number of
-        relationship entity data types may be assembled in a relationship
-        tree structure.
-      </td>
-    </tr>
-    <!-- we do not use or support templates yet
-    <tr valign="top">
-      <td valign="top">//</td>
-      <td valign="top">
-        enclosed section is an application of one of the mapping templates
-        defined in 5.1.1 below; 
-      </td>
-    </tr>
-    -->
-    <tr valign="top">
-      <td valign="top">--</td>
-      <td valign="top">
-        the text following is a comment (normally a clause reference);
-      </td>
-    </tr>
-
-    <tr valign="top">
-      <td valign="top">*&gt;</td>
-      <td valign="top">
-        the select, or enumeration type before the symbol is extended into
-        the select or enumeration after the symbol;  
-      </td>
-    </tr>
- 
-
-    <tr valign="top">
-      <td valign="top">&lt;*</td>
-      <td valign="top">
-        the select, or enumeration type before the symbol is an extension
-        of the select or enumeration after the symbol.
-      </td>
-    </tr>
+    <tbody>
+      <tr valign="top">
+        <td valign="top">[]</td>
+        <td valign="top">
+          enclosed section constrains multiple MIM elements or
+          sections of the reference path are required to satisfy an
+          information requirement;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">()</td>
+        <td valign="top">
+          enclosed section constrains multiple MIM elements or
+          sections of the reference path are identified as alternatives
+          within the mapping to satisfy an information requirement;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">{}</td>
+        <td valign="top">
+          enclosed section constrains the reference path to satisfy
+          an information requirement;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">&lt;&gt;</td>
+        <td valign="top">
+          enclosed section constrains at one or more required
+          reference path;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">||</td>
+        <td valign="top">enclosed section constrains the supertype entity;</td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">-&gt;</td>
+        <td valign="top">
+          attribute references the entity or select type given in
+          the following row;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">&lt;-</td>
+        <td valign="top">
+          entity or select type is referenced by the attribute in
+          the following row;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">[i]</td>
+        <td valign="top">
+          attribute is an aggregation of which a single member is
+          given in the following row;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">[n]</td>
+        <td valign="top">
+          attribute is an aggregation of which member n is given in
+        the following row;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">=&gt;</td>
+        <td valign="top">
+          entity is a supertype of the entity given in the
+          following row;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">&lt;=</td>
+        <td valign="top">
+          entity is a subtype of the entity given in the following
+          row;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">=</td>
+        <td valign="top">
+          the string, select, or enumeration type is constrained to
+          a choice or value;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">\</td>
+        <td valign="top">
+          the reference path expression continues on the next line;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">*</td>
+        <td valign="top">
+          used in conjunction with braces to indicate that any
+          number of relationship entity data types may be assembled in a
+          relationship tree structure.
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">--</td>
+        <td valign="top">
+          the text following is a comment (normally a clause
+          reference);
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">*&gt;</td>
+        <td valign="top">
+          the select, or enumeration type before the symbol is
+          extended into the select or enumeration after the symbol;
+        </td>
+      </tr>
+      <tr valign="top">
+        <td valign="top">&lt;*</td>
+        <td valign="top">
+          the select, or enumeration type before the symbol is an
+          extension of the select or enumeration after the symbol.
+        </td>
+      </tr>
+    </tbody>
   </table>
   The definition and use of mapping templates is not supported in the
   present version of the application modules. However, use of predefined
@@ -721,7 +720,7 @@ $Id: sect_5_mapping.xsl,v 1.39 2002/07/29 15:15:04 robbod Exp $
 <xsl:template match="aimelt" mode="specification">
   <xsl:apply-templates select="." mode="check_aimelt"/>
   <tr valign="top">
-    <td>AIM element:</td>
+    <td>MIM element:</td>
     <td>
       <xsl:call-template name="output_string_with_linebreaks">
         <xsl:with-param name="string" select="string(.)"/>

@@ -2,18 +2,16 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-17T14:27:29" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-11-19T09:45:14" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_component_placement_requirements_arm schema_instance"/>
    <schema name="Assembly_component_placement_requirements_arm">
       <interface kind="use" schema="Physical_unit_design_view_arm">
          <interfaced.item name="Assembly_component"/>
       </interface>
-      <interface kind="use" schema="Datum_based_characteristic_arm">
-         <interfaced.item name="Datum_based_length_measure"/>
-      </interface>
       <interface kind="use" schema="Requirement_decomposition_arm">
-         <interfaced.item name="Ee_requirement_occurrence"/>
+         <interfaced.item name="Requirement_definition_property"/>
       </interface>
+      <interface kind="use" schema="Geometric_dimensioning_and_tolerance_arm"/>
       <interface kind="use" schema="Non_feature_shape_element_arm">
          <interfaced.item name="Non_feature_shape_element"/>
          <interfaced.item name="Non_feature_shape_definition"/>
@@ -62,7 +60,7 @@
          </explicit>
          <where label="WR1" expression=" EXISTS ( area ) OR EXISTS ( volume ) "/>
       </entity>
-      <entity name="Item_restricted_requirement_occurrence" supertypes="Ee_requirement_occurrence">
+      <entity name="Item_restricted_requirement_occurrence" supertypes="Requirement_definition_property">
          <explicit name="basis">
             <typename name="restriction_basis_item"/>
          </explicit>
@@ -78,7 +76,6 @@
          <where label="WR1" expression=" 'AP210_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF ( SELF \ non_feature_shape_element . element_shape ) "/>
       </entity>
       <entity name="Mounting_restriction_volume" supertypes="Non_feature_shape_element">
-         <inverse name="volume" entity="Non_feature_shape_definition" attribute="associated_element"/>
          <explicit name="scope">
             <typename name="Assembly_module"/>
             <redeclaration entity-ref="Non_feature_shape_element" old_name="scope"/>
@@ -86,13 +83,10 @@
          <explicit name="mounting_surface">
             <typename name="Interconnect_module_component_surface_feature"/>
          </explicit>
+         <inverse name="volume" entity="Non_feature_shape_definition" attribute="associated_element"/>
          <where label="WR1" expression=" 'AP210_ARM.THREE_DIMENSIONAL_SHAPE' IN TYPEOF ( volume ) "/>
       </entity>
       <entity name="Placement_group">
-         <explicit name="requirement">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Ee_requirement_occurrence"/>
-         </explicit>
          <explicit name="design_specific_usage">
             <builtintype type="STRING"/>
          </explicit>

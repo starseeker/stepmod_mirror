@@ -1,6 +1,31 @@
 (*
-   $Id: mkmodule.js,v 1.25 2002/10/10 11:56:54 nigelshaw Exp $
-   N - ISO/CD-TS - 10303- product_placement - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   $Id: arm.exp,v 1.1 2002/11/07 04:54:04 goset1 Exp $
+   N - ISO/CD-TS 10303-1343 Product_placement - EXPRESS ARM*)
+
 SCHEMA Product_placement_arm;
+
+USE FROM Contextual_shape_positioning_arm;
+USE FROM Physical_breakdown_arm;
+USE FROM Product_occurrence_arm;
+
+ENTITY Occurrence_placement
+ABSTRACT SUPERTYPE OF (ONEOF(Part_occurrence_placement,Physical_element_placement));
+  reference_organ: Physical_element_definition;
+  reference_geometric_space : Geometric_model ;
+  positioned_representation : template_instance;
+END_ENTITY;
+
+ENTITY Part_occurrence_placement
+SUBTYPE OF(Occurrence_placement);
+  placed_part_occurrence: Single_instance;
+END_ENTITY;
+
+ENTITY Physical_element_placement
+SUBTYPE OF(Occurrence_placement);
+  placed_organ: Physical_element_definition;
+WHERE
+WR1: placed_organ\Product_view_definition.defined_version :<>: 
+	SELF\Occurrence_placement.reference_organ\Product_view_definition.defined_version;
+END_ENTITY;
+
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.3 2002/01/21 14:22:10 robbod Exp $
+$Id: sect_b_obj_reg.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -81,7 +81,7 @@ $Id: sect_b_obj_reg.xsl,v 1.3 2002/01/21 14:22:10 robbod Exp $
   </p>
   <p align="center">
     <xsl:value-of 
-      select="concat($object_reg,' schema(1) ', $arm_schema_reg,'(1) }' )"/>
+      select="concat($object_reg,' object(1) ', $arm_schema_reg,'(1) }' )"/>
   </p>
   <p>
     is assigned to the <xsl:value-of select="$arm_schema"/> schema. 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.20 2004/11/05 05:37:21 thendrix Exp $
+$Id: common.xsl,v 1.21 2004/11/06 20:34:53 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1064,7 +1064,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:with-param name="resdoc" select="$resdoc"/>
       </xsl:call-template>
     </xsl:variable>
-
     <xsl:variable name="ret_val">
         <xsl:choose>
           <xsl:when
@@ -1297,7 +1296,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   <!-- a reference to an EXPRESS construct in a module ARM or MIM or in the
        Integrated Resource. The format of the linkend attribute that
        defines the reference is:
-     <module>:mim|arm:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
+     <module or resources or resource_doc dirname>:mim|arm|arm_express|mim_express|ir|ir_express:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
 
      where:
       <module> - the name of the module
@@ -1305,12 +1304,13 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
        arm_express - links to the arm express
        mim - links to the mim documentation
        mim_express - links to the mim express
-       ir - links to the ir express
+       ir_express - links to the ir express
+       ir  - links to the ir documentation
 
      e.g. work_order:arm:work_order_arm.Activity.name
 
      To address an EXPRESS construct in an Integrated Resource schema:
-     <ir>:ir:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
+     <ir>:ir_express:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
 -->
   <xsl:template match="express_ref">
 
@@ -1385,7 +1385,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
                         or $nlinkend1='arm_express'
                         or $nlinkend1='mim'
                         or $nlinkend1='mim_express'
-                        or $nlinkend1='ir_express'">
+                        or $nlinkend1='ir_express'
+                        or $nlinkend1='ir'">
+
           <xsl:value-of select="$nlinkend1"/>
         </xsl:when>
         <xsl:otherwise>
@@ -1413,6 +1415,26 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:value-of
             select="concat($baselink,'resources/',$module,'/',
                     $module,$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+
+
+        <xsl:when test="$arm_mim_ir='ir'">
+          <!-- get the name and position of the resource_part containing the schema. -->
+          <xsl:variable
+            name="schema"
+            select="substring-before($express_ref,'.')"/>
+          
+          <xsl:variable name="resdoc_xml" select="document(concat('../../data/resource_docs/',$module,'/resource.xml'))"/>
+          
+          <xsl:variable name="temp" >
+            <xsl:for-each select="$resdoc_xml/resource//schema">
+              <xsl:if test="@name=$schema">
+                <xsl:value-of select="concat($baselink,'resource_docs/',$module,
+                                      '/sys/', position()+3,'_schema',$FILE_EXT,'#',$express_ref)"/>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:variable>
+          <xsl:value-of select="$temp"/>
         </xsl:when>
 
 
@@ -2263,7 +2285,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
       <xsl:variable name="express_file">
         <xsl:choose>
-          <xsl:when test="$arm_mim_res='ir_express'">
+          <xsl:when test="$arm_mim_res='ir_express' or $arm_mim_res='ir' or $arm_mim_res='resdoc'">
             <xsl:value-of select="concat('../../data/resources/',$schema,'/',$schema,'.xml')"/>
           </xsl:when>
         </xsl:choose>
@@ -2385,16 +2407,16 @@ is case sensitive.')"/>
   <xsl:variable 
     name="resdoc_section" 
     select="substring-before($nlinkend,':')"/>
-  
+
   <xsl:variable 
     name="nlinkend1"
     select="substring-before(substring-after($nlinkend,':'),':')"/>
 
   <xsl:variable name="resdoc_resource_ok">
     <xsl:choose>
-      <xsl:when test="$nlinkend1='resdoc'">
+      <xsl:when test="$nlinkend1='resdoc' or $nlinkend1='ir'">
         <xsl:call-template name="check_resdoc_exists">
-          <xsl:with-param name="resource" select="$resdoc_section"/>
+          <xsl:with-param name="resdoc" select="$resdoc_section"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="$nlinkend1='ir_express'">
@@ -2414,6 +2436,7 @@ is case sensitive.')"/>
                       or $nlinkend1='arm_express'
                       or $nlinkend1='mim'
                       or $nlinkend1='mim_express'
+                      or $nlinkend1='ir'
                       or $nlinkend1='ir_express'">
         <xsl:value-of select="$nlinkend1"/>
       </xsl:when>
@@ -2431,7 +2454,7 @@ is case sensitive.')"/>
         <xsl:value-of select="concat('Error ER-1: The express_ref linkend ', 
                               $linkend, 
                               ' is incorrectly specified. 
-                              Need to specify :arm: :arm_express: :mim: :ir_express')"/>
+                              Need to specify :arm: :arm_express: :mim: :ir: :ir_express')"/>
       </xsl:when>
       <xsl:when test="$resdoc_section=''">
         <xsl:value-of select="concat('Error ER-2: express_ref linkend ', 

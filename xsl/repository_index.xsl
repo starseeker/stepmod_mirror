@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.12 2002/05/14 09:34:48 robbod Exp $
+     $Id: repository_index.xsl,v 1.13 2002/06/06 07:46:33 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -78,7 +78,7 @@
       </blockquote>
       <h2>
         <a name="alphatop">
-          Alphabetical list of Integrated Resource schemas
+          Alphabetical list of Common Resource schemas
         </a>
       </h2>
       <xsl:variable name="resource_mid_point"

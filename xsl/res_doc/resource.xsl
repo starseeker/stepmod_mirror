@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.37 2004/01/29 23:55:26 thendrix Exp $
+$Id: resource.xsl,v 1.38 2004/02/25 09:20:31 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1924,16 +1924,7 @@ defined in Annex D of ISO 10303-11.
   <xsl:param name="resource_number"/>
   <xsl:param name="current_resource"/>
   <h2>2 Normative references</h2>
-  The following normative documents contain provisions which, through
-  reference in this text, constitute provisions of this International
-  Standard. For dated references, subsequent amendments to, or revisions of,
-  any of these publications do not apply. However, parties to agreements
-  based on this International Standard are encouraged to investigate the
-  possibility of applying the most recent editions of the normative documents
-  indicated below. For undated references, the latest edition of the
-  normative document referred to applies. Members of ISO and IEC maintain
-  registers of currently valid International Standards. 
-
+The following referenced documents are indispensable for the application of this document. For dated references, only the edition cited applies. For undated references, the latest edition of the referenced document (including any amendments) applies.
   <!-- output any issues -->
   <xsl:apply-templates select="." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'normrefs'"/>

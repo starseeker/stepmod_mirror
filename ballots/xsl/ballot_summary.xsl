@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.12 2003/03/09 16:53:31 robbod Exp $
+$Id: ballot_summary.xsl,v 1.13 2003/03/10 01:29:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -274,7 +274,7 @@ $Id: ballot_summary.xsl,v 1.12 2003/03/09 16:53:31 robbod Exp $
         <td>
 
           <xsl:variable name="mod_xref"
-            select="concat($stepmodhome,'/data/modules/',@name,'/sys/1_scope',$FILE_EXT)"/>
+            select="concat($stepmodhome,'/data/modules/',@name,'/sys/cover',$FILE_EXT)"/>
           <a href="{$mod_xref}">
             <xsl:value-of select="@name"/>
           </a>

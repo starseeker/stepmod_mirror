@@ -12,10 +12,10 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   
   <xsl:import href="../../xsl/common.xsl"/>
 
-  <xsl:output 
-    method="xml"
-    indent="yes"
-    />
+  <xsl:output method="xml" indent="yes"/>
+
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
         
   <xsl:template match="ballot_index">
     <xsl:text>
@@ -486,6 +486,16 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+          <xsl:attribute name="name">INDEXXML</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:apply-templates select="ballot_package/module">
+              <xsl:with-param name="prefix" select="'data/modules/'"/>
+              <xsl:with-param name="suffix" select="'/index.xml'"/>
+            </xsl:apply-templates>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
           <xsl:attribute name="name">ABSTRACTXML</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:apply-templates select="ballot_package/module">
@@ -891,12 +901,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
         </xsl:attribute>
         <xsl:attribute name="out">
-          <xsl:if test="ballot_package/resource">
-            <xsl:value-of select="'${ISODIR}/index.htm'"/>
-          </xsl:if>
-          <xsl:if test="ballot_package/module">
-            <xsl:value-of select="'${ISODIR}/module_index.htm'"/>
-          </xsl:if>
+          <xsl:value-of select="'${ISODIR}/index.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -910,6 +915,52 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <param name="stepmodhome" expression="."/>
       </xsl:element>
+
+      <xsl:if test="ballot_package/module">
+        <xsl:element name="style">
+          <xsl:attribute name="in">
+            <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
+          </xsl:attribute>
+          <xsl:attribute name="out">
+            <xsl:value-of select="'${ISODIR}/module_index.htm'"/>
+          </xsl:attribute>
+          <xsl:attribute name="destdir">
+            <xsl:value-of select="'${ISODIR}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="extension">
+            <xsl:value-of select="'.htm'"/>
+          </xsl:attribute>
+          <xsl:attribute name="style">
+            <xsl:value-of select="'${BALLLOTSTYLES}/ballot_summary.xsl'"/>
+          </xsl:attribute>
+          <param name="output_type" expression="HTM"/>
+          <param name="stepmodhome" expression="."/>
+        </xsl:element>
+      </xsl:if>
+            
+      <xsl:if test="./@wg.number.ballot_package">
+        <xsl:variable name="wgno" 
+          select="translate(normalize-space(translate(./@wg.number.ballot_package,$UPPER,$LOWER)),' ','')"/>
+        <xsl:element name="style">
+          <xsl:attribute name="in">
+            <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
+          </xsl:attribute>
+          <xsl:attribute name="out">
+            <xsl:value-of select="concat('${ISODIR}/',$wgno,'.htm')"/>
+          </xsl:attribute>
+          <xsl:attribute name="destdir">
+            <xsl:value-of select="'${ISODIR}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="extension">
+            <xsl:value-of select="'.htm'"/>
+          </xsl:attribute>
+          <xsl:attribute name="style">
+            <xsl:value-of select="'${BALLLOTSTYLES}/ballot_summary.xsl'"/>
+          </xsl:attribute>
+          <param name="output_type" expression="HTM"/>
+          <param name="stepmodhome" expression="."/>
+        </xsl:element>
+      </xsl:if>
     </target>
     
     <xsl:text>
@@ -1398,6 +1449,46 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <!--
+    <style includes="${MODULES}/index.xml" 
+      destdir="." extension=".htm"
+      style="${STYLES}/index.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+    -->
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${INDEXXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/index.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3322,8 +3413,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   <xsl:template match="interface" mode="resources">
     <xsl:param name="resource_set" />
     <!-- the name of the resource directory should be in lower case -->
-    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:variable name="lschema" select="translate(./@schema,$UPPER,$LOWER)"/>
     <xsl:variable name="lname" select="translate(../@name,$UPPER,$LOWER)"/>
       <xsl:choose>        
@@ -3400,8 +3489,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   <xsl:template match="schema">
     <xsl:param name="recurse" select="'YES'" />
     <!-- the name of the resource directory should be in lower case -->
-    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
 
     <xsl:value-of select="concat(':',$lname,':')"/>
@@ -3461,8 +3548,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:param name="suffix"/>
     <xsl:param name="terminate" select="'YES'"/>
     <!-- the name of the resource directory should be in lower case -->
-    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
 
     <xsl:choose>

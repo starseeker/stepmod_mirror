@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: extract_descriptions.xsl,v 1.6 2002/07/15 08:58:01 goset1 Exp $
+     $Id: extract_descriptions.xsl,v 1.7 2002/09/05 07:53:40 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -61,10 +61,10 @@
  </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="'$Date: 2002/07/15 08:58:01 $'"/>
+    <xsl:value-of select="'$Date: 2002/09/05 07:53:40 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="'$Revision: 1.6 $'"/>
+    <xsl:value-of select="'$Revision: 1.7 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      
@@ -263,6 +263,13 @@
 
 
 <xsl:template match="type">
+
+  <xsl:variable name="typetype">
+    <xsl:choose>
+      <xsl:when test="./enumeration">Enumeration</xsl:when>
+      <xsl:otherwise>Type</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
   <!--
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
@@ -277,7 +284,7 @@
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
-  <xsl:value-of select="concat(' Type: ',@name,' ')"/>
+  <xsl:value-of select="concat(' ',$typetype': ',@name,' ')"/>
   &#x20;<xsl:call-template name="output_express_ref">
   <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="linkend" select="$linkend"/>
@@ -291,7 +298,68 @@
     <!-- <xsl:copy-of select="./description"/> -->
     <xsl:apply-templates select="./description"/>
   </xsl:element>
+  <xsl:apply-templates select="./enumeration"/>
 </xsl:template>
+
+
+<xsl:template match="enumeration">
+  <xsl:call-template name="output_enums">
+    <xsl:with-param name="str" select="normalize-space(@items)"/>
+  </xsl:call-template> 
+</xsl:template>
+
+
+<xsl:template name="output_enums">
+  <xsl:param name="str"/>
+  <xsl:variable name="break_char" select="' '"/>
+  <xsl:choose>
+    <xsl:when test="contains($str,$break_char)">
+      <xsl:variable name="substr" 
+        select="substring-before($str,$break_char)"/>
+      <xsl:call-template name="output_enum_item">
+        <xsl:with-param name="enum_value" select="$substr"/>
+      </xsl:call-template> 
+      
+      <xsl:variable name="rest" select="substring-after($str,$break_char)"/>
+      <xsl:call-template name="output_enums">
+        <xsl:with-param name="str" select="$rest"/>
+      </xsl:call-template> 
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="output_enum_item">
+        <xsl:with-param name="enum_value" select="$str"/>
+      </xsl:call-template> 
+    </xsl:otherwise>        
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="output_enum_item">
+  <xsl:param name="enum_value"/>
+  <xsl:variable name="schema" select="../../@name"/>
+  <xsl:variable name="enum_type" select="../@name"/>
+
+  <xsl:variable name="linkend" 
+    select="concat($schema,'.',$enum_type,'.',$enum_value)"/>
+
+  <xsl:comment> 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  <xsl:value-of select="concat(' Schema: ',$schema,' ')"/>
+  <xsl:value-of select="concat(' Enumeration: ',$enum_type,' ')"/>
+  <xsl:value-of select="concat(' Item: ',$enum_value,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+  <xsl:with-param name="schema" select="$schema"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  </xsl:comment>
+  <xsl:element name="ext_description">
+    <xsl:attribute name="linkend">
+      <xsl:value-of select="$linkend"/>
+    </xsl:attribute>
+    <xsl:apply-templates select="./description"/>
+  </xsl:element>
+</xsl:template>
+
 
 
 <xsl:template match="function">

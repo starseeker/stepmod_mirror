@@ -8,5 +8,6 @@
   <xsl:output method="xml"/>
 
   <xsl:param name="html.stylesheet">express_model.css</xsl:param>
+  <xsl:param name="draft.mode" select="'yes'"/>
 
 </xsl:stylesheet>

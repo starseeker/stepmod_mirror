@@ -5144,34 +5144,6 @@ END_FUNCTION; -- path_reversed
 FUNCTION relatives_of_product_definitions
   (definition_set: SET OF product_definition;
   relation_subtype: STRING): SET OF product_definition;
-
-FUNCTION local_relatives_of_product_definitions
-  (definition_set: SET OF product_definition;
-  total_definitions: SET OF product_definition;
-  relation_subtype: STRING): SET OF product_definition;
-
-  LOCAL
-    i           : INTEGER;
-    local_def   : SET OF product_definition := [];
-    local_pdr   : SET OF product_definition_relationship := [];
-    local_total : SET OF product_definition := [];
-  END_LOCAL;
-  REPEAT i := 1 TO HIINDEX(definition_set) BY 1;
-    local_pdr := local_pdr + bag_to_set(USEDIN(definition_set[i],
-        relation_subtype + '.RELATING_PRODUCT_DEFINITION'));
-  END_REPEAT;
-  REPEAT i := 1 TO HIINDEX(local_pdr) BY 1;
-    local_def := local_def + local_pdr[i].related_product_definition;
-  END_REPEAT;
-  IF (SIZEOF(local_def) - SIZEOF(total_definitions)) = 0 THEN
-    RETURN(local_def);
-  ELSE
-    local_total := total_definitions + local_def;
-    RETURN(local_def + local_relatives_of_product_definitions(
-        local_def - total_definitions,local_total,relation_subtype));
-  END_IF;
-
-END_FUNCTION; -- local_relatives_of_product_definitions
 RETURN(local_relatives_of_product_definitions(definition_set,
     definition_set,relation_subtype));
 

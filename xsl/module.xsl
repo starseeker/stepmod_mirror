@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.168 2004/10/29 13:49:36 thendrix Exp $
+$Id: module.xsl,v 1.169 2004/11/02 17:02:20 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
      
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"                
+		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+		xmlns:exslt="http://exslt.org/common"
+                exclude-result-prefixes="msxsl exslt"
                 version="1.0">
 
   <xsl:import href="module_toc.xsl"/>
@@ -3337,14 +3340,66 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
     For the purposes of this part of ISO 10303, the following abbreviations
     apply:
   </p>
+  <!-- get the default abbreviations out of the abbreviations_default.xml
+       database -->
+  <xsl:variable name="abbr_inc" select="document('../data/basic/abbreviations_default.xml')/abbreviations"/>
+  
+  <xsl:variable name="abbrevs">
+    <abbrevs>
+      <xsl:apply-templates select="$abbr_inc/abbreviation.inc" mode="abbr_node"/>
+      <xsl:apply-templates select="/module/abbreviations" mode="abbr_node"/>  
+    </abbrevs>
+  </xsl:variable>
+  <!--
   <table width="80%">
-    <!-- get the default abbreviations out of the abbreviations_default.xml
-         database -->
     <xsl:apply-templates 
-      select="document('../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
-    
+      select="document('../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>    
     <xsl:apply-templates select="/module/abbreviations" mode="output"/>    
+  </table> -->
+
+  <table width="80%">
+    <xsl:choose>
+      <xsl:when test="function-available('msxsl:node-set')">
+        <xsl:variable name="abbrevs_nodes" select="msxsl:node-set($abbrevs)"/>
+        <xsl:apply-templates select="$abbrevs_nodes/abbrevs/*">
+          <xsl:sort select="@acronym"/>
+        </xsl:apply-templates> 
+      </xsl:when>
+
+      <xsl:when test="function-available('exslt:node-set')">
+        <xsl:variable name="abbrevs_nodes" select="exslt:node-set($abbrevs)"/>
+        <xsl:apply-templates select="$abbrevs_nodes/abbrevs/*">
+          <xsl:sort select="@acronym"/>
+        </xsl:apply-templates>
+      </xsl:when>
+    </xsl:choose>
   </table>
+</xsl:template>
+
+<xsl:template match="abbreviation.inc"  mode="abbr_node">
+  <xsl:variable name="ref" select="@linkend"/>
+  <xsl:variable 
+    name="abbrev" 
+    select="document('../data/basic/abbreviations.xml')/abbreviation.list/abbreviation[@id=$ref]"/>
+  <xsl:if test="$abbrev">
+    <abbreviation.inc>
+      <xsl:attribute name="acronym">
+        <xsl:value-of select="normalize-space($abbrev/acronym)"/>
+      </xsl:attribute>
+      <xsl:attribute name="linkend">
+        <xsl:value-of select="$ref"/>
+      </xsl:attribute>
+    </abbreviation.inc>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="abbreviation"  mode="abbr_node">
+  <abbreviation>
+    <xsl:attribute name="acronym">
+      <xsl:value-of select="normalize-space(./acronym)"/>
+    </xsl:attribute>   
+    <xsl:copy-of select="*"/>
+  </abbreviation>
 </xsl:template>
 
   

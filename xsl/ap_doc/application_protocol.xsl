@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol.xsl,v 1.30 2004/11/08 12:49:28 robbod Exp $
+$Id: application_protocol.xsl,v 1.31 2004/12/23 22:13:11 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -232,6 +232,7 @@ $Id: application_protocol.xsl,v 1.30 2004/11/08 12:49:28 robbod Exp $
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
               <xsl:value-of select="concat('Error AP1: The module',$module,' does not exist.',
+
                                     '  Correct application_protocol module_name in application_protocol.xml')"/>
             </xsl:with-param>
           </xsl:call-template>
@@ -361,6 +362,9 @@ $Id: application_protocol.xsl,v 1.30 2004/11/08 12:49:28 robbod Exp $
           </xsl:when>
           <xsl:when test="$arm_mim_res='ir_express'">
             <xsl:value-of select="concat('../data/resources/',$schema,'/',$schema,'.xml')"/>
+          </xsl:when>
+          <xsl:when test="$arm_mim_res='reference'">
+            <xsl:value-of select="concat('../../data/reference/',$schema,'/',$schema,'.xml')"/>
           </xsl:when>
         </xsl:choose>
       </xsl:variable>

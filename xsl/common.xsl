@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.149 2004/12/31 07:48:17 robbod Exp $
+$Id: common.xsl,v 1.150 2005/01/18 09:42:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -743,7 +743,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:choose>
           <xsl:when test="img.area">
             <IMG src="{$src}" border="0" usemap="#map" alt="{$alt1}">
-              <MAP ID="map" NAME="map">
+              <MAP ID="map" name="map">
                 <xsl:apply-templates select="img.area"/>
               </MAP>
             </IMG>        
@@ -1241,6 +1241,29 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       <xsl:value-of select="$ret_val"/>
   </xsl:template>
 
+  <xsl:template name="check_reference_exists">
+    <xsl:param name="schema"/>
+
+    <!-- the name of the resource directory should be in lower case -->
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="lschema" select="translate($schema,$UPPER,$LOWER)"/>
+    <xsl:variable name="ret_val">
+        <xsl:choose>
+          <xsl:when
+            test="document('../repository_index.xml')/repository_index/resources/resource[@name=$lschema]">
+            <xsl:value-of select="'true'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of
+              select="concat(' The schema ', $lschema,
+                      ' is not identified as a resource in repository_index.xml')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+
 
 
   <!-- output a warning message. If $inline is yes then the error message
@@ -1537,6 +1560,8 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+
 
 
    <xsl:template name="get_href_from_express_ref">
@@ -2952,6 +2977,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:when test="$arm_mim_res='ir_express'">
             <xsl:value-of select="concat('../data/resources/',$schema,'/',$schema,'.xml')"/>
           </xsl:when>
+          <xsl:when test="$arm_mim_res='reference'">
+            <xsl:value-of select="concat('../data/reference/',$schema,'/',$schema,'.xml')"/>
+          </xsl:when>
         </xsl:choose>
       </xsl:variable>
       <xsl:variable name="express_nodes"
@@ -3106,6 +3134,12 @@ is case sensitive.')"/>
           <xsl:with-param name="schema" select="$module_section"/>
         </xsl:call-template>
       </xsl:when>
+      <xsl:when test="$nlinkend1='reference'">
+<!--        <xsl:call-template name="check_reference_exists">
+          <xsl:with-param name="schema" select="$module_section"/>
+        </xsl:call-template>  -->
+        <xsl:value-of select="'true'"/>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="'false'"/>
       </xsl:otherwise>
@@ -3119,7 +3153,8 @@ is case sensitive.')"/>
                       or $nlinkend1='mim'
                       or $nlinkend1='mim_express'
                       or $nlinkend1='mim_lf_express'
-                      or $nlinkend1='ir_express'">
+                      or $nlinkend1='ir_express'
+                      or $nlinkend1='reference'">
         <xsl:value-of select="$nlinkend1"/>
       </xsl:when>
       <xsl:otherwise>
@@ -3163,8 +3198,6 @@ is case sensitive.')"/>
 -->
 <xsl:template name="check_express_path">
   <xsl:param name="linkend"/>
-
-
 </xsl:template>
 
 

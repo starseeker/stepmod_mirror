@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.4 2004/10/20 07:16:08 robbod Exp $
+$Id: sect_isocover.xsl,v 1.5 2004/10/20 07:17:42 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -251,6 +251,14 @@ $Id: sect_isocover.xsl,v 1.4 2004/10/20 07:16:08 robbod Exp $
           <!-- RBN - note that the @publication.year will have to change to
                @publication.iso_publication -->
           <xsl:if test="@status!='DIS'">
+            <xsl:if test="string-length(normalize-space(@publication.date))=0">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Error PD: No publication date (@publication.date) provided for ',@name)"/>
+              </xsl:call-template>
+            </xsl:if>
+
             <div align="center" style="margin-top:50pt">
               <span style="font-size:12; font-family:sans-serif;">
                 <b>

@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.100 2003/07/07 11:12:12 robbod Exp $
+$Id: common.xsl,v 1.101 2003/07/11 12:48:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
      Templates that are common to most other stylesheets
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-		xmlns:exslt="http://exslt.org/common"
-                version="1.0">
+<xsl:stylesheet 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:exslt="http://exslt.org/common"
+  exclude-result-prefixes="msxsl exslt"
+  version="1.0">
 
   <!--
        Template to determine whether the output is XML or HTML
@@ -46,7 +48,7 @@ $Id: common.xsl,v 1.100 2003/07/07 11:12:12 robbod Exp $
     <xsl:when test="$output_css">
       <xsl:variable name="hpath"
         select="concat($path,$output_css)"/>
-      <link
+      <linkg
         rel="stylesheet"
         type="text/css"
         href="{$hpath}"/>

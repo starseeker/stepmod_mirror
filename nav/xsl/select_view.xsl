@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.17 2003/06/26 13:33:12 nigelshaw Exp $
+$Id: select_view.xsl,v 1.18 2003/07/04 20:39:26 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -14,6 +14,7 @@ $Id: select_view.xsl,v 1.17 2003/06/26 13:33:12 nigelshaw Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
 		xmlns:exslt="http://exslt.org/common"
+                exclude-result-prefixes="msxsl exslt"
                 version="1.0">
 
 	<xsl:import href="../../xsl/express.xsl"/>

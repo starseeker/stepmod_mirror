@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.8 2003/06/29 13:07:01 robbod Exp $
+$Id: mapping_view_with_test.xsl,v 1.9 2003/07/04 20:42:34 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -11,6 +11,7 @@ $Id: mapping_view_with_test.xsl,v 1.8 2003/06/29 13:07:01 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
 		xmlns:exslt="http://exslt.org/common"
+                exclude-result-prefixes="msxsl exslt"
                 version="1.0">
 
   <xsl:import href="../../xsl/express.xsl"/> 

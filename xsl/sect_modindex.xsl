@@ -2,16 +2,18 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_modindex.xsl,v 1.1 2003/07/23 10:49:12 robbod Exp $
+$Id: sect_modindex.xsl,v 1.2 2003/07/23 15:38:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
      
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-		xmlns:exslt="http://exslt.org/common"
-                version="1.0">
+<xsl:stylesheet 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:exslt="http://exslt.org/common"
+  exclude-result-prefixes="msxsl exslt"
+  version="1.0">
 
   <xsl:import href="module.xsl"/>
   <xsl:import href="expressg_icon.xsl"/> 

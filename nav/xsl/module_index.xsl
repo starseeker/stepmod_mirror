@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_index.xsl,v 1.4 2003/04/17 15:49:01 robbod Exp $
+$Id: module_index.xsl,v 1.5 2003/04/17 16:21:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -9,6 +9,7 @@ $Id: module_index.xsl,v 1.4 2003/04/17 15:49:01 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
 		xmlns:exslt="http://exslt.org/common"
+                exclude-result-prefixes="msxsl exslt"
                 version="1.0">
 
   <xsl:import href="../../xsl/common.xsl"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.15 2003/04/21 18:25:53 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.16 2003/04/29 23:00:05 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -12,6 +12,7 @@ $Id: mapping_view.xsl,v 1.15 2003/04/21 18:25:53 nigelshaw Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
 		xmlns:exslt="http://exslt.org/common"
+                exclude-result-prefixes="msxsl exslt"
                 version="1.0">
 
   <xsl:import href="../../xsl/express.xsl"/> 

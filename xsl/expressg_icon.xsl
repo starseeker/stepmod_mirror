@@ -2,16 +2,18 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.5 2003/06/11 11:00:24 robbod Exp $
+$Id: expressg_icon.xsl,v 1.6 2003/07/23 10:29:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
      then used to determine the EXPRESSG page on which an entity is drawn.
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-		xmlns:exslt="http://exslt.org/common"
-                version="1.0">
+<xsl:stylesheet 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:exslt="http://exslt.org/common"
+  exclude-result-prefixes="msxsl exslt"
+  version="1.0">
 
   <xsl:import href="common.xsl"/>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.10 2002/11/27 13:31:58 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.11 2003/05/04 07:51:15 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -13,6 +13,7 @@ $Id: sect_5_mapping_check.xsl,v 1.10 2002/11/27 13:31:58 robbod Exp $
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   xmlns:saxon="http://icl.com/saxon"
   extension-element-prefixes="msxsl saxon"
+  exclude-result-prefixes="msxsl exslt"
   version="1.0">
 
   <!-- the SAXON and MSXML proprietary extensions are for node-set -->

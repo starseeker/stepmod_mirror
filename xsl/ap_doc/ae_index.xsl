@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="document_xsl.xsl" ?>
 <!--
-$Id: ae_index.xsl,v 1.1 2002/10/30 20:59:45 mikeward Exp $
+$Id: ae_index.xsl,v 1.2 2003/03/03 17:15:23 goset1 Exp $
 -->
 
 <xsl:stylesheet 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:msxsl="urn:schemas-microsoft-com:xslt" 
 	xmlns:saxon="http://icl.com/saxon" 
+        exclude-result-prefixes="msxsl exslt"
 	version="1.0"
 >
 

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_nav_inner.xsl,v 1.1 2003/06/15 19:41:23 nigelshaw Exp $
+$Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -12,6 +12,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.1 2003/06/15 19:41:23 nigelshaw Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
 		xmlns:exslt="http://exslt.org/common"
+                exclude-result-prefixes="msxsl exslt"
                 version="1.0">
 
 

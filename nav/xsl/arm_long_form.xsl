@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: arm_long_form.xsl,v 1.6 2003/07/07 11:12:46 robbod Exp $
+$Id: arm_long_form.xsl,v 1.7 2003/07/07 12:19:46 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -11,6 +11,7 @@ $Id: arm_long_form.xsl,v 1.6 2003/07/07 11:12:46 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
 		xmlns:exslt="http://exslt.org/common"
+                exclude-result-prefixes="msxsl exslt"
 		version="1.0">
 
 

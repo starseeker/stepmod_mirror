@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.46 2002/04/21 14:21:53 robbod Exp $
+$Id: module.xsl,v 1.47 2002/04/26 09:11:42 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1835,9 +1835,11 @@ defines it. Use: normref.inc')"/>
   <xsl:value-of select="normalize-space(.)"/>
 </xsl:template>
 
+
 <xsl:template match="term">
   <xsl:value-of select="normalize-space(.)"/>
 </xsl:template>
+
 
 <!-- output the normative references, terms, definitions and abbreviations -->
 <xsl:template name="output_terms">
@@ -2242,6 +2244,10 @@ defines it. Use: normref.inc')"/>
     <xsl:apply-templates select="def"/>
   </xsl:template>
   
+  <xsl:template match="def">
+    <xsl:apply-templates/>
+  </xsl:template>
+
 <xsl:template match="usage_guide">
   <xsl:apply-templates/>
 </xsl:template>

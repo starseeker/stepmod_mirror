@@ -1,5 +1,5 @@
 <!--
-     $Id: express.dtd,v 1.5 2001/11/15 10:03:33 robbod Exp $
+     $Id: express_model.dtd,v 1.1 2002/01/31 17:43:11 robbod Exp $
                                                                    -->
 <!-- EXPRESS MODEL DECLARATION MODULE -->
 
@@ -38,8 +38,8 @@
 <!ENTITY % description.content "#PCDATA">
 
 <!-- Attributes for source control software like RCS or CVS        -->
-<!--         rcs.date      $Date: 2001/11/15 10:03:33 $                                -->
-<!--         rcs.revision  $Revision: 1.5 $                            -->
+<!--         rcs.date      $Date: 2002/01/31 17:43:11 $                                -->
+<!--         rcs.revision  $Revision: 1.1 $                            -->
 <!ELEMENT express (description?, application?, schema+)>
 <!ATTLIST express
 	language_version (1 | 2 | 3) "1" 
@@ -63,7 +63,8 @@
 <!ATTLIST schema
 	name NMTOKEN #REQUIRED
 >
-<!ELEMENT interface (interfaced.item*)>
+
+<!ELEMENT interface (interfaced.item*, described.item*)>
 <!ATTLIST interface
 	kind (use | reference) "use"
 	schema NMTOKEN #REQUIRED
@@ -73,19 +74,37 @@
 	name NMTOKEN #REQUIRED
 	alias NMTOKEN #IMPLIED
 >
+
+<!-- 
+  A description of any item in the interface. In other words the
+  documentation of an imported construct.         
+  item is the name of the imported construct
+  attribute is only used if the imported construct is an entity in whihc
+  case, item is the name of the entty and item is the name of the attribute
+ -->
+<!ELEMENT described.item (description?)>
+<!ATTLIST described.item
+	item NMTOKEN #REQUIRED
+        attribute NMTOKEN #IMPLIED
+	kind (ENTITY | TYPE | ATTRIBUTE | FUNCTION | PROCEDURE | CONSTANT ) "ENTITY">
+
+
 <!ELEMENT constant (description?, %underlying;)>
 <!ATTLIST constant
 	name NMTOKEN #REQUIRED
 	expression CDATA #REQUIRED
 >
+
 <!ELEMENT type (description?, aggregate*, (typename | builtintype | enumeration | select), where*, graphic.element?)>
 <!ATTLIST type
 	name NMTOKEN #REQUIRED
 >
+
 <!ELEMENT typename EMPTY>
 <!ATTLIST typename
 	name NMTOKEN #REQUIRED
 >
+
 <!ELEMENT builtintype (graphic.element?)>
 <!ATTLIST builtintype
 	type (BINARY | BOOLEAN | GENERIC | GENERICENTITY | INTEGER | LOGICAL | NUMBER | REAL | STRING) "STRING"
@@ -184,21 +203,27 @@
 	totalover NMTOKENS #IMPLIED
 	super.expression CDATA #IMPLIED
 >
+
 <!ELEMENT function (description?, parameter*, %underlying;, algorithm)>
 <!ATTLIST function
 	name NMTOKEN #REQUIRED
 >
+
 <!ELEMENT parameter (%underlying;)>
 <!ATTLIST parameter
 	name NMTOKEN #REQUIRED
 >
-<!ELEMENT procedure (description?, parameter*, algorithm)>
+
+<!ELEMENT procedure (description?, parameter*, algorithm?)>
 <!ATTLIST procedure
 	name NMTOKEN #REQUIRED
 >
-<!ELEMENT rule (description?, algorithm)>
+
+<!ELEMENT rule (description?, algorithm?, where+)>
 <!ATTLIST rule
 	name NMTOKEN #REQUIRED
 	appliesto NMTOKENS #REQUIRED
 >
+
+
 <!ELEMENT algorithm (#PCDATA)>

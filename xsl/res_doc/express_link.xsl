@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.5 2003/04/14 03:37:16 thendrix Exp $
+     $Id: express_link.xsl,v 1.6 2003/04/14 17:48:48 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1071,14 +1071,16 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
   <!-- utility var to make it easier to strip out the schema name -->
+  <xsl:variable name="schema_name_tmp"
+    select="translate($schema_name,$UPPER, $LOWER)"/>
 
   <xsl:variable name="ret_val">
     <xsl:choose>
           <xsl:when
-            test="document('../../repository_index.xml')/repository_index/resources/resource[@name=$schema_name]"/>
+            test="document('../../repository_index.xml')/repository_index/resources/resource[@name=$schema_name_tmp]"/>
           <xsl:otherwise>
             <xsl:value-of 
-              select="concat('ERROR el3: ', $schema_name, 
+              select="concat('ERROR el3: ', $schema_name_tmp, 
                       ' does not exist as resource document')"/>
           </xsl:otherwise>
      </xsl:choose>        

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.3 2002/11/25 16:35:46 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -255,24 +255,21 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 							<xsl:value-of select="$found-ent/ancestor::schema/@name" />
 							<br/>
 						</xsl:when>
-						<xsl:when test="$found-ent" >
+						<xsl:otherwise>
 						<!-- could be derived -->
 							<xsl:variable name="found-der" 
 								select="$schemas//entity[@name=$find-ent][derived/@name=$find-attr]" />
 							<xsl:choose>
 								<xsl:when test="$found-der">
-							
-								</xsl:when>
-								<xsl:otherwise>
 									MIM element found as DERIVE in schema 
 									<xsl:value-of select="$found-ent/ancestor::schema/@name" />
-									<br/>
+									<br/>						
+								</xsl:when>
+								<xsl:otherwise>
+								!!! MIM element not found in relevant schemas !!! 
+								<br/>
 								</xsl:otherwise>
 							</xsl:choose>
-						</xsl:when>
-						<xsl:otherwise>
-							!!! MIM element not found in relevant schemas !!! 
-							<br/>
 						</xsl:otherwise>
 					</xsl:choose>
 					</blockquote>

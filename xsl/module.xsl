@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.122 2003/01/08 08:40:40 robbod Exp $
+$Id: module.xsl,v 1.123 2003/02/04 17:57:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2758,10 +2758,10 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
         <xsl:value-of 
           select="concat('Warning 8: MIM uses schema ', 
                   $resource_schema, 
-                  'Make sure you include Integrated resource (',
+                  '#  Make sure you include Integrated resource (',
                   $ir_ref,
                   ') that defines it as a normative reference. ',
-                  'Use: normref.inc')"/>
+                  '#  Use: normref.inc')"/>
       </xsl:with-param>
       <xsl:with-param name="inline" select="'no'"/>
     </xsl:call-template>

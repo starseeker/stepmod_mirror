@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.58 2002/12/11 07:55:29 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.59 2002/12/12 15:10:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -867,21 +867,20 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
                       <xsl:variable name="attribute" select="../../@attribute"/>
                       <xsl:variable name="alt_id" select="../@alt_map.inc"/>
                       <xsl:value-of 
-                        select="concat('Error refpath_ext4: The refath to be
-                                extended can not be found in the module: ',
-                                $orig_mod,'. Check that the entity ',$ae,' exists in ',$orig_mod,' and has
-                                an attribute ',$attribute,', that there is
-                                an assertion to ',$extended_select,' and that
-                                the there is an alt_map alt_map.inc=',$alt_id)"/>
+                        select="concat('Error refpath_ext4: The refpath to be extended can not be found in the module: &quot;',
+                                $orig_mod,'&quot;. #  Check that the entity  &quot;',$ae,'&quot; exists in  &quot;',$orig_mod,
+                                '&quot;#  and has an attribute &quot;',$attribute,
+                                '&quot;, #  that there is an assertion to &quot;',$extended_select,
+                                ' &quot;#  and that the there is an alt_map &quot;alt_map.inc=',$alt_id,'&quot;')"/>
                     </xsl:when>
                     <xsl:otherwise>
                       <xsl:variable name="extended_select" select="./@extended_select"/>
                       <xsl:variable name="attribute" select="../@attribute"/>
                       <xsl:value-of 
-                        select="concat('Error refpath_ext4: The refath to be
-                                extended can not be found in the module: ',
-                                $orig_mod,'. Check that the entity ',$ae,' exists in ',$orig_mod,' and has
-                                an attribute ',$attribute,' and there is an assertion to ',$extended_select)"/>
+                        select="concat('Error refpath_ext4: The refpath to be extended can not be found in the module: &quot;',
+ $orig_mod,'&quot;. #  Check that the entity &quot;',$ae,'&quot; exists in &quot;',$orig_mod,
+                                '&quot;#  and has an attribute  &quot;',$attribute,
+                                '&quot;#  and there is an assertion to &quot;',$extended_select,'&quot;')"/>
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:variable>

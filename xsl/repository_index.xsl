@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.17 2002/08/14 06:56:46 robbod Exp $
+     $Id: repository_index.xsl,v 1.18 2002/09/09 14:04:33 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -118,6 +118,7 @@
           </tr>
         </table>
       </blockquote>
+      <xsl:apply-templates select="./application_protocols"/>
     </BODY>
   </HTML>
 </xsl:template>
@@ -334,6 +335,117 @@
     select="document($module_file)/module[@name=$module_name]"/>
   <xsl:variable name="part" select="$module_node/@part"/>
   <xsl:value-of select="$part"/>
+</xsl:template>
+
+
+<xsl:template match="application_protocols">
+  <h2>
+    <a name="alphatop">
+      Alphabetical list of Application Protocols
+    </a>
+  </h2>
+  <xsl:variable name="application_protocol_mid_point" select="(count(./application_protocol)+1) div 2"/>
+  <blockquote>
+    <table width="90%" cellspacing="0" cellpadding="4">
+      <tr>
+        <td valign="top">
+          <xsl:apply-templates select="./application_protocol" mode="col1">
+            <xsl:with-param name="mid_point" select="$application_protocol_mid_point"/>
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
+        </td>
+        <td valign="top">
+          <xsl:apply-templates select="./application_protocol" mode="col2">
+            <xsl:with-param name="mid_point" select="$application_protocol_mid_point"/>
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
+        </td>
+      </tr>
+    </table>
+  </blockquote>
+</xsl:template>
+
+<xsl:template match="application_protocol" mode="col1">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="not(position()>$mid_point)">
+    <xsl:apply-templates select="." mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="application_protocol" mode="col2">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="position()>$mid_point">
+    <xsl:apply-templates select="."  mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+	
+<xsl:template match="application_protocol" mode="output">
+  <xsl:variable name="xref" 
+    select="concat('./data/application_protocols/',@name,'/sys/introduction',$FILE_EXT)"/>
+  <xsl:variable name="part">
+    <xsl:call-template name="get_application_protocol_part">
+      <xsl:with-param name="application_protocol_name" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <a href="{$xref}">
+    <font size="-1">
+      <b>
+        <xsl:value-of select="@name"/>
+        (
+        <xsl:value-of select="$part"/>
+        )
+      </b>
+    </font>
+  </a>
+  <xsl:variable name="xref4" select="concat('./data/application_protocols/',@name,'/sys/4_info_reqs',$FILE_EXT)"/>
+  <xsl:variable name="arm_expg" select="concat('./data/modules/',@name,'/armexpg1',$FILE_EXT)"/>
+  <xsl:variable name="xref5" select="concat('./data/application_protocols/',@name,'/sys/5_aim',$FILE_EXT)"/>
+  <xsl:variable name="aim_expg" select="concat('./data/application_protocols/',@name,'/mimexpg1',$FILE_EXT)"/>
+  <xsl:variable name="aam" select="concat('./data/application_protocols/',@name,'/sys/e_aam',$FILE_EXT)"/>
+  <xsl:variable name="ap_directory" select="concat('./data/application_protocols/',@name)"/>
+  <table cellspacing="0" cellpadding="1">
+    <tr>
+      <td>&#160;&#160;&#160;&#160;</td>
+      <td>
+        <font size="-2">
+          <a href="{$xref4}">ARM</a>
+        </font>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$arm_expg}">ARM-G</a>
+        </font>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$xref5}">AIM</a>
+        </font>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$aim_expg}">AIM-G</a>
+        </font>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$aam}">AAM</a>
+        </font>
+      </td>
+      
+      <td>
+        <font size="-2">
+          <a href="{$ap_directory}">
+            <img alt="application_protocol folder" border="0" align="middle" src="./images/folder.gif"/>
+          </a>
+        </font>
+      </td>
+    </tr>
+  </table>
+</xsl:template>
+
+<xsl:template name="get_application_protocol_part">
+  <xsl:value-of select="@part"/>
 </xsl:template>
 
 </xsl:stylesheet>

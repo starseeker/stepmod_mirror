@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.54 2002/07/24 07:53:34 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.55 2002/07/30 10:31:53 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -131,13 +131,13 @@
     <xsl:value-of select="$clause_intro"/>
     <xsl:if test="contains($schema_name,'_arm')">
       <p><u>EXPRESS specification:</u></p>
-      *)
     </xsl:if>
 
   </xsl:if>
   <p>
   <!-- <blockquote> -->
     <code>
+      <xsl:if test="contains($schema_name,'_arm') and position()=1">*)<br/></xsl:if>
       <xsl:choose>
         <xsl:when test="@kind='reference'">
           REFERENCE FROM 
@@ -150,15 +150,17 @@
 
           <xsl:choose>
             <xsl:when test="./interfaced.item">
-              <!-- if interface items then out put source tail comment now -->
+              <!-- if interface items then output source tail comment now -->
               &#160;&#160;&#160;--&#160;
               <xsl:apply-templates select="." mode="source"/>
               <xsl:apply-templates select="./interfaced.item"/>;
+              <xsl:if test="position()=last()"><br/>(*</xsl:if>
               <br/><br/>          
             </xsl:when>
             <xsl:otherwise>;
               &#160;&#160;&#160;--&#160;              
               <xsl:apply-templates select="." mode="source"/>
+              <xsl:if test="position()=last()"><br/>(*</xsl:if>
               <br/><br/>
             </xsl:otherwise>
           </xsl:choose> 
@@ -180,11 +182,13 @@
               &#160;&#160;&#160;--&#160;
               <xsl:apply-templates select="." mode="source"/>
               <xsl:apply-templates select="./interfaced.item"/>;
+              <xsl:if test="position()=last()"><br/>(*</xsl:if>
               <br/><br/>          
             </xsl:when>
             <xsl:otherwise>;
               &#160;&#160;&#160;--&#160;
               <xsl:apply-templates select="." mode="source"/>
+              <xsl:if test="position()=last()"><br/>(*</xsl:if>
               <br/><br/>
             </xsl:otherwise>
           </xsl:choose> 
@@ -204,7 +208,6 @@
   <!-- </blockquote> -->
   </p>
   <xsl:if test="position()=last()">
-    (*
     <xsl:call-template name="interface_notes">
       <xsl:with-param name="schema_node" select=".."/>
     </xsl:call-template>
@@ -363,7 +366,11 @@
 
         <xsl:for-each
 select="document($module_file)/module/arm/express-g/imgfile">
-          <xsl:variable name="imgfile" select="concat('../',@file)"/>
+          <xsl:variable name="imgfile">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="concat('../',@file)"/>   
+            </xsl:call-template>
+          </xsl:variable>
           <a href="{$imgfile}">
             <xsl:value-of select="concat($annex,'.',position())"/>
           </a>
@@ -387,7 +394,7 @@ select="document($module_file)/module/arm/express-g/imgfile">
 <xsl:template match="interfaced.item">
   <xsl:choose>
     <xsl:when test="position()=1">
-      <br/>&#160;&#160;(
+      <br/><xsl:text>&#160;&#160;(</xsl:text>
     </xsl:when>
     <xsl:otherwise>
         &#160;&#160;
@@ -456,15 +463,15 @@ select="document($module_file)/module/arm/express-g/imgfile">
 
   <xsl:if test="position()=1">
     <p><u>EXPRESS specification:</u></p>
-    *)
     <p>
     <!-- <blockquote> -->
       <code>
+        *)<br/>
         CONSTANT
+      <br/>(*
       </code>
     <!-- </blockquote> -->
   </p>
-    (*
   </xsl:if>
   
   <xsl:variable name="aname">
@@ -511,27 +518,27 @@ select="document($module_file)/module/arm/express-g/imgfile">
 
     <!-- output EXPRESS -->
     <p><u>EXPRESS specification:</u></p>
-    *)
     <p>
     <!-- <blockquote> -->
       <code>
+        *)<br/>
         &#160;&#160;<xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/>
+      <br/>(*
       </code>
     <!-- </blockquote> -->
     </p>
-    (*
     
     <xsl:if test="position()=last()">
       <br/>
-      *)
       <p>
       <!-- <blockquote> -->
         <code>
+          *)<br/>
           END_CONSTANT;
+          <br/>(*
         </code>
       <!-- </blockquote> -->
     </p>
-      (*
     </xsl:if>
 
 </xsl:template>
@@ -643,10 +650,10 @@ select="document($module_file)/module/arm/express-g/imgfile">
   </p>
 
   <p><u>EXPRESS specification:</u></p>
-  *)
   <p>
   <!-- <blockquote> -->
     <code>
+      *)<br/>
       TYPE 
       <xsl:value-of select="@name" />
         =
@@ -661,10 +668,10 @@ select="document($module_file)/module/arm/express-g/imgfile">
           </xsl:otherwise>
         </xsl:choose>
         END_TYPE; <br/>
+        (*
     </code>
   <!-- </blockquote> -->
 </p>
-  (*
 </xsl:template>
 
 <!-- empty template to prevent the description element being out put along
@@ -695,8 +702,6 @@ select="document($module_file)/module/arm/express-g/imgfile">
     GENERIC_ENTITY
   </xsl:if>
 
-  
-
   SELECT<xsl:if test="@basedon">
     BASED_ON 
       <xsl:call-template name="link_object">
@@ -710,9 +715,12 @@ select="document($module_file)/module/arm/express-g/imgfile">
                 (string-length(@selectitems)!=0)">
     <xsl:if test="@basedon">
       WITH 
-    </xsl:if>
-    (<xsl:call-template name="link_list">
+    </xsl:if><br/>
+    &#160;&#160;&#160;(<xsl:call-template name="link_list">
+    <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="suffix" select="', '"/>
+    <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;'"/>
+    <xsl:with-param name="first_prefix" select="'no'"/>
     <xsl:with-param name="list" select="@selectitems"/>
     <xsl:with-param name="object_used_in_schema_name"
       select="../../@name"/>
@@ -883,23 +891,24 @@ select="document($module_file)/module/arm/express-g/imgfile">
   -->
 
   <p><u>EXPRESS specification:</u></p>
-  *)<p>
+  <p>
   <!-- <blockquote> -->
     <code>
+      *)<br/>
       ENTITY <xsl:value-of select="@name"/>
       <xsl:call-template name="abstract.entity"/>
       <xsl:call-template name="super.expression-code"/>
-      <xsl:call-template name="supertypes-code"/>;    
+      <xsl:call-template name="supertypes-code"/><xsl:text>;</xsl:text>
       <br/>
       <xsl:apply-templates select="./explicit" mode="code"/>
       <xsl:apply-templates select="./derived" mode="code"/>
       <xsl:apply-templates select="./inverse" mode="code"/>
       <xsl:apply-templates select="./unique" mode="code"/>
       <xsl:apply-templates select="./where[@expression]" mode="code"/>
-      END_ENTITY;<br/>
+      END_ENTITY;<br/>(*
     </code>
   <!-- </blockquote> -->
-  </p>(*
+  </p>
   <xsl:apply-templates select="./explicit" mode="description"/>    
   <xsl:apply-templates select="./derived" mode="description"/>    
   <xsl:apply-templates select="./inverse" mode="description"/>  
@@ -926,18 +935,20 @@ select="document($module_file)/module/arm/express-g/imgfile">
       <xsl:value-of select="')'"/>
     </xsl:if>
   </xsl:variable>
+  <xsl:variable name="sup_expr"
+    select="concat($open_paren,@super.expression,$close_paren)"/>
   <xsl:choose>
     <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       <br/>
-      &#160;ABSTRACT SUPERTYPE
+      &#160;&#160;ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
-        &#160;OF&#160;<xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+        OF&#160;<xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
       </xsl:if>
     </xsl:when>
     <xsl:otherwise>
       <xsl:if test="@super.expression">
       <br/>
-      &#160; SUPERTYPE OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+      &#160;SUPERTYPE OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
     </xsl:if>      
     </xsl:otherwise>
   </xsl:choose>
@@ -952,7 +963,7 @@ select="document($module_file)/module/arm/express-g/imgfile">
         <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
       <xsl:with-param name="clause" select="'section'"/>
-    </xsl:call-template>)
+    </xsl:call-template><xsl:text>)</xsl:text>
   </xsl:if>
 </xsl:template>
 
@@ -1431,10 +1442,10 @@ SELF\<xsl:call-template name="link_object">
 
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  *)
+  
   <p>
     <code>
-  <br/>
+  *)<br/>
   <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
 	<xsl:value-of select="@name"/></b></A>
   <xsl:text> FOR </xsl:text>
@@ -1446,7 +1457,7 @@ SELF\<xsl:call-template name="link_object">
    <xsl:if test="@super.expression">
         &#160; <xsl:value-of select="@super.expression"/>;<br/>
     </xsl:if>      
-  END_SUBTYPE_CONSTRAINT;<br/>
+  END_SUBTYPE_CONSTRAINT;<br/>(*
 	    </code></p>
 </xsl:template>
 
@@ -1532,17 +1543,17 @@ SELF\<xsl:call-template name="link_object">
 
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  *)
   <p>
   <!-- <blockquote> -->
     <code>
+      *)<br/>
       FUNCTION <xsl:value-of select="@name"/>
       <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> :</xsl:text>
       <xsl:apply-templates select="./aggregate" mode="code"/>
       <xsl:apply-templates select="./*" mode="underlying"/>;
       <xsl:apply-templates select="./algorithm" mode="code"/>
-			<!-- <br/> -->
       END_FUNCTION;
+      <br/>(*
     </code>
   <!-- </blockquote> -->
   </p>
@@ -1632,19 +1643,18 @@ SELF\<xsl:call-template name="link_object">
   
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  *)<p>
   <!-- <blockquote> -->
     <code>
+      *)<br/>     
       PROCEDURE <xsl:value-of select="@name"/>
     <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
     <xsl:apply-templates select="./aggregate" mode="code"/>
     <xsl:apply-templates select="./*" mode="underlying"/>;
     <xsl:apply-templates select="./algorithm" mode="code"/><br/>
     END_PROCEDURE;
+    <br/>(*
     </code>
   <!-- </blockquote> -->
-  </p>
-  (*
   <xsl:apply-templates select="./explicit" mode="description"/>
 </xsl:template>
 
@@ -1813,16 +1823,17 @@ SELF\<xsl:call-template name="link_object">
   
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  *)
   <p>
   <!-- <blockquote> -->
     <code>
+      *)<br/>
       RULE <xsl:value-of select="@name"/> FOR
     <br/>
       (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
     <xsl:apply-templates select="./algorithm" mode="code"/><br/>
     <xsl:apply-templates select="./where" mode="code"/>
       END_RULE;
+    <br/>(*
     </code>
   <!-- </blockquote> -->
    </p>
@@ -1833,8 +1844,6 @@ SELF\<xsl:call-template name="link_object">
 
   <xsl:call-template name="output_where_formal"/>
   <xsl:call-template name="output_where_informal"/>
-
-  (*
 </xsl:template>
 
 <xsl:template name="process_rule_arguments">

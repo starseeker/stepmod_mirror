@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.38 2002/07/17 11:40:56 nigelshaw Exp $
+$Id: sect_5_mapping.xsl,v 1.39 2002/07/29 15:15:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -423,7 +423,10 @@ $Id: sect_5_mapping.xsl,v 1.38 2002/07/17 11:40:56 nigelshaw Exp $
 
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+  <!-- No longer required to make ARM entity in upper case 
   <xsl:variable name="ae" select="translate(@entity,$LOWER,$UPPER)"/>
+  -->
+  <xsl:variable name="ae" select="@entity"/>
 
   <h3>
     <a name="{$aname}">
@@ -758,7 +761,13 @@ $Id: sect_5_mapping.xsl,v 1.38 2002/07/17 11:40:56 nigelshaw Exp $
 
 
 <xsl:template match="refpath" mode="specification">
-  <xsl:variable name="str" select="string(.)"/>
+  <xsl:variable name="str">
+    <xsl:call-template name="remove_trailing_whitespace">
+      <xsl:with-param name="string" select="string(.)"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+
   <xsl:if test="string-length($str)>0">
     <tr valign="top">
       <td>Reference path:&#160;&#160;</td>

@@ -623,18 +623,157 @@ o=isocs; s=central<br/>
   </p>    
   
   <p>
-    <xsl:choose>
-      <xsl:when test="string-length(@part)>0">
-        <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
-      </xsl:when>
-      <xsl:otherwise>
-        ISO/TS 10303-<font color="#FF0000"><b>XXXX</b></font>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:variable name="part_no">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          ISO/TS 10303-XXXX
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+  
+    <xsl:value-of select="$part_no"/>
     was prepared by Technical Committee ISO/TC 184, 
     <i>Industrial automation systems and integration,</i>
     Subcommittee SC4, <i>Industrial data.</i>
   </p>
+
+  <xsl:if test="@version!='1'">
+    <xsl:variable name="this_edition">
+      <xsl:choose>
+        <xsl:when test="@version='2'">
+          second
+        </xsl:when>
+        <xsl:when test="@version='3'">
+          third
+        </xsl:when>
+        <xsl:when test="@version='4'">
+          fourth
+        </xsl:when>
+        <xsl:when test="@version='5'">
+          fifth
+        </xsl:when>
+        <xsl:when test="@version='6'">
+          sixth
+        </xsl:when>
+        <xsl:when test="@version='7'">
+          seventh
+        </xsl:when>
+        <xsl:when test="@version='8'">
+          eighth
+        </xsl:when>
+        <xsl:when test="@version='9'">
+          ninth
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="prev_edition">
+      <xsl:choose>
+        <xsl:when test="@version='2'">
+          first
+        </xsl:when>
+        <xsl:when test="@version='3'">
+          second
+        </xsl:when>
+        <xsl:when test="@version='4'">
+          third
+        </xsl:when>
+        <xsl:when test="@version='5'">
+          fourth
+        </xsl:when>
+        <xsl:when test="@version='6'">
+          fifth
+        </xsl:when>
+        <xsl:when test="@version='7'">
+          sixth
+        </xsl:when>
+        <xsl:when test="@version='8'">
+          seventh
+        </xsl:when>
+        <xsl:when test="@version='9'">
+          eighth
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="@previous.revision.cancelled='NO'">
+        This <xsl:value-of select="$this_edition"/> edition of  
+        <xsl:value-of select="$part_no"/> 
+        constitutes a technical revision of the
+        <xsl:value-of select="$prev_edition"/> edition  
+        (<xsl:value-of
+          select="concat($part_no,':',@previous.revision.year)"/>),
+        which is provisionally retained in order to support continued use
+        and maintenance of implementations based on the
+        <xsl:value-of select="$prev_edition"/> 
+        edition and to satisfy the normative references of other parts of
+        ISO 10303. 
+
+
+        <xsl:choose>
+          <!-- only changed a section of the document -->
+          <xsl:when test="@revision.complete='NO'">
+            <xsl:value-of select="@revision.scope"/>
+            of the <xsl:value-of select="$prev_edition"/> 
+            edition  
+            <xsl:choose>
+            <!-- will be Clauses/Figures/ etc so if contains 'es' 
+                 then must be plural-->
+              <xsl:when test="contains(@revision.scope,'es')">
+                have
+              </xsl:when>
+              <xsl:otherwise>
+                has
+              </xsl:otherwise>
+            </xsl:choose>
+            been technically revised.
+          </xsl:when>
+          <xsl:otherwise>
+            <!-- complete revision so no extra text -->
+          </xsl:otherwise>
+        </xsl:choose>
+
+      </xsl:when>
+
+      <xsl:otherwise>
+        <!-- cancelled -->
+        This <xsl:value-of select="$this_edition"/> edition of 
+        <xsl:value-of select="$part_no"/> cancels and replaces the
+        <xsl:value-of select="$prev_edition"/> edition
+        (<xsl:value-of
+          select="concat($part_no,':',@previous.revision.year)"/>), 
+
+        <xsl:choose>
+          <!-- only changed a section of the document -->
+          <xsl:when test="@revision.complete='NO'">
+            of which 
+            <xsl:value-of select="@revision.scope"/>
+            <xsl:choose>
+            <!-- will be Clauses/Figures/ etc so if contains 'es' 
+                 then must be plural-->
+              <xsl:when test="contains(@revision.scope,'es')">
+                have
+              </xsl:when>
+              <xsl:otherwise>
+                has
+              </xsl:otherwise>
+            </xsl:choose>
+            been technically revised.
+          </xsl:when>
+          <xsl:otherwise>
+            of which it constitutes a technical revision.
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:if>
+
+
+
+
   <p>
     This International Standard is organized as a series of parts, each
     published separately. The structure of this International Standard is
@@ -768,7 +907,8 @@ o=isocs; s=central<br/>
     The following typographical convention is used to distinguish between
     these. If a word or phrase occurs in the same typeface as narrative
     text, the referent is the object or concept. If the word or phrase
-    occurs in a bold typeface or as an hyperlink, the referent is the EXPRESS data type. 
+    occurs in a bold typeface or as an hyperlink, the referent is the
+    EXPRESS data type. 
   </p>
   <p>
     The name of an EXPRESS data type may be used to refer to the data type
@@ -892,7 +1032,7 @@ o=isocs; s=central<br/>
   <b>
     <p align="center">
       <a name="table_e1">
-        Table E.1 &#8212; ARM to MIM EXPRESS short and long form listing.
+        Table E.1 &#8212; ARM to MIM EXPRESS short and long form listing
       </a>
     </p>
   </b>
@@ -902,8 +1042,8 @@ o=isocs; s=central<br/>
     <table border="1" cellspacing="1">
       <tr>
         <td><b>Description</b></td>
-        <td><b>File</b> </td>
-        <td><b>File</b></td>
+        <td><b>HTMLfile</b></td>
+        <td><b>ASCII file</b></td>
         <td><b>Identifier</b></td>
       </tr>
       
@@ -948,7 +1088,8 @@ o=isocs; s=central<br/>
           </a>
         </td>
         <xsl:call-template name="output_express_links">
-          <xsl:with-param name="wgnumber" select="./@wg.number.mim"/>
+          <xsl:with-param name="wgnumber" 
+            select="./@wg.number.mim"/>
           <xsl:with-param name="file" select="'mim.exp'"/>
         </xsl:call-template>        
       </tr>
@@ -1007,7 +1148,7 @@ o=isocs; s=central<br/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('WG12 N',$wgnumber)"/>
+        <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
       </xsl:otherwise>
     </xsl:choose>    
   </td>
@@ -1069,7 +1210,7 @@ o=isocs; s=central<br/>
   <xsl:variable name="c_expg"
     select="concat('./c_arm_expg',$FILE_EXT)"/>
   <xsl:variable name="sect51" 
-    select="concat('./5_mim',$FILE_EXT)"/>
+    select="concat('./5_mapping',$FILE_EXT)"/>
 
   <xsl:variable name="current_module">
     <xsl:call-template name="module_display_name">
@@ -1101,7 +1242,7 @@ o=isocs; s=central<br/>
   <p class="note">
     <small>
       NOTE&#160;2&#160;&#160;The mapping specification is specified in 
-      <a href="{$sect51}#mapping">5.1</a>. It shows how
+      <a href="{$sect51}">5.1</a>. It shows how
       the information requirements are met, using common resources and
       constructs defined or imported in the MIM schema of this application
       module. 
@@ -1135,13 +1276,11 @@ o=isocs; s=central<br/>
   <code>
     <u>EXPRESS specification: </u>
     <br/>    <br/>
-    *)
-    <br/>    <br/>
+    *)<br/>
     <a name="{$xref}">
       SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
   </a>
-  <br/>    <br/>
-    (*
+  <br/>(*<br/>
   </code>
 
   <a name="uof">
@@ -1222,11 +1361,9 @@ o=isocs; s=central<br/>
   
   <code>
     <br/>    <br/>
-    *)
-    <br/>    <br/>
-    END_SCHEMA;
-    <br/>    <br/>
-    (*
+    *)<br/>
+    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="document($arm_xml)/express/schema/@name"/>
+    <br/>(*
   </code>
 
 </xsl:template>
@@ -1388,14 +1525,21 @@ o=isocs; s=central<br/>
   <xsl:choose>
     <xsl:when test="document($arm)/express/schema[entity/@name=$ae or type/@name=$ae]">
       <li>
+        <xsl:variable name="aname">
+          <xsl:call-template name="express_a_name">
+            <xsl:with-param name="section1" select="$schema_name"/>
+            <xsl:with-param name="section2" select="$ae"/>
+          </xsl:call-template>
+        </xsl:variable>    
+
         <xsl:choose>
           <xsl:when test="position()!=last()">
-            <a href="#{$schema_name}.{$ae}">
+            <a href="#{$aname}">
               <xsl:value-of select="$ae"/>
             </a>;
           </xsl:when>
           <xsl:otherwise>
-            <a href="#{$schema_name}.{$ae}">
+            <a href="#{$aname}">
               <xsl:value-of select="$ae"/>
             </a>.
           </xsl:otherwise>
@@ -1489,8 +1633,7 @@ o=isocs; s=central<br/>
   <code>
     <u>EXPRESS specification: </u>
     <br/>    <br/>
-    *)
-    <br/>    <br/>
+    *)<br/>
     <a name="{$xref}">
       SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
   </a>
@@ -1577,11 +1720,9 @@ o=isocs; s=central<br/>
 
   <code>
     <br/>    <br/>
-    *)
-    <br/>    <br/>
-    END_SCHEMA;
-    <br/>    <br/>
-    (*
+    *)<br/>
+    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="document($mim_xml)/express/schema/@name"/>
+    <br/>(*
   </code>
 
 </xsl:template>
@@ -2962,12 +3103,12 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
+                      ' - ARM schema level EXPRESS-G diagram ',$number)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' - ARM entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -2976,12 +3117,12 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' - MIM Schema level EXPRESS-G diagram ',$number)"/>
+                      ' - MIM schema level EXPRESS-G diagram ',$number)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' - MIM Entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' - MIM entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

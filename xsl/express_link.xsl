@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.7 2002/05/19 07:55:13 robbod Exp $
+     $Id: express_link.xsl,v 1.8 2002/07/15 08:56:44 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -525,6 +525,10 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
   <xsl:param name="object_used_in_schema_name"/>
   <xsl:param name="prefix"/>
   <xsl:param name="suffix"/>
+  <!-- if linebreak = yes then output a line break after the suffix -->
+  <xsl:param name="linebreak" select="'no'"/>
+  <!-- If yes then output prefix on first object -->
+  <xsl:param name="first_prefix" select="'yes'"/>
   <xsl:param name="clause" select="section"/>
 
   <xsl:variable name="nlist"
@@ -543,10 +547,13 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
       <xsl:variable name="rest"
         select="substring-after($nlist,',')"/>
 
+      <xsl:if test="$first_prefix='yes'">
+        <!-- do not output prefix on first object -->
+        <xsl:call-template name="output-fix">
+          <xsl:with-param name="fix" select="$prefix"/>
+        </xsl:call-template>
+      </xsl:if>
 
-      <xsl:call-template name="output-fix">
-        <xsl:with-param name="fix" select="$prefix"/>
-      </xsl:call-template>
       <xsl:call-template name="link_object">
         <xsl:with-param name="object_name" select="$first"/>
         <xsl:with-param 
@@ -557,10 +564,15 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
       <xsl:call-template name="output-fix">
         <xsl:with-param name="fix" select="$suffix"/>
       </xsl:call-template>
+      <xsl:if test="$linebreak='yes'">
+        <br/>
+      </xsl:if>
 
       <xsl:call-template name="link_list">
         <xsl:with-param name="prefix" select="$prefix"/>
         <xsl:with-param name="suffix" select="$suffix"/>
+        <xsl:with-param name="linebreak" select="$linebreak"/>
+        <xsl:with-param name="first_prefix" select="'yes'"/>
         <xsl:with-param name="list" select="$rest"/>
         <xsl:with-param 
           name="object_used_in_schema_name" 
@@ -572,9 +584,12 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
 
     <xsl:otherwise>
       <!-- end of recursion -->
-      <xsl:call-template name="output-fix">
-        <xsl:with-param name="fix" select="$prefix"/>
-      </xsl:call-template>
+      <xsl:if test="$first_prefix='yes'">
+        <!-- do not output prefix on first object -->
+        <xsl:call-template name="output-fix">
+          <xsl:with-param name="fix" select="$prefix"/>
+        </xsl:call-template>
+      </xsl:if>
 
       <xsl:call-template name="link_object">
         <xsl:with-param name="object_name" select="$nlist"/>

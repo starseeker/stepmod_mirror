@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.20 2002/06/17 15:48:54 robbod Exp $
+$Id: module_toc.xsl,v 1.21 2002/07/24 06:47:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -499,9 +499,9 @@ $Id: module_toc.xsl,v 1.20 2002/06/17 15:48:54 robbod Exp $
       <TD valign="TOP">
         <p class="toc">
         <!-- use #annexa to link direct -->
-        <A HREF="{$module_root}/sys/a_short_names{$FILE_EXT}">A AM MIM short names</A><BR/>
+        <A HREF="{$module_root}/sys/a_short_names{$FILE_EXT}">A MIM short names</A><BR/>
         <!-- use #annexb to link direct -->
-        <A HREF="{$module_root}/sys/b_obj_reg{$FILE_EXT}">B Information requirements object
+        <A HREF="{$module_root}/sys/b_obj_reg{$FILE_EXT}">B Information object
         registration</A><BR/>
         <!-- use #annexc to link direct -->
         <A HREF="{$module_root}/sys/c_arm_expg{$FILE_EXT}">
@@ -536,8 +536,7 @@ $Id: module_toc.xsl,v 1.20 2002/06/17 15:48:54 robbod Exp $
         <BR/>
 
         <!-- use #annexe to link direct -->
-        <A HREF="{$module_root}/sys/e_exp{$FILE_EXT}">E AM ARM and MIM EXPRESS
-listings</A><BR/>
+        <A HREF="{$module_root}/sys/e_exp{$FILE_EXT}">E Computer interpretable listings</A><BR/>
         <xsl:if test="./usage_guide">
         <!-- use #annexa to link direct -->
           <A HREF="{$module_root}/sys/f_guide{$FILE_EXT}">
@@ -572,14 +571,13 @@ listings</A><BR/>
       <TD valign="TOP">
         <A HREF="{$module_root}/sys/module{$FILE_EXT}#arm">4 Information requirements</A><BR/>
         <A HREF="{$module_root}/sys/module{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
-        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
-        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexb">B Information requirements object
-        registration</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexa">A MIM short names</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexb">B Information object registration</A><BR/>
         <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexc">C ARM EXPRESS-G</A><BR/>
         <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
       </TD>
       <TD valign="TOP">
-        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS listings</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexe">E Computer interpretable listings</A><BR/>
         <xsl:if test="./usage_guide">
           <!-- use #annexf to link direct -->
           <A HREF="{$module_root}/sys/module{$FILE_EXT}">

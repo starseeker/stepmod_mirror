@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_biblio.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_biblio.xsl,v 1.5 2002/06/17 15:48:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -23,7 +23,7 @@ $Id: sect_biblio.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-  <div align="center">
+  <div align="left">
     <h3>
       <A NAME="bibliography">Bibliography</A>
     </h3>

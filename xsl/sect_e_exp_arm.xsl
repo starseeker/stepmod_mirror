@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_arm.xsl,v 1.2 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_e_exp_arm.xsl,v 1.3 2002/06/17 15:48:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM short form express 
@@ -114,7 +114,7 @@ $Id: sect_e_exp_arm.xsl,v 1.2 2002/03/04 07:50:08 robbod Exp $
   <code>
   (*<br/>
     <xsl:value-of 
-      select="concat('N',@wg.number.arm, ' - ',
+      select="concat('ISO TC184/SC4/WG12 N',@wg.number.arm, ' - ',
               $stdnumber,' ', $module_name, ' - EXPRESS ARM')"/>
     <br/>*)
   </code>

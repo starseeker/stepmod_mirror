@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.30 2002/07/24 07:53:34 robbod Exp $
+     $Id: express_code.xsl,v 1.31 2002/07/30 10:31:53 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -44,7 +44,8 @@
   <xsl:apply-templates select="./procedure" mode="code"/>
 	<xsl:apply-templates select="./subtype.constraint" mode="code"/>
   <br/>
-  END_SCHEMA; <br/>
+  END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="@name"/>
+  <br/>
   </code>
 </xsl:template>
 
@@ -205,7 +206,7 @@
 <xsl:template match="interfaced.item" mode="code">
   <xsl:choose>
     <xsl:when test="position()=1">
-      <br/>&#160;&#160;(
+      <br/><xsl:text>&#160;&#160;(</xsl:text>
     </xsl:when>
     <xsl:otherwise>
         &#160;&#160;
@@ -326,9 +327,12 @@
                 (string-length(@selectitems)!=0)">
     <xsl:if test="@basedon">
       WITH 
-    </xsl:if>
-    (<xsl:call-template name="link_list">
+    </xsl:if><br/>
+    &#160;&#160;&#160;(<xsl:call-template name="link_list">
+    <xsl:with-param name="linebreak" select="'yes'"/>
     <xsl:with-param name="suffix" select="', '"/>
+    <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;'"/>
+    <xsl:with-param name="first_prefix" select="'no'"/>
     <xsl:with-param name="list" select="@selectitems"/>
     <xsl:with-param name="object_used_in_schema_name"
       select="../../@name"/>
@@ -389,7 +393,7 @@
   <A NAME="{$aname}">ENTITY <b><xsl:value-of select="@name"/></b></A>
   <xsl:call-template name="abstract.entity"/>
   <xsl:call-template name="super.expression-code"/>
-  <xsl:call-template name="supertypes-code"/>;    
+  <xsl:call-template name="supertypes-code"/><xsl:text>;</xsl:text>  
   <br/>
   <xsl:apply-templates select="./explicit" mode="code"/>
   <xsl:apply-templates select="./derived" mode="code"/>
@@ -421,9 +425,9 @@
   <xsl:choose>
     <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       <br/>
-      &#160; ABSTRACT SUPERTYPE
+      &#160;&#160;ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
-        &#160;OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+        OF&#160;<xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
       </xsl:if>
     </xsl:when>
     <xsl:otherwise>
@@ -439,11 +443,11 @@
   <xsl:if test="@supertypes">
     <br/>
     &#160; SUBTYPE OF (<xsl:call-template name="link_list">
-      <xsl:with-param name="list" select="@supertypes"/>
-        <xsl:with-param name="suffix" select="', '"/>
+    <xsl:with-param name="list" select="@supertypes"/>
+    <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
       <xsl:with-param name="clause" select="'annexe'"/>
-    </xsl:call-template>)
+    </xsl:call-template><xsl:text>)</xsl:text>
   </xsl:if>
 </xsl:template>
 

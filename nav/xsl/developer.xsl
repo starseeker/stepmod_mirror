@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.6 2002/10/01 18:08:52 robbod Exp $
+$Id: developer.xsl,v 1.7 2002/10/02 16:43:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -486,11 +486,6 @@ $Id: developer.xsl,v 1.6 2002/10/01 18:08:52 robbod Exp $
   <xsl:variable name="module_item" select="concat(' ',$module,' ')"/>
   <xsl:variable name="rest" 
     select="substring-after($modules_list,' ')"/>
-
-  <xsl:message>
-    <xsl:value-of select="concat($modules_list,':',$module,':',$rest,':')"/>
-  </xsl:message>
-
 
   <xsl:variable name="nmodules_list">
     <xsl:choose>

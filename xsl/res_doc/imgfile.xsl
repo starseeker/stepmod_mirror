@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
+$Id: imgfile.xsl,v 1.3 2002/10/23 05:48:45 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -31,6 +31,9 @@ $Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
       <xsl:with-param name="resdoc" select="@module"/>
     </xsl:call-template>
   </xsl:variable>
+  <xsl:variable name="resdoc">
+    <xsl:value-of select="@module"/>
+  </xsl:variable>
 
   <xsl:variable name="resdoc_file" select="concat($resdoc_dir,'/resource.xml')"/>
                   
@@ -42,6 +45,7 @@ $Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
           select="document($resdoc_file)/resource/*/express-g/imgfile"
           mode="title">
           <xsl:with-param name="file" select="@file"/>
+          
         </xsl:apply-templates>
       </xsl:when>
       <xsl:when test="contains(@file,'schema_diag')">
@@ -104,6 +108,7 @@ $Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
                 select="document($resdoc_file)/resource/*/express-g/imgfile"
                 mode="nav_arrows">
                 <xsl:with-param name="file" select="@file"/>
+                <xsl:with-param name="resdoc" select="$resdoc"/>
               </xsl:apply-templates>
             </xsl:when>
             <xsl:otherwise>
@@ -157,6 +162,9 @@ $Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
     <xsl:variable name="number">
       <xsl:number/>
     </xsl:variable>
+    <xsl:variable name="img_count">
+      <xsl:value-of select="count(../imgfile)"/>
+    </xsl:variable>
     <xsl:variable name="fig_no">
       <xsl:choose>
         <xsl:when test="name(../..)='arm'">
@@ -190,20 +198,11 @@ $Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
         <!--        <xsl:when test="../../schema">-->
         <xsl:when test="contains(@file,'schemaexpg')">
           <xsl:variable name="schname" select="substring-before(@file,'expg')" />
-          <xsl:choose>
-            <xsl:when test="$number=1">
-              <xsl:value-of 
-                select="concat('Figure D.',$number, 
-                        ' &#8212; Entity level diagram of ', $schname, '( page ', $number,' )' )" />
+            <xsl:value-of 
+              select="concat('Figure D.',$number, 
+                      ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $number,' of ', $img_count, ')' )" />
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of 
-                select="concat('Figure D.',$number, 
-                        ' &#8212; Entity level diagram of ', $schname, ($number - 1)) "/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:when>
-        <xsl:otherwise>
                       <xsl:value-of 
               select="concat('Figure  1. ',
                       ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture')" />
@@ -217,15 +216,9 @@ $Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
 
 <xsl:template match="imgfile" mode="nav_arrows">
   <xsl:param name="file"/>
+  <xsl:param name="resdoc"/>
   <xsl:if test="$file=@file">
     <!-- Page navigation:&#160; -->
-      <xsl:variable name="maphref" 
-        select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
-      <a href="{$maphref}">
-        <img align="middle" border="0" 
-          alt="Mapping table" src="../../../images/mapping.gif"/>
-      </a>
-
       <xsl:variable name="home">
         <xsl:choose>
           <xsl:when test="name(../..)='arm'">
@@ -238,6 +231,11 @@ $Id: imgfile.xsl,v 1.2 2002/10/22 06:33:38 thendrix Exp $
               <xsl:with-param name="filename" select="'./sys/d_mim_expg.xml'"/>
             </xsl:call-template>
           </xsl:when>
+          <xsl:when test="contains(@file,'schemaexpg')">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="concat('../../resource_docs/',$resdoc,'/sys/d_expg.xml')"/>
+            </xsl:call-template>            
+            </xsl:when>
         </xsl:choose>
       </xsl:variable>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.10 2002/10/24 17:46:34 robbod Exp $
+$Id: modules_list.xsl,v 1.11 2002/10/31 13:17:42 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -89,8 +89,8 @@ $Id: modules_list.xsl,v 1.10 2002/10/24 17:46:34 robbod Exp $
     <!-- ISO view menu (OPEN) -->
     <div id="{$Menu}ISO" style="display:none">
       <p class="menulist">
-        <a href="javascript:swap({$NoMenu}ISO, {$Menu}ISO);">
-          &#160;&#160;<img src="../images/minus.gif" alt="Close menu" 
+        &#160;&#160;<a href="javascript:swap({$NoMenu}ISO, {$Menu}ISO);">
+          <img src="../images/minus.gif" alt="Close menu" 
             border="false" align="middle"/>    
         </a>
         <a href="{$iso_href}" target="content">ISO view</a>
@@ -133,8 +133,8 @@ $Id: modules_list.xsl,v 1.10 2002/10/24 17:46:34 robbod Exp $
     <!-- ISO view menu (CLOSED) -->
     <div id="{$NoMenu}ISO">
       <p class="menulist">
-        <a href="javascript:swap({$Menu}ISO, {$NoMenu}ISO);">
-          &#160;&#160;<img src="../images/plus.gif" alt="Open menu" 
+        &#160;&#160;<a href="javascript:swap({$Menu}ISO, {$NoMenu}ISO);">
+          <img src="../images/plus.gif" alt="Open menu" 
             border="false" align="middle"/> 
         </a>
         <a href="{$iso_href}" target="content">ISO view</a>
@@ -147,8 +147,8 @@ $Id: modules_list.xsl,v 1.10 2002/10/24 17:46:34 robbod Exp $
       select="concat('../data/modules/',@name,'/nav/summary',$FILE_EXT)"/>
     <div id="{$Menu}summary" style="display:none">
       <p class="menulist">
-        <a href="javascript:swap({$NoMenu}summary, {$Menu}summary);">
-          &#160;&#160;<img src="../images/minus.gif" alt="Close menu" 
+        &#160;&#160;<a href="javascript:swap({$NoMenu}summary, {$Menu}summary);">
+          <img src="../images/minus.gif" alt="Close menu" 
             border="false" align="middle"/>    
         </a>
         <a href="{$summary}" target="content">Summary view</a>
@@ -188,8 +188,8 @@ $Id: modules_list.xsl,v 1.10 2002/10/24 17:46:34 robbod Exp $
     <!-- Summary view menu (CLOSED) -->
     <div id="{$NoMenu}summary">
       <p class="menulist">
-        <a href="javascript:swap({$Menu}summary, {$NoMenu}summary);">
-          &#160;&#160;<img src="../images/plus.gif" alt="Open menu" 
+        &#160;&#160;<a href="javascript:swap({$Menu}summary, {$NoMenu}summary);">
+          <img src="../images/plus.gif" alt="Open menu" 
             border="false" align="middle"/> 
         </a>
         <a href="{$summary}" target="content">Summary view</a>
@@ -202,8 +202,8 @@ $Id: modules_list.xsl,v 1.10 2002/10/24 17:46:34 robbod Exp $
       select="concat('../data/modules/',@name,'/nav/developer',$FILE_EXT)"/>
     <div id="{$Menu}Developer" style="display:none">
       <p class="menulist">
-        <a href="javascript:swap({$NoMenu}Developer, {$Menu}Developer);">
-          &#160;&#160;<img src="../images/minus.gif" alt="Close menu" 
+        &#160;&#160;<a href="javascript:swap({$NoMenu}Developer, {$Menu}Developer);">
+          <img src="../images/minus.gif" alt="Close menu" 
             border="false" align="middle"/>    
         </a>
         <a href="{$developer}" target="content">Developer View</a>
@@ -276,8 +276,8 @@ $Id: modules_list.xsl,v 1.10 2002/10/24 17:46:34 robbod Exp $
     <!-- Developer view menu (CLOSED) -->
     <div id="{$NoMenu}Developer">
       <p class="menulist">
-        <a href="javascript:swap({$Menu}Developer, {$NoMenu}Developer);">
-          &#160;&#160;<img src="../images/plus.gif" alt="Open menu" 
+        &#160;&#160;<a href="javascript:swap({$Menu}Developer, {$NoMenu}Developer);">
+          <img src="../images/plus.gif" alt="Open menu" 
             border="false" align="middle"/> 
         </a>
         <a href="{$summary}" target="content">Developer View</a>

@@ -56,19 +56,6 @@ If asked when unzipping the file, you should overwrite any file in the images di
       <xsl:variable name="arm_exp"
       select="concat('iso10303_',@part,'express/',$prefix,@wg.number.arm,'arm.exp')"/>
 
-The express listings for part <xsl:value-of select="@part"/>  are collected in a separate folder thus:
-The ARM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$arm_exp"/>
-      <xsl:if test="./arm_lf">        
-        <xsl:variable name="armlf_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.arm_lf,'arm_lf.exp')"/>
-The ARM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$armlf_exp"/>
-      </xsl:if>
-      <xsl:variable name="mim_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.mim,'mim.exp')"/>
-The MIM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mim_exp"/>
-      <xsl:if test="./mim_lf">        
-        <xsl:variable name="mimlf_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.mim_lf,'mim_lf.exp')"/>
-The MIM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mimlf_exp"/>
-      </xsl:if>
-
 The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
 
 NOTE

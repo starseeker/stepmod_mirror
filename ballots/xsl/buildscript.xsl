@@ -57,6 +57,13 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'data/modules/'"/>
           </xsl:attribute>
         </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESDIR</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="'data/resource_docs/'"/>
+          </xsl:attribute>
+        </xsl:element>
         
         <xsl:element name="property">
           <xsl:attribute name="name">UTILSDIR</xsl:attribute>
@@ -143,6 +150,10 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:apply-templates select="ballot_package/module">
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
+
+      <xsl:apply-templates select="ballot_package/resource">
+        <xsl:with-param name="outfile" select="$outfile"/>
+      </xsl:apply-templates>
       
       <xsl:element name="fixcrlf">
         <xsl:attribute name="srcdir">${CHECKDIR}</xsl:attribute>
@@ -152,7 +163,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
       <xsl:text>
       </xsl:text>
-
+      <!-- not yet implemented for resdocs -->
       <target name="getexpress" depends="init">
         <echo>Copying Express to ${EXPRESSDIR}</echo>
         <xsl:element name="exec">
@@ -174,6 +185,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:text>
       </xsl:text>
 
+      <!-- not yet implemented for resdocs -->
       <target name="compileexpress" depends="getexpress">
         <echo>Compiling EXPRESS: ${ARMEXPRESS}</echo>
         <xsl:element name="exec">
@@ -256,6 +268,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:text>
       </xsl:text>
       <target name="all" depends="checks, compileexpress, zip"/>
+       <target name="all" depends="checks"/>
 
       <xsl:text>
       </xsl:text>
@@ -300,6 +313,37 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <arg value="build.xml"/>
       <arg value="-DMODULESDIR=${{MODULESDIR}}{@name}"/>
       <arg value="valid_modules"/>
+    </exec>
+  </xsl:template>
+
+  <xsl:template match="resource">
+    <xsl:param name="outfile"/>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
+      <arg value="clean_resdocs"/>
+    </exec>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
+      <arg value="resdocs"/>
+    </exec>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
+      <arg value="valid_resdocs"/>
     </exec>
   </xsl:template>
 

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_top.xsl,v 1.6 2003/06/02 11:19:37 nigelshaw Exp $
+$Id: index_arm_modules_top.xsl,v 1.7 2003/06/06 16:15:17 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -69,7 +69,7 @@ $Id: index_arm_modules_top.xsl,v 1.6 2003/06/02 11:19:37 nigelshaw Exp $
 	<xsl:variable name="arm_schemas" >
 		<xsl:call-template name="depends-on-recurse-no-list-x">
 			<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')" />
-			<xsl:with-param name="done" select="concat(' ',$schema-name,' ')" />
+			<xsl:with-param name="done" select="' '" />
 		</xsl:call-template> 
 	</xsl:variable>
 

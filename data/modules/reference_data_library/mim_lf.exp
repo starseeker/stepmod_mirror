@@ -1,5 +1,5 @@
 (*
- $Id: mim_lf.exp,v 1.7 2005/01/28 21:53:46 robbod Exp $
+ $Id: mim_lf.exp,v 1.8 2005/02/02 09:40:46 robbod Exp $
  ISO TC184/SC4/WG3 N1221 - ISO/TS 10303-1213 Reference data library - EXPRESS MIM Long form
 *) 
 
@@ -136,12 +136,6 @@ SCHEMA REFERENCE_DATA_LIBRARY_MIM_LF;
 *)
  
 CONSTANT
-  base_types : SET OF STRING := ['NUMBER', 'COMPLEX_NUMBER_LITERAL', 'REAL', 
-  'INTEGER', 'LOGICAL', 'BOOLEAN', 'STRING', 'BINARY', 'MATHS_SPACE', 
-  'MATHS_FUNCTION', 'LIST', 'ELEMENTARY_SPACE_ENUMERATORS', 'ORDERING_TYPE', 
-  'LOWER_UPPER', 'SYMMETRY_TYPE', 'ELEMENTARY_FUNCTION_ENUMERATORS', 
-  'OPEN_CLOSED', 'SPACE_CONSTRAINT_TYPE', 'REPACKAGE_OPTIONS', 
-  'EXTENSION_OPTIONS'];
   cnlit : STRING := schema_prefix + 'COMPLEX_NUMBER_LITERAL';
   dummy_gri : geometric_representation_item := representation_item('')||
   geometric_representation_item();
@@ -1654,7 +1648,7 @@ END_ENTITY;
  
 ENTITY defined_function
 ABSTRACT SUPERTYPE OF (ONEOF (numeric_defined_function, string_defined_function
-, boolean_defined_function) ANDOR sql_mappable_defined_function);
+, boolean_defined_function) ANDOR SQL_mappable_defined_function);
 END_ENTITY;
  
 ENTITY defined_maths_space_context
@@ -3134,7 +3128,7 @@ numeric_defined_function))
 SUBTYPE OF (expression);
 DERIVE
   is_int : BOOLEAN := is_int_expr(SELF);
-  sql_mappable : BOOLEAN := is_sql_mappable(SELF);
+  sql_mappable : BOOLEAN := is_SQL_mappable(SELF);
 END_ENTITY;
  
 ENTITY numeric_variable
@@ -4016,7 +4010,7 @@ SUBTYPE OF (general_property_relationship);
   physical_quantity_instance;
 END_ENTITY;
  
-ENTITY sql_mappable_defined_function ABSTRACT SUPERTYPE
+ENTITY SQL_mappable_defined_function ABSTRACT SUPERTYPE
 SUBTYPE OF (defined_function);
 END_ENTITY;
  
@@ -9006,7 +9000,7 @@ END_LOCAL;
   RETURN (FALSE);
 END_FUNCTION;
  
-FUNCTION is_sql_mappable(arg : expression) : BOOLEAN;
+FUNCTION is_SQL_mappable(arg : expression) : BOOLEAN;
 LOCAL
   i : INTEGER;
 END_LOCAL;
@@ -9019,7 +9013,7 @@ END_LOCAL;
     RETURN (TRUE);
   END_IF;
   IF 'REFERENCE_DATA_LIBRARY_MIM_LF.MINUS_FUNCTION' IN TYPEOF(arg) THEN
-    RETURN (is_sql_mappable(arg\unary_numeric_expression.operand));
+    RETURN (is_SQL_mappable(arg\unary_numeric_expression.operand));
   END_IF;
   IF ('REFERENCE_DATA_LIBRARY_MIM_LF.ABS_FUNCTION' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.SIN_FUNCTION' IN TYPEOF(arg)) OR (
@@ -9042,7 +9036,7 @@ END_LOCAL;
   'REFERENCE_DATA_LIBRARY_MIM_LF.MAXIMUM_FUNCTION' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.MINIMUM_FUNCTION' IN TYPEOF(arg)) THEN
     REPEAT i := 1 TO SIZEOF(arg\multiple_arity_numeric_expression.operands);
-      IF NOT is_sql_mappable(arg\multiple_arity_numeric_expression.operands[i])
+      IF NOT is_SQL_mappable(arg\multiple_arity_numeric_expression.operands[i])
        THEN
         RETURN (FALSE);
       END_IF;
@@ -9051,8 +9045,8 @@ END_LOCAL;
   END_IF;
   IF ('REFERENCE_DATA_LIBRARY_MIM_LF.MINUS_EXPRESSION' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.SLASH_EXPRESSION' IN TYPEOF(arg)) THEN
-    RETURN (is_sql_mappable(arg\binary_numeric_expression.operands[1]) AND 
-    is_sql_mappable(arg\binary_numeric_expression.operands[2]));
+    RETURN (is_SQL_mappable(arg\binary_numeric_expression.operands[1]) AND 
+    is_SQL_mappable(arg\binary_numeric_expression.operands[2]));
   END_IF;
   IF ('REFERENCE_DATA_LIBRARY_MIM_LF.DIV_EXPRESSION' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.MOD_EXPRESSION' IN TYPEOF(arg)) OR (
@@ -9064,7 +9058,7 @@ END_LOCAL;
     RETURN (TRUE);
   END_IF;
   IF 'REFERENCE_DATA_LIBRARY_MIM_LF.NOT_EXPRESSION' IN TYPEOF(arg) THEN
-    RETURN (is_sql_mappable(arg\unary_generic_expression.operand));
+    RETURN (is_SQL_mappable(arg\unary_generic_expression.operand));
   END_IF;
   IF ('REFERENCE_DATA_LIBRARY_MIM_LF.ODD_FUNCTION' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.XOR_EXPRESSION' IN TYPEOF(arg)) THEN
@@ -9073,7 +9067,7 @@ END_LOCAL;
   IF ('REFERENCE_DATA_LIBRARY_MIM_LF.AND_EXPRESSION' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.OR_EXPRESSION' IN TYPEOF(arg)) THEN
     REPEAT i := 1 TO SIZEOF(arg\multiple_arity_boolean_expression.operands);
-      IF NOT is_sql_mappable(arg\multiple_arity_boolean_expression.operands[i])
+      IF NOT is_SQL_mappable(arg\multiple_arity_boolean_expression.operands[i])
        THEN
         RETURN (FALSE);
       END_IF;
@@ -9081,8 +9075,8 @@ END_LOCAL;
     RETURN (TRUE);
   END_IF;
   IF 'REFERENCE_DATA_LIBRARY_MIM_LF.EQUALS_EXPRESSION' IN TYPEOF(arg) THEN
-    RETURN (is_sql_mappable(arg\binary_generic_expression.operands[1]) AND 
-    is_sql_mappable(arg\binary_generic_expression.operands[2]));
+    RETURN (is_SQL_mappable(arg\binary_generic_expression.operands[1]) AND 
+    is_SQL_mappable(arg\binary_generic_expression.operands[2]));
   END_IF;
   IF ('REFERENCE_DATA_LIBRARY_MIM_LF.COMPARISON_EQUAL' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.COMPARISON_GREATER' IN TYPEOF(arg)) OR (
@@ -9091,12 +9085,12 @@ END_LOCAL;
   'REFERENCE_DATA_LIBRARY_MIM_LF.COMPARISON_LESS_EQUAL' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.COMPARISON_NOT_EQUAL' IN TYPEOF(arg)) OR (
   'REFERENCE_DATA_LIBRARY_MIM_LF.LIKE_EXPRESSION' IN TYPEOF(arg)) THEN
-    RETURN (is_sql_mappable(arg\comparison_expression.operands[1]) AND 
-    is_sql_mappable(arg\comparison_expression.operands[2]));
+    RETURN (is_SQL_mappable(arg\comparison_expression.operands[1]) AND 
+    is_SQL_mappable(arg\comparison_expression.operands[2]));
   END_IF;
   IF 'REFERENCE_DATA_LIBRARY_MIM_LF.INTERVAL_EXPRESSION' IN TYPEOF(arg) THEN
-    RETURN (is_sql_mappable(arg\interval_expression.interval_low) AND 
-    is_sql_mappable(arg\interval_expression.interval_high) AND is_sql_mappable(
+    RETURN (is_SQL_mappable(arg\interval_expression.interval_low) AND 
+    is_SQL_mappable(arg\interval_expression.interval_high) AND is_SQL_mappable(
     arg\interval_expression.interval_item));
   END_IF;
   IF ('REFERENCE_DATA_LIBRARY_MIM_LF.NUMERIC_DEFINED_FUNCTION' IN TYPEOF(arg)) 
@@ -12779,7 +12773,7 @@ RULE validate_dependently_instantiable_entity_data_types FOR (abs_function,
   selector_function, series_composed_function, simple_boolean_expression, 
   simple_generic_expression, simple_numeric_expression, 
   simple_string_expression, sin_function, slash_expression, 
-  sql_mappable_defined_function, square_root_function, string_defined_function
+  SQL_mappable_defined_function, square_root_function, string_defined_function
   , string_expression, string_literal, string_variable, substring_expression, 
   surface, symbol_target, tan_function, two_direction_repeat_factor, 
   unary_boolean_expression, unary_function_call, unary_generic_expression, 
@@ -12798,7 +12792,7 @@ END_LOCAL;
   two_direction_repeat_factor + tan_function + symbol_target + surface + 
   substring_expression + string_variable + string_literal + string_expression
    + string_defined_function + square_root_function + 
-  sql_mappable_defined_function + slash_expression + sin_function + 
+  SQL_mappable_defined_function + slash_expression + sin_function + 
   simple_string_expression + simple_numeric_expression + 
   simple_generic_expression + simple_boolean_expression + 
   series_composed_function + selector_function + security_classification_level

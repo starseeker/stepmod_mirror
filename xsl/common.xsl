@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.66 2002/08/09 10:23:09 robbod Exp $
+$Id: common.xsl,v 1.67 2002/08/09 14:52:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -383,14 +383,23 @@ $Id: common.xsl,v 1.66 2002/08/09 10:23:09 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
 
+    <xsl:variable name="title">
+      <xsl:value-of select="concat('Figure ',$number,
+                            '&#160;&#8212;&#160;&#160;',./title)"/>
+    </xsl:variable>
 
-    <xsl:apply-templates select="./img"/>
+    <a name="{$aname}">
+      <xsl:apply-templates select="./img">
+        <xsl:with-param name="alt" select="$title"/>
+      </xsl:apply-templates>
+    </a>
+    <br/><br/>
     <div align="center">
-      <a name="{$aname}">
-        <xsl:value-of select="concat('Figure ',$number,
-                              ' - ')"/></a>&#160;&#160;<xsl:apply-templates select="./title"/>
+      <b>
+        <xsl:value-of select="$title"/>
+      </b>
     </div>
-
+    <br/>
   </xsl:template>
 
 <xsl:template match="title">
@@ -398,11 +407,13 @@ $Id: common.xsl,v 1.66 2002/08/09 10:23:09 robbod Exp $
 </xsl:template>
 
 <xsl:template match="img">
+  <xsl:param name="alt"/>
   <!-- if the img has been defined in a separate file within the element
        imgfile.content, then the src path is OK.
        If the img has been defined in the module documentation, then the
        XSL has been invoked from a file in the sys directory, hence the
        path needs to go up to the module directory -->
+
   <xsl:variable name="src">
     <xsl:choose>
       <xsl:when test="name(..)='imgfile.content'">
@@ -413,12 +424,31 @@ $Id: common.xsl,v 1.66 2002/08/09 10:23:09 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
+
+  <xsl:variable name="alt1">
+    <xsl:choose>
+      <xsl:when test="string-length($alt)>0">
+        <xsl:value-of select="$alt"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@src"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  
   <div align="center">
-    <IMG src="{$src}" border="0" usemap="#map" alt="{$src}">
-      <MAP NAME="map">
-        <xsl:apply-templates select="img.area"/>
-      </MAP>
-    </IMG>
+    <xsl:choose>
+      <xsl:when test="img.area">
+        <IMG src="{$src}" border="0" usemap="#map" alt="{$alt1}">
+          <MAP NAME="map">
+            <xsl:apply-templates select="img.area"/>
+          </MAP>
+        </IMG>        
+      </xsl:when>
+      <xsl:otherwise>
+        <IMG src="{$src}" border="0" alt="{$alt1}"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </div>
 </xsl:template>
 
@@ -2132,10 +2162,10 @@ $Id: common.xsl,v 1.66 2002/08/09 10:23:09 robbod Exp $
     <xsl:variable name="aname">
       <xsl:choose>
         <xsl:when test="$id">
-          <xsl:value-of select="concat(name($table),':',$id)"/>
+          <xsl:value-of select="concat(name($table),'_',$id)"/>
         </xsl:when>
         <xsl:otherwise>          
-          <xsl:value-of select="concat(name($table),':',$number)"/>
+          <xsl:value-of select="concat(name($table),'_',$number)"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.17 2002/08/05 06:23:41 robbod Exp $
+$Id: imgfile.xsl,v 1.18 2002/08/06 06:20:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -75,27 +75,32 @@ $Id: imgfile.xsl,v 1.17 2002/08/05 06:23:41 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
 
-          <!-- now display the image -->
-          <xsl:apply-templates select="img"/>
-
-          
           <!-- if a file is specified then can deduce the figure title -->
-          <xsl:choose>
-            <xsl:when test="./@file">
-              <div align="center">
-                <h3>
-                  <xsl:apply-templates 
-                    select="document($module_file)/module/*/express-g/imgfile"
-                    mode="title">
-                    <xsl:with-param name="file" select="@file"/>
-                  </xsl:apply-templates>
-                </h3>
-              </div>
-            </xsl:when>
-            <xsl:otherwise>
-              <div align="center"><h3><xsl:value-of select="@title"/></h3></div>
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:variable name="fig_title">
+            <xsl:choose>
+              <xsl:when test="./@file">
+                <xsl:apply-templates 
+                  select="document($module_file)/module/*/express-g/imgfile"
+                  mode="title">
+                  <xsl:with-param name="file" select="@file"/>
+                </xsl:apply-templates>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="@title"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+          <!-- now display the image -->
+          <xsl:apply-templates select="img">
+            <xsl:with-param name="alt" select="$fig_title"/>
+          </xsl:apply-templates>
+          <div align="center">
+            <br/><br/>
+            <b>
+              <xsl:value-of select="$fig_title"/>
+            </b>
+            <br/>
+          </div>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">
@@ -108,7 +113,7 @@ $Id: imgfile.xsl,v 1.17 2002/08/05 06:23:41 robbod Exp $
 
           </xsl:call-template>
           <xsl:apply-templates select="img"/>
-          <div align="center"><h3><xsl:value-of select="@title"/></h3></div>
+          <div align="center"><br/><br/><b><xsl:value-of select="@title"/></b><br/></div>
         </xsl:otherwise>
       </xsl:choose>
     </body>

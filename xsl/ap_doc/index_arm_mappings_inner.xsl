@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.6 2003/06/05 16:40:14 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -77,7 +77,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.6 2003/06/05 16:40:14 nigelshaw Exp $
 	<xsl:variable name="arm_schemas" >
 		<xsl:call-template name="depends-on-recurse-no-list-x">
 			<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')" />
-			<xsl:with-param name="done" select="concat(' ',$schema-name,' ')" />
+			<xsl:with-param name="done" select="' '" />
 		</xsl:call-template>
 	</xsl:variable>
 
@@ -228,14 +228,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.6 2003/06/05 16:40:14 nigelshaw Exp $
 				</xsl:apply-templates>
 			</xsl:variable>
 
-<!--
-			<xsl:for-each select="$called-schemas//explicit[typename]
-				[contains($extensions,concat(' ',./typename/@name,' '))]" >
-				<xsl:sort select="concat(../../@name,'.',../@name)" />
-				<xsl:value-of select="concat(../../@name,'.',../@name,'.',@name,':',typename/@name)" />
-				<br/>
-			</xsl:for-each>
--->
+
 			<small>
 			EXTENDED to:
 			<br/>

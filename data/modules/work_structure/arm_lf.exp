@@ -1,49 +1,169 @@
 (*
-   $Id: arm.exp,v 1.1 2004/10/25 18:30:36 abhpf Exp $
+   $Id: arm_lf.exp,v 1.1 2005/02/09 22:31:33 abhpf Exp $
    N - ISO/CD-TS - 10303- work_structure - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 
-(*
-   Work_structure_arm with all modules necessary to satisfy all EEP detectable references
-
-		The associated EDM generated long form will have empty selects pruned. 
- 		The result when complied by EEP will have unsatisfied references.
-*)
-
-
-SCHEMA Work_structure_arm_cc;
-  USE FROM Work_structure_arm;
-END_SCHEMA;
-SCHEMA Work_structure_arm;
-  USE FROM Information_packet_arm;
-  USE FROM Observation_arm;
-  USE FROM Work_order_arm;
-  USE FROM Work_output_arm;
-  USE FROM Work_request_arm;
-  TYPE ws_observed_context = EXTENSIBLE SELECT BASED_ON observed_context WITH (Work_output, Work_order, Work_request);
+SCHEMA Work_structure_arm_cc_lf;
+  TYPE activity_item = SELECT (Aaa_empty_for_ws_testing);
   END_TYPE;
 
-  TYPE ws_work_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_item;
+  TYPE activity_method_item = SELECT (Aaa_empty_for_ws_testing);
   END_TYPE;
 
-  TYPE ws_work_output_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_output_item;
+  TYPE affected_item_select = SELECT (Aaa_empty_for_ws_testing);
   END_TYPE;
 
-  ENTITY Work_information_packet
-    SUBTYPE OF (Information_packet_definition);
+  TYPE any_number_value = NUMBER;
+  END_TYPE;
+
+  TYPE any_string_value = STRING;
+  END_TYPE;
+
+  TYPE approval_item = SELECT (Certification, Contract, Observation);
+  END_TYPE;
+
+  TYPE certification_item = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE classification_item = SELECT (Observation, Observation_relationship, Work_output, Work_output_assignment, Work_output_relationship);
+  END_TYPE;
+
+  TYPE contract_item = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE date_or_date_time_item = SELECT (Certification, Contract, Observation, Organization_or_person_in_organization_assignment, Security_classification_assignment);
+  END_TYPE;
+
+  TYPE date_or_date_time_select = SELECT (Calendar_date, Date_time);
+  END_TYPE;
+
+  TYPE date_or_event = SELECT (Calendar_date, Date_time, Event);
+  END_TYPE;
+
+  TYPE day_in_month_number = INTEGER;
+    WHERE
+      WR1: {1 <= SELF <= 31};
+  END_TYPE;
+
+  TYPE event_item = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE hour_in_day = INTEGER;
+    WHERE
+      WR1: {0 <= SELF < 24};
+  END_TYPE;
+
+  TYPE identification_item = SELECT (Approval_status, Contract, Organization, Product_as_individual, Product_as_individual_version, Product_as_individual_view, Security_classification);
+  END_TYPE;
+
+  TYPE information_packet_element = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE information_packet_item = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE information_packet_select = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE length_measure = REAL;
+  END_TYPE;
+
+  TYPE measure_value = SELECT (any_number_value, any_string_value, length_measure, plane_angle_measure);
+  END_TYPE;
+
+  TYPE minute_in_hour = INTEGER;
+    WHERE
+      WR1: {0 <= SELF <= 59};
+  END_TYPE;
+
+  TYPE month_in_year_number = INTEGER;
+    WHERE
+      WR1: {1 <= SELF <= 12};
+  END_TYPE;
+
+  TYPE observation_recorder = SELECT (Product_as_realized);
+  END_TYPE;
+
+  TYPE observed_context = SELECT (Work_order, Work_output, Work_request);
+  END_TYPE;
+
+  TYPE offset_orientation = ENUMERATION OF (ahead, exact, behind);
+  END_TYPE;
+
+  TYPE organization_or_person_in_organization_item = SELECT (Contract, Identification_assignment, Observation, Security_classification_assignment);
+  END_TYPE;
+
+  TYPE organization_or_person_in_organization_select = SELECT (Organization, Person_in_organization);
+  END_TYPE;
+
+  TYPE plane_angle_measure = REAL;
+  END_TYPE;
+
+  TYPE project_item = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE second_in_minute = REAL;
+    WHERE
+      WR1: {0 <= SELF <= 60.000000};
+  END_TYPE;
+
+  TYPE security_classification_item = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE string_select = SELECT (Approval, Approval_relationship, Approval_status, Certification, Contract, Date_or_date_time_assignment, Identification_assignment, Organization_relationship, Person_in_organization, Project, Project_assignment, Project_relationship);
+  END_TYPE;
+
+  TYPE work_item = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE work_output_item = SELECT (Aaa_empty_for_ws_testing);
+  END_TYPE;
+
+  TYPE year_number = INTEGER;
+  END_TYPE;
+
+  ENTITY Aaa_empty_for_ws_testing;
   END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Activity_arm;
-  USE FROM Activity_method_arm;
-  TYPE activity_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
 
   ENTITY Activity;
     id : STRING;
     name : STRING;
     description : OPTIONAL STRING;
     chosen_method : Activity_method;
+  END_ENTITY;
+
+  ENTITY Activity_actual
+    SUBTYPE OF (Activity);
+  END_ENTITY;
+
+  ENTITY Activity_happening
+    SUBTYPE OF (Activity_relationship);
+    SELF\Activity_relationship.relating_activity : Activity_actual;
+  DERIVE
+    actual : Activity_actual := SELF\Activity_relationship.relating_activity;
+    predicted : Activity := SELF\Activity_relationship.related_activity;
+  WHERE
+    WR1: NOT ('ACTIVITY_AS_REALIZED.ACTIVITY_ACTUAL' IN TYPEOF(predicted));
+  END_ENTITY;
+
+  ENTITY Activity_method;
+    name : STRING;
+    description : OPTIONAL STRING;
+    consequence : OPTIONAL STRING;
+    purpose : STRING;
+  END_ENTITY;
+
+  ENTITY Activity_method_assignment;
+    relation_type : STRING;
+    assigned_method : Activity_method;
+    associated_request : Work_request;
+  END_ENTITY;
+
+  ENTITY Activity_method_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating_method : Activity_method;
+    related_method : Activity_method;
   END_ENTITY;
 
   ENTITY Activity_relationship;
@@ -58,47 +178,52 @@ SCHEMA Activity_arm;
     status : STRING;
   END_ENTITY;
 
+  ENTITY Address;
+    name : OPTIONAL STRING;
+    street_number : OPTIONAL STRING;
+    street : OPTIONAL STRING;
+    postal_box : OPTIONAL STRING;
+    town : OPTIONAL STRING;
+    region : OPTIONAL STRING;
+    postal_code : OPTIONAL STRING;
+    country : OPTIONAL STRING;
+    internal_location : OPTIONAL STRING;
+    facsimile_number : OPTIONAL STRING;
+    telephone_number : OPTIONAL STRING;
+    electronic_mail_address : OPTIONAL STRING;
+    telex_number : OPTIONAL STRING;
+    url : OPTIONAL STRING;
+  WHERE
+    WR1: (EXISTS(street_number) OR EXISTS(street) OR EXISTS(postal_box) OR EXISTS(town) OR EXISTS(region) OR EXISTS(postal_code) OR EXISTS(country) OR EXISTS(internal_location) OR EXISTS(facsimile_number) OR EXISTS(telephone_number) OR EXISTS(electronic_mail_address) OR EXISTS(telex_number));
+  END_ENTITY;
+
+  ENTITY Address_assignment;
+    address_type : OPTIONAL STRING;
+    assigned_address : Address;
+    located_person_organizations : SET [1:?] OF organization_or_person_in_organization_select;
+  END_ENTITY;
+
+  ENTITY Affected_items_assignment;
+    assigned_work_request : Work_request;
+    items : SET [1:?] OF affected_item_select;
+  END_ENTITY;
+
+  ENTITY Alias_identification
+    SUBTYPE OF (Identification_assignment);
+  DERIVE
+    SELF\Identification_assignment.role : STRING := 'alias';
+  WHERE
+    WR1: SIZEOF(QUERY(item <* SELF\Identification_assignment.items | NOT ('WORK_STRUCTURE_ARM_CC_LF.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item)))) = 0;
+  END_ENTITY;
+
+  ENTITY Amount_of_substance_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
   ENTITY Applied_activity_assignment;
     assigned_activity : Activity;
     items : SET [1:?] OF activity_item;
     role : STRING;
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Activity_as_realized_arm;
-  USE FROM Activity_arm;
-  ENTITY Activity_actual
-    SUBTYPE OF (Activity);
-  END_ENTITY;
-
-  ENTITY Activity_happening
-    SUBTYPE OF (Activity_relationship);
-    SELF\Activity_relationship.relating_activity RENAMED actual : Activity_actual;
-    SELF\Activity_relationship.related_activity RENAMED predicted : Activity;
-  WHERE
-    WR1: NOT ('ACTIVITY_AS_REALIZED.ACTIVITY_ACTUAL' IN TYPEOF(predicted));
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Activity_method_arm;
-  ENTITY Activity_method;
-    name : STRING;
-    description : OPTIONAL STRING;
-    consequence : OPTIONAL STRING;
-    purpose : STRING;
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Activity_method_assignment_arm;
-  USE FROM Activity_method_arm;
-  TYPE activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
-  ENTITY Activity_method_relationship;
-    name : STRING;
-    description : OPTIONAL STRING;
-    relating_method : Activity_method;
-    related_method : Activity_method;
   END_ENTITY;
 
   ENTITY Applied_activity_method_assignment;
@@ -106,27 +231,6 @@ SCHEMA Activity_method_assignment_arm;
     items : SET [1:?] OF activity_method_item;
     role : STRING;
   END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Alias_identification_arm;
-  USE FROM Identification_assignment_arm;
-  TYPE alias_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
-  ENTITY Alias_identification
-    SUBTYPE OF (Identification_assignment);
-  DERIVE
-    SELF\Identification_assignment.role : STRING := 'alias';
-  WHERE
-    WR1: SIZEOF(QUERY(item <* SELF\Identification_assignment.items | NOT ('ALIAS_IDENTIFICATION_ARM.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item)))) = 0;
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Approval_arm;
-  USE FROM Date_time_arm;
-  USE FROM Person_organization_arm;
-  TYPE approval_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
 
   ENTITY Approval;
     status : Approval_status;
@@ -159,10 +263,20 @@ SCHEMA Approval_arm;
     role : OPTIONAL STRING;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Certification_arm;
-  TYPE certification_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
+  ENTITY Attribute_translation_assignment;
+    considered_instance : string_select;
+    considered_attribute : STRING;
+    translation_text : STRING;
+    translation_language : Language;
+  UNIQUE
+    UR1: considered_instance, considered_attribute, translation_language;
+  END_ENTITY;
+
+  ENTITY Calendar_date;
+    year_component : year_number;
+    month_component : month_in_year_number;
+    day_component : day_in_month_number;
+  END_ENTITY;
 
   ENTITY Certification;
     name : STRING;
@@ -176,8 +290,6 @@ SCHEMA Certification_arm;
     role : STRING;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Class_arm;
   ENTITY Class
     SUPERTYPE OF (ONEOF(Class_by_extension, Class_by_intension));
     id : STRING;
@@ -193,22 +305,17 @@ SCHEMA Class_arm;
     SUBTYPE OF (Class);
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Classification_assignment_arm;
-  USE FROM Class_arm;
-  TYPE classification_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
   ENTITY Classification_assignment;
     assigned_class : Class;
     items : SET [1:?] OF classification_item;
     role : OPTIONAL STRING;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Contract_arm;
-  TYPE contract_item = EXTENSIBLE SELECT;
-  END_TYPE;
+  ENTITY Context_dependent_unit
+    SUBTYPE OF (Unit);
+  WHERE
+    WR1: EXISTS(SELF\Unit.name);
+  END_ENTITY;
 
   ENTITY Contract;
     id : STRING;
@@ -221,77 +328,12 @@ SCHEMA Contract_arm;
     items : SET [1:?] OF contract_item;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Date_time_arm;
-  TYPE date_or_date_time_select = SELECT (Calendar_date, Date_time);
-  END_TYPE;
-
-  TYPE day_in_month_number = INTEGER;
-    WHERE
-      WR1: {1 <= SELF <= 31};
-  END_TYPE;
-
-  TYPE hour_in_day = INTEGER;
-    WHERE
-      WR1: {0 <= SELF < 24};
-  END_TYPE;
-
-  TYPE minute_in_hour = INTEGER;
-    WHERE
-      WR1: {0 <= SELF <= 59};
-  END_TYPE;
-
-  TYPE month_in_year_number = INTEGER;
-    WHERE
-      WR1: {1 <= SELF <= 12};
-  END_TYPE;
-
-  TYPE offset_orientation = ENUMERATION OF (ahead, exact, behind);
-  END_TYPE;
-
-  TYPE second_in_minute = REAL;
-    WHERE
-      WR1: {0 <= SELF <= 60.000000};
-  END_TYPE;
-
-  TYPE year_number = INTEGER;
-  END_TYPE;
-
-  ENTITY Calendar_date;
-    year_component : year_number;
-    month_component : month_in_year_number;
-    day_component : day_in_month_number;
-  END_ENTITY;
-
-  ENTITY Date_time;
-    date_component : Calendar_date;
-    time_component : Local_time;
-  END_ENTITY;
-
-  ENTITY Local_time;
-    hour_component : hour_in_day;
-    minute_component : OPTIONAL minute_in_hour;
-    second_component : OPTIONAL second_in_minute;
-    zone : Time_offset;
-  END_ENTITY;
-
-  ENTITY Time_offset;
-    hour_offset : INTEGER;
-    minute_offset : OPTIONAL INTEGER;
-    sense : offset_orientation;
-  DERIVE
-    actual_minute_offset : INTEGER := NVL(minute_offset, 0);
+  ENTITY Conversion_based_unit
+    SUBTYPE OF (Unit);
+    conversion_factor : Value_with_unit;
   WHERE
-    WR1: {0 <= hour_offset < 24};
-    WR2: {0 <= actual_minute_offset <= 59};
-    WR3: NOT (((hour_offset <> 0) OR (actual_minute_offset <> 0)) AND (sense = exact));
+    WR1: EXISTS(SELF\Unit.name);
   END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Date_time_assignment_arm;
-  USE FROM Date_time_arm;
-  TYPE date_or_date_time_item = EXTENSIBLE SELECT;
-  END_TYPE;
 
   ENTITY Date_or_date_time_assignment;
     assigned_date : date_or_date_time_select;
@@ -299,13 +341,35 @@ SCHEMA Date_time_assignment_arm;
     items : SET [1:?] OF date_or_date_time_item;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Event_arm;
-  USE FROM Date_time_arm;
-  USE FROM Date_time_assignment_arm;
-  USE FROM Value_with_unit_arm;
-  TYPE date_or_event = SELECT (Calendar_date, Date_time, Event);
-  END_TYPE;
+  ENTITY Date_time;
+    date_component : Calendar_date;
+    time_component : Local_time;
+  END_ENTITY;
+
+  ENTITY Derived_unit
+    SUBTYPE OF (Unit);
+    elements : SET [1:?] OF Derived_unit_element;
+  END_ENTITY;
+
+  ENTITY Derived_unit_element;
+    base_unit : Unit;
+    exponent : REAL;
+  END_ENTITY;
+
+  ENTITY Directed_activity
+    SUBTYPE OF (Activity);
+    directive : Work_order;
+  END_ENTITY;
+
+  ENTITY Duration
+    SUBTYPE OF (Value_with_unit);
+  WHERE
+    WR1: 'WORK_STRUCTURE_ARM_CC_LF.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
+  END_ENTITY;
+
+  ENTITY Electric_current_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
 
   ENTITY Event;
     id : STRING;
@@ -315,35 +379,18 @@ SCHEMA Event_arm;
     planned_start_date : OPTIONAL date_or_date_time_select;
   END_ENTITY;
 
-  ENTITY Event_relationship;
-    relation_type : STRING;
-    description : OPTIONAL STRING;
-    relating_event : Event;
-    related_event : Event;
-  END_ENTITY;
-
-  ENTITY Relative_event
-    SUBTYPE OF (Event);
-    base_event : Event;
-    offset : Duration;
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Event_assignment_arm;
-  USE FROM Event_arm;
-  TYPE event_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
   ENTITY Event_assignment;
     assigned_event : Event;
     items : SET [1:?] OF event_item;
     role : STRING;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Identification_assignment_arm;
-  TYPE identification_item = EXTENSIBLE SELECT;
-  END_TYPE;
+  ENTITY Event_relationship;
+    relation_type : STRING;
+    description : OPTIONAL STRING;
+    relating_event : Event;
+    related_event : Event;
+  END_ENTITY;
 
   ENTITY Identification_assignment;
     identifier : STRING;
@@ -352,28 +399,12 @@ SCHEMA Identification_assignment_arm;
     items : SET [1:?] OF identification_item;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Information_packet_arm;
-  USE FROM Date_time_arm;
-  USE FROM Person_organization_arm;
-  USE FROM Product_identification_arm;
-  USE FROM Product_version_arm;
-  TYPE information_packet_element = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
-  TYPE information_packet_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
-  TYPE information_packet_select = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
   ENTITY Information_packet
     SUBTYPE OF (Product);
   END_ENTITY;
 
-  ENTITY Information_packet_version
-    SUBTYPE OF (Product_version);
-    SELF\Product_version.of_product : Information_packet;
+  ENTITY Information_packet_aggregate;
+    composed_of : SET [0:?] OF information_packet_select;
   END_ENTITY;
 
   ENTITY Information_packet_definition;
@@ -396,45 +427,10 @@ SCHEMA Information_packet_arm;
     related_information_packet : Information_packet_definition;
   END_ENTITY;
 
-  ENTITY Information_packet_aggregate;
-    composed_of : SET [0:?] OF information_packet_select;
+  ENTITY Information_packet_version
+    SUBTYPE OF (Product_version);
+    SELF\Product_version.of_product : Information_packet;
   END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Management_resource_information_arm;
-  USE FROM Alias_identification_arm;
-  USE FROM Approval_arm;
-  USE FROM Certification_arm;
-  USE FROM Contract_arm;
-  USE FROM Date_time_assignment_arm;
-  USE FROM Identification_assignment_arm;
-  USE FROM Multi_linguism_arm;
-  USE FROM Person_organization_arm;
-  USE FROM Person_organization_assignment_arm;
-  USE FROM Project_arm;
-  USE FROM Security_classification_arm;
-  TYPE mri_alias_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON alias_identification_item WITH (Approval_status, Contract, Organization, Security_classification);
-  END_TYPE;
-
-  TYPE mri_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH (Certification, Contract);
-  END_TYPE;
-
-  TYPE mri_date_or_date_time_item = EXTENSIBLE SELECT BASED_ON date_or_date_time_item WITH (Certification, Contract, Organization_or_person_in_organization_assignment, Security_classification_assignment);
-  END_TYPE;
-
-  TYPE mri_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH (Approval_status, Contract, Organization, Security_classification);
-  END_TYPE;
-
-  TYPE mri_organization_or_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_or_person_in_organization_item WITH (Contract, Identification_assignment, Security_classification_assignment);
-  END_TYPE;
-
-  TYPE mri_string_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON string_select WITH (Approval, Approval_relationship, Approval_status, Certification, Contract, Date_or_date_time_assignment, Identification_assignment, Organization_relationship, Person_in_organization, Project, Project_assignment, Project_relationship);
-  END_TYPE;
-
-END_SCHEMA;
-SCHEMA Multi_linguism_arm;
-  TYPE string_select = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
 
   ENTITY Language;
     language_code : STRING;
@@ -449,71 +445,24 @@ SCHEMA Multi_linguism_arm;
     used_language : Language;
   END_ENTITY;
 
-  ENTITY Attribute_translation_assignment;
-    considered_instance : string_select;
-    considered_attribute : STRING;
-    translation_text : STRING;
-    translation_language : Language;
-  UNIQUE
-    UR1: considered_instance, considered_attribute, translation_language;
+  ENTITY Length_unit
+    SUBTYPE OF (Unit);
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Person_organization_assignment_arm;
-  USE FROM Person_organization_arm;
-  TYPE organization_or_person_in_organization_item = EXTENSIBLE SELECT;
-  END_TYPE;
-
-  ENTITY Organization_or_person_in_organization_assignment;
-    assigned_entity : organization_or_person_in_organization_select;
-    role : STRING;
-    items : SET [1:?] OF organization_or_person_in_organization_item;
+  ENTITY Local_time;
+    hour_component : hour_in_day;
+    minute_component : OPTIONAL minute_in_hour;
+    second_component : OPTIONAL second_in_minute;
+    zone : Time_offset;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Product_view_definition_arm;
-  USE FROM Product_version_arm;
-  ENTITY Product_view_definition;
-    id : STRING;
-    name : OPTIONAL STRING;
-    additional_characterization : OPTIONAL STRING;
-    initial_context : View_definition_context;
-    additional_contexts : SET [0:?] OF View_definition_context;
-    defined_version : Product_version;
-  WHERE
-    WR1: NOT (initial_context IN additional_contexts);
+  ENTITY Luminous_intensity_unit
+    SUBTYPE OF (Unit);
   END_ENTITY;
 
-  ENTITY View_definition_context;
-    application_domain : STRING;
-    life_cycle_stage : STRING;
-    description : OPTIONAL STRING;
+  ENTITY Mass_unit
+    SUBTYPE OF (Unit);
   END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Observation_arm;
-  USE FROM Activity_as_realized_arm;
-  USE FROM Classification_assignment_arm;
-  USE FROM Management_resource_information_arm;
-  USE FROM Product_as_individual_arm;
-  USE FROM Work_request_arm;
-  TYPE observation_approval = SELECT BASED_ON mri_approval_item WITH (Observation);
-  END_TYPE;
-
-  TYPE observation_classification_item = SELECT BASED_ON classification_item WITH (Observation, Observation_relationship);
-  END_TYPE;
-
-  TYPE observation_date_time = SELECT BASED_ON mri_date_or_date_time_item WITH (Observation);
-  END_TYPE;
-
-  TYPE observation_recorder = EXTENSIBLE SELECT (Product_as_realized);
-  END_TYPE;
-
-  TYPE observed_context = EXTENSIBLE SELECT;
-  END_TYPE;
-
-  TYPE observing_person = SELECT BASED_ON mri_organization_or_person_in_organization_item WITH (Observation);
-  END_TYPE;
 
   ENTITY Observation;
     id : STRING;
@@ -546,39 +495,15 @@ SCHEMA Observation_arm;
     role : STRING;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Person_organization_arm;
-  TYPE organization_or_person_in_organization_select = SELECT (Organization, Person_in_organization);
-  END_TYPE;
-
-  ENTITY Address;
-    name : OPTIONAL STRING;
-    street_number : OPTIONAL STRING;
-    street : OPTIONAL STRING;
-    postal_box : OPTIONAL STRING;
-    town : OPTIONAL STRING;
-    region : OPTIONAL STRING;
-    postal_code : OPTIONAL STRING;
-    country : OPTIONAL STRING;
-    internal_location : OPTIONAL STRING;
-    facsimile_number : OPTIONAL STRING;
-    telephone_number : OPTIONAL STRING;
-    electronic_mail_address : OPTIONAL STRING;
-    telex_number : OPTIONAL STRING;
-    url : OPTIONAL STRING;
-  WHERE
-    WR1: (EXISTS(street_number) OR EXISTS(street) OR EXISTS(postal_box) OR EXISTS(town) OR EXISTS(region) OR EXISTS(postal_code) OR EXISTS(country) OR EXISTS(internal_location) OR EXISTS(facsimile_number) OR EXISTS(telephone_number) OR EXISTS(electronic_mail_address) OR EXISTS(telex_number));
-  END_ENTITY;
-
-  ENTITY Address_assignment;
-    address_type : OPTIONAL STRING;
-    assigned_address : Address;
-    located_person_organizations : SET [1:?] OF organization_or_person_in_organization_select;
-  END_ENTITY;
-
   ENTITY Organization;
     id : OPTIONAL STRING;
     name : STRING;
+  END_ENTITY;
+
+  ENTITY Organization_or_person_in_organization_assignment;
+    assigned_entity : organization_or_person_in_organization_select;
+    role : STRING;
+    items : SET [1:?] OF organization_or_person_in_organization_item;
   END_ENTITY;
 
   ENTITY Organization_relationship;
@@ -602,15 +527,86 @@ SCHEMA Person_organization_arm;
     role : STRING;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Project_arm;
-  USE FROM Date_time_arm;
-  USE FROM Date_time_assignment_arm;
-  USE FROM Event_arm;
-  USE FROM Event_assignment_arm;
-  USE FROM Person_organization_arm;
-  TYPE project_item = EXTENSIBLE SELECT;
-  END_TYPE;
+  ENTITY Plane_angle_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Product;
+    id : STRING;
+    name : OPTIONAL STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Product_as_individual
+    SUBTYPE OF (Product);
+  END_ENTITY;
+
+  ENTITY Product_as_individual_version
+    ABSTRACT SUPERTYPE OF (ONEOF(Product_as_planned, Product_as_realized))
+    SUBTYPE OF (Product_version);
+    SELF\Product_version.of_product : Product_as_individual;
+  END_ENTITY;
+
+  ENTITY Product_as_individual_view
+    SUBTYPE OF (Product_view_definition);
+    SELF\Product_view_definition.defined_version : Product_as_individual_version;
+  END_ENTITY;
+
+  ENTITY Product_as_planned
+    SUBTYPE OF (Product_as_individual_version);
+  END_ENTITY;
+
+  ENTITY Product_as_realized
+    SUBTYPE OF (Product_as_individual_version);
+  END_ENTITY;
+
+  ENTITY Product_category;
+    id : OPTIONAL STRING;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Product_category_assignment;
+    category : Product_category;
+    products : SET [1:?] OF Product;
+  END_ENTITY;
+
+  ENTITY Product_category_hierarchy;
+    super_category : Product_category;
+    sub_category : Product_category;
+  END_ENTITY;
+
+  ENTITY Product_design_to_individual;
+    product_design : Product;
+    individual_product : Product_as_individual;
+  END_ENTITY;
+
+  ENTITY Product_design_version_to_individual;
+    product_design_version : Product_version;
+    individual_product : Product_as_individual_version;
+  END_ENTITY;
+
+  ENTITY Product_planned_to_realized;
+    planned_product : Product_as_planned;
+    realized_product : Product_as_realized;
+  END_ENTITY;
+
+  ENTITY Product_version;
+    id : STRING;
+    description : OPTIONAL STRING;
+    of_product : Product;
+  END_ENTITY;
+
+  ENTITY Product_view_definition;
+    id : STRING;
+    name : OPTIONAL STRING;
+    additional_characterization : OPTIONAL STRING;
+    initial_context : View_definition_context;
+    additional_contexts : SET [0:?] OF View_definition_context;
+    defined_version : Product_version;
+  WHERE
+    WR1: NOT (initial_context IN additional_contexts);
+  END_ENTITY;
 
   ENTITY Project;
     id : STRING;
@@ -636,107 +632,15 @@ SCHEMA Project_arm;
     related_project : Project;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Product_as_individual_arm;
-  USE FROM Identification_assignment_arm;
-  USE FROM Product_identification_arm;
-  USE FROM Product_version_arm;
-  USE FROM Product_view_definition_arm;
-  TYPE product_as_individual_identification_item = SELECT BASED_ON identification_item WITH (Product_as_individual, Product_as_individual_version, Product_as_individual_view);
-  END_TYPE;
-
-  ENTITY Product_as_individual
-    SUBTYPE OF (Product);
+  ENTITY Ratio_unit
+    SUBTYPE OF (Unit);
   END_ENTITY;
 
-  ENTITY Product_as_individual_version
-    ABSTRACT SUPERTYPE OF (ONEOF(Product_as_planned, Product_as_realized))
-    SUBTYPE OF (Product_version);
-    SELF\Product_version.of_product : Product_as_individual;
+  ENTITY Relative_event
+    SUBTYPE OF (Event);
+    base_event : Event;
+    offset : Duration;
   END_ENTITY;
-
-  ENTITY Product_as_individual_view
-    SUBTYPE OF (Product_view_definition);
-    SELF\Product_view_definition.defined_version : Product_as_individual_version;
-  END_ENTITY;
-
-  ENTITY Product_as_planned
-    SUBTYPE OF (Product_as_individual_version);
-  END_ENTITY;
-
-  ENTITY Product_as_realized
-    SUBTYPE OF (Product_as_individual_version);
-  END_ENTITY;
-
-  ENTITY Product_design_to_individual;
-    product_design : Product;
-    individual_product : Product_as_individual;
-  END_ENTITY;
-
-  ENTITY Product_design_version_to_individual;
-    product_design_version : Product_version;
-    individual_product : Product_as_individual_version;
-  END_ENTITY;
-
-  ENTITY Product_planned_to_realized;
-    planned_product : Product_as_planned;
-    realized_product : Product_as_realized;
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Product_categorization_arm;
-  ENTITY Product_category;
-    id : OPTIONAL STRING;
-    name : STRING;
-    description : OPTIONAL STRING;
-  END_ENTITY;
-
-  ENTITY Product_category_hierarchy;
-    super_category : Product_category;
-    sub_category : Product_category;
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Product_identification_arm;
-  USE FROM Product_categorization_arm;
-  ENTITY Product;
-    id : STRING;
-    name : OPTIONAL STRING;
-    description : OPTIONAL STRING;
-  END_ENTITY;
-
-  ENTITY Product_category_assignment;
-    category : Product_category;
-    products : SET [1:?] OF Product;
-  END_ENTITY;
-
-  FUNCTION types_of_product (obj : Product):SET OF STRING;
-    LOCAL
-      category_assignments : BAG OF Product_category_assignment;
-      categories : SET OF STRING := [];
-      i : INTEGER;
-    END_LOCAL;
-
-    category_assignments := USEDIN(obj, 'PRODUCT_IDENTIFICATION_ARM.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
-    REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-      categories := categories + category_assignments[i].category.name;
-    END_REPEAT;
-    RETURN (categories);
-  END_FUNCTION;
-
-END_SCHEMA;
-SCHEMA Product_version_arm;
-  USE FROM Product_identification_arm;
-  ENTITY Product_version;
-    id : STRING;
-    description : OPTIONAL STRING;
-    of_product : Product;
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Security_classification_arm;
-  TYPE security_classification_item = EXTENSIBLE SELECT;
-  END_TYPE;
 
   ENTITY Security_classification;
     classification_level : STRING;
@@ -748,86 +652,24 @@ SCHEMA Security_classification_arm;
     items : SET [1:?] OF security_classification_item;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Value_with_unit_arm;
-  TYPE any_number_value = NUMBER;
-  END_TYPE;
-
-  TYPE any_string_value = STRING;
-  END_TYPE;
-
-  TYPE length_measure = REAL;
-  END_TYPE;
-
-  TYPE measure_value = EXTENSIBLE SELECT (any_number_value, any_string_value, length_measure, plane_angle_measure);
-  END_TYPE;
-
-  TYPE plane_angle_measure = REAL;
-  END_TYPE;
-
-  ENTITY Amount_of_substance_unit
-    SUBTYPE OF (Unit);
-  END_ENTITY;
-
-  ENTITY Context_dependent_unit
-    SUBTYPE OF (Unit);
-  WHERE
-    WR1: EXISTS(SELF\Unit.name);
-  END_ENTITY;
-
-  ENTITY Conversion_based_unit
-    SUBTYPE OF (Unit);
-    conversion_factor : Value_with_unit;
-  WHERE
-    WR1: EXISTS(SELF\Unit.name);
-  END_ENTITY;
-
-  ENTITY Derived_unit
-    SUBTYPE OF (Unit);
-    elements : SET [1:?] OF Derived_unit_element;
-  END_ENTITY;
-
-  ENTITY Derived_unit_element;
-    base_unit : Unit;
-    exponent : REAL;
-  END_ENTITY;
-
-  ENTITY Duration
-    SUBTYPE OF (Value_with_unit);
-  WHERE
-    WR1: 'VALUE_WITH_UNIT_ARM.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
-  END_ENTITY;
-
-  ENTITY Electric_current_unit
-    SUBTYPE OF (Unit);
-  END_ENTITY;
-
-  ENTITY Length_unit
-    SUBTYPE OF (Unit);
-  END_ENTITY;
-
-  ENTITY Luminous_intensity_unit
-    SUBTYPE OF (Unit);
-  END_ENTITY;
-
-  ENTITY Mass_unit
-    SUBTYPE OF (Unit);
-  END_ENTITY;
-
-  ENTITY Plane_angle_unit
-    SUBTYPE OF (Unit);
-  END_ENTITY;
-
-  ENTITY Ratio_unit
-    SUBTYPE OF (Unit);
-  END_ENTITY;
-
   ENTITY Solid_angle_unit
     SUBTYPE OF (Unit);
   END_ENTITY;
 
   ENTITY Thermodynamic_temperature_unit
     SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Time_offset;
+    hour_offset : INTEGER;
+    minute_offset : OPTIONAL INTEGER;
+    sense : offset_orientation;
+  DERIVE
+    actual_minute_offset : INTEGER := NVL(minute_offset, 0);
+  WHERE
+    WR1: {0 <= hour_offset < 24};
+    WR2: {0 <= actual_minute_offset <= 59};
+    WR3: NOT (((hour_offset <> 0) OR (actual_minute_offset <> 0)) AND (sense = exact));
   END_ENTITY;
 
   ENTITY Time_unit
@@ -851,13 +693,14 @@ SCHEMA Value_with_unit_arm;
     value_component : measure_value;
   END_ENTITY;
 
-END_SCHEMA;
-SCHEMA Work_order_arm;
-  USE FROM Activity_arm;
-  USE FROM Work_request_arm;
-  ENTITY Directed_activity
-    SUBTYPE OF (Activity);
-    directive : Work_order;
+  ENTITY View_definition_context;
+    application_domain : STRING;
+    life_cycle_stage : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Work_information_packet
+    SUBTYPE OF (Information_packet_definition);
   END_ENTITY;
 
   ENTITY Work_order;
@@ -865,20 +708,6 @@ SCHEMA Work_order_arm;
     description : OPTIONAL STRING;
     in_response_to : SET [0:?] OF Work_request;
   END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Work_output_arm;
-  USE FROM Activity_method_assignment_arm;
-  USE FROM Classification_assignment_arm;
-  USE FROM Value_with_unit_arm;
-  TYPE work_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
-
-  TYPE work_output_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH (Work_output, Work_output_assignment, Work_output_relationship);
-  END_TYPE;
-
-  TYPE work_output_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-  END_TYPE;
 
   ENTITY Work_output;
     name : STRING;
@@ -897,23 +726,6 @@ SCHEMA Work_output_arm;
     description : OPTIONAL STRING;
     relating : Work_output;
     related : Work_output;
-  END_ENTITY;
-
-END_SCHEMA;
-SCHEMA Work_request_arm;
-  USE FROM Activity_method_arm;
-  TYPE affected_item_select = EXTENSIBLE SELECT;
-  END_TYPE;
-
-  ENTITY Activity_method_assignment;
-    relation_type : STRING;
-    assigned_method : Activity_method;
-    associated_request : Work_request;
-  END_ENTITY;
-
-  ENTITY Affected_items_assignment;
-    assigned_work_request : Work_request;
-    items : SET [1:?] OF affected_item_select;
   END_ENTITY;
 
   ENTITY Work_request;

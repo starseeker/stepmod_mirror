@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.16 2002/07/05 11:10:27 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,7 +12,7 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.16"
+    version="1.22"
     source="../data/modules/document_assignment/mim.exp"/>
 
   <schema name="Document_assignment_mim">
@@ -49,7 +49,8 @@
 
     <type name="document_reference_item">
       <select
-        extensible="YES">
+        extensible="YES"
+        genericentity="YES">
       </select>
 
     </type>
@@ -87,6 +88,18 @@
       <where
         label="WR1"
         expression="SELF\document_product_association.name = 'equivalence'">
+      </where>
+      <where
+        label="WR2"
+        expression="NOT('DOCUMENT_ASSIGNMENT_MIM.PRODUCT' IN TYPEOF(SELF\document_product_association.related_product))    OR ((SELF\document_product_association.relating_document.kind. product_data_type = 'configuration controlled document')    AND (SIZEOF( QUERY( prpc &lt;* USEDIN(SELF\document_product_association.related_product,'DOCUMENT_ASSIGNMENT_MIM.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |    prpc.name = 'document' )) = 1))">
+      </where>
+      <where
+        label="WR3"
+        expression="NOT('DOCUMENT_ASSIGNMENT_MIM.PRODUCT_DEFINITION_FORMATION' IN TYPEOF(SELF.related_product))    OR ((SELF\document_product_association.relating_document.kind.product_data_type = 'configuration controlled document version')    AND (SIZEOF( QUERY( prpc &lt;* USEDIN(SELF.related_product\product_definition_formation.of_product, 'DOCUMENT_ASSIGNMENT_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |    prpc.name = 'document')) = 1))">
+      </where>
+      <where
+        label="WR4"
+        expression="NOT('DOCUMENT_ASSIGNMENT_MIM.PRODUCT_DEFINITION' IN TYPEOF(SELF.related_product))    OR ((SELF\document_product_association.relating_document.kind.product_data_type = 'configuration controlled document definition')    AND (SIZEOF( QUERY( prpc &lt;* USEDIN(SELF\document_product_association.related_product\product_definition.formation.of_product, 'DOCUMENT_ASSIGNMENT_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |   prpc.name = 'document' )) = 1))">
       </where>
     </entity>
 

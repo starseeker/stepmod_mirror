@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.154 2003/07/30 06:58:05 robbod Exp $
+$Id: module.xsl,v 1.155 2003/08/06 06:40:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -622,29 +622,37 @@ o=isocs; s=central<br/>
 
 
 <xsl:template match="keywords">
+  <xsl:if test="contains(.,'STEP')">
+    <xsl:call-template name="error_message">
+      <xsl:with-param name="inline" select="'yes'"/>
+      <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+      <xsl:with-param 
+        name="message" 
+        select="'Error key1: Do not include STEP as a keyword.'"/>
+    </xsl:call-template>    
+  </xsl:if>    
+
+  <xsl:if test="contains(.,'10303')">
+    <xsl:call-template name="error_message">
+      <xsl:with-param name="inline" select="'yes'"/>
+      <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+      <xsl:with-param 
+        name="message" 
+          select="'Error key1: Do not include ISO 103030 as a keyword.'"/>
+    </xsl:call-template>    
+  </xsl:if>
+
   <xsl:variable name="keywords1">
-    <xsl:if test="not(contains(.,'STEP'))">
-      STEP, 
-    </xsl:if>    
-  </xsl:variable>
-
-  <xsl:variable name="keywords2">
-    <xsl:if test="not(contains(.,'10303'))">
-      ISO 10303,  
-    </xsl:if>
-  </xsl:variable>
-
-  <xsl:variable name="keywords3">
     <xsl:if test="not(contains(.,'module'))">
       module, 
     </xsl:if>
   </xsl:variable>
 
-  <xsl:variable name="keywords4">
+  <xsl:variable name="keywords2">
     <xsl:value-of select="."/>
   </xsl:variable>
 
-  <xsl:value-of select="normalize-space(concat($keywords1, $keywords2, $keywords3, $keywords4))"/>
+  <xsl:value-of select="normalize-space(concat($keywords1, $keywords2))"/>
 </xsl:template>
 
 <!-- Outputs the foreword -->

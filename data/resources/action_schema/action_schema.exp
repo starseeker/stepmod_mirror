@@ -131,4 +131,55 @@ ENTITY versioned_action_request_relationship;
   related_versioned_action_request : versioned_action_request;
 END_ENTITY;
 
+FUNCTION acyclic_action_method_relationship (relation : action_method_relationship; relatives : SET [1:?] OF action_method; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF action_method_relationship;
+    END_LOCAL;
+
+    IF relation.relating_method IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(am <* bag_to_set(USEDIN(relation.relating_method, 'ACTION_SCHEMA.' + 'ACTION_METHOD_RELATIONSHIP.' + 'RELATED_METHOD')) | specific_relation IN TYPEOF(am));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_action_method_relationship(x[i], relatives + relation.relating_method, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
+  FUNCTION acyclic_action_relationship (relation : action_relationship; relatives : SET [1:?] OF action; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF action_relationship;
+    END_LOCAL;
+
+    IF relation.relating_action IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(actn <* bag_to_set(USEDIN(relation.relating_action, 'ACTION_SCHEMA.' + 'ACTION_RELATIONSHIP.' + 'RELATED_ACTION')) | specific_relation IN TYPEOF(actn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_action_relationship(x[i], relatives + relation.relating_action, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
+  FUNCTION acyclic_action_resource_relationship (relation : action_resource_relationship; relatives : SET [1:?] OF action_resource; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF action_resource_relationship;
+    END_LOCAL;
+
+    IF relation.relating_resource IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(ar <* bag_to_set(USEDIN(relation.relating_resource, 'ACTION_SCHEMA.' + 'ACTION_RESOURCE_RELATIONSHIP.' + 'RELATED_RESOURCE')) | specific_relation IN TYPEOF(ar));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_action_resource_relationship(x[i], relatives + relation.relating_resource, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
 END_SCHEMA;  -- action_schema

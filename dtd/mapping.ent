@@ -1,5 +1,5 @@
 <!--
-     $Id: mapping.ent,v 1.12 2002/07/13 22:51:16 robbod Exp $
+     $Id: mapping.ent,v 1.13 2002/07/29 15:16:29 robbod Exp $
                                                                    -->
 
 <!--                    Mapping specification markup
@@ -19,17 +19,17 @@
 
 <!--                    mapping specification row                  -->
 <!--                    express_ref must contain a rule name       -->
-<!ENTITY % mapping     "alt?, description?, aimelt?, source?, express_ref*, refpath?" >
+<!ENTITY % mapping     "alt?, description?, aimelt?, source?, rules?, express_ref*, refpath?" >
 
 
 <!--                    A mapping table                            -->
-<!ELEMENT  mapping_table (ae+)                                       >
+<!ELEMENT  mapping_table (ae+,sc*)                                       >
 
 <!--                    application entity                         -->
 <!ELEMENT  ae           (%mapping;, alt_map*, aa*)                             >
 <!ATTLIST  ae
              entity     NMTOKEN                            #REQUIRED 
-    	     extensible (YES | NO) "NO"
+    	       extensible (YES | NO) "NO"
              original_module NMTOKEN                      #IMPLIED> 
 
 
@@ -69,6 +69,35 @@
 <!ELEMENT  refpath      (#PCDATA)*                     >
 <!ATTLIST  refpath
              xml:space  (preserve)                 #FIXED "preserve" >
+<!--                    reference path                             -->
+
+<!--                    mapping specification row                  -->
+<!ENTITY % scmapping     "(description?,(constraint|rules),source)"
+>
+
+
+
+<!--                    subtype constraint                     -->
+<!--                    not sure if original_module attr needed.   -->
+<!ELEMENT  sc           (%scmapping;| alt_scmap+)                             >
+<!ATTLIST  sc
+             constraint      NMTOKEN                      #REQUIRED 
+             original_module NMTOKEN                      #IMPLIED> 
+
+
+<!--                    rules for mapping subtype_constraint       -->
+<!ELEMENT rules (express_ref+)
+>
+
+<!--                    constraint for mapping subtype_constraint  -->
+<!ELEMENT constraint (express_ref+)
+>
+
+<!--                 alternative mapping  for subtype_constraint   -->
+<!ELEMENT  alt_scmap          %scmapping;                    >
+<!ATTLIST  alt_scmap
+             id            CDATA                         #IMPLIED  
+             alt_scmap.inc   CDATA                         #IMPLIED  >
 
 
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.71 2002/10/01 17:02:41 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.72 2002/10/04 07:05:56 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -940,8 +940,7 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
     <xsl:apply-templates select="." mode="expressg_icon"/>
-    <xsl:if test="substring($schema_name, string-length($schema_name)-3)=
-'_arm'">
+    <xsl:if test="substring($schema_name, string-length($schema_name)-3)='_arm'">
 
       <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
       <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
@@ -1574,6 +1573,17 @@
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
+		<xsl:if test="substring($schema_name, string-length($schema_name)-3)='_arm'">
+      <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+      <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+      <xsl:variable name="sc_map_aname"
+        select="translate(concat('scconstraint',@name),$UPPER,$LOWER)"/>
+
+      <xsl:variable name="maphref" 
+        select="concat('./5_mapping',$FILE_EXT,'#',$sc_map_aname)"/>
+      &#160;<a href="{$maphref}"><img align="middle" border="0" 
+          alt="Mapping table" src="../../../../images/mapping.gif"/></a>
+    </xsl:if>
   </h3>
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.49 2002/10/03 15:39:04 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -117,6 +117,7 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
   <a name="mappings"/>
   <xsl:apply-templates select="./mapping_table" mode="check_all_arm_mapped"/>
   <xsl:apply-templates select="./mapping_table/ae" mode="specification"/>
+  <xsl:apply-templates select="./mapping_table/sc" mode="specification"/>
 </xsl:template>
 
 
@@ -272,22 +273,19 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
       <tr valign="top">
         <td valign="top">=&gt;</td>
         <td valign="top">
-          entity is a supertype of the entity given in the
-          following row;
+          entity is a supertype of the entity given in the following row;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">&lt;=</td>
         <td valign="top">
-          entity is a subtype of the entity given in the following
-          row;
+          entity is a subtype of the entity given in the following row;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">=</td>
         <td valign="top">
-          the string, select, or enumeration type is constrained to
-          a choice or value;
+          the string, select, or enumeration type is constrained to a choice or value;
         </td>
       </tr>
       <tr valign="top">
@@ -307,8 +305,7 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
       <tr valign="top">
         <td valign="top">--</td>
         <td valign="top">
-          the text following is a comment or introduces a clause
-          reference;
+          the text following is a comment or introduces a clause reference;
         </td>
       </tr>
       <tr valign="top">
@@ -447,6 +444,7 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
       </xsl:apply-templates>
     </xsl:if>
   </h3>
+<!--  <xsl:apply-templates select="." mode="output_mapping"/> -->
 
   <!-- output any issues against the mapping -->
   <xsl:apply-templates select="."  mode="output_mapping_issue"/>
@@ -456,7 +454,7 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
       <xsl:call-template name="error_message">
         <xsl:with-param name="message"
           select="concat('Error m1a: The module specified in the
-@orginal_module attribute (', @original_module,
+@original_module attribute (', @original_module,
                   ') does not exist in stepmod/repository_index.xml')"/>
       </xsl:call-template>
     </xsl:when>
@@ -472,20 +470,15 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
   <!-- original_module specified then the ARM object is declared in
        another module -->
   <xsl:if test="@original_module">
-
     <!-- get the URL of the mapping -->
     <xsl:variable name="map_xref"
       select="translate(concat('../../',@original_module,'/sys/5_mapping',$FILE_EXT,'#aeentity',@entity),$UPPER,$LOWER)"/>
 
     <p>
-      This application object,
+      This application object,  
       <a href="{$ae_xref}">
-        <xsl:value-of select="@entity"/>
-      </a>,
-      is defined in the module
-      <a href="{$ae_xref}">
-        <xsl:value-of select="@original_module"/>
-      </a>.
+        <xsl:value-of select="@entity"/></a>, is defined in the module
+      <a href="{$ae_xref}"><xsl:value-of select="@original_module"/></a>.
       This mapping section extends the 
       <a href="{$map_xref}"> mapping of <xsl:value-of select="@entity"/></a>,
       to include assertions defined in this module.  
@@ -494,9 +487,7 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
 
   <xsl:if test="@extensible='YES'">
     This section specifies the mapping of the entity 
-    <a href="{$ae_xref}">
-      <xsl:value-of select="@entity"/>
-    </a>
+    <a href="{$ae_xref}"><xsl:value-of select="@entity"/></a>
     for the case where it maps onto the resource entity 
     <xsl:value-of select="./aimelt"/>.    
     Depending on the extensions of the Select
@@ -527,8 +518,7 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
       </xsl:choose>
       <xsl:value-of select="translate($nselects,': ',', ')"/>
     </xsl:if>
-    this mapping may be superseded in the
-    application modules that define these extensions. 
+    this mapping may be superseded in the application modules that define these extensions. 
   </xsl:if>
 
   <xsl:apply-templates select="./alt" mode="specification"/>
@@ -558,7 +548,6 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
     <xsl:value-of select="concat($ext_select,': ')"/>
   </xsl:if>
 </xsl:template>
-
 
 
 <xsl:template match="aa" mode="specification">
@@ -709,21 +698,13 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
         </xsl:variable>
         
         <xsl:value-of select="concat($sect_no,' ')"/>
-        <a href="{$ae_xref}">
-          <xsl:value-of select="../@entity"/>
-        </a>
-        to 
-        <xsl:value-of select="@assertion_to"/>
-        (as             
-        <a href="{$aa_xref}">
-          <xsl:value-of select="@attribute"/>
-        </a>)
+        <a href="{$ae_xref}"><xsl:value-of select="../@entity"/></a>
+        to <xsl:value-of select="@assertion_to"/>
+        (as <a href="{$aa_xref}"><xsl:value-of select="@attribute"/></a>)
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat($sect_no,' ')"/>
-        <a href="{$aa_xref}">
-          <xsl:value-of select="@attribute"/>
-        </a>
+        <a href="{$aa_xref}"><xsl:value-of select="@attribute"/></a>
       </xsl:otherwise>
     </xsl:choose>
 
@@ -755,7 +736,6 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
       <xsl:apply-templates select="." mode="output_mapping"/>
     </xsl:otherwise>
   </xsl:choose>
-
 </xsl:template>
 
 
@@ -819,7 +799,6 @@ $Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
       <xsl:with-param name="string" select="string(.)"/>
     </xsl:call-template>
   </xsl:variable>
-
 
   <xsl:if test="string-length($str)>0">
     <tr valign="top">
@@ -893,10 +872,10 @@ the mapping specification')"/>
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match="ae|aa" mode="output_id_description">
+<xsl:template match="ae|aa|sc" mode="output_id_description">
   <p/>
-  <xsl:apply-templates select="./description"/>
-  <p/>
+	<xsl:apply-templates select="./description"/>
+	<p/>
 </xsl:template>
 
 
@@ -911,15 +890,12 @@ the mapping specification')"/>
   </table>  
 </xsl:template>
 
+
 <!-- 
      ************************************************************
      Error checking 
      ************************************************************
 -->
-
-
-
-
 
 <!-- to be done -->
 <xsl:template name="check_ref_path_line"/>
@@ -1011,19 +987,183 @@ the mapping specification')"/>
   <xsl:value-of select="translate(concat('aeentity',@entity),$UPPER,$LOWER)"/>
 </xsl:template>
 
-
 <!-- give the A NAME for the mapping of the entity attribute in sect 5 -->
 <xsl:template match="aa" mode="map_attr_aname">
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:value-of
-    select="translate(concat('aeentity',../@entity,'aaattribute',@attribute),
-            $UPPER,$LOWER)"/>
+    select="translate(concat('aeentity',../@entity,'aaattribute',@attribute),$UPPER,$LOWER)"/>
   <xsl:if test="@assertion_to">
     <xsl:value-of
       select="translate(concat('assertion_to',@assertion_to),$UPPER,$LOWER)"/>
   </xsl:if>
 </xsl:template>
 
+<!-- TEH added to support mapping of subtype constraints -->
+
+<xsl:template match="sc" mode="specification">
+  <xsl:variable name="sect_no"><xsl:number/>
+  </xsl:variable>
+
+  <xsl:variable name="schema_name">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in another module -->
+      <xsl:when test="../@original_module">
+        <xsl:call-template name="schema_name">
+          <xsl:with-param name="module_name" select="@original_module"/>
+          <xsl:with-param name="arm_mim" select="'arm'"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="schema_name">
+          <xsl:with-param name="module_name" select="../../../module/@name"/>
+          <xsl:with-param name="arm_mim" select="'arm'"/>
+        </xsl:call-template>        
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="sc_aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@constraint"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="sc_xref">
+    <xsl:choose>
+      <!-- if original_module specified then the ARM object is declared in another module -->
+      <xsl:when test="@original_module">
+        <xsl:value-of 
+          select="concat('../../',@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$sc_aname)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of 
+          select="concat('./4_info_reqs',$FILE_EXT,'#',$sc_aname)"/>        
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+
+  <xsl:variable name="module_dir">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in another module -->
+      <xsl:when test="@original_module">
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="../../../module/@name"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="module_ok">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in another module -->
+      <xsl:when test="@original_module">
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="../../../module/@name"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable> <!-- module_ok -->
+
+
+  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+  <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+  <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+
+  <xsl:variable name="sc" select="@constraint"/>
+  <xsl:variable name="arm_constraint"  select="string(@constraint)"/>
+
+  <xsl:variable name="sc_map_aname">
+    <xsl:apply-templates select="." mode="map_attr_aname"/>  
+  </xsl:variable>
+
+  <xsl:variable name="sc_count" select="count(//sc)" />
+
+  <h3>
+    <a name="{$sc_map_aname}">
+      <xsl:value-of select="concat('5.1.',$sc_count + $sect_no,' ')"/></a>
+    <a href="{$sc_xref}"><xsl:value-of select="$sc"/></a>
+  </h3>
+
+  <!-- output any issues against the mapping -->
+  <!-- commmented out below because it is not found 
+  <xsl:apply-templates select="."  mode="output_mapping_issue"/>
+-->
+  <xsl:choose>
+    <xsl:when test="$module_ok != 'true'">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message"
+          select="concat('Error m1a: The module specified in the
+@original_module attribute (', @original_module,') does not exist in stepmod/repository_index.xml')"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:when test="not(document($arm_xml)/express/schema/subtype.constraint[@name=$arm_constraint])">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message"
+          select="concat('Error m1: The subtype constraint ', $arm_constraint, 
+                  ' does not exist in the arm (',$arm_xml,')')"/>
+      </xsl:call-template>
+    </xsl:when>
+  </xsl:choose>
+  
+  <!-- original_module specified then the ARM object is declared in another module -->
+  <xsl:if test="@original_module">
+
+    <!-- get the URL of the mapping -->
+    <xsl:variable name="map_xref"
+      select="translate(concat('../../',@original_module,'/sys/5_mapping',$FILE_EXT,'#scconstraint',@constraint),$UPPER,$LOWER)"/>
+
+    <p>The subtype constraint 
+      <a href="{$sc_xref}"><xsl:value-of select="@constraint"/></a> is defined in the module
+      <a href="{$sc_xref}"><xsl:value-of select="@original_module"/></a>.
+    </p>
+  </xsl:if>
+
+  <xsl:choose>
+    <xsl:when test="./alt_scmap">
+      <!-- can either have a set of alternatives or one mapping -->
+      <xsl:apply-templates select="./alt_scmap" mode="output_mapping"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="." mode="output_mapping"/>
+    </xsl:otherwise>
+  </xsl:choose>
+
+</xsl:template>
+
+<!-- This is the main template to output the mapping specification -->
+<xsl:template match="sc|alt_scmap" mode="output_mapping">
+  <table>
+    <xsl:apply-templates select="./rules"  mode="specification"/>
+    <xsl:apply-templates select="./constraint"  mode="specification"/>
+    <xsl:apply-templates select="./source"  mode="specification"/>
+  </table>  
+</xsl:template>
+
+<xsl:template match="constraint" mode="specification">
+  <xsl:apply-templates select="." mode="check_aimelt"/>
+  <tr valign="top">
+    <td>Constraint:</td>
+    <td>
+      <xsl:call-template name="output_string_with_linebreaks">
+        <xsl:with-param name="string" select="string(.)"/>
+      </xsl:call-template>
+    </td>
+  </tr>
+</xsl:template>
+
+<!-- end of added to support mapping of subtype constraints -->
 
 </xsl:stylesheet>

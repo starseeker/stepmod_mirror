@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_modindex.xsl,v 1.6 2003/10/17 15:11:10 robbod Exp $
+$Id: sect_modindex.xsl,v 1.7 2003/10/28 06:36:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -53,6 +53,9 @@ $Id: sect_modindex.xsl,v 1.6 2003/10/17 15:11:10 robbod Exp $
   <xsl:variable name="mim_xml"
     select="document(concat($module_dir,'/mim.xml'))"/>
 
+  <xsl:variable name="module_xml"
+    select="document(concat($module_dir,'/module.xml'))"/>
+
   <xsl:variable name="definition_section">
     <xsl:apply-templates select="." mode="get_definition_section"/>
   </xsl:variable>
@@ -62,7 +65,10 @@ $Id: sect_modindex.xsl,v 1.6 2003/10/17 15:11:10 robbod Exp $
       <xsl:with-param name="definition_section" select="$definition_section"/>
     </xsl:apply-templates>
     <xsl:apply-templates select="$arm_xml/express/schema/*" mode="get_arm_interface_object"/>
-    <xsl:apply-templates select="$arm_xml/express/schema/*" mode="get_arm_object"/>
+    <xsl:apply-templates select="$arm_xml/express/schema/*" mode="get_arm_object"/>    
+    <xsl:apply-templates select="mapping_table/ae" mode="get_arm_object">
+      <xsl:with-param name="arm_xml" select="$arm_xml" />
+    </xsl:apply-templates>
     <xsl:apply-templates select="$arm_xml/express/schema/*" mode="get_arm_entity"/>
     <xsl:apply-templates select="$mim_xml/express/schema/*" mode="get_mim_interface_object"/>
     <xsl:apply-templates select="$mim_xml/express/schema/*" mode="get_mim_object"/>
@@ -218,7 +224,6 @@ $Id: sect_modindex.xsl,v 1.6 2003/10/17 15:11:10 robbod Exp $
   </arm_object>
 </xsl:template>
 
-
 <xsl:template
   match="entity"
   mode="get_arm_object">
@@ -303,6 +308,48 @@ $Id: sect_modindex.xsl,v 1.6 2003/10/17 15:11:10 robbod Exp $
   </arm_entity>
 </xsl:template>
 
+<xsl:template
+  match="ae"
+  mode="get_arm_object">
+  <xsl:param name="arm_xml"/>
+
+  <xsl:variable name="name" select="@entity"/>
+
+  <xsl:if test="not($arm_xml/express/schema/entity[@name=$name])">
+    
+  <arm_entity>
+
+    <xsl:attribute name="name">
+      <xsl:value-of select="$name"/>
+    </xsl:attribute>
+
+    <xsl:variable name="lentity"
+      select="translate(normalize-space(@name),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/> 
+
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="../../@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="module" select="document(concat($module_dir,'/module.xml'))"/>
+
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="map_aname">
+          <xsl:value-of select="translate(concat('aeentity',@entity),$UPPER,$LOWER)"/>
+    </xsl:variable>
+
+    <xsl:attribute name="map_href">
+      <xsl:value-of select="concat('5_mapping',$FILE_EXT,'#',$map_aname)"/>
+    </xsl:attribute>
+
+    <xsl:attribute name="map_clause_no">
+      <xsl:apply-templates select="$module//ae[@entity=$name]|$module//sc[@constraint=$name]" mode="clause_no"/>
+    </xsl:attribute>
+  </arm_entity>
+</xsl:if>
+</xsl:template>
 
 <xsl:template
   match="constant|entity|type|rule|function|procedure|subtype.constraint"
@@ -444,18 +491,23 @@ $Id: sect_modindex.xsl,v 1.6 2003/10/17 15:11:10 robbod Exp $
   <xsl:variable name="expg_figure" select="@expg_figure"/>
   <xsl:variable name="map_href" select="@map_href"/>
   <xsl:variable name="map_clause_no" select="@map_clause_no"/>
+  <xsl:if test="$clause_no">
+    
   <div>
     &#160;&#160;&#160;ARM object definition
     <a href="{$object_href}">
       <xsl:value-of select="$clause_no"/>
     </a>
   </div>
+  </xsl:if>
+  <xsl:if test="$expg_figure">
   <div>
     &#160;&#160;&#160;ARM EXPRESS-G
     <a href="{$expg_href}">
       <xsl:value-of select="$expg_figure"/>
     </a>
   </div>
+  </xsl:if>
   <div>
     &#160;&#160;&#160;mapping specification
     <a href="{$map_href}">

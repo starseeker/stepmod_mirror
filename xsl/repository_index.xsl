@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.14 2002/07/16 07:42:51 goset1 Exp $
+     $Id: repository_index.xsl,v 1.15 2002/07/30 14:43:17 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -109,18 +109,16 @@
 <xsl:template match="module" mode="col1">
   <xsl:param name="mid_point"/>
   <xsl:if test="not(position()>$mid_point)">
-    <!--
-     <xsl:apply-templates select="." mode="output"/> -->
-    <xsl:apply-templates select="." mode="output_mod_part_nos"/>
+     <xsl:apply-templates select="." mode="output"/> 
+     <!-- <xsl:apply-templates select="." mode="output_mod_part_nos"/> -->
   </xsl:if>
 </xsl:template>
 
 <xsl:template match="module" mode="col2">
   <xsl:param name="mid_point"/>
   <xsl:if test="position()>$mid_point">
-    <xsl:apply-templates select="." mode="output_mod_part_nos"/>
-    <!--
-    <xsl:apply-templates select="."  mode="output"/>  -->
+    <!-- <xsl:apply-templates select="." mode="output_mod_part_nos"/>  -->
+    <xsl:apply-templates select="."  mode="output"/> 
   </xsl:if>
 </xsl:template>
 

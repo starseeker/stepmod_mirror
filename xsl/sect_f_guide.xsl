@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
+$Id: sect_f_guide.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -21,7 +21,14 @@ $Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-sect_f_guide.xsl TO BE DONE
+  <xsl:call-template name="annex_header">
+    <xsl:with-param name="annex_no" select="'F'"/>
+    <xsl:with-param name="heading" 
+      select="'Application module implementation guide'"/>
+    <xsl:with-param name="aname" select="'annexf'"/>
+  </xsl:call-template>
+
+  <xsl:apply-templates select="usage_guide"/>
 </xsl:template>
-  
+
 </xsl:stylesheet>

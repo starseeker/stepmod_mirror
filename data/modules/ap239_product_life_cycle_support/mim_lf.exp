@@ -1,5 +1,5 @@
 (*
- $Id: mim_lf.exp,v 1.6 2003/12/29 10:17:56 robbod Exp $
+ $Id: mim_lf.exp,v 1.7 2004/01/29 08:18:26 robbod Exp $
  ISO TC184/SC4/WG3 N1240 - ISO/CD-TS 10303-439 Ap239 product life cycle support - EXPRESS MIM Long form
 *)
 
@@ -6295,33 +6295,6 @@ RULE coordinated_assembly_and_shape FOR (next_assembly_usage_occurrence);
 WHERE
   WR1 : SIZEOF(QUERY(nauo <* next_assembly_usage_occurrence | NOT 
     assembly_shape_is_defined(nauo))) = 0;
-END_RULE;
- 
-RULE part_requires_id_owner FOR (product);
-LOCAL
-  parts : SET OF product := [];
-END_LOCAL;
-  parts := QUERY(prod <* product | SIZEOF(['part', 'raw material', 'tool'] * 
-  categories_of_product(prod)) > 0);
-WHERE
-  WR1 : SIZEOF(QUERY(prod <* parts | SIZEOF(QUERY(apoa <* USEDIN(prod, 
-    'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF.APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS'
-    ) | apoa\person_and_organization_assignment.role.name = 'id owner')) + 
-    SIZEOF(QUERY(oa <* USEDIN(prod, 
-    'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF.APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS'
-    ) | oa\organization_assignment.role.name = 'id owner')) <> 1)) = 0;
-END_RULE;
- 
-RULE part_requires_version FOR (product);
-LOCAL
-  parts : SET OF product := [];
-END_LOCAL;
-  parts := QUERY(prod <* product | SIZEOF(['part', 'raw material', 'tool'] * 
-  categories_of_product(prod)) > 0);
-WHERE
-  WR1 : SIZEOF(QUERY(prod <* parts | SIZEOF(USEDIN(prod, 
-    'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF.PRODUCT_DEFINITION_FORMATION.OF_PRODUCT'
-    )) = 0)) = 0;
 END_RULE;
  
 RULE product_requires_category FOR (product);

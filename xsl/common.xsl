@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.90 2003/04/23 14:33:19 robbod Exp $
+$Id: common.xsl,v 1.91 2003/04/25 06:51:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1332,7 +1332,7 @@ $Id: common.xsl,v 1.90 2003/04/23 14:33:19 robbod Exp $
       name="nlinkend"
       select="translate(@linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
 
-    <xsl:variable name="module">
+    <xsl:variable name="module_sect">
       <xsl:choose>
         <xsl:when test="contains($nlinkend,':')">
           <xsl:value-of select="substring-before($nlinkend,':')"/>
@@ -1341,6 +1341,12 @@ $Id: common.xsl,v 1.90 2003/04/23 14:33:19 robbod Exp $
           <xsl:value-of select="$nlinkend"/>
         </xsl:otherwise>
       </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="module">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$module_sect"/>
+      </xsl:call-template>
     </xsl:variable>
 
     <xsl:variable

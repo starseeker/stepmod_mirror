@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.19 2003/02/26 02:05:18 thendrix Exp $
+$Id: resource.xsl,v 1.20 2003/02/26 21:47:08 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1104,6 +1104,14 @@ defined in annex D of ISO 10303-11.
           <xsl:value-of select="position()"/>
         </xsl:variable>
 
+        <xsl:variable name="rel_clauseno">
+          <xsl:value-of select="'1'"/>
+        </xsl:variable>
+
+        <xsl:variable name="img_count">
+          <xsl:value-of select="count(../imgfile)"/>
+        </xsl:variable>
+
         <xsl:variable name="resource_dir">
           <xsl:call-template name="resource_directory">
             <xsl:with-param name="resource" select="$schema"/>
@@ -1125,8 +1133,19 @@ defined in annex D of ISO 10303-11.
 
        <li>
           <a href="{$schema_url}">
-            <xsl:value-of select="concat('Figure D.',$clauseno,' Entity level diagram of ', $schema)"/>
+            <xsl:value-of 
+              select="concat('Figure D.',$clauseno, 
+                      ' &#8212; EXPRESS-G diagram of the ', $schema, ' (', $rel_clauseno,' of ', $img_count, ')' )" />
+
           </a>
+      <xsl:choose>
+        <xsl:when test="position()!=last()">
+          <xsl:value-of select="';'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'.'"/>        
+        </xsl:otherwise>
+      </xsl:choose>
       </li>
     </xsl:for-each>
     </ul>

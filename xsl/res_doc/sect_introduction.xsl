@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.2 2003/01/31 07:40:27 nigelshaw Exp $
+$Id: sect_introduction.xsl,v 1.3 2003/02/26 02:05:17 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -149,6 +149,14 @@ $Id: sect_introduction.xsl,v 1.2 2003/01/31 07:40:27 nigelshaw Exp $
 				<li>
 				<xsl:value-of select="." /> is found in
 				<xsl:apply-templates select="." mode="reference" />
+                                  <xsl:choose>
+                                    <xsl:when test="position()!=last()">
+                                      <xsl:value-of select="';'"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                      <xsl:value-of select="'.'"/>        
+                                    </xsl:otherwise>
+                                  </xsl:choose>
 				</li>
 			    </xsl:for-each>
 			</ul>

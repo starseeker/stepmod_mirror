@@ -1,23 +1,26 @@
 (* 
-   $Id: arm.exp,v 1.5 2002/12/05 13:05:28 goset1 Exp $
+   $Id: arm.exp,v 1.6 2003/01/08 12:51:32 rugarcia Exp $
    ISO/TC184/SC4 WG12N1738 - ISO/CD-TS 10303-1110 Surface_conditions - Express ARM 
 *)
 
 SCHEMA Surface_conditions_arm;
 
+USE FROM Construction_geometry_arm;
+
+USE FROM Dimension_tolerance_arm;
+
+USE FROM Document_and_version_identification_arm;
+
 USE FROM Extended_measure_representation_arm;
 
 USE FROM Measure_representation_arm;
 
-USE FROM Construction_geometry_arm;
+USE FROM Material_aspects_arm;
+
+USE FROM Product_view_definition_arm;
 
 USE FROM Shape_property_assignment_arm;
 
-USE FROM Product_identification_arm;
-
-USE FROM Product_version_arm;
-
-USE FROM Product_view_definition_arm;
 
  TYPE shaped_element_select = SELECT
       (Shape_element,Item_shape);
@@ -27,10 +30,18 @@ USE FROM Product_view_definition_arm;
       (Surface_texture);
  END_TYPE;
 
+ ENTITY Coating_layer
+ SUBTYPE OF (Shape_element);
+ INVERSE
+   thickness : SET[0:1] OF Thickness_dimension FOR Size_dimension.applied_to;
+ WHERE
+ WR1: SIZEOF(USEDIN(SELF, 'SURFACE_CONDITIONS_ARM.MATERIAL_IDENTIFICATION.ITEMS))=1;
+ END_ENTITY;
+
  ENTITY Contact_ratio
   SUBTYPE OF (Surface_condition);
   ratio_value : Measure_item;
-  measuring_gauge : Physical_model;
+  measuring_gauge : Physical_model_representation;
  END_ENTITY;
 
  ENTITY Hardness
@@ -41,6 +52,20 @@ USE FROM Product_view_definition_arm;
   measuring_position : OPTIONAL STRING;
   hardness_value : Measure_item;
   depth : OPTIONAL Measure_item;
+ END_ENTITY;
+
+ ENTITY Physical_model
+  SUBTYPE OF (Document);
+ END_ENTITY;
+
+ ENTITY Physical_model_version
+  SUBTYPE OF (Document_version);
+  SELF\Product_version.of_product: Physical_model;
+ END_ENTITY;
+
+ ENTITY Physical_model_representation
+  SUBTYPE OF (Product_view_definition);
+  SELF\Product_view_definition.defined_version : Physical_model_version;
  END_ENTITY;
 
  ENTITY Surface_condition
@@ -92,20 +117,6 @@ USE FROM Product_view_definition_arm;
   name : OPTIONAL STRING;
   pattern : OPTIONAL STRING;
   colour_name : OPTIONAL STRING;
- END_ENTITY;
-
- ENTITY Physical_model
-  SUBTYPE OF (Product);
- END_ENTITY;
-
- ENTITY Physical_model_version
-  SUBTYPE OF (Product_version);
-  SELF\Product_version.of_product : Physical_model;
- END_ENTITY;
-
- ENTITY Physical_model_representation
-  SUBTYPE OF (Product_view_definition);
-  SELF\Product_view_definition.defined_version : Physical_model_version;
  END_ENTITY;
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $ -->
+<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,10 +12,25 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.25"
+    version="1.26"
     source="../data/modules/surface_conditions/arm.exp"/>
 
   <schema name="Surface_conditions_arm">
+    <interface
+      kind="use"
+      schema="Construction_geometry_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Dimension_tolerance_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Document_and_version_identification_arm">
+    </interface>
+
     <interface
       kind="use"
       schema="Extended_measure_representation_arm">
@@ -28,27 +43,17 @@
 
     <interface
       kind="use"
-      schema="Construction_geometry_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Shape_property_assignment_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Product_identification_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Product_version_arm">
+      schema="Material_aspects_arm">
     </interface>
 
     <interface
       kind="use"
       schema="Product_view_definition_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Shape_property_assignment_arm">
     </interface>
 
     <type name="shaped_element_select">
@@ -64,6 +69,24 @@
 
     </type>
     <entity
+      name="Coating_layer"
+      supertypes="Shape_element">
+      <inverse
+        name="thickness"
+        entity="Thickness_dimension"
+        attribute="Size_dimension.applied_to">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <where
+        label="WR1"
+        expression="SIZEOF(USEDIN(SELF, 'SURFACE_CONDITIONS_ARM.MATERIAL_IDENTIFICATION.ITEMS))=1">
+      </where>
+    </entity>
+
+    <entity
       name="Contact_ratio"
       supertypes="Surface_condition">
       <explicit
@@ -74,7 +97,7 @@
       <explicit
         name="measuring_gauge">
         <typename
-          name="Physical_model"/>
+          name="Physical_model_representation"/>
       </explicit>
     </entity>
 
@@ -121,182 +144,13 @@
     </entity>
 
     <entity
-      name="Surface_condition"
-      abstract.supertype="YES"
-      super.expression="(ONEOF(Contact_ratio,Hardness,Tactile_appearance,                         Treatment_result,Visual_appearance,Surface_texture))">
-      <explicit
-        name="value_determination"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Surface_condition_association">
-      <explicit
-        name="describing_surface_condition">
-        <typename
-          name="Surface_condition"/>
-      </explicit>
-      <explicit
-        name="described_element">
-        <typename
-          name="shaped_element_select"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Surface_texture"
-      supertypes="Surface_condition">
-      <explicit
-        name="measuring_method">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="measuring_direction"
-        optional="YES">
-        <typename
-          name="Measurement_path"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Surface_texture_parameter">
-      <explicit
-        name="parameter_value">
-        <typename
-          name="Measure_item"/>
-      </explicit>
-      <explicit
-        name="parameter_name">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="described_texture">
-        <typename
-          name="texture_select"/>
-      </explicit>
-      <explicit
-        name="parameter_index"
-        optional="YES">
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Tactile_appearance"
-      supertypes="Surface_condition">
-      <explicit
-        name="id"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="name"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="depth"
-        optional="YES">
-        <typename
-          name="Measure_item"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Treatment_result"
-      supertypes="Surface_condition">
-      <explicit
-        name="id"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="name"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="description">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="purpose"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Visual_appearance"
-      supertypes="Surface_condition">
-      <explicit
-        name="colour_id">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="lustre">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="transparency"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="id"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="name"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="pattern"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="colour_name"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
-    <entity
       name="Physical_model"
-      supertypes="Product">
+      supertypes="Document">
     </entity>
 
     <entity
       name="Physical_model_version"
-      supertypes="Product_version">
+      supertypes="Document_version">
       <explicit
         name="of_product">
         <redeclaration
@@ -315,6 +169,175 @@
             entity-ref="Product_view_definition"/>
             <typename
               name="Physical_model_version"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Surface_condition"
+          abstract.supertype="YES"
+          super.expression="(ONEOF(Contact_ratio,Hardness,Tactile_appearance,                         Treatment_result,Visual_appearance,Surface_texture))">
+          <explicit
+            name="value_determination"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Surface_condition_association">
+          <explicit
+            name="describing_surface_condition">
+            <typename
+              name="Surface_condition"/>
+          </explicit>
+          <explicit
+            name="described_element">
+            <typename
+              name="shaped_element_select"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Surface_texture"
+          supertypes="Surface_condition">
+          <explicit
+            name="measuring_method">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="measuring_direction"
+            optional="YES">
+            <typename
+              name="Measurement_path"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Surface_texture_parameter">
+          <explicit
+            name="parameter_value">
+            <typename
+              name="Measure_item"/>
+          </explicit>
+          <explicit
+            name="parameter_name">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="described_texture">
+            <typename
+              name="texture_select"/>
+          </explicit>
+          <explicit
+            name="parameter_index"
+            optional="YES">
+            <builtintype
+              type="INTEGER"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Tactile_appearance"
+          supertypes="Surface_condition">
+          <explicit
+            name="id"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="name"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="depth"
+            optional="YES">
+            <typename
+              name="Measure_item"/>
+          </explicit>
+          <explicit
+            name="description"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Treatment_result"
+          supertypes="Surface_condition">
+          <explicit
+            name="id"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="name"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="description">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="purpose"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Visual_appearance"
+          supertypes="Surface_condition">
+          <explicit
+            name="colour_id">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="lustre">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="transparency"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="id"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="name"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="pattern"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <explicit
+            name="colour_name"
+            optional="YES">
+            <builtintype
+              type="STRING"/>
           </explicit>
         </entity>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->
+<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,10 +12,25 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.22"
+    version="1.26"
     source="../data/modules/surface_conditions/mim.exp"/>
 
   <schema name="Surface_conditions_mim">
+    <interface
+      kind="use"
+      schema="Construction_geometry_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Dimension_tolerance_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Document_and_version_identification_mim">
+    </interface>
+
     <interface
       kind="use"
       schema="Extended_measure_representation_mim">
@@ -28,7 +43,12 @@
 
     <interface
       kind="use"
-      schema="Elemental_geometric_shape_mim">
+      schema="Material_aspects_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Product_view_definition_mim">
     </interface>
 
     <interface
@@ -51,10 +71,10 @@
     </interface>
 
     <interface
-      kind="use"
-      schema="representation_schema">
+      kind="reference"
+      schema="Single_part_representation_mim">
       <interfaced.item
-        name="representation"/>
+        name="categories_of_product"/>
     </interface>
 
     <entity
@@ -100,6 +120,19 @@
       <where
         label="WR6"
         expression="( SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr     &lt;* USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa &lt;* USEDIN (     pdr. definition ,     'SURFACE_CONDITIONS_MIM.'+'GENERAL_PROPERTY_ASSOCIATION.'+     'DERIVED_DEFINITION' ) | ( 'SURFACE_CONDITIONS_MIM.'+     'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND     ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )     ) =1 ) ">
+      </where>
+    </entity>
+
+    <entity
+      name="physically_modelled_product_definition"
+      supertypes="product_definition">
+      <where
+        label="WR1"
+        expression="SELF.frame_of_reference\application_context_element.name = 'physical model occurrence'">
+      </where>
+      <where
+        label="WR2"
+        expression="'document' IN categories_of_product(SELF\product_definition.formation.of_product)">
       </where>
     </entity>
 
@@ -222,19 +255,42 @@ END_CASE;
       name="restrict_treatment_result"
       appliesto="representation">
       <algorithm>
+LOCAL
+  treatment_results: SET OF representation := [];
+END_LOCAL;
+  treatment_results:= QUERY( r &lt;* representation | 
+		(r.name = 'treatment result') );
       </algorithm>
 
       <where
         label="WR1"
-        expression="(SIZEOF( QUERY( r &lt;* representation | 	(r.name = 'treatment result') AND (SIZEOF(r.items) &gt; 2) )) = 0) AND	 (SIZEOF( QUERY( r &lt;* representation | (r.name = 'treatment result') AND	 (SIZEOF( QUERY( i &lt;* r.items | 	NOT ('SURFACE_CONDITIONS_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) &gt; 0) )) = 0)">
+        expression="(SIZEOF( QUERY( r &lt;* treatment_results | (SIZEOF(r.items) &gt; 2) )) = 0) AND     (SIZEOF( QUERY( r &lt;* treatment_results |	 (SIZEOF( QUERY( i &lt;* r.items | 	NOT ('SURFACE_CONDITIONS_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) &gt; 0) )) 	= 0)">
       </where>
       <where
         label="WR2"
-        expression="SIZEOF( QUERY( r &lt;* representation | 	(r.name = 'treatment result') AND (SIZEOF( QUERY( i &lt;* r.items | i.name = 'result' )) = 0) )) = 0">
+        expression="SIZEOF( QUERY( r &lt;* treatment_results | 	(SIZEOF( QUERY( i &lt;* r.items | i.name = 'result' )) = 0) )) = 0">
       </where>
       <where
         label="WR3"
-        expression="SIZEOF( QUERY( r &lt;* representation | 	(r.name = 'treatment result') AND (SIZEOF( QUERY( i &lt;* r.items | i.name = 'purpose' )) &gt; 1) )) = 0">
+        expression="SIZEOF( QUERY( r &lt;* treatment_results | 	(SIZEOF( QUERY( i &lt;* r.items | i.name = 'purpose' )) &gt; 1) )) = 0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="material_for_coating_layer"
+      appliesto="shape_aspect">
+      <algorithm>
+LOCAL
+  coating_layers: SET OF shape_aspect := [];
+END_LOCAL;
+  coating_layers:= QUERY( r &lt;* shape_aspect | 
+		(r.name = 'coating layer') );
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF( QUERY( r &lt;* coating_layers |	SIZEOF(USEDIN(r , 'SURFACE_CONDITIONS_MIM.MATERIAL_DESIGNATION.DEFINITIONS'))&lt;&gt;1	)) = 0">
       </where>
 
     </rule>

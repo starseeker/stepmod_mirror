@@ -4,12 +4,13 @@ SCHEMA Shape_property_assignment_arm;
 
 USE FROM Elemental_geometric_shape_arm;
 
+USE FROM External_model_arm;
+
 USE FROM Foundation_representation_arm;
 
 USE FROM Product_view_definition_arm;
 
 USE FROM Product_view_definition_relationship_arm;
-
 
 TYPE shapeable_item = EXTENSIBLE SELECT 
   (Characterizable_object,
@@ -20,21 +21,45 @@ END_TYPE;
 TYPE shape_dependent_select = SELECT (Item_shape, Shape_element);
 END_TYPE;
 
+TYPE shape_model = SELECT (Geometric_model, External_geometric_model);
+END_TYPE;
+
 TYPE shape_select = SELECT 
   (Item_shape,
    Shape_element,
    Shape_element_relationship);
 END_TYPE;
 
-ENTITY Item_shape
+ENTITY Characterizable_object;
+  name : STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Contextual_item_shape
+SUBTYPE OF (Item_shape);
+  SELF\Item_shape.described_element	: View_definition_usage;
+DERIVE
+  shaped_product : Product_view_definition := View_definition_usage\View_definition_relationship.related_view;
+END_ENTITY;
+
+ENTITY Item_shape;
   described_element: shapeable_item ;
   description : OPTIONAL STRING;
   id  : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY Characterizable_object;
-  name : STRING;
-  description : OPTIONAL STRING;
+ENTITY Shape_dependent_property_representation;
+  described_element : shape_dependent_select;
+  property_representation : Representation;
+  characteristic_type : STRING;
+  description: OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Shape_description_association;
+  represented_characteristic : shape_select;
+  representation : shape_model;
+  role : OPTIONAL STRING;
+  description: OPTIONAL STRING;
 END_ENTITY;
 
 ENTITY Shape_element;
@@ -49,20 +74,6 @@ ENTITY Shape_element_relationship;
   relating : Shape_element;
   relation_type : STRING;
   description : OPTIONAL STRING;
-END_ENTITY;
-
-ENTITY Shape_dependent_property_representation;
-  characterized_item : shape_dependent_select;
-  shape_characteristic : Representation;
-  characteristic_type : STRING;
-  description: OPTIONAL STRING;
-END_ENTITY;
-
-ENTITY Shape_description_association;
-  represented_characteristic : shape_select;
-  representation : Geometric_model;
-  role : OPTIONAL STRING;
-  description: OPTIONAL STRING;
 END_ENTITY;
 
 END_SCHEMA;

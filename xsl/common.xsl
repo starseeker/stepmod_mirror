@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.95 2003/05/28 09:28:42 robbod Exp $
+$Id: common.xsl,v 1.96 2003/06/06 16:46:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2762,9 +2762,9 @@ is case sensitive.')"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:message>
+    <!--    <xsl:message>
       mb:<xsl:value-of select="$rel_menubar_file"/>
-    </xsl:message>
+    </xsl:message>  -->
     <!-- no idea why I need to force a string here -->
     <xsl:apply-templates
       select="document(string($rel_menubar_file))/menubar">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_arm_expg.xsl,v 1.6 2002/04/29 13:41:48 robbod Exp $
+$Id: sect_c_arm_expg.xsl,v 1.7 2002/06/06 09:22:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -45,7 +45,7 @@ $Id: sect_c_arm_expg.xsl,v 1.6 2002/04/29 13:41:48 robbod Exp $
       the ARM schema of this application module, through USE FROM statements;
     </li> 
     <li>
-      an entity level representation which presents the Express constructs
+      an entity level representation which presents the EXPRESS constructs
       defined in the ARM schema of this application module and the
       references to imported constructs that are specialized or referred to
       by the constructs of the ARM schema of this application module.

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.94 2003/05/27 08:04:12 robbod Exp $
+$Id: common.xsl,v 1.95 2003/05/28 09:28:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2163,11 +2163,11 @@ $Id: common.xsl,v 1.94 2003/05/27 08:04:12 robbod Exp $
       <xsl:when test="string-length($application_protocol/@part)>0">
         <xsl:value-of select="$application_protocol/@part"/>
       </xsl:when>
-        <xsl:otherwise>
-          &lt;part&gt;
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
+      <xsl:otherwise>
+        &lt;part&gt;
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
 
    <xsl:variable name="status">
     <xsl:choose>
@@ -2275,6 +2275,22 @@ $Id: common.xsl,v 1.94 2003/05/27 08:04:12 robbod Exp $
 
 </xsl:template>
 
+<!-- e.g. ISO 10303-203 -->
+<xsl:template name="get_protocol_iso_number">
+  <xsl:param name="application_protocol"/>
+  <xsl:variable name="part">
+    <xsl:choose>
+      <xsl:when test="string-length($application_protocol/@part)>0">
+        <xsl:value-of select="$application_protocol/@part"/>
+      </xsl:when>
+      <xsl:otherwise>
+        XXXX
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:value-of select="concat('ISO&#160;10303-',$part)"/>
+</xsl:template>
+
 <xsl:template name="get_protocol_pageheader">
   <xsl:param name="application_protocol"/>
   <xsl:variable name="part">
@@ -2362,6 +2378,7 @@ $Id: common.xsl,v 1.94 2003/05/27 08:04:12 robbod Exp $
   </xsl:variable>
   <xsl:value-of select="concat('ISO/',$status,'&#160;10303-',$part)"/>
 </xsl:template>
+
 
 
 <xsl:template name="get_module_wg_group">
@@ -2745,7 +2762,9 @@ is case sensitive.')"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-
+    <xsl:message>
+      mb:<xsl:value-of select="$rel_menubar_file"/>
+    </xsl:message>
     <!-- no idea why I need to force a string here -->
     <xsl:apply-templates
       select="document(string($rel_menubar_file))/menubar">
@@ -3116,7 +3135,7 @@ is case sensitive.')"/>
          This only happens in the mapping tables when and ARM object is
          being remapped from another module. -->
     <xsl:param name="original_schema"/>
-    
+   xxxxxx 
     <xsl:variable name="schema">
       <xsl:choose>
         <!-- original_module specified then the ARM object is declared in

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.12 2004/09/29 13:41:43 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.13 2004/11/01 15:38:33 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -59,7 +59,6 @@
   </xsl:apply-templates>
 </xsl:template>
 
-
 <xsl:template match="bibitem">
   <!-- the value from which to start the counting. -->
   <xsl:param name="number_start" select="0"/>
@@ -81,7 +80,10 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  <p>
+  <xsl:variable name="frag" select="concat('bibitem_',@id)" />
+  <p>        
+  <A NAME="{$frag}"/>
+
     [<xsl:value-of select="$number_start+$number"/>] 
 	<!--	<xsl:apply-templates select="orgname"/> 
     <xsl:apply-templates select="orgname"/>   -->
@@ -100,7 +102,6 @@
   <xsl:variable name="ref" select="@ref"/>
   <xsl:variable name="bibitem" 
     select="document('../../data/basic/bibliography.xml')/bibitem.list/bibitem[@id=$ref]"/>
-  
   <xsl:choose>
     <xsl:when test="$bibitem">
       <xsl:apply-templates select="$bibitem">

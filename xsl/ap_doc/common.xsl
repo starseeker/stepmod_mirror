@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.36 2004/12/29 13:13:30 robbod Exp $
+$Id: common.xsl,v 1.37 2004/12/29 14:40:33 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -314,57 +314,57 @@ $Id: common.xsl,v 1.36 2004/12/29 13:13:30 robbod Exp $
 
 
 	<xsl:template name="ap_expressg_icon">
-		<xsl:param name="schema"/>
-		<xsl:param name="entity"/>
-		<xsl:param name="module_root" select="'..'"/>
-		<xsl:param name="mod"/>
-		<xsl:variable name="href_expg">
-			<xsl:choose>
-				<xsl:when test="$entity">
-					<xsl:choose>
-						<xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
-							<xsl:choose>
-								<xsl:when test="./graphic.element/@page">
-									<xsl:value-of select="concat('../../modules/', $mod, '/armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
-			      </xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="concat('../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
-								</xsl:otherwise>
-							</xsl:choose>
-						</xsl:when>
-						<xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
-							<xsl:choose>
-								<xsl:when test="./graphic.element/@page">
-									<xsl:value-of select="concat('../../modules/', $mod, '/mimexpg',./graphic.element/@page,$FILE_EXT)"/>
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="concat('../../modules/', $mod, '/mimexpg1', $FILE_EXT)"/>
-								</xsl:otherwise>
-							</xsl:choose>
-						</xsl:when>
-					</xsl:choose>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:choose>
-						<xsl:when test="substring($schema, string-length($schema)-3)='_arm'">
-							<xsl:value-of select="concat	($module_root,'/../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
-						</xsl:when>
-						<xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
-							<xsl:value-of select="concat	($module_root,'/../../modules/', $mod, '/mimexpg1', $FILE_EXT)"/>
-						</xsl:when>
-					</xsl:choose>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
-		&#160;&#160;
-		<a href="{$href_expg}">
-			<img align="middle" border="0" alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
-		</a>
+	  <xsl:param name="schema"/>
+	  <xsl:param name="entity"/>
+	  <xsl:param name="module_root" select="'..'"/>
+	  <xsl:param name="mod"/>
+	  <xsl:variable name="href_expg">
+	    <xsl:choose>
+	      <xsl:when test="$entity">
+		<xsl:choose>
+		  <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
+		    <xsl:choose>
+		      <xsl:when test="./graphic.element/@page">
+			<xsl:value-of select="concat('../../modules/', $mod, '/armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
+		      </xsl:when>
+		      <xsl:otherwise>
+			<xsl:value-of select="concat('../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
+		      </xsl:otherwise>
+		    </xsl:choose>
+		  </xsl:when>
+		  <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
+		    <xsl:choose>
+		      <xsl:when test="./graphic.element/@page">
+			<xsl:value-of select="concat('../../modules/', $mod, '/mimexpg',./graphic.element/@page,$FILE_EXT)"/>
+		      </xsl:when>
+		      <xsl:otherwise>
+			<xsl:value-of select="concat('../../modules/', $mod, '/mimexpg1', $FILE_EXT)"/>
+		      </xsl:otherwise>
+		    </xsl:choose>
+		  </xsl:when>
+		</xsl:choose>
+	      </xsl:when>
+	      <xsl:otherwise>
+		<xsl:choose>
+		  <xsl:when test="substring($schema, string-length($schema)-3)='_arm'">
+		    <xsl:value-of select="concat	($module_root,'/../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
+		  </xsl:when>
+		  <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
+		    <xsl:value-of select="concat	($module_root,'/../../modules/', $mod, '/mimexpg1', $FILE_EXT)"/>
+		  </xsl:when>
+		</xsl:choose>
+	      </xsl:otherwise>
+	    </xsl:choose>
+	  </xsl:variable>
+	  &#160;&#160;
+	  <a href="{$href_expg}">
+	    <img align="middle" border="0" alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
+	  </a>
 	</xsl:template>
 
-<!-- test the WG number. 
-     return a string containing Error if incorrect
-     
+	<!-- test the WG number. 
+	     return a string containing Error if incorrect
+	     
      -->
 <xsl:template name="test_wg_number">
   <xsl:param name="wgnumber"/>
@@ -599,7 +599,7 @@ $Id: common.xsl,v 1.36 2004/12/29 13:13:30 robbod Exp $
   <xsl:variable name="pos"
     select="string-length(translate(substring-before($annex_list,$annex),concat($UPPER,$LOWER),''))"/>
 
-  <xsl:value-of select="substring('GHIJK',$pos,1)"/> 
+  <xsl:value-of select="substring('GHIJKL',$pos,1)"/> 
 </xsl:template>
 
 <xsl:template match="application_protocol" mode="table_count_cc">
@@ -737,6 +737,8 @@ $Id: common.xsl,v 1.36 2004/12/29 13:13:30 robbod Exp $
       <xsl:apply-templates select="." mode="annex_list"/>
     </xsl:variable>
 
+ 
+
     <!-- remove all whitespace -->
     <xsl:variable
       name="nlinkend"
@@ -764,11 +766,13 @@ $Id: common.xsl,v 1.36 2004/12/29 13:13:30 robbod Exp $
                        or $section_tmp='conformance'
                        or $section_tmp='imp_meths'
                        or $section_tmp='usage_guide'
+                       or $section_tmp='change_detail'
                        or $section_tmp='tech_disc'
                        or $section_tmp='express_arm_lf'
                        or $section_tmp='express_mim_lf'
                        or $section_tmp='mim_short_names'
-                       or $section_tmp='object_registration'">
+                       or $section_tmp='object_registration'
+                       or $section_tmp='bibliography'">
           <xsl:value-of select="$section_tmp"/>
         </xsl:when>
         <xsl:otherwise>
@@ -818,7 +822,8 @@ $Id: common.xsl,v 1.36 2004/12/29 13:13:30 robbod Exp $
                         or $construct_tmp='note'
                         or $construct_tmp='figure'
                         or $construct_tmp='table'
-                        or $construct_tmp='cc'">
+                        or $construct_tmp='cc'
+                        or $construct_tmp='bibitem'">
           <xsl:choose>
             <!-- test that an id has been given -->
             <xsl:when test="$id!=''">
@@ -1073,10 +1078,103 @@ $Id: common.xsl,v 1.36 2004/12/29 13:13:30 robbod Exp $
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+
+
+      <xsl:when test="$section='bibliography'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="biblio{$FILE_EXT}{$construct}">
+	    <xsl:apply-templates select="." mode="bibitem">
+	      <xsl:with-param name="id" select="$id"/>
+	    </xsl:apply-templates></a>
+          </xsl:when>
+          <xsl:otherwise>
+            the Bibliography <a href="biblio{$FILE_EXT}"></a> 
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
     </xsl:choose>
   </xsl:template>
 
 
+  <xsl:template match="clause_ref" mode="bibitem">
+    <xsl:param name="id" />
+    <!-- output the defaults -->
+  <xsl:choose>
+    <xsl:when test="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc[@ref=$id]">
+    [ <xsl:value-of select="count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc[@ref=$id])"/>]
+    </xsl:when>
+    <xsl:when test="/application_protocol/bibliography/bibitem.inc[@ref=$id]">
+  [<xsl:value-of 
+    select="count(/application_protocol/bibliography/bibitem.inc[@ref=$id]/preceding-sibling::*) + count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc) + 1"/>]
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:variable name="err">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message"
+          select="concat('Error 14: Can not find bibitem referenced by: ',$id,
+                  ' in ../../data/basic/ap_doc/bibliography_default.xml or in bibliography')"/>
+      </xsl:call-template>
+      </xsl:variable>
+      <xsl:value-of select="$err"/>
+    </xsl:otherwise>
+  </xsl:choose>
+
+
+    <xsl:apply-templates 
+	select="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc"/>
+
+    <!-- 
+	 count how many bitiem.incs are in
+	 ../data/basic/bibliography_default.xml 
+	 and start the numbering of the bibitem from there
+    -->
+    <xsl:variable name="bibitem_inc_cnt" 
+		  select="count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc)"/>
+
+    <xsl:apply-templates select="./bibitem">
+      <xsl:with-param name="number_start" select="$bibitem_inc_cnt"/>
+    </xsl:apply-templates>
+
+    <!-- 
+	 count how many bitiem.incs are in the current document add that to
+	 the default bibitem.inc and bibitem in current document and start
+	 counting from there
+    -->
+    <xsl:variable name="bibitem_cnt" 
+		  select="count(./bibitem)+$bibitem_inc_cnt"/>
+
+    <xsl:apply-templates select="./bibitem.inc">
+      <xsl:with-param name="number_start" select="$bibitem_cnt"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+
+  <xsl:template match="bibitem" mode="number">
+    <!-- the value from which to start the counting. -->
+    <xsl:param name="number_start" select="0"/>
+
+    <!-- 
+	 the value to be used for the number. This is used if the bibitem
+	 is being displayed from a bibitem.inc
+    -->
+    <xsl:param name="number_inc" select="0"/>
+
+    <xsl:variable name="number">
+      <!-- if the number is provided, use it, else count -->
+      <xsl:choose>
+	<xsl:when test="$number_inc>0">
+	  <xsl:value-of select="$number_inc"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:number count="bibitem"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$number"/>
+  </xsl:template>
 
   <xsl:template match="annex_clause">
     <xsl:variable name="title" select="@title"/>

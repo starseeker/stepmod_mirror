@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.21 2003/04/17 12:30:43 robbod Exp $
+$Id: modules_list.xsl,v 1.22 2004/02/06 13:50:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -446,7 +446,7 @@ $Id: modules_list.xsl,v 1.21 2003/04/17 12:30:43 robbod Exp $
         <img src="{$image_root}/minus.gif" alt="Close menu" 
           border="false" align="middle"/>    
       </a>
-      <a href="{$imp_form}" target="content">Implementation forms</a>
+      <a href="{$imp_form}" target="content">Implementation methods</a>
     </p>
     
     <p class="menuitem2">
@@ -461,7 +461,7 @@ $Id: modules_list.xsl,v 1.21 2003/04/17 12:30:43 robbod Exp $
           <img src="{$image_root}/plus.gif" alt="Open menu" 
             border="false" align="middle"/> 
         </a>
-        <a href="{$imp_form}" target="content">Implementation forms</a>
+        <a href="{$imp_form}" target="content">Implementation methods</a>
       </p>
     </div>
 </xsl:template>

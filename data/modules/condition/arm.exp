@@ -1,44 +1,50 @@
 (*
-$Id: arm.exp,v 1.4 2003/02/28 00:55:28 shiangyulee Exp $
+  $Id: arm.exp,v 1.10 2003/03/06 11:37:13 leifgyllstrom Exp $
 ISO TC184/SC4/WG12 N1427 - ISO/CD-TS 10303-1253 Condition - EXPRESS ARM
-*) 
+*)
 
-SCHEMA Condition_arm; 
+SCHEMA Condition_arm;
 
-USE FROM Date_time_assignment_arm;    -- ISO/TS 10303-1014
+USE FROM Classification_assignment_arm;
 
-USE FROM Expressions_for_logic_arm;    -- ISO/WD 10303-1271
+TYPE condition_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+(Condition,
+ Condition_assignment,
+ Condition_relationship);
+END_TYPE;
 
-USE FROM Identification_assignment_arm;    -- ISO/TS 10303-1021
+TYPE condition_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
 
-USE FROM Person_organization_assignment_arm;    -- ISO/TS 10303-1013
+TYPE expression_type = STRING;
+END_TYPE;
 
+TYPE operator_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+(expression_type);
+END_TYPE;
 
-TYPE associated_date_time = SELECT BASED_ON date_or_date_time_item WITH 
-   (Condition, 
-    Condition_relationship);
-END_TYPE; 
+TYPE parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+(Condition_relationship);
+END_TYPE;
 
-TYPE associated_organization_or_person = SELECT BASED_ON organization_or_person_in_organization_item WITH 
-   (Condition, 
-    Condition_relationship);
-END_TYPE; 
+ENTITY Condition;
+name : STRING;
+description : OPTIONAL STRING;
+operator : operator_item;
+parameter : OPTIONAL LIST [0 : ?] OF parameter_item;
+END_ENTITY;
 
-TYPE identification = SELECT BASED_ON identification_item WITH 
-   (Condition);
-END_TYPE; 
-
-ENTITY Condition
-  SUBTYPE OF (Logical_expression);
-  descriptive_definition : OPTIONAL STRING;
-  title : STRING;
+ENTITY Condition_assignment;
+assigned_condition : Condition;
+item : condition_item;
 END_ENTITY;
 
 ENTITY Condition_relationship;
-  description : OPTIONAL STRING;
-  label : STRING;
-  related : Condition;
-  relating : Condition;
+name : STRING;
+description : OPTIONAL STRING;
+operator : operator_item;
+relating_condition : Condition;
+related_condition : Condition;
 END_ENTITY;
 
-END_SCHEMA;  -- Condition_arm
+END_SCHEMA;

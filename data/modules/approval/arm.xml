@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.0"
+    source="../data/modules/approval/arm.exp"/>
+
+  <schema name="Approval_arm">
+    <interface
+      kind="use"
+      schema="Date_time_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Person_organisation_arm">
+    </interface>
+
+    <entity
+      name="Approval">
+      <explicit
+        name="approver"
+        optional="YES">
+        <typename
+          name="organisation_or_person_in_organisation_select"/>
+      </explicit>
+      <explicit
+        name="discipline"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="planned_date"
+        optional="YES">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="effective_date"
+        optional="YES">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="purpose"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(EXISTS (approver) OR         EXISTS (discipline))">
+      </where>
+      <where
+        label="WR2"
+        expression="SELF.status IN ['approved', 'dissaproved', 'withdrawn', 'not yet approved']">
+      </where>
+      <where
+        label="WR3"
+        expression="NOT (SELF.status IN ['approved', 'dissaproved', 'withdrawn'] AND (NOT EXISTS(SELF.effective_date)))">
+      </where>
+    </entity>
+
+    <entity
+      name="Approval_assignment">
+      <explicit
+        name="assigned_approval">
+        <typename
+          name="Approval"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="approval_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Approval_relationship">
+      <explicit
+        name="relation_type"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="approval1">
+        <typename
+          name="Approval"/>
+      </explicit>
+      <explicit
+        name="approval2">
+        <typename
+          name="Approval"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

@@ -10525,34 +10525,34 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             select="concat('../../data/modules/',translate(substring-before($this-schema,'_mim'),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'/')"/>
 
           <!-- get the express refs from the mim -->
-          <xsl:apply-templates select="$mim-node//express_ref" mode="schema_name">
+          <xsl:apply-templates select="$mim-node//express_ref|$mim-node//module_ref" mode="schema_name">
             <xsl:with-param name="done" select="$done"/>
           </xsl:apply-templates>
           <xsl:if test="$mim-node/@description.file">
             <xsl:variable name="mim_descriptions"
-              select="concat($module_dir,$mim-node/@description.file)"/>
+              select="document(concat($module_dir,$mim-node/@description.file))"/>
 
-            <xsl:apply-templates select="document($mim_descriptions)//express_ref" mode="schema_name">
+            <xsl:apply-templates select="$mim_descriptions//express_ref|$mim_descriptions//module_ref" mode="schema_name">
               <xsl:with-param name="done" select="$done"/>
             </xsl:apply-templates>
           </xsl:if>
 
           <!-- get the express refs from the arm -->
           <xsl:variable name="arm-node" select="document(concat($module_dir,'arm.xml'))/express"/>
-          <xsl:apply-templates select="$arm-node//express_ref" mode="schema_name">
+          <xsl:apply-templates select="$arm-node//express_ref|$arm-node//module_ref" mode="schema_name">
             <xsl:with-param name="done" select="$done"/>
           </xsl:apply-templates>
           <xsl:if test="$arm-node/@description.file">
             <xsl:variable name="arm_descriptions"
-              select="concat($module_dir,$arm-node/@description.file)"/>
-            <xsl:apply-templates select="document($arm_descriptions)//express_ref" mode="schema_name">
+              select="document(concat($module_dir,$arm-node/@description.file))"/>
+            <xsl:apply-templates select="$arm_descriptions//express_ref|$arm_descriptions//module_ref" mode="schema_name">
               <xsl:with-param name="done" select="$done"/>
             </xsl:apply-templates>
           </xsl:if>
 
           <!-- get the express refs from the module -->
           <xsl:variable name="module-node" select="document(concat($module_dir,'module.xml'))"/>
-          <xsl:apply-templates select="$module-node//express_ref" mode="schema_name">
+          <xsl:apply-templates select="$module-node//express_ref|$module-node//module_ref" mode="schema_name">
             <xsl:with-param name="done" select="$done"/>
           </xsl:apply-templates>
         </xsl:if>        
@@ -10578,6 +10578,10 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   <xsl:if test="not(contains($done,$schema))">
     <xsl:value-of select="$schema"/> 
   </xsl:if>
+</xsl:template>
+
+<xsl:template match="module_ref" mode="schema_name">
+  <xsl:value-of select="concat(normalize-space(substring-before(@linkend,':')),'_mim ')"/>
 </xsl:template>
 
 <xsl:template match="express_ref" mode="schema_name">

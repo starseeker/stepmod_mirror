@@ -2,7 +2,7 @@
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 <!--
-$Id: document_xsl.xsl,v 1.3 2002/09/03 10:37:56 nigelshaw Exp $
+$Id: document_xsl.xsl,v 1.7 2003/07/08 18:06:40 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
      Purpose: To display the import/includes in stylesheets
@@ -15,14 +15,20 @@ $Id: document_xsl.xsl,v 1.3 2002/09/03 10:37:56 nigelshaw Exp $
 
 <xsl:template match="/">
   <html><body>
+  <xsl:apply-templates select="comment()" mode="date"/>
     <h1>
       Stylesheet Module Structure</h1>
+
     <h2>Included stylesheets</h2>
     <ul>
     <xsl:apply-templates select="*/xsl:include | */xsl:import"/>
     </ul>
+
+
+    <xsl:if test="*/xsl:template">      
     <hr/>
     <h2>Templates</h2>
+
     <ul>
       <xsl:apply-templates select="*/xsl:template[@match]">
         <xsl:sort select="./@match"/>
@@ -31,7 +37,38 @@ $Id: document_xsl.xsl,v 1.3 2002/09/03 10:37:56 nigelshaw Exp $
       <xsl:apply-templates select="*/xsl:template[@name]">
         <xsl:sort select="./@name"/>
       </xsl:apply-templates>
+
     </ul>
+    </xsl:if>
+
+    <xsl:if test="/xsl:stylesheet/xsl:param">
+    <hr/>      
+    <h2>Parameters</h2>
+    <ul> 
+    <!--    <table><THEAD>
+    <TR><TD>NAME</TD><TD>SELECT</TD></TR>
+  </THEAD>
+  <TBODY> 
+  -->
+      <xsl:apply-templates select="/xsl:stylesheet/xsl:param[@name]">
+        <xsl:sort select="./@name"/>
+      </xsl:apply-templates>
+      </ul>
+      <!-- </TBODY></table> -->
+    </xsl:if>
+
+    <xsl:if test="/xsl:stylesheet/xsl:variable">
+
+      <hr/>
+    <h2>Global variables</h2>
+    <ul>
+      <xsl:apply-templates select="/xsl:stylesheet/xsl:variable[@name]">
+        <xsl:sort select="./@name"/>
+      </xsl:apply-templates>
+      </ul> 
+
+    </xsl:if>
+
   </body></html>
 </xsl:template>
 
@@ -50,6 +87,16 @@ $Id: document_xsl.xsl,v 1.3 2002/09/03 10:37:56 nigelshaw Exp $
     </li>
 </xsl:template>
 
+<xsl:template match="comment()" mode="date">
+  <xsl:variable name="cmt" select="normalize-space(.)"/>
+  <xsl:variable name="cmt1"
+    select="substring(substring-after
+            (substring-after
+            (substring-before(substring-after($cmt,'$Id: '),
+            ' '),' '),1),19)"/>
+  CVS Date: <xsl:value-of select="$cmt1"/>
+</xsl:template>
+
 <xsl:template match="xsl:template">
   <li>
     <xsl:choose>
@@ -65,6 +112,24 @@ $Id: document_xsl.xsl,v 1.3 2002/09/03 10:37:56 nigelshaw Exp $
   </xsl:choose>
   </li>
 </xsl:template>
+
+<xsl:template match="xsl:param">
+  <!--
+<tr>
+    <td><xsl:value-of select="@name"/></td><td><xsl:value-of select="@select"/></td>
+</tr>
+-->
+  <li>
+      parameter name="<xsl:value-of select="@name"/>" select="<xsl:value-of select="@select"/>"     
+  </li>
+</xsl:template>
+
+<xsl:template match="xsl:variable">
+  <li>
+      global  name="<xsl:value-of select="@name"/>"     select="<xsl:value-of select="@select"/>"
+  </li>
+</xsl:template>
+
 
 </xsl:transform>
 

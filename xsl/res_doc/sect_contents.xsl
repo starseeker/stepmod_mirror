@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.15 2003/03/16 01:26:38 thendrix Exp $
+$Id: sect_contents.xsl,v 1.16 2003/03/19 00:36:23 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -159,6 +159,7 @@ $Id: sect_contents.xsl,v 1.15 2003/03/16 01:26:38 thendrix Exp $
 	      <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A>
 	      <br/>
    </xsl:if>
+  <A HREF="./resdocindex{$FILE_EXT}">Index</A>
 
 
   </xsl:template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.8 2003/03/16 01:26:38 thendrix Exp $
+$Id: common.xsl,v 1.9 2003/04/11 23:34:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -38,7 +38,7 @@ $Id: common.xsl,v 1.8 2003/03/16 01:26:38 thendrix Exp $
       select="concat($path,$override_css)"/>
       <link
         rel="stylesheet"
-        type="text/css"
+       type="text/css"
         href="{$hpath}"/>
     </xsl:when>
     <xsl:when test="$output_css">
@@ -915,7 +915,7 @@ $Id: common.xsl,v 1.8 2003/03/16 01:26:38 thendrix Exp $
       <xsl:value-of select="translate($message,'#','&#010;')"/>
     </xsl:message>
     -->
-    <xsl:if test="contains($INLINE_ERRORS,'yes')">
+    <xsl:if test="contains($INLINE_ERRORS,'YES')">
       <xsl:if test="contains($inline,'yes')">
         <br/>
         <IMG
@@ -1026,6 +1026,29 @@ $Id: common.xsl,v 1.8 2003/03/16 01:26:38 thendrix Exp $
     <xsl:param name="resource"/>
     <xsl:value-of select="concat('../../data/resources/',$resource)"/>
   </xsl:template>
+
+  <!-- given the name of a resource
+       return the resource file path
+-->
+
+
+  <xsl:template name="resource_file">
+    <xsl:param name="resource"/>
+    <xsl:value-of select="concat('../../data/resources/',$resource,'/',$resource,'.xml')"/>
+  </xsl:template>
+
+
+  <!-- given the name of a resource expg file
+       return the resource expg file path
+-->
+
+
+  <xsl:template name="resource_expg_file">
+    <xsl:param name="resource"/>
+    <xsl:param name="expg_file"/>
+    <xsl:value-of select="concat('../../data/resources/',$resource,'/',$expg_file)"/>
+  </xsl:template>
+
 
 
   <!-- return the target for an express entity

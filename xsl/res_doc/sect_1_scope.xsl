@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_1_scope.xsl,v 1.2 2003/03/16 01:26:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -23,6 +23,7 @@ $Id: sect_1_scope.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 
 <!-- overwrites the template declared in resource.xsl -->
 <xsl:template match="resource">
+  <xsl:apply-templates select="." mode="special_header"/>
   <h1>
     Industrial automation systems and integration &#8212; <br/>
     Product data representation and exchange &#8212;  <br/>
@@ -35,6 +36,59 @@ $Id: sect_1_scope.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   <xsl:apply-templates select="./inscope"/>
   <xsl:apply-templates select="./outscope"/>
 </xsl:template>
+
+<xsl:template match="resource" mode="special_header">
+  <xsl:variable name="right">
+    <xsl:choose>
+      <xsl:when test="@status='WD' or @status='CD' or @status='DIS'">
+        <xsl:value-of select="concat('ISO/',@status,' 10303-',@part)"/>
+      </xsl:when>
+      <xsl:when test="@status='CD-TS'">
+        <xsl:value-of select="concat('ISO/CD TS 10303-',@part)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat('ISO/',@status,' 10303-',@part,':',@publication.year,'(',@language,')')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="left">
+    <xsl:choose>
+      <xsl:when test="@status='WD'"> 
+        <xsl:value-of select="'WORKING DRAFT'"/>
+      </xsl:when>
+      <xsl:when test="@status='CD' or @status='CD-TS'">
+        <xsl:value-of select="'COMMITTEE DRAFT'"/>
+      </xsl:when>
+      <xsl:when test="@status='DIS'">
+        <xsl:value-of select="'DRAFT INTERNATIONAL STANDARD'"/>
+      </xsl:when>
+      <xsl:when test="@status='FDIS'">
+        <xsl:value-of select="'FINAL DRAFT INTERNATIONAL STANDARD'"/>
+      </xsl:when>
+      <xsl:when test="@status='IS'">
+        <xsl:value-of select="'INTERNATIONAL STANDARD'"/>
+      </xsl:when>
+      <xsl:when test="@status='TS'">
+        <xsl:value-of select="'TECHNICAL SPECIFICATION'"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+  <p/>
+  <hr/>
+  <table width="100%">
+    <tr>
+      <td align="left">
+        <xsl:value-of select="$left"/>
+      </td>
+      <td align="right">
+        <xsl:value-of select="$right"/>
+      </td>
+    </tr>
+  </table>
+  <hr/>
+</xsl:template>
+
   
 </xsl:stylesheet>
 

@@ -261,7 +261,18 @@
     <br/>
     <xsl:if test="position()=1">CONSTANT<br/></xsl:if>
     <A NAME="{$aname}"></A>
-    &#160;&#160;<xsl:value-of select="@name"/> : <xsl:apply-templates select="./*" mode="underlying"/> := <xsl:value-of select="@expression"/>;
+    &#160;&#160;<xsl:value-of select="@name"/> : <xsl:apply-templates select="./*" mode="underlying"/> := <xsl:choose>
+    
+    <xsl:when test="./aggregate and contains(@expression,',')"><br/>
+      &#160;&#160;&#160;<xsl:value-of select="concat(substring-before(@expression,','),',')"/>
+      <xsl:call-template name="output_constant_expression">
+        <xsl:with-param name="expression" select="substring-after(@expression,',')"/>
+      </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@expression"/>;
+      </xsl:otherwise>
+  </xsl:choose>
     <xsl:if test="position()=last()">
       <br/>
       END_CONSTANT;
@@ -271,6 +282,29 @@
 </xsl:template>
 
 <!-- THX added to support constants that are aggregates -->
+
+
+<xsl:template name="output_constant_expression">
+  <xsl:param name="expression"/>
+  <!--  <xsl:value-of select="','" /> -->
+    <br/>
+    &#160;&#160;&#160;&#160;<xsl:value-of select="substring-before($expression,',')"/>
+    
+    <xsl:choose>
+      <xsl:when test="contains($expression,',')">,
+        <xsl:call-template name="output_constant_expression">
+          <xsl:with-param name="expression" select="substring-after($expression,',')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$expression"/>;
+      </xsl:otherwise>
+    </xsl:choose>
+
+
+</xsl:template>
+
+
 <xsl:template match="aggregate" mode="underlying">
   <xsl:choose>
     <xsl:when test="@lower">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.6 2001/11/12 08:57:11 robbod Exp $
+$Id: module.xsl,v 1.7 2001/11/14 17:22:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -244,8 +244,8 @@ $Id: module.xsl,v 1.6 2001/11/12 08:57:11 robbod Exp $
 
   <p>
     This clause specifies the information requirements for 
-    <xsl:value-of select="@name"/>
-    module
+    <xsl:value-of select="../@name"/>
+    module.
   </p>
   <p>
     The information requirements are specified as a set of units of
@@ -281,12 +281,18 @@ $Id: module.xsl,v 1.6 2001/11/12 08:57:11 robbod Exp $
     name="schema_name" 
     select="document($arm_xml)/express/schema/@name"/>
 
+  <xsl:variable name="xref">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <code>
     <u>EXPRESS specification: </u>
     <br/>    <br/>
     *)
     <br/>    <br/>
-    <a name="{$schema_name}">
+    <a name="{$xref}">
       SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
   </a>
   <br/>    <br/>
@@ -451,12 +457,20 @@ $Id: module.xsl,v 1.6 2001/11/12 08:57:11 robbod Exp $
     select="document($mim_xml)/express/schema/@name"/>
 
 
+  <xsl:variable name="xref">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <code>
     <u>EXPRESS specification: </u>
     <br/>    <br/>
     *)
     <br/>    <br/>
-    SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
+    <a name="{$xref}">
+      SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
+  </a>
     <br/>    <br/>
     (*
   </code>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.5 2001/11/14 17:09:14 robbod Exp $
+$Id: common.xsl,v 1.6 2001/11/15 10:05:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -314,14 +314,17 @@ $Id: common.xsl,v 1.5 2001/11/14 17:09:14 robbod Exp $
     <xsl:param name="message"/>
       <!-- default -->
     <xsl:param name="warning_gif"
-      select="'../../../warning.gif'"/>
+      select="'../../../../images/warning.gif'"/>
     <br/> 
     <IMG 
-      SRC="{$warning_gif}" 
-      ALT="[warning:]" 
-      align="absbottom"
-      BORDER="0"/>
-    <xsl:value-of select="$message"/>
+      SRC="{$warning_gif}" ALT="[warning:]" 
+      align="absbottom" border="0"
+      width="20" height="20"/>
+    <font color="#FF0000" size="-1">
+      <i>
+        <xsl:value-of select="$message"/>
+      </i>
+    </font>
     <br/>
   </xsl:template>
 
@@ -364,22 +367,36 @@ $Id: common.xsl,v 1.5 2001/11/14 17:09:14 robbod Exp $
     <xsl:value-of select="concat('../data/modules/',$mod_dir)"/>
   </xsl:template>
 
-  <!-- output the error message -->
-  <xsl:template name="error">
-    <xsl:param name="message"/>
+  <!-- return the target for an express entity
+       This will be of the form schema.entity.attribute
+       -->
+  <xsl:template name="express_a_name">
+    <xsl:param name="section1" select="''"/>
+    <xsl:param name="section2" select="''"/>
+    <xsl:param name="section3" select="''"/>
+    <xsl:param name="section3separator" select="'.'"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
     
-    <xsl:variable name="warning_gif" select="'../../../../images/warning.gif'"/>
-    <br/>
-    <IMG 
-      SRC="{$warning_gif}" ALT="[warning:]" 
-      align="absbottom" border="0"
-      width="20" height="20"/>
-    <font color="#FF0000" size="-1">
-      <i>
-        <xsl:value-of select="concat('Error: ',$message)"/>
-      </i>
-    </font>
-    <br/>
+    <xsl:variable name="s1"
+      select="normalize-space(translate($section1,$UPPER,$LOWER))"/>
+    <xsl:variable name="s2"
+      select="normalize-space(translate($section2,$UPPER,$LOWER))"/>
+    <xsl:variable name="s3"
+      select="normalize-space(translate($section3,$UPPER,$LOWER))"/>
+
+    <xsl:choose>
+      <xsl:when test="$s3">
+        <xsl:value-of select="concat($s1,'.',$s2,$section3separator,$s3)"/>
+      </xsl:when>
+      <xsl:when test="$s2">
+        <xsl:value-of select="concat($s1,'.',$s2)"/>    
+      </xsl:when>
+      <xsl:when test="$s1">
+        <xsl:value-of select="$s1"/>    
+      </xsl:when>
+    </xsl:choose>
+    
   </xsl:template>
 
 </xsl:stylesheet>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_toc.xsl,v 1.2 2001/11/12 08:57:11 robbod Exp $
+$Id: module_toc.xsl,v 1.3 2001/11/14 17:23:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -84,6 +84,7 @@ $Id: module_toc.xsl,v 1.2 2001/11/12 08:57:11 robbod Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
+
           <xsl:if test="$type_clause != 0">
             <A HREF="4_info_reqs{$FILE_EXT}#types">
               <xsl:value-of select="concat('&#160; &#160;', $type_clause,

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express.xsl,v 1.3 2001/10/22 09:32:56 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.1 2001/11/14 17:07:19 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -112,7 +112,7 @@
     &#160; (<br/>
   </xsl:if>
 
-  &#160; &#160;
+  &#160;&#160;
   <xsl:call-template name="link_object">
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 
@@ -132,16 +132,8 @@
     select="../@name"/>      
 
   <xsl:variable 
-    name="xref"    
-    select="concat($schema_name,'.',@name)"/>
-    
-  <xsl:variable 
     name="graphics" 
     select="''"/>
-
-  <xsl:variable 
-    name="schema-ref" 
-    select="concat('index_',$schema_name)"/>
 
   <xsl:variable name="clause_number">
     <xsl:call-template name="express_clause_number">
@@ -181,9 +173,15 @@
     </h3>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
-    
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>    
   <h3>
-    <A NAME="{$xref}">
+    <A NAME="{$aname}">
       <xsl:value-of select="@name" />  
     </A>
   </h3>
@@ -194,7 +192,7 @@
           <xsl:apply-templates select="./description"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name="error">
+          <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
               select="concat('No description provided for ',@name)"/>
@@ -215,22 +213,15 @@
 </xsl:template>
 
 <xsl:template match="type" >
+
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
 
   <xsl:variable 
-    name="aname"    
-    select="concat($schema_name,'.',@name)"/>
-    
-  <xsl:variable 
     name="graphics" 
     select="''"/>
 
-  <xsl:variable 
-    name="schema-ref" 
-    select="concat('index_',$schema_name)"/>
-  
   <xsl:variable name="clause_number">
     <xsl:call-template name="express_clause_number">
       <xsl:with-param name="clause" select="'type'"/>
@@ -271,6 +262,12 @@
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>    
   <h3>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
@@ -284,7 +281,7 @@
           <xsl:apply-templates select="./description"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name="error">
+          <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
               select="concat('No description provided for ',@name)"/>
@@ -339,9 +336,7 @@
   <xsl:if test="@basedon">
     BASED ON <xsl:value-of select="@basedon"/> WITH 
   </xsl:if>
-
-  (
-  <xsl:call-template name="link_list">
+  (<xsl:call-template name="link_list">
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="list" select="@selectitems"/>
     <xsl:with-param name="object_used_in_schema_name" select="../../@name"/>
@@ -351,13 +346,14 @@
 <xsl:template match="enumeration" mode="underlying">
   ENUMERATION OF 
   <br/>
-  &#160; &#160; 
+  &#160;&#160; 
   <xsl:value-of 
     select="concat('(',translate(normalize-space(@items),' ', ','),')')"/>
 </xsl:template>
 
 
 <xsl:template match="entity">
+
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -404,10 +400,12 @@
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
-
-  <xsl:variable 
-    name="aname"    
-    select="concat($schema_name,'.',@name)"/>
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
 
   <h3>
     <A NAME="{$aname}">
@@ -422,7 +420,7 @@
           <xsl:apply-templates select="./description"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:call-template name="error">
+          <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
               select="concat('No description provided for ',@name)"/>
@@ -474,7 +472,7 @@
 </xsl:template>
 
 <xsl:template match="explicit" mode="code">
-  &#160; &#160; 
+  &#160;&#160; 
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:if test="@optional='YES'">
     OPTIONAL 
@@ -486,10 +484,9 @@
 
 <xsl:template match="derived" mode="code">
   <xsl:if test="position()=1">
-    &#160; &#160; 
-    DERIVE<br/>
+    &#160;&#160;DERIVE<br/>
   </xsl:if>
-  &#160; &#160; &#160;
+  &#160;&#160;&#160;
   <!-- need to clarify the XML for derive --> 
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:apply-templates select="./aggregate" mode="code"/>
@@ -499,10 +496,9 @@
 
 <xsl:template match="inverse" mode="code">
   <xsl:if test="position()=1">
-    &#160; &#160; 
-    INVERSE<br/>
+    &#160;&#160;INVERSE<br/>
   </xsl:if>
-  &#160; &#160; &#160;
+  &#160;&#160;&#160;
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:apply-templates select="./inverse.aggregate" mode="code"/>;<br/>
 </xsl:template>
@@ -519,10 +515,10 @@
 
 <xsl:template match="unique" mode="code">
   <xsl:if test="position()=1">
-    &#160; &#160; 
+    &#160;&#160; 
     UNIQUE<br/>
   </xsl:if>
-  &#160; &#160; &#160;
+  &#160;&#160;&#160;
   <xsl:value-of select="concat(@label, ': ')"/>
   <xsl:apply-templates select="./unique.attribute" mode="code"/>
   <br/>
@@ -547,9 +543,9 @@
 
 <xsl:template match="where" mode="code">
   <xsl:if test="position()=1">
-    &#160; &#160; WHERE<br/>
+    &#160;&#160;WHERE<br/>
   </xsl:if>  
-  &#160; &#160; &#160;
+  &#160;&#160;&#160;
   <xsl:value-of select="concat(@label, ': ', @expression, ';')"/>
   <br/>
 </xsl:template>
@@ -562,8 +558,15 @@
   <xsl:if test="position()=1">
     <p><u>Attributes definitions</u></p>
   </xsl:if>
-  <xsl:variable name="aname"
-    select="concat(../../@name,'.',../@name,'.',@name)"/>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <blockquote>
     <b>
       <a name="{$aname}">
@@ -575,7 +578,7 @@
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="error">
+        <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',@name)"/>
@@ -592,8 +595,15 @@
   <xsl:if test="position()=1 and not(../explicit)">
     <p><u>Attributes definitions</u></p>
   </xsl:if>
-  <xsl:variable name="aname"
-    select="concat(../../@name,'.',../@name,'.',@name)"/>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <blockquote>
     <b>
       <a name="{$aname}">
@@ -605,7 +615,7 @@
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="error">
+        <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',@name)"/>
@@ -616,11 +626,19 @@
 </xsl:template>
 
 <xsl:template match="inverse" mode="description">
+
   <xsl:if test="position()=1 and not(../explicit | ../derived)">
     <p><u>Attributes definitions</u></p>
   </xsl:if>
-  <xsl:variable name="aname"
-    select="concat(../../@name,'.',../@name,'.',@name)"/>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
   <blockquote>
     <b>
       <a name="{$aname}">
@@ -632,7 +650,7 @@
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="error">
+        <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',@name)"/>
@@ -648,8 +666,16 @@
   <xsl:if test="position()=1">
     <p><u>Formal propositions:</u></p>
   </xsl:if>  
-  <xsl:variable name="aname"
-    select="concat(../../@name,'.',../@name,'.ur:',@label)"/>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@label"/>
+      <xsl:with-param name="section3separator" select="'.ur:'"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <blockquote>
     <b>
       <a name="{$aname}">
@@ -661,7 +687,7 @@
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="error">
+        <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',@label)"/>
@@ -676,8 +702,16 @@
   <xsl:if test="position()=1 and not(../unique)">
     <p><u>Formal propositions:</u></p>
   </xsl:if>
-  <xsl:variable name="aname"
-    select="concat(../../@name,'.',../@name,'.wr:',@label)"/>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@label"/>
+      <xsl:with-param name="section3separator" select="'.wr:'"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <blockquote>
     <b>
       <a name="{$aname}">
@@ -689,7 +723,7 @@
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:call-template name="error">
+        <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',@label)"/>
@@ -741,10 +775,13 @@
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
-  <xsl:variable 
-    name="aname"    
-    select="concat($schema_name,'.',@name)"/>
-
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+             
   <h3>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
@@ -796,9 +833,13 @@
       </h3> 
       <xsl:value-of select="$clause_intro"/>
   </xsl:if>
-  <xsl:variable 
-    name="aname"    
-    select="concat($schema_name,'.',@name)"/>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
 
   <h3>
     <A NAME="{$aname}">
@@ -849,9 +890,13 @@
     </h3>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
-  <xsl:variable 
-    name="aname"    
-    select="concat($schema_name,'.',@name)"/>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
 
   <h3>
     <A NAME="{$aname}">
@@ -910,7 +955,7 @@
           <!-- There seems to be a bug in MXSL3. 
                Should not need to convert $xml_file to a string -->
           <xsl:when
-            test="document(string($xml_file))/express/schema[@name=$schema_name]/interface">
+            test="document(string($xml_file))/express/schema/interface">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="clause" select="'interface'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
@@ -927,7 +972,7 @@
           <!-- There seems to be a bug in MXSL3. 
                Should not need to convert $xml_file to a string -->
           <xsl:when
-            test="document(string($xml_file))/express/schema[@name=$schema_name]/constant">
+            test="document(string($xml_file))/express/schema/constant">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="clause" select="'constant'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
@@ -944,7 +989,7 @@
           <!-- There seems to be a bug in MXSL3. 
                Should not need to convert $xml_file to a string -->
           <xsl:when
-            test="document(string($xml_file))/express/schema[@name=$schema_name]/type">
+            test="document(string($xml_file))/express/schema/type">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="clause" select="'type'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
@@ -961,7 +1006,7 @@
           <!-- There seems to be a bug in MXSL3. 
                Should not need to convert $xml_file to a string -->
           <xsl:when
-            test="document(string($xml_file))/express/schema[@name=$schema_name]/entity">
+            test="document(string($xml_file))/express/schema/entity">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="clause" select="'entity'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
@@ -978,7 +1023,7 @@
           <!-- There seems to be a bug in MXSL3. 
                Should not need to convert $xml_file to a string -->
           <xsl:when
-            test="document(string($xml_file))/express/schema[@name=$schema_name]/function">
+            test="document(string($xml_file))/express/schema/function">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="clause" select="'function'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
@@ -995,7 +1040,7 @@
           <!-- There seems to be a bug in MXSL3. 
                Should not need to convert $xml_file to a string -->
           <xsl:when
-            test="document(string($xml_file))/express/schema[@name=$schema_name]/rule">
+            test="document(string($xml_file))/express/schema/rule">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="clause" select="'rule'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
@@ -1012,7 +1057,7 @@
           <!-- There seems to be a bug in MXSL3. 
                Should not need to convert $xml_file to a string -->
           <xsl:when
-            test="document(string($xml_file))/express/schema[@name=$schema_name]/procedure">
+            test="document(string($xml_file))/express/schema/procedure">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="clause" select="'procedure'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
@@ -1085,7 +1130,7 @@
       <xsl:when test="contains($schema_name,'_arm')">
         <xsl:choose>
           <xsl:when
-            test="document(string($xml_file))/express/schema[@name=$schema_name]/interface">
+            test="document(string($xml_file))/express/schema/interface">
             1
           </xsl:when>
           <xsl:otherwise>
@@ -1103,7 +1148,7 @@
   <xsl:variable name="constant_clause">
     <xsl:choose>
       <xsl:when
-        test="document(string($xml_file))/express/schema[@name=$schema_name]/constant">
+        test="document(string($xml_file))/express/schema/constant">
         1
       </xsl:when>
       <xsl:otherwise>
@@ -1115,7 +1160,7 @@
   <xsl:variable name="type_clause">
     <xsl:choose>
       <xsl:when
-        test="document(string($xml_file))/express/schema[@name=$schema_name]/type">
+        test="document(string($xml_file))/express/schema/type">
         1
       </xsl:when>
       <xsl:otherwise>
@@ -1127,7 +1172,7 @@
   <xsl:variable name="entity_clause">
     <xsl:choose>
       <xsl:when
-        test="document(string($xml_file))/express/schema[@name=$schema_name]/entity">
+        test="document(string($xml_file))/express/schema/entity">
         1
       </xsl:when>
       <xsl:otherwise>
@@ -1139,7 +1184,7 @@
   <xsl:variable name="function_clause">
     <xsl:choose>
       <xsl:when
-        test="document(string($xml_file))/express/schema[@name=$schema_name]/function">
+        test="document(string($xml_file))/express/schema/function">
         1
       </xsl:when>
       <xsl:otherwise>
@@ -1151,7 +1196,7 @@
   <xsl:variable name="rule_clause">
     <xsl:choose>
       <xsl:when
-        test="document(string($xml_file))/express/schema[@name=$schema_name]/rule">
+        test="document(string($xml_file))/express/schema/rule">
         1
       </xsl:when>
       <xsl:otherwise>
@@ -1163,7 +1208,7 @@
   <xsl:variable name="procedure_clause">
     <xsl:choose>
       <xsl:when
-        test="document(string($xml_file))/express/schema[@name=$schema_name]/procedure">
+        test="document(string($xml_file))/express/schema/procedure">
         1
       </xsl:when>
       <xsl:otherwise>

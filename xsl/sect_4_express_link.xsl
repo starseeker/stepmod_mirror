@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_link.xsl,v 1.1 2001/10/22 09:34:10 robbod Exp $
+     $Id: sect_4_express_link.xsl,v 1.1 2001/11/14 17:07:19 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -223,10 +223,14 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable 
-    name="xref"
-    select="concat($express_file_to_ref,'#','index_',$schema_name)"/>
-  <A HREF="{$xref}">
+  <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+  <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+  <xsl:variable name="xref">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <A HREF="{$express_file_to_ref}#{$xref}">
     <xsl:value-of select="$schema_name"/>
   </A>
 
@@ -245,29 +249,40 @@
   <!-- the schema in which the object has been used -->
   <xsl:param name="object_used_in_schema_name"/>
 
-  <!-- debug  
-  <br/>lo1:<xsl:value-of select="$object_name"/><br/>
-    lo2:<xsl:value-of select="$object_used_in_schema_name"/><br/>
-  -->
+  <!-- make sure that the arguments don't have any whitespace -->
+  <xsl:variable name="lobject_name" 
+    select="normalize-space($object_name)"/>
+
+  <xsl:variable name="lobject_used_in_schema_name" 
+    select="normalize-space($object_used_in_schema_name)"/>
+
+
+  <!-- debug 
+  <br/>lo1:<xsl:value-of select="$lobject_name"/>]<br/>
+    lo2:<xsl:value-of select="$lobject_used_in_schema_name"/>]<br/>
+  --> 
 
   <xsl:variable name="schema_node" 
-    select="//express/schema[@name=$object_used_in_schema_name]"/>
+    select="//express/schema[@name=$lobject_used_in_schema_name]"/>
 
   <xsl:choose>
     <xsl:when
-      test="$schema_node/entity[@name=$object_name]|$schema_node/type[@name=$object_name]">
+      test="$schema_node/entity[@name=$lobject_name]|$schema_node/type[@name=$lobject_name]">
       <!-- the object is defined within the schema it is used, so link to
-           this file --> 
-      <xsl:variable 
-        name="xref"
-        select="concat('#',$object_used_in_schema_name,'.',$object_name)"/>
-
-      <A HREF="{$xref}">
-        <xsl:value-of select="$object_name"/>
+           this file - make sure that the target is all lower case--> 
+      <xsl:variable name="xref">
+        <xsl:call-template name="express_a_name">
+          <xsl:with-param name="section1" select="$lobject_used_in_schema_name"/>
+          <xsl:with-param name="section2" select="$lobject_name"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <A HREF="#{$xref}">
+        <xsl:value-of select="$lobject_name"/>
       </A>
     </xsl:when>
 
     <xsl:otherwise>
+
       <!-- the object is not defined within the schema it is used, so
            recurse to find where it is defined -->
       <xsl:variable name="object_xref">
@@ -304,25 +319,24 @@
      If it is a USE-FROM or REFERENCE, the schema defined in the interface
      may be defined in this file or externally
      If it is defined externally, then call link_object_xref to resolve.
-
      -->
 <xsl:template name="link_object_xref">
   <xsl:param name="object_name"/>
   <!-- the schema in which the object has been used -->
   <xsl:param name="object_used_in_schema_name"/>
 
-  <!-- debug  
+  <!-- debug 
   <br/>lor1:<xsl:value-of select="$object_name"/>]<br/>
     lor2:<xsl:value-of select="$object_used_in_schema_name"/><br/>
-  -->
+    -->
 
   <xsl:variable name="schema_node" 
-    select="//express/schema[@name=$object_used_in_schema_name]"/>
+    select="//express/schema"/>
 
-  <!--  debug 
+  <!--  debug  
        [Z:<xsl:value-of
-       select="concat('Z',$object_used_in_schema_name,':',$schema_node/@name)"/>]
-  -->
+       select="concat('q',$object_used_in_schema_name,':',$schema_node/@name,':',$object_name,']')"/>
+       -->
 
   <xsl:choose>
     <xsl:when
@@ -339,15 +353,17 @@
       </xsl:variable>
 
 
-      <xsl:variable 
-        name="xref"
-        select="concat($express_file_to_ref,'#',$object_used_in_schema_name,'.',$object_name)"/>
-
-      <!-- debug
+      <xsl:variable name="xref">
+        <xsl:call-template name="express_a_name">
+          <xsl:with-param name="section1" select="$object_used_in_schema_name"/>
+          <xsl:with-param name="section2" select="$object_name"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <!-- debug  
            [xxref:<xsl:value-of select="$xref"/>]
-        -->
+           -->
       <!-- return the URL -->
-      <xsl:value-of select="$xref"/>
+      <xsl:value-of select="concat($express_file_to_ref,'#',$xref)"/>
     </xsl:when>
 
     <xsl:when test="$schema_node/interface/interfaced.item[@name=$object_name]"> 
@@ -390,7 +406,7 @@
       <xsl:choose>
         <xsl:when test="contains($express_file_ok,'ERROR')">
           <xsl:value-of select="$object_name"/>
-          <xsl:call-template name="error">
+          <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
               select="$express_file_ok"/>
@@ -439,8 +455,9 @@
               select="$if_schema_name"/>
           </xsl:call-template>
         </xsl:variable>
-        <!-- debug  
-        [PP:<xsl:value-of select="concat($express_file_to_read,':',$if_schema_name)"/>]
+        <!-- debug
+        [  PP:<xsl:value-of
+        select="concat($express_file_to_read,':',$if_schema_name,':',$express_file_ok)"/>]
              -->
         <!-- check whether the modules or resource has been indexed in
              stepmod/repository_index. If not, then it is assumed that the
@@ -449,7 +466,7 @@
         <xsl:choose>
           <xsl:when test="contains($express_file_ok,'ERROR')">
             <xsl:value-of select="$object_name"/>
-            <xsl:call-template name="error">
+            <xsl:call-template name="error_message">
               <xsl:with-param 
                   name="message" 
                   select="$express_file_ok"/>
@@ -458,7 +475,7 @@
           <xsl:otherwise>
             <!-- check whether the object is in the file -->
             <xsl:for-each
-              select="document(string($express_file_to_read))//express/schema[@name=$if_schema_name]">
+              select="document(string($express_file_to_read))//express/schema">
               <!-- changed focus to the interfaced document - there should only
                    be one. Now recurse -->
               <xsl:call-template name="link_object_xref">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.69 2003/05/28 09:27:00 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.70 2003/07/09 16:26:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -128,11 +128,89 @@ $Id: sect_5_mapping.xsl,v 1.69 2003/05/28 09:27:00 robbod Exp $
       <xsl:apply-templates select="./mapping_table/sc" mode="specification"/>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:call-template name="mapping_syntax"/>
+      <xsl:call-template name="no_mapping_syntax"/>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
 
+
+<xsl:template name="no_mapping_syntax">
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="/module/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="arm_xml" select="document(concat($module_dir,'/arm.xml'))"/>
+  <xsl:choose>
+    <xsl:when test="count($arm_xml/express/schema/interface)=1">
+      <p>
+        The mapping specification for this part of ISO 10303 is defined in
+        <xsl:apply-templates select="$arm_xml/express/schema/interface" mode="link_use_from">
+          <xsl:with-param name="item" select="'.'"/>
+        </xsl:apply-templates>
+      </p>
+    </xsl:when>
+    <xsl:otherwise>
+      <p>
+        The mapping specification for this part of ISO 10303 is defined in:    
+      </p>
+      <ul>
+        <xsl:apply-templates select="$arm_xml/express/schema/interface" mode="link_use_from">
+          <xsl:with-param name="item" select="'li'"/>
+        </xsl:apply-templates>
+      </ul>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+<xsl:template match="interface" mode="link_use_from">
+  <xsl:param name="item" select="'li'"/>
+  <xsl:variable name="mod_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="@schema"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="part">
+    <xsl:value-of select="concat('ISO 10303-',document(concat($mod_dir,'/module.xml'))/module/@part)"/>
+  </xsl:variable>
+
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_name">
+      <xsl:with-param name="module" select="@schema"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="module_display_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="$module_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="module_href"
+    select="concat('../../',$module_name,'/sys/5_mapping',$FILE_EXT)"/>
+  <xsl:choose>
+    <xsl:when test="$item='li'">
+      <li>
+        <xsl:choose>
+          <xsl:when test="position()=last()">
+            <a href="{$module_href}"><xsl:value-of select="$part"/></a>
+            <xsl:value-of select="concat(' (',$module_display_name,').')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <a href="{$module_href}"><xsl:value-of select="$part"/></a>
+            <xsl:value-of select="concat(' (',$module_display_name,');')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </li>
+    </xsl:when>
+    <xsl:otherwise>
+      <a href="{$module_href}"><xsl:value-of select="$part"/></a>
+      <xsl:value-of select="concat(' (',$module_display_name,');')"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
 <xsl:template name="mapping_syntax">
   <!-- boiler plate text for mapping syntax -->

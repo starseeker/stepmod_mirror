@@ -2,37 +2,37 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-30T15:27:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T17:18:59" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_layout_template_arm schema_instance"/>
-   <schema name="PHYSICAL_LAYOUT_TEMPLATE_ARM">
-      <interface kind="use" schema="ANALYTICAL_MODEL_ARM"/>
-      <interface kind="use" schema="CHARACTERISTIC_ARM"/>
-      <interface kind="use" schema="FEATURE_AND_CONNECTION_ZONE_ARM"/>
-      <interface kind="use" schema="FUNCTIONAL_DECOMPOSITION_TO_DESIGN_ARM"/>
-      <interface kind="use" schema="PART_AND_VERSION_IDENTIFICATION_ARM"/>
-      <interface kind="use" schema="PART_VIEW_DEFINITION_ARM"/>
-      <interface kind="use" schema="SHAPE_PROPERTY_ASSIGNMENT_ARM"/>
-      <interface kind="reference" schema="PRODUCT_IDENTIFICATION_ARM">
+   <schema name="Physical_layout_template_arm">
+      <interface kind="use" schema="Analytical_model_arm"/>
+      <interface kind="use" schema="Characteristic_arm"/>
+      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
+      <interface kind="use" schema="Functional_decomposition_to_design_arm"/>
+      <interface kind="use" schema="Part_and_version_identification_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
+      <interface kind="reference" schema="Product_identification_arm">
          <interfaced.item name="types_of_product"/>
       </interface>
       <type name="correlated_or_independent">
          <select selectitems="coordinated_characteristic characteristic"/>
       </type>
       <type name="plt_physical_unit_or_part_template_or_fp_or_pd">
-         <select extensible="YES" genericentity="YES" basedon="physical_unit_or_part_template_or_fp_or_pd" selectitems="template_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="physical_unit_or_part_template_or_fp_or_pd" selectitems="Template_definition"/>
       </type>
-      <entity name="connection_zone_in_layout_template" supertypes="connection_zone">
+      <entity name="Connection_zone_in_layout_template" supertypes="Connection_zone">
          <explicit name="containing_shape">
-            <typename name="template_definition"/>
-            <redeclaration entity-ref="shape_element"/>
+            <typename name="Template_definition"/>
+            <redeclaration entity-ref="Shape_element"/>
          </explicit>
       </entity>
-      <entity name="reference_functional_unit_assignment_to_template">
+      <entity name="Reference_functional_unit_assignment_to_template">
          <explicit name="functional_design_definition_path">
-            <typename name="reference_composition_path"/>
+            <typename name="Reference_composition_path"/>
          </explicit>
          <explicit name="implementation">
-            <typename name="template_definition"/>
+            <typename name="Template_definition"/>
          </explicit>
          <explicit name="of_property" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -44,52 +44,52 @@
          <explicit name="swap_code" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <unique label="ur1">
-            <unique.attribute entity-ref="reference_functional_unit_assignment_to_template" attribute="implementation"/>
-            <unique.attribute entity-ref="reference_functional_unit_assignment_to_template" attribute="path_alias"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Reference_functional_unit_assignment_to_template" attribute="implementation"/>
+            <unique.attribute entity-ref="Reference_functional_unit_assignment_to_template" attribute="path_alias"/>
          </unique>
       </entity>
-      <entity name="reference_part_template_for_analytical_model">
+      <entity name="Reference_part_template_for_analytical_model">
          <explicit name="template">
-            <typename name="template_definition"/>
+            <typename name="Template_definition"/>
          </explicit>
          <explicit name="analytical_representation">
-            <typename name="analytical_model_definition"/>
+            <typename name="Analytical_model_definition"/>
          </explicit>
-         <unique label="ur1">
-            <unique.attribute entity-ref="reference_part_template_for_analytical_model" attribute="template"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Reference_part_template_for_analytical_model" attribute="template"/>
          </unique>
       </entity>
-      <entity name="template" supertypes="product">
-         <where label="wr1" expression=" sizeof ( [ 'template model' ] * types_of_product ( self ) ) = 1 "/>
+      <entity name="Template" supertypes="Product">
+         <where label="WR1" expression=" SIZEOF ( [ 'template model' ] * types_of_product ( SELF ) ) = 1 "/>
       </entity>
-      <entity name="template_definition" supertypes="item_shape product_view_definition">
+      <entity name="Template_definition" supertypes="Item_shape Product_view_definition">
          <explicit name="defined_version">
-            <typename name="template_version"/>
-            <redeclaration entity-ref="product_view_definition"/>
+            <typename name="Template_version"/>
+            <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
          <explicit name="physical_characteristic" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="correlated_or_independent"/>
          </explicit>
-         <derived name="described_element" expression=" self ">
-            <typename name="template_definition"/>
-            <redeclaration entity-ref="item_shape"/>
+         <derived name="described_element" expression=" SELF ">
+            <typename name="Template_definition"/>
+            <redeclaration entity-ref="Item_shape"/>
          </derived>
-         <where label="wr1" expression=" sizeof ( query ( prpc &lt;* usedin ( self \ product_view_definition . defined_version . of_product , 'physical_layout_template_arm.product_category_assignment.products' ) | ( prpc . name = 'template model' ) ) ) &gt; 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ Product_view_definition . defined_version . of_product , 'PHYSICAL_LAYOUT_TEMPLATE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . name = 'template model' ) ) ) &gt; 0 "/>
       </entity>
-      <entity name="template_version" supertypes="product_version">
+      <entity name="Template_version" supertypes="Product_version">
          <explicit name="of_product">
-            <typename name="template"/>
-            <redeclaration entity-ref="product_version"/>
+            <typename name="Template"/>
+            <redeclaration entity-ref="Product_version"/>
          </explicit>
       </entity>
-      <subtype.constraint name="plt_connection_zone_subtypes" entity="connection_zone" super.expression="ONEOF (connection_zone_in_usage_view, connection_zone_in_design_view, connection_zone_in_layout_template)"/>
-      <rule name="template_definition_constraint" appliesto="product_view_definition">
-         <where label="wr1" expression=" sizeof ( query ( pvd &lt;* product_view_definition | ( not ( 'physical_layout_template_arm.' + 'template_definition' in typeof ( pvd ) ) ) and ( 'physical_layout_template_arm.' + 'template_version' in typeof ( pvd . defined_version ) ) ) ) = 0 "/>
+      <subtype.constraint name="plt_connection_zone_subtypes" entity="Connection_zone" super.expression="ONEOF (Connection_zone_in_usage_view, Connection_zone_in_design_view, Connection_zone_in_layout_template)"/>
+      <rule name="template_definition_constraint" appliesto="Product_view_definition">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_DEFINITION' IN TYPEOF ( pvd ) ) ) AND ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF ( pvd . defined_version ) ) ) ) = 0 "/>
       </rule>
-      <rule name="template_version_constraint" appliesto="product_version">
-         <where label="wr1" expression=" sizeof ( query ( pv &lt;* product_version | ( not ( 'physical_layout_template_arm.' + 'template_version' in typeof ( pv ) ) ) and ( 'physical_layout_template_arm.' + 'template' in typeof ( pv . of_product ) ) ) ) = 0 "/>
+      <rule name="template_version_constraint" appliesto="Product_version">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF ( pv ) ) ) AND ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE' IN TYPEOF ( pv . of_product ) ) ) ) = 0 "/>
       </rule>
    </schema>
 </express>

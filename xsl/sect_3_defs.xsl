@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -21,7 +21,7 @@ $Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-sect_3_defs.xsl  TO BE DONE
+  <xsl:apply-templates select="./abbreviations"/>
 </xsl:template>
   
 </xsl:stylesheet>

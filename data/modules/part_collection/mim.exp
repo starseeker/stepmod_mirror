@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.6 2003/02/06 16:11:28 goset1 Exp $
+   $Id: mim.exp,v 1.7 2003/02/11 16:30:59 rugarcia Exp $
    N - ISO/CD-TS 10303-1115 part_collection - EXPRESS MIM
 *)
 
@@ -13,16 +13,12 @@ REFERENCE FROM Single_part_representation_mim
 	(categories_of_product);
 
 
-CONSTANT 
-  schema_name : STRING := 'PART_COLLECTION_MIM';
-END_CONSTANT;
-
 RULE restrict_collection_category FOR (product_definition);
 LOCAL
   collection_definitions: SET OF product_definition := [];
 END_LOCAL;
   collection_definitions :=  QUERY( pd <* product_definition | 
-  SIZEOF( QUERY( pdca <* USEDIN( pd, schema_name + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
+  SIZEOF( QUERY( pdca <* USEDIN( pd, 'PART_COLLECTION_MIM' + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
   pdca.frame_of_reference.name= 'collection definition')) > 0 );
 WHERE
 WR1: SIZEOF( QUERY( pd <* collection_definitions | 
@@ -37,7 +33,7 @@ WR1: SIZEOF ( QUERY ( pdr <* product_definition_relationship |
 	( ( pdr.relating_product_definition.frame_of_reference.name<>'part definition' ) OR 
 	( pdr.related_product_definition.frame_of_reference.name<>'part occurrence' ) OR 
 	( SIZEOF ( QUERY ( pdca <* USEDIN (pdr.relating_product_definition ,
-     schema_name + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') | 
+     'PART_COLLECTION_MIM' + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') | 
 	( pdca.role.name = 'part definition type' ) AND 
 	( pdca.frame_of_reference.name = 'collection definition' ) )) =0 ) ) ) ) =0;
 END_RULE;

@@ -4,7 +4,7 @@ for distribution to SC4 for balloting.
 1) Add the modules to be balloted to ballot_index.xml
 
 2) Generate the build file using ANT
-     ant -buildfile buildbuild
+     ant -buildfile buildbuild.xml
 
 3) Run ANT on the build.xml that has just been created:
      ant all

@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.5 2002/02/13 14:21:32 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 14:21:32 $"
-  rcs.revision="$Revision: 1.5 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.9"
     source="../data/modules/identification_assignment/arm.exp"/>
 
   <schema name="Identification_assignment_arm">
@@ -21,14 +21,13 @@
     </interface>
 
     <type name="identification_item">
-       <description>This select is a place holder for assignments of identification information to elements of product data.</description>
       <select
-        extensible="YES">
+        extensible="YES"
+        selectitems="">
       </select>
 
     </type>
     <type name="identification_organization_or_person_in_organization_item">
-       <description>This select extends the assignments of an organization or a person in an organization to Identification_assignments.</description>
       <select
         basedon="organization_or_person_in_organization_item"
         selectitems="Identification_assignment">
@@ -36,32 +35,26 @@
 
     </type>
     <entity
-      name="Identification_assignment"><description>An <b>Identification_assignment</b> assigns an identifier which is unique for the domain of the owner (when known) to product data.</description>
-
+      name="Identification_assignment">
       <explicit
         name="identifier">
-      <description>the identification string to be assigned to product data.</description> 
- 
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="role"
         optional="YES">
-       <description>the function served by the identification.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description"
         optional="YES">
-       <description>a textual meaning for the identification assignment.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="items">
-       <description>the product data to which the identifier is assigned.</description>
         <aggregate
           type="SET"
           lower="1"
@@ -71,9 +64,8 @@
       </explicit>
       <inverse
         name="owner"
-        entity="Organization_or_person_in_organization_assignment"
+        entity="organization_or_person_in_organization_assignment"
         attribute="items">
-       <description>the optional organization or person in organization that defines or owns the identification.</description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -81,8 +73,7 @@
       </inverse>
       <where
         label="WR1"
-        expression="SELF.owner.role = 'identification owner'">
-       <description>The <b>owner</b> role shall be 'identification owner'</description>
+        expression="SIZEOF(QUERY(person&lt;*|person\Organization_or_person_in_organization_assignment.role &lt;&gt; 'identification owner'">
       </where>
     </entity>
 

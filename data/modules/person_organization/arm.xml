@@ -1,224 +1,194 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.4 2002/02/13 09:37:34 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 09:37:34 $"
-  rcs.revision="$Revision: 1.4 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.9"
     source="../data/modules/person_organization/arm.exp"/>
 
   <schema name="Person_organization_arm">
     <entity
       name="Address">
-      <description>
-        <p>An <b>Address</b> specifies a physical or virtual location which where physical,
-           postal or virtual contact can be made.
-        </p>
-      </description>
       <explicit
         name="street_number"
         optional="YES">
-        <description>the number of a building in a street.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="street"
         optional="YES">
-        <description>the name of a street.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="postal_box"
         optional="YES">
-        <description>the number of a postal box.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="town"
         optional="YES">
-        <description>the name of a town.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="region"
         optional="YES">
-        <description>the name of an area composed of towns.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="postal_code"
         optional="YES">
-        <description>the code that is used by the country's postal service.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="country"
         optional="YES">
-        <description>the name of a country.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="internal_location"
         optional="YES">
-        <description>an organization-defined address for internal mail delivery.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="facsimile_number"
         optional="YES">
-        <description>the number at which facsimiles may be received.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="telephone_number"
         optional="YES">
-        <description>the number at which telephone calls may be received.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="electronic_mail_address"
         optional="YES">
-        <description>the electronic address at which electronic mail may be received.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="telex_number"
         optional="YES">
-        <description>the number at which telex messages may be received.</description>
         <builtintype
           type="STRING"/>
       </explicit>
-      <where
-        label="WR1"
-        expression="(EXISTS (street_number) OR         EXISTS (street) OR         EXISTS (postal_box) OR         EXISTS (town) OR         EXISTS (region) OR         EXISTS (postal_code) OR         EXISTS (country) OR         EXISTS (internal_location) OR         EXISTS (facsimile_number) OR         EXISTS (telephone_number) OR         EXISTS (electronic_mail_address) OR         EXISTS (telex_number))">
-        <description>At least one of the attributes shall have a value.</description>
-      </where>
+      <explicit
+        name="address_type"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="WHERE">
+        <typename
+          name="( EXISTS ( street_number ) OR EXISTS ( street ) OR EXISTS ( postal_box ) OR EXISTS ( town ) OR EXISTS ( region ) OR EXISTS ( postal_code ) OR EXISTS ( country ) OR EXISTS ( internal_location ) OR EXISTS ( faxsimile_number ) OR EXISTS ( telephone_number ) OR EXISTS ( electronic_mail_address ) OR EXISTS ( telex_number ) )"/>
+      </explicit>
     </entity>
 
     <entity
       name="Organization">
-      <description>
-        <p>An <b>Organization</b> is a group of people involved in a particular process or that share a common interest.</p>
-        <note>The mechanism for guaranteeing the uniqueness of organization id is outside the scope of ISO 10303.</note>
-      </description>
       <explicit
         name="id">
         <builtintype
           type="STRING"/>
-      <description>the unique identification of the organization</description>
       </explicit>
       <explicit
         name="short_name"
         optional="YES">
-      <description>a short, abbreviated name of the organization</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="long_name"
         optional="YES">
-      <description>the full formal name of the organization</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
-        name="address"
-        optional="YES">
-      <description>the optional address of the organization which may be used to indicate an item delivery address, a postal address, or a physical location visitor address.</description>
+        name="address_category">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="?"/>
         <typename
-          name="Address"/>
+          name="address_type"/>
       </explicit>
       <unique
         label="organizations_are_unique">
         <unique.attribute
           attribute="id"/>
       </unique>
-    </entity>
-
-    <entity
-      name="Person_in_organization">
-      <description>
-        <p>A <b>Person_in_organization</b> is the identification of an individual human being in an organization.</p>
-        <note>The mechanism for guaranteeing the uniqueness of person id is outside the scope of ISO 10303.</note>
-      </description>
-
-      <explicit
-        name="id">
-        <description>the unique identifier of the person</description>
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="id_org">
-        <typename
-          name="Organization"/>
-      </explicit>
-      <explicit
-        name="last_name"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="first_name"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="middle_names"
-        optional="YES">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="STRING"/>
-      </explicit>
-      <explicit
-        name="prefix_titles"
-        optional="YES">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="STRING"/>
-      </explicit>
-      <explicit
-        name="suffix_titles"
-        optional="YES">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="STRING"/>
-      </explicit>
-      <explicit
-        name="address"
-        optional="YES">
-        <typename
-          name="Address"/>
-      </explicit>
+      <unique
+        label="WHERE">
+        <unique.attribute
+          attribute="SELF.address_categoryIN['postal'"/>
+        <unique.attribute
+          attribute="'electronic_mail'"/>
+        <unique.attribute
+          attribute="'internal_location']"/>
+      </unique>
+      <unique
+        label="END_ENTITY">
+        <unique.attribute
+          attribute="END_ENTITY"/>
+      </unique>
+      <unique
+        label="ENTITY">
+        <unique.attribute
+          attribute="ENTITYPerson_in_organization"/>
+      </unique>
+      <unique
+        label="id">
+        <unique.attribute
+          attribute="STRING"/>
+      </unique>
+      <unique
+        label="id_org">
+        <unique.attribute
+          attribute="Organization"/>
+      </unique>
+      <unique
+        label="last_name">
+        <unique.attribute
+          attribute="OPTIONALSTRING"/>
+      </unique>
+      <unique
+        label="first_name">
+        <unique.attribute
+          attribute="OPTIONALSTRING"/>
+      </unique>
+      <unique
+        label="middle_names">
+        <unique.attribute
+          attribute="OPTIONALLIST[1:?]OFSTRING"/>
+      </unique>
+      <unique
+        label="prefix_titles">
+        <unique.attribute
+          attribute="OPTIONALLIST[1:?]OFSTRING"/>
+      </unique>
+      <unique
+        label="suffix_titles">
+        <unique.attribute
+          attribute="OPTIONALLIST[1:?]OFSTRING"/>
+      </unique>
       <unique
         label="person_is_unique">
         <unique.attribute

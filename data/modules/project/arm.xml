@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.4 2002/02/13 09:45:51 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 09:45:51 $"
-  rcs.revision="$Revision: 1.4 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.9"
     source="../data/modules/project/arm.exp"/>
 
   <schema name="Project_arm">
@@ -31,7 +31,6 @@
     </interface>
 
     <type name="project_organization_or_person_in_organization_item">
-      <description>This select extends the assignments of an organization or a person in an organization to <b>Project</b> instances.</description>
       <select
         basedon="organization_or_person_in_organization_item"
         selectitems="Project">
@@ -39,7 +38,6 @@
 
     </type>
     <type name="project_event_item">
-      <description>This select is a extends the assignments of an event to <b>Project</b> instances.</description>
       <select
         basedon="event_item"
         selectitems="Project">
@@ -48,86 +46,91 @@
     </type>
     <entity
       name="Project">
-      <description>A <b>Project</b> is a work effort that one more people and organizations participate in.</description>
       <explicit
-        name="id">
-        <description>the identification of the project assigned by the organization</description>
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="name">
-        <description>words by which the project is known.</description>
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="description"
+        name="id"
         optional="YES">
-        <description>text which describes the project.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
-        name="participants">
-        <description>words by which the project is known.</description>
+        name="participants"
+        optional="YES">
         <aggregate
           type="SET"
-          lower="1"
+          lower="0"
           upper="?"/>
         <typename
           name="organization_or_person_in_organization_select"/>
+      </explicit>
+      <explicit
+        name="planned_start_date"
+        optional="YES">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+        <typename
+          name="Date_or_date_time_assignment"/>
+      </explicit>
+      <explicit
+        name="planned_end_date"
+        optional="YES">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+        <typename
+          name="Date_or_date_time_assignment"/>
+      </explicit>
+      <explicit
+        name="actual_start_date"
+        optional="YES">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+        <typename
+          name="Date_or_date_time_assignment"/>
+      </explicit>
+      <explicit
+        name="actual_end_date"
+        optional="YES">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+        <typename
+          name="Date_or_date_time_assignment"/>
       </explicit>
       <inverse
         name="identifier"
         entity="Organization_or_person_in_organization_assignment"
         attribute="items">
-        <description></description>
         <inverse.aggregate
           type="SET"
           lower="0"
           upper="1"/>
       </inverse>
-      <inverse
-        name="start_date"
-        entity="Date_or_date_time_assignment"
-        attribute="items">
-        <description></description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="end_date"
-        entity="Date_or_date_time_assignment"
-        attribute="items">
-        <description></description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
+      <where
+        label="WR1"
+        expression="SELF.project.identifier = 'id owner'">
+      </where>
     </entity>
 
     <entity
       name="Project_assignment">
-      <description>A <b>Project_assignment</b> assigns an Project to product data.</description>
       <explicit
         name="assigned_project">
-        <description>the <b>Project</b> to be assigned to product data.</description>
         <typename
           name="Project"/>
       </explicit>
       <explicit
         name="role">
-        <description>the purpose of the assignment.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="items">
-        <description>the product data to which the <b>Project</b> is assigned.</description>
         <aggregate
           type="SET"
           lower="1"
@@ -139,31 +142,24 @@
 
     <entity
       name="Project_relationship">
-      <description><p>A <b>Project_relationship</b> specifies that two projects are related. This is a foundation concept which may be refined in other modules. This concept can be used to define sequencing.</p></description>
-
       <explicit
-        name="relation_type"
-        optional="YES">
-        <description>an optional type descriptor for the relationship.</description>
+        name="relation_type">
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description"
         optional="YES">
-        <description>an optional description of the relationship.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="project1">
-        <description>the <b>Project</b> to be related to <b>project2</b>.</description>
         <typename
           name="Project"/>
       </explicit>
       <explicit
         name="project2">
-        <description>the <b>Project</b> to be related to <b>project1</b>.</description>
         <typename
           name="Project"/>
       </explicit>

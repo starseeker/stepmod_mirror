@@ -1,4 +1,4 @@
-//  $Id: express2xml.js,v 1.34 2004/05/06 21:27:27 thendrix Exp $
+//  $Id: express2xml.js,v 1.35 2004/05/22 00:03:50 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -508,7 +508,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.34 2004/05/06 21:27:27 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.35 2004/05/22 00:03:50 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -523,7 +523,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.34 $";
+    var appCVSRevision = "$Revision: 1.35 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -1921,13 +1921,16 @@ function Output2xml(expFile, xmlFile, partnumber) {
 		xmlType(statement,xmlTs,expTs);
 		break;
 	case "FUNCTION" :	
-		xmlFunction(l,expTs,xmlTs);
+		var statement = readStatement(l,expTs);
+		xmlFunction(statement,expTs,xmlTs);
 		break;
 	case "PROCEDURE" :	
-		xmlProcedure(l,expTs,xmlTs);
+		var statement = readStatement(l,expTs);
+		xmlProcedure(statement,expTs,xmlTs);
 		break;
 	case "RULE" :	
-		xmlRule(l,expTs,xmlTs);
+		var statement = readStatement(l,expTs);
+		xmlRule(statement,expTs,xmlTs);
 		break;
         // PH
 	case "SUBTYPE_CONSTRAINT":

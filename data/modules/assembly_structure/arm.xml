@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: mkmodule.js,v 1.11 2002/03/04 07:48:48 robbod Exp $ -->
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<?xml-stylesheet type="text/xsl"
+href="../../../xsl/express.xsl" ?>
+<express
+  language_version="2"
+  description.file="arm_descriptions.xml">
+	
+	<schema name="Assembly_structure_arm">
+    <interface
+      kind="use"
+      schema="Product_view_definition_structure_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Value_with_unit_arm">
+    </interface>
+
+    <entity
+      name="Assembly_component_relationship"
+      supertypes="View_definition_usage"
+			abstract.supertype="YES"
+			super.expression="ONEOF(Next_assembly_usage, Promissory_usage)">
+
+		<explicit
+        name="quantity"
+        optional="YES">
+        <typename
+				  name="Value_with_unit"/>
+      </explicit>
+      <explicit
+        name="location_indicator"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+			<where
+        label="WR1"
+        expression="NOT(EXISTS(quantity)) XOR 
+	((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component > 0))">
+			</where>
+    </entity>
+
+    <entity
+      name="Next_assembly_usage"
+      supertypes="Assembly_component_relationship">
+    </entity>
+		
+    <entity
+      name="Promissory_usage"
+      supertypes="Assembly_component_relationship">
+    </entity>
+
+  </schema>
+</express>

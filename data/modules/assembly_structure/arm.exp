@@ -1,0 +1,27 @@
+(* N - ISO/TS - 10303-1026 Assembly structure - EXPRESS ARM *)
+   
+SCHEMA Assembly_structure_arm;
+
+USE FROM Product_view_definition_structure_arm; -- ISO/TS 10303-1019
+USE FROM Value_with_unit_arm; -- ISO/TS 10303-1054
+   
+ENTITY Assembly_component_relationship
+  ABSTRACT SUPERTYPE OF (ONEOF(Next_assembly_usage, Promissory_usage))
+  SUBTYPE OF (View_definition_usage);
+  quantity           : OPTIONAL Numerical_value;
+  location_indicator : OPTIONAL STRING;
+WHERE
+  WR1: NOT(EXISTS(quantity)) XOR 
+	((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component > 0));
+END_ENTITY;
+
+ENTITY Next_assembly_usage
+  SUBTYPE OF (Assembly_component);
+END_ENTITY;
+
+ENTITY Promissory_usage
+  SUBTYPE OF (Assembly_component);
+END_ENTITY;
+
+END_SCHEMA;
+

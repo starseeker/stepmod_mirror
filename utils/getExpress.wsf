@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <!--
- $Id: mkmodule.wsf,v 1.1 2002/02/15 12:20:38 robbod Exp $ 
+ $Id: getExpress.wsf,v 1.1 2002/03/11 10:15:40 robbod Exp $ 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: A  script to copy all the express files from the repository to
@@ -11,16 +11,62 @@
   <!-- a VB script to pop up a text input -->
   <script language="VBScript">
     <![CDATA[
-      Function ShowInputBox(str)
-          ShowInputBox = InputBox(str)
+      Function ShowInputBox(str, title, default)
+          ShowInputBox = InputBox(str, title, default)
       End Function
       ]]>
   </script>
 
   <!-- the main JScript that creates the module -->
   <script language="JScript" src="getExpressMain.js">
-    var sMsg ="Enter directory to store EXPRESS:";
-    var dir = ShowInputBox(sMsg);
-    MainWindow(dir);		
+    function getExpDir(initVal) {
+	var retVal = 0;
+	var sMsg;
+	sMsg = "Enter directory where Express to be stored:";
+	var expDir = ShowInputBox(sMsg, "Express directory",initVal);
+	if (typeof(expDir) != 'undefined') {
+	    retVal = expDir;
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+	    if (fso.FolderExists(expDir)) {
+		ErrorMessage("Directory exists:\n"+expDir);
+		retVal = -1;
+	    }
+	} else {
+	    retVal = -1;
+	}
+	return(retVal);
+    }
+
+
+    function getModList(initVal) {
+	var retVal = 0;
+	var sMsg;
+	sMsg = "Enter file listing modules:";
+	var modListFile = ShowInputBox(sMsg, "Modules list file",initVal);
+	if (typeof(modListFile) != 'undefined') {
+	    retVal = modListFile;
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+	} else {
+	    retVal = -1;
+	}
+	return(retVal);
+    }
+
+
+   // Disable the output of user messages
+   outputUsermessage = 0;
+   var initVal = "..\\express\\";
+   var sMsg ="Enter directory to store EXPRESS:";
+   var expdir = getExpDir(initVal);
+   var fso = new ActiveXObject("Scripting.FileSystemObject");
+   	
+   if (expdir != -1) {
+       var modList = getModList("..\\modlist");
+       if (!fso.FileExists(modList)) {
+	   ErrorMessage("The "+modList+" file does not exist.");
+       } else {
+           MainWindow(expdir, modList);
+       }
+   } 
   </script>
 </job>

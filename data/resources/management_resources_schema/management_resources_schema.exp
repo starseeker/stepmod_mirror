@@ -44,8 +44,7 @@ REFERENCE FROM location_schema   -- ISO 10303-41
 
 REFERENCE FROM person_organization_schema;    -- ISO 10303-41
 
-REFERENCE FROM qualifications_schema   -- ISO 10303-41
-  (qualification_type); 
+REFERENCE FROM qualifications_schema;    -- ISO 10303-41
 
 REFERENCE FROM security_classification_schema;    -- ISO 10303-41
 
@@ -210,20 +209,32 @@ END_ENTITY;
 
 ENTITY experience_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_experience : experience;
+  role : OPTIONAL experience_role;
+END_ENTITY;
+
+ENTITY experience_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY experience_type_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_experience_type : experience_type;
+  role : OPTIONAL experience_type_role;
+END_ENTITY;
+
+ENTITY experience_type_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY external_identification_assignment
@@ -280,20 +291,32 @@ END_ENTITY;
 
 ENTITY location_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_location : location;
+  role : OPTIONAL location_role;
 END_ENTITY;
 
 ENTITY location_representation_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   represented_location : location;
+  role : OPTIONAL location_representation_role;
+END_ENTITY;
+
+ENTITY location_representation_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
+END_ENTITY;
+
+ENTITY location_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY name_assignment
@@ -311,11 +334,17 @@ END_ENTITY;
 
 ENTITY organization_type_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_organization_type : organization_type;
+  role : OPTIONAL organization_type_role;
+END_ENTITY;
+
+ENTITY organization_type_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY organizational_project_assignment
@@ -343,47 +372,92 @@ END_ENTITY;
 
 ENTITY person_type_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_person_type : person_type;
+  role : OPTIONAL person_type_role;
 END_ENTITY;
 
 ENTITY person_type_definition_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_person_type_definition : person_type_definition;
+  role : OPTIONAL person_type_definition_role;
+END_ENTITY;
+
+ENTITY person_type_definition_role;
+  id : identifier;
+  name : identifier;
+  description : OPTIONAL text;
+END_ENTITY;
+
+ENTITY person_type_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY position_in_organization_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_position_in_organization : position_in_organization;
-  role : OPTIONAL STRING;
+  role : OPTIONAL position_in_organization_role;
+END_ENTITY;
+
+ENTITY position_in_organization_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY position_in_organization_type_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_position_type : position_in_organization_type;
+  role : OPTIONAL position_in_organization_type_role;
+END_ENTITY;
+
+ENTITY position_in_organization_type_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
+END_ENTITY;
+
+ENTITY qualification_assignment
+  ABSTRACT SUPERTYPE ;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
+  assigned_qualification : qualification;
+  role : OPTIONAL qualification_role;
+END_ENTITY;
+
+ENTITY qualification_role;
+  description : OPTIONAL text;
+  id : identifier;
+  name : label;
 END_ENTITY;
 
 ENTITY qualification_type_assignment
   ABSTRACT SUPERTYPE ;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  role : OPTIONAL STRING;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   assigned_qualification_type : qualification_type;
+  role : OPTIONAL qualification_type_role;
+END_ENTITY;
+
+ENTITY qualification_type_role;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY security_classification_assignment
@@ -406,24 +480,6 @@ ENTITY time_interval_assignment
   assigned_time_interval : time_interval;
   role : time_interval_role;
 END_ENTITY;
-
-FUNCTION acyclic_identification_assignment_relationship
- (relation : identification_assignment_relationship; relatives : SET[1:?] OF identification_assignment; specific_relation : STRING) : BOOLEAN; 
- LOCAL
-      x : SET OF identification_assignment_relationship;
-    END_LOCAL;
-
-    IF relation.relating_identification_assignment IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(ia <* bag_to_set(USEDIN(relation.relating_identification_assignment, 'MANAGEMENT_RESOURCES_SCHEMA.' + 'IDENTIFICATION_ASSIGNMENT_RELATIONSHIP.' + 'RELATED_IDENTIFICATION_ASSIGNMENT')) | specific_relation IN TYPEOF(ia));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_identification_assignment_relationship(x[i], relatives + relation.relating_identification_assignment, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-END_FUNCTION; 
 
 END_SCHEMA;  -- management_resources_schema
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.10 2002/01/28 11:07:18 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.11 2002/02/07 11:29:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -228,9 +228,11 @@ NOT USED
 </xsl:template>
 
 <xsl:template match="aimelt">
-  <xsl:call-template name="output_string_with_linebreaks">
-    <xsl:with-param name="string" select="string(.)"/>
-  </xsl:call-template>
+  <font size="-1">
+    <xsl:call-template name="output_string_with_linebreaks">
+      <xsl:with-param name="string" select="string(.)"/>
+    </xsl:call-template>
+  </font>
 </xsl:template>
 
 <xsl:template match="aimelt" mode="old">
@@ -290,7 +292,17 @@ NOT USED
 
 <xsl:template match="source">
   <font size="-1">
-    <xsl:value-of select="string(.)"/>
+    <xsl:choose>
+      <xsl:when test="string-length(string(.))=0">
+        <!-- no source so setup empty cell -->
+        &#160;        
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="output_string_with_linebreaks">
+          <xsl:with-param name="string" select="string(.)"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
   </font>
 </xsl:template>
 

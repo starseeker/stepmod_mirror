@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.46 2003/02/27 15:55:11 robbod Exp $
+     $Id: express_code.xsl,v 1.47 2003/04/11 14:27:21 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -407,7 +407,8 @@
   <xsl:apply-templates select="./derived" mode="code"/>
   <xsl:apply-templates select="./inverse" mode="code"/>
   <xsl:apply-templates select="./unique" mode="code"/>
-  <xsl:call-template name="output_where_formal"/>
+  <xsl:apply-templates select="./where[@expression]" mode="code"/>
+  <!-- <xsl:call-template name="output_where_formal"/> -->
   END_ENTITY;<br/>
 </xsl:template>
 

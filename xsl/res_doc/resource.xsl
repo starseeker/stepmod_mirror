@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.42 2004/09/16 17:24:47 thendrix Exp $
+$Id: resource.xsl,v 1.43 2004/09/27 04:43:07 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -587,13 +587,27 @@ o=isocs; s=central<br/>
     </xsl:call-template>           
   </xsl:variable>
 
+
+  <xsl:variable name="resdoc_title">
+    <xsl:apply-templates select="resource" mode="title">
+      <xsl:with-param name="res" select="./@name"/>
+    </xsl:apply-templates>           
+  </xsl:variable>
+
+  <xsl:variable name="resdoc_stdnumber">
+    <xsl:call-template name="get_resdoc_stdnumber">
+      <xsl:with-param name="resdoc" select="."/>
+    </xsl:call-template>           
+  </xsl:variable>
+
   <xsl:choose>
     <xsl:when test="./abstract">
       <xsl:apply-templates select="./abstract"/>
     </xsl:when>
     <xsl:otherwise>
       <P>
-        This part of ISO 10303 specifies the integrated resource 
+
+        <xsl:value-of select="$resdoc_stdnumber"/>  specifies the integrated resource 
         <xsl:value-of select="$resdoc_name"/>.
       </P>
       <P>
@@ -892,35 +906,12 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
     A complete list of parts of ISO 10303 is available from the Internet: 
   </p>
   <blockquote>
-    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf">
-      http://www.tc184-sc4.org/titles/STEP_Titles.rtf
+    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.htm"   target="_blank">
+      http://www.tc184-sc4.org/titles/STEP_Titles.htm
     </A>
   </blockquote>
 
-  <!-- removed per ISO 
-  <p>
-    Annexes A and B form an integral part of this part of ISO
-    10303.  
-    <xsl:variable name="tokens">
-      <xsl:call-template name="annex_count" />
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="string-length(normalize-space($tokens))=3">
-        Annexes C, D, E, F and G
-      </xsl:when>
-      <xsl:when test="string-length(normalize-space($tokens))=2">
-      Annexes C, D, E and F      
-      </xsl:when>
-      <xsl:when test="string-length(normalize-space($tokens))=2">
-      Annexes C, D and E      
-      </xsl:when>
-      <xsl:otherwise>
-      Annexes C and D      
-      </xsl:otherwise>
-    </xsl:choose>
-    are for information only.  
-  </p> 
--->
+
     <p>
       <a name="future">
        <sup>1)</sup>A future edition of ISO 10303-1 will describe the application modules series. 
@@ -1051,15 +1042,7 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
   <xsl:variable name="mim_schema"
     select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
     
-  <!--
-       It has been decided to point to the index instead
-  <xsl:variable name="names_url"
-      select="concat('http://www.steptools.com/cgi-bin/getnames.cgi?schema=',
-              $mim_schema)"/>
-  
-  <xsl:variable name="parts_url"
-  select="concat('http://www.steptools.com/sc4/archive/~checkout~/modules/10303-',@part,'-arm.exp?rev=1.1&amp;content-type=text/plain')"/>
-  -->
+
   <xsl:variable name="names_url"
     select="'http://www.tc184-sc4.org/Short_Names/'"/>
   
@@ -1078,12 +1061,12 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
     <tr>
       <td>&#160;&#160;</td>
       <td>Short names:</td>
-      <td>&lt;<a href="{$names_url}"><xsl:value-of select="$names_url"/></a>&gt;</td>
+      <td>&lt;<a href="{$names_url}"   target="_blank"><xsl:value-of select="$names_url"/></a>&gt;</td>
   </tr>
   <tr>
     <td>&#160;&#160;</td>
     <td>EXPRESS:</td>
-     <td>&lt;<a href="{$parts_url}"><xsl:value-of select="$parts_url"/></a>&gt;</td>
+     <td>&lt;<a href="{$parts_url}"   target="_blank"><xsl:value-of select="$parts_url"/></a>&gt;</td>
    </tr>
   </table>
   <p/>

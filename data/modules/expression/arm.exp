@@ -1,14 +1,12 @@
 (* 
-   $Id: arm.exp,v 1.21 2004/03/04 13:20:06 rugarcia Exp $
+   $Id: arm.exp,v 1.22 2004/11/23 14:21:59 rocc Exp $
    ISO/TC184/SC4 WG12N2555 - ISO/TS 10303-1342 Expression - Express ARM 
    Supersedes ISO TC184/SC4/WG12N1796
 *)
 
 SCHEMA Expression_arm;
 
-USE FROM Numeric_function_arm;
-
-REFERENCE FROM Numeric_function_arm (is_int_expr);
+USE FROM Generic_expression_arm;
 
 ENTITY And_expression
 SUBTYPE OF (Multiple_arity_boolean_expression);
@@ -121,11 +119,7 @@ SUBTYPE OF (String_expression, Multiple_arity_generic_expression);
 END_ENTITY;
 
 ENTITY Defined_function
-	ABSTRACT SUPERTYPE OF ((ONEOF (Numeric_defined_function,
-				String_defined_function,
-				Boolean_defined_function)
-				)
-				ANDOR Sql_mappable_defined_function);
+	ABSTRACT SUPERTYPE;
 END_ENTITY;
 
 ENTITY Div_expression
@@ -174,7 +168,7 @@ ENTITY Int_numeric_variable
 SUBTYPE OF (Numeric_variable);
 END_ENTITY;
 
-ENTITY Interval_Expression
+ENTITY Interval_expression
 SUBTYPE OF (Boolean_expression, Multiple_arity_generic_expression) ;
 DERIVE
 	interval_low: Generic_expression
@@ -239,8 +233,7 @@ SUBTYPE OF (Boolean_expression, Multiple_arity_generic_expression);
 END_ENTITY;
 
 ENTITY Multiple_arity_function_call
-	ABSTRACT SUPERTYPE OF (ONEOF (Maximum_function, 
-				Minimum_function))
+	ABSTRACT SUPERTYPE
 	SUBTYPE OF (Multiple_arity_numeric_expression);
 END_ENTITY;
 
@@ -258,12 +251,7 @@ SELF\Unary_generic_expression.operand: Boolean_expression;
 END_ENTITY;
 
 ENTITY Numeric_expression
-ABSTRACT SUPERTYPE OF (ONEOF (Simple_numeric_expression,
-				Unary_numeric_expression,
-				Binary_numeric_expression,
-				Multiple_arity_numeric_expression,
-				Length_function,
-				Value_function))
+ABSTRACT SUPERTYPE
 SUBTYPE OF (Expression);
 DERIVE
 	is_int: BOOLEAN := Is_int_expr (SELF);
@@ -370,7 +358,7 @@ WHERE
 END_ENTITY;
 
 ENTITY Unary_boolean_expression
-ABSTRACT SUPERTYPE OF (ONEOF (Not_expression, Odd_function))
+ABSTRACT SUPERTYPE
 SUBTYPE OF (Boolean_expression, Unary_generic_expression);
 END_ENTITY;
 
@@ -543,5 +531,121 @@ END_IF;
 	RETURN (FALSE);
 END_FUNCTION; 
 
+FUNCTION Is_int_expr (arg: Numeric_expression) : BOOLEAN;
+
+LOCAL
+	i: INTEGER;
+END_LOCAL;
+
+IF 'EXPRESSION_ARM.INT_LITERAL' IN TYPEOF(arg) 
+THEN 
+	RETURN (TRUE); 
+END_IF;
+IF 'EXPRESSION_ARM.REAL_LITERAL' IN TYPEOF(arg) 
+THEN 
+	RETURN (FALSE); 
+END_IF;
+IF 'EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(arg) 
+THEN 
+	RETURN (TRUE); 
+END_IF;
+IF 'EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(arg) 
+THEN 
+	RETURN (FALSE); 
+END_IF;
+IF 'NUMERIC_FUNCTION_ARM.ABS_FUNCTION' IN TYPEOF(arg) 
+THEN 
+	RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
+END_IF;
+IF 'NUMERIC_FUNCTION.MINUS_FUNCTION' IN TYPEOF(arg) 
+THEN 
+	RETURN (Is_int_expr(arg\Unary_numeric_expression.operand)); 
+END_IF;
+IF ('NUMERIC_FUNCTION_ARM.SIN_FUNCTION' IN TYPEOF(arg)) 
+		OR ('NUMERIC_FUNCTION_ARM.COS_FUNCTION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.TAN_FUNCTION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.ASIN_FUNCTION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.ACOS_FUNCTION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.Atan_function' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.EXP_FUNCTION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.LOG_FUNCTION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.LOG2_FUNCTION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.LOG10_FUNCTION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.SQUARE_ROOT_FUNCTION' 
+								IN TYPEOF(arg))
+THEN 
+	RETURN (FALSE);
+END_IF;
+IF 	('EXPRESSION_ARM.PLUS_EXPRESSION' IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.MULT_EXPRESSION' 
+								IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.MAXIMUM_FUNCTION'
+								IN TYPEOF(arg))
+		OR ('NUMERIC_FUNCTION_ARM.MINIMUM_FUNCTION'
+								IN TYPEOF(arg)) 
+THEN 
+	REPEAT i :=1 TO SIZEOF (
+			arg\Multiple_arity_numeric_expression.operands);
+	IF NOT 
+		Is_int_expr(arg\Multiple_arity_numeric_expression.operands[i]) 
+	THEN 
+		RETURN (FALSE);
+	END_IF;
+	END_REPEAT;
+	RETURN (TRUE);
+END_IF;
+IF 	('EXPRESSION_ARM.MINUS_EXPRESSION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.POWER_EXPRESSION' 
+								IN TYPEOF(arg))
+THEN 
+	RETURN (Is_int_expr(arg\Binary_numeric_expression.operands[1])
+		AND Is_int_expr(arg\Binary_numeric_expression.operands[2]));
+END_IF;
+IF	('EXPRESSION_ARM.DIV_EXPRESSION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.MOD_EXPRESSION' IN TYPEOF(arg))
+THEN 
+	RETURN(TRUE);	
+END_IF;
+IF 'EXPRESSION_ARM.SLASH_EXPRESSION' IN TYPEOF(arg) 
+THEN 
+	RETURN (FALSE); 	
+END_IF;
+IF 'NUMERIC_FUNCTION_ARM.LENGTH_FUNCTION' IN TYPEOF(arg) 
+THEN 
+	RETURN (TRUE); 
+END_IF;
+IF 'NUMERIC_FUNCTION_ARM.VALUE_FUNCTION' IN TYPEOF(arg) 
+THEN 
+	IF 'NUMERIC_FUNCTION_ARM.INT_VALUE_FUNCTION' 
+								IN TYPEOF(arg) 
+	THEN 
+		RETURN (TRUE); 
+	ELSE 
+		RETURN (FALSE); 
+	END_IF;
+END_IF;
+IF 'NUMERIC_FUNCTION_ARM.INTEGER_DEFINED_FUNCTION' 
+								IN TYPEOF(arg)
+THEN 
+	RETURN(TRUE) ;
+END_IF;
+IF'NUMERIC_FUNCTION_ARM.REAL_DEFINED_FUNCTION' IN TYPEOF(arg) 
+THEN 
+	RETURN(FALSE) ;
+END_IF ;
+IF 'EXPRESSION_ARM.BOOLEAN_DEFINED_FUNCTION' 
+								IN TYPEOF(arg)
+THEN 
+	RETURN(FALSE) ;
+END_IF ;
+IF 'EXPRESSION_ARM.STRING_DEFINED_FUNCTION' 
+								IN TYPEOF(arg)
+THEN 
+	RETURN (FALSE) ;
+END_IF ;
+
+RETURN (FALSE);
+
+END_FUNCTION; 
 
 END_SCHEMA;

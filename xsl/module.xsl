@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.151 2003/07/02 16:25:20 robbod Exp $
+$Id: module.xsl,v 1.152 2003/07/28 12:16:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2968,18 +2968,10 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
         test="( string($current_module/@status)='TS' or 
                 string($current_module/@status)='IS') and
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
-        <sup>
-          <a href="#derogation">
-            2)
-          </a>
-        </sup>
+        &#160;<sup><a href="#derogation">2</a>)</sup>
       </xsl:when>
       <xsl:when test="@published='n'">
-        <sup>
-          <a href="#tobepub">
-            1)
-          </a>
-        </sup>
+        &#160;<sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160;
     <i>
@@ -3000,7 +2992,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of 
-          select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':-')"/>
+          select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -3024,8 +3016,8 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       <xsl:when test="stdref[@published='n']">
         <sup>
           <a href="#tobepub">
-            1)
-          </a>
+            1
+          </a>)
         </sup>
       </xsl:when>
     </xsl:choose>,&#160;

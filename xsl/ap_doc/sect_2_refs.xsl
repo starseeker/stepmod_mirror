@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.10 2003/07/28 10:35:54 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -631,7 +631,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
         <xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':-')"/>
+        <xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

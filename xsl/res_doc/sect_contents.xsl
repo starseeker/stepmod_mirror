@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
+$Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -348,13 +348,13 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
      <xsl:value-of select="concat($clause_no,' ',$resource_display_name)"/></A>
    </p>
 
-   <p>
+   <p class="content">
    &#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#intro">
            <xsl:value-of select="concat(string($clause_no),'.1 Introduction')"/>
            </A><BR/>
 
            <!-- fundamental concepts - seems to always be there -->
-           </p><p>
+           </p><p class="content">
            &#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon{$clause_no}">
            <xsl:value-of select="concat($clause_no,'.2 Fundamental concepts and assumptions')"/>
            </A><BR/>
@@ -362,6 +362,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    <!-- only output if there are interfaces defined and therefore a
         section -->
 
+<!-- commented out as not required for resource docs -->
+<!--
    <xsl:variable name="interface_clause">
      <xsl:call-template name="express_clause_present">
        <xsl:with-param name="schema_no" select="$clause_no"/>
@@ -369,16 +371,21 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
    </xsl:variable>
+
+   
    <xsl:if test="$interface_clause != 0">
      <p class="content">
        &#160; &#160;
 
      <A HREF="./{$clause_no}_schema{$FILE_EXT}#interfaces">
-         <xsl:value-of select="concat($interface_clause,
+         <xsl:value-of select="concat($clause_no,$interface_clause,
                                ' Interfaced schemas')"/>
        </A>
      </p>
    </xsl:if>
+-->
+<!-- end of commented out section -->
+
    <!-- only output if there are constants defined and therefore a
         section -->
    <xsl:variable name="constant_clause">
@@ -391,9 +398,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$constant_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#constants">
-         <xsl:value-of select="concat($constant_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#constants">
+         <xsl:value-of select="concat($clause_no,$constant_clause,' ',$resource_display_name,
                                ' constant definitions')"/>
        </A>
      </p>
@@ -416,9 +422,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$imported_constant_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_constant">
-         <xsl:value-of select="concat($imported_constant_clause,$resource_display_name,' imported constant modifications')"/>
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_constant">
+         <xsl:value-of select="concat($clause_no,$imported_constant_clause,' ',$resource_display_name,' imported constant modifications')"/>
        </A>
      </p>
    </xsl:if>
@@ -437,9 +442,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
 
    <xsl:if test="$type_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#types">
-         <xsl:value-of select="concat($type_clause, $resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#types">
+         <xsl:value-of select="concat($clause_no,$type_clause,' ', $resource_display_name,
                                ' type definitions')"/>
        </A>
      </p>    
@@ -461,9 +465,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$imported_type_clause != 0">
      <p class="content">
-       &#160; &#160; 
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_type">
-         <xsl:value-of select="concat($imported_type_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_type">
+         <xsl:value-of select="concat($clause_no,$imported_type_clause,' ',$resource_display_name,
                                ' imported type modifications')"/>
        </A>
      </p>
@@ -482,9 +485,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$entity_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#entities">
-         <xsl:value-of select="concat($entity_clause,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#entities">
+         <xsl:value-of select="concat($clause_no,$entity_clause,' ',
                                $resource_display_name,
                                ' entity definitions')"/>
        </A>
@@ -508,9 +510,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$imported_entity_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_entity">
-         <xsl:value-of select="concat($imported_entity_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_entity">
+         <xsl:value-of select="concat($clause_no,$imported_entity_clause,' ',$resource_display_name,
                                ' imported entity modifications')"/>
        </A>
      </p>
@@ -529,9 +530,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$subtype_constraint_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#subtype_constraints">
-         <xsl:value-of select="concat($subtype_constraint_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#subtype_constraints">
+         <xsl:value-of select="concat($clause_no,$subtype_constraint_clause,' ',$resource_display_name,
                                ' subtype constraint definitions')"/>
        </A>
      </p>
@@ -555,9 +555,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$function_clause !=0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#functions">
-         <xsl:value-of select="concat($function_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#functions">
+         <xsl:value-of select="concat($clause_no,$function_clause,' ',$resource_display_name,
                                ' function definitions')"/>
        </A>
      </p>
@@ -579,9 +578,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$imported_function_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_function">
-         <xsl:value-of select="concat($imported_function_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_function">
+         <xsl:value-of select="concat($clause_no,$imported_function_clause,' ',$resource_display_name,
                                ' imported function modifications')"/>
        </A>
      </p>
@@ -599,9 +597,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$rule_clause !=0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#rules">
-         <xsl:value-of select="concat($rule_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#rules">
+         <xsl:value-of select="concat($clause_no,$rule_clause,' ',$resource_display_name,
                                ' rule definitions')"/>
        </A>
      </p>
@@ -623,9 +620,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$imported_rule_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_rule">
-         <xsl:value-of select="concat($imported_rule_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_rule">
+         <xsl:value-of select="concat($clause_no,$imported_rule_clause,' ',$resource_display_name,
                                ' imported rule modifications')"/>
        </A>
      </p>
@@ -643,9 +639,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$procedure_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#procedures">
-         <xsl:value-of select="concat($procedure_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#procedures">
+         <xsl:value-of select="concat($clause_no,$procedure_clause,' ',$resource_display_name,
                                ' procedure definitions')"/>
        </A>
      </p>
@@ -665,9 +660,8 @@ $Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
    </xsl:variable>
    <xsl:if test="$imported_procedure_clause != 0">
      <p class="content">
-       &#160; &#160;
-       <A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_procedure">
-         <xsl:value-of select="concat($imported_procedure_clause,$resource_display_name,
+       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_procedure">
+         <xsl:value-of select="concat($clause_no,$imported_procedure_clause,' ',$resource_display_name,
                                ' imported procedure modifications')"/>
        </A>
      </p>

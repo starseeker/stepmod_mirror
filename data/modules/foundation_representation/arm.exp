@@ -1,26 +1,43 @@
-{ iso standard 10303 part (11) version (4) }
-(*  $Id: $ *) 
+(* N1322 - ISO/CD-TS - 10303-1006 Foundation representation - EXPRESS ARM *)
+
 SCHEMA Foundation_representation_arm;
 
+TYPE compound_item_definition = SELECT (list_representation_item, set_representation_item);
+END_TYPE; 
+
+TYPE list_representation_item = LIST[1:?] OF representation_item;
+END_TYPE; 
+
+TYPE set_representation_item = SET[1:?] OF representation_item;
+END_TYPE; 
+
+ENTITY Compound_representation_item
+SUBTYPE OF (representation_item) ; 
+   item_element : compound_item_definition;
+END_ENTITY;
+
 ENTITY Representation;
-  context_of_items : Representation_context;
-  descr : OPTIONAL STRING;
-  identifier : OPTIONAL STRING;
-  items : SET [1 : ?] OF Representation_item;
   name : STRING;
+  context_of_items : Representation_context;
+  items : SET [1:?] OF Representation_item;
+  description : OPTIONAL STRING;
+  id : OPTIONAL STRING;
 END_ENTITY;
 
 ENTITY Representation_context;
-  identifier : STRING;
+  id : STRING;
   kind : STRING;
 INVERSE
-  representations_in_context : SET [1 : ?] OF Representation FOR context_of_items;
+  representations_in_context : SET [1:?] OF Representation FOR context_of_items;
 END_ENTITY;
 
-ENTITY Representation_item;
+ENTITY Representation_item ABSTRACT;
   name : STRING;
-INVERSE
-  items_in_representation : SET [1 : ?] OF Representation FOR items;
+END_ENTITY;
+
+ENTITY String_representation_item
+SUBTYPE OF (Representation_item);
+  string_value : STRING;
 END_ENTITY;
 
 END_SCHEMA;

@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: geometry_schema.xml,v 1.3 2002/02/08 08:29:05 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/08 08:29:05 $"
-  rcs.revision="$Revision: 1.3 $">
+  reference="ISO 10303-42"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.9"
     source="../data/resources/geometry_schema/geometry_schema.exp"/>
 
   <schema name="geometry_schema">
@@ -2474,29 +2475,29 @@
     <rule
       name="compatible_dimension"
       appliesto="cartesian_point direction representation_context geometric_representation_context">
-      <where label="WR1"
-        expression="-- ensure that the count of coordinates of each cartesian_point
-  -- matches the coordinate_space_dimension of each geometric_context in
-  -- which it is geometrically founded
-     SIZEOF(QUERY(x &lt;* cartesian_point| SIZEOF(QUERY
-       (y &lt;* geometric_representation_context | item_in_context(x,y) AND
-                    (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0 )) =0;"/>
+      <algorithm>
+WHERE
 
-        <where label="WR2"
-        expression="-- ensure that the count of direction_ratios of each direction
+  -- ensure that the count of coordinates of each cartesian_point
   -- matches the coordinate_space_dimension of each geometric_context in
   -- which it is geometrically founded
-      SIZEOF(QUERY(x &lt;* direction | SIZEOF( QUERY
+  WR1: SIZEOF(QUERY(x &lt;* cartesian_point| SIZEOF(QUERY
+       (y &lt;* geometric_representation_context | item_in_context(x,y) AND
+       (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0 )) =0;
+
+  -- ensure that the count of direction_ratios of each direction
+  -- matches the coordinate_space_dimension of each geometric_context in
+  -- which it is geometrically founded
+  WR2: SIZEOF(QUERY(x &lt;* direction | SIZEOF( QUERY
        (y &lt;* geometric_representation_context | item_in_context(x,y) AND
        (HIINDEX(x.direction_ratios) &lt;&gt; y.coordinate_space_dimension)))
-                    &gt; 0 )) = 0;"/>
+       &gt; 0 )) = 0;
+      </algorithm>
 
     </rule>
 
     <function
       name="above_plane">
-      <builtintype
-        type="REAL"/>
       <parameter
         name="p1">
         <typename
@@ -2517,6 +2518,8 @@
         <typename
           name="cartesian_point"/>
       </parameter>
+      <builtintype
+        type="REAL"/>
       <algorithm>
    LOCAL
      dir2, dir3, dir4 : direction :=
@@ -2542,8 +2545,6 @@
 
     <function
       name="acyclic_curve_replica">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="rep">
         <typename
@@ -2554,6 +2555,8 @@
         <typename
           name="curve"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    IF NOT (('GEOMETRY_SCHEMA.CURVE_REPLICA') IN TYPEOF(parent)) THEN
       RETURN (TRUE);
@@ -2573,8 +2576,6 @@
 
     <function
       name="acyclic_point_replica">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="rep">
         <typename
@@ -2585,6 +2586,8 @@
         <typename
           name="point"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    IF NOT (('GEOMETRY_SCHEMA.POINT_REPLICA') IN TYPEOF(parent)) THEN
       RETURN (TRUE);
@@ -2602,8 +2605,6 @@
 
     <function
       name="acyclic_surface_replica">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="rep">
         <typename
@@ -2614,6 +2615,8 @@
         <typename
           name="surface"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    IF NOT (('GEOMETRY_SCHEMA.SURFACE_REPLICA') IN TYPEOF(parent)) THEN
       RETURN (TRUE);
@@ -2632,13 +2635,13 @@
 
     <function
       name="associated_surface">
-      <typename
-        name="surface"/>
       <parameter
         name="arg">
         <typename
           name="pcurve_or_surface"/>
       </parameter>
+      <typename
+        name="surface"/>
       <algorithm>
    LOCAL
      surf : surface;
@@ -2656,12 +2659,6 @@
 
     <function
       name="base_axis">
-      <aggregate
-        type="LIST"
-        lower="2"
-        upper="3"/>
-      <typename
-        name="direction"/>
       <parameter
         name="dim">
         <builtintype
@@ -2682,6 +2679,12 @@
         <typename
           name="direction"/>
       </parameter>
+      <aggregate
+        type="LIST"
+        lower="2"
+        upper="3"/>
+      <typename
+        name="direction"/>
       <algorithm>
   LOCAL
     u      : LIST [2:3] OF direction;
@@ -2723,17 +2726,17 @@
 
     <function
       name="build_2axes">
+      <parameter
+        name="ref_direction">
+        <typename
+          name="direction"/>
+      </parameter>
       <aggregate
         type="LIST"
         lower="2"
         upper="2"/>
       <typename
         name="direction"/>
-      <parameter
-        name="ref_direction">
-        <typename
-          name="direction"/>
-      </parameter>
       <algorithm>
    LOCAL
      d : direction := NVL(normalise(ref_direction),
@@ -2747,12 +2750,6 @@
 
     <function
       name="build_axes">
-      <aggregate
-        type="LIST"
-        lower="3"
-        upper="3"/>
-      <typename
-        name="direction"/>
       <parameter
         name="axis">
         <typename
@@ -2763,6 +2760,12 @@
         <typename
           name="direction"/>
       </parameter>
+      <aggregate
+        type="LIST"
+        lower="3"
+        upper="3"/>
+      <typename
+        name="direction"/>
       <algorithm>
    LOCAL
      d1, d2 : direction;
@@ -2776,13 +2779,13 @@
 
     <function
       name="constraints_composite_curve_on_surface">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="c">
         <typename
           name="composite_curve_on_surface"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    LOCAL
      n_segments : INTEGER := SIZEOF(c.segments);
@@ -2805,8 +2808,6 @@
 
     <function
       name="constraints_param_b_spline">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="degree">
         <builtintype
@@ -2836,6 +2837,8 @@
         <typename
           name="parameter_value"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    LOCAL
      result  : BOOLEAN := TRUE;
@@ -2888,13 +2891,13 @@
 
     <function
       name="constraints_rectangular_composite_surface">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="s">
         <typename
           name="rectangular_composite_surface"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
 
    (* Check the surface types *)
@@ -2932,8 +2935,6 @@
 
     <function
       name="cross_product">
-      <typename
-        name="vector"/>
       <parameter
         name="arg1">
         <typename
@@ -2944,6 +2945,8 @@
         <typename
           name="direction"/>
       </parameter>
+      <typename
+        name="vector"/>
       <algorithm>
   LOCAL
     mag    : REAL;
@@ -2979,13 +2982,13 @@
 
     <function
       name="curve_weights_positive">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="b">
         <typename
           name="rational_b_spline_curve"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    LOCAL
      result : BOOLEAN := TRUE;
@@ -3004,17 +3007,17 @@
 
     <function
       name="default_b_spline_curve_weights">
+      <parameter
+        name="up_cp">
+        <builtintype
+          type="INTEGER"/>
+      </parameter>
       <aggregate
         type="ARRAY"
         lower="0"
         upper="up_cp"/>
       <typename
         name="REAL"/>
-      <parameter
-        name="up_cp">
-        <builtintype
-          type="INTEGER"/>
-      </parameter>
       <algorithm>
    RETURN([1:up_cp + 1]);
       </algorithm>
@@ -3023,12 +3026,6 @@
 
     <function
       name="default_b_spline_surface_weights">
-      <aggregate
-        type="ARRAY"
-        lower="0"
-        upper="u_upper"/>
-      <typename
-        name="ARRAY"/>
       <parameter
         name="u_upper">
         <builtintype
@@ -3039,6 +3036,12 @@
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <aggregate
+        type="ARRAY"
+        lower="0"
+        upper="u_upper"/>
+      <typename
+        name="ARRAY"/>
       <algorithm>
     RETURN([[1:v_upper + 1]:u_upper +1]);
       </algorithm>
@@ -3047,12 +3050,6 @@
 
     <function
       name="default_b_spline_knot_mult">
-      <aggregate
-        type="LIST"
-        lower="2"
-        upper="?"/>
-      <typename
-        name="INTEGER"/>
       <parameter
         name="degree">
         <builtintype
@@ -3068,6 +3065,12 @@
         <typename
           name="knot_type"/>
       </parameter>
+      <aggregate
+        type="LIST"
+        lower="2"
+        upper="?"/>
+      <typename
+        name="INTEGER"/>
       <algorithm>
    LOCAL
      knot_mult : LIST [1:up_knots] OF INTEGER;
@@ -3097,12 +3100,6 @@
 
     <function
       name="default_b_spline_knots">
-      <aggregate
-        type="LIST"
-        lower="2"
-        upper="?"/>
-      <typename
-        name="parameter_value"/>
       <parameter
         name="degree">
         <builtintype
@@ -3118,6 +3115,12 @@
         <typename
           name="knot_type"/>
       </parameter>
+      <aggregate
+        type="LIST"
+        lower="2"
+        upper="?"/>
+      <typename
+        name="parameter_value"/>
       <algorithm>
   LOCAL
     knots  : LIST [1:up_knots] OF parameter_value := [0:up_knots];
@@ -3142,13 +3145,13 @@
 
     <function
       name="dimension_of">
-      <typename
-        name="dimension_count"/>
       <parameter
         name="item">
         <typename
           name="geometric_representation_item"/>
       </parameter>
+      <typename
+        name="dimension_count"/>
       <algorithm>
   LOCAL
     x   : SET OF representation;
@@ -3192,8 +3195,6 @@
 
     <function
       name="dot_product">
-      <builtintype
-        type="REAL"/>
       <parameter
         name="arg1">
         <typename
@@ -3204,6 +3205,8 @@
         <typename
           name="direction"/>
       </parameter>
+      <builtintype
+        type="REAL"/>
       <algorithm>
    LOCAL
      scalar : REAL;
@@ -3240,8 +3243,6 @@
 
     <function
       name="first_proj_axis">
-      <typename
-        name="direction"/>
       <parameter
         name="z_axis">
         <typename
@@ -3252,6 +3253,8 @@
         <typename
           name="direction"/>
       </parameter>
+      <typename
+        name="direction"/>
       <algorithm>
    LOCAL
      x_axis : direction;
@@ -3291,17 +3294,17 @@
 
     <function
       name="get_basis_surface">
+      <parameter
+        name="c">
+        <typename
+          name="curve_on_surface"/>
+      </parameter>
       <aggregate
         type="SET"
         lower="0"
         upper="2"/>
       <typename
         name="surface"/>
-      <parameter
-        name="c">
-        <typename
-          name="curve_on_surface"/>
-      </parameter>
       <algorithm>
   LOCAL
     surfs  : SET[0:2] OF surface;
@@ -3340,10 +3343,6 @@
 
     <function
       name="list_to_array">
-      <aggregate
-        type="ARRAY"/>
-      <typename
-        name="GENERIC"/>
       <parameter
         name="lis">
         <aggregate
@@ -3363,6 +3362,10 @@
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <aggregate
+        type="ARRAY"/>
+      <typename
+        name="GENERIC"/>
       <algorithm>
    LOCAL
      n   : INTEGER;
@@ -3385,10 +3388,6 @@
 
     <function
       name="make_array_of_array">
-      <aggregate
-        type="ARRAY"/>
-      <typename
-        name="ARRAY"/>
       <parameter
         name="lis">
         <aggregate
@@ -3418,6 +3417,10 @@
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <aggregate
+        type="ARRAY"/>
+      <typename
+        name="ARRAY"/>
       <algorithm>
    LOCAL
      res   : ARRAY[low1:u1] OF ARRAY [low2:u2] OF GENERIC : T;
@@ -3446,10 +3449,6 @@
 
     <function
       name="make_array_of_array_of_array">
-      <aggregate
-        type="ARRAY"/>
-      <typename
-        name="ARRAY"/>
       <parameter
         name="lis">
         <aggregate
@@ -3489,6 +3488,10 @@
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <aggregate
+        type="ARRAY"/>
+      <typename
+        name="ARRAY"/>
       <algorithm>
  LOCAL 
    res   : ARRAY[low1:u1] OF ARRAY [low2:u2] OF
@@ -3517,13 +3520,13 @@
 
     <function
       name="normalise">
-      <typename
-        name="vector_or_direction"/>
       <parameter
         name="arg">
         <typename
           name="vector_or_direction"/>
       </parameter>
+      <typename
+        name="vector_or_direction"/>
       <algorithm>
    LOCAL
      ndim   : INTEGER;
@@ -3576,13 +3579,13 @@
 
     <function
       name="orthogonal_complement">
-      <typename
-        name="direction"/>
       <parameter
         name="vec">
         <typename
           name="direction"/>
       </parameter>
+      <typename
+        name="direction"/>
       <algorithm>
    LOCAL
      result :  direction ;
@@ -3601,8 +3604,6 @@
 
     <function
       name="same_side">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="plane_pts">
         <aggregate
@@ -3621,6 +3622,8 @@
         <typename
           name="cartesian_point"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    LOCAL
      val1, val2 : REAL;
@@ -3647,8 +3650,6 @@
 
     <function
       name="scalar_times_vector">
-      <typename
-        name="vector"/>
       <parameter
         name="scalar">
         <builtintype
@@ -3659,6 +3660,8 @@
         <typename
           name="vector_or_direction"/>
       </parameter>
+      <typename
+        name="vector"/>
       <algorithm>
    LOCAL
      v      : direction;
@@ -3691,8 +3694,6 @@
 
     <function
       name="second_proj_axis">
-      <typename
-        name="direction"/>
       <parameter
         name="z_axis">
         <typename
@@ -3708,6 +3709,8 @@
         <typename
           name="direction"/>
       </parameter>
+      <typename
+        name="direction"/>
       <algorithm>
    LOCAL
      y_axis : vector;
@@ -3733,13 +3736,13 @@
 
     <function
       name="surface_weights_positive">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="b">
         <typename
           name="rational_b_spline_surface"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    LOCAL
      result        : BOOLEAN := TRUE;
@@ -3760,8 +3763,6 @@
 
     <function
       name="vector_difference">
-      <typename
-        name="vector"/>
       <parameter
         name="arg1">
         <typename
@@ -3772,6 +3773,8 @@
         <typename
           name="vector_or_direction"/>
       </parameter>
+      <typename
+        name="vector"/>
       <algorithm>
    LOCAL
      result          : vector;
@@ -3823,8 +3826,6 @@
 
     <function
       name="vector_sum">
-      <typename
-        name="vector"/>
       <parameter
         name="arg1">
         <typename
@@ -3835,6 +3836,8 @@
         <typename
           name="vector_or_direction"/>
       </parameter>
+      <typename
+        name="vector"/>
       <algorithm>
    LOCAL
      result          : vector;
@@ -3887,13 +3890,13 @@
 
     <function
       name="volume_weights_positive">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="b">
         <typename
           name="rational_b_spline_volume"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
      LOCAL
        result   : BOOLEAN := TRUE;

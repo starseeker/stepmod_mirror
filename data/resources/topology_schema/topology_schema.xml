@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: topology_schema.xml,v 1.1 2001/12/14 17:48:42 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2001/12/14 17:48:42 $"
-  rcs.revision="$Revision: 1.1 $">
+  reference="ISO 10303-42"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.4"
+    version="1.9"
     source="../data/resources/topology_schema/topology_schema.exp"/>
 
   <schema name="topology_schema">
@@ -27,9 +28,16 @@
         name="representation_item"/>
     </interface>
 
+    <constant name="dummy_tri"
+      expression="topological_representation_item := representation_item('')||                   topological_representation_item()">
+    </constant>
     <type name="list_of_reversible_topology_item">
+      <aggregate
+        type="LIST"
+        lower="0"
+        upper="?"/>
       <typename
-        name="LIST [0:?] of reversible_topology_item"/>
+        name="reversible_topology_item"/>
 
     </type>
     <type name="reversible_topology">
@@ -45,8 +53,12 @@
 
     </type>
     <type name="set_of_reversible_topology_item">
+      <aggregate
+        type="SET"
+        lower="0"
+        upper="?"/>
       <typename
-        name="SET [0:?] of reversible_topology_item"/>
+        name="reversible_topology_item"/>
 
     </type>
     <type name="shell">
@@ -516,8 +528,6 @@
 
     <function
       name="boolean_choose">
-      <typename
-        name="generic : item"/>
       <parameter
         name="b">
         <typename
@@ -533,6 +543,8 @@
         <typename
           name="generic : item"/>
       </parameter>
+      <typename
+        name="generic : item"/>
       <algorithm>
  
      IF b THEN
@@ -546,13 +558,13 @@
 
     <function
       name="closed_shell_reversed">
-      <typename
-        name="oriented_closed_shell"/>
       <parameter
         name="a_shell">
         <typename
           name="closed_shell"/>
       </parameter>
+      <typename
+        name="oriented_closed_shell"/>
       <algorithm>
   LOCAL
     the_reverse : oriented_closed_shell;
@@ -577,8 +589,6 @@
 
     <function
       name="conditional_reverse">
-      <typename
-        name="reversible_topology"/>
       <parameter
         name="p">
         <builtintype
@@ -589,6 +599,8 @@
         <typename
           name="reversible_topology"/>
       </parameter>
+      <typename
+        name="reversible_topology"/>
       <algorithm>
    IF p THEN
      RETURN (an_item);
@@ -601,10 +613,6 @@
 
     <function
       name="edge_curve_pcurves">
-      <aggregate
-        type="SET"/>
-      <typename
-        name="pcurve"/>
       <parameter
         name="an_edge">
         <typename
@@ -617,6 +625,10 @@
         <typename
           name="surface_curve"/>
       </parameter>
+      <aggregate
+        type="SET"/>
+      <typename
+        name="pcurve"/>
       <algorithm>
 LOCAL
   a_curve      : curve;
@@ -659,13 +671,13 @@ END_LOCAL;
 
     <function
       name="edge_reversed">
-      <typename
-        name="oriented_edge"/>
       <parameter
         name="an_edge">
         <typename
           name="edge"/>
       </parameter>
+      <typename
+        name="oriented_edge"/>
       <algorithm>
    LOCAL
      the_reverse : oriented_edge;
@@ -688,13 +700,13 @@ END_LOCAL;
 
     <function
       name="face_bound_reversed">
-      <typename
-        name="face_bound"/>
       <parameter
         name="a_face_bound">
         <typename
           name="face_bound"/>
       </parameter>
+      <typename
+        name="face_bound"/>
       <algorithm>
    LOCAL
      the_reverse : face_bound ;
@@ -715,13 +727,13 @@ END_LOCAL;
 
     <function
       name="face_reversed">
-      <typename
-        name="oriented_face"/>
       <parameter
         name="a_face">
         <typename
           name="face"/>
       </parameter>
+      <typename
+        name="oriented_face"/>
       <algorithm>
    LOCAL
      the_reverse : oriented_face ;
@@ -743,17 +755,17 @@ END_LOCAL;
 
     <function
       name="list_face_loops">
+      <parameter
+        name="f">
+        <typename
+          name="face"/>
+      </parameter>
       <aggregate
         type="LIST"
         lower="0"
         upper="?"/>
       <typename
         name="loop"/>
-      <parameter
-        name="f">
-        <typename
-          name="face"/>
-      </parameter>
       <algorithm>
    LOCAL
      loops : LIST[0:?] OF loop := [];
@@ -770,17 +782,17 @@ END_LOCAL;
 
     <function
       name="list_loop_edges">
+      <parameter
+        name="l">
+        <typename
+          name="loop"/>
+      </parameter>
       <aggregate
         type="LIST"
         lower="0"
         upper="?"/>
       <typename
         name="edge"/>
-      <parameter
-        name="l">
-        <typename
-          name="loop"/>
-      </parameter>
       <algorithm>
    LOCAL
      edges : LIST[0:?] OF edge := [];
@@ -799,13 +811,13 @@ END_LOCAL;
 
     <function
       name="list_of_topology_reversed">
-      <typename
-        name="list_of_reversible_topology_item"/>
       <parameter
         name="a_list">
         <typename
           name="list_of_reversible_topology_item"/>
       </parameter>
+      <typename
+        name="list_of_reversible_topology_item"/>
       <algorithm>
    LOCAL
      the_reverse : list_of_reversible_topology_item;
@@ -823,17 +835,17 @@ END_LOCAL;
 
     <function
       name="list_shell_edges">
+      <parameter
+        name="s">
+        <typename
+          name="shell"/>
+      </parameter>
       <aggregate
         type="LIST"
         lower="0"
         upper="?"/>
       <typename
         name="edge"/>
-      <parameter
-        name="s">
-        <typename
-          name="shell"/>
-      </parameter>
       <algorithm>
    LOCAL
      edges : LIST[0:?] OF edge := [];
@@ -850,17 +862,17 @@ END_LOCAL;
 
     <function
       name="list_shell_faces">
+      <parameter
+        name="s">
+        <typename
+          name="shell"/>
+      </parameter>
       <aggregate
         type="LIST"
         lower="0"
         upper="?"/>
       <typename
         name="face"/>
-      <parameter
-        name="s">
-        <typename
-          name="shell"/>
-      </parameter>
       <algorithm>
    LOCAL
      faces : LIST[0:?] OF face := [];
@@ -880,17 +892,17 @@ END_LOCAL;
 
     <function
       name="list_shell_loops">
+      <parameter
+        name="s">
+        <typename
+          name="shell"/>
+      </parameter>
       <aggregate
         type="LIST"
         lower="0"
         upper="?"/>
       <typename
         name="loop"/>
-      <parameter
-        name="s">
-        <typename
-          name="shell"/>
-      </parameter>
       <algorithm>
    LOCAL
      loops : LIST[0:?] OF loop := [];
@@ -920,10 +932,6 @@ END_LOCAL;
 
     <function
       name="list_to_set">
-      <aggregate
-        type="SET"/>
-      <typename
-        name="GENERICT"/>
       <parameter
         name="l">
         <aggregate
@@ -933,6 +941,10 @@ END_LOCAL;
         <typename
           name="GENERICT"/>
       </parameter>
+      <aggregate
+        type="SET"/>
+      <typename
+        name="GENERICT"/>
       <algorithm>
    LOCAL
      s : SET OF GENERIC:T := [];
@@ -949,8 +961,6 @@ END_LOCAL;
 
     <function
       name="mixed_loop_type_set">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="l">
         <aggregate
@@ -960,6 +970,8 @@ END_LOCAL;
         <typename
           name="loop"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
     LOCAL
       poly_loop_type: LOGICAL;
@@ -981,13 +993,13 @@ END_LOCAL;
 
     <function
       name="open_shell_reversed">
-      <typename
-        name="oriented_open_shell"/>
       <parameter
         name="a_shell">
         <typename
           name="open_shell"/>
       </parameter>
+      <typename
+        name="oriented_open_shell"/>
       <algorithm>
    LOCAL
      the_reverse : oriented_open_shell;
@@ -1012,13 +1024,13 @@ END_LOCAL;
 
     <function
       name="path_head_to_tail">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="a_path">
         <typename
           name="path"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
    LOCAL
      n : INTEGER;
@@ -1038,13 +1050,13 @@ END_LOCAL;
 
     <function
       name="path_reversed">
-      <typename
-        name="oriented_path"/>
       <parameter
         name="a_path">
         <typename
           name="path"/>
       </parameter>
+      <typename
+        name="oriented_path"/>
       <algorithm>
   LOCAL
     the_reverse : oriented_path ;
@@ -1067,13 +1079,13 @@ END_LOCAL;
 
     <function
       name="set_of_topology_reversed">
-      <typename
-        name="set_of_reversible_topology_item"/>
       <parameter
         name="a_set">
         <typename
           name="set_of_reversible_topology_item"/>
       </parameter>
+      <typename
+        name="set_of_reversible_topology_item"/>
       <algorithm>
    LOCAL
      the_reverse : set_of_reversible_topology_item;
@@ -1091,13 +1103,13 @@ END_LOCAL;
 
     <function
       name="shell_reversed">
-      <typename
-        name="shell"/>
       <parameter
         name="a_shell">
         <typename
           name="shell"/>
       </parameter>
+      <typename
+        name="shell"/>
       <algorithm>
    IF ('TOPOLOGY_SCHEMA.OPEN_SHELL' IN TYPEOF (a_shell) ) THEN
      RETURN (open_shell_reversed (a_shell));
@@ -1114,13 +1126,13 @@ END_LOCAL;
 
     <function
       name="topology_reversed">
-      <typename
-        name="reversible_topology"/>
       <parameter
         name="an_item">
         <typename
           name="reversible_topology"/>
       </parameter>
+      <typename
+        name="reversible_topology"/>
       <algorithm>
 
    IF ('TOPOLOGY_SCHEMA.EDGE' IN TYPEOF (an_item)) THEN
@@ -1158,10 +1170,6 @@ END_LOCAL;
 
     <function
       name="vertex_point_pcurves">
-      <aggregate
-        type="SET"/>
-      <typename
-        name="degenerate_pcurve"/>
       <parameter
         name="a_vertex">
         <typename
@@ -1174,6 +1182,10 @@ END_LOCAL;
         <typename
           name="evaluated_degenerate_pcurve"/>
       </parameter>
+      <aggregate
+        type="SET"/>
+      <typename
+        name="degenerate_pcurve"/>
       <algorithm>
 LOCAL
   a_point : point;

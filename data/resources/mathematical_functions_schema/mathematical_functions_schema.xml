@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: mathematical_functions_schema.xml,v 1.1 2001/12/14 17:49:54 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2001/12/14 17:49:54 $"
-  rcs.revision="$Revision: 1.1 $">
+  reference="ISO 10303-50"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.4"
+    version="1.9"
     source="../data/resources/mathematical_functions_schema/mathematical_functions_schema.exp"/>
 
   <schema name="mathematical_functions_schema">
@@ -350,6 +351,87 @@
         name="volume"/>
     </interface>
 
+    <constant name="schema_prefix"
+      expression="STRING := 'MATHEMATICAL_FUNCTIONS_SCHEMA.'">
+    </constant>
+    <constant name="the_integers"
+      expression="elementary_space := make_elementary_space(es_integers)">
+    </constant>
+    <constant name="the_reals"
+      expression="elementary_space := make_elementary_space(es_reals)">
+    </constant>
+    <constant name="the_complex_numbers"
+      expression="elementary_space := make_elementary_space(es_complex_numbers)">
+    </constant>
+    <constant name="the_numbers"
+      expression="elementary_space := make_elementary_space(es_numbers)">
+    </constant>
+    <constant name="the_logicals"
+      expression="elementary_space := make_elementary_space(es_logicals)">
+    </constant>
+    <constant name="the_booleans"
+      expression="elementary_space := make_elementary_space(es_booleans)">
+    </constant>
+    <constant name="the_strings"
+      expression="elementary_space := make_elementary_space(es_strings)">
+    </constant>
+    <constant name="the_binarys"
+      expression="elementary_space := make_elementary_space(es_binarys)">
+    </constant>
+    <constant name="the_maths_spaces"
+      expression="elementary_space := make_elementary_space(es_maths_spaces)">
+    </constant>
+    <constant name="the_generics"
+      expression="elementary_space := make_elementary_space(es_generics)">
+    </constant>
+    <constant name="the_empty_space"
+      expression="finite_space := make_finite_space([])">
+    </constant>
+    <constant name="the_nonnegative_reals"
+      expression="real_interval_from_min :=    make_real_interval_from_min(0.0, closed)">
+    </constant>
+    <constant name="the_zero_one_interval"
+      expression="finite_real_interval := make_finite_real_interval(    0.0, closed, 1.0, closed)">
+    </constant>
+    <constant name="the_zero_pi_interval"
+      expression="finite_real_interval := make_finite_real_interval(    0.0, closed, pi, closed)">
+    </constant>
+    <constant name="the_neg1_one_interval"
+      expression="finite_real_interval := make_finite_real_interval(    -1.0, closed, 1.0, closed)">
+    </constant>
+    <constant name="the_neghalfpi_halfpi_interval"
+      expression="finite_real_interval := make_finite_real_interval(    -0.5*pi, closed, 0.5*pi, closed)">
+    </constant>
+    <constant name="the_negpi_pi_interval"
+      expression="finite_real_interval := make_finite_real_interval(    -pi, open, pi, closed)">
+    </constant>
+    <constant name="the_zero_tuple_space"
+      expression="listed_product_space := make_listed_product_space([])">
+    </constant>
+    <constant name="the_tuples"
+      expression="extended_tuple_space := make_extended_tuple_space(    the_zero_tuple_space, the_generics)">
+    </constant>
+    <constant name="the_integer_tuples"
+      expression="extended_tuple_space := make_extended_tuple_space(    the_zero_tuple_space, the_integers)">
+    </constant>
+    <constant name="the_real_tuples"
+      expression="extended_tuple_space := make_extended_tuple_space(    the_zero_tuple_space, the_reals)">
+    </constant>
+    <constant name="the_complex_tuples"
+      expression="extended_tuple_space := make_extended_tuple_space(    the_zero_tuple_space, the_complex_numbers)">
+    </constant>
+    <constant name="the_empty_maths_tuple"
+      expression="maths_tuple := []">
+    </constant>
+    <constant name="the_empty_maths_value"
+      expression="maths_value := the_empty_maths_tuple">
+    </constant>
+    <constant name="the_empty_atom_based_tuple"
+      expression="atom_based_tuple := []">
+    </constant>
+    <constant name="the_empty_atom_based_value"
+      expression="atom_based_value := the_empty_atom_based_tuple">
+    </constant>
     <type name="nonnegative_integer">
       <builtintype
         type="INTEGER">
@@ -450,8 +532,10 @@
 
     </type>
     <type name="atom_based_tuple">
+      <aggregate
+        type="LIST"/>
       <typename
-        name="LIST OF atom_based_value"/>
+        name="atom_based_value"/>
 
     </type>
     <type name="atom_based_value">
@@ -461,8 +545,12 @@
 
     </type>
     <type name="maths_tuple">
+      <aggregate
+        type="LIST"
+        lower="0"
+        upper="?"/>
       <typename
-        name="LIST [0:?] OF maths_value"/>
+        name="maths_value"/>
 
     </type>
     <type name="maths_value">
@@ -2363,8 +2451,6 @@
 
     <function
       name="all_members_of_es">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="sv">
         <aggregate
@@ -2377,6 +2463,8 @@
         <typename
           name="elementary_space_enumerators"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
   CONSTANT
     base_types : SET OF STRING := ['NUMBER','COMPLEX_NUMBER_LITERAL','REAL',
@@ -2438,8 +2526,6 @@
 
     <function
       name="any_space_satisfies">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="sc">
         <typename
@@ -2450,6 +2536,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     spc_id : elementary_space_enumerators;
@@ -2472,8 +2560,6 @@
 
     <function
       name="assoc_product_space">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="ts1">
         <typename
@@ -2484,6 +2570,8 @@
         <typename
           name="tuple_space"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   LOCAL
     types1 : SET OF STRING := stripped_typeof (ts1);
@@ -2597,8 +2685,6 @@
 
     <function
       name="atan2">
-      <builtintype
-        type="REAL"/>
       <parameter
         name="y">
         <builtintype
@@ -2609,6 +2695,8 @@
         <builtintype
           type="REAL"/>
       </parameter>
+      <builtintype
+        type="REAL"/>
       <algorithm>
   LOCAL
     r : REAL;
@@ -2626,13 +2714,13 @@
 
     <function
       name="bool">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="lgcl">
         <builtintype
           type="LOGICAL"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   IF NOT EXISTS (lgcl) THEN  RETURN (FALSE);  END_IF;
   IF lgcl &lt;&gt; TRUE      THEN  RETURN (FALSE);  END_IF;
@@ -2643,8 +2731,6 @@
 
     <function
       name="check_sparse_index_domain">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="idxdom">
         <typename
@@ -2669,6 +2755,8 @@
         <typename
           name="ordering_type"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     mthspc : maths_space;
@@ -2690,8 +2778,6 @@
 
     <function
       name="check_sparse_loc_range">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="locrng">
         <typename
@@ -2716,6 +2802,8 @@
         <typename
           name="ordering_type"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     mthspc : maths_space;
@@ -2736,8 +2824,6 @@
 
     <function
       name="check_sparse_index_to_loc">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="index_range">
         <typename
@@ -2748,6 +2834,8 @@
         <typename
           name="tuple_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     temp : maths_space;
@@ -2777,8 +2865,6 @@
 
     <function
       name="compare_basis_and_coef">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="basis">
         <aggregate
@@ -2793,6 +2879,8 @@
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     shape : LIST OF positive_integer;
@@ -2811,8 +2899,6 @@
 
     <function
       name="compare_list_and_value">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="lv">
         <aggregate
@@ -2830,6 +2916,8 @@
         <builtintype
           type="GENERIC"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   IF NOT EXISTS (lv) OR NOT EXISTS (op) OR NOT EXISTS (v) THEN
     RETURN (FALSE);
@@ -2846,8 +2934,6 @@
 
     <function
       name="compare_values">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="v1">
         <builtintype
@@ -2863,6 +2949,8 @@
         <builtintype
           type="GENERIC"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   -- This algorithm assumes a comparison between &quot;incompatible&quot; types will
   -- produce the indeterminate value (or UNKNOWN?).
@@ -2890,8 +2978,6 @@
 
     <function
       name="compatible_complex_number_regions">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="sp1">
         <typename
@@ -2902,6 +2988,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     typenames : SET OF string := stripped_typeof (sp1);
@@ -2990,8 +3078,6 @@
 
     <function
       name="compatible_es_values">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="esval1">
         <typename
@@ -3002,6 +3088,8 @@
         <typename
           name="elementary_space_enumerators"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     esval1_is_numeric, esval2_is_numeric : LOGICAL;
@@ -3030,8 +3118,6 @@
 
     <function
       name="compatible_intervals">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="sp1">
         <typename
@@ -3042,6 +3128,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     amin, amax : REAL;
@@ -3067,8 +3155,6 @@
 
     <function
       name="compatible_spaces">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="sp1">
         <typename
@@ -3079,6 +3165,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     types1 : SET OF STRING := stripped_typeof (sp1);
@@ -3378,8 +3466,6 @@
 
     <function
       name="composable_sequence">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="operands">
         <aggregate
@@ -3389,6 +3475,8 @@
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   REPEAT i := 1 TO SIZEOF (operands) - 1;
     IF NOT compatible_spaces (operands[i].range, operands[i+1].domain) THEN
@@ -3402,13 +3490,13 @@
 
     <function
       name="convert_to_literal">
-      <typename
-        name="generic_literal"/>
       <parameter
         name="val">
         <typename
           name="maths_atom"/>
       </parameter>
+      <typename
+        name="generic_literal"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (val);
@@ -3430,13 +3518,13 @@
 
     <function
       name="convert_to_maths_function">
-      <typename
-        name="maths_function"/>
       <parameter
         name="func">
         <typename
           name="maths_function_select"/>
       </parameter>
+      <typename
+        name="maths_function"/>
       <algorithm>
   LOCAL
     efenum : elementary_function_enumerators;
@@ -3455,13 +3543,13 @@
 
     <function
       name="convert_to_maths_value">
-      <typename
-        name="maths_value"/>
       <parameter
         name="val">
         <builtintype
           type="GENERIC"/>
       </parameter>
+      <typename
+        name="maths_value"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (val);
@@ -3498,13 +3586,13 @@
 
     <function
       name="convert_to_operand">
-      <typename
-        name="generic_expression"/>
       <parameter
         name="val">
         <typename
           name="maths_value"/>
       </parameter>
+      <typename
+        name="generic_expression"/>
       <algorithm>
   LOCAL
     types  : SET OF STRING := stripped_typeof (val);
@@ -3522,15 +3610,15 @@
 
     <function
       name="convert_to_operands">
-      <aggregate
-        type="LIST"/>
-      <typename
-        name="generic_expression"/>
       <parameter
         name="values">
         <typename
           name="AGGREGATE OF maths_value"/>
       </parameter>
+      <aggregate
+        type="LIST"/>
+      <typename
+        name="generic_expression"/>
       <algorithm>
   LOCAL
     operands : LIST OF generic_expression := [];
@@ -3548,12 +3636,6 @@
 
     <function
       name="convert_to_operands_prcmfn">
-      <aggregate
-        type="LIST"
-        lower="2"
-        upper="?"/>
-      <typename
-        name="generic_expression"/>
       <parameter
         name="srcdom">
         <typename
@@ -3571,6 +3653,12 @@
         <typename
           name="maths_function_select"/>
       </parameter>
+      <aggregate
+        type="LIST"
+        lower="2"
+        upper="?"/>
+      <typename
+        name="generic_expression"/>
       <algorithm>
   LOCAL
     operands : LIST OF generic_expression := [];
@@ -3587,8 +3675,6 @@
 
     <function
       name="definite_integral_check">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="domain">
         <typename
@@ -3609,6 +3695,8 @@
         <builtintype
           type="BOOLEAN"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     domn : tuple_space := domain;
@@ -3636,8 +3724,6 @@
 
     <function
       name="definite_integral_expr_check">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="operands">
         <aggregate
@@ -3657,6 +3743,8 @@
         <builtintype
           type="BOOLEAN"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     nops : INTEGER := 2;
@@ -3697,13 +3785,13 @@
 
     <function
       name="derive_definite_integral_domain">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="igrl">
         <typename
           name="definite_integral_function"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
 
   -- Internal utility function:
@@ -3739,13 +3827,13 @@
 
     <function
       name="derive_elementary_function_domain">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="ef_val">
         <typename
           name="elementary_function_enumerators"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   IF NOT EXISTS (ef_val) THEN  RETURN (?);  END_IF;
   CASE ef_val OF
@@ -3898,13 +3986,13 @@
 
     <function
       name="derive_elementary_function_range">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="ef_val">
         <typename
           name="elementary_function_enumerators"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   IF NOT EXISTS (ef_val) THEN  RETURN (?);  END_IF;
   CASE ef_val OF
@@ -4041,8 +4129,6 @@
 
     <function
       name="derive_finite_function_domain">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="pairs">
         <aggregate
@@ -4052,6 +4138,8 @@
         <typename
           name="LIST"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   LOCAL
     result : SET OF maths_value := [];
@@ -4071,8 +4159,6 @@
 
     <function
       name="derive_finite_function_range">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="pairs">
         <aggregate
@@ -4082,6 +4168,8 @@
         <typename
           name="LIST"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   LOCAL
     result : SET OF maths_value := [];
@@ -4101,13 +4189,13 @@
 
     <function
       name="derive_function_domain">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="func">
         <typename
           name="maths_function"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := stripped_typeof(func);
@@ -4245,13 +4333,13 @@
 
     <function
       name="derive_function_range">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="func">
         <typename
           name="maths_function"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := stripped_typeof(func);
@@ -4414,13 +4502,13 @@
 
     <function
       name="domain_from">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="ref">
         <typename
           name="maths_space_or_function"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := stripped_typeof(ref);
@@ -4446,13 +4534,13 @@
 
     <function
       name="dot_count">
-      <builtintype
-        type="INTEGER"/>
       <parameter
         name="str">
         <builtintype
           type="STRING"/>
       </parameter>
+      <builtintype
+        type="INTEGER"/>
       <algorithm>
   LOCAL
     n : INTEGER := 0;
@@ -4467,13 +4555,13 @@
 
     <function
       name="dotted_identifiers_syntax">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="str">
         <builtintype
           type="STRING"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     k : positive_integer;
@@ -4495,13 +4583,13 @@
 
     <function
       name="drop_numeric_constraints">
-      <typename
-        name="maths_space"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="maths_space"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := stripped_typeof(spc);
@@ -4535,8 +4623,6 @@
 
     <function
       name="enclose_cregion_in_pregion">
-      <typename
-        name="polar_complex_number_region"/>
       <parameter
         name="crgn">
         <typename
@@ -4547,6 +4633,8 @@
         <typename
           name="complex_number_literal"/>
       </parameter>
+      <typename
+        name="polar_complex_number_region"/>
       <algorithm>
   -- Find equivalent direction in range -PI &lt; a &lt;= PI.
   FUNCTION angle(a : REAL) : REAL;
@@ -4559,8 +4647,6 @@
 
     <function
       name="strictly_in">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="z">
         <builtintype
@@ -4571,6 +4657,8 @@
         <typename
           name="real_interval"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
     RETURN ((NOT min_exists(zitv) OR (z &gt; real_min(zitv))) AND
       (NOT max_exists(zitv) OR (z &lt; real_max(zitv))));
@@ -4578,15 +4666,126 @@
 
     </function>
 
+    <procedure
+      name="angle_minmax">
+      <typename
+        name=""/>
+      <parameter
+        name="ab">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="a">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="a_in">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="VAR amin">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="amax">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="VAR amin_in">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="amax_in">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <algorithm>
+    a := angle(a - ab);
+    IF amin = a THEN  amin_in := amin_in OR a_in;  END_IF;
+    IF amin &gt; a THEN  amin := a;  amin_in := a_in;  END_IF;
+    IF amax = a THEN  amax_in := amax_in OR a_in;  END_IF;
+    IF amax &lt; a THEN  amax := a;  amax_in := a_in;  END_IF;
+      </algorithm>
+
+    </procedure>
+
+    <procedure
+      name="range_max">
+      <typename
+        name=""/>
+      <parameter
+        name="r">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="incl">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="VAR rmax">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="VAR rmax_in">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <algorithm>
+    IF rmax = r THEN  rmax_in := rmax_in OR incl;   END_IF;
+    IF rmax &lt; r THEN  rmax := r;  rmax_in := incl;  END_IF;
+      </algorithm>
+
+    </procedure>
+
+    <procedure
+      name="range_min">
+      <typename
+        name=""/>
+      <parameter
+        name="r">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="incl">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="VAR rmin">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="VAR rmin_in">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <algorithm>
+    IF rmin = r THEN  rmin_in := rmin_in OR incl;  END_IF;
+    IF (rmin &lt; 0.0) OR (rmin &gt; r) THEN  rmin := r;  rmin_in := incl;  END_IF;
+      </algorithm>
+
+    </procedure>
+
     <function
       name="enclose_pregion_in_cregion">
-      <typename
-        name="cartesian_complex_number_region"/>
       <parameter
         name="prgn">
         <typename
           name="polar_complex_number_region"/>
       </parameter>
+      <typename
+        name="cartesian_complex_number_region"/>
       <algorithm>
   PROCEDURE nearest_good_direction(acart    : REAL;
                                    aitv     : finite_real_interval;
@@ -4606,131 +4805,12 @@
     ELSE
       a := aitv.min;               a_in := min_included(aitv);
     END_IF;
-  END_PROCEDURE;
-  LOCAL
-    xc, yc, xmin, xmax, ymin, ymax : REAL := 0.0;
-    ritv, xitv, yitv : real_interval;
-    aitv : finite_real_interval;
-    xmin_exists, xmax_exists, ymin_exists, ymax_exists : BOOLEAN;
-    xmin_in, xmax_in, ymin_in, ymax_in : BOOLEAN := FALSE;
-    a, r : REAL := 0.0;
-    a_in : BOOLEAN := FALSE;
-    min_clo, max_clo : open_closed := open;
-  END_LOCAL;
-  IF NOT EXISTS (prgn) THEN  RETURN (?);  END_IF;
-  -- Extract elementary input data
-  xc := prgn.centre.real_part;
-  yc := prgn.centre.imag_part;
-  ritv := prgn.distance_constraint;
-  aitv := prgn.direction_constraint;
-  -- Determine xmin data
-  nearest_good_direction(PI,aitv,a,a_in);
-  IF COS(a) &gt;= 0.0 THEN
-    xmin_exists := TRUE;
-    xmin := xc + real_min(ritv)*COS(a);
-    xmin_in := a_in AND (min_included(ritv) OR (COS(a) = 0.0));
-  ELSE
-    IF max_exists(ritv) THEN
-      xmin_exists := TRUE;
-      xmin := xc + real_max(ritv)*COS(a);
-      xmin_in := a_in AND max_included(ritv);
-    ELSE
-      xmin_exists := FALSE;
-    END_IF;
-  END_IF;
-  -- Determine xmax data
-  nearest_good_direction(0.0,aitv,a,a_in);
-  IF COS(a) &lt;= 0.0 THEN
-    xmax_exists := TRUE;
-    xmax := xc + real_min(ritv)*COS(a);
-    xmax_in := a_in AND (min_included(ritv) OR (COS(a) = 0.0));
-  ELSE
-    IF max_exists(ritv) THEN
-      xmax_exists := TRUE;
-      xmax := xc + real_max(ritv)*COS(a);
-      xmax_in := a_in AND max_included(ritv);
-    ELSE
-      xmax_exists := FALSE;
-    END_IF;
-  END_IF;
-  -- Determine ymin data
-  nearest_good_direction(-0.5*PI,aitv,a,a_in);
-  IF SIN(a) &gt;= 0.0 THEN
-    ymin_exists := TRUE;
-    ymin := yc + real_min(ritv)*SIN(a);
-    ymin_in := a_in AND (min_included(ritv) OR (SIN(a) = 0.0));
-  ELSE
-    IF max_exists(ritv) THEN
-      ymin_exists := TRUE;
-      ymin := yc + real_max(ritv)*SIN(a);
-      ymin_in := a_in AND max_included(ritv);
-    ELSE
-      ymin_exists := FALSE;
-    END_IF;
-  END_IF;
-  -- Determine ymax data
-  nearest_good_direction(0.5*PI,aitv,a,a_in);
-  IF SIN(a) &lt;= 0.0 THEN
-    ymax_exists := TRUE;
-    ymax := yc + real_min(ritv)*SIN(a);
-    ymax_in := a_in AND (min_included(ritv) OR (SIN(a) = 0.0));
-  ELSE
-    IF max_exists(ritv) THEN
-      ymax_exists := TRUE;
-      ymax := yc + real_max(ritv)*SIN(a);
-      ymax_in := a_in AND max_included(ritv);
-    ELSE
-      ymax_exists := FALSE;
-    END_IF;
-  END_IF;
-  -- Construct result
-  IF NOT (xmin_exists OR xmax_exists OR ymin_exists OR ymax_exists) THEN
-    RETURN (?);  -- No finite boundaries exist
-  END_IF;
-  -- Construct real_constraint
-  IF xmin_exists THEN
-    IF xmin_in THEN  min_clo := closed;  ELSE  min_clo := open;  END_IF;
-    IF xmax_exists THEN
-      IF xmax_in THEN  max_clo := closed;  ELSE  max_clo := open;  END_IF;
-      xitv := make_finite_real_interval(xmin,min_clo,xmax,max_clo);
-    ELSE
-      xitv := make_real_interval_from_min(xmin,min_clo);
-    END_IF;
-  ELSE
-    IF xmax_exists THEN
-      IF xmax_in THEN  max_clo := closed;  ELSE  max_clo := open;  END_IF;
-      xitv := make_real_interval_to_max(xmax,max_clo);
-    ELSE
-      xitv := the_reals;
-    END_IF;
-  END_IF;
-  -- Construct imag_constraint
-  IF ymin_exists THEN
-    IF ymin_in THEN  min_clo := closed;  ELSE  min_clo := open;  END_IF;
-    IF ymax_exists THEN
-      IF ymax_in THEN  max_clo := closed;  ELSE  max_clo := open;  END_IF;
-      yitv := make_finite_real_interval(ymin,min_clo,ymax,max_clo);
-    ELSE
-      yitv := make_real_interval_from_min(ymin,min_clo);
-    END_IF;
-  ELSE
-    IF ymax_exists THEN
-      IF ymax_in THEN  max_clo := closed;  ELSE  max_clo := open;  END_IF;
-      yitv := make_real_interval_to_max(ymax,max_clo);
-    ELSE
-      yitv := the_reals;
-    END_IF;
-  END_IF;
-  -- Construct cartesian region
-  RETURN (make_cartesian_complex_number_region(xitv,yitv));
       </algorithm>
 
     </function>
 
     <function
       name="enclose_pregion_in_pregion">
-      <typename
-        name="polar_complex_number_region"/>
       <parameter
         name="prgn">
         <typename
@@ -4741,6 +4821,8 @@
         <typename
           name="complex_number_literal"/>
       </parameter>
+      <typename
+        name="polar_complex_number_region"/>
       <algorithm>
   -- Find equivalent direction in range -PI &lt; a &lt;= PI.
   FUNCTION angle(a : REAL) : REAL;
@@ -4751,10 +4833,31 @@
 
     </function>
 
+    <procedure
+      name="angle_range">
+      <typename
+        name=""/>
+      <parameter
+        name="VAR amin">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="amax">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <algorithm>
+    amin := angle(amin);
+    IF amin = PI THEN  amin := -PI;  END_IF;
+    amax := angle(amax);
+    IF amax &lt;= amin THEN  amax := amax + 2.0*PI;  END_IF;
+      </algorithm>
+
+    </procedure>
+
     <function
       name="strictly_in">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="a">
         <builtintype
@@ -4765,6 +4868,8 @@
         <typename
           name="finite_real_interval"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
     a := angle(a);
     RETURN ({aitv.min &lt; a &lt; aitv.max} OR {aitv.min &lt; a+2.0*PI &lt; aitv.max});
@@ -4772,10 +4877,105 @@
 
     </function>
 
+    <procedure
+      name="find_aminmax">
+      <typename
+        name=""/>
+      <parameter
+        name="ab">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="a0">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="a1">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="a2">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="a3">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="in0">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="in1">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="in2">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="in3">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="VAR amin">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="amax">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="VAR amin_in">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="amax_in">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <algorithm>
+    LOCAL
+      a : REAL;
+    END_LOCAL;
+    amin := angle(a0-ab);                  amin_in := in0;
+    amax := amin;                          amax_in := in0;
+    a := angle(a1-ab);
+    IF a = amin THEN                       amin_in := amin_in OR in1;  END_IF;
+    IF a &lt; amin THEN  amin := a;           amin_in := in1;             END_IF;
+    IF a = amax THEN                       amax_in := amax_in OR in1;  END_IF;
+    IF a &gt; amax THEN  amax := a;           amax_in := in1;             END_IF;
+    a := angle(a2-ab);
+    IF a = amin THEN                       amin_in := amin_in OR in2;  END_IF;
+    IF a &lt; amin THEN  amin := a;           amin_in := in2;             END_IF;
+    IF a = amax THEN                       amax_in := amax_in OR in2;  END_IF;
+    IF a &gt; amax THEN  amax := a;           amax_in := in2;             END_IF;
+    a := angle(a3-ab);
+    IF a = amin THEN                       amin_in := amin_in OR in3;  END_IF;
+    IF a &lt; amin THEN  amin := a;           amin_in := in3;             END_IF;
+    IF a = amax THEN                       amax_in := amax_in OR in3;  END_IF;
+    IF a &gt; amax THEN  amax := a;           amax_in := in3;             END_IF;
+    amin := amin+ab;
+    amax := amax+ab;
+    angle_range(amin,amax);
+      </algorithm>
+
+    </procedure>
+
     <function
       name="equal_cregion_pregion">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="crgn">
         <typename
@@ -4786,6 +4986,8 @@
         <typename
           name="polar_complex_number_region"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
   LOCAL
     arng, amin, xc, yc : REAL;
@@ -4894,8 +5096,6 @@
 
     <function
       name="equal_maths_functions">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="fun1">
         <typename
@@ -4906,6 +5106,8 @@
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
   LOCAL
     cum : LOGICAL;
@@ -4923,8 +5125,6 @@
 
     <function
       name="equal_maths_spaces">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="spc1">
         <typename
@@ -4935,6 +5135,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
   LOCAL
     spc1types : SET OF STRING := stripped_typeof(spc1);
@@ -5109,8 +5311,6 @@
 
     <function
       name="equal_maths_values">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="val1">
         <typename
@@ -5121,6 +5321,8 @@
         <typename
           name="maths_value"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
   FUNCTION mem_of_vs(val1, val2 : maths_value) : LOGICAL;
     IF NOT has_values_space(val2) THEN RETURN (UNKNOWN);  END_IF;
@@ -5132,8 +5334,6 @@
 
     <function
       name="es_subspace_of_es">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="es1">
         <typename
@@ -5144,6 +5344,8 @@
         <typename
           name="elementary_space_enumerators"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   IF NOT EXISTS (es1) OR NOT EXISTS (es2) THEN  RETURN (FALSE);  END_IF;
   IF es1 = es2 THEN  RETURN (TRUE);  END_IF;
@@ -5158,13 +5360,13 @@
 
     <function
       name="expression_is_constant">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="expr">
         <typename
           name="generic_expression"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   RETURN (bool(SIZEOF (free_variables_of (expr)) = 0));
       </algorithm>
@@ -5173,8 +5375,6 @@
 
     <function
       name="extract_factors">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="tspace">
         <typename
@@ -5190,6 +5390,8 @@
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   LOCAL
     tsp : tuple_space := the_zero_tuple_space;
@@ -5204,13 +5406,13 @@
 
     <function
       name="extremal_position_check">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="fun">
         <typename
           name="linearized_table_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     source_domain : maths_space;
@@ -5273,13 +5475,13 @@
 
     <function
       name="factor1">
-      <typename
-        name="maths_space"/>
       <parameter
         name="tspace">
         <typename
           name="tuple_space"/>
       </parameter>
+      <typename
+        name="maths_space"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := TYPEOF (tspace);
@@ -5303,8 +5505,6 @@
 
     <function
       name="factor_space">
-      <typename
-        name="maths_space"/>
       <parameter
         name="tspace">
         <typename
@@ -5315,6 +5515,8 @@
         <typename
           name="positive_integer"/>
       </parameter>
+      <typename
+        name="maths_space"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := TYPEOF (tspace);
@@ -5345,15 +5547,15 @@
 
     <function
       name="free_variables_of">
-      <aggregate
-        type="SET"/>
-      <typename
-        name="generic_variable"/>
       <parameter
         name="expr">
         <typename
           name="generic_expression"/>
       </parameter>
+      <aggregate
+        type="SET"/>
+      <typename
+        name="generic_variable"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := stripped_typeof(expr);
@@ -5401,8 +5603,6 @@
 
     <function
       name="function_applicability">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="func">
         <typename
@@ -5417,6 +5617,8 @@
         <typename
           name="maths_value"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     domain : tuple_space := convert_to_maths_function(func).domain;
@@ -5447,13 +5649,13 @@
 
     <function
       name="function_is_1d_array">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="func">
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     temp : maths_space;
@@ -5475,13 +5677,13 @@
 
     <function
       name="function_is_1d_table">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="func">
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     temp : maths_space;
@@ -5505,13 +5707,13 @@
 
     <function
       name="function_is_2d_table">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="func">
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     temp : maths_space;
@@ -5541,13 +5743,13 @@
 
     <function
       name="function_is_array">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="func">
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     tspace : tuple_space;
@@ -5575,13 +5777,13 @@
 
     <function
       name="function_is_table">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="func">
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     tspace : tuple_space;
@@ -5619,13 +5821,13 @@
 
     <function
       name="has_values_space">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="expr">
         <typename
           name="generic_expression"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := stripped_typeof (expr);
@@ -5687,10 +5889,6 @@
 
     <function
       name="list_selected_components">
-      <aggregate
-        type="LIST"/>
-      <typename
-        name="maths_value"/>
       <parameter
         name="aggr">
         <aggregate
@@ -5703,6 +5901,10 @@
         <typename
           name="positive_integer"/>
       </parameter>
+      <aggregate
+        type="LIST"/>
+      <typename
+        name="maths_value"/>
       <algorithm>
   LOCAL
     result : LIST OF maths_value := [];
@@ -5721,8 +5923,6 @@
 
     <function
       name="make_abstracted_expression_function">
-      <typename
-        name="abstracted_expression_function"/>
       <parameter
         name="operands">
         <aggregate
@@ -5732,6 +5932,8 @@
         <typename
           name="generic_expression"/>
       </parameter>
+      <typename
+        name="abstracted_expression_function"/>
       <algorithm>
   RETURN (abstracted_expression_function()
     || maths_function()
@@ -5744,13 +5946,13 @@
 
     <function
       name="make_atom_based_literal">
-      <typename
-        name="atom_based_literal"/>
       <parameter
         name="lit_value">
         <typename
           name="atom_based_value"/>
       </parameter>
+      <typename
+        name="atom_based_literal"/>
       <algorithm>
   RETURN (atom_based_literal (lit_value)
     || generic_literal()
@@ -5762,8 +5964,6 @@
 
     <function
       name="make_b_spline_basis">
-      <typename
-        name="b_spline_basis"/>
       <parameter
         name="degree">
         <typename
@@ -5778,6 +5978,8 @@
         <typename
           name="REAL"/>
       </parameter>
+      <typename
+        name="b_spline_basis"/>
       <algorithm>
   RETURN (b_spline_basis (degree, repeated_knots)
     || maths_function()
@@ -5790,8 +5992,6 @@
 
     <function
       name="make_b_spline_function">
-      <typename
-        name="b_spline_function"/>
       <parameter
         name="coef">
         <typename
@@ -5806,6 +6006,8 @@
         <typename
           name="b_spline_basis"/>
       </parameter>
+      <typename
+        name="b_spline_function"/>
       <algorithm>
   RETURN (b_spline_function (bases)
     || maths_function()
@@ -5817,8 +6019,6 @@
 
     <function
       name="make_banded_matrix">
-      <typename
-        name="banded_matrix"/>
       <parameter
         name="index_base">
         <typename
@@ -5863,6 +6063,8 @@
         <typename
           name="ordering_type"/>
       </parameter>
+      <typename
+        name="banded_matrix"/>
       <algorithm>
   RETURN (banded_matrix (default_entry, below, above, order)
     || linearized_table_function (first)
@@ -5876,8 +6078,6 @@
 
     <function
       name="make_basic_sparse_matrix">
-      <typename
-        name="basic_sparse_matrix"/>
       <parameter
         name="index_base">
         <typename
@@ -5911,6 +6111,8 @@
         <typename
           name="ordering_type"/>
       </parameter>
+      <typename
+        name="basic_sparse_matrix"/>
       <algorithm>
   RETURN (basic_sparse_matrix (default_entry, order)
     || explicit_table_function (index_base, shape)
@@ -5923,13 +6125,13 @@
 
     <function
       name="make_binary_literal">
-      <typename
-        name="binary_literal"/>
       <parameter
         name="lit_value">
         <builtintype
           type="BINARY"/>
       </parameter>
+      <typename
+        name="binary_literal"/>
       <algorithm>
   RETURN (binary_literal (lit_value)
     || generic_literal()
@@ -5941,13 +6143,13 @@
 
     <function
       name="make_boolean_literal">
-      <typename
-        name="boolean_literal"/>
       <parameter
         name="lit_value">
         <builtintype
           type="BOOLEAN"/>
       </parameter>
+      <typename
+        name="boolean_literal"/>
       <algorithm>
   RETURN (boolean_literal (lit_value)
     || simple_boolean_expression()
@@ -5962,8 +6164,6 @@
 
     <function
       name="make_cartesian_complex_number_region">
-      <typename
-        name="cartesian_complex_number_region"/>
       <parameter
         name="real_constraint">
         <typename
@@ -5974,6 +6174,8 @@
         <typename
           name="real_interval"/>
       </parameter>
+      <typename
+        name="cartesian_complex_number_region"/>
       <algorithm>
   RETURN (cartesian_complex_number_region (real_constraint, imag_constraint)
     || maths_space()
@@ -5986,8 +6188,6 @@
 
     <function
       name="make_complex_number_literal">
-      <typename
-        name="complex_number_literal"/>
       <parameter
         name="rpart">
         <builtintype
@@ -5998,6 +6198,8 @@
         <builtintype
           type="REAL"/>
       </parameter>
+      <typename
+        name="complex_number_literal"/>
       <algorithm>
   RETURN (complex_number_literal (rpart, ipart)
     || generic_literal()
@@ -6009,8 +6211,6 @@
 
     <function
       name="make_constant_function">
-      <typename
-        name="constant_function"/>
       <parameter
         name="sole_value">
         <typename
@@ -6021,6 +6221,8 @@
         <typename
           name="maths_space_or_function"/>
       </parameter>
+      <typename
+        name="constant_function"/>
       <algorithm>
   RETURN (constant_function (sole_value, src_of_domn)
     || maths_function()
@@ -6033,13 +6235,13 @@
 
     <function
       name="make_cos_expression">
-      <typename
-        name="cos_expression"/>
       <parameter
         name="operand">
         <typename
           name="numeric_expression"/>
       </parameter>
+      <typename
+        name="cos_expression"/>
       <algorithm>
   RETURN (cos_expression()
     || unary_numeric_call_expression()
@@ -6054,8 +6256,6 @@
 
     <function
       name="make_definite_integral_expression">
-      <typename
-        name="definite_integral_expression"/>
       <parameter
         name="operands">
         <aggregate
@@ -6075,6 +6275,8 @@
         <builtintype
           type="BOOLEAN"/>
       </parameter>
+      <typename
+        name="definite_integral_expression"/>
       <algorithm>
   RETURN (definite_integral_expression (loinf, upinf)
     || quantifier_expression ([operands[2]])
@@ -6086,8 +6288,6 @@
 
     <function
       name="make_definite_integral_function">
-      <typename
-        name="definite_integral_function"/>
       <parameter
         name="integrand">
         <typename
@@ -6108,6 +6308,8 @@
         <builtintype
           type="BOOLEAN"/>
       </parameter>
+      <typename
+        name="definite_integral_function"/>
       <algorithm>
   RETURN (definite_integral_function (varintg, loinf, upinf)
     || maths_function()
@@ -6119,13 +6321,13 @@
 
     <function
       name="make_elementary_function">
-      <typename
-        name="elementary_function"/>
       <parameter
         name="func_id">
         <typename
           name="elementary_function_enumerators"/>
       </parameter>
+      <typename
+        name="elementary_function"/>
       <algorithm>
   RETURN (elementary_function (func_id)
     || maths_function()
@@ -6138,13 +6340,13 @@
 
     <function
       name="make_elementary_space">
-      <typename
-        name="elementary_space"/>
       <parameter
         name="space_id">
         <typename
           name="elementary_space_enumerators"/>
       </parameter>
+      <typename
+        name="elementary_space"/>
       <algorithm>
   RETURN (elementary_space (space_id)
     || maths_space()
@@ -6157,8 +6359,6 @@
 
     <function
       name="make_environment">
-      <typename
-        name="environment"/>
       <parameter
         name="varbl">
         <typename
@@ -6169,6 +6369,8 @@
         <typename
           name="variable_semantics"/>
       </parameter>
+      <typename
+        name="environment"/>
       <algorithm>
   RETURN (environment (varbl, sem) );
       </algorithm>
@@ -6177,13 +6379,13 @@
 
     <function
       name="make_expression_denoted_function">
-      <typename
-        name="expression_denoted_function"/>
       <parameter
         name="expression">
         <typename
           name="generic_expression"/>
       </parameter>
+      <typename
+        name="expression_denoted_function"/>
       <algorithm>
   RETURN (expression_denoted_function()
     || maths_function()
@@ -6195,8 +6397,6 @@
 
     <function
       name="make_extended_tuple_space">
-      <typename
-        name="extended_tuple_space"/>
       <parameter
         name="base">
         <typename
@@ -6207,6 +6407,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="extended_tuple_space"/>
       <algorithm>
   RETURN (extended_tuple_space (base, extender)
     || maths_space ()
@@ -6219,8 +6421,6 @@
 
     <function
       name="make_finite_function">
-      <typename
-        name="finite_function"/>
       <parameter
         name="pairs">
         <aggregate
@@ -6230,6 +6430,8 @@
         <typename
           name="LIST"/>
       </parameter>
+      <typename
+        name="finite_function"/>
       <algorithm>
   RETURN (finite_function (pairs)
     || maths_function()
@@ -6242,8 +6444,6 @@
 
     <function
       name="make_finite_integer_interval">
-      <typename
-        name="finite_integer_interval"/>
       <parameter
         name="min">
         <builtintype
@@ -6254,6 +6454,8 @@
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <typename
+        name="finite_integer_interval"/>
       <algorithm>
   RETURN (finite_integer_interval (min, max)
     || maths_space()
@@ -6266,8 +6468,6 @@
 
     <function
       name="make_finite_real_interval">
-      <typename
-        name="finite_real_interval"/>
       <parameter
         name="min">
         <builtintype
@@ -6288,6 +6488,8 @@
         <typename
           name="open_closed"/>
       </parameter>
+      <typename
+        name="finite_real_interval"/>
       <algorithm>
   RETURN (finite_real_interval (min, minclo, max, maxclo)
     || maths_space()
@@ -6300,8 +6502,6 @@
 
     <function
       name="make_finite_space">
-      <typename
-        name="finite_space"/>
       <parameter
         name="members">
         <aggregate
@@ -6309,6 +6509,8 @@
         <typename
           name="maths_value"/>
       </parameter>
+      <typename
+        name="finite_space"/>
       <algorithm>
   RETURN (finite_space (members)
     || maths_space()
@@ -6321,8 +6523,6 @@
 
     <function
       name="make_function_application">
-      <typename
-        name="function_application"/>
       <parameter
         name="afunction">
         <typename
@@ -6337,6 +6537,8 @@
         <typename
           name="maths_value"/>
       </parameter>
+      <typename
+        name="function_application"/>
       <algorithm>
   RETURN (function_application (afunction, arguments)
     || multiple_arity_generic_expression (convert_to_maths_function (afunction) +
@@ -6348,8 +6550,6 @@
 
     <function
       name="make_function_space">
-      <typename
-        name="function_space"/>
       <parameter
         name="domain_constraint">
         <typename
@@ -6370,6 +6570,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="function_space"/>
       <algorithm>
   RETURN (function_space (domain_constraint, domain_argument, range_constraint,
     range_argument)
@@ -6383,8 +6585,6 @@
 
     <function
       name="make_general_linear_function">
-      <typename
-        name="general_linear_function"/>
       <parameter
         name="mat">
         <typename
@@ -6395,6 +6595,8 @@
         <typename
           name="one_or_two"/>
       </parameter>
+      <typename
+        name="general_linear_function"/>
       <algorithm>
   RETURN (general_linear_function (sum_index)
     || maths_function()
@@ -6406,13 +6608,13 @@
 
     <function
       name="make_int_literal">
-      <typename
-        name="int_literal"/>
       <parameter
         name="lit_value">
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <typename
+        name="int_literal"/>
       <algorithm>
   RETURN (int_literal ()
     || literal_number(lit_value)
@@ -6428,13 +6630,13 @@
 
     <function
       name="make_integer_interval_from_min">
-      <typename
-        name="integer_interval_from_min"/>
       <parameter
         name="min">
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <typename
+        name="integer_interval_from_min"/>
       <algorithm>
   RETURN (integer_interval_from_min (min)
     || maths_space()
@@ -6447,8 +6649,6 @@
 
     <function
       name="make_listed_complex_number_data">
-      <typename
-        name="listed_complex_number_data"/>
       <parameter
         name="index_base">
         <typename
@@ -6463,6 +6663,8 @@
         <typename
           name="REAL"/>
       </parameter>
+      <typename
+        name="listed_complex_number_data"/>
       <algorithm>
   RETURN (listed_complex_number_data (values)
     || explicit_table_function (index_base, [SIZEOF (values)/2])  -- 2nd derived
@@ -6476,8 +6678,6 @@
 
     <function
       name="make_listed_data">
-      <typename
-        name="listed_data"/>
       <parameter
         name="index_base">
         <typename
@@ -6497,6 +6697,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="listed_data"/>
       <algorithm>
   RETURN (listed_data (values, value_range)
     || explicit_table_function (index_base, [SIZEOF (values)])  -- 2nd derived
@@ -6510,8 +6712,6 @@
 
     <function
       name="make_listed_integer_data">
-      <typename
-        name="listed_integer_data"/>
       <parameter
         name="index_base">
         <typename
@@ -6526,6 +6726,8 @@
         <typename
           name="INTEGER"/>
       </parameter>
+      <typename
+        name="listed_integer_data"/>
       <algorithm>
   RETURN (listed_integer_data (values)
     || explicit_table_function (index_base, [SIZEOF (values)])  -- 2nd derived
@@ -6539,8 +6741,6 @@
 
     <function
       name="make_listed_product_space">
-      <typename
-        name="listed_product_space"/>
       <parameter
         name="factors">
         <aggregate
@@ -6548,6 +6748,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="listed_product_space"/>
       <algorithm>
   RETURN (listed_product_space (factors)
     || maths_space()
@@ -6560,8 +6762,6 @@
 
     <function
       name="make_listed_real_data">
-      <typename
-        name="listed_real_data"/>
       <parameter
         name="index_base">
         <typename
@@ -6576,6 +6776,8 @@
         <typename
           name="REAL"/>
       </parameter>
+      <typename
+        name="listed_real_data"/>
       <algorithm>
   RETURN (listed_real_data (values)
     || explicit_table_function (index_base, [SIZEOF (values)])  -- 2nd derived
@@ -6589,13 +6791,13 @@
 
     <function
       name="make_logical_literal">
-      <typename
-        name="logical_literal"/>
       <parameter
         name="lit_value">
         <builtintype
           type="LOGICAL"/>
       </parameter>
+      <typename
+        name="logical_literal"/>
       <algorithm>
   RETURN (logical_literal (lit_value)
     || generic_literal()
@@ -6607,13 +6809,13 @@
 
     <function
       name="make_maths_enum_literal">
-      <typename
-        name="maths_enum_literal"/>
       <parameter
         name="lit_value">
         <typename
           name="maths_enum_atom"/>
       </parameter>
+      <typename
+        name="maths_enum_literal"/>
       <algorithm>
   RETURN (maths_enum_literal (lit_value)
     || generic_literal()
@@ -6625,8 +6827,6 @@
 
     <function
       name="make_maths_real_variable">
-      <typename
-        name="maths_real_variable"/>
       <parameter
         name="values_space">
         <typename
@@ -6637,6 +6837,8 @@
         <typename
           name="label"/>
       </parameter>
+      <typename
+        name="maths_real_variable"/>
       <algorithm>
   RETURN (maths_real_variable()
     || maths_variable (values_space, name)
@@ -6652,8 +6854,6 @@
 
     <function
       name="make_maths_tuple_literal">
-      <typename
-        name="maths_tuple_literal"/>
       <parameter
         name="lit_value">
         <aggregate
@@ -6661,6 +6861,8 @@
         <typename
           name="maths_value"/>
       </parameter>
+      <typename
+        name="maths_tuple_literal"/>
       <algorithm>
   RETURN (maths_tuple_literal (lit_value)
     || generic_literal()
@@ -6672,8 +6874,6 @@
 
     <function
       name="make_mult_expression">
-      <typename
-        name="mult_expression"/>
       <parameter
         name="operands">
         <aggregate
@@ -6683,6 +6883,8 @@
         <typename
           name="generic_expression"/>
       </parameter>
+      <typename
+        name="mult_expression"/>
       <algorithm>
   RETURN (mult_expression()
     || multiple_arity_numeric_expression()
@@ -6696,8 +6898,6 @@
 
     <function
       name="make_parallel_composed_function">
-      <typename
-        name="parallel_composed_function"/>
       <parameter
         name="srcdom">
         <typename
@@ -6717,6 +6917,8 @@
         <typename
           name="maths_function_select"/>
       </parameter>
+      <typename
+        name="parallel_composed_function"/>
       <algorithm>
   RETURN (parallel_composed_function (srcdom, prepfuncs, finfunc)
     || maths_function()
@@ -6729,8 +6931,6 @@
 
     <function
       name="make_partial_derivative_expression">
-      <typename
-        name="partial_derivative_expression"/>
       <parameter
         name="derivand">
         <typename
@@ -6750,6 +6950,8 @@
         <typename
           name="extension_options"/>
       </parameter>
+      <typename
+        name="partial_derivative_expression"/>
       <algorithm>
   RETURN (partial_derivative_expression (dvars, extend)
     || unary_generic_expression (derivand)
@@ -6760,8 +6962,6 @@
 
     <function
       name="make_partial_derivative_function">
-      <typename
-        name="partial_derivative_function"/>
       <parameter
         name="derivand">
         <typename
@@ -6781,6 +6981,8 @@
         <typename
           name="extension_options"/>
       </parameter>
+      <typename
+        name="partial_derivative_function"/>
       <algorithm>
   RETURN (partial_derivative_function (dvars, extend)
     || maths_function()
@@ -6792,8 +6994,6 @@
 
     <function
       name="make_polar_complex_number_region">
-      <typename
-        name="polar_complex_number_region"/>
       <parameter
         name="centre">
         <typename
@@ -6809,6 +7009,8 @@
         <typename
           name="finite_real_interval"/>
       </parameter>
+      <typename
+        name="polar_complex_number_region"/>
       <algorithm>
   RETURN (polar_complex_number_region (centre, dis_constraint, dir_constraint)
     || maths_space()
@@ -6821,13 +7023,13 @@
 
     <function
       name="make_rationalize_function">
-      <typename
-        name="rationalize_function"/>
       <parameter
         name="fun">
         <typename
           name="maths_function"/>
       </parameter>
+      <typename
+        name="rationalize_function"/>
       <algorithm>
   RETURN (rationalize_function()
     || maths_function()
@@ -6839,8 +7041,6 @@
 
     <function
       name="make_real_interval_from_min">
-      <typename
-        name="real_interval_from_min"/>
       <parameter
         name="min">
         <builtintype
@@ -6851,6 +7051,8 @@
         <typename
           name="open_closed"/>
       </parameter>
+      <typename
+        name="real_interval_from_min"/>
       <algorithm>
   RETURN (real_interval_from_min (min, minclo)
     || maths_space()
@@ -6863,8 +7065,6 @@
 
     <function
       name="make_real_interval_to_max">
-      <typename
-        name="real_interval_to_max"/>
       <parameter
         name="max">
         <builtintype
@@ -6875,6 +7075,8 @@
         <typename
           name="open_closed"/>
       </parameter>
+      <typename
+        name="real_interval_to_max"/>
       <algorithm>
   RETURN (real_interval_to_max (max, maxclo)
     || maths_space()
@@ -6887,13 +7089,13 @@
 
     <function
       name="make_real_literal">
-      <typename
-        name="real_literal"/>
       <parameter
         name="lit_value">
         <builtintype
           type="REAL"/>
       </parameter>
+      <typename
+        name="real_literal"/>
       <algorithm>
   RETURN (real_literal ()
     || literal_number(lit_value)
@@ -6909,8 +7111,6 @@
 
     <function
       name="make_regular_table_function">
-      <typename
-        name="regular_table_function"/>
       <parameter
         name="index_base">
         <typename
@@ -6944,6 +7144,8 @@
         <typename
           name="INTEGER"/>
       </parameter>
+      <typename
+        name="regular_table_function"/>
       <algorithm>
   RETURN (regular_table_function (increments)
     || linearized_table_function (first)
@@ -6957,8 +7159,6 @@
 
     <function
       name="make_reindexed_array_function">
-      <typename
-        name="reindexed_array_function"/>
       <parameter
         name="func">
         <typename
@@ -6973,6 +7173,8 @@
         <typename
           name="INTEGER"/>
       </parameter>
+      <typename
+        name="reindexed_array_function"/>
       <algorithm>
   RETURN (reindexed_array_function(start_idxs)
     || maths_function()
@@ -6984,8 +7186,6 @@
 
     <function
       name="make_repackaging_function">
-      <typename
-        name="repackaging_function"/>
       <parameter
         name="operand">
         <typename
@@ -7006,6 +7206,8 @@
         <typename
           name="nonnegative_integer"/>
       </parameter>
+      <typename
+        name="repackaging_function"/>
       <algorithm>
   RETURN (repackaging_function (input_repack, output_repack, selected_output)
     || maths_function()
@@ -7017,8 +7219,6 @@
 
     <function
       name="make_selector_function">
-      <typename
-        name="selector_function"/>
       <parameter
         name="selector">
         <typename
@@ -7029,6 +7229,8 @@
         <typename
           name="maths_space_or_function"/>
       </parameter>
+      <typename
+        name="selector_function"/>
       <algorithm>
   RETURN (selector_function (selector, src_of_domn)
     || maths_function()
@@ -7041,8 +7243,6 @@
 
     <function
       name="make_series_composed_function">
-      <typename
-        name="series_composed_function"/>
       <parameter
         name="functions">
         <aggregate
@@ -7052,6 +7252,8 @@
         <typename
           name="maths_function"/>
       </parameter>
+      <typename
+        name="series_composed_function"/>
       <algorithm>
   RETURN (series_composed_function()
     || maths_function()
@@ -7063,13 +7265,13 @@
 
     <function
       name="make_sin_expression">
-      <typename
-        name="sin_expression"/>
       <parameter
         name="operand">
         <typename
           name="numeric_expression"/>
       </parameter>
+      <typename
+        name="sin_expression"/>
       <algorithm>
   RETURN (sin_expression()
     || unary_numeric_call_expression()
@@ -7084,8 +7286,6 @@
 
     <function
       name="make_standard_table_function">
-      <typename
-        name="standard_table_function"/>
       <parameter
         name="index_base">
         <typename
@@ -7115,6 +7315,8 @@
         <typename
           name="ordering_type"/>
       </parameter>
+      <typename
+        name="standard_table_function"/>
       <algorithm>
   RETURN (standard_table_function (order)
     || linearized_table_function (first)
@@ -7128,8 +7330,6 @@
 
     <function
       name="make_strict_triangular_matrix">
-      <typename
-        name="strict_triangular_matrix"/>
       <parameter
         name="index_base">
         <typename
@@ -7174,6 +7374,8 @@
         <typename
           name="maths_value"/>
       </parameter>
+      <typename
+        name="strict_triangular_matrix"/>
       <algorithm>
   RETURN (strict_triangular_matrix (main_diagonal_value)
     || triangular_matrix (default_entry, lo_up, order)
@@ -7188,13 +7390,13 @@
 
     <function
       name="make_string_literal">
-      <typename
-        name="string_literal"/>
       <parameter
         name="lit_value">
         <builtintype
           type="STRING"/>
       </parameter>
+      <typename
+        name="string_literal"/>
       <algorithm>
   RETURN (string_literal (lit_value)
     || simple_string_expression()
@@ -7209,13 +7411,13 @@
 
     <function
       name="make_unary_minus_expression">
-      <typename
-        name="unary_minus_expression"/>
       <parameter
         name="operand">
         <typename
           name="numeric_expression"/>
       </parameter>
+      <typename
+        name="unary_minus_expression"/>
       <algorithm>
   RETURN (unary_minus_expression()
     || unary_numeric_call_expression()
@@ -7230,8 +7432,6 @@
 
     <function
       name="make_uniform_product_space">
-      <typename
-        name="uniform_product_space"/>
       <parameter
         name="base">
         <typename
@@ -7242,6 +7442,8 @@
         <typename
           name="positive_integer"/>
       </parameter>
+      <typename
+        name="uniform_product_space"/>
       <algorithm>
   RETURN (uniform_product_space (base, exponent)
     || maths_space()
@@ -7254,13 +7456,13 @@
 
     <function
       name="max_exists">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (spc);
@@ -7275,13 +7477,13 @@
 
     <function
       name="max_included">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (spc);
@@ -7303,8 +7505,6 @@
 
     <function
       name="member_of">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="val">
         <builtintype
@@ -7315,6 +7515,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
 
   -- Trivial function introduced to avoid NIST Fedex compiler error
@@ -7327,13 +7529,13 @@
 
     <function
       name="min_exists">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (spc);
@@ -7348,13 +7550,13 @@
 
     <function
       name="min_included">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (spc);
@@ -7376,8 +7578,6 @@
 
     <function
       name="no_cyclic_domain_reference">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="ref">
         <typename
@@ -7390,6 +7590,8 @@
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := TYPEOF (ref);
@@ -7424,8 +7626,6 @@
 
     <function
       name="no_cyclic_space_reference">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="spc">
         <typename
@@ -7438,6 +7638,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     types : SET OF STRING;
@@ -7472,8 +7674,6 @@
 
     <function
       name="nondecreasing">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="lr">
         <aggregate
@@ -7481,6 +7681,8 @@
         <typename
           name="REAL"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   IF NOT EXISTS (lr) THEN
     RETURN (FALSE);
@@ -7497,13 +7699,13 @@
 
     <function
       name="number_superspace_of">
-      <typename
-        name="elementary_space"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="elementary_space"/>
       <algorithm>
   IF subspace_of_es(spc,es_integers) THEN  RETURN (the_integers);  END_IF;
   IF subspace_of_es(spc,es_reals)    THEN  RETURN (the_reals);     END_IF;
@@ -7516,13 +7718,13 @@
 
     <function
       name="number_tuple_subspace_check">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := stripped_typeof(spc);
@@ -7551,13 +7753,13 @@
 
     <function
       name="one_tuples_of">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   RETURN (make_uniform_product_space (spc, 1));
       </algorithm>
@@ -7566,8 +7768,6 @@
 
     <function
       name="parallel_composed_function_composability_check">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="funcs">
         <aggregate
@@ -7580,6 +7780,8 @@
         <typename
           name="maths_function_select"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     tplsp : tuple_space := the_zero_tuple_space;
@@ -7595,8 +7797,6 @@
 
     <function
       name="parallel_composed_function_domain_check">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="comdom">
         <typename
@@ -7609,6 +7809,8 @@
         <typename
           name="maths_function"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   REPEAT i := 1 TO SIZEOF (funcs);
     IF NOT (compatible_spaces (comdom, funcs[i].domain)) THEN
@@ -7622,8 +7824,6 @@
 
     <function
       name="parse_express_identifier">
-      <typename
-        name="positive_integer"/>
       <parameter
         name="s">
         <builtintype
@@ -7634,6 +7834,8 @@
         <typename
           name="positive_integer"/>
       </parameter>
+      <typename
+        name="positive_integer"/>
       <algorithm>
   LOCAL
     k : positive_integer;
@@ -7654,8 +7856,6 @@
 
     <function
       name="partial_derivative_check">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="domain">
         <typename
@@ -7670,6 +7870,8 @@
         <typename
           name="input_selector"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     domn : tuple_space := domain;
@@ -7700,13 +7902,13 @@
 
     <function
       name="real_max">
-      <builtintype
-        type="REAL"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="REAL"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (spc);
@@ -7730,13 +7932,13 @@
 
     <function
       name="real_min">
-      <builtintype
-        type="REAL"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="REAL"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (spc);
@@ -7760,8 +7962,6 @@
 
     <function
       name="regular_indexing">
-      <builtintype
-        type="INTEGER"/>
       <parameter
         name="sub">
         <aggregate
@@ -7797,6 +7997,8 @@
         <builtintype
           type="INTEGER"/>
       </parameter>
+      <builtintype
+        type="INTEGER"/>
       <algorithm>
   LOCAL
     k : INTEGER;
@@ -7827,10 +8029,6 @@
 
     <function
       name="remove_first">
-      <aggregate
-        type="LIST"/>
-      <typename
-        name="GENERICGEN"/>
       <parameter
         name="alist">
         <aggregate
@@ -7838,6 +8036,10 @@
         <typename
           name="GENERICGEN"/>
       </parameter>
+      <aggregate
+        type="LIST"/>
+      <typename
+        name="GENERICGEN"/>
       <algorithm>
   LOCAL
     blist : LIST OF GENERIC:GEN := alist;
@@ -7852,8 +8054,6 @@
 
     <function
       name="repackage">
-      <typename
-        name="tuple_space"/>
       <parameter
         name="tspace">
         <typename
@@ -7864,6 +8064,8 @@
         <typename
           name="repackage_options"/>
       </parameter>
+      <typename
+        name="tuple_space"/>
       <algorithm>
   CASE repckg OF
   ro_nochange : RETURN (tspace);
@@ -7877,15 +8079,15 @@
 
     <function
       name="shape_of_array">
-      <aggregate
-        type="LIST"/>
-      <typename
-        name="positive_integer"/>
       <parameter
         name="func">
         <typename
           name="maths_function"/>
       </parameter>
+      <aggregate
+        type="LIST"/>
+      <typename
+        name="positive_integer"/>
       <algorithm>
   LOCAL
     tspace : tuple_space;
@@ -7914,13 +8116,13 @@
 
     <function
       name="simplify_function_application">
-      <typename
-        name="maths_value"/>
       <parameter
         name="expr">
         <typename
           name="function_application"/>
       </parameter>
+      <typename
+        name="maths_value"/>
       <algorithm>
   FUNCTION ctmv(x : GENERIC:G) : maths_value;
     RETURN (convert_to_maths_value(x));
@@ -7928,10 +8130,33 @@
 
     </function>
 
+    <procedure
+      name="parts">
+      <typename
+        name=""/>
+      <parameter
+        name="c">
+        <typename
+          name="complex_number_literal"/>
+      </parameter>
+      <parameter
+        name="VAR x">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <parameter
+        name="y">
+        <builtintype
+          type="REAL"/>
+      </parameter>
+      <algorithm>
+    x := c.real_part;  y := c.imag_part;
+      </algorithm>
+
+    </procedure>
+
     <function
       name="makec">
-      <typename
-        name="complex_number_literal"/>
       <parameter
         name="x">
         <builtintype
@@ -7942,6 +8167,8 @@
         <builtintype
           type="REAL"/>
       </parameter>
+      <typename
+        name="complex_number_literal"/>
       <algorithm>
     RETURN (make_complex_number_literal(x,y));
       </algorithm>
@@ -7950,8 +8177,6 @@
 
     <function
       name="good_t">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="v">
         <typename
@@ -7962,6 +8187,8 @@
         <builtintype
           type="STRING"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
     LOCAL
       tpl : LIST OF maths_value;
@@ -7978,15 +8205,18 @@
 
     </function>
 
+    <constant name="cnlit"
+      expression="STRING := schema_prefix + 'COMPLEX_NUMBER_LITERAL'">
+    </constant>
     <function
       name="simplify_generic_expression">
-      <typename
-        name="maths_value"/>
       <parameter
         name="expr">
         <typename
           name="generic_expression"/>
       </parameter>
+      <typename
+        name="maths_value"/>
       <algorithm>
   FUNCTION restore_unary(expr : unary_generic_expression;
                          opnd : generic_expression) : generic_expression;
@@ -7998,8 +8228,6 @@
 
     <function
       name="restore_binary">
-      <typename
-        name="generic_expression"/>
       <parameter
         name="expr">
         <typename
@@ -8015,6 +8243,8 @@
         <typename
           name="generic_expression"/>
       </parameter>
+      <typename
+        name="generic_expression"/>
       <algorithm>
     expr.operands[1] := opd1;
     expr.operands[2] := opd2;
@@ -8025,8 +8255,6 @@
 
     <function
       name="restore_mulary">
-      <typename
-        name="generic_expression"/>
       <parameter
         name="expr">
         <typename
@@ -8039,6 +8267,8 @@
         <typename
           name="generic_expression"/>
       </parameter>
+      <typename
+        name="generic_expression"/>
       <algorithm>
     expr.operands := ops;
     RETURN (expr);
@@ -8048,13 +8278,13 @@
 
     <function
       name="make_number_literal">
-      <typename
-        name="generic_literal"/>
       <parameter
         name="nmb">
         <builtintype
           type="NUMBER"/>
       </parameter>
+      <typename
+        name="generic_literal"/>
       <algorithm>
     IF 'INTEGER' IN TYPEOF (nmb) THEN  RETURN (make_int_literal(nmb));  END_IF;
     RETURN (make_real_literal(nmb));
@@ -8064,13 +8294,13 @@
 
     <function
       name="simplify_maths_space">
-      <typename
-        name="maths_space"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="maths_space"/>
       <algorithm>
   LOCAL
     stypes : SET OF STRING := stripped_typeof (spc);
@@ -8140,13 +8370,13 @@
 
     <function
       name="simplify_maths_value">
-      <typename
-        name="maths_value"/>
       <parameter
         name="val">
         <typename
           name="maths_value"/>
       </parameter>
+      <typename
+        name="maths_value"/>
       <algorithm>
   LOCAL
     vtypes : SET OF STRING := stripped_typeof(val);
@@ -8170,13 +8400,13 @@
 
     <function
       name="singleton_member_of">
-      <typename
-        name="maths_value"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <typename
+        name="maths_value"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := stripped_typeof (spc);
@@ -8200,13 +8430,13 @@
 
     <function
       name="space_dimension">
-      <typename
-        name="nonnegative_integer"/>
       <parameter
         name="tspace">
         <typename
           name="tuple_space"/>
       </parameter>
+      <typename
+        name="nonnegative_integer"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (tspace);
@@ -8229,13 +8459,13 @@
 
     <function
       name="space_is_continuum">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="space">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     typenames : SET OF STRING := TYPEOF (space);
@@ -8269,13 +8499,13 @@
 
     <function
       name="space_is_singleton">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="spc">
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := stripped_typeof (spc);
@@ -8293,15 +8523,15 @@
 
     <function
       name="stripped_typeof">
-      <aggregate
-        type="SET"/>
-      <typename
-        name="STRING"/>
       <parameter
         name="arg">
         <builtintype
           type="GENERIC"/>
       </parameter>
+      <aggregate
+        type="SET"/>
+      <typename
+        name="STRING"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := TYPEOF (arg);
@@ -8322,8 +8552,6 @@
 
     <function
       name="subspace_of">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="space1">
         <typename
@@ -8334,6 +8562,8 @@
         <typename
           name="maths_space"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
   LOCAL
     spc1 : maths_space := simplify_maths_space(space1);
@@ -8654,8 +8884,6 @@
 
     <function
       name="subspace_of_es">
-      <builtintype
-        type="LOGICAL"/>
       <parameter
         name="spc">
         <typename
@@ -8666,6 +8894,8 @@
         <typename
           name="elementary_space_enumerators"/>
       </parameter>
+      <builtintype
+        type="LOGICAL"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := stripped_typeof(spc);
@@ -8713,8 +8943,6 @@
 
     <function
       name="substitute">
-      <typename
-        name="generic_expression"/>
       <parameter
         name="expr">
         <typename
@@ -8738,6 +8966,8 @@
         <typename
           name="maths_value"/>
       </parameter>
+      <typename
+        name="generic_expression"/>
       <algorithm>
   LOCAL
     types : SET OF STRING := stripped_typeof(expr);
@@ -8821,13 +9051,13 @@
 
     <function
       name="values_space_of">
-      <typename
-        name="maths_space"/>
       <parameter
         name="expr">
         <typename
           name="generic_expression"/>
       </parameter>
+      <typename
+        name="maths_space"/>
       <algorithm>
   LOCAL
     e_prefix : STRING := 'ISO13584_EXPRESSIONS_SCHEMA.';

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.7 2003/01/21 10:37:39 robbod Exp $
+$Id: ballot_summary.xsl,v 1.8 2003/01/22 01:47:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -62,7 +62,7 @@ $Id: ballot_summary.xsl,v 1.7 2003/01/21 10:37:39 robbod Exp $
         </tr>
         <tr>
           <td>Description:</td>
-          <td><xsl:value-of select="@description"/></td>
+          <td><xsl:value-of select="@description"/><xsl:value-of select="./description"/></td>
         </tr>
         <tr>
           <td>Ballot package WG number:</td>

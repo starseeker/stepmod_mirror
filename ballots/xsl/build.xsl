@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
+$Id: build.xsl,v 1.7 2003/01/22 01:50:49 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To build the initial ANT build package. 
@@ -127,7 +127,7 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
 
-        <!-- TEH added -->
+
         <xsl:element name="property">
           <xsl:attribute name="name">RESDOCGIFS</xsl:attribute>
           <xsl:attribute name="value">
@@ -377,8 +377,6 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
 
-
-        <!-- end TEH added -->
 
         <xsl:element name="property">
           <xsl:attribute name="name">CONTENTSXML</xsl:attribute>
@@ -660,6 +658,7 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
 
+
         <xsl:element name="property">
           <xsl:attribute name="name">ARMEXPXML</xsl:attribute>
           <xsl:attribute name="value">
@@ -669,6 +668,7 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
             </xsl:apply-templates>
           </xsl:attribute>
         </xsl:element>
+
 
         <xsl:element name="property">
           <xsl:attribute name="name">MIMEXPXML</xsl:attribute>
@@ -681,13 +681,24 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
         </xsl:element>
 
 
-
         <xsl:variable name="resources_set">
-          <xsl:apply-templates select="ballot_package/module" 
-            mode="resources"/>            
-          <xsl:apply-templates select="ballot_package/resource" 
-            mode="resources"/>
+          <xsl:apply-templates select="ballot_package/module" mode="resources" />
+          <xsl:apply-templates select="ballot_package/resource" mode="resources"/>
         </xsl:variable>
+
+        <xsl:variable name="resdoc_resources_set">
+          <xsl:apply-templates select="ballot_package/resource" mode="resdoc_resources"/>
+        </xsl:variable>
+
+        <!--
+        <xsl:message>
+          resources_set-<xsl:value-of select="$resources_set"/>-resources_set
+        </xsl:message>
+
+        <xsl:message>
+          resdoc_resources_set-<xsl:value-of select="$resdoc_resources_set"/>-resdoc_resources_set
+        </xsl:message>
+-->
 
         <xsl:element name="property">
           <xsl:attribute name="name">RESOURCESXML</xsl:attribute>
@@ -712,6 +723,19 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
             </xsl:call-template>
           </xsl:attribute>
         </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESDOCRESOURCESEXP</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:call-template name="output_resources">
+              <xsl:with-param name="resources"
+                select="normalize-space($resdoc_resources_set)"/>
+              <xsl:with-param name="prefix" select="'data/resources/'"/>
+              <xsl:with-param name="suffix" select="'.exp'"/>
+            </xsl:call-template>
+          </xsl:attribute>
+        </xsl:element>
+
 
         <xsl:element name="property">
           <xsl:attribute name="name">RESOURCESSCHEMAEXPGGIFS</xsl:attribute>
@@ -759,17 +783,16 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
 
     <xsl:text>
     </xsl:text>
-
-       <xsl:choose>
-         <xsl:when test="ballot_package/module">
-           <target name="all" depends="init, resources, isoindex, isomodules" 
-             description="Create HTML for everything"/> 
-          </xsl:when>
-          <xsl:otherwise>
-            <target name="all" depends="init, resources, isoindex, isoresdocs" 
-              description="Create HTML for everything"/>
-          </xsl:otherwise>
-        </xsl:choose>
+    <xsl:choose>
+      <xsl:when test="ballot_package/module">
+        <target name="all" depends="init, resources, isoindex, isomodules" 
+          description="Create HTML for everything"/> 
+      </xsl:when>
+      <xsl:otherwise>
+        <target name="all" depends="init, resources, isoindex, isoresdocs" 
+          description="Create HTML for everything"/>
+      </xsl:otherwise>
+    </xsl:choose>
 
     <!--    <target name="all" depends="init, resources, isoindex, isomodules, isoresdocs" 
       description="Create HTML for everything"/> 
@@ -2212,7 +2235,7 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
       </xsl:element>
     </target>
 
-    <!-- TEH added -->
+
     <target name="isoresdocs" depends="init" 
       description="generate HTML for all modules">
       <dependset>
@@ -3074,7 +3097,6 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
         </xsl:element>
       </xsl:element>
 
-
       <xsl:element name="copy">
         <xsl:attribute name="todir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3102,6 +3124,41 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
+
+    <xsl:variable name="resdoc_name">
+      <xsl:apply-templates select="ballot_package/resource" mode="name"/>
+    </xsl:variable>
+
+    <xsl:variable name="resdoc_dir">
+      <xsl:value-of select="concat('../../data/resource_docs/',$resdoc_name)"/>
+    </xsl:variable>
+     
+    <xsl:variable name="resdoc_ok">
+      <xsl:call-template name="check_resdoc_exists">
+        <xsl:with-param name="resdoc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="resdoc_xml"
+                select="concat($resdoc_dir,'/resource.xml')"/>
+
+    <xsl:variable name="wgnumexp">
+      <xsl:apply-templates select="document($resdoc_xml)/resource" mode="wgnumexp"/>
+    </xsl:variable>
+
+      <xsl:element name="concat">
+        <xsl:attribute name="destfile">
+          <xsl:value-of select="concat('${ISODIR}','/', 'wg12n',$wgnumexp,'.exp')" />
+        </xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${RESDOCRESOURCESEXP}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>   
     </target>
 
   </project>
@@ -3129,6 +3186,101 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
     </xsl:choose>
   </xsl:template>
 
+<xsl:template match="resource" mode="resources">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="terminate" select="'YES'"/>
+
+    <xsl:variable name="resdoc_dir">
+      <xsl:value-of select="concat('../../data/resource_docs/',@name)"/>
+    </xsl:variable>
+     
+    <xsl:variable name="resdoc_ok">
+      <xsl:call-template name="check_resdoc_exists">
+        <xsl:with-param name="resdoc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="resdoc_xml"
+                select="concat($resdoc_dir,'/resource.xml')"/>
+
+    <xsl:choose>
+      <xsl:when test="$resdoc_ok='true'">
+        <xsl:apply-templates select="document($resdoc_xml)/resource/schema"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="inline" select="'no'"/>
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error ref1: ', $resdoc_ok)"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+<xsl:template match="resource" mode="resdoc_resources">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="terminate" select="'YES'"/>
+
+    <xsl:variable name="resdoc_dir">
+      <xsl:value-of select="concat('../../data/resource_docs/',@name)"/>
+    </xsl:variable>
+     
+    <xsl:variable name="resdoc_ok">
+      <xsl:call-template name="check_resdoc_exists">
+        <xsl:with-param name="resdoc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="resdoc_xml"
+                select="concat($resdoc_dir,'/resource.xml')"/>
+
+    <xsl:choose>
+      <xsl:when test="$resdoc_ok='true'">
+        <xsl:apply-templates select="document($resdoc_xml)/resource/schema">
+          <xsl:with-param name="recurse" select="'NO'" />
+        </xsl:apply-templates>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="inline" select="'no'"/>
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error ref1: ', $resdoc_ok)"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+  <xsl:template match="interface" mode="resources">
+    <xsl:param name="resource_set" />
+    <!-- the name of the resource directory should be in lower case -->
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="lschema" select="translate(./@schema,$UPPER,$LOWER)"/>
+    <xsl:variable name="lname" select="translate(../@name,$UPPER,$LOWER)"/>
+      <xsl:choose>        
+      <!--      <xsl:when test="contains($resource_set,$lschema)"> -->
+      <xsl:when test="contains($resource_set,concat(':',$lschema,':'))">
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($resource_set,':',$lschema,':')"/>
+        <xsl:variable name="resource_dir">
+          <xsl:value-of select="concat('../../data/resources/',$lschema,'/')"/>
+        </xsl:variable>
+        <xsl:variable name="resource_xml">
+          <xsl:value-of select="concat($resource_dir,$lschema,'.xml')" />
+          </xsl:variable>
+          <xsl:apply-templates select="document($resource_xml)/express/schema/interface" mode="resources">
+            <xsl:with-param name="resource_set" select="concat($resource_set,':',$lname,':')"/>  
+          </xsl:apply-templates>
+        </xsl:otherwise>
+      </xsl:choose>  
+    </xsl:template>
+
   <xsl:template match="module" mode="resources">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
@@ -3138,13 +3290,17 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
       <xsl:value-of select="concat('../../data/modules/',@name)"/>
     </xsl:variable>
 
-    
     <xsl:variable name="module_ok">
       <xsl:call-template name="check_module_exists">
         <xsl:with-param name="module" select="@name"/>
       </xsl:call-template>
     </xsl:variable>
+    <!--
+    <xsl:message >
+     !!!!Module name:  <xsl:value-of select="@name"/>: module name 
 
+    </xsl:message>
+-->
     <xsl:choose>
       <xsl:when test="$module_ok='true'">
         <xsl:variable name="mim_xml" 
@@ -3162,53 +3318,42 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="resource" mode="resources">
-    <xsl:param name="prefix"/>
-    <xsl:param name="suffix"/>
-    <xsl:param name="terminate" select="'YES'"/>
-
-    <xsl:variable name="resdoc_dir">
-      <xsl:value-of select="concat('../../data/resource_docs/',@name)"/>
-    </xsl:variable>
-
-     
-    <xsl:variable name="resdoc_ok">
-      <xsl:call-template name="check_resdoc_exists">
-        <xsl:with-param name="resdoc" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:choose>
-      <xsl:when test="$resdoc_ok='true'">
-        <xsl:variable name="resource_xml" 
-          select="concat($resdoc_dir,'/resource.xml')"/>
-        <xsl:apply-templates select="document($resource_xml)/resource/schema"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="inline" select="'no'"/>
-          <xsl:with-param name="message">
-            <xsl:value-of select="concat('Error ref1: ', $resdoc_ok)"/>
-          </xsl:with-param>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
 
   <xsl:template match="interface">
     <xsl:variable name="type" 
       select="substring(@schema,string-length(@schema)-3)"/>
     <xsl:if test="$type!='_mim'">
       <xsl:value-of select="concat(':',@schema,':')"/>
+      <!--
+      <xsl:message>
+            schema:<xsl:value-of select="concat(':',@schema,':')"/>:schema
+      </xsl:message>
+      -->
     </xsl:if>
   </xsl:template>
 
+
   <xsl:template match="schema">
-    <xsl:variable name="type" 
-      select="substring(@schema,string-length(@name)-3)"/>
-    <xsl:value-of select="concat(':',@name,':')"/>
-  </xsl:template>
+    <xsl:param name="recurse" select="'YES'" />
+    <!-- the name of the resource directory should be in lower case -->
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
+
+    <xsl:value-of select="concat(':',$lname,':')"/>
+    <xsl:if test="$recurse='YES'">
+      
+    <xsl:variable name="resource_dir">
+      <xsl:value-of select="concat('../../data/resources/',$lname,'/')"/>
+    </xsl:variable>
+    <xsl:variable name="resource_xml">
+      <xsl:value-of select="concat($resource_dir,$lname,'.xml')" />
+    </xsl:variable>
+    <xsl:apply-templates select="document($resource_xml)/express/schema/interface" mode="resources">
+      <xsl:with-param name="resource_set" select="concat(':',$lname,':')" />
+    </xsl:apply-templates>
+    </xsl:if>
+</xsl:template>
 
 
   <xsl:template name="output_resources">
@@ -3218,11 +3363,16 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
     <xsl:variable
       name="first"
       select="substring-before(substring-after($resources,':'),':')"/>
+
+    <!--    <xsl:message>
+      first-<xsl:value-of select="$first"/>-first
+    </xsl:message> -->
     <xsl:variable
       name="rest"
       select="substring-after(substring-after($resources,':'),':')"/>
     <xsl:choose>
-      <xsl:when test="contains($rest,$first)">
+      <!-- added second test because the recursion does not stop otherwise - rats  -->
+      <xsl:when test="contains($rest,$first) and string-length($first)!=0">
         <!-- the schema is in the list and will be dealt with later -->
         <xsl:call-template name="output_resources">
           <xsl:with-param name="resources" select="$rest"/>
@@ -3242,31 +3392,41 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
     </xsl:choose>
   </xsl:template>
 
-  <!-- TEH added -->    
-
-
   <xsl:template match="resource">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
     <xsl:param name="terminate" select="'YES'"/>
+    <!-- the name of the resource directory should be in lower case -->
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
+
     <xsl:choose>
       <xsl:when test="$terminate='YES'">
         <xsl:choose>
           <xsl:when test="position()=last()">
-            <xsl:value-of select="concat($prefix,@name,$suffix)"/><xsl:text/>
+            <xsl:value-of select="concat($prefix,$lname,$suffix)"/><xsl:text/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="concat($prefix,@name,$suffix)"/>,<xsl:text/>
+            <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat($prefix,@name,$suffix)"/>,<xsl:text/>
+        <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template name="check_resdoc_exists">
+  <xsl:template match="resource" mode="wgnumexp">
+    <xsl:value-of select="./@wg.number.express" />     
+  </xsl:template>
+ 
+  <xsl:template match="resource" mode="name">
+    <xsl:value-of select="./@name" />     
+  </xsl:template>
+
+ <xsl:template name="check_resdoc_exists">
     <xsl:param name="resdoc"/>
 
     <xsl:variable name="ret_val">
@@ -3285,8 +3445,17 @@ $Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
       <xsl:value-of select="$ret_val"/>
   </xsl:template>
 
-  <!-- end TEH added -->
+
 </xsl:stylesheet>
+
+
+
+
+
+
+
+
+
 
 
 

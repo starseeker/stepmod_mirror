@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.8 2004/11/03 15:56:36 robbod Exp $
+$Id: sect_isocover.xsl,v 1.9 2004/11/04 15:01:11 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -247,25 +247,47 @@ $Id: sect_isocover.xsl,v 1.8 2004/11/03 15:56:36 robbod Exp $
           </div>
 
           <!-- document edition -->
-          <!-- RBN - note that the @publication.year will have to change to
-               @publication.iso_publication -->
           <xsl:if test="@status!='DIS'">
-            <xsl:if test="string-length(normalize-space(@publication.date))=0">
-              <xsl:call-template name="error_message">
-                <xsl:with-param 
-                  name="message" 
-                  select="concat('Error PD: No publication date (@publication.date) provided for ',@name)"/>
-              </xsl:call-template>
-            </xsl:if>
-
-            <div align="center" style="margin-top:50pt">
-              <span style="font-size:12; font-family:sans-serif;">
-                <b>
-                  <xsl:value-of select="concat(normalize-space($this_edition),'&#160;edition&#160;&#160;',@publication.date)"/>
-                </b>
-              </span>
-            </div>
-          </xsl:if>
+            <xsl:choose>
+              <xsl:when test="string-length(normalize-space(@publication.date))=0">
+                <xsl:choose>
+                  <xsl:when test="$ERROR_CHECK_ISOCOVER='YES'">
+                    <xsl:call-template name="error_message">
+                      <xsl:with-param 
+                        name="message" 
+                        select="concat('Error PD: No publication date
+(@publication.date) provided for ',@name,' using @publication.year)')"/>
+                    </xsl:call-template>
+                    <div align="center" style="margin-top:50pt">
+                      <span style="font-size:12; font-family:sans-serif;">
+                        <b>
+                          <xsl:value-of select="concat(normalize-space($this_edition),'&#160;edition&#160;&#160;',@publication.year)"/>
+                        </b>
+                      </span>
+                    </div>
+                </xsl:when>
+                <xsl:otherwise>
+                    <div align="center" style="margin-top:50pt">
+                      <span style="font-size:12; font-family:sans-serif;">
+                        <b>
+                          <xsl:value-of select="concat(normalize-space($this_edition),'&#160;edition&#160;&#160;',@publication.year)"/>
+                        </b>
+                      </span>
+                    </div>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise>
+              <div align="center" style="margin-top:50pt">
+                <span style="font-size:12; font-family:sans-serif;">
+                  <b>
+                    <xsl:value-of select="concat(normalize-space($this_edition),'&#160;edition&#160;&#160;',@publication.date)"/>
+                  </b>
+                </span>
+              </div>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
 
           <xsl:choose>
             <xsl:when test="@status='DIS'">
@@ -527,11 +549,20 @@ $Id: sect_isocover.xsl,v 1.8 2004/11/03 15:56:36 robbod Exp $
     <xsl:choose>
       <xsl:when test="string-length(normalize-space(@name.french))=0">
         Module d'application: 
-        <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('Error FT: No French title (module/@name.french) provided for ',@name)"/>
-        </xsl:call-template>
+        <xsl:choose>
+          <xsl:when test="$ERROR_CHECK_ISOCOVER='YES'">
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Error FT: No French title (module/@name.french) provided for ',@name)"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="module_display_name">
+              <xsl:with-param name="module" select="@name"/>
+            </xsl:call-template>  
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         Module d'application: 

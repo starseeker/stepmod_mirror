@@ -21,7 +21,7 @@
 		>
 			<xsl:text>&#xa;</xsl:text>
 			
-			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../dtd/part28/ex.xsd"/>
+			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
 			
 			<xsl:apply-templates select="type"/>
 			<xsl:apply-templates select="entity"/>

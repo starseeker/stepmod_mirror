@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: issues_dvlp.xsl,v 1.1 2002/12/24 14:36:57 robbod Exp $
+$Id: issues_dvlp.xsl,v 1.2 2003/01/06 17:58:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -295,13 +295,27 @@ $Id: issues_dvlp.xsl,v 1.1 2002/12/24 14:36:57 robbod Exp $
     </a>
   </p>
   
+
   <xsl:call-template name="output_issue">
     <xsl:with-param name="type" select="$arm_mim"/>
     <xsl:with-param name="linkend" select="$linkend"/>
   </xsl:call-template>
-  <xsl:apply-templates select="explicit"/>
-  <xsl:apply-templates select="derived"/>
-  <xsl:apply-templates select="inverse"/>
+
+  <xsl:apply-templates select="explicit">
+    <xsl:with-param name="clause" select="$clause"/>
+    <xsl:with-param name="arm_mim" select="$arm_mim"/>
+  </xsl:apply-templates>
+
+  <xsl:apply-templates select="derived">
+    <xsl:with-param name="clause" select="$clause"/>
+    <xsl:with-param name="arm_mim" select="$arm_mim"/>
+  </xsl:apply-templates>
+
+  <xsl:apply-templates select="inverse">
+    <xsl:with-param name="clause" select="$clause"/>
+    <xsl:with-param name="arm_mim" select="$arm_mim"/>
+  </xsl:apply-templates>
+
 </xsl:template>
 
 

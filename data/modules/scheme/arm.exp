@@ -1,0 +1,94 @@
+{ iso standard 10303 part (11) version (4) }
+
+SCHEMA Scheme_arm;
+
+USE FROM Date_time_assignment_arm;
+
+USE FROM Person_organization_assignment_arm;
+
+USE FROM Time_interval_arm;
+
+TYPE scheme_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH
+  (Scheme_entry);
+END_TYPE;
+
+TYPE scheme_entry_item_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
+
+TYPE scheme_person_organization_select = SELECT BASED_ON organization_or_person_in_organization_select WITH
+  (Scheme,
+   Scheme_entry);
+END_TYPE;
+
+TYPE scheme_subject_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
+
+ENTITY Scheme;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Scheme_entry;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  scheme : Scheme;
+END_ENTITY;
+
+ENTITY Scheme_entry_item_assignment;
+  description : OPTIONAL STRING;
+  item : scheme_entry_item_select;
+  role : STRING;
+  scheme_entry : Scheme_entry;
+END_ENTITY;
+
+ENTITY Scheme_entry_relationship;
+  name : STRING;
+  description : OPTIONAL STRING;
+  related_scheme_entry : Scheme_entry;
+  relating_scheme_entry : Scheme_entry;
+END_ENTITY;
+
+ENTITY Scheme_relationship;
+  name : STRING;
+  description : OPTIONAL STRING;
+  related_scheme : Scheme;
+  relating_scheme : Scheme;
+END_ENTITY;
+
+ENTITY Scheme_subject_assignment;
+  description : STRING;
+  scheme : Scheme;
+  subject : scheme_subject_select;
+END_ENTITY;
+
+ENTITY Sequencing_relationship
+SUBTYPE OF (Scheme_entry_relationship);
+  sequencing_type : STRING;
+  time_lag : OPTIONAL Time_interval;
+END_ENTITY;
+
+END_SCHEMA;
+
+SCHEMA Person_organization_assignment_arm;
+
+TYPE organization_or_person_in_organization_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+END_SCHEMA;
+
+SCHEMA Time_interval_arm;
+
+ENTITY Time_interval;
+END_ENTITY;
+
+END_SCHEMA;
+
+SCHEMA Date_time_assignment_arm;
+
+TYPE date_or_date_time_item = EXTENSIBLE SELECT ;
+END_TYPE;
+
+END_SCHEMA;
+

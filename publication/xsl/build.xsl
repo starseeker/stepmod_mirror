@@ -1668,7 +1668,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:element name="property">
       <xsl:attribute name="name">DMODEEXPARMLFXML</xsl:attribute>
       <xsl:attribute name="value">
-        <xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
+        <xsl:apply-templates select="$mim_modules_node_set/module" mode="long_form">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
         </xsl:apply-templates>
@@ -1688,7 +1688,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:element name="property">
       <xsl:attribute name="name">DMODEEXPMIMLFXML</xsl:attribute>
       <xsl:attribute name="value">
-        <xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
+        <xsl:apply-templates select="$mim_modules_node_set/module" mode="long_form">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/sys/e_exp_mim_lf.xml'"/>
         </xsl:apply-templates>
@@ -2434,7 +2434,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
-      </xsl:element>
+e      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2672,17 +2672,26 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
+      <xsl:variable name="dlongforms">
+        <xsl:apply-templates select="modules/module" mode="long_form">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
+        </xsl:apply-templates> 
+      </xsl:variable>
+
+      <xsl:if test="string-length($dlongforms)>0">
+        <xsl:element name="style">
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="style">
+            <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
+          </xsl:attribute>
+          <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+            <xsl:with-param name="menu" select="$menu"/>
+          </xsl:apply-templates>
+        </xsl:element>
+      </xsl:if>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2696,18 +2705,21 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
+      <xsl:if test="string-length($dlongforms)>0">        
+        <xsl:element name="style">
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="style">
+            <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
+          </xsl:attribute>
+          <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+            <xsl:with-param name="menu" select="$menu"/>
+          </xsl:apply-templates>
+        </xsl:element>
+      </xsl:if>
+
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODFGUIDEXML}'"/>
@@ -4380,7 +4392,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <!-- copy the application protocol express -->
     <!-- NOT YET IMPLEMENTED -->
     <xsl:apply-templates select="." mode="copy_express">
-      <xsl:with-param name="express_dir" select="concat($apdoc_dir,'/express/')"/>
+      <xsl:with-param name="express_dir" select="concat($apdoc_dir,'express/')"/>
     </xsl:apply-templates>
 
     <xsl:element name="zip">
@@ -4744,7 +4756,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="$express_dir"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="concat('${PUBDIR}/',$module_iso_no,'/express/')"/>  
+          <xsl:value-of select="concat('${PUBDIR}/',$module_iso_no,'express/')"/>  
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -4807,7 +4819,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:param name="terminate" select="'YES'"/>
     <!-- the name of the resource directory should be in lower case -->
     <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
-
+    <!-- workaround - only output first occurrence of a module -->
+    <xsl:if test="not(./preceding-sibling::*[@name = $lname])">
     <xsl:choose>
       <xsl:when test="$terminate='YES'">
         <xsl:choose>
@@ -4823,6 +4836,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
       </xsl:otherwise>
     </xsl:choose>
+    </xsl:if>
   </xsl:template>
 
 
@@ -4830,8 +4844,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
     <xsl:param name="terminate" select="'YES'"/>
+    <!-- need a variable for xpath -->
+    <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
     <xsl:variable name="module_xml" select="document(concat('../../data/modules/',@name,'/module.xml'))"/>
-    <xsl:if test="$module_xml/module/arm_lf">
+    <!-- only want modules that declare a long form -->
+    <!-- workaround - only output first occurrence of a module -->
+    <xsl:if test="$module_xml/module/arm_lf and not(./preceding-sibling::*[@name = $lname])">
       <xsl:choose>
         <xsl:when test="$terminate='YES'">
           <xsl:choose>

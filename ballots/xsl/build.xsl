@@ -4130,7 +4130,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       select="substring-after(substring-after($resources,':'),':')"/>
     <xsl:choose>
       <!-- added second test because the recursion does not stop otherwise - rats  -->
-      <xsl:when test="contains($rest,$first) and string-length($first)!=0">
+      <xsl:when test="contains($rest,concat(':',$first,':')) and string-length($first)!=0">
         <!-- the schema is in the list and will be dealt with later -->
         <xsl:call-template name="output_resources">
           <xsl:with-param name="resources" select="$rest"/>

@@ -1,4 +1,4 @@
-//$Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $
+//$Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $
 //  Author: Tom Hendrix
 //  Owner:  
 //  Purpose:  JScript to generate the default XML for the common resource.
@@ -20,11 +20,19 @@
 // If you do not run mkresource from 
 var stepmodHome = "../..";
 
-var resourceSchemas = new Array("nut_and_bolt_1_schema", "nut_and_bolt_2_schema", "nut_and_bolt_3_schema");
+//var resourceSchemas = new Array("nut_and_bolt_1_schema", "nut_and_bolt_2_schema", "nut_and_bolt_3_schema");
+
+var resourceSchemas = new Array("product_and_model_relationships_schema", 
+                                "action_and_model_relationships_schema",
+				"state_and_model_relationships_schema",
+				"property_distribution_and_model_relationships_schema",
+				"fea_definition_relationships_schema" );
+
+//these are boilerplate files in /sys. Assumption is the names and xsl follow a pattern.
 
 
 
-var resourceClauses = new Array("main", "abstract", "cover", "contents", 
+var resdocClauses = new Array("main", "abstract", "cover", "contents", 
 			      "introduction", "foreword", 
 			      "1_scope", "2_refs", "3_defs", 
 			      "a_short_names", 
@@ -34,7 +42,8 @@ var resourceClauses = new Array("main", "abstract", "cover", "contents",
 			      "tech_discussion", 
 			      "examples", 
 			      "add_scope", 
-			      "biblio");
+			      "biblio",
+			      "resdocindex");
 
 // If 1 then output user messages
 var outputUsermessage = 1;
@@ -83,23 +92,33 @@ function CheckArgs() {
     } 
 }
 
-function CheckResource(resource) {
-    var resourceFldr = GetResource_docDir(resource);
+function CheckResdoc(resdoc) {
+    var resdocFldr = GetResdocDir(resdoc);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    
+    // check if the folder exists
+    if (fso.FolderExists(resdocFldr)) 
+	throw("Directory already exists for resource doc: "+ resdoc);
+    return(true);
+}
+
+function CheckResource(schema) {
+    var resourceFldr = GetResourceDir(schema);
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     
     // check if the folder exists
     if (fso.FolderExists(resourceFldr)) 
-	throw("Directory already exists for resource: "+ resource);
+	throw("Directory already exists for resource: "+ schema);
     return(true);
 }
 
 
-function GetResourceDir(){
-    return( stepmodHome+"/data/resources/");
+function GetResourceDir(schema){
+    return( stepmodHome+"/data/resources/"+schema+"/");
 }
 
-function GetResource_docDir(resource) {
-    return( stepmodHome+"/data/resource_docs/"+resource+"/");
+function GetResdocDir(resdoc) {
+    return( stepmodHome+"/data/resource_docs/"+resdoc+"/");
 }
 
 // Create the dvlp directory and insert the projmg and issues file
@@ -108,10 +127,10 @@ function MakeDvlpFldr(resource) {
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
     var fso = new ActiveXObject("Scripting.FileSystemObject");
-    var resource_docFldr = GetResource_docDir(resource);
-    var resourceDvlpFldr = resource_docFldr+"dvlp/";
-    var projmgXML = resourceDvlpFldr+"projmg.xml";
-    var issuesXML = resourceDvlpFldr+"issues.xml";
+    var resdocFldr = GetResdocDir(resource);
+    var resdocDvlpFldr = resdocFldr+"dvlp/";
+    var projmgXML = resdocDvlpFldr+"projmg.xml";
+    var issuesXML = resdocDvlpFldr+"issues.xml";
 
     var objShell = WScript.CreateObject("WScript.Shell");
     var milestones = objShell.Popup("Do you want resource milestones?",0,"Creating resource milestones", 36);
@@ -121,14 +140,14 @@ function MakeDvlpFldr(resource) {
 	milestones=false;
     }
     var f,ts;
-    if (!fso.FolderExists(resourceDvlpFldr)) 
-	fso.CreateFolder(resourceDvlpFldr);
+    if (!fso.FolderExists(resdocDvlpFldr)) 
+	fso.CreateFolder(resdocDvlpFldr);
     if (!fso.FileExists(projmgXML)) { 
 	fso.CreateTextFile(projmgXML, true);
 	f = fso.GetFile(projmgXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $ -->");//        ts.WriteLine("       <imgfile file=\"c"+(i+4)+"_expg1.xml\"/>");
+	ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");//        ts.WriteLine("       <imgfile file=\"c"+(i+4)+"_expg1.xml\"/>");
 
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/projmg.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE management SYSTEM \"../../../../dtd/projmg/projmg.dtd\">");
@@ -260,7 +279,7 @@ function MakeDvlpFldr(resource) {
 	f = fso.GetFile(issuesXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $ -->");
+	ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/issues_file.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE issues SYSTEM \"../../../../dtd/projmg/issues.dtd\">");
 	ts.WriteLine("<issues resource=\""+resource+"\">");
@@ -317,12 +336,12 @@ function MakeDvlpFldr(resource) {
 }
 
 
-function MakeResourceClause(resource, clause) {
+function MakeResdocClause(resdoc, clause) {
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
-    var resource_docFldr = GetResource_docDir(resource);
-    var resourceSysFldr = resource_docFldr+"sys/";
-    var clauseXML = resourceSysFldr+clause+".xml";
+    var resdocFldr = GetResdocDir(resdoc);
+    var resdocSysFldr = resdocFldr+"sys/";
+    var clauseXML = resdocSysFldr+clause+".xml";
     var clauseXSL = "sect_"+clause+".xsl";
 
     //userMessage("Creating "+clauseXML);
@@ -332,20 +351,20 @@ function MakeResourceClause(resource, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../../dtd/res_doc/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/res_doc/" + clauseXSL + "\" ?>");
-    ts.WriteLine("<resource_clause directory=\"" + resource + "\"/>");
+    ts.WriteLine("<resource_clause directory=\"" + resdoc + "\"/>");
 
     ts.Close();
 }
-function MakeResourceSchemaClause(resource, xmlfile, xslfile,schemano) {
+function MakeResdocSchemaClause(resdoc, xmlfile, xslfile,schemano) {
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
-    var resource_docFldr = GetResource_docDir(resource);
-    var resourceSysFldr = resource_docFldr+"sys/";
-    var clauseXML = resourceSysFldr+xmlfile+".xml";
+    var resdocFldr = GetResdocDir(resdoc);
+    var resdocSysFldr = resdocFldr+"sys/";
+    var clauseXML = resdocSysFldr+xmlfile+".xml";
     var clauseXSL = xslfile+".xsl";
 
     //userMessage("Creating "+clauseXML);
@@ -355,11 +374,11 @@ function MakeResourceSchemaClause(resource, xmlfile, xslfile,schemano) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../../dtd/res_doc/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/res_doc/" + clauseXSL + "\" ?>");
-    ts.WriteLine("<resource_clause directory=\"" + resource + 
+    ts.WriteLine("<resource_clause directory=\"" + resdoc + 
 	"\" pos=\"" + (schemano+1) + "\" />");
 
     ts.Close();
@@ -370,8 +389,8 @@ function MakeResourceXML(resource, partNo) {
 
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
-    var resource_docFldr = GetResource_docDir(resource);
-    var resourceXML = resource_docFldr + "resource.xml";
+    var resdocFldr = GetResdocDir(resource);
+    var resourceXML = resdocFldr + "resource.xml";
 
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     fso.CreateTextFile( resourceXML, true );
@@ -379,7 +398,7 @@ function MakeResourceXML(resource, partNo) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     userMessage(TristateUseDefault);
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource SYSTEM \"../../../dtd/res_doc/resource.dtd\">");
     //ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     //ts.WriteLine("href=\"../../../xsl/res_doc/express.xsl\" ?>");
@@ -502,10 +521,11 @@ function MakeResourceXML(resource, partNo) {
    ts.Close();
 }
 
-function MakeExpressG(resource, expgfile, title) {
+function MakeExpressG(resdoc, schema, title) {
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
-    var resourceFldr = GetResource_docDir(resource);
+    var resourceFldr = GetResourceDir(schema);
+    var expgfile = schema+"expg1.xml"
     var expg = resourceFldr+expgfile;
     var expg_gif = expgfile.replace(".xml",".gif");
 
@@ -515,12 +535,12 @@ function MakeExpressG(resource, expgfile, title) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
-    ts.WriteLine("    href=\"../../../xsl/resdoc/imgfile.xsl\"?>");
+    ts.WriteLine("    href=\"../../../xsl/res_doc/imgfile.xsl\"?>");
     ts.WriteLine("<imgfile.content");
-    ts.WriteLine("  resource=\""+resource+"\"");
+    ts.WriteLine("  module=\""+resdoc+"\"");
     ts.WriteLine("  file=\""+expgfile+"\">");
     ts.WriteLine("  <img src=\""+expg_gif+"\">");
     ts.WriteLine("  </img>");
@@ -534,6 +554,19 @@ function MakeExpressG(resource, expgfile, title) {
 
 
 function MakeExpress(resource,schema) {
+
+
+if (resourceSchemas.length == 0){
+	var question = "No schemas have been specified in variable resourceSchema. Is this okay?"	
+	var intRet = objShell.Popup(question,0, "Creating resource", 49);
+	if (intRet == 1) {
+	   	 // OK
+	}
+	else {
+		ErrorMessage("Exiting");
+		return(false);
+	}
+}
 
 //needs to be revamped for resources.  
 //Should write to resource/schema_name folder but only if does not exist
@@ -549,7 +582,7 @@ function MakeExpress(resource,schema) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("(*");
-    ts.WriteLine("   $Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $");
+    ts.WriteLine("   $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $");
     ts.Write("   N - ISO/CD-TS - 10303- ");
     ts.Write(resource);
     ts.Write(" - EXPRESS ");
@@ -560,18 +593,18 @@ function MakeExpress(resource,schema) {
     ts.Close();
 }
 
-function MakeIndexXML(resource) {
+function MakeIndexXML(resdoc) {
 
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
-    var resdocFldr = GetResource_docDir(resource);
+    var resdocFldr = GetResdocDir(resdoc);
     var indexXML = resdocFldr+"index.xml";
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     fso.CreateTextFile( indexXML, true );
     var f = fso.GetFile(indexXML);
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);    
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id:  $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../dtd/res_doc/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/res_doc/index.xsl\" ?>");
     ts.WriteLine("<!-- do not edit this file -->");
@@ -579,14 +612,33 @@ function MakeIndexXML(resource) {
     ts.Close();
 }
 
+function MakeResdocindexXML(resdoc) {
 
-function MakeExpressXML(resource,schema) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var resdocFldr = GetResdocDir(resdoc);
+    var resdocindexXML = resdocFldr+"resdocindex.xml";
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    fso.CreateTextFile( resdocindexXML, true );
+    var f = fso.GetFile(resdocindexXML);
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);    
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");
+    ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../dtd/res_doc/resource_clause.dtd\">");
+    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/res_doc/sect_resdocindex.xsl\" ?>");
+    ts.WriteLine("<!-- do not edit this file -->");
+    ts.WriteLine("<resource_clause directory=\"mathematical_representation\"/>");
+    ts.Close();
+}
+
+
+function MakeExpressXML(resource,schema, partNo) {
 //needs to be revamped for resources
 //Should write to resource/schema_name folder but only if does not exist
 // should be executed once for each schema in ResourceSchemas
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
-    var resourceFldr = GetResourceDir();
+    var resourceFldr = GetResourceDir(schema);
     var schemaXML = resourceFldr+schema+".xml";
 
     var fso = new ActiveXObject("Scripting.FileSystemObject");
@@ -595,14 +647,16 @@ function MakeExpressXML(resource,schema) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.7 2003/01/24 00:59:38 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.8 2003/03/28 00:11:17 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../res_doc/xsl/express.xsl\" ?>");
     ts.WriteLine("<express");
     ts.WriteLine("   language_version=\"2\"");
-    ts.WriteLine("   rcs.date=\"$Date: 2003/01/24 00:59:38 $\"");
-    ts.WriteLine("   rcs.revision=\"$Revision: 1.7 $\">");
+    ts.WriteLine("   rcs.date=\"$Date: 2003/03/28 00:11:17 $\"");
+    ts.WriteLine("   rcs.revision=\"$Revision: 1.8 $\"");
+    ts.WriteLine("   reference=\"ISO 10303-"+partNo+"\"");
+    ts.WriteLine("   description.file=\"descriptions.xml\"\>");
     ts.WriteLine("  <schema name=\""+schema+"\">");
     ts.WriteLine("  </schema>");
     ts.WriteLine("</express>");
@@ -647,57 +701,59 @@ function NameResource(resource) {
 } 
 
 
-function MakeResource_doc(resource, partNo) {
-    // make sure resource has a valid name
-    resource = NameResource(resource);
-    var resource_docFldr = GetResource_docDir(resource);
-    var resource_docSysFldr = resource_docFldr+"sys/";
+function MakeResdoc(resdoc, partNo) {
+    // make sure resource doc has a valid name
+    resdoc = NameResource(resdoc);
+    var resdocFldr = GetResdocDir(resdoc);
+    var resdocSysFldr = resdocFldr+"sys/";
     var fso = new ActiveXObject("Scripting.FileSystemObject");
 
-    userMessage("Creating resource "+resource);
+	if (resourceSchemas.length == 0){
+		var question = "No schemas have been specified in variable resourceSchema. Is this okay?"	
+		var intRet = objShell.Popup(question,0, "Creating resource", 49);
+		if (intRet == 1) {
+	   		 // OK
+		}
+		else {
+			ErrorMessage("Exiting");
+			return(false);
+		}
+	}	
+    userMessage("Creating resource doc "+resdoc);
     try {
-	CheckResource(resource);
-	fso.CreateFolder(resource_docFldr);
-	fso.CreateFolder(resource_docSysFldr);	
-	MakeDvlpFldr(resource);
-	MakeIndexXML(resource);
-	for (var i=0; i<resourceClauses.length; i++) {
-	    MakeResourceClause(resource, resourceClauses[i]);
+	CheckResdoc(resdoc);
+	fso.CreateFolder(resdocFldr);
+	fso.CreateFolder(resdocSysFldr);
+	MakeResourceXML(resdoc, partNo);	
+	MakeDvlpFldr(resdoc);
+	MakeIndexXML(resdoc);
+	MakeResdocindexXML(resdoc);
+	for (var i=0; i<resdocClauses.length; i++) {
+	    MakeResdocClause(resdoc, resdocClauses[i]);
 	}
 
         for (var i=0; i<resourceSchemas.length; i++){
-            schema = resourceSchemas[i]
+            schema = resourceSchemas[i];
 // schema clause 
-            xmlfile = (i+4)+"_schema"
-	    xslfile = "sect_schema"
-	    MakeResourceSchemaClause(resource, xmlfile, xslfile, i);
+            xmlfile = (i+4)+"_schema";
+	    xslfile = "sect_schema";
+	    MakeResdocSchemaClause(resdoc, xmlfile, xslfile, i);
 // exp subclause
-	    xslfile = "sect_c_exp_schema"
+	    xslfile = "sect_c_exp_schema";
             xmlfile = "c_exp_schema_"+(i+4);
-	    MakeResourceSchemaClause(resource, xmlfile, xslfile, i);
-// expg subclause
-	    xslfile = "sect_d_expg_schema" 
-            xmlfile = "d_"+(i+4)+"_schema_expg"
-//	    MakeResourceSchemaClause(resource, xmlfile, xslfile, i);
 
-//	    MakeExpressG(resource, schema);
-//	    MakeExpressXML(resource,schema);
-//	    MakeExpress(resource,schema);
+	    MakeResdocSchemaClause(resdoc, xmlfile, xslfile, i);
 
+            CheckResource(schema);
+	    var resourceFldr = GetResourceDir(schema);
+            fso.CreateFolder(resourceFldr);
 
+	    MakeExpressXML(resdoc,schema, partNo);
+	    MakeExpressG(resdoc, schema, "dummy title");
  	}
-
-//        userMessage("after MakeResourceSchemaClausesXML");
-
-// these three need to loop through all schemas required.
-//        ErrorMessage("before MakeResourceXML");
-
-	MakeResourceXML(resource, partNo);
-	userMessage("Created resource:   "+resource);
     }
     catch(e) {
-	ErrorMessage(e);
-    }    
+	ErrorMessage(e);}    
 }
 
 
@@ -709,49 +765,49 @@ function Main() {
     }
 }
 
-function MainDvlpWindow(resource) {
+function MainDvlpWindow(resdoc) {
     var objShell = WScript.CreateObject("WScript.Shell");
-    var resourceName = NameResource(resource);
-    if (resourceName.length > 1) {
+    var resdocName = NameResource(resdoc);
+    if (resdocName.length > 1) {
 
 	var fso = new ActiveXObject("Scripting.FileSystemObject");
-	var resource_docFldr = GetResource_docDir(resourceName);
-	var resourceDvlpFldr = resource_docFldr+"dvlp/";
-	if (!fso.FolderExists(resource_docFldr)) {
-	    objShell.Popup("Resource "+resourceName+" does not exist");
+	var resdocFldr = GetResdocDir(resdocName);
+	var resdocDvlpFldr = resdocFldr+"dvlp/";
+	if (!fso.FolderExists(resdocFldr)) {
+	    objShell.Popup("Resource doc "+resdocName+" does not exist");
 	} else {
-	    var intRet = objShell.Popup("You are about to create a dvlp directory in resource: "+resource,0, "Creating DVLP", 49);
+	    var intRet = objShell.Popup("You are about to create a dvlp directory in resource doc: "+resdoc,0, "Creating DVLP", 49);
 	    if (intRet == 1) {
 		// OK
 		MakeDvlpFldr(resource);
 		objShell.Popup("Created dvlp folder: "+resourceDvlpFldr +"\n"+
-			       "  ProjMg: stepmod/data/resource_docs/"+resourceName+"/dvlp/projmg.xml\n"+
-			       "  Issues: stepmod/data/resource_docs/"+resourceName+"/dvlp/issues.xml\n"+
+			       "  ProjMg: stepmod/data/resource_docs/"+resdocName+"/dvlp/projmg.xml\n"+
+			       "  Issues: stepmod/data/resource_docs/"+resdocName+"/dvlp/issues.xml\n"+
 			       "  Add   development.folder=\"dvlp\" to resource.xml\n",
-			       0, "Created resource", 64);
+			       0, "Created resource doc", 64);
 	    }
 	}
     } else {
-	objShell.Popup("You must enter a resource name");
+	objShell.Popup("You must enter a resource doc name");
     }
 }
 
 
-function MainWindow(resource) {
+function MainWindow(resdoc,partNo) {
     var objShell = WScript.CreateObject("WScript.Shell");
-    var resourceName = NameResource(resource);
-    var question = "About to create resource: " + resourceName + "   OK?" ;
-    if (resourceName.length > 1) {	
-	var intRet = objShell.Popup(question,0, "Creating resource", 49);
+    var resdocName = NameResource(resdoc);
+    var question = "About to create resource part " + partNo + " : " + resdocName + "   OK?" ;
+    if (resdocName.length > 1) {	
+	var intRet = objShell.Popup(question,0, "Creating resource document", 49);
 	if (intRet == 1) {
 	    // OK
-	    MakeResource_doc(resource, 'xxx');
-	    objShell.Popup("Created resource: "+resourceName+"\n"+
-			   "  Directory: stepmod/data/resource_docs/"+resourceName+"\n"+ 
-"To view resource in IExplorer open stepmod/data/resource_docs/"+resourceName+"/sys/1_scope.xml\n", 0, "Created resource", 64);
+	    MakeResdoc(resdoc, partNo);
+	    objShell.Popup("Created resource doc: "+resdocName+"\n"+
+			   "  Directory: stepmod/data/resource_docs/"+resdocName+"\n"+ 
+"To view resource document  in IExplorer open stepmod/data/resource_docs/"+resdocName+"/sys/1_scope.xml\n", 0, "Created resource document", 64);
 	}
     } else {
-	objShell.Popup("You must enter a resource  name");
+	objShell.Popup("You must enter a resource  document name");
     }
 }
 

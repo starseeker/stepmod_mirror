@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.7 2002/12/17 13:26:15 nigelshaw Exp $
+     $Id: sect_4_express.xsl,v 1.8 2003/01/24 22:48:14 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -410,11 +410,11 @@
 
     <xsl:variable name="clause_intro" select="''"/>
 
-    <h3>
+    <h2>
       <A NAME="constants">
         <xsl:value-of select="$clause_header"/>
       </A>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -437,11 +437,11 @@
       <xsl:with-param name="section2" select="@name"/>
     </xsl:call-template>
   </xsl:variable>    
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-  </h3>
+  </h2>
 
   <!-- output description from express --> 
   <!-- output description from external file -->
@@ -532,11 +532,11 @@
 
     <xsl:variable name="clause_intro" select="''"/>
 
-    <h3>
+    <h2>
       <A NAME="types">
         <xsl:value-of select="$clause_header"/>
       </A>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -546,12 +546,12 @@
       <xsl:with-param name="section2" select="@name"/>
     </xsl:call-template>
   </xsl:variable>    
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($main_clause,$clause_number, '.', position(), ' ', @name)"/>
     </A>
     <xsl:apply-templates select="." mode="expressg_icon"/>
-  </h3>
+  </h2>
 
   <xsl:call-template name="check_type_name">
     <xsl:with-param name="type_name" select="@name"/>
@@ -741,11 +741,11 @@
 
     <xsl:variable name="clause_intro" select="''"/>
 
-    <h3>
+    <h2>
       <A NAME="entities">
         <xsl:value-of select="$clause_header"/>
       </A>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -756,7 +756,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <h3>
+  <h2>
     <A NAME="{$aname}">
      <xsl:value-of select="concat($main_clause,$clause_number,'.',position(),' ',@name)"/>
     </A>
@@ -776,7 +776,7 @@
           alt="Mapping table" src="../../../../images/mapping.gif"/>
       </a>
     </xsl:if>
-  </h3>
+  </h2>
   <!--
       <xsl:call-template name="check_entity_name">
         <xsl:with-param name="entity_name" select="@name"/>
@@ -1357,11 +1357,11 @@
       </xsl:choose>      
     </xsl:variable>
 
-    <h3>
+    <h2>
       <a name="subtype_constraints">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -1372,11 +1372,11 @@
     </xsl:call-template>
   </xsl:variable>
              
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-  </h3>
+  </h2>
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -1484,11 +1484,11 @@
       </xsl:choose>      
     </xsl:variable>
 
-    <h3>
+    <h2>
       <a name="functions">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -1499,11 +1499,11 @@
     </xsl:call-template>
   </xsl:variable>
              
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-  </h3>
+  </h2>
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -1581,12 +1581,12 @@
       </xsl:choose>      
     </xsl:variable>
 
-    <h3>
+    <h2>
       <a name="procedures">
         <xsl:value-of 
           select="$clause_header"/>
       </a>
-      </h3> 
+      </h2> 
       <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -1597,11 +1597,11 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-  </h3>
+  </h2>
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -1768,11 +1768,11 @@
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
-    <h3>
+    <h2>
       <a name="rules">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -1783,11 +1783,11 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-  </h3>
+  </h2>
 
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
@@ -2626,11 +2626,11 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
         </xsl:variable>
 
         <xsl:variable name="aname" select="concat('imported_',$lkind)"/>
-        <h3>
+        <h2>
           <A NAME="{$aname}">
             <xsl:value-of select="$clause_header"/>
           </A>
-        </h3>
+        </h2>
         <xsl:apply-templates select="$desc_item"/>                    
       </xsl:if>
 </xsl:template>

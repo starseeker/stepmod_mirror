@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: resource_clause.xsl,v 1.2 2002/10/20 06:45:17 thendrix Exp $
+$Id: resource_clause.xsl,v 1.3 2003/01/24 21:00:24 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -36,6 +36,9 @@ $Id: resource_clause.xsl,v 1.2 2002/10/20 06:45:17 thendrix Exp $
         <xsl:call-template name="output_css">
           <xsl:with-param name="path" select="'../../../../css/'"/>
         </xsl:call-template>
+
+        <xsl:apply-templates select="$resource_xml/resource" mode="meta_data"/>
+
         <TITLE>
           <!-- output the resource page title -->
           <xsl:apply-templates 

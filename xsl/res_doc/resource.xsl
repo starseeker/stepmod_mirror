@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.20 2003/02/26 21:47:08 thendrix Exp $
+$Id: resource.xsl,v 1.21 2003/02/27 01:34:21 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -111,7 +111,7 @@ $Id: resource.xsl,v 1.20 2003/02/26 21:47:08 thendrix Exp $
 
   <table width="624">
     <tr>
-      <td><h2><xsl:value-of select="$n_number"/></h2></td>
+      <td><h3><xsl:value-of select="$n_number"/></h3></td>
       <td>&#x20;</td>
       <td valign="top"><b>Date:&#x20;</b><xsl:value-of select="$date"/></td>
     </tr>    
@@ -496,13 +496,30 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <xsl:template match="keywords">
-  <xsl:if test="not(contains(.,'STEP'))">
-    STEP, 
-  </xsl:if>
-  <xsl:if test="not(contains(.,'10303'))">
-    ISO 10303,  
-  </xsl:if>
-  <xsl:value-of select="."/>
+  <xsl:variable name="keywords1">
+    <xsl:if test="not(contains(.,'STEP'))">
+      STEP, 
+    </xsl:if>    
+  </xsl:variable>
+
+  <xsl:variable name="keywords2">
+    <xsl:if test="not(contains(.,'10303'))">
+      ISO 10303,  
+    </xsl:if>
+  </xsl:variable>
+
+  <xsl:variable name="keywords3">
+    <xsl:if test="not(contains(.,'integrated resource'))">
+      integrated resource, 
+    </xsl:if>
+  </xsl:variable>
+
+  <xsl:variable name="keywords4">
+    <xsl:value-of select="."/>
+  </xsl:variable>
+
+  <xsl:value-of select="normalize-space(concat($keywords1, $keywords2, $keywords3,$keywords4))"/>
+
 </xsl:template>
 
 <!-- Outputs the foreword -->
@@ -519,11 +536,11 @@ o=isocs; s=central<br/>
       </xsl:choose>
     </xsl:variable>
 
-  <h3>
+  <h2>
     <a name="foreword">
       Foreword
     </a>
-  </h3>
+  </h2>
   <p>
     ISO (the International Organization for Standardization) is a worldwide
     federation of national standards bodies (ISO member bodies). The work of
@@ -566,9 +583,6 @@ o=isocs; s=central<br/>
       accepted for publication if it is approved by more than 50% 
       of the members of the parent committee casting a vote;
     </li>  
-  </ul>
-  
-  <ul>
     <li>
       an ISO Technical Specification (ISO/TS) represents an agreement between
       the members of a technical committee and is accepted for
@@ -782,11 +796,11 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <xsl:template match="purpose">
-  <h3>
+  <h2>
     <a name="introduction">
       Introduction
     </a>
-  </h3>
+  </h2>
 
   <p>
     ISO 10303 is an International Standard for the computer-interpretable 
@@ -922,18 +936,19 @@ o=isocs; s=central<br/>
     listings are available in computer-interpretable form in Table C.1 and can
     be found at the following URLs:
   </p>
-  <blockquote>
-    Short names:
-    &lt;<a href="{$names_url}">
-      <xsl:value-of select="$names_url"/>
-    </a>&gt;
-
-    <br/>
-    EXPRESS: 
-    &lt;<a href="{$parts_url}">
-      <xsl:value-of select="$parts_url"/>
-    </a>&gt;
-  </blockquote>
+  <table>
+    <tr>
+      <td>&#160;&#160;</td>
+      <td>Short names:</td>
+      <td>&lt;<a href="{$names_url}"><xsl:value-of select="$names_url"/></a>&gt;</td>
+  </tr>
+  <tr>
+    <td>&#160;&#160;</td>
+    <td>EXPRESS:</td>
+     <td>&lt;<a href="{$parts_url}"><xsl:value-of select="$parts_url"/></a>&gt;</td>
+   </tr>
+  </table>
+  <p/>
   
   <div align="center">
     <a name="table_e1">
@@ -1756,7 +1771,7 @@ defined in annex D of ISO 10303-11.
 <xsl:template name="output_normrefs">
   <xsl:param name="resource_number"/>
   <xsl:param name="current_resource"/>
-  <h3>2 Normative references</h3>
+  <h2>2 Normative references</h2>
   The following normative documents contain provisions which, through
   reference in this text, constitute provisions of this International
   Standard. For dated references, subsequent amendments to, or revisions of,
@@ -2344,11 +2359,11 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
      -->
 <xsl:template name="output_abbreviations">
   <xsl:param name="section"/>
-  <h3>
+  <h2>
     <a name="abbrv">
       <xsl:value-of select="concat('3.',$section)"/> Abbreviations
     </a>
-  </h3>
+  </h2>
 
   <!-- output any issues -->
   <xsl:apply-templates select="." mode="output_clause_issue">
@@ -2564,10 +2579,10 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
           <xsl:variable name="part_no" 
             select="substring-after($normref/stdref/stdnumber,'-')"/>
           <xsl:if test="$resource_number!=$part_no">
-            <h3>
+            <h2>
             <xsl:value-of select="concat('3.',$section_no,
                                   ' Terms defined in ',$stdnumber)"/>
-            </h3>
+            </h2>
             For the purposes of this part of ISO 10303, 
             the following terms defined in 
             <xsl:value-of select="$stdnumber"/>
@@ -2630,10 +2645,10 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
                 
                 <!-- output the section header for the normative reference
                      that is defining terms -->              
-                <h3>
+                <h2>
                   <xsl:value-of select="concat('3.',$section_no,
                                         ' Terms defined in ', $stdnumber)"/>
-                </h3>
+                </h2>
                 For the purposes of this part of ISO 10303, 
                 the following terms defined in 
                 <xsl:value-of select="$stdnumber"/>
@@ -2868,12 +2883,12 @@ $resource_ok,' Check the normatives references')"/>
     select="concat('ISO/',$resource/@status,'&#160;10303-',$resource/@part)"/>
 
 
-  <h3>
+  <h2>
     <xsl:value-of select="concat($section,' Other terms and definitions')"/>
     <!--
     <xsl:value-of select="concat($section,' Terms defined in',$stdnumber)"/>
     -->
-</h3>
+  </h2>
   </xsl:template>
 
 

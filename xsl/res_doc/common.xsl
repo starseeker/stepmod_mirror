@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.6 2003/01/21 15:24:05 thendrix Exp $
+$Id: common.xsl,v 1.7 2003/01/24 21:00:28 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -87,7 +87,7 @@ $Id: common.xsl,v 1.6 2003/01/21 15:24:05 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-
+  <!--
   <xsl:choose>
     <xsl:when test="$output_rcs">
       <xsl:variable
@@ -104,7 +104,135 @@ $Id: common.xsl,v 1.6 2003/01/21 15:24:05 thendrix Exp $
         select="concat($lpart,' :- ',@name)"/>
     </xsl:otherwise>
   </xsl:choose>
+-->
+  <xsl:choose>
+    <xsl:when test="$output_rcs">
+      <xsl:value-of
+        select="concat(@status,' ',$lpart,' :- ',@name)"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of
+        select="concat($lpart,' :- ',@name)"/>
+    </xsl:otherwise>
+  </xsl:choose> 
+
 </xsl:template>
+
+<xsl:template match="resource" mode="meta_data">
+  <xsl:param name="clause"/>
+  <link rel = "schema.DC"
+    href    = "http://www.dublincore.org/documents/2003/02/04/dces/"/>
+
+  
+    <xsl:variable name="resdoc_name">
+      <xsl:call-template name="resdoc_name">
+        <xsl:with-param name="resdoc" select="./@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+  
+  <xsl:variable name="stdnumber">
+    <xsl:call-template name="get_resdoc_pageheader">
+      <xsl:with-param name="resdoc" select="."/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="resdoc_title">
+    <xsl:value-of select="concat('Product data representation and exchange: Generic integrated resource: ', $resdoc_name)"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Title'"/>
+    <xsl:with-param name="content" select="$resdoc_title"/>
+  </xsl:call-template>
+
+  <xsl:variable name="dc.dates"
+    select="normalize-space(substring-after((translate(@rcs.date,'$','')),'Date: '))"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Dates'"/>
+    <xsl:with-param name="content" select="$dc.dates"/>
+  </xsl:call-template>
+
+  <xsl:variable name="editor_ref" select="./contacts/editor/@ref"/>
+  <xsl:variable name="editor_contact"
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$editor_ref]"/>
+  <xsl:variable name="dc.contributor">
+    <xsl:value-of select="normalize-space(concat($editor_contact/lastname,', ',$editor_contact/firstname))"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Contributor'"/>
+    <xsl:with-param name="content" select="$dc.contributor"/>
+  </xsl:call-template>
+
+  <xsl:variable name="projlead_ref" select="./contacts/projlead/@ref"/>
+  <xsl:variable name="projlead_contact"
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$projlead_ref]"/>
+  <xsl:variable name="dc.creator">
+    <xsl:value-of select="normalize-space(concat($projlead_contact/lastname,', ',$projlead_contact/firstname))"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Creator'"/>
+    <xsl:with-param name="content" select="$dc.creator"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Description'"/>
+    <xsl:with-param name="content" select="concat('The integrated resource ',$resdoc_name)"/>
+  </xsl:call-template>
+
+  <xsl:variable name="keywords">
+    <xsl:apply-templates select="./keywords"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Subject'"/>
+    <xsl:with-param name="content" select="normalize-space($keywords)"/>
+  </xsl:call-template>
+
+  <xsl:variable name="wg_group">
+    <xsl:call-template name="get_resdoc_wg_group"/>
+  </xsl:variable>  
+  <xsl:variable name="id"
+    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+  <xsl:variable name="clause_of">
+    <xsl:if test="$clause">
+      <xsl:value-of select="concat('Clause of ',$clause)"/>
+    </xsl:if>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Identifier'"/>
+    <xsl:with-param name="content" select="$id"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.resource.rcs.date'"/>
+    <xsl:with-param name="content" select="translate(./@rcs.date,'$','')"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.resource.rcs.revision'"/>
+    <xsl:with-param name="content" select="translate(./@rcs.revision,'$','')"/>
+  </xsl:call-template>
+
+  <!-- now get meta data for arm and mim -->
+  <!-- not needed for IR but need to do something about the schemas I guess
+  <xsl:variable name="resdoc_dir">
+    <xsl:call-template name="resdoc_directory">
+      <xsl:with-param name="resdoc" select="./@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+  <xsl:variable name="arm_express" select="document($arm_xml)/express"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.arm.rcs.revision'"/>
+    <xsl:with-param name="content" select="translate($arm_express/@rcs.revision,'$','')"/>
+  </xsl:call-template>
+
+  <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
+  <xsl:variable name="mim_express" select="document($mim_xml)/express"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.mim.rcs.revision'"/>
+    <xsl:with-param name="content" select="translate($mim_express/@rcs.date,'$','')"/>
+  </xsl:call-template>
+-->
+  </xsl:template>
 
 
   <!-- output RCS version control information -->
@@ -274,11 +402,11 @@ $Id: common.xsl,v 1.6 2003/01/21 15:24:05 thendrix Exp $
 <xsl:template name="clause_header">
   <xsl:param name="heading"/>
   <xsl:param name="aname"/>
-  <H3>
+  <H2>
     <A NAME="{$aname}">
       <xsl:value-of select="$heading"/>
     </A>
-  </H3>
+  </H2>
 </xsl:template>
 
 <!-- output the Annex heading -->
@@ -898,6 +1026,7 @@ $Id: common.xsl,v 1.6 2003/01/21 15:24:05 thendrix Exp $
   <!-- given the name of a resource doc
        return the resource doc directory - unlike module no need to lower case the name.
 -->
+
   <xsl:template name="resdoc_directory">
     <xsl:param name="resdoc"/>
     <xsl:value-of select="concat('../../data/resource_docs/',$resdoc)"/>
@@ -1645,83 +1774,11 @@ $Id: common.xsl,v 1.6 2003/01/21 15:24:05 thendrix Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-
     <xsl:variable name="orgname" select="'ISO'"/>
 
     <xsl:value-of 
       select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
-</xsl:template>
 
-
-<!-- the number of the document for display as a page heaer.
-     Used on the cover page and every page header. -->
-<xsl:template name="get_module_pageheader">
-  <xsl:param name="module"/>
-  <xsl:variable name="part">
-    <xsl:choose>
-      <xsl:when test="string-length($module/@part)>0">
-        <xsl:value-of select="$module/@part"/>
-      </xsl:when>
-        <xsl:otherwise>
-          &lt;part&gt;
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-   <xsl:variable name="status">
-    <xsl:choose>
-      <xsl:when test="string-length($module/@status)>0">
-        <xsl:value-of select="string($module/@status)"/>
-      </xsl:when>
-        <xsl:otherwise>
-          &lt;status&gt;
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="language">
-      <xsl:choose>
-        <xsl:when test="string-length($module/@language)">
-          <xsl:value-of select="$module/@language"/>
-        </xsl:when>
-        <xsl:otherwise>
-          E
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <!-- 
-         Note, if the standard has a status of CD or CD-TS it has not been
-         published - so overide what ever is the @publication.year 
-         -->
-    <xsl:variable name="pub_year">
-      <xsl:choose>
-        <xsl:when test="$status='CD' or $status='CD-TS'">-</xsl:when>
-        <xsl:when test="string-length($module/@publication.year)">
-          <xsl:value-of select="$module/@publication.year"/>
-        </xsl:when>
-        <xsl:otherwise>
-          &lt;publication.year&gt;
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="orgname" select="'ISO'"/>
-
-    <xsl:variable name="stdnumber">
-      <xsl:choose>
-        <xsl:when test="$status='IS' or $status='TS'">
-          <xsl:value-of 
-            select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of 
-            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:value-of select="$stdnumber"/>
 
 </xsl:template>
 
@@ -1797,6 +1854,34 @@ $Id: common.xsl,v 1.6 2003/01/21 15:24:05 thendrix Exp $
 
     <xsl:value-of select="$stdnumber"/>
 
+</xsl:template>
+
+<xsl:template name="get_resdoc_wg_group">
+  <xsl:choose>
+    <xsl:when test="string-length(/resdoc/@sc4.working_group)>0">
+      <xsl:value-of select="normalize-space(/resource/@sc4.working_group)"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="string('12')"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="test_resdoc_wg_group">
+  <xsl:param name="resdoc"/>
+  <xsl:variable name="wg_group">
+    <xsl:call-template name="get_resdoc_wg_group"/>
+  </xsl:variable>
+  
+  <xsl:if test="not($wg_group = '3')">
+    <xsl:call-template name="error_message">
+      <xsl:with-param name="message">
+        <xsl:value-of select="concat('Error in
+                              resource.xml/resource/@sc4.working_group - ',
+                              $wg_group,' Should be 3')"/>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:if>
 </xsl:template>
 
 
@@ -2571,7 +2656,7 @@ is case sensitive.')"/>
     <!-- the entity may be being referenced from another resdoc TEH fix
          in which case the schema needs to be explicit.
          This only happens in the mapping tables when and ARM object is
-         being remapped from another module. -->
+         being remapped from another resdoc. -->
     <xsl:param name="original_schema"/>
     
     <xsl:variable name="schema">
@@ -2861,7 +2946,7 @@ ZZZZZZZZZ should not get here.
 <xsl:template match="projlead" mode="no_address">
   <xsl:variable name="ref" select="@ref"/>
   <xsl:variable name="projlead"
-    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
   <xsl:choose>
     <xsl:when test="$projlead">
       <xsl:apply-templates select="$projlead" mode="no_address"/>      
@@ -2899,7 +2984,7 @@ ZZZZZZZZZ should not get here.
 <xsl:template match="editor" mode="no_address">
   <xsl:variable name="ref" select="@ref"/>
   <xsl:variable name="editor"
-    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
   <xsl:choose>
     <xsl:when test="$editor">
       <xsl:apply-templates select="$editor"  mode="no_address"/>      
@@ -3001,7 +3086,6 @@ ZZZZZZZZZ should not get here.
   </a>
   <br/>
 </xsl:template>
-
 
 
 </xsl:stylesheet>

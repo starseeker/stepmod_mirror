@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg.xsl,v 1.2 2002/03/04 07:54:13 robbod Exp $
+$Id: expressg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the expressg
@@ -34,7 +34,7 @@ THIS IS UNDER DEVELOPMENT
 <xsl:template match="expressg.page">
   <xsl:variable name="img" select="@image"/>
   <xsl:variable name="title" select="@title"/>
-  <h3><xsl:value-of select="$title"/></h3>
+  <h2><xsl:value-of select="$title"/></h2>
   <img src="{$img}" usemap="#arm"/>
   <map name="arm">
     <xsl:apply-templates select="expressg.element"/>

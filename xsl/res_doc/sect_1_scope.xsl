@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.4 2002/07/30 16:44:24 robbod Exp $
+$Id: sect_1_scope.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -23,7 +23,7 @@ $Id: sect_1_scope.xsl,v 1.4 2002/07/30 16:44:24 robbod Exp $
 
 <!-- overwrites the template declared in resource.xsl -->
 <xsl:template match="resource">
-  <h2>
+  <h1>
     Industrial automation systems and integration &#8212; <br/>
     Product data representation and exchange &#8212;  <br/>
     Part <xsl:value-of select="@part"/>:<br/>
@@ -31,7 +31,7 @@ $Id: sect_1_scope.xsl,v 1.4 2002/07/30 16:44:24 robbod Exp $
     <xsl:call-template name="res_display_name">
       <xsl:with-param name="res" select="@name"/>
     </xsl:call-template>
-  </h2>
+  </h1>
   <xsl:apply-templates select="./inscope"/>
   <xsl:apply-templates select="./outscope"/>
 </xsl:template>

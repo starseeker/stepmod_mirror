@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.9 2003/01/24 00:40:55 thendrix Exp $
+$Id: res_toc.xsl,v 1.10 2003/02/05 20:51:35 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -300,6 +300,8 @@ NEED TO FIX up the hrefs -->
           <A HREF="{$resdoc_root}/sys/foreword{$FILE_EXT}">Foreword</A><BR/>
 
           <A HREF="{$resdoc_root}/sys/contents{$FILE_EXT}">Table of contents</A><BR/>
+          
+          <A HREF="{$resdoc_root}/sys/contents{$FILE_EXT}#copyright">Copyright</A><BR/>
         
           <!-- use #intro to link direct -->
           <A HREF="{$resdoc_root}/sys/introduction{$FILE_EXT}">Introduction</A><BR/>

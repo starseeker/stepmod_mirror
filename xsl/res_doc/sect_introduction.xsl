@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.3 2003/02/26 02:05:17 thendrix Exp $
+$Id: sect_introduction.xsl,v 1.4 2003/02/27 01:34:21 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -33,11 +33,11 @@ $Id: sect_introduction.xsl,v 1.3 2003/02/26 02:05:17 thendrix Exp $
 <!-- =============================================== -->
 
 <xsl:template match="purpose">
-  <h3>
+  <h2>
     <a name="introduction">
       Introduction
     </a>
-  </h3>
+  </h2>
 
   <p>
     ISO 10303 is an International Standard for the computer-interpretable 

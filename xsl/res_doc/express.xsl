@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: express.xsl,v 1.2 2002/10/17 19:21:56 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -94,9 +94,9 @@ $Id: express.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 </xsl:if>
 
 
-    <h3>
+    <h2>
       <xsl:value-of select="concat('Schema: ',./express/schema/@name)"/>
-    </h3>
+    </h2>
   		<xsl:if test="./express/@reference">
 	    <p><i>Source : <xsl:value-of select="./express/@reference"/></i></p>
 			</xsl:if>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_b_obj_reg.xsl,v 1.2 2002/10/19 00:44:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -43,7 +43,7 @@ $Id: sect_b_obj_reg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   <xsl:variable
     name="object_reg" 
     select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
-  <h3>B.1 Document Identification </h3>
+  <h2>B.1 Document Identification </h2>
   To provide for unambiguous identification of an information object in an
   open system, the object identifier
   <p align="center">
@@ -53,7 +53,7 @@ $Id: sect_b_obj_reg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   is assigned to this part of ISO 10303. The meaning of this value is defined
   in ISO/IEC 8824-1, and is described in ISO 10303-1.  
 
-  <h3>B.2 Schema identification</h3>
+  <h2>B.2 Schema identification</h2>
 
 
   <!-- there is are potentially several  schemas in an integrated resource -->
@@ -62,7 +62,7 @@ $Id: sect_b_obj_reg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
  <xsl:for-each select="./schema">
    <xsl:variable name="schema" select="@name"/>
 
-   <h3>B.2.<xsl:value-of select="position()"/> <xsl:value-of select="$schema"/> schema identification</h3>
+   <h2>B.2.<xsl:value-of select="position()"/> <xsl:value-of select="$schema"/> schema identification</h2>
 
   <p>
     To provide for unambiguous identification of the schema specifications

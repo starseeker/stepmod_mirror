@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_3_defs.xsl,v 1.7 2002/08/09 08:18:06 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -24,7 +24,7 @@ $Id: sect_3_defs.xsl,v 1.7 2002/08/09 08:18:06 robbod Exp $
 <!-- overwrites the template declared in resource.xsl -->
 <xsl:template match="resource">
   <!-- Output the terms identified in the normative references -->
-  <h3>
+  <h2>
     <a name="defns">
       <xsl:choose>
         <xsl:when test="./definition/term">
@@ -35,7 +35,7 @@ $Id: sect_3_defs.xsl,v 1.7 2002/08/09 08:18:06 robbod Exp $
         </xsl:otherwise>
       </xsl:choose>
     </a>
-  </h3>
+  </h2>
   <xsl:call-template name="output_terms">
     <xsl:with-param name="resource_number" select="./@part"/>
   </xsl:call-template>

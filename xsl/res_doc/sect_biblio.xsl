@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_biblio.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_biblio.xsl,v 1.2 2002/12/19 21:02:58 nigelshaw Exp $
   Original Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display of bibliography
@@ -26,9 +26,9 @@ $Id: sect_biblio.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 <!-- overwrites the template declared in resource.xsl -->
 <xsl:template match="resource">
   <div align="left">
-    <h3>
+    <h2>
       <A NAME="bibliography">Bibliography</A>
-    </h3>
+    </h2>
   </div>
   
   <!-- output any issues -->

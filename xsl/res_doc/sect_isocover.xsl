@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.1 2004/10/11 14:16:02 thendrix Exp $
+$Id: sect_isocover.xsl,v 1.2 2004/11/04 22:42:36 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -18,8 +18,8 @@ $Id: sect_isocover.xsl,v 1.1 2004/10/11 14:16:02 thendrix Exp $
   <xsl:import href="../res_doc/common.xsl"/>
 
   <xsl:output method="html"
-    doctype-system="http://www.w3.org/TR/REC-html40/Strict.dtd"
-    doctype-public="-//W3C//DTD HTML 4.0//EN"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
     indent="yes"
     />
 
@@ -95,7 +95,7 @@ $Id: sect_isocover.xsl,v 1.1 2004/10/11 14:16:02 thendrix Exp $
       </HEAD>
         <BODY>
           <p align="center">
-            <img width="59" height="54" src="../../../../images/isologo.gif" alt="ISO logo"/>
+            <img src="../../../../images/isologo.gif" alt="ISO logo"/>
           </p>
 
           <xsl:variable name="status_words">
@@ -148,7 +148,7 @@ $Id: sect_isocover.xsl,v 1.1 2004/10/11 14:16:02 thendrix Exp $
             <span style="font-size:14; font-family:sans-serif;">
               <i>
                 Syst&#232;mes d'automatisation industrielle et int&#233;gration &#8212;
-                et &#233;change de donn&#233;es de produits
+                Repr&#233;sentation et &#233;change de donn&#233;es de produits
               </i>
             </span>
           </div>
@@ -472,7 +472,7 @@ $Id: sect_isocover.xsl,v 1.1 2004/10/11 14:16:02 thendrix Exp $
 
           <td width="310" align="center" valign="top">
             <span style="font-size:12; font-family:sans-serif;">
-              &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="@publication.year"/>
+              &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="@publication.date"/>
             </span>
           </td>
 

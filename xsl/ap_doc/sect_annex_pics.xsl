@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_pics.xsl,v 1.6 2004/11/08 16:24:33 robbod Exp $
+$Id: sect_annex_pics.xsl,v 1.7 2004/12/04 08:31:23 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -24,6 +24,7 @@ $Id: sect_annex_pics.xsl,v 1.6 2004/11/08 16:24:33 robbod Exp $
 		</xsl:call-template>
 		<xsl:variable name="ap_name" select="@name"/>
 		<xsl:variable name="iso_no" select="@std_no"/>	
+
 		 <p>
 			This clause lists the optional elements of this part of ISO 10303. 
 			An implementation may choose to support any combination of these optional elements.  However, certain combinations of options are likely to be implemented together.  These combinations are called conformance classes and are described in the subclauses of this annex.
@@ -80,6 +81,12 @@ $Id: sect_annex_pics.xsl,v 1.6 2004/11/08 16:24:33 robbod Exp $
 				<th align="left">
 					Implementation Method
 				</th>
+                                <xsl:if test="imp_meths/imp_meth[@part='28']">
+                                  <th align="left">
+                                    EXPRESS mapping
+                                  </th>
+                                </xsl:if>
+
 				<th align="left">
 					Preprocessor
 				</th>
@@ -93,6 +100,14 @@ $Id: sect_annex_pics.xsl,v 1.6 2004/11/08 16:24:33 robbod Exp $
 					<th align="left">
 						ISO 10303 - <xsl:value-of select="@part"/>
 					</th>
+                                        <xsl:choose>
+                                          <xsl:when test="@part='28'">
+                                            <td>&#160;</td>                                            
+                                          </xsl:when>
+                                          <xsl:otherwise>
+                                            <td>Not applicable</td>
+                                          </xsl:otherwise>
+                                        </xsl:choose>
 					<td>
 						&#160;			</td>
 					<td>

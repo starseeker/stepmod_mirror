@@ -1,4 +1,4 @@
-//$Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
+//$Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $
 //  Author: Tom Hendrix
 //  Owner:  
 //  Purpose:  JScript to generate the default XML for the common resource.
@@ -135,7 +135,7 @@ function MakeDvlpFldr(resource) {
 	f = fso.GetFile(projmgXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+	ts.WriteLine("<!-- $Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $ -->");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/projmg.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE management SYSTEM \"../../../../dtd/projmg/projmg.dtd\">");
 	ts.WriteLine("<management resource=\""+resource+"\"");
@@ -309,7 +309,7 @@ function MakeDvlpFldr(resource) {
 	f = fso.GetFile(issuesXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+	ts.WriteLine("<!-- $Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $ -->");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/issues_file.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE issues SYSTEM \"../../../../dtd/projmg/issues.dtd\">");
 	ts.WriteLine("<issues resource=\""+resource+"\">");
@@ -381,7 +381,7 @@ function MakeResourceClause(resource, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../../dtd/resource_doc/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/resource_doc/" + clauseXSL + "\" ?>");
@@ -405,7 +405,7 @@ function MakeResourceSchema_Clause(resource, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../../dtd//resource_docs/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/resource_doc" + clauseXSL + "\" ?>");
@@ -421,7 +421,6 @@ function MakeResourceXML(resource, partNo) {
     var resource_docFldr = GetResource_docDir(resource);
     var resourceXML = resource_docFldr + "resource.xml";
 
-    throw("Toms throw Creating "+resourceXML);
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     fso.CreateTextFile( resourceXML, true );
     var f = fso.GetFile(resourceXML);
@@ -430,7 +429,7 @@ function MakeResourceXML(resource, partNo) {
     ts.Close();
     return;     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource SYSTEM \"../../../dtd/resource.dtd\">");
     //ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     //ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -539,7 +538,7 @@ function MakeExpressG(resource, expgfile, title) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("    href=\"../../../xsl/imgfile.xsl\"?>");
@@ -572,7 +571,7 @@ function MakeExpress(resource) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("(*");
-    ts.WriteLine("   $Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $");
+    ts.WriteLine("   $Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $");
     ts.Write("   N - ISO/CD-TS - 10303- ");
     ts.Write(resource);
     ts.Write(" - EXPRESS ");
@@ -600,14 +599,14 @@ function MakeExpressXML(resource) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.1 2002/09/16 14:14:37 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
     ts.WriteLine("<express");
     ts.WriteLine("   language_version=\"2\"");
-    ts.WriteLine("   rcs.date=\"$Date: 2002/08/20 13:43:56 $\"");
-    ts.WriteLine("   rcs.revision=\"$Revision: 1.21 $\">");
+    ts.WriteLine("   rcs.date=\"$Date: 2002/09/16 14:14:37 $\"");
+    ts.WriteLine("   rcs.revision=\"$Revision: 1.1 $\">");
     var schema = schemaName(resource,armOrMim);
     ts.WriteLine("  <schema name=\""+schema+"\">");
     ts.WriteLine("  </schema>");
@@ -673,12 +672,15 @@ function MakeResource_doc(resource, partNo) {
         for (var i=0; i<resourceSchemas.length; i++){
 	    MakeResourceSchemaClauses(resource, resourceSchemas[i]);
  	}
+
         ErrorMessage("after MakeResourceSchemaClausesXML");
+
 //	MakeExpressG(resource);
 //	MakeExpressXML(resource);
 //	MakeExpress(resource);
 
         ErrorMessage("before MakeResourceXML");
+
 	MakeResourceXML(resource, partNo);
 	userMessage("Created resource:   "+resource);
     }

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg.xsl,v 1.3 2003/03/13 19:16:56 robbod Exp $
+$Id: expressg_icon.xsl,v 1.1 2003/05/28 09:27:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -41,7 +41,8 @@ $Id: expressg.xsl,v 1.3 2003/03/13 19:16:56 robbod Exp $
     </expg_nodes>    
   </xsl:template>
 
-  <xsl:template name="make_mim_expressg_node_set">
+
+  <xsl:template name="make_mim_expressg_node_set">       
     <expg_nodes>
       <xsl:choose>
         <xsl:when test="/module_clause">
@@ -49,13 +50,17 @@ $Id: expressg.xsl,v 1.3 2003/03/13 19:16:56 robbod Exp $
             <xsl:call-template name="module_directory">
               <xsl:with-param name="module" select="/module_clause/@directory"/>
             </xsl:call-template>
-          </xsl:variable>      
+          </xsl:variable>
+          <xsl:variable name="module" select="concat($module_dir,'/module.xml')"/>
+          <xsl:variable name="module_xml" select="document($module)"/>
           <xsl:apply-templates 
-            select="document(concat($module_dir,'/module.xml'))/module/mim/express-g/imgfile" mode="mk_node"/>
+            select="$module_xml/module/mim/express-g/imgfile" mode="mk_node"/>
         </xsl:when>
         <xsl:when test="/module">
-      <xsl:apply-templates select="/module/mim/express-g/imgfile" mode="mk_node"/>
+          <xsl:apply-templates 
+            select="/module/mim/express-g/imgfile" mode="mk_node"/>
         </xsl:when>
+
       </xsl:choose>
     </expg_nodes>    
   </xsl:template>
@@ -93,36 +98,42 @@ $Id: expressg.xsl,v 1.3 2003/03/13 19:16:56 robbod Exp $
     </xsl:choose>
   </xsl:template>
 
+
   <xsl:template match="object" mode="get_href">
+    <xsl:message>y:[<xsl:value-of select="@object"/>:<xsl:value-of select="@href"/>]</xsl:message>
     <xsl:value-of select="@href"/>
   </xsl:template>
+
 
   <!-- build the node set of expressg objects -->
   <xsl:template match="imgfile" mode="mk_node">
     <xsl:variable name="img_file"
-      select="concat('../data/modules/',/module/@name,'/',@file)"/>
+      select="concat('../data/modules/',/module/@name,'/',./@file)"/>
+    <xsl:variable name="img_file_xml" select="document($img_file)"/>
     <xsl:variable name="schema" select="concat(/module/@name,'_',name(../..))"/>
     <xsl:apply-templates
-      select="document($img_file)/imgfile.content/img/img.area" mode="mk_node">
+      select="$img_file_xml/imgfile.content/img/img.area" mode="mk_node">
       <xsl:with-param name="schema" select="$schema"/>
     </xsl:apply-templates>
   </xsl:template>
-  
-  <!-- build a node for an expressg object -->
+
   <xsl:template match="img.area" mode="mk_node">
     <xsl:param name="schema"/>
+
     <xsl:variable name="uobject"
       select="normalize-space(substring-after(substring-after(@href,'#'),'.'))"/>
     <xsl:variable name="object"
-        select="translate($uobject,$upper,$lower)"/>
+        select="translate($uobject,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
 
     <xsl:if test="string-length($object)!=0">
       <!-- the first page should be the schema page so should not have any
            entities on it -->
       <xsl:variable name="schema1"
-        select="substring-before(substring-after(@href,'#'),'.')"/>
+        select="normalize-space(substring-before(substring-after(@href,'#'),'.'))"/>
+
       <xsl:variable name="lschema"
-        select="translate($schema1,$upper,$lower)"/>
+        select="translate($schema1,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
+
       <xsl:if test="$schema = $lschema">
         <!-- only need to identify the hrefs to objects defined in this
              schema --> 
@@ -138,7 +149,6 @@ $Id: expressg.xsl,v 1.3 2003/03/13 19:16:56 robbod Exp $
           </xsl:call-template>
         </xsl:variable>
 
-
         <xsl:element name="object">
           <xsl:attribute name="file">
             <xsl:value-of select="$file"/>
@@ -153,7 +163,7 @@ $Id: expressg.xsl,v 1.3 2003/03/13 19:16:56 robbod Exp $
       </xsl:if>
     </xsl:if>
   </xsl:template>
-
+  
 
   <xsl:template name="expressg_icon">
     <xsl:param name="schema"/>
@@ -166,11 +176,13 @@ $Id: expressg.xsl,v 1.3 2003/03/13 19:16:56 robbod Exp $
     </xsl:variable>
 
     <xsl:variable name="lentity"
-      select="translate(normalize-space($entity),$upper,$lower)"/> 
+      select="translate(normalize-space($entity),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/> 
     
     <xsl:choose>
       <xsl:when test="$lentity">
         <xsl:choose>
+
+          <!-- ARM expressg -->
           <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
             <xsl:variable name="href_expg">
               <xsl:call-template name="get_arm_expressg_href">
@@ -197,6 +209,7 @@ $Id: expressg.xsl,v 1.3 2003/03/13 19:16:56 robbod Exp $
           </xsl:choose>
         </xsl:when>
 
+        <!-- MIM expressg -->
         <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
           <xsl:variable name="href_expg">
             <xsl:call-template name="get_mim_expressg_href">

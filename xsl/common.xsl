@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.64 2002/08/07 12:09:14 robbod Exp $
+$Id: common.xsl,v 1.65 2002/08/09 08:55:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -447,7 +447,7 @@ $Id: common.xsl,v 1.64 2002/08/07 12:09:14 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  <AREA shape="{$shape}" coords="{$coords}" href="{$href}"/>
+  <AREA shape="{$shape}" coords="{$coords}" href="{$href}" alt="{$href}"/>
 </xsl:template>
 
 <!--

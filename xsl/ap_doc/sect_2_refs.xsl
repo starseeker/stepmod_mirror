@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.12 2003/07/28 17:10:55 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.13 2003/08/11 07:00:23 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -703,7 +703,7 @@ $Id: sect_2_refs.xsl,v 1.12 2003/07/28 17:10:55 robbod Exp $
       select="concat('&#8212; Part ',$part,': Application module: ', $module_name,'.')"/>
     
 
-    <xsl:value-of select="$stdnumber"/>
+    <xsl:value-of select="$stdnumber"/>&#160;
 
     <xsl:choose>
       <!-- if the module is a TS or IS module and is referring to a 
@@ -714,15 +714,15 @@ $Id: sect_2_refs.xsl,v 1.12 2003/07/28 17:10:55 robbod Exp $
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
         <sup>
           <a href="#derogation">
-            2)
-          </a>
+            2
+          </a>)
         </sup>
       </xsl:when>
       <xsl:when test="@published='n'">
         <sup>
           <a href="#tobepub">
-            1)
-          </a>
+            1
+          </a>)
         </sup>
       </xsl:when>
     </xsl:choose>,&#160;

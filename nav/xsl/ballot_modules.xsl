@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_alpha.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
+$Id: ballot_modules.xsl,v 1.1 2002/09/09 12:50:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display a list of ballot packages.
@@ -94,6 +94,12 @@ $Id: modules_alpha.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
     <p class="menuitem">
       <a href="{$bhome}ballot_shortnames{$FILE_EXT}" target="content">
         Shortnames in ballot.
+      </a>
+    </p>
+
+    <p class="menuitem">
+      <a href="{$bhome}ballot_cvs_tags{$FILE_EXT}" target="content">
+        CVS tags for ballot.
       </a>
     </p>
   </div>

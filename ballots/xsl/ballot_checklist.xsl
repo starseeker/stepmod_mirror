@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.4 2002/09/10 14:04:50 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.5 2002/12/05 09:31:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -53,8 +53,8 @@ $Id: ballot_checklist.xsl,v 1.4 2002/09/10 14:04:50 robbod Exp $
       <xsl:call-template name="ballot_header"/>
       <table border="1">
         <tr>
-          <td><b>Ballot package</b></td>
           <td><b>Ballot cycle</b></td>
+          <td><b>Ballot package</b></td>
           <td><b>Module</b></td>
           <td><b>URL</b></td>
           <td><b>Part</b></td>

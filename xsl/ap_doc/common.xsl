@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.25 2003/07/28 12:32:41 robbod Exp $
+$Id: common.xsl,v 1.26 2003/07/31 07:29:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -540,7 +540,7 @@ $Id: common.xsl,v 1.25 2003/07/28 12:32:41 robbod Exp $
       <xsl:value-of select="count(/application_protocol/purpose/data_plan/imgfile)"/>
     </xsl:variable>
     <xsl:variable name="intro_figure_count">
-      <xsl:value-of select="count(/application_protocol/purpose/figure)"/>
+      <xsl:value-of select="count(/application_protocol/purpose//figure)"/>
     </xsl:variable>
     <xsl:value-of select="$dp_figure_count+$intro_figure_count"/>
   </xsl:template>
@@ -706,6 +706,8 @@ $Id: common.xsl,v 1.25 2003/07/28 12:32:41 robbod Exp $
 
 
   <!--
+       A link to a clause or section in this AP document.
+       The format of the linkend attribute is:
        purpose - Clause "Introduction"       
        scope - Clause "1 Scope"
        inforeqt - Clause "4"
@@ -717,6 +719,7 @@ $Id: common.xsl,v 1.25 2003/07/28 12:32:41 robbod Exp $
        express_mim_lf - A EXPRESS expanded listings 
        mim_short_names - Annex B MIM short names 
        object_registration - Annex E Information object registration
+       
        -->
 
   <xsl:template match="clause_ref">
@@ -724,56 +727,286 @@ $Id: common.xsl,v 1.25 2003/07/28 12:32:41 robbod Exp $
       <xsl:apply-templates select="." mode="annex_list"/>
     </xsl:variable>
 
+    <!-- remove all whitespace -->
+    <xsl:variable
+      name="nlinkend"
+      select="translate(@linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+
+    <xsl:variable name="section_tmp">
+      <xsl:choose>
+        <xsl:when test="contains($nlinkend,':')">
+          <xsl:value-of select="substring-before($nlinkend,':')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nlinkend"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- now check that section is a valid reference -->
+    <xsl:variable name="section">
+      <xsl:choose>
+        <xsl:when test="$section_tmp='purpose'
+                       or $section_tmp='scope'
+                       or $section_tmp='inforeqt'
+                       or $section_tmp='aam'
+                       or $section_tmp='imp_meths'
+                       or $section_tmp='usage_guide'
+                       or $section_tmp='tech_disc'
+                       or $section_tmp='express_arm_lf'
+                       or $section_tmp='express_mim_lf'
+                       or $section_tmp='mim_short_names'
+                       or $section_tmp='object_registration'">
+          <xsl:value-of select="$section_tmp"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <!--
+               error - will be picked up after the  href variable is set.
+               -->
+          <xsl:value-of select="'error'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable
+      name="nlinkend2"
+      select="substring-after($nlinkend,':')"/>
+
+    <xsl:variable name="construct_tmp">
+      <xsl:choose>
+        <xsl:when test="contains($nlinkend2,':')">
+          <xsl:value-of select="substring-before($nlinkend2,':')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nlinkend2"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable
+      name="nlinkend3"
+      select="substring-after($nlinkend2,':')"/>
+
+    <xsl:variable name="id">
+      <xsl:choose>
+        <xsl:when test="contains($nlinkend3,':')">
+          <xsl:value-of select="substring-before($nlinkend3,':')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nlinkend3"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="construct">
+      <xsl:choose>
+        <!-- test that a valid value is given for construct -->
+        <xsl:when test="$construct_tmp='example'
+                        or $construct_tmp='note'
+                        or $construct_tmp='figure'
+                        or $construct_tmp='table'">
+          <xsl:choose>
+            <!-- test that an id has been given -->
+            <xsl:when test="$id!=''">
+              <xsl:value-of select="concat('#',$construct_tmp,'_',$id)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <!--
+                   error - will be picked up after the  href variable is set.
+                   -->
+              <xsl:value-of select="'error'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <!-- data_plan links dealt with on output below -->
+        <xsl:when test="$construct_tmp='data_plan'">
+          <xsl:value-of select="'data_plan'"/>
+        </xsl:when>
+
+        <xsl:when test="$construct_tmp=''"/>
+
+        <xsl:otherwise>
+          <!--
+               error - will be picked up after the  href variable is set.
+               -->
+          <xsl:value-of select="'error'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:choose>
-      <xsl:when test="@linkend='purpose'">
-        <a href="introduction{$FILE_EXT}">Introduction</a>
+      <xsl:when test="$section='error'">
+        <xsl:call-template name="error_message">
+          <xsl:with-param
+            name="message"
+            select="concat('ERROR clause_ref1: clause_ref linkend #',
+                    $nlinkend,
+                    '# is incorrectly specified.')"/>
+        </xsl:call-template>
       </xsl:when>
-      <xsl:when test="@linkend='scope'">
-        Clause<a href="1_scope{$FILE_EXT}">1</a>
+      
+      <xsl:when test="$section='purpose'">
+        <xsl:choose>
+          <xsl:when test="$construct='data_plan'">
+            <xsl:variable name="dp_file">
+              <xsl:call-template name="set_file_ext">
+                <xsl:with-param name="filename" 
+                  select="//purpose/data_plan/imgfile[position()=$id]/@file"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="figure_count">
+              <xsl:call-template name="count_figures_from_fundamentals"/>
+            </xsl:variable>
+            Figure <a href="../{$dp_file}"><xsl:value-of select="$id"/></a>
+          </xsl:when>
+
+          <xsl:when test="string-length($construct)">
+            <a href="introduction{$FILE_EXT}{$construct}"><xsl:apply-templates/></a>              
+          </xsl:when>
+          <xsl:otherwise>
+            <a href="introduction{$FILE_EXT}">Introduction</a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='inforeqt'">
-        Clause<a href="4_info_reqs{$FILE_EXT}">4</a>
+      
+      <xsl:when test="$section='scope'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="1_scope{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Clause<a href="1_scope{$FILE_EXT}">1</a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='aam'">
-        Annex <a href="annex_aam{$FILE_EXT}">F</a>
+
+      <xsl:when test="$section='inforeqt'">
+        <xsl:choose>
+          <xsl:when test="$construct='data_plan'">
+            <xsl:variable name="dp_file">
+              <xsl:call-template name="set_file_ext">
+                <xsl:with-param name="filename" 
+                  select="//inforeqt/fundamentals/data_plan/imgfile[$id]/@file"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="figure_count">
+              <xsl:call-template name="count_figures_from_fundamentals"/>
+            </xsl:variable>
+            Figure <a href="../{$dp_file}"><xsl:value-of select="$figure_count+1"/></a>
+          </xsl:when>
+
+          <xsl:when test="string-length($construct)">
+            <a href="4_info_reqs{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Clause<a href="4_info_reqs{$FILE_EXT}">4</a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='imp_meths'">
-        Annex <a href="annex_imp_meth{$FILE_EXT}">C</a>  
+
+      <xsl:when test="$section='aam'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_aam{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_aam{$FILE_EXT}">F</a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='usage_guide'">
+
+      <xsl:when test="$section='imp_meths'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_imp_meth{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_imp_meth{$FILE_EXT}">C</a>  
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$section='usage_guide'">
         <xsl:variable name="annex">
           <xsl:call-template name="annex_letter" >
             <xsl:with-param name="annex_name" select="'usageguide'"/>
             <xsl:with-param name="annex_list" select="$annex_list"/>
           </xsl:call-template>
         </xsl:variable>
-        Annex <a href="{$FILE_EXT}"><xsl:value-of select="$annex"/></a> 
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_guide{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_guide{$FILE_EXT}"><xsl:value-of select="$annex"/></a> 
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='tech_disc'">
+
+      <xsl:when test="$section='tech_disc'">
         <xsl:variable name="annex">
           <xsl:call-template name="annex_letter" >
             <xsl:with-param name="annex_name" select="'techdisc'"/>
             <xsl:with-param name="annex_list" select="$annex_list"/>
           </xsl:call-template>
         </xsl:variable>
-        Annex <a href="{$FILE_EXT}"><xsl:value-of select="$annex"/></a> 
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_tech_disc{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_tech_disc{$FILE_EXT}"><xsl:value-of select="$annex"/></a> 
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='express_arm_lf'">
-        Annex <a href="annex_exp_lf{$FILE_EXT}">A.1</a>
+
+      <xsl:when test="$section='express_arm_lf'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_exp_lf{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_exp_lf{$FILE_EXT}">A.1</a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='express_mim_lf'">
-        Annex <a href="annex_exp_lf{$FILE_EXT}">A.2</a>
+
+      <xsl:when test="$section='express_mim_lf'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_exp_lf{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_exp_lf{$FILE_EXT}">A.2</a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='mim_short_names'">
-        Annex <a href="annex_shortnames{$FILE_EXT}">B</a>
+
+      <xsl:when test="$section='mim_short_names'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_shortnames{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_shortnames{$FILE_EXT}">B</a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
-      <xsl:when test="@linkend='object_registration'">
-        Annex <a href="annex_obj_reg{$FILE_EXT}">E</a>
+
+      <xsl:when test="$section='object_registration'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_obj_reg{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_obj_reg{$FILE_EXT}">E</a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
     </xsl:choose>
   </xsl:template>
 
 
 </xsl:stylesheet>
-
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.35 2002/07/05 09:47:51 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.36 2002/07/13 22:52:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -416,7 +416,8 @@ $Id: sect_5_mapping.xsl,v 1.35 2002/07/05 09:47:51 robbod Exp $
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
-  </xsl:variable>
+  </xsl:variable> <!-- module_ok -->
+
 
   <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
 
@@ -442,7 +443,7 @@ $Id: sect_5_mapping.xsl,v 1.35 2002/07/05 09:47:51 robbod Exp $
 
 
   <xsl:choose>
-    <xsl:when test="$module_ok!='true'">
+    <xsl:when test="$module_ok != 'true'">
       <xsl:call-template name="error_message">
         <xsl:with-param name="message"
           select="concat('Error m1a: The module specified in the
@@ -584,6 +585,23 @@ $Id: sect_5_mapping.xsl,v 1.35 2002/07/05 09:47:51 robbod Exp $
   <xsl:variable name="arm_entity" select="string(../@entity)"/>
   <xsl:variable name="arm_attr" select="string(@attribute)"/>
 
+  <xsl:variable name="module_aok">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="../@original_module">
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="../@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="../../../../module/@name"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable> <!-- module_aok -->
+
   <h3>
     <a name="{$aa_aname}">
     <xsl:choose>
@@ -630,25 +648,7 @@ $Id: sect_5_mapping.xsl,v 1.35 2002/07/05 09:47:51 robbod Exp $
     </xsl:choose>
   </a>
 
-
-  <xsl:variable name="module_ok">
-    <xsl:choose>
-      <!-- original_module specified then the ARM object is declared in
-           another module -->
-      <xsl:when test="../@original_module">
-        <xsl:call-template name="check_module_exists">
-          <xsl:with-param name="module" select="../@original_module"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="check_module_exists">
-          <xsl:with-param name="module" select="../../../../module/@name"/>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <xsl:if test="$module_ok='true'">
+  <xsl:if test="$module_aok='true'">
     <xsl:variable name="ae" select="../@entity"/>
     <xsl:variable name="entity_node"
       select="document($arm_xml)/express/schema/entity[@name=$ae]"/>      
@@ -658,7 +658,7 @@ $Id: sect_5_mapping.xsl,v 1.35 2002/07/05 09:47:51 robbod Exp $
   </xsl:if>
   </h3>
 
-  <xsl:if test="$module_ok='true'">
+  <xsl:if test="$module_aok='true'">
     <xsl:apply-templates select="." mode="check_valid_attribute"/>
   </xsl:if>
 

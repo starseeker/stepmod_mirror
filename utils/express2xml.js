@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.7 2002/01/31 18:37:35 robbod Exp $
+//$Id: express2xml.js,v 1.8 2002/02/15 12:21:31 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -311,7 +311,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.7 2002/01/31 18:37:35 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.8 2002/02/15 12:21:31 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -321,7 +321,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.7 $";
+    var appCVSRevision = "$Revision: 1.8 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -769,7 +769,7 @@ function xmlBuiltInType(typeType,statement,outTs) {
 }
 
 function getType(statement) {
-    var reg = /\bSELECT|ENUMERATION|BINARY|BOOLEAN|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
+    var reg = /\bSET|BAG|LIST|ARRAY|SELECT|ENUMERATION|BINARY|BOOLEAN|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
     var type = statement.match(reg);
     if (type) 
 	type = type.toString();
@@ -818,6 +818,18 @@ function xmlType(statement,outTs) {
     case "STRING" :
 	xmlBuiltInType(typeType,statement,outTs);
 	break;	
+    case "LIST" :
+	xmlUnderlyingType(statement,outTs);
+	break;
+    case "SET" :
+	xmlUnderlyingType(statement,outTs);
+	break;
+    case "BAG" :
+	xmlUnderlyingType(statement,outTs);
+	break;
+    case "ARRAY" :
+	xmlUnderlyingType(statement,outTs);
+	break;
     default :	
 	xmlOpenElement("<typename",outTs);
 	xmlAttr("name",typeType,outTs);
@@ -925,8 +937,8 @@ function xmlFunction(line,expTs,outTs) {
     xmlOpenElement("<function",outTs);
     xmlAttr("name",fnObj.name,outTs);
     outTs.WriteLine(">");
-    fnObj.xmlRtnStr(outTs);
     fnObj.xmlParamList(outTs);
+    fnObj.xmlRtnStr(outTs);
     fnObj.xmlAlgorithm(outTs);
     xmlCloseElement("</function>",outTs);
     outTs.WriteLine("");

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues_file.xsl,v 1.7 2003/10/24 08:38:20 robbod Exp $
+     $Id: resource_issues_file.xsl,v 1.8 2004/02/11 00:25:27 thendrix Exp $
 
   Author: Tom Hendrix
   Owner:  
@@ -564,7 +564,7 @@
 
       <xsl:when test="@type='schema_clause'">
         against schema introduction.
-        <xsl:if test="@linkend">
+        <xsl:if test="string-length(@linkend)>0">
           <xsl:call-template name="link_schema">
             <xsl:with-param name="schema_name" select="@linkend"/>
           </xsl:call-template>
@@ -573,7 +573,7 @@
    
       <xsl:when test="@type='schema_intro'">
         against schema introduction.
-        <xsl:if test="@linkend">
+        <xsl:if test="string-length(@linkend)>0">
           <xsl:call-template name="link_intro">
             <xsl:with-param name="schema_name" select="@linkend"/>
           </xsl:call-template>
@@ -582,7 +582,7 @@
    
       <xsl:when test="@type='fund_cons'">
         against fundamental concepts.
-        <xsl:if test="@linkend">
+        <xsl:if test="string-length(@linkend)>0">
           <xsl:call-template name="link_fund_cons">
             <xsl:with-param name="schema_name" select="@linkend"/>
           </xsl:call-template>
@@ -591,7 +591,7 @@
 
       <xsl:when test="@type='express'">
         against express
-        <xsl:if test="@linkend">
+        <xsl:if test="string-length(@linkend)>0">
           <xsl:call-template name="link_schema">
             <xsl:with-param name="schema_name" select="@linkend"/>
           </xsl:call-template>
@@ -600,7 +600,7 @@
 
       <xsl:when test="@type='express_doc'">
         against express
-        <xsl:if test="@linkend">
+        <xsl:if test="string-length(@linkend)>0">
           <xsl:call-template name="link_schema">
             <xsl:with-param name="schema_name" select="@linkend"/>
           </xsl:call-template>

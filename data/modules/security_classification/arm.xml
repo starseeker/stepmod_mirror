@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.5 2002/02/13 14:21:33 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 14:21:33 $"
-  rcs.revision="$Revision: 1.5 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.9"
     source="../data/modules/security_classification/arm.exp"/>
 
   <schema name="Security_classification_arm">
@@ -27,7 +27,7 @@
 
     <interface
       kind="use"
-      schema="Person_organization_assignment_arm">
+      schema="Person_organisation_assignment_arm">
     </interface>
 
     <interface
@@ -36,14 +36,13 @@
     </interface>
 
     <type name="security_classification_item">
-      <description>This select is a place holder for assignments of security classification to elements of product data.</description>
       <select
-        extensible="YES">
+        extensible="YES"
+        selectitems="null">
       </select>
 
     </type>
     <type name="security_classification_organization_or_person_in_organization_item">
-      <description>This select extends the assignments of an organization or a person in an organization to Security_classification.</description>
       <select
         basedon="organization_or_person_in_organization_item"
         selectitems="Security_classification">
@@ -51,7 +50,6 @@
 
     </type>
     <type name="security_classification_date_or_date_time_item">
-      <description>This select is a extends the assignments of a date or a date and time to <b>Security_classification</b>.</description>
       <select
         basedon="date_or_date_time_item"
         selectitems="Security_classification">
@@ -59,122 +57,36 @@
 
     </type>
     <type name="security_classification_approval_item">
-      <description>This select extends an <b>Approval_assignment</b> to apply to <b>Security_classification</b> instances.</description>
       <select
         basedon="approval_item"
         selectitems="Security_classification">
       </select>
 
     </type>
-    <type name="security_classification_alias_identification_item">
-      <description>This select extends the assignments of identification for aliasing to security classifications.</description>
-      <select
-        extensible="YES"
-        basedon="alias_identification_item"
-        selectitems="Security_classification">
-      </select>
-
-    </type>
     <entity
       name="Security_classification">
-      <description>A <b>Security_classification</b> specifies information about the sensitivity of product data.</description>
       <explicit
         name="classification">
-        <description>the identification the <b>Security_classification</b>.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description"
         optional="YES">
-        <description>the optional text which defines the <b>Security_classification</b>. This is provided when the classification is not generally understood.</description>
         <builtintype
           type="STRING"/>
       </explicit>
-      <inverse
-        name="classifier"
-        entity="Organization_or_person_in_organization_assignment"
-        attribute="items">
-        <description>the optional organization or person in organization that defines or owns the classification.</description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="classification_dates"
-        entity="Date_or_date_time_assignment"
-        attribute="items">
-        <description>the optional dates or dates and times related to the classification.</description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="2"/>
-      </inverse>
-      <inverse
-        name="approval"
-        entity="Approval_assignment"
-        attribute="items">
-        <description>the organization or person in organization that approved the classification.</description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="idalias"
-        entity="Alias_identification"
-        attribute="items">
-        <description>An optional alternate identifier.</description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <where
-        label="WR1"
-        expression="(SELF.classification IN ['unclassified', 'confidential',        'secret', 'top secret', 'proprietary'] OR EXISTS(SELF.description))">
-        <description>Either the <b>classification</b> is 'unclassified', 'confidential', 'secret', 'top secret', 'proprietary' or the <b>description</b> value exists.</description>
-      </where>
-      <where
-        label="WR2"
-        expression="NOT (SELF.classification = 'classified' AND (NOT EXISTS(SELF.description)))">
-        <description>If the <b>classification</b> is 'classified', the <b>description</b> value shall exist.</description>
-      </where>
-      <where
-        label="WR3"
-        expression="SELF.classifier.role = 'classification officer'">
-        <description>The <b>classifier</b> role shall be 'classification officer'.</description>
-      </where>
-      <where
-        label="WR4"
-        expression="SELF.classification_dates.role IN ['classification date','declassification date']">
-        <description>The <b>classification_dates</b> role shall be either 'classification date' or 'declassification date'.</description>
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF(QUERY(cdr &lt;* USEDIN(SELF,'SECURITY_CLASSIFICATION_MIM.' + 'DATE_OR_DATE_TIME_ASSIGNMENT.ITEMS') | ((SELF.role.name=&quot;classification date&quot; ))) &lt;=&quot;1&quot;">
-        <description>At most 1 <b>classification_dates</b> role may be 'classification date'.</description>
-      </where>
-      <where
-        label="WR6"
-        expression="SIZEOF(QUERY(cdr &lt;* USEDIN(SELF,'SECURITY_CLASSIFICATION_MIM.' + 'DATE_OR_DATE_TIME_ASSIGNMENT.ITEMS') | ((SELF.role.name=&quot;declassification date&quot; ))) &lt;=&quot;1&quot;">
-        <description>At most 1 <b>classification_dates</b> role may be 'declassification date'.</description>
-      </where>
     </entity>
 
     <entity
       name="Security_classification_assignment">
-      <description><p>A <b>Security_classification_assignment</b> assigns a <b>Security_classification</b> to product data.</p></description>
       <explicit
         name="classification">
-        <description>the <b>Security_classification</b> to be assigned to product data.</description>
         <typename
           name="Security_classification"/>
       </explicit>
       <explicit
         name="items">
-        <description>the product data to which the <b>Security_classification</b> is assigned.</description>
         <aggregate
           type="SET"
           lower="1"

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.99 2003/06/25 23:57:00 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.100 2003/07/03 06:22:12 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -3570,12 +3570,33 @@
             <!-- an extensible non-empty SELECT type -->
             <p>
               The <b><xsl:value-of select="$typename"/></b> type is an
-              extensible list of alternate data types.  
+              extensible list of alternate data types
+              that allows for the designation of the data 
+              <xsl:choose>
+                <!-- if the list has a space there must be more than one item -->
+                <xsl:when test="contains(normalize-space(@selectitems),' ')">
+                  types
+                </xsl:when>
+                <xsl:otherwise>
+                  type
+                </xsl:otherwise>
+              </xsl:choose>              
+              <xsl:call-template name="link_list">
+                <xsl:with-param name="suffix" select="', '"/>
+                <xsl:with-param name="bold" select="'yes'"/>
+                <xsl:with-param name="list" select="@selectitems"/>
+                <xsl:with-param name="object_used_in_schema_name"
+                  select="../../@name"/>
+                <xsl:with-param name="clause" select="'section'"/>
+                <xsl:with-param name="and_for_last_pair" select="'yes'"/>
+              </xsl:call-template>.
+          <!--
               The data types that may be chosen are specified in the 
               <b><xsl:value-of select="$typename"/></b>
               type and in select data types that extend the 
               <b><xsl:value-of select="$typename"/></b> 
               type.
+-->
             </p>
             <p class="note">
               <small>
@@ -3628,10 +3649,41 @@
       </xsl:when>
       <xsl:otherwise>
         <!-- a non extensible SELECT type -->
-        <p>
-          The <b><xsl:value-of select="$typename"/></b> type is a list of
-          alternate data types.  
-        </p>
+        <xsl:choose>
+          <xsl:when test="string-length(@selectitems)&gt;0">
+            <!-- an extensible non-empty SELECT type -->
+            <p>
+              The <b><xsl:value-of select="$typename"/></b> type allows for the designation of the data 
+              <xsl:choose>
+                <!-- if the list has a space there must be more than one item -->
+                <xsl:when test="contains(normalize-space(@selectitems),' ')">
+                  types
+                </xsl:when>
+                <xsl:otherwise>
+                  type
+                </xsl:otherwise>
+              </xsl:choose>              
+              <xsl:call-template name="link_list">
+                <xsl:with-param name="suffix" select="', '"/>
+                <xsl:with-param name="bold" select="'yes'"/>
+                <xsl:with-param name="list" select="@selectitems"/>
+                <xsl:with-param name="object_used_in_schema_name"
+                  select="../../@name"/>
+                <xsl:with-param name="clause" select="'section'"/>
+                <xsl:with-param name="and_for_last_pair" select="'yes'"/>
+              </xsl:call-template>.
+            </p>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Error se1: ', 
+                        $typename, 
+                        ' is an empty select')"/>
+            </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
       
     </xsl:choose>    

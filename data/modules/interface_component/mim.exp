@@ -1,12 +1,11 @@
 (*
-   $Id: mim.exp,v 1.8 2005/02/04 15:40:39 budreckytej Exp $
+   $Id: mim.exp,v 1.9 2005/02/10 13:32:15 liutkus Exp $
    ISO TC184/SC4/WG12 N3463 - ISO/CD-TS 10303-1691 Interface component - EXPRESS MIM
 *)
 
 
 SCHEMA Interface_component_mim;
 	USE FROM Physical_component_feature_mim;	-- ISO/TS 10303-1721
-	USE FROM Physical_unit_design_view_mim;	-- ISO/TS 10303-1728
 	
 ENTITY physical_component_interface_terminal
  SUBTYPE OF (physical_component_feature);
@@ -87,6 +86,70 @@ WHERE
        (sa\shape_aspect.description IN ['interconnect component interface terminal',
        'packaged connector component interface terminal']))) >= 1)) >= 1);
 END_ENTITY;
+
+RULE component_feature_unique_constraint FOR
+ ( component_terminal, physical_component_interface_terminal );
+LOCAL
+  ct : BAG OF shape_aspect := 
+     QUERY( ct <* component_terminal | (ct\shape_aspect.description IN 
+['assembly module component terminal',
+'bare die component terminal',
+'interconnect component join terminal',
+'interconnect module component terminal',
+'interconnect module component stratum based terminal',
+'minimally defined component terminal',
+'packaged component join terminal']) );
+  cit : BAG OF shape_aspect := 
+         QUERY( cit <* physical_component_interface_terminal | (
+cit\shape_aspect.description IN ['interconnect component interface terminal',
+'packaged connector component interface terminal']) );
+  cf : BAG OF shape_aspect;
+  cd_bag : BAG OF component_definition := [];
+  sa_bag : BAG OF shape_aspect;
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  def_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+cf := ct + cit;
+REPEAT i := 1 to SIZEOF(cf) by 1;
+  IF EXISTS( cf[i].of_shape.definition ) THEN
+    IF ( 'COMPONENT_FEATURE_MIM.' +
+'COMPONENT_DEFINITION' IN TYPEOF(cf[i].of_shape.definition) ) THEN
+      IF ( NOT ( cf[i].of_shape.definition IN cd_bag )) THEN
+        cd_bag := cd_bag + cf[i].of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(cd_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  def_bag := [];
+  sa_bag := QUERY( sa <* cf | (sa.of_shape.definition :=: cd_bag[i]) );
+  REPEAT j := 1 to SIZEOF(sa_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    sar_bag := QUERY( sar <* USEDIN( sa_bag[j],
+'COMPONENT_FEATURE_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | 
+             (sar\shape_aspect_relationship.name = 'instantiated feature') );
+    REPEAT k := 1 to SIZEOF(sar_bag) by 1;
+      IF EXISTS( sar_bag[k].relating_shape_aspect ) THEN
+        IF ( sar_bag[k].relating_shape_aspect IN def_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          def_bag := def_bag + sar_bag[k].relating_shape_aspect;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
 	
 END_SCHEMA;
 

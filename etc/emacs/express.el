@@ -211,7 +211,7 @@
 	  . font-lock-keyword-face)
 	'("\\<\\(ABSTRACT\\|SUPERTYPE\\|SUBTYPE\\|FOR\\|OF\\|ONEOF\\|OPTIONAL\\)\\>"
 	  1 font-lock-keyword-face)
-	'("\\<\\(SELECT\\|ENUMERATION\\)\\>" . font-lock-keyword-face)
+	'("\\<\\(SELECT\\|BASED_ON\\|WITH\\|ENUMERATION\\)\\>" . font-lock-keyword-face)
 	(cons (concat "\\<\\(NUMBER\\|REAL\\|INTEGER\\|STRING\\|BOOLEAN\\|LOGICAL\\|"
 		      "GENERIC\\|LIST\\|SET\\|BAG\\|ARRAY\\|AGGREGATE\\)\\>")
 	      'font-lock-type-face)

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.13 2003/05/22 21:35:48 thendrix Exp $
+$Id: res_toc.xsl,v 1.14 2003/08/24 22:10:35 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -422,7 +422,7 @@ NEED TO FIX up the hrefs -->
         </xsl:if>
 
         <xsl:if test="./bibliography/*">
-	        <A HREF="{$resdoc_root}/sys/biblio{$FILE_EXT}#bibliography">Bibliography</A>
+	        <A HREF="{$resdoc_root}/sys/biblio{$FILE_EXT}#bibliography">Bibliography</A><BR/>
 	</xsl:if>
         <A HREF="{$resdoc_root}/sys/resdocindex{$FILE_EXT}">Index</A><BR/>
       </p>

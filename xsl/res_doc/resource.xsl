@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.38 2004/02/25 09:20:31 robbod Exp $
+$Id: resource.xsl,v 1.39 2004/02/25 16:48:16 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -725,9 +725,8 @@ o=isocs; s=central<br/>
   </ul>
   
   <p>
-    An ISO/PAS or ISO/TS is reviewed every three years with a view to
-    deciding whether it can be transformed into an International Standard.
-  </p>
+An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it will be confirmed for a further three years, revised to become an International Standard, or withdrawn. If the ISO/PAS or ISO/TS is confirmed, it is reviewed again after a further three years, at which time it must either be transformed into an International Standard or be withdrawn.
+</p>
   
 </xsl:when>
 </xsl:choose>
@@ -804,8 +803,7 @@ o=isocs; s=central<br/>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="@previous.revision.cancelled='NO'">
-        This <xsl:value-of select="$this_edition"/> edition of  
-        <xsl:value-of select="$part_no"/> 
+        This <xsl:value-of select="$this_edition"/> edition 
         constitutes a technical revision of the
         <xsl:value-of select="$prev_edition"/> edition  
         (<xsl:value-of
@@ -845,7 +843,7 @@ o=isocs; s=central<br/>
       <xsl:otherwise>
         <!-- cancelled -->
         This <xsl:value-of select="$this_edition"/> edition of 
-        <xsl:value-of select="$part_no"/> cancels and replaces the
+        cancels and replaces the
         <xsl:value-of select="$prev_edition"/> edition
         (<xsl:value-of
           select="concat($part_no,':',@previous.revision.year)"/>), 
@@ -868,7 +866,7 @@ o=isocs; s=central<br/>
             been technically revised.
           </xsl:when>
           <xsl:otherwise>
-            of which it constitutes a technical revision.
+            which has been technically revised.
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
@@ -876,9 +874,10 @@ o=isocs; s=central<br/>
   </xsl:if>
 
   <p>
-    This International Standard is organized as a series of parts, each
-    published separately. The structure of this International Standard is
+    ISO 10303 is organized as a series of parts, each
+    published separately.  The structure of this International Standard is
     described in ISO 10303-1.
+ <sup><a href="#future">1</a>)</sup>
   </p>
   <p>
     Each part of this International Standard is a
@@ -893,10 +892,9 @@ o=isocs; s=central<br/>
     A complete list of parts of ISO 10303 is available from the Internet: 
   </p>
   <blockquote>
-    &lt;
     <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf">
       http://www.tc184-sc4.org/titles/STEP_Titles.rtf
-    </A>&gt;.
+    </A>
   </blockquote>
 
 
@@ -922,6 +920,12 @@ o=isocs; s=central<br/>
     </xsl:choose>
     are for information only.  
   </p> 
+    <p>
+      <a name="future">
+       <sup>1)</sup>A future edition of ISO 10303-1 will describe the application modules series. 
+      </a>      
+    </p>
+
 </xsl:template>
 
 <xsl:template match="schema_diag">
@@ -2468,7 +2472,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
       </xsl:when>
       <xsl:when test="stdref[@published='n']">
        <sup><a href="#tobepub">1</a>)</sup>
-      </xsl:when>
+       </xsl:when>
     </xsl:choose>,&#160;
     <i>
       <xsl:value-of select="stdref/stdtitle"/>

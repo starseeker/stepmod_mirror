@@ -1,4 +1,4 @@
-//$Id: xml2html.js,v 1.4 2002/01/14 13:30:15 robbod Exp $
+//$Id: xml2html.js,v 1.5 2002/01/28 11:03:51 robbod Exp $
 // JScript to convert the module XML to HTML
 //
 // This script uses The Saxon XSLT processor:
@@ -25,10 +25,10 @@
 // -----------------------------------------------------------
 
 // change to point to local installation of saxon
-var saxonExe = "e:/apps/instant-saxon/saxon.exe";
+var saxonExe = "c:/progra~1/saxon/saxon.exe";
 
 // change to point to root diectory of module repository
-var stepmodHome = "e:/My Documents/projects/nist_module_repo/stepmod";
+var stepmodHome = "C:/stepmod";
 
 var ForReading = 1, ForWriting = 2, ForAppending = 8;
 var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;

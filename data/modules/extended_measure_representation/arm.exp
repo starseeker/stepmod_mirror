@@ -1,32 +1,42 @@
-(* N	ISO/CD-TS 10303-	Extended measure representation	Express ARM *)
+(* Nxxxx ISO 10303-xxxx  $Id: $ *)
 
 SCHEMA Extended_measure_representation_arm;
 
 USE FROM Measure_representation_arm;
 
-TYPE limitation_definition_select = SELECT
-      (limits_and_fits,plus_minus_bounds);
+USE FROM Value_with_unit_arm;
+
+TYPE limit_qualifier_list = EXTENSIBLE ENUMERATION OF 
+  (minimum,
+   maximum);
 END_TYPE;
 
-TYPE limit_qualifier_list = ENUMERATION (minimum, maximum);
+TYPE limitation_definition_select = SELECT 
+  (Limits_and_fits,
+   Plus_minus_bounds);
 END_TYPE;
 
-TYPE numerical_value = SELECT (Numerical_item_with_global_unit, Numerical_item_with_unit);
+TYPE numerical_value = SELECT 
+  (Numerical_item_with_global_unit,
+   Numerical_item_with_unit);
 END_TYPE;
- 
-TYPE property_value_qualifier = ENUMERATION (nominal,  specified, typical);
+
+TYPE property_value_qualifier = EXTENSIBLE ENUMERATION OF 
+  (nominal,
+   specified,
+   typical);
 END_TYPE;
 
 ENTITY Limits_and_fits;
   deviation : STRING;
   grade : STRING;
-  fitting_type : OPTIONAL STRING;
+  fitting_type : STRING;
 END_ENTITY;
 
 ENTITY Plus_minus_bounds;
-  upper_bound : measure_value;
-  lower_bound : measure_value;
-  value_determination : OPTIONAL STRING ;
+  upper_bound : masure_value;
+  lower_bound : masure_value;
+  value_determination : OPTIONAL STRING;
   significant_digits : OPTIONAL INTEGER;
 END_ENTITY;
 
@@ -37,44 +47,42 @@ SUBTYPE OF (Property_value_representation);
 END_ENTITY;
 
 ENTITY Value_limit
-  SUBTYPE OF (Measure_item);
+SUBTYPE OF (Measure_item);
   limit_qualifier : limit_qualifier_list;
   limit : Value_with_unit;
 END_ENTITY;
 
 ENTITY Value_limit_with_global_unit
-  SUBTYPE OF (Measure_item);
+SUBTYPE OF (Measure_item);
+  limit : Value_with_unit;
   limit_qualifier : limit_qualifier_list;
-  limit : measure_value;
 END_ENTITY;
 
 ENTITY Value_limitation;
-  is_defined_by : limitation_definition_select;
+  defined_by : limitation_definition_select;
   envelope_principle : OPTIONAL BOOLEAN;
   limited_value : numerical_value;
 END_ENTITY;
 
 ENTITY Value_list
-  SUBTYPE OF (Measure_item);
-  values : LIST[1:?] OF Measure_item;
+SUBTYPE OF (Measure_item);
+  values : LIST [1 : ?] OF Measure_item;
 END_ENTITY;
 
 ENTITY Value_range
-  SUBTYPE OF (Measure_item);
+SUBTYPE OF (Measure_item);
   lower_limit : Value_with_unit;
   upper_limit : Value_with_unit;
 END_ENTITY;
 
 ENTITY Value_range_with_global_unit
-  SUBTYPE OF (Measure_item);
-  lower_limit : measure_value;
-  upper_limit : measure_value;
+SUBTYPE OF (Measure_item);
+  lower_limit : Value_with_unit;
+  upper_limit : Value_with_unit;
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT alternate_measure_items FOR Measure_item;
-ONEOF(Numerical_item_with_global_unit, Numerical_item_with_unit,
-      Value_limit, Value_limit_with_global_unit, 
-      Value_range, Value_range_with_global_unit);
+  ONEOF(Numerical_item_with_global_unit, Numerical_item_with_unit, Value_limit, Value_limit_with_global_unit, Value_list, Value_range, Value_range_with_global_unit);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

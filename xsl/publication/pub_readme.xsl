@@ -53,7 +53,10 @@ NOTE - if you already purchased other Application modules, then unzip the
 file into the same directory as the other modules.
 If asked when unzipping the file, you should overwrite any file in the images directory.
       <xsl:variable name="prefix" select="translate(concat('part',@part,@status,'_wg',@wg,'n'),$UPPER,$LOWER)"/>
-      <xsl:variable name="arm_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.arm,'arm.exp')"/>
+      <xsl:variable name="arm_exp"
+      select="concat('iso10303_',@part,'express/',$prefix,@wg.number.arm,'arm.exp')"/>
+
+The express listings for part <xsl:value-of select="@part"/>  are collected in a separate folder thus:
 The ARM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$arm_exp"/>
       <xsl:if test="./arm_lf">        
         <xsl:variable name="armlf_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.arm_lf,'arm_lf.exp')"/>
@@ -66,7 +69,7 @@ The MIM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in 
 The MIM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mimlf_exp"/>
       </xsl:if>
 
-The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/module_abstract_',@part,'.htm')"/>
+The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
 
 NOTE
 The HTML will have a number of broken links as this part is dependent on a
@@ -121,7 +124,7 @@ The MIM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in 
 The MIM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mimlf_exp"/>
       </xsl:if>
 
-The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/module_abstract_',@part,'.htm')"/>
+The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
 
   </xsl:template>
 
@@ -160,7 +163,7 @@ If asked when unzipping the file, you should overwrite any file in the images di
       <xsl:variable name="express" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.express,'.exp')"/>
 The EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$express"/>
 `
-The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/module_abstract_',@part,'.htm')"/>
+The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
   </xsl:template>
 
 </xsl:stylesheet>

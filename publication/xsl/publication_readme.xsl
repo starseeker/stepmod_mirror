@@ -23,7 +23,7 @@ The zip files in the directory zip, are the individual parts that should be
 sent to ISO.
 
 The zip file:
-  <xsl:value-of select="concat('WG',@sc4.working_group,'_',@wg.number.publication_set,'_&lt;DATE&gt;.zip')"/> 
+  <xsl:value-of select="concat('WG',@sc4.working_group,'N',@wg.number.publication_set,'_&lt;DATE&gt;.zip')"/> 
 has been created for sending to the convener for sign off.
   </xsl:template>
 

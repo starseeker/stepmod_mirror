@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.66 2002/06/06 09:22:41 robbod Exp $
+$Id: module.xsl,v 1.67 2002/06/06 13:01:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2702,7 +2702,7 @@ defines it. Use: normref.inc')"/>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' - ARM Entity level EXPRESS-G diagram ',$number)"/>
+                      ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -2716,7 +2716,7 @@ defines it. Use: normref.inc')"/>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' - MIM Entity level EXPRESS-G diagram ',$number)"/>
+                      ' - MIM Entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

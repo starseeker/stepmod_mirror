@@ -2,7 +2,7 @@
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 <!--
-$Id: document_xsl.xsl,v 1.1 2002/01/12 08:48:12 robbod Exp $
+$Id: document_xsl.xsl,v 1.2 2002/03/04 07:54:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
      Purpose: To display the import/includes in stylesheets
@@ -54,13 +54,13 @@ $Id: document_xsl.xsl,v 1.1 2002/01/12 08:48:12 robbod Exp $
   <li>
     <xsl:choose>
       <xsl:when test="./@match">
-        template match=<xsl:value-of select="@match"/>
+        template match="<xsl:value-of select="@match"/>"
       <xsl:if test="./@mode">
-        mode=<xsl:value-of select="@mode"/>
+        mode="<xsl:value-of select="@mode"/>"
       </xsl:if>
     </xsl:when>
     <xsl:otherwise>
-      template name=<xsl:value-of select="@name"/>     
+      template name="<xsl:value-of select="@name"/>"     
     </xsl:otherwise>
   </xsl:choose>
   </li>

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.12 2004/02/05 17:51:07 robbod Exp $
+$Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -44,8 +44,9 @@ $Id: index_mim_express_inner.xsl,v 1.12 2004/02/05 17:51:07 robbod Exp $
   <xsl:variable name="ap_top_module"
 	    select="$ap_node/application_protocol/@module_name"/>
 
+  <!-- fragment must be lower case -->
 	<xsl:variable name="top_module_file" 
-          select="concat('../../../stepmod/data/modules/',$ap_top_module,'/mim.xml')"/>
+          select="concat('../../../stepmod/data/modules/',translate($ap_top_module,$UPPER,$LOWER),'/mim.xml')"/>
 
 	<xsl:variable name="top_module_node"
 	    select="document($top_module_file)/express"/>

@@ -1,6 +1,55 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/17 16:53:50 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 08:24:48 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module with interconnect component - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
+
+
 SCHEMA Assembly_module_with_interconnect_component_arm;
+
+USE FROM Assembly_module_design_arm;
+
+USE FROM Part_occurrence_arm;
+
+USE FROM Interconnect_module_usage_view_arm;
+
+USE FROM Physical_unit_design_view_arm;
+
+USE FROM Interface_component_arm;
+
+  ENTITY Interconnect_module_component
+--    SUPERTYPE OF (interconnect_module_macro_component)
+    SUBTYPE OF (physical_component);
+      SELF\definition_based_product_occurrence.derived_from : interconnect_module_usage_view;
+  END_ENTITY; -- interconnect_module_component
+
+  ENTITY Interconnect_component_join_terminal
+    SUBTYPE OF (physical_component_terminal);
+      connection                                  : OPTIONAL connection_zone_in_design_view;
+      SELF\component_feature.associated_component : physical_component;
+    UNIQUE
+      ur1 : SELF\shape_element.element_name,
+ SELF\component_feature.associated_component;
+  END_ENTITY; -- interconnect_component_join_terminal
+
+  ENTITY Interconnect_component_interface_terminal
+    SUBTYPE OF (Component_interface_terminal);
+      connection : OPTIONAL connection_zone_in_design_view;
+    UNIQUE
+      ur1 : SELF\shape_element.element_name,
+ SELF\component_feature.associated_component;
+  END_ENTITY; -- interconnect_component_interface_terminal
+
+  ENTITY Interconnect_module_component_terminal
+--    SUPERTYPE OF ((interconnect_module_component_stratum_based_terminal) ANDOR
+-- (interconnect_module_macro_component_join_terminal))
+    SUBTYPE OF (physical_component_terminal);
+      SELF\component_feature.definition           : interconnect_module_terminal;
+      SELF\component_feature.associated_component : interconnect_module_component;
+  END_ENTITY; -- interconnect_module_component_terminal
+
+  ENTITY Interconnect_module_component_surface_feature
+    SUBTYPE OF (physical_component_feature);
+      SELF\component_feature.definition : interconnect_module_surface_feature;
+  END_ENTITY; -- interconnect_module_component_surface_feature
+
 END_SCHEMA;

@@ -2,6 +2,33 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Software - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Software_arm;
+
+USE FROM Document_definition_arm;
+
+USE FROM Document_and_version_identification_arm;
+
+USE FROM Product_view_definition_arm;
+
+REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017 
+        types_of_product 
+); 
+
+  ENTITY Software 
+    SUBTYPE OF (Document);
+  	WHERE 
+  		wr1 : SIZEOF([ 'software', 'analytical model', 'rule' ] * types_of_product(SELF))= 1 ;
+  END_ENTITY; -- Software
+
+  ENTITY Software_version
+    SUBTYPE OF (Document_version);
+    SELF\product_version.of_product : software;
+  END_ENTITY; -- Software_version
+
+  ENTITY Software_definition 
+    SUBTYPE OF (Digital_document_definition);
+    SELF\product_view_definition.defined_version : software_version;
+  END_ENTITY; -- Software_definition
+
 END_SCHEMA;

@@ -2,6 +2,32 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Pre defined datum 3d symbol - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Pre_defined_datum_3d_symbol_arm;
+
+USE FROM Non_feature_shape_element_arm;
+
+USE FROM Extended_geometric_tolerance_arm;
+
+	SUBTYPE_CONSTRAINT non_feature_shape_definition_subtypes FOR non_feature_shape_definition; 
+	(ONEOF (pre_defined_datum_axis_3d_symbol,
+	 pre_defined_datum_plane_3d_symbol));
+	END_SUBTYPE_CONSTRAINT;
+
+  ENTITY Pre_defined_datum_axis_3d_symbol
+    SUBTYPE OF (Non_feature_shape_definition);
+      SELF\non_feature_shape_definition.associated_element : datum_axis;
+    WHERE
+      WR1 : NOT EXISTS(SELF\non_feature_shape_definition.model_shape);
+      WR2 : SELF\geometric_model.context_of_items.dimension_count = 3;
+  END_ENTITY; -- pre_defined_datum_axis_3d_symbol
+
+  ENTITY Pre_defined_datum_plane_3d_symbol
+    SUBTYPE OF (Non_feature_shape_definition);
+      SELF\non_feature_shape_definition.associated_element : datum_plane;
+    WHERE
+      WR1 : NOT EXISTS(SELF\non_feature_shape_definition.model_shape);
+      WR3 : SELF\geometric_model.context_of_items.dimension_count = 3;
+  END_ENTITY; -- pre_defined_datum_plane_3d_symbol
+
 END_SCHEMA;

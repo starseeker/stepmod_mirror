@@ -2,6 +2,32 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Interconnect module with macros - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Interconnect_module_with_macros_arm;
+
+USE FROM Assembly_module_with_interconnect_component_arm;
+
+USE FROM Layered_interconnect_module_design_arm;
+
+USE FROM Component_feature_arm;
+
+USE FROM Physical_unit_design_view_arm;
+
+USE FROM Interconnect_module_usage_view_arm;
+
+  ENTITY Interconnect_module_macro_component
+    SUBTYPE OF (Interconnect_module_component);
+      design_definition : interconnect_module;
+    INVERSE
+      join_access_mechanisms : SET[1:?] OF interconnect_module_macro_component_join_terminal FOR associated_component;
+    WHERE
+      WR1 : SIZEOF(QUERY(immcjt <* join_access_mechanisms | immcjt\component_feature.definition\shape_element.containing_shape :<>: design_definition\part_design_view.usage_view)) = 0;
+  END_ENTITY; -- interconnect_module_macro_component
+
+  ENTITY Interconnect_module_macro_component_join_terminal
+    SUBTYPE OF (Interconnect_module_component_terminal);
+      SELF\component_feature.definition           : interconnect_module_join_terminal;
+      SELF\component_feature.associated_component : interconnect_module_macro_component;
+  END_ENTITY; -- interconnect_module_macro_component_join_terminal
+
 END_SCHEMA;

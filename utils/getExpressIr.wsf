@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <!--
- $Id: getExpress.wsf,v 1.2 2002/05/28 05:42:17 robbod Exp $ 
+ $Id: getExpressIr.wsf,v 1.1 2003/01/08 13:14:36 robbod Exp $ 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: A  script to copy all the express files from the repository to
@@ -13,6 +13,12 @@
     <![CDATA[
       Function ShowInputBox(str, title, default)
           ShowInputBox = InputBox(str, title, default)
+      End Function
+
+      Function YesNoBox(prompt, title)
+	  Dim y_n
+	  y_n = MsgBox(prompt, 4, title)	  
+	  YesNoBox = (y_n = 6)
       End Function
       ]]>
   </script>
@@ -48,8 +54,17 @@
 	    retVal = expDir;
             var fso = new ActiveXObject("Scripting.FileSystemObject");
 	    if (fso.FolderExists(expDir)) {
-		ErrorMessage("Directory exists:\n"+expDir);
-		retVal = -1;
+		ErrorMessage("Directory exists:\n "+expDir);
+		var y_n = YesNoBox("Delete directory:\n  " + expDir,"Delete direcory?");
+		if (y_n) {
+		  fso.DeleteFolder(expDir);
+		  if (fso.FolderExists(expDir)) {
+			ErrorMessage("Directory still exists:\n "+expDir);
+		        retVal = -1;
+		  } 
+	        } else {
+		  retVal = -1;
+	        }
 	    }
 	} else {
 	    retVal = -1;

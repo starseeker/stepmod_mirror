@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
+$Id: imgfile.xsl,v 1.1 2001/12/28 16:04:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -33,10 +33,11 @@ $Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
       <xsl:variable name="href"  select="concat('./sys/1_scope',$FILE_EXT)"/>
       <h3>
         <a href="{$href}">application module: <xsl:value-of select="@module"/></a><br/>
-        <xsl:value-of select="@title"/>
       </h3>
 
       <xsl:apply-templates select="img"/>
+      <center><h3><xsl:value-of select="@title"/></h3></center>
+
     </BODY>
   </HTML>
 </xsl:template>

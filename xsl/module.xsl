@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
+$Id: module.xsl,v 1.23 2002/01/15 09:54:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -71,6 +71,11 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
     </tr>
   </table>
 
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
     
   <xsl:variable name="stdnumber">
     <xsl:call-template name="get_module_stdnumber">
@@ -80,7 +85,7 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   <h4>
     <xsl:value-of select="$stdnumber"/><br/>
     Product data representation and exchange: Application module: 
-    <xsl:value-of select="@name"/>
+    <xsl:value-of select="$module_name"/>
   </h4>
   
   <xsl:variable name="status_words">
@@ -151,12 +156,6 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
       </td>
     </tr>
     <tr>
-      <xsl:variable name="module_name">
-        <xsl:call-template name="module_display_name">
-          <xsl:with-param name="module" select="./@name"/>
-        </xsl:call-template>           
-      </xsl:variable>
-
     <td valign="TOP" colspan="2" height="88">
       <h3>ABSTRACT:</h3>
       This document is the
@@ -307,6 +306,7 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
 </xsl:template>
 
 <!-- Outputs the foreword -->
+<!-- foreword as in the balloted modules - in fact incorrect
 <xsl:template match="module" mode="foreword">
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="'Foreword'"/>
@@ -328,7 +328,10 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   <p>
     This International Standard is organized as a series of parts, each
     published separately. The structure of this International Standard is
-    described in ISO 10303-1. Each part of this International Standard is a
+    described in ISO 10303-1.
+  </p>
+  <p>
+    Each part of this International Standard is a
     member of one of the following series: description methods, implementation
     methods, conformance testing methodology and framework, integrated generic
     resources, integrated application resources, application protocols,
@@ -347,6 +350,80 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
     Annexes A and B form an integral part of this part of ISO 10303. Annexes C,
     D, E, and F are for information only.  
   </p> 
+</xsl:template>
+-->
+<!-- foreword as in n1112 -->
+<xsl:template match="module" mode="foreword">
+  <xsl:call-template name="clause_header">
+    <xsl:with-param name="heading" select="'Foreword'"/>
+    <xsl:with-param name="aname" select="'foreword'"/>
+  </xsl:call-template>
+<p>
+  ISO (the International Organization for Standardization) is a worldwide
+  federation of national standards bodies (ISO member bodies). The work of
+  preparing International Standards is normally carried out through ISO
+  technical committees. Each member body interested in a subject for which
+  a technical committee has been established has the right to be
+  represented on that committee. International organizations, governmental 
+  and non-governmental, in liaison with ISO, also take part in the
+  work. ISO collaborates closely with the International Electrotechnical
+  Commission (IEC) on all matters of electrotechnical standardization.
+</p>
+<p>
+  The main task of technical committees is to prepare International
+  Standards. Draft International Standards adopted by the technical
+  committees are circulated to the member bodies for voting. Publication as
+  an International Standard requires approval by at least 75% of the member
+  bodies casting a vote. 
+</p>
+<p>
+  In other circumstances, particularly when there is an urgent market
+  requirement for such documents, a technical committee may decide to publish
+  other types of normative documents:
+  <ul>
+    <li>
+      an ISO Publicly Available Specification (ISO/PAS) represents an
+      agreement between technical experts in an ISO working group and is
+      accepted for publication if it is approved by more than 50% of the
+      members of the parent committee casting a vote; 
+    </li>
+    <li>
+      an ISO Technical Specification (ISO/TS) represents an agreement
+      between the members of a technical committee and is accepted for
+      publication if it is approved for publication if it is approved by
+      2/3 of the members of the committee casting a vote. 
+    </li>
+  </ul>
+</p>
+<p>
+  An ISO/PAS or ISO/TS is reviewed every three years with a view to deciding
+  whether it can be transformed into an International Standard ISO/TS
+  10303-28 was prepared by Technical Committee 184, <i>Industrial
+  automation systems and integration, Subcommittee SC4, Industrial data.</i>
+</p>
+<p>
+  This International Standard is organized as a series of parts, each
+  published separately. The parts of ISO 10303 fall into one of the
+  following series: description methods, integrated resources, application
+  interpreted constructs, application modules, application protocols, 
+  abstract test suites, implementation methods, and conformance testing.
+  The series are described in ISO 10303-1<sup>1</sup>. 
+  A complete list of parts of ISO 10303 is available from the Internet:
+  <a href="http://www.nist.gov/sc4/editing/step/titles/">
+    &lt; http://www.nist.gov/sc4/editing/step/titles/&gt;.
+  </a>
+</p>
+<p>
+  This part of ISO 10303 is a member of the application modules series.
+  Annexes &lt;normative annex list&gt; form an integral part of this part
+  of ISO 10303. Annexes &lt;informative annex list&gt; are for information
+  only. 
+</p>
+<p>
+  <sup>1</sup>A future edition of ISO 10303-1 will describe the application
+  modules series.
+</p>
+
 </xsl:template>
 
 <xsl:template match="purpose">
@@ -431,7 +508,7 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
     corresponding short names as specified or referenced in this part of ISO
     10303. It also provides a listing of each EXPRESS schema specified in this
     part of ISO 10303 without comments or other explanatory text. These
-    listings are available in computer-interpretable form in Table E-1 and can
+    listings are available in computer-interpretable form in Table E.1 and can
     be found at the following URLs:
   </p>
   <blockquote>
@@ -516,7 +593,7 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   <p>
     This clause specifies the information requirements for 
     <xsl:value-of select="../@name"/>
-    module.
+    application module.
   </p>
   <p>
     The information requirements are specified as a set of units of
@@ -576,7 +653,7 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   This subclause specifies the units of functionality (UoF) for this part
   ISO 10303 as well as any support elements needed for the application module
   definition. This part of ISO 10303 specifies the following units of
-  functionality:    
+  functionality and application objects.
   <ul>
     <xsl:apply-templates select="uof" mode="toc"/>
   </ul>
@@ -587,7 +664,7 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
         This part of ISO 10303 uses the following units of functionality:
       </p>
       <ul>
-        <xsl:apply-templates select="./uoflink"/>
+        <xsl:apply-templates select="./uoflink" mode="toc"/>
       </ul>
     </xsl:when>
     <xsl:otherwise>
@@ -602,6 +679,8 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   </p>
   
   <xsl:apply-templates select="uof" mode="uof_toc"/>
+
+  <xsl:apply-templates select="uoflink" mode="uof_toc"/>
 
   <!-- output all the EXPRESS specifications -->
   <!-- display the EXPRESS for the interfaces in the ARM.
@@ -649,6 +728,7 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   </code>
 
 </xsl:template>
+
 <xsl:template match="uof" mode="toc">
   <xsl:variable name="href" select="concat('#uof',@name)"/>
   <li>
@@ -665,14 +745,24 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   </li>
 </xsl:template>
 
-<xsl:template match="uoflink">
+<xsl:template match="uoflink" mode="toc">
+  <xsl:variable name="module"
+    select="substring-before(@linkend,'.')"/>
+  <xsl:variable name="uof"
+    select="substring-after(@linkend,'.')"/>
+  <xsl:variable name="xref" 
+    select="concat('#uof',$uof)"/>
   <li>
     <xsl:choose>
       <xsl:when test="position()!=last()">
-        <xsl:value-of select="concat(@linkend,';')"/>
+        <a href="{$xref}">
+          <xsl:value-of select="concat($uof,';')"/>
+        </a>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat(@linkend,'.')"/>        
+        <a href="{$xref}">
+          <xsl:value-of select="concat($uof,'.')"/>        
+        </a>
       </xsl:otherwise>
     </xsl:choose>
   </li>
@@ -696,7 +786,33 @@ $Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   <ul>
     <xsl:apply-templates select="uof.ae"/>
   </ul>
+</xsl:template>
 
+<xsl:template match="uoflink" mode="uof_toc">
+  <xsl:variable name="module"
+    select="substring-before(@linkend,'.')"/>
+  <xsl:variable name="uof"
+    select="substring-after(@linkend,'.')"/>
+  <xsl:variable name="xref" 
+    select="concat('../../',$module,'/sys/4_info_reqs',$FILE_EXT,'#uof',$uof)"/>
+  <xsl:variable name="current_module">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
+  <h3>
+    <xsl:variable name="name" select="concat('uof',$uof)"/>
+    <a name="{$name}">
+      <xsl:value-of select="concat('4.1.',position(),' ',$uof)"/>
+    </a>
+  </h3>
+  This UoF is defined in the
+  <a href="{$xref}"><xsl:value-of select="$module"/></a>
+  module. The following application entities from this UoF are referenced
+  in the 
+  <xsl:value-of select="$current_module"/> module:  
+  <ul>
+  </ul>
 </xsl:template>
 
 <xsl:template match="uof.ae">
@@ -1447,8 +1563,7 @@ defines it. Use: normref.inc')"/>
 <!-- Output the normative reference -->
 <xsl:template match="normref">
   <p>
-    <xsl:value-of select="stdref/orgname"/>
-    <xsl:value-of select="stdref/stdnumber"/>
+    <xsl:value-of select="concat(stdref/orgname,' ',stdref/stdnumber)"/>
     <xsl:if test="stdref[@published='n']">
       <sup>1</sup>
     </xsl:if>

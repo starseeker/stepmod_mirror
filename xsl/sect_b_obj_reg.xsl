@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
+$Id: sect_b_obj_reg.xsl,v 1.2 2001/12/21 09:39:05 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -26,6 +26,7 @@ $Id: sect_b_obj_reg.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
     <xsl:with-param name="heading" 
       select="'Information object registration'"/>
     <xsl:with-param name="aname" select="'annexb'"/>
+    <xsl:with-param name="informative" select="'normative'"/>
   </xsl:call-template>
 
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ_</xsl:variable>

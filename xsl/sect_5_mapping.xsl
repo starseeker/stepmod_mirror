@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.6 2002/01/07 10:12:09 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.7 2002/01/12 08:41:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -57,6 +57,7 @@ $Id: sect_5_mapping.xsl,v 1.6 2002/01/07 10:12:09 robbod Exp $
 <xsl:template match="mapping_table" mode="toc">
   <xsl:variable name="table_count" select="(count(./ae)+1) div 2"/>
   <blockquote>
+    <center>
     <table width="90%" cellspacing="0" cellpadding="4">
       <tr>
         <td>
@@ -75,6 +76,7 @@ $Id: sect_5_mapping.xsl,v 1.6 2002/01/07 10:12:09 robbod Exp $
         </td>
       </tr>
     </table>
+  </center>
   </blockquote>
   <hr/>
 </xsl:template>
@@ -95,7 +97,7 @@ $Id: sect_5_mapping.xsl,v 1.6 2002/01/07 10:12:09 robbod Exp $
     </h3>
   </a>
   <h3>
-      <xsl:value-of select="concat('Table ',position(),' - ', @entity)"/>
+      <xsl:value-of select="concat('Table ',position(),' - Mapping table for ', @entity)"/>
   </h3>
   <table border="1" width="622">
     <tr>

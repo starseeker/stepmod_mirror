@@ -16,7 +16,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   <xsl:import href="../ap_doc/common.xsl"/>
   <xsl:import href="../res_doc/common.xsl"/>
 
-  <xsl:output method="html"/>
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/REC-html40/Strict.dtd"
+    doctype-public="-//W3C//DTD HTML 4.0//EN"
+    indent="yes"
+    />
+
 
   <!-- 
      This parameter is passed in from ANT build where it is read from publication_index.xml
@@ -80,36 +85,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <HTML>
       <HEAD>
         <xsl:apply-templates select="." mode="meta_data"/>
-
-        <style type="text/css">
-          p.MsoNormal, li.MsoNormal, div.MsoNormal
-            {mso-style-parent:"";
-             margin:0pt;
-             margin-bottom:.0001pt;
-             mso-pagination:widow-orphan;
-             font-size:12.0pt;
-             font-family:"Times New Roman";
-             mso-fareast-font-family:"Times New Roman";}
-  p.fdcopy, li.fdcopy, div.fdcopy
-        {mso-style-name:fdcopy;
-        margin-top:0pt;
-        margin-right:5.0pt;
-        margin-bottom:11.5pt;
-        margin-left:5.0pt;
-        text-align:justify;
-        line-height:11.5pt;
-        mso-pagination:widow-orphan;
-        tab-stops:25.7pt 481.15pt;
-        border:none;
-        mso-border-alt:solid windowtext .75pt;
-        padding:0pt;
-        mso-padding-alt:1.0pt 4.0pt 1.0pt 4.0pt;
-        font-size:10.0pt;
-        font-family:Arial;
-        mso-fareast-font-family:"Times New Roman";
-        mso-bidi-font-family:"Times New Roman";}
-        </style>
-
       </HEAD>
         <TITLE>
           <!-- output the part page title -->
@@ -118,24 +93,23 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             mode="title"/>
         </TITLE>
         <BODY>
-          <p class="MsoNormal" align="center">
+          <p align="center">
             <img width="59" height="54" src="../../../../images/isologo.gif" alt="ISO logo"/>
           </p>
 
-          <xsl:call-template name="empty_para"/>
           <xsl:variable name="status_words">
             <xsl:choose>
               <xsl:when test="@status='FDIS'">
-                FINAL DRAFT INTERNATIONAL STANDARD
+                FINAL DRAFT INTERNATIONAL STANDARD ISO
               </xsl:when>
               <xsl:when test="@status='DIS'">
-                DRAFT INTERNATIONAL STANDARD
+                DRAFT INTERNATIONAL STANDARD ISO
               </xsl:when>
               <xsl:when test="@status='IS'">
-                INTERNATIONAL STANDARD
+                INTERNATIONAL STANDARD ISO
               </xsl:when>
               <xsl:when test="@status='TS'">
-                TECHNICAL SPECIFICATION 
+                TECHNICAL SPECIFICATION ISO/TS
               </xsl:when>
               <xsl:otherwise>
                 Module status not for publication
@@ -143,61 +117,105 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:choose>
           </xsl:variable>
 
-          <!--<img align="center" width="59" height="54" src="images/isologo.gif" alt="ISO logo"/>-->
-          <p class="MsoNormal" align="center">
-            <b>
-              <span style="mso-bidi-font-size:24.0pt;font-family:Arial">
-                <xsl:value-of select="concat($status_words,' ISO 10303-',@part)"/>
-              </span>
-            </b>
-          </p>
-          
-          <xsl:call-template name="empty_para"/>
-          <xsl:call-template name="empty_para"/>
+          <div align="center" style="margin-top=10pt">
+            <span style="font-size:16; font-family:sans-serif; font-weight:bold">
+              <xsl:value-of select="concat($status_words,' 10303-',@part)"/>
+            </span>
+          </div>
 
-          <p class="MsoNormal" align="center">
-            <b>
-              <span style="font-size:24.0pt;mso-bidi-font-size:12.0pt;font-family:Arial">
-                Industrial automation systems and integration &#8212; 
-                <br/>
-                Product data representation and exchange &#8212;
-              </span>
-            </b>
-          </p>
-          <p class="MsoNormal" align="center" style="margin-top:12.0pt;">
-            <span style="font-size:24.0pt;mso-bidi-font-size:12.0pt;font-family:Arial">
+          <!-- English title -->
+          <div align="center" style="margin-top:20pt">
+            <span style="font-size:30; font-family:sans-serif; font-weight:bold">
+              Industrial automation systems and integration &#8212; 
+              <br/>
+              Product data representation and exchange &#8212;
+            </span>
+          </div>
+
+          <!-- English part title -->
+          <div align="center" style="margin-top:10pt">
+            <span style="font-size:30; font-family:sans-serif;">
               Part <xsl:value-of select="@part"/>:
               <br/>
-            </span>
-          </p>
-          <p class="MsoNormal" align="center">
-            <b>
-              <span style="font-size:24.0pt;mso-bidi-font-size:12.0pt;font-family:Arial">
+              <b>
                 <xsl:apply-templates select="." mode="display_name"/>
-              </span>
-            </b>
-          </p>
+              </b>
+            </span>
+          </div>
 
-          <xsl:call-template name="empty_para"/>
-          <p class="MsoNormal" align="center">
-            <span lang="FR" style="font-size:10.0pt;font-family:Arial;mso-ansi-language:FR">
+          <!-- French title -->
+          <div align="center" style="margin-top:25pt">
+            <span style="font-size:14; font-family:sans-serif;">
               <i>
                 Syst&#232;mes d'automatisation industrielle et int&#233;gration &#8212;
                 et &#233;change de donn&#233;es de produits
-                <br/>
-                Partie <xsl:value-of select="@part"/>: 
-                <xsl:apply-templates select="." mode="display_name_french"/>
               </i>
             </span>
-          </p>
-          <xsl:call-template name="empty_para"/>
-          <xsl:call-template name="empty_para"/>
-          <p class="MsoNormal" align="center">
-            <span style="font-size:24.0pt;mso-bidi-font-size:13.5.0pt;font-family:Arial">
+          </div>
+
+          <!-- French Part title -->
+          <div align="center" style="margin-top:5pt">
+            <span style="font-size:14; font-family:sans-serif;">
+              <i>
+                Partie <xsl:value-of select="@part"/>: 
+               <xsl:apply-templates select="." mode="display_name_french"/>
+              </i>
+            </span>
+          </div>
+
+          <!-- link to main document -->
+          <div align="center" style="margin-top:30pt">
+            <span style="font-size:30; font-family:sans-serif;">
               <xsl:apply-templates select="." mode="start_link"/>
             </span>
-          </p>
-          <xsl:call-template name="empty_para"/>
+          </div>
+
+          <xsl:variable name="this_edition">
+            <xsl:choose>
+              <xsl:when test="@version='1'">
+                First
+              </xsl:when>
+              <xsl:when test="@version='2'">
+                Second
+              </xsl:when>
+              <xsl:when test="@version='3'">
+                Third
+              </xsl:when>
+              <xsl:when test="@version='4'">
+                Fourth
+              </xsl:when>
+              <xsl:when test="@version='5'">
+                Fifth
+              </xsl:when>
+              <xsl:when test="@version='6'">
+                Sixth
+              </xsl:when>
+              <xsl:when test="@version='7'">
+                Seventh
+              </xsl:when>
+              <xsl:when test="@version='8'">
+                Eighth
+              </xsl:when>
+              <xsl:when test="@version='9'">
+                Ninth
+              </xsl:when>
+              <xsl:otherwise>
+                MORE THAN 9 - edit stepmod/xsl/publication/pub_iso_cover
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+
+          <!-- document edition -->
+          <div align="center" style="margin-top:50pt">
+            <span style="font-size:12; font-family:sans-serif;">
+              <b>
+                <xsl:value-of select="concat($this_edition,'&#160;edition&#160;&#160;',@publication.year)"/>
+              </b>
+            </span>
+          </div>
+
+          <hr/>
+        
           <xsl:choose>
             <xsl:when test="@status='DIS'">
               <xsl:apply-templates select="." mode="dis_copyright">
@@ -335,14 +353,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <td width="274" valign="top" 
             style='width:205.35pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 5.4pt 0pt 5.4pt'>
             <p class="fdcopy" align="center" 
-              style='margin-bottom:3.0pt;text-align:center; line-height:13.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt: 0pt 0pt 0pt 0pt'>
-              <b style='mso-bidi-font-weight:normal'>
+              style="margin-bottom:3.0pt;text-align:center; line-height:13.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt: 0pt 0pt 0pt 0pt">
+              <b style="mso-bidi-font-weight:normal">
                 Copyright notice
               </b>
             </p>
 
             <p class="fdcopy" 
-              style='margin-bottom:6.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
+              style="margin-bottom:6.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt">
               <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
                 This ISO document is a 
                 <xsl:value-of select="$stage"/>
@@ -367,15 +385,15 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </p>
 
             <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-            <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
+              style="margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt">
+            <span style="font-size:9.0pt;mso-bidi-font-size: 10.0pt">
               ISO copyright office
             </span>
           </p>
 
             <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
+              style="margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt">
+              <span style="font-size:9.0pt;mso-bidi-font-size: 10.0pt">
                 Case postale 56&#160;
               </span>
               <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt;font-family:Symbol;mso-ascii-font-family:Arial;mso-hansi-font-family: Arial;mso-char-type:symbol;mso-symbol-font-family:Symbol'>
@@ -447,20 +465,55 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:template>
 
   <xsl:template match="module|application_protocol|resource" mode="ts_copyright">
-    <div align="center">
-      <table border="1" cellspacing="0" cellpadding="0" width="800"
-        style='width:600.0pt; border-collapse:collapse;border:none;mso-border-top-alt:solid windowtext 1.0pt; mso-padding-alt:0pt 5.4pt 0pt 5.4pt'>
+    <table border="0" align="center">
         <tr>
-          <td width="199" valign="top" 
-            style='width:149.15pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 5.4pt 0pt 0pt'>
-            <p class="MsoNormal" 
-              style='margin-top:2.0pt;line-height:13.5pt;mso-line-height-rule: exactly'>
+          <td width="220" valign="top">
+            <span style="font-size:14; font-family:sans-serif;">
               <b>
-                <span style='font-family:Arial'>ICS&#160;&#160;25.040.40</span>
+                ICS&#160;&#160;25.040.40
               </b>
-            </p>
+            </span>
           </td>
 
+          <td width="310" align="center" valign="top">
+            <span style="font-size:12; font-family:sans-serif;">
+              &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="@publication.year"/>
+            </span>
+          </td>
+
+          <td width="220" align="right" valign="top">
+            <span style="font-size:14; font-family:sans-serif;">
+              <b>Price base on ## pages</b>
+            </span>
+          </td>
+        </tr>
+
+        <tr>
+          <td width="220"><br/></td>
+          <td width="310" align="center" valign="top">
+            <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
+              <a name="copyright"/>
+              All rights reserved. Unless otherwise specified, no part of this publication may be 
+              reproduced or utilized in any form or by any means, electronic or mechanical, including 
+              photocopying and microfilm, without permission in writing from either ISO at the address 
+              below or ISO's member body in the country of the requester.
+            </div>
+            <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
+              ISO copyright office<br/>
+            Case postale 56&#160;&#160;<span style="font-family:Symbol">&#183;</span>&#160;CH-1211 Geneva 20<br/>
+              Tel.&#160;&#160;+ 41 22 749 01 11<br/>
+              Fax&#160;&#160;+ 41 22 749 09 47<br/>
+              E-mail&#160;&#160;copyright@iso.org<br/>
+              Web&#160;&#160;www.iso.org
+            </div>
+            <div style="font-size:12; font-family:sans-serif;">
+              Published in Switzerland
+            </div>
+          </td>
+          <td width="220"><br/></td></tr>
+        </table>
+
+        <!-- OLD
           <td width="274" valign="top" 
             style='width:205.35pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 5.4pt 0pt 5.4pt'>
             <p class="fdcopy" align="center" 
@@ -568,8 +621,10 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </p>
           </td>
         </tr>
-      </table>
-    </div>
+
+      </table>      
+    </div> 
+    -->
   </xsl:template>
 
   <xsl:template match="module|application_protocol|resource" mode="is_copyright">

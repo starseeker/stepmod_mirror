@@ -18,17 +18,10 @@ USE FROM Geometrically_bounded_wireframe_mim;
 USE FROM Incomplete_data_reference_mechanism_mim;
 USE FROM Manifold_surface_mim;
 USE FROM Product_structure_mim ;
+USE FROM Representation_with_uncertainty_mim; 
 USE FROM Shape_appearance_layers_mim;
 USE FROM Shell_based_wireframe_mim;
 USE FROM Work_management_mim;
-
-
-
-
-TYPE classification_item_203e2 = SELECT BASED_ON classification_item WITH
-	(product_definition, 
-	document_file);
-END_TYPE;
 
 TYPE action_item_203e2 = SELECT BASED_ON action_items WITH
       (configuration_effectivity,product_definition,
@@ -99,6 +92,11 @@ END_TYPE;
  TYPE certification_item_203e2 = SELECT BASED_ON certification_item WITH
       (product_definition_formation_relationship);
  END_TYPE;
+
+TYPE classification_item_203e2 = SELECT BASED_ON classification_item WITH
+	(product_definition, 
+	document_file);
+END_TYPE;
 
  TYPE contract_item_203e2 = SELECT BASED_ON contract_item WITH
       (action,product_definition_formation);
@@ -222,13 +220,235 @@ END_TYPE;
        product_definition_formation);
  END_TYPE;
 
-(* check on this type to see if needed now --- if so, change name *)
+(* BA changed name from ap203_cc1_time_interval_item to 
+time_interval_item_203e2 *)
 
-TYPE ap203_cc1_time_interval_item = SELECT BASED_ON time_interval_item WITH (time_interval_based_effectivity);
+TYPE time_interval_item_203e2 = SELECT BASED_ON time_interval_item WITH (time_interval_based_effectivity);
 END_TYPE;
+ 
+
+(*BA added rules on 01/28/03 from Jochen's email of 01/22/03*)
 
 
- RULE product_requires_category FOR (product,product_related_product_category);
+RULE approval_person_organization_requires_date_time 
+    FOR (approval_person_organization);
+WHERE
+WR1: SIZEOF ( QUERY ( apo <* approval_person_organization | (
+     SIZEOF ( QUERY ( u <* USEDIN ( apo , schema_name + '.APPLIED_DATE_ASSIGNMENT.ITEMS' ) | 
+	( u.role.name =  'sign off' ) ) ) + 
+   SIZEOF ( QUERY ( u <* USEDIN ( apo , schema_name + '.APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' ) | 
+	( u.role.name =  'sign off' ) ) ) ) <>1 ) ) =  0;
+END_RULE; 
+
+RULE approval_requires_approval_assignment FOR (approval);
+WHERE
+WR1: SIZEOF ( QUERY ( a <* approval | 
+	SIZEOF(USEDIN( a, schema_name + '.APPROVAL_ASSIGNMENT.ASSIGNED_APPROVAL' )) =  0 )) =  0;
+END_RULE;
+
+(*BA commented out 201/28/03 since this rule is in Representation_with_uncertainty_mim - in the USE FROM list  
+
+RULE consistent_uncertainty 
+      FOR (global_uncertainty_assigned_context,
+           qualified_representation_item,
+           uncertainty_assigned_representation);
+WHERE
+WR1: SIZEOF ( QUERY ( guac <* global_uncertainty_assigned_context | 
+    SIZEOF ( QUERY ( u1 <* guac.uncertainty | 
+	SIZEOF ( QUERY ( u2 <* guac.uncertainty | u2.name =  u1.name ) ) >1 ) ) >0 ) ) =  0 ;
+WR2: SIZEOF ( QUERY ( uar <* uncertainty_assigned_representation | 
+	SIZEOF ( QUERY ( u1<* uar.uncertainty | 
+	SIZEOF ( QUERY ( u2 <* uar.uncertainty | u2.name =  u1.name ) ) >0 ) ) >0 ) ) =  0;
+WR3: SIZEOF ( QUERY ( qri <* qualified_representation_item |
+     SIZEOF ( QUERY ( u1 <* qri.qualifiers | (
+     schema_name + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u1 ) ) AND 
+	( SIZEOF ( QUERY ( u2 <* qri.qualifiers |
+     ( schema_name + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u2 ) ) AND 
+	( u2\uncertainty_qualifier.measure_name =  u1\uncertainty_qualifier.measure_name ) )
+     ) >0 ) ) ) >0 ) ) =  0;
+END_RULE; 
+
+*)
+
+RULE coordinated_assembly_and_shape FOR
+(next_assembly_usage_occurrence);
+WHERE
+  WR1: SIZEOF ( QUERY ( nauo <* next_assembly_usage_occurrence| NOT ( assembly_shape_is_defined ( nauo ) ) ) ) = 0;
+END_RULE;
+
+
+
+RULE dependent_instantiable_action_directive FOR
+    (action_directive);
+WHERE
+ WR1: SIZEOF ( QUERY ( a <* action_directive | NOT ( SIZEOF (
+     USEDIN ( a , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_derived_unit FOR
+    (derived_unit);
+WHERE
+ WR1: SIZEOF ( QUERY ( d <* derived_unit | NOT ( SIZEOF ( USEDIN
+     ( d , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_document_usage_role FOR
+    (document_usage_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( d <* document_usage_role | NOT ( SIZEOF (
+     USEDIN ( d , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_measure_with_unit FOR
+    (measure_with_unit);
+WHERE
+ WR1: SIZEOF ( QUERY ( m <* measure_with_unit | NOT ( SIZEOF (
+     USEDIN ( m , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_named_unit FOR
+    (named_unit);
+WHERE
+ WR1: SIZEOF ( QUERY ( n <* named_unit | NOT ( SIZEOF ( USEDIN (
+     n , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_precision_qualifier FOR
+    (precision_qualifier);
+WHERE
+ WR1: SIZEOF ( QUERY ( p <* precision_qualifier | NOT ( SIZEOF (
+     USEDIN ( p , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_product_definition_context_role FOR
+    (product_definition_context_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( p <* product_definition_context_role |
+     NOT ( SIZEOF ( USEDIN ( p , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+
+  RULE dependent_instantiable_shape_representation FOR (
+             shape_representation);
+  WHERE
+    wr1: (SIZEOF(QUERY ( sr <* shape_representation | (NOT (SIZEOF(USEDIN(
+             sr,'')) >= 1)) )) = 0);
+  END_RULE;
+
+
+RULE dependent_instantiable_standard_uncertainty FOR
+    (standard_uncertainty);
+WHERE
+ WR1: SIZEOF ( QUERY ( s <* standard_uncertainty | NOT ( SIZEOF
+     ( USEDIN ( s , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_time_interval_role FOR (time_interval_role);
+WHERE
+WR1: SIZEOF ( QUERY ( t <* time_interval_role | NOT (
+     SIZEOF ( USEDIN ( t , '' ) ) >0 ) ) ) =  0;
+END_RULE;
+
+RULE dependent_instantiable_type_qualifier FOR
+    (type_qualifier);
+WHERE
+ WR1: SIZEOF ( QUERY ( t <* type_qualifier | NOT ( SIZEOF (
+     USEDIN ( t , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_uncertainty_qualifier FOR
+    (uncertainty_qualifier);
+WHERE
+ WR1: SIZEOF ( QUERY ( u <* uncertainty_qualifier | NOT ( SIZEOF
+     ( USEDIN ( u , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dimensionality_is_two_or_three FOR
+    (geometric_representation_context);
+WHERE
+ WR1: SIZEOF ( QUERY ( g <* geometric_representation_context |
+     NOT ((g.coordinate_space_dimension =2 ) OR (g.coordinate_space_dimension =3 )))) =0;
+END_RULE;
+
+RULE event_occurrence_requires_event_occurrence_assignment FOR
+    (event_occurrence);
+WHERE
+ WR1: SIZEOF ( QUERY ( eo <* event_occurrence | 
+	( SIZEOF (USEDIN ( eo, schema_name + '.RELATIVE_EVENT_OCCURRENCE.BASE_EVENT' ) ) =0 ) AND 
+	( SIZEOF ( USEDIN ( eo ,
+     schema_name + '.EVENT_OCCURRENCE_ASSIGNMENT.ASSIGNED_EVENT_OCCURRENCE' ) ) =0 )) ) =0;
+END_RULE;
+
+RULE executed_action_requires_action_status FOR
+    (executed_action);
+WHERE
+WR1: SIZEOF ( QUERY ( ea <* executed_action | 
+	SIZEOF ( USEDIN (ea , schema_name +'.ACTION_STATUS.ASSIGNED_ACTION' ) ) >1 ) ) =0;
+END_RULE;
+
+RULE geometric_representation_item_3d FOR (geometric_representation_item);
+  WHERE
+    wr1: (SIZEOF(QUERY ( gri <* geometric_representation_item | (NOT ((
+             dimension_of(gri) = 3) OR (SIZEOF(bag_to_set(USEDIN(gri,'')) -
+              bag_to_set(USEDIN(gri,
+             'SMCH_PLUS_203_SCHEMA.DEFINITIONAL_REPRESENTATION.ITEMS'))) = 0))) ))              = 0);
+
+  END_RULE;
+
+
+RULE global_length_and_angle_units_2d_or_3d FOR
+    (global_unit_assigned_context);
+WHERE
+WR1: SIZEOF ( QUERY ( guac <* global_unit_assigned_context |
+     SIZEOF ( guac. units ) <2 ) ) =0;
+WR2: SIZEOF ( QUERY ( guac <* global_unit_assigned_context | (
+     SIZEOF ( QUERY ( x <* guac. units | 
+	schema_name + '.LENGTH_UNIT' IN TYPEOF ( x ) ) ) <>1 ) OR 
+    ( SIZEOF(QUERY( x <* guac. units | schema_name + '.PLANE_ANGLE_UNIT' IN TYPEOF(x))) <>1 ))) =0;
+END_RULE;
+
+
+(*BA  commenting out next two rules per Jochen's email on 01/22/03 since need entity design_make_from_relationship defined in 203 e1  
+
+RULE no_shape_for_make_from FOR (design_make_from_relationship);
+  WHERE
+
+    wr1: (SIZEOF(QUERY ( dmfr <* design_make_from_relationship | (NOT (
+
+             SIZEOF(QUERY ( pd <* USEDIN(dmfr,'SMCH_PLUS_203_SCHEMA.' +
+
+             'PROPERTY_DEFINITION.DEFINITION') | (
+
+             'SMCH_PLUS_203_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)) ))
+             = 0)) )) = 0);
+
+  END_RULE;
+
+  RULE no_shape_for_supplied_part FOR (supplied_part_relationship);
+
+  WHERE
+
+    wr1: (SIZEOF(QUERY ( spr <* supplied_part_relationship | (NOT (SIZEOF(
+
+             QUERY ( pd <* USEDIN(spr,'SMCH_PLUS_203_SCHEMA.' +
+
+             'PROPERTY_DEFINITION.DEFINITION') | (
+
+             'SMCH_PLUS_203_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)) ))
+
+             = 0)) )) = 0);
+
+  END_RULE;
+
+*)
+
+RULE person_requires_person_and_organization FOR (person);
+WHERE
+WR1: SIZEOF ( QUERY ( p <* person | 
+	SIZEOF ( USEDIN ( p ,schema_name + '.PERSON_AND_ORGANIZATION.THE_PERSON' )) =  0 )) =  0;
+END_RULE; 
+
+RULE product_requires_category FOR (product,product_related_product_category);
   WHERE
    wr1 : SIZEOF(QUERY(p <* product | SIZEOF(USEDIN(p,'CONFIG_CONTROL_3D_DESIGN_CC1_MIM.' + 
          'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')) = 0)) = 0;
@@ -240,12 +460,885 @@ END_TYPE;
          'PRODUCT_DEFINITION_FORMATION.' + 'OF_PRODUCT')) = 0))) = 0;
  END_RULE;
 
- RULE versioned_action_request_requires_status FOR (versioned_action_request,
+
+RULE restrict_applied_action_assignment FOR
+    (applied_action_assignment);
+WHERE
+ WR1: SIZEOF ( QUERY ( aaa <* applied_action_assignment | 
+	( aaa.role.description = 'activity element' ) AND NOT (
+     schema_name + '.EXECUTED_ACTION' IN TYPEOF ( aaa.assigned_action ) ) ) ) =0;
+ WR2: SIZEOF ( QUERY ( aaa <* applied_action_assignment | 
+	( aaa.role.description = 'activity element' ) AND NOT
+     item_correlation ( aaa. items , ['ACTION' , 'ACTION_METHOD',
+     'ACTION_PROPERTY' , 'ASSEMBLY_COMPONENT_USAGE_SUBSTITUTE',
+     'CONFIGURATION_ITEM' , 'CONFIGURATION_EFFECTIVITY' ,
+     'DOCUMENT_FILE' ,
+     'GENERAL_PROPERTY' , 
+     'PRODUCT' , 'PRODUCT_CONCEPT' ,
+     'PRODUCT_DEFINITION' , 'PRODUCT_DEFINITION_FORMATION' ,
+     'PRODUCT_DEFINITION_RELATIONSHIP' ,
+     'PRODUCT_DEFINITION_SUBSTITUTE' , 'PROPERTY_DEFINITION' ,
+      'SHAPE_ASPECT' ,
+     'SHAPE_REPRESENTATION'] ) ) ) =0;
+ WR3: SIZEOF ( QUERY ( aaa <* applied_action_assignment | 
+	( NOT EXISTS ( aaa.role ) OR 
+	( aaa.role.description ='activity element' ) ) AND 
+	( SIZEOF ( QUERY ( i <* aaa.items | schema_name + '.APPLIED_ACTION_ASSIGNMENT'
+     IN TYPEOF ( i ) ) ) >0 ) ) ) =0;
+ WR7: SIZEOF ( QUERY ( aaa <* applied_action_assignment | 
+	( aaa.role.name = 'test activity' ) AND 
+	NOT item_correlation (aaa.items , ['PROPERTY_DEFINITION'] ) ) ) =0;
+END_RULE;
+
+RULE restrict_applied_action_request_assignment FOR
+    (applied_action_request_assignment,
+     object_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( aara <* applied_action_request_assignment| 
+	aara. role.name<> 'scope' ) ) =0;
+END_RULE;
+
+RULE restrict_applied_event_occurrence_assignment FOR
+    (applied_event_occurrence_assignment);
+WHERE
+WR1: SIZEOF ( QUERY ( eo <* applied_event_occurrence_assignment| 
+	( eo\event_occurrence_assignment.role.name ='event context' ) AND 
+	( SIZEOF ( eo.items ) >1 ) ) ) =0;
+END_RULE;
+
+RULE restrict_applied_organizational_project_assignment FOR
+    (applied_organizational_project_assignment);
+WHERE
+WR1: SIZEOF ( QUERY ( aopa <* applied_organizational_project_assignment | 
+	( aopa.role.name = 'affecting project' ) AND 
+	NOT item_correlation( aopa. items , ['PRODUCT_CONCEPT', 'PRODUCT', 'PRODUCT_DEFINTION', 'PRODUCT_DEFINTION_FORMATION'] ) ) ) =0;
+WR2: SIZEOF ( QUERY ( aopa <* applied_organizational_project_assignment | 
+	( aopa.role.name = 'work program' ) AND 
+	NOT item_correlation (aopa.items , ['EXECUTED_ACTION'] ) ) ) =0;
+END_RULE;
+
+RULE restrict_approval FOR
+    (approval,
+     approval_date_time);
+WHERE
+ WR1: SIZEOF ( QUERY ( a <* approval | 
+	SIZEOF ( USEDIN ( a , schema_name + '.APPROVAL_DATE_TIME.DATED_APPROVAL' ) ) >2 ) ) =0;
+ WR2: SIZEOF ( QUERY ( adt <* approval_date_time | 
+	( NOT EXISTS( adt.role ) ) OR 
+	( NOT ( adt.role.name IN ['actual' , 'planned'] ) ) ) ) =0;
+ WR3: SIZEOF ( QUERY ( a <* approval | 
+	SIZEOF ( QUERY ( adt <* USEDIN ( a , schema_name + '.APPROVAL_DATE_TIME.DATED_APPROVAL' ) | 
+	adt.role.name ='actual' ) ) >1 ) ) =0;
+ WR4: SIZEOF ( QUERY ( a <* approval | 
+	SIZEOF ( QUERY ( adt <* USEDIN ( a , schema_name + '.APPROVAL_DATE_TIME.DATED_APPROVAL' ) | 
+	adt.role.name ='planned' ) ) >1 ) ) =0;
+END_RULE;
+
+RULE restrict_date_assignment FOR 
+	(applied_date_assignment);
+WHERE
+WR1: SIZEOF(QUERY(adr <* applied_date_assignment |
+  (adr.role.name = 'actual end') AND
+   (NOT  item_correlation (adr.items, ['ORGANIZATIONAL_PROJECT', 'EFFECTIVITY'])) 
+	))=0; 
+END_RULE;
+
+RULE restrict_effectivity_for_effectivity_relationship FOR
+    (effectivity_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( er <* effectivity_relationship | 
+	( SIZEOF
+     ( [schema_name + '.LOT_EFFECTIVITY' ,
+     schema_name + '.SERIAL_NUMBERED_EFFECTIVITY' ,
+     schema_name + '.PRODUCT_DEFINITION_EFFECTIVITY']*TYPEOF( er.relating_effectivity ) ) >0 ) OR 
+	( SIZEOF (
+     [schema_name + '.LOT_EFFECTIVITY' ,
+     schema_name + '.SERIAL_NUMBERED_EFFECTIVITY' ,
+     schema_name + '.PRODUCT_DEFINITION_EFFECTIVITY']*TYPEOF( er.related_effectivity ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE restrict_external_identification_assignment FOR 
+	(applied_external_identification_assignment);
+WHERE
+WR1: SIZEOF(QUERY(aeia <* applied_external_identification_assignment |
+   (aeia.role.name = 'alternative document id and location') AND 
+   (NOT item_correlation (aeia.items, ['DOCUMENT_FILE']))))=0; 
+END_RULE;
+
+RULE restrict_multi_language_for_action FOR
+    (action);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* action | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_action_directive FOR
+    (action_directive);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* action_directive | 
+	NOT allowed_translations (ent, ['comment']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_action_method FOR
+    (action_method);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* action_method | 
+	NOT allowed_translations (ent, ['description','name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_alternate_product_relationship FOR
+    (alternate_product_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* alternate_product_relationship |
+	NOT allowed_translations (ent, ['basis']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_application_context FOR
+    (application_context);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* application_context | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_approval_relationship FOR
+    (approval_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* approval_relationship | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_assembly_component_usage_substitute FOR
+    (assembly_component_usage_substitute);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* assembly_component_usage_substitute | 
+	NOT allowed_translations (ent, ['definition']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_certification FOR
+    (certification);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* certification | 
+	NOT allowed_translations (ent, ['purpose', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_configuration_design FOR
+    (configuration_design);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* configuration_design | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_configuration_item FOR
+    (configuration_item);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* configuration_item | 
+	NOT allowed_translations (ent, ['name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_contract FOR
+    (contract);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* contract | 
+	NOT allowed_translations (ent, ['purpose']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_date_role FOR
+    (date_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* date_role | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_date_time_role FOR
+    (date_time_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* date_time_role | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_descriptive_representation_item FOR
+    (descriptive_representation_item);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* descriptive_representation_item |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_document_relationship FOR
+    (document_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* document_relationship | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_effectivity FOR
+    (effectivity);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* effectivity | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_effectivity_relationship FOR
+    (effectivity_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* effectivity_relationship | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_event_occurrence FOR
+    (event_occurrence);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* event_occurrence | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_external_source FOR
+    (external_source);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* external_source | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_general_property FOR
+    (general_property);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* general_property | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_general_property_relationship FOR
+    (general_property_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* general_property_relationship |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_geometric_representation_item FOR
+    (geometric_representation_item);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* geometric_representation_item |
+	NOT allowed_translations (ent, ['name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_group FOR
+    (group);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* group | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_identification_role FOR
+    (identification_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* identification_role | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_mapped_item FOR
+    (mapped_item);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* mapped_item | 
+	NOT allowed_translations (ent, ['name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_name_assignment FOR
+    (name_assignment);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* name_assignment | 
+	NOT allowed_translations (ent, ['assigned_name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_organization_relationship FOR
+    (organization_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* organization_relationship | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_organization_role FOR
+    (organization_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* organization_role | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_organizational_project FOR
+    (organizational_project);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* organizational_project | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_organizational_project_relationship FOR
+    (organizational_project_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* organizational_project_relationship | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_person_and_organization_role FOR
+    (person_and_organization_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* person_and_organization_role |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_product FOR
+    (product);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* product | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_product_concept FOR
+    (product_concept);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* product_concept | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_product_definition FOR
+    (product_definition);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* product_definition | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_product_definition_formation FOR
+    (product_definition_formation);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* product_definition_formation |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_product_definition_formation_relationship FOR
+    (product_definition_formation_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <*
+     product_definition_formation_relationship | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_product_definition_relationship FOR
+    (product_definition_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* product_definition_relationship |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_product_related_product_category FOR
+    (product_related_product_category);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* product_related_product_category |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_property_definition FOR
+    (property_definition);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* property_definition | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_property_definition_relationship FOR
+    (property_definition_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* property_definition_relationship |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_representation FOR
+    (representation);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* representation | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_representation_relationship FOR
+    (representation_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* representation_relationship |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_security_classification FOR
+    (security_classification);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* security_classification | 
+	NOT allowed_translations (ent, ['purpose', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_shape_aspect FOR
+    (shape_aspect);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* shape_aspect | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_shape_aspect_relationship FOR
+    (shape_aspect_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* shape_aspect_relationship | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_time_interval_role FOR
+    (time_interval_role);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* time_interval_role | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_uncertainty_measure_with_unit FOR
+    (uncertainty_measure_with_unit);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* uncertainty_measure_with_unit |
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_uncertainty_qualifier FOR
+    (uncertainty_qualifier);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* uncertainty_qualifier | 
+	NOT allowed_translations (ent, ['description']) ))=0;
+END_RULE;
+
+RULE restrict_organization_assignment FOR
+	(applied_organization_assignment);
+WHERE
+WR1: SIZEOF(QUERY(aoa <* applied_organization_assignment |
+  (SELF.role.name = 'organization in contract') AND 
+  (NOT item_correlation (SELF.items, ['CONTRACT'])) 
+	))= 0;
+WR2: SIZEOF(QUERY(aoa <* applied_organization_assignment |
+  (SELF.role.name = 'signing for contract') AND 
+  (NOT item_correlation (SELF.items, ['APPLIED_ORGANIZATION_ASSIGNMENT'])) 
+	))= 0;
+WR3: SIZEOF(QUERY(aoa <* applied_organization_assignment |
+  (SELF.role.name = 'validity context') AND
+  (NOT item_correlation (SELF.items, ['PROPERTY_DEFINITION'])) 
+	))= 0;
+WR4: SIZEOF(QUERY(aoa <* applied_organization_assignment |
+ (SELF.role.name = 'alias scope') AND 
+  (NOT  item_correlation (SELF.items, ['APPLIED_IDENTIFICATION_ASSIGNMENT']))
+	))= 0;
+END_RULE;
+
+RULE restrict_product_definition_context_for_product FOR
+    (product_definition);
+WHERE
+WR7: SIZEOF ( QUERY ( pd <* product_definition | 
+	( pd.frame_of_reference.name IN ['physical document definition',
+	'digital document definition']) AND 
+	( SIZEOF ( QUERY ( prpc <* USEDIN ( pd.formation.of_product ,
+     schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | 
+	prpc.name ='document' ) ) =0 ) ) ) =0;
+END_RULE;
+
+RULE restrict_product_definitions_for_product_definition_relationship FOR
+    (product_definition_relationship);
+WHERE
+WR3: SIZEOF ( QUERY ( pdr <* product_definition_relationship |
+     ( schema_name + '.ASSEMBLY_COMPONENT_USAGE' IN TYPEOF ( pdr ) ) AND 
+	( ( pdr.relating_product_definition.frame_of_reference.name <> 'part definition' ) OR 
+	( pdr.related_product_definition.frame_of_reference.name <> 'part definition' ) ) AND 
+	( ( pdr.relating_product_definition.frame_of_reference.name <>'physical occurrence' ) OR 
+	( pdr.related_product_definition.frame_of_reference.name <>'physical occurrence' ) ) ) ) =0;
+END_RULE;
+
+RULE restrict_properties_of_document_file FOR
+    (document_file);
+WHERE
+WR1: SIZEOF ( QUERY ( df <* document_file | 
+	SIZEOF ( QUERY ( pd <* USEDIN ( df ,schema_name + '.PROPERTY_DEFINITION.DEFINITION' )| 
+	pd.name = 'document property' ) ) >1 ) ) =0;
+WR2: SIZEOF ( QUERY ( df <* document_file | 
+	SIZEOF ( QUERY ( rt<* df.representation_types | 
+	( schema_name + '.DOCUMENT_REPRESENTATION_TYPE' IN TYPEOF ( rt ) ) AND 
+	( rt.name IN ['digital' , 'physical'] ) ) ) =0 ) ) =0;
+END_RULE;
+
+RULE restrict_properties_of_document_representation FOR
+    (product_definition);
+WHERE
+ WR1: SIZEOF ( QUERY ( pd <* product_definition | 
+	(pd.frame_of_reference.name IN 
+	  ['physical document definition', 'digital document definition' ,'physical model occurrence' ] ) AND 
+	( SIZEOF ( QUERY ( pd1 <* USEDIN ( pd , schema_name + '.PROPERTY_DEFINITION.DEFINITION' )| 
+	pd1.name = 'document property' ) ) >1 ) ) ) =0;
+END_RULE;
+
+RULE restrict_representation_for_document_content_property FOR
+    (representation,
+     representation_item);
+LOCAL
+  document_content_representations: SET OF representation := [];
+END_LOCAL;
+  document_content_representations :=  QUERY( r <* representation |
+	(r.name ='document content' ));
+WHERE
+WR1: SIZEOF ( QUERY ( r <* document_content_representations | 
+	( ( SIZEOF ( r.items ) <1 ) OR ( SIZEOF ( r.items ) >3 ) ) ) ) =0;
+WR2: SIZEOF ( QUERY ( ri <* representation_item | 
+	( SIZEOF (QUERY ( r <* USEDIN ( ri , schema_name + '.REPRESENTATION.ITEMS' ) | 
+	r.name ='document content' ) ) >0 ) AND 
+	NOT ( ri. name IN ['detail level' , 'geometry type' , 'real world scale' ] ) )) =0;
+WR3: SIZEOF ( QUERY ( r <* document_content_representations | 
+	( SIZEOF ( QUERY ( it <* r.items |( it.name = 'detail level' ) AND 
+	( schema_name + '.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) ) ) >1) ) ) =0;
+WR4: SIZEOF ( QUERY ( r <* document_content_representations | 
+	( SIZEOF ( QUERY ( it <* r.items |
+     ( it.name = 'geometry type' ) AND 
+	( schema_name + '.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) ) ) >1 ) ) ) =0;
+WR5: SIZEOF ( QUERY ( r <* document_content_representations | 
+	( SIZEOF ( QUERY ( it <* r.items |( it.name = 'real world scale' ) AND 
+	( SIZEOF (
+     [schema_name + '.MEASURE_REPRESENTATION_ITEM' ,
+     schema_name + '.VALUE_REPRESENTATION_ITEM']* TYPEOF( it ) ) =1 ) ) ) >1 ) ) ) =0;
+END_RULE;
+
+RULE restrict_representation_for_document_creation_property FOR
+    (representation,
+     representation_item);
+LOCAL
+  document_creation_representations: SET OF representation := [];
+END_LOCAL;
+  document_creation_representations :=  QUERY( r <* representation |
+	(r.name ='document creation' ));
+WHERE
+WR1: SIZEOF ( QUERY ( r <* document_creation_representations | 
+	( ( SIZEOF ( r.items ) <1 ) OR (SIZEOF ( r.items ) >3 ) ) ) ) =0;
+WR2: SIZEOF ( QUERY ( ri <* representation_item | 
+	( SIZEOF (QUERY ( r <* USEDIN ( ri ,schema_name + '.REPRESENTATION.ITEMS' ) | 
+	r.name ='document creation' ) ) >0 ) AND 
+	NOT ( ri. name IN [ 'creating interface' , 'creating system' ,'operating system' ] ) ) ) =0;
+WR3: SIZEOF ( QUERY ( r <* document_creation_representations | 
+	( SIZEOF ( QUERY ( i <* r.items |
+     ( i.name = 'creating interface' ) AND (
+     schema_name + '.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i )))) >1 ) ) ) =0;
+WR4: SIZEOF ( QUERY ( r <* document_creation_representations | 
+	( SIZEOF ( QUERY ( i <* r.items |
+     ( i.name = 'creating system' ) AND 
+	( schema_name + '.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i )))) <>1 ) ) ) =0;
+WR5: SIZEOF ( QUERY ( r <* document_creation_representations | 
+	( SIZEOF ( QUERY ( i <* r.items |
+     ( i.name = 'operating system' ) AND 
+	( schema_name + '.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i )))) >1) ) ) =0;
+END_RULE;
+
+RULE restrict_representation_for_document_format_property FOR
+    (representation,
+     representation_item);
+LOCAL
+  document_format_representations: SET OF representation := [];
+END_LOCAL;
+  document_format_representations :=  QUERY( r <* representation |
+	(r.name ='document format' ));
+WHERE
+WR1: SIZEOF ( QUERY ( r <* document_format_representations | 
+	( ( SIZEOF ( r.items ) <1 ) OR (SIZEOF ( r.items ) >3 ) ) ) ) =0;
+WR2: SIZEOF ( QUERY ( ri <* representation_item | 
+	( SIZEOF (QUERY ( r <* USEDIN ( ri ,schema_name + '.REPRESENTATION.ITEMS' ) | 
+	r.name ='document format' ) ) >0 ) AND 
+	NOT ( ri. name IN ['character code' , 'data format' ] ) ) ) =0;
+WR3: SIZEOF ( QUERY ( r <* document_format_representations | 
+	( SIZEOF ( QUERY ( i <* r.items | (i.name = 'character code' ) AND 
+	( schema_name + '.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) ) ) >1) ) ) =0;
+WR4: SIZEOF ( QUERY ( r <* document_format_representations | 
+	( SIZEOF ( QUERY ( i <* r.items | (i.name = 'data format' ) AND 
+	( schema_name + '.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) ) ) >1) ) ) =0;
+WR5: SIZEOF ( QUERY ( r <* document_format_representations | 
+	( SIZEOF ( QUERY ( i <* r.items| ( i.name =  'size format' ) AND 
+	( schema_name + '.PLANAR_EXTENT' IN TYPEOF ( i ) ) ) ) >1 ) ) ) =  0;
+END_RULE;
+
+RULE restrict_representation_for_document_properties FOR
+    (property_definition,
+     representation,
+     representation_context);
+WHERE
+WR1: SIZEOF ( QUERY ( pd <* property_definition | 
+	( pd. name ='document property' ) AND 
+	( SIZEOF ( QUERY ( pdr <* USEDIN( pd ,
+     schema_name + '.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
+	NOT ( pdr.used_representation.name IN ['document content' , 'document creation' ,
+     'document format' , 'document size' ] ) ) ) >0 ) ) ) =0;
+WR2: SIZEOF ( QUERY ( r <* representation | 
+	( r.name IN [ 'document content' , 'document creation' , 'document format' , 'document size' ] ) AND 
+	( SIZEOF (QUERY ( pdr <* USEDIN ( r ,
+     schema_name + '.PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') | 
+	( schema_name + '.PROPERTY_DEFINITION' IN TYPEOF( pdr. definition ) ) AND 
+	( pdr. definition.name = 'document property' ) ) ) =0 ) ) ) =0;
+WR3: SIZEOF ( QUERY ( r <* representation | 
+	( r.name IN ['document content' , 'document creation' , 'document format' , 'document size' ] ) AND 
+	(r.context_of_items.context_type<> 'document parameters' )) ) =0;
+WR4: SIZEOF ( QUERY ( rc <* representation_context | 
+	( rc.context_type = 'document parameters' ) AND 
+	( SIZEOF ( QUERY( r <* USEDIN ( rc ,schema_name + '.REPRESENTATION.CONTEXT_OF_ITEMS' ) | 
+	NOT( r.name IN [ 'document content' , 'document creation' ,
+     'document format' , 'document size' ] ) ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE restrict_representation_for_document_size_property FOR
+    (representation,
+     representation_item);
+LOCAL
+  document_size_representations: SET OF representation := [];
+END_LOCAL;
+  document_size_representations :=  QUERY( r <* representation |
+	(r.name ='document size'));
+WHERE
+WR1: SIZEOF ( QUERY ( r <* document_size_representations | 
+	( ( SIZEOF ( r.items ) <1 ) OR (SIZEOF ( r.items ) >2 ) ) ) ) =0;
+WR2: SIZEOF ( QUERY ( ri <* representation_item | ( SIZEOF (
+     QUERY ( r <* USEDIN ( ri ,schema_name + '.REPRESENTATION.ITEMS' ) | 
+	r.name ='document size' ) ) >0 ) AND 
+	NOT ( ri. name IN ['file size' , 'page count' ] ) ) ) =0;
+WR3: SIZEOF ( QUERY ( r <* document_size_representations| 
+	( SIZEOF ( QUERY ( i <* r.items | (i.name = 'file size' ) AND 
+	( SIZEOF (
+	[schema_name + '.MEASURE_REPRESENTATION_ITEM' ,
+	schema_name + '.VALUE_RANGE' , 
+	schema_name + '.VALUE_REPRESENTATION_ITEM']* TYPEOF ( i ) ) =1 ) ) ) >1 ) ) ) =0;
+WR4: SIZEOF ( QUERY ( r <* document_size_representations | 
+	( SIZEOF ( QUERY ( i <* r.items | ( i.name = 'page count' ) AND 
+	( SIZEOF ( 
+	[schema_name + '.MEASURE_REPRESENTATION_ITEM' ,
+	schema_name + '.VALUE_RANGE' , 
+	schema_name + '.VALUE_REPRESENTATION_ITEM']* TYPEOF ( i ) ) =1 ) ) ) >1 )) ) =0;
+END_RULE;
+
+RULE restrict_version_assignment_for_applied_identification_assignment FOR
+    (applied_identification_assignment);
+WHERE
+WR1: SIZEOF ( QUERY ( ent <* applied_identification_assignment| 
+	NOT at_most_one_version_id (ent) ))=0;
+END_RULE;
+
+RULE restrict_version_assignment_for_configuration_item FOR
+    (configuration_item);
+WHERE
+WR1: SIZEOF ( QUERY ( ent <* configuration_item | 
+	NOT at_most_one_version_id (ent) ))=0;
+END_RULE;
+
+RULE restrict_version_assignment_for_document_file FOR
+    (document_file);
+WHERE
+WR1: SIZEOF ( QUERY ( ent <* document_file | 
+	NOT at_most_one_version_id (ent) ))=0;
+END_RULE;
+
+RULE restrict_version_assignment_for_effectivity FOR
+    (effectivity);
+WHERE
+WR1: SIZEOF ( QUERY ( ent <* effectivity | 
+	NOT at_most_one_version_id (ent) ))=0;
+END_RULE;
+
+RULE restrict_version_assignment_for_general_property FOR
+    (general_property);
+WHERE
+WR1: SIZEOF ( QUERY ( ent <* general_property | 
+	NOT at_most_one_version_id (ent) ))=0;
+END_RULE;
+
+RULE restrict_version_assignment_for_product_concept FOR
+    (product_concept);
+WHERE
+WR1: SIZEOF ( QUERY ( ent <* product_concept | 
+	NOT at_most_one_version_id (ent) ))=0;
+END_RULE;
+
+RULE restrict_version_assignment_for_shape_representation FOR
+    (shape_representation);
+WHERE
+WR1: SIZEOF ( QUERY ( ent <* shape_representation | 
+	NOT at_most_one_version_id (ent) ))=0;
+END_RULE;
+
+RULE security_classification_requires_security_classification_assignment FOR
+    (security_classification);
+WHERE
+ WR1: SIZEOF ( QUERY ( sc <* security_classification | 
+	SIZEOF (USEDIN ( sc ,
+     schema_name + '.SECURITY_CLASSIFICATION_ASSIGNMENT.ASSIGNED_SECURITY_CLASSIFICATION' ) ) =0 ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_classification_assignment FOR
+    (classification_assignment);
+WHERE
+WR1: SIZEOF ( QUERY ( ca <* classification_assignment | NOT (
+     type_check_function ( ca , 
+	[schema_name + '.APPLIED_CLASSIFICATION_ASSIGNMENT' , 
+	schema_name + '.LANGUAGE_ASSIGNMENT'] , 3 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_effectivity FOR
+    (effectivity);
+WHERE
+ WR1: SIZEOF ( QUERY ( e <* effectivity | NOT (
+     type_check_function ( e , 
+	[schema_name + '.PRODUCT_DEFINITION_EFFECTIVITY' , 
+	schema_name + '.TIME_INTERVAL_BASED_EFFECTIVITY'] , 3 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_identification_assignment FOR
+    (identification_assignment);
+WHERE
+ WR1: SIZEOF ( QUERY ( ia <* identification_assignment | NOT (
+     type_check_function ( ia , 
+	[schema_name + '.APPLIED_IDENTIFICATION_ASSIGNMENT' , 
+	schema_name + '.EXTERNAL_IDENTIFICATION_ASSIGNMENT'] , 3 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_property_definition FOR
+    (property_definition);
+WHERE
+ WR1: SIZEOF ( QUERY ( pd <* property_definition | NOT (
+     type_check_function ( pd , 
+	[schema_name + '.MATERIAL_PROPERTY' , 
+	schema_name + '.PRODUCT_DEFINITION_SHAPE'] , 3 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_property_definition_representation FOR
+    (property_definition_representation);
+WHERE
+WR1: SIZEOF ( QUERY ( pdr <* property_definition_representation| 
+	NOT ( type_check_function ( pdr , 
+	[schema_name + '.MATERIAL_PROPERTY_REPRESENTATION' ,
+     schema_name + '.SHAPE_DEFINITION_REPRESENTATION'] ,3 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_representation FOR (representation); 
+WHERE 
+WR1: SIZEOF(QUERY (r <* representation | 
+NOT (type_check_function(r, 
+[schema_name + '.CONSTRUCTIVE_GEOMETRY_REPRESENTATION', 
+schema_name + '.DEFINITIONAL_REPRESENTATION', 
+schema_name + '.DIRECTION_SHAPE_REPRESENTATION', 
+schema_name + '.SHAPE_REPRESENTATION', 
+schema_name + '.TEXT_STRING_REPRESENTATION' ] , 3 ) 
+))) = 0; 
+END_RULE; 
+
+RULE subtype_exclusiveness_representation_item FOR
+    (representation_item);
+WHERE
+WR1: SIZEOF ( QUERY ( ri <* representation_item | NOT (
+     type_check_function ( ri , 
+	[schema_name + '.COMPOUND_REPRESENTATION_ITEM' , 
+	schema_name + '.MEASURE_REPRESENTATION_ITEM' , 
+	schema_name + '.REP_ITEM_GROUP' , 
+	schema_name + '.VALUE_REPRESENTATION_ITEM'] , 3 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_mandatory_address FOR
+    (address);
+WHERE
+WR1: SIZEOF ( QUERY ( a <* address | NOT ( type_check_function( a , 
+	[schema_name + '.ORGANIZATIONAL_ADDRESS' ,
+     schema_name + '.PERSONAL_ADDRESS'] , 0 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_mandatory_document_product_association FOR
+    (document_product_association);
+WHERE
+ WR1: SIZEOF ( QUERY ( dpa <* document_product_association | NOT
+     ( type_check_function ( dpa , 
+	[schema_name + '.DOCUMENT_PRODUCT_EQUIVALENCE'] , 0 ) ) ) ) =0;
+END_RULE;
+
+(*BA added RULE valid_context_partitions 25 Jan 03  *)
+
+RULE valid_context_partitions FOR (product_definition);
+WHERE
+WR1: SIZEOF (QUERY(pd <* product_definition | initial_context_is_additional(pd)))) = 0;
+END_RULE;
+
+RULE versioned_action_request_requires_status FOR (versioned_action_request,
                                                     action_request_status);
   WHERE
    wr1 : SIZEOF(QUERY(ar <* versioned_action_request | (NOT (SIZEOF(QUERY(ars <*
          action_request_status | (ar :=: ars.assigned_request))) = 1)))) = 0;
- END_RULE;
+
+
+FUNCTION at_most_one_version_id (ent: GENERIC_ENTITY): LOGICAL;
+RETURN(
+  SIZEOF ( QUERY ( ia <* USEDIN ( ent , schema_name + '.APPLIED_IDENTIFICATION_ASSIGNMENT.ITEMS' ) | 
+	ia.role.name ='version' ) ) <=1 );
+END_FUNCTION;
+
+FUNCTION item_correlation 
+         (items : SET OF GENERIC_ENTITY; c_items: SET OF STRING): LOGICAL;
+LOCAL
+  c_types   : SET OF STRING := [];
+  c_hit     : INTEGER := 0;
+END_LOCAL;
+ 
+REPEAT i:=1 TO HIINDEX(c_items);
+  c_types := c_types + [schema_name + '.' + c_items[i]];
+END_REPEAT;
+
+REPEAT i:=1 TO HIINDEX(items);
+  IF (SIZEOF(c_types * TYPEOF(items[i])) = 1) THEN
+    c_hit := c_hit + 1;
+  END_IF;
+END_REPEAT;
+
+RETURN (SIZEOF(items) = c_hit);
+END_FUNCTION;
+
+FUNCTION allowed_translations ( ent: GENERIC_ENTITY; translatable_attributes: SET OF STRING): LOGICAL;
+LOCAL
+  mlaa: SET OF multi_language_attribute_assignment;
+  ala: SET OF attribute_language_assignment;
+END_LOCAL;
+
+IF (SIZEOF(translatable_attributes)=0) THEN
+  RETURN(UNKNOWN);
+END_IF;
+
+mlaa:= USEDIN ( ent , schema_name + '.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT.ITEMS' );
+
+REPEAT i:=1 TO HIINDEX(mlaa);
+  IF NOT (mlaa[i].attribute_name IN translatable_attributes) THEN
+	RETURN(FALSE);
+  END_IF;
+END_REPEAT;
+
+ala:= USEDIN ( ent , schema_name + '.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS' );
+
+REPEAT i:=1 TO HIINDEX(ala);
+  IF NOT (ala[i].attribute_name IN translatable_attributes) THEN
+	RETURN(FALSE);
+  END_IF;
+END_REPEAT;
+
+RETURN(TRUE);
+END_FUNCTION;
+
+
+FUNCTION value_range_aggregate_rep_item (agg : AGGREGATE OF representation_item) : BOOLEAN; 
+  FUNCTION cri (agg : AGGREGATE OF representation_item) : BOOLEAN; 
+  BEGIN 
+  IF (SIZEOF(agg) = 3) AND 
+	(SIZEOF(QUERY(i1 <* agg | (schema_name + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)) )) = 3) THEN 
+	  RETURN (TRUE); 
+   ELSE 
+	RETURN (FALSE); 
+   END_IF; 
+   END; 
+   END_FUNCTION; 
+   BEGIN 
+   IF ((SIZEOF(agg) = 3) AND
+	 (SIZEOF(QUERY(i <* agg | (schema_name + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
+	cri(i\compound_representation_item.item_element) )) = 1)) THEN 
+	RETURN (TRUE); 
+   ELSE 
+	RETURN (FALSE); 
+   END_IF; 
+   END; 
+END_FUNCTION; 
 
 
 END_SCHEMA;

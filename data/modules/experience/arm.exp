@@ -5,9 +5,11 @@ ISO TC184/SC4/WG12 N1418 - ISO/CD-TS 10303-1243 Experience - EXPRESS ARM
 
 SCHEMA Experience_arm; 
 
+USE FROM Activity_arm;    -- ISO/TS 10303-1047
+
 USE FROM Activity_method_arm;    -- ISO/TS 10303-1049
 
-USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
+USE FROM Classification_assignment_arm;    -- ISO/TS 10303-1114
 
 USE FROM Date_time_assignment_arm;    -- ISO/TS 10303-1014
 
@@ -17,6 +19,13 @@ USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 USE FROM Required_resource_arm;    -- ISO/CD-TS 10303-1267
 
+USE FROM Resource_as_realized_arm;    -- ISO/CD-TS 10303-1269
+
+
+TYPE defined_activities = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Activity, 
+    Resource_as_realized);
+END_TYPE; 
 
 TYPE defined_methods = EXTENSIBLE GENERIC_ENTITY SELECT
    (Activity_method, 
@@ -43,20 +52,23 @@ TYPE person_or_organization_or_person_in_organization_select = EXTENSIBLE GENERI
 END_TYPE; 
 
 ENTITY Experience_gained;
-  experience_of : Experience_type;
+  experience_of : Experience_instance;
   gained_by : person_or_organization_or_person_in_organization_select;
-END_ENTITY;
-
-ENTITY Experience_instance;
-  consists_of : OPTIONAL defined_methods;
-  defines : Experience_gained;
-  description : OPTIONAL STRING;
   role : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY Experience_type;
+ENTITY Experience_instance;
   description : OPTIONAL STRING;
+  is_defined_by : Experience_type;
+  consists_of : OPTIONAL defined_activities;
+END_ENTITY;
+
+ENTITY Experience_type;
   name : STRING;
+  description : OPTIONAL STRING;
+  consists_of : OPTIONAL defined_methods;
 END_ENTITY;
 
 END_SCHEMA;  -- Experience_arm
+
+

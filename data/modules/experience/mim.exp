@@ -6,11 +6,13 @@ ISO TC184/SC4/WG12 N1419 - ISO/CD-TS 10303-1243 Experience - EXPRESS MIM
 SCHEMA Experience_mim; 
 
 USE FROM action_schema   -- ISO 10303-41
-  (action_method); 
+  (action_method,
+   action_resource,
+   executed_action); 
 
 USE FROM Activity_method_mim;    -- ISO/TS 10303-1049
 
-USE FROM Classification_assignment_mim;    -- ISO/CD-TS 10303-1114
+USE FROM Classification_assignment_mim;    -- ISO/TS 10303-1114
 
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 
@@ -25,7 +27,9 @@ USE FROM management_resources_schema   -- ISO 10303-41
 USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
 
 USE FROM person_organization_schema   -- ISO 10303-41
-  (person); 
+  (organization,
+   person,
+   person_and_organization); 
 
 USE FROM process_property_schema   -- ISO 10303-49
   (action_resource_requirement); 
@@ -49,8 +53,9 @@ TYPE experience_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item 
 END_TYPE; 
 
 TYPE experience_item = EXTENSIBLE GENERIC_ENTITY SELECT
-   (action_method, 
-    action_resource_requirement);
+   (action_resource, 
+    experience_type, 
+    experience_type_classification_item);
 END_TYPE; 
 
 TYPE experience_type_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
@@ -58,18 +63,21 @@ TYPE experience_type_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASE
 END_TYPE; 
 
 TYPE experience_type_item = EXTENSIBLE GENERIC_ENTITY SELECT
-   (experience, 
-    person);
+   (action_method, 
+    action_resource_requirement, 
+    organization, 
+    person, 
+    person_and_organization);
 END_TYPE; 
 
 ENTITY applied_experience_assignment
   SUBTYPE OF (experience_assignment);
-  items : SET[1:?] OF experience_item;
+  items : experience_item;
 END_ENTITY;
 
 ENTITY applied_experience_type_assignment
   SUBTYPE OF (experience_type_assignment);
-  items : SET[1:?] OF experience_type_item;
+  items : experience_type_item;
 END_ENTITY;
 
 ENTITY characterized_experience

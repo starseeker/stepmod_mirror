@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-
 <!--
-$Id: index.xsl,v 1.1 2003/03/23 17:34:41 robbod Exp $
+$Id: index.xsl,v 1.2 2004/02/05 07:42:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Provides the main entry page to the module.

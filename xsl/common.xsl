@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.117 2003/09/22 10:35:30 robbod Exp $
+$Id: common.xsl,v 1.118 2003/10/03 13:41:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1259,10 +1259,36 @@ $Id: common.xsl,v 1.117 2003/09/22 10:35:30 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="item">
+    <xsl:variable name="last_section">
       <xsl:call-template name="get_last_section">
         <xsl:with-param name="path" select="@linkend"/>
       </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="item">
+      <!-- if the express_ref is of the form
+           linkend="state_type_schema:ir_express:state_type_schema" -->
+      <xsl:choose>        
+        <xsl:when test="contains($last_section,':ir_express:')">
+          <xsl:value-of select="substring-after($last_section,':ir_express:')"/>
+        </xsl:when>
+
+      <!-- if the express_ref is of the form
+           linkend="" -->
+        <xsl:when test="contains($last_section,':mim:')">
+          <xsl:value-of select="substring-after($last_section,':mim:')"/>
+        </xsl:when>
+
+      <!-- if the express_ref is of the form
+           linkend="" -->
+        <xsl:when test="contains($last_section,':arm:')">
+          <xsl:value-of select="substring-after($last_section,':arm:')"/>
+        </xsl:when>
+
+        <xsl:otherwise>
+          <xsl:value-of select="$last_section"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
 
     <xsl:choose>

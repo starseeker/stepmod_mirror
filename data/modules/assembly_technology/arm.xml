@@ -2,13 +2,13 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-05T11:42:14" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-06T19:54:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_arm schema_instance"/>
    <schema name="Assembly_technology_arm">
       <interface kind="use" schema="Conductivity_material_aspects_arm"/>
       <interface kind="use" schema="Component_grouping_arm"/>
       <interface kind="use" schema="Analytical_model_arm"/>
-      <interface kind="use" schema="Layered_shape_arm"/>
+      <interface kind="use" schema="Extended_elemental_geometric_shape_arm"/>
       <interface kind="use" schema="Specification_document_arm"/>
       <interface kind="use" schema="Assembly_module_design_arm"/>
       <interface kind="use" schema="External_item_identification_assignment_arm"/>
@@ -39,6 +39,9 @@
          </explicit>
       </entity>
       <entity name="Assembly_bond_definition">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="analytical_assembly_bond_representation" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Analytical_model_application"/>
@@ -52,9 +55,6 @@
          <explicit name="bonded_feature_2">
             <typename name="Part_feature"/>
          </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <inverse name="default_shape" entity="Default_assembly_bond_shape" attribute="characterized_bond_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
@@ -66,6 +66,9 @@
          <where label="WR2" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) = 1 ) "/>
       </entity>
       <entity name="Assembly_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="assembly_features_1">
             <typename name="assembled_feature_select"/>
          </explicit>
@@ -78,9 +81,6 @@
          <explicit name="description" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Assembly_joint" attribute="name"/>
             <unique.attribute entity-ref="Assembly_joint" attribute="associated_assembly"/>
@@ -91,6 +91,9 @@
       </entity>
       <entity name="Assembly_technology_specification" supertypes="Process_specification"/>
       <entity name="Component_mating_constraint_condition">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="constraining_joint">
             <aggregate type="SET" lower="1" upper="3"/>
             <typename name="Assembly_joint"/>
@@ -101,9 +104,6 @@
          </explicit>
          <explicit name="of_context">
             <typename name="Part_design_view"/>
-         </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Component_mating_constraint_condition" attribute="name"/>

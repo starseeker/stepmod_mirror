@@ -2,67 +2,44 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-05T11:43:06" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-06T19:55:54" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_product_data_management_mim schema_instance"/>
    <schema name="Ap210_product_data_management_mim">
       <interface kind="use" schema="Activity_mim"/>
-      <interface kind="use" schema="Activity_method_mim"/>
+      <interface kind="use" schema="Alias_identification_mim"/>
       <interface kind="use" schema="Approval_mim"/>
       <interface kind="use" schema="Certification_mim"/>
-      <interface kind="use" schema="Characteristic_mim"/>
       <interface kind="use" schema="Class_mim"/>
       <interface kind="use" schema="Classification_assignment_mim"/>
       <interface kind="use" schema="Configuration_effectivity_mim"/>
-      <interface kind="use" schema="Configuration_item_mim"/>
-      <interface kind="use" schema="Contextual_shape_positioning_mim"/>
+      <interface kind="use" schema="Classification_with_attributes_mim"/>
       <interface kind="use" schema="Contract_mim"/>
-      <interface kind="use" schema="Date_time_mim"/>
       <interface kind="use" schema="Date_time_assignment_mim"/>
       <interface kind="use" schema="Document_assignment_mim"/>
       <interface kind="use" schema="Document_structure_mim"/>
       <interface kind="use" schema="Effectivity_application_mim"/>
-      <interface kind="use" schema="Effectivity_mim"/>
-      <interface kind="use" schema="Event_mim"/>
       <interface kind="use" schema="Event_assignment_mim"/>
       <interface kind="use" schema="External_class_mim"/>
       <interface kind="use" schema="External_item_identification_assignment_mim"/>
       <interface kind="use" schema="File_identification_mim"/>
-      <interface kind="use" schema="Foundation_representation_mim"/>
-      <interface kind="use" schema="Group_mim"/>
-      <interface kind="use" schema="Identification_assignment_mim"/>
-      <interface kind="use" schema="Independent_property_mim"/>
       <interface kind="use" schema="Independent_property_representation_mim"/>
-      <interface kind="use" schema="Item_definition_structure_mim"/>
-      <interface kind="use" schema="Management_resource_information_mim"/>
-      <interface kind="use" schema="Measure_representation_mim"/>
       <interface kind="use" schema="Multi_linguism_mim"/>
-      <interface kind="use" schema="Name_assignment_mim"/>
-      <interface kind="use" schema="Part_definition_relationship_mim"/>
       <interface kind="use" schema="Generic_material_aspects_mim"/>
-      <interface kind="use" schema="Person_organization_mim"/>
+      <interface kind="use" schema="Group_mim"/>
       <interface kind="use" schema="Person_organization_assignment_mim"/>
-      <interface kind="use" schema="Physical_unit_design_view_mim"/>
       <interface kind="use" schema="Process_property_assignment_mim"/>
-      <interface kind="use" schema="Product_categorization_mim"/>
-      <interface kind="use" schema="Product_concept_identification_mim"/>
       <interface kind="use" schema="Product_identification_mim"/>
-      <interface kind="use" schema="Product_identification_extension_mim"/>
       <interface kind="use" schema="Part_occurrence_mim"/>
+      <interface kind="use" schema="Plib_class_reference_mim"/>
       <interface kind="use" schema="Product_replacement_mim"/>
-      <interface kind="use" schema="Product_structure_mim"/>
-      <interface kind="use" schema="Product_version_mim"/>
-      <interface kind="use" schema="Product_version_relationship_mim"/>
       <interface kind="use" schema="Product_view_definition_mim"/>
-      <interface kind="use" schema="Product_view_definition_properties_mim"/>
       <interface kind="use" schema="Project_mim"/>
       <interface kind="use" schema="Property_assignment_mim"/>
       <interface kind="use" schema="Requirement_assignment_mim"/>
-      <interface kind="use" schema="Requirement_view_definition_mim"/>
       <interface kind="use" schema="Requirement_view_definition_relationship_mim"/>
       <interface kind="use" schema="Security_classification_mim"/>
-      <interface kind="use" schema="Single_part_representation_mim"/>
+      <interface kind="use" schema="Shape_property_assignment_mim"/>
       <interface kind="use" schema="Work_order_mim"/>
-      <interface kind="use" schema="Work_request_mim"/>
       <interface kind="use" schema="contract_schema">
          <interfaced.item name="contract_type"/>
       </interface>
@@ -71,6 +48,9 @@
       </interface>
       <interface kind="use" schema="product_definition_schema">
          <interfaced.item name="product_definition_formation_with_specified_source"/>
+      </interface>
+      <interface kind="use" schema="product_structure_schema">
+         <interfaced.item name="make_from_usage_option"/>
       </interface>
       <interface kind="use" schema="representation_schema">
          <interfaced.item name="parametric_representation_context"/>
@@ -97,7 +77,7 @@
          <select extensible="YES" genericentity="YES" basedon="_SELECT_date_item" selectitems="product_definition versioned_action_request directed_action approval_person_organization contract document security_classification certification"/>
       </type>
       <type name="pdm_document_reference_item">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_document_reference_item" selectitems="action_method assembly_component_usage characterized_object coordinated_representation_item configuration_item descriptive_representation_item externally_defined_item material_designation measure_representation_item product product_definition product_definition_formation product_definition_formation_relationship property_definition representation representation_item shape_aspect"/>
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_document_reference_item" selectitems="action_method assembly_component_usage characterized_object configuration_item descriptive_representation_item externally_defined_item material_designation measure_representation_item product product_definition product_definition_formation product_definition_formation_relationship property_definition representation representation_item shape_aspect"/>
       </type>
       <type name="pdm_event_occurrence_item">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_event_occurrence_item" selectitems="organizational_project"/>
@@ -152,10 +132,6 @@
       </rule>
       <rule name="approvals_are_assigned" appliesto="approval approval_assignment">
          <where label="WR1" expression=" SIZEOF ( QUERY ( app &lt;* approval | NOT ( SIZEOF ( QUERY ( aa &lt;* approval_assignment | app :=: aa . assigned_approval ) ) &gt;= 1 ) ) ) = 0 "/>
-      </rule>
-      <rule name="assembly_composition_relationship_unique_constraint" appliesto="assembly_component_usage">
-         <algorithm> LOCAL acr : BAG OF assembly_component_usage := QUERY ( acu &lt;* assembly_component_usage | ( acu \ product_definition_relationship . name = 'assembly composition' ) ) ; pu_bag : BAG OF physical_unit := [ ] ; acu_bag : BAG OF assembly_component_usage ; pass : BOOLEAN := TRUE ; cd_bag : BAG OF component_definition ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( acr ) by 1 ; IF EXISTS ( acr [ i ] . relating_product_definition ) THEN IF ( ( acr [ i ] . relating_product_definition . frame_of_reference . name = 'physical design' ) AND ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PHYSICAL_UNIT' IN TYPEOF ( acr [ i ] . relating_product_definition ) ) ) THEN IF ( NOT ( acr [ i ] . relating_product_definition IN pu_bag ) ) THEN pu_bag := pu_bag + acr [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; cd_bag := [ ] ; acu_bag := QUERY ( acu &lt;* acr | ( acu . relating_product_definition :=: pu_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( acu_bag ) by 1 ; IF EXISTS ( acu_bag [ j ] . related_product_definition ) THEN IF ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'COMPONENT_DEFINITION' IN TYPEOF ( acu_bag [ j ] . related_product_definition ) ) THEN IF ( acu_bag [ j ] . related_product_definition IN cd_bag ) THEN pass := FALSE ; ESCAPE ; ELSE cd_bag := cd_bag + acu_bag [ j ] . related_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
       </rule>
       <rule name="certification_requires_date_or_date_and_time" appliesto="certification applied_date_and_time_assignment applied_date_assignment">
          <where label="WR1" expression=" SIZEOF ( QUERY ( cert &lt;* certification | NOT ( ( SIZEOF ( QUERY ( adata &lt;* applied_date_and_time_assignment | cert IN adata . items ) ) = 1 ) OR ( SIZEOF ( QUERY ( ada &lt;* applied_date_assignment | cert IN ada . items ) ) = 1 ) ) ) ) = 0 "/>
@@ -229,19 +205,6 @@
       <rule name="directed_action_requires_date_or_date_and_time" appliesto="directed_action applied_date_and_time_assignment applied_date_assignment">
          <where label="WR1" expression=" SIZEOF ( QUERY ( da &lt;* directed_action | NOT ( ( SIZEOF ( QUERY ( adata &lt;* applied_date_and_time_assignment | ( da IN adata . items ) AND ( adata . role \ date_time_role . name = 'start date' ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( ada &lt;* applied_date_assignment | ( da IN ada . items ) AND ( ada . role \ date_role . name = 'start date' ) ) ) = 1 ) ) ) ) = 0 "/>
       </rule>
-      <rule name="ee_document_constraint" appliesto="document">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( doc &lt;* document | ( SIZEOF ( QUERY ( adata &lt;* USEDIN ( doc , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' ) | ( adata . role \ date_time_role . name = 'creation date' ) ) ) = 0 ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( doc &lt;* document | NOT ( ( SIZEOF ( QUERY ( aoa &lt;* USEDIN ( doc , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( aoa . role \ organization_role . name = 'publisher' ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( apaoa &lt;* USEDIN ( doc , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( apaoa . role \ person_and_organization_role . name = 'publisher' ) ) ) = 1 ) ) ) ) = 0 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( doc &lt;* document | NOT ( SIZEOF ( USEDIN ( doc , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'DOCUMENT_IDENTIFIER_ASSIGNMENT.ITEMS' ) ) = 1 ) ) ) = 0 "/>
-      </rule>
-      <rule name="ee_document_unique_constraint" appliesto="document document_identifier_assignment">
-         <algorithm> LOCAL pass : BOOLEAN := TRUE ; rev_exists_bag : BAG OF document := [ ] ; dia_bag : BAG OF document_identifier_assignment := [ ] ; desc_bag : BAG OF STRING := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( document ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; IF NOT ( EXISTS ( document [ i ] . description ) ) THEN pass := FALSE ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( document_identifier_assignment ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; desc_bag := [ ] ; REPEAT j := 1 to SIZEOF ( document_identifier_assignment [ i ] . items ) by 1 ; desc_bag := desc_bag + document_identifier_assignment [ i ] . items [ j ] \ document . description ; END_REPEAT ; IF NOT ( value_unique ( desc_bag ) ) THEN pass := FALSE ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
-      <rule name="ee_material_unique_constraint" appliesto="material_designation">
-         <algorithm> LOCAL name_bag : BAG OF STRING := [ ] ; md_bag : BAG OF material_designation ; adr_bag : BAG OF applied_document_reference ; pass : BOOLEAN := TRUE ; doc_bag : BAG OF ee_specification ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( material_designation ) by 1 ; IF EXISTS ( material_designation [ i ] . name ) THEN IF ( NOT ( material_designation [ i ] . name IN name_bag ) ) THEN name_bag := name_bag + material_designation [ i ] . name ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( name_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; md_bag := QUERY ( md &lt;* material_designation | ( md \ material_designation . name = name_bag [ i ] ) ) ; doc_bag := [ ] ; REPEAT j := 1 to SIZEOF ( md_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adr_bag := QUERY ( adr &lt;* USEDIN ( md_bag [ j ] , ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) | ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'DOCUMENT' ) IN TYPEOF ( adr . assigned_document ) ) ) ; REPEAT k := 1 to SIZEOF ( adr_bag ) by 1 ; IF EXISTS ( adr_bag [ k ] . assigned_document ) THEN IF ( adr_bag [ k ] . assigned_document IN doc_bag ) THEN pass := FALSE ; ESCAPE ; ELSE doc_bag := doc_bag + adr_bag [ k ] . assigned_document ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
       <rule name="ee_product_configuration_unique_constraint" appliesto="configuration_item">
          <algorithm> LOCAL id_bag : BAG OF STRING := [ ] ; ci_bag : BAG OF configuration_item ; cd_bag : BAG OF configuration_design ; pass : BOOLEAN := TRUE ; pdf_bag : BAG OF product_definition_formation ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( configuration_item ) by 1 ; IF EXISTS ( configuration_item [ i ] . id ) THEN IF ( NOT ( configuration_item [ i ] . id IN id_bag ) ) THEN id_bag := id_bag + configuration_item [ i ] . id ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( id_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdf_bag := [ ] ; ci_bag := QUERY ( ci &lt;* configuration_item | ( ci . id = id_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( ci_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; cd_bag := USEDIN ( ci_bag [ j ] , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'CONFIGURATION_DESIGN.CONFIGURATION' ) ; REPEAT k := 1 to SIZEOF ( cd_bag ) by 1 ; IF EXISTS ( cd_bag [ k ] . design ) THEN IF ( cd_bag [ k ] . design IN pdf_bag ) THEN pass := FALSE ; ESCAPE ; ELSE pdf_bag := pdf_bag + cd_bag [ k ] . design ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
          <where label="WR1" expression=" pass "/>
@@ -270,10 +233,6 @@
       <rule name="next_higher_assembly_relationship_constraint" appliesto="next_assembly_usage_occurrence">
          <where label="WR1" expression=" SIZEOF ( QUERY ( nauo &lt;* next_assembly_usage_occurrence | NOT ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( nauo , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) | ( ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'COMPONENT_LOCATION' IN TYPEOF ( pdr . used_representation ) ) AND ( pdr . used_representation . context_of_items \ geometric_representation_context . coordinate_space_dimension = 3 ) ) ) &lt;= 1 ) AND ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'COMPONENT_LOCATION' IN TYPEOF ( pdr . used_representation ) ) AND ( pdr . used_representation . context_of_items \ geometric_representation_context . coordinate_space_dimension = 2 ) ) ) &lt;= 1 ) ) ) ) &lt;= 1 ) ) ) = 0 "/>
       </rule>
-      <rule name="next_higher_assembly_relationship_unique_constraint" appliesto="next_assembly_usage_occurrence">
-         <algorithm> LOCAL pu_bag : BAG OF physical_unit := [ ] ; nauo_bag : BAG OF next_assembly_usage_occurrence ; pass : BOOLEAN := TRUE ; refdes_bag : BAG OF STRING ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( next_assembly_usage_occurrence ) by 1 ; IF EXISTS ( next_assembly_usage_occurrence [ i ] . relating_product_definition ) THEN IF ( ( next_assembly_usage_occurrence [ i ] . relating_product_definition . frame_of_reference . name = 'physical design' ) AND ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PHYSICAL_UNIT' IN TYPEOF ( next_assembly_usage_occurrence [ i ] . relating_product_definition ) ) ) THEN IF ( NOT ( next_assembly_usage_occurrence [ i ] . relating_product_definition IN pu_bag ) ) THEN pu_bag := pu_bag + next_assembly_usage_occurrence [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; refdes_bag := [ ] ; nauo_bag := QUERY ( nauo &lt;* next_assembly_usage_occurrence | ( nauo . relating_product_definition :=: pu_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( nauo_bag ) by 1 ; IF EXISTS ( nauo_bag [ j ] . reference_designator ) THEN IF ( nauo_bag [ j ] . reference_designator IN refdes_bag ) THEN pass := FALSE ; ESCAPE ; ELSE refdes_bag := refdes_bag + nauo_bag [ j ] . reference_designator ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
       <rule name="organization_unique_constraint" appliesto="organization">
          <algorithm> LOCAL r : BAG OF organization := QUERY ( r &lt;* organization | TRUE ) ; pass : BOOLEAN := TRUE ; id_bag : BAG OF string := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( r ) by 1 ; IF EXISTS ( r [ i ] . id ) THEN IF ( r [ i ] \ organization . id IN id_bag ) THEN pass := FALSE ; ESCAPE ; ELSE id_bag := id_bag + r [ i ] . id ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
          <where label="WR1" expression=" pass "/>
@@ -286,18 +245,8 @@
          <algorithm> LOCAL ce_bag : BAG OF configuration_effectivity ; ci_bag : BAG OF configuration_item := [ ] ; pass : BOOLEAN := TRUE ; acu_bag : BAG OF assembly_component_usage ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( configuration_effectivity ) by 1 ; IF EXISTS ( configuration_effectivity [ i ] . configuration . configuration ) THEN IF ( NOT ( configuration_effectivity [ i ] . configuration . configuration IN ci_bag ) ) THEN ci_bag := ci_bag + configuration_effectivity [ i ] . configuration . configuration ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( ci_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; ce_bag := QUERY ( r &lt;* configuration_effectivity | ( ( r . configuration . configuration :=: ci_bag [ i ] ) AND ( r . usage \ product_definition_relationship . name = 'assembly composition' ) AND ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF ( r . usage ) ) ) ) ; acu_bag := [ ] ; REPEAT j := 1 to SIZEOF ( ce_bag ) by 1 ; IF EXISTS ( ce_bag [ j ] . usage ) THEN IF ( ce_bag [ j ] . usage IN acu_bag ) THEN pass := FALSE ; ESCAPE ; ELSE acu_bag := acu_bag + ce_bag [ j ] . usage ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
          <where label="WR1" expression=" pass "/>
       </rule>
-      <rule name="product_association_constraint" appliesto="product_definition_formation_relationship">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pdfr &lt;* product_definition_formation_relationship | ( pdfr \ product_definition_formation_relationship . name = 'product association' ) AND ( SIZEOF ( QUERY ( adr &lt;* USEDIN ( pdfr , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) | ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'EE_SPECIFICATION' IN TYPEOF ( adr . assigned_document ) ) ) ) = 0 ) ) ) = 0 "/>
-      </rule>
-      <rule name="product_association_unique_constraint" appliesto="product_definition_formation_relationship">
-         <algorithm> LOCAL pdfr : BAG OF product_definition_formation_relationship := QUERY ( r &lt;* product_definition_formation_relationship | ( r \ product_definition_formation_relationship . name = 'product association' ) ) ; pdf_bag : BAG OF product_definition_formation := [ ] ; pdfr_bag : BAG OF product_definition_formation_relationship ; pass : BOOLEAN := TRUE ; adr_bag : BAG OF applied_document_reference ; es_bag : BAG OF ee_specification ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( pdfr ) by 1 ; IF EXISTS ( pdfr [ i ] . relating_product_definition_formation ) THEN IF ( NOT ( pdfr [ i ] . relating_product_definition_formation IN pdf_bag ) ) THEN pdf_bag := pdf_bag + pdfr [ i ] . relating_product_definition_formation ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pdf_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdfr_bag := QUERY ( r &lt;* pdfr | ( r . relating_product_definition_formation :=: pdf_bag [ i ] ) ) ; es_bag := [ ] ; REPEAT j := 1 to SIZEOF ( pdfr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adr_bag := QUERY ( adr &lt;* USEDIN ( pdfr_bag [ j ] , ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) | ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'EE_SPECIFICATION' ) IN TYPEOF ( adr . assigned_document ) ) ) ; REPEAT k := 1 to SIZEOF ( adr_bag ) by 1 ; IF EXISTS ( adr_bag [ k ] . assigned_document ) THEN IF ( adr_bag [ k ] . assigned_document IN es_bag ) THEN pass := FALSE ; ESCAPE ; ELSE es_bag := es_bag + adr_bag [ k ] . assigned_document ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
       <rule name="product_concept_requires_configuration_item" appliesto="product_concept configuration_item">
          <where label="WR1" expression=" SIZEOF ( QUERY ( pc &lt;* product_concept | NOT ( SIZEOF ( QUERY ( ci &lt;* configuration_item | pc :=: ci . item_concept ) ) &gt;= 1 ) ) ) = 0 "/>
-      </rule>
-      <rule name="product_definition_formation_requires_approval" appliesto="product_definition applied_approval_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pd &lt;* product_definition | ( NOT ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF ( pd ) ) ) AND ( NOT ( SIZEOF ( QUERY ( aaa &lt;* applied_approval_assignment | pd . formation IN aaa . items ) ) = 1 ) ) ) ) = 0 "/>
       </rule>
       <rule name="product_definition_formation_requires_person_organization" appliesto="product_definition applied_person_and_organization_assignment applied_organization_assignment">
          <where label="WR1" expression=" SIZEOF ( QUERY ( pd &lt;* product_definition | ( NOT ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF ( pd ) ) ) AND ( NOT ( ( SIZEOF ( QUERY ( apaoa &lt;* applied_person_and_organization_assignment | ( pd . formation IN apaoa . items ) AND ( apaoa . role \ person_and_organization_role . name = 'creator' ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( aoa &lt;* applied_organization_assignment | ( pd . formation IN aoa . items ) AND ( aoa . role \ organization_role . name = 'creator' ) ) ) = 1 ) ) ) ) ) = 0 "/>

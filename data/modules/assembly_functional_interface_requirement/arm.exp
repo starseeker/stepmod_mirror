@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.14 2005/01/10 08:40:12 kovaliovas Exp $
+   $Id: arm.exp,v 1.15 2005/01/10 14:21:51 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly functional interface requirement - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -48,13 +48,13 @@ USE FROM Assembly_physical_interface_requirement_arm;
       accessed_connector : Mating_connector_component;
 	DERIVE
   		signal_definition: SET[0:?] OF Requirement_view_definition :=
-		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+		QUERY (sd <* QUERY (ra <* USEDIN (SELF,
        'REQUIREMENT_ASSIGNMENT_ARM.'+
        'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
         (ra.id = 'signal definition')) |
        'REQUIREMENT_VIEW_DEFINITION_ARM.' +
        'REQUIREMENT_VIEW_DEFINITION' IN 
-       TYPEOF (ra.assigned_requirement));
+       TYPEOF (sd.assigned_requirement));
     UNIQUE
       UR1 : definition,
  accessed_connector;
@@ -82,40 +82,40 @@ USE FROM Assembly_physical_interface_requirement_arm;
       media_functional_definition          : OPTIONAL Functional_unit_usage_view;
 	DERIVE
   		reference_document: SET[0:?] OF Document_definition :=
-		QUERY (rvd <* QUERY (da <* USEDIN (SELF,
+		QUERY (rd <* QUERY (da <* USEDIN (SELF,
        'DOCUMENT_ASSIGNMENT_ARM.'+
        'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
         (da.role = 'reference document'))  |
        'DOCUMENT_DEFINITION_ARM.' +
        'DOCUMENT_DEFINITION' IN 
-       TYPEOF (da.assigned_document));
+       TYPEOF (rd.assigned_document));
 
   		host_rcv_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-		QUERY (rvd <* QUERY (da <* USEDIN (SELF,
+		QUERY (rd <* QUERY (da <* USEDIN (SELF,
        'DOCUMENT_ASSIGNMENT_ARM.'+
        'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
         (da.role = 'host rcv functional characterization'))  |
        'FUNCTIONAL_SPECIFICATION_ARM.' +
        'FUNCTIONAL_SPECIFICATION_DEFINITION' IN 
-       TYPEOF (da.assigned_document));
+       TYPEOF (rd.assigned_document));
 
   		host_xmt_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-		QUERY (rvd <* QUERY (da <* USEDIN (SELF,
+		QUERY (rd <* QUERY (da <* USEDIN (SELF,
        'DOCUMENT_ASSIGNMENT_ARM.'+
        'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
         (da.role = 'host xmt functional characterization'))  |
        'FUNCTIONAL_SPECIFICATION_ARM.' +
        'FUNCTIONAL_SPECIFICATION_DEFINITION' IN 
-       TYPEOF (da.assigned_document));
+       TYPEOF (rd.assigned_document));
 
   		media_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-		QUERY (rvd <* QUERY (da <* USEDIN (SELF,
+		QUERY (rd <* QUERY (da <* USEDIN (SELF,
        'DOCUMENT_ASSIGNMENT_ARM.'+
        'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
         (da.role = 'media functional characterization'))  |
        'FUNCTIONAL_SPECIFICATION_ARM.' +
        'FUNCTIONAL_SPECIFICATION_DEFINITION' IN 
-       TYPEOF (da.assigned_document));
+       TYPEOF (rd.assigned_document));
        
 	WHERE
    		WR1 : EXISTS (reference_document) AND SIZEOF(reference_document) = 1;
@@ -140,13 +140,13 @@ USE FROM Assembly_physical_interface_requirement_arm;
       constrained_termination      : SET[2:?] OF Mating_connector_termination;
 	DERIVE
   		termination_usage_constraint: SET[0:?] OF Requirement_view_definition :=
-		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+		QUERY (tuc <* QUERY (ra <* USEDIN (SELF,
        'REQUIREMENT_ASSIGNMENT_ARM.'+
        'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
         (ra.id = 'termination usage constraint')) |
        'REQUIREMENT_VIEW_DEFINITION_ARM.' +
        'REQUIREMENT_VIEW_DEFINITION' IN 
-       TYPEOF (ra.assigned_requirement));
+       TYPEOF (tuc.assigned_requirement));
 	WHERE
    		WR1 : NOT EXISTS (termination_usage_constraint) OR SIZEOF(termination_usage_constraint) = 1;
   END_ENTITY;

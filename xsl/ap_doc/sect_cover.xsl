@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_cover.xsl,v 1.7 2003/06/02 10:34:49 robbod Exp $
+$Id: sect_cover.xsl,v 1.8 2003/06/16 16:41:27 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -180,7 +180,37 @@ $Id: sect_cover.xsl,v 1.7 2003/06/02 10:34:49 robbod Exp $
 
         <xsl:choose>
           <xsl:when test="$status='CD'">
-            Committee Draft
+  <p>
+              This ISO document is a Committee Draft and is copyright protected by ISO. While the
+              reproduction of working drafts or Committee Drafts in any
+              form for use by Participants in the ISO standards development
+              process is permitted without prior written permission from
+              ISO, neither this document nor any extract from it may be 
+              reproduced, stored or transmitted in any form for any other
+              purpose without prior written permission from ISO. 
+            </p>
+            <p>
+              Requests for permission to reproduce this document for the
+              purposes of selling it should be addressed as shown below
+              (via the ISO TC 184/SC4 Secretariat's member body) or to the
+              ISO's member body in the country of the requestor 
+            </p>
+            <div align="center">
+                Copyright Manager<br/>
+                ANSI<br/>
+                11 West 42nd Street<br/>
+                New York, New York 10036<br/>
+                USA<br/>
+                phone: +1-212-642-4900<br/>
+                fax: +1-212-398-0023<br/>
+            </div>
+            <p>
+              Reproduction for sales purposes may be subject to royalty
+              payments or a licensing agreement. 
+            </p>
+            <p>
+              Violators may be prosecuted.
+            </p>
           </xsl:when>
           <xsl:when test="$status='FDIS'">
             Final Draft International Standard

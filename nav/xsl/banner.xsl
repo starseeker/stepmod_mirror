@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.6 2002/09/11 11:36:52 robbod Exp $
+$Id: banner.xsl,v 1.7 2002/09/11 17:10:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -120,6 +120,11 @@ $Id: banner.xsl,v 1.6 2002/09/11 11:36:52 robbod Exp $
                 </p>
                 <p class="bannermenuitem">
                   Part number list
+                </p>
+                <p class="bannermenuitem">
+                  <a href="resource_mappings{$FILE_EXT}" target="_blank">
+                  Mappings
+		  </a>
                 </p>
               </td>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.6 2003/04/24 10:22:49 robbod Exp $
+     $Id: express_description.xsl,v 1.12 2003/06/24 00:11:32 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -97,7 +97,7 @@
       </xsl:if>
 
     </xsl:if>
-
+    <!--
     <xsl:if test="$description/@linkend and contains($schema,$description/@linkend) and string-length(normalize-space($description)) > 1">
       <xsl:call-template name="error_message">
           <xsl:with-param 
@@ -107,7 +107,7 @@
 
 
     </xsl:if>
-
+-->
 
       <xsl:variable name="ent_start_char"
         select="substring(normalize-space($entity),1,1)"/>

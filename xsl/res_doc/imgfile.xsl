@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.11 2003/11/11 22:41:38 thendrix Exp $
+$Id: imgfile.xsl,v 1.12 2003/11/12 06:36:25 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -218,6 +218,9 @@ $Id: imgfile.xsl,v 1.11 2003/11/11 22:41:38 thendrix Exp $
     </xsl:attribute>
     <xsl:attribute name="shape">
       <xsl:value-of select="@shape"/>
+    </xsl:attribute>
+    <xsl:attribute name="alt">
+      <xsl:value-of select="$href"/>
     </xsl:attribute>
     <xsl:attribute name="coords">
       <xsl:value-of select="@coords" /> 

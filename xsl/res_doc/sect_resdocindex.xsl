@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
+$Id: sect_resdocindex.xsl,v 1.2 2003/08/28 06:34:06 thendrix Exp $
   Author:  Tom Hendrix, Boeing
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -31,9 +31,12 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
       <xsl:call-template name="make_schema_expressg_node_set"/>
 </xsl:variable>    
 
-
-  <xsl:output method="html"/>
-
+  <xsl:output 
+    method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
+    indent="yes"
+    />
 
 <!-- overwrites the template declared in resource.xsl -->
 <!-- output an index of terms, schema objects -->

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: index.xsl,v 1.1 2003/03/23 17:34:41 robbod Exp $
+$Id: index.xsl,v 1.1 2003/03/27 05:11:31 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Provides the main entry page to the resource.
@@ -18,7 +18,13 @@ $Id: index.xsl,v 1.1 2003/03/23 17:34:41 robbod Exp $
        -->
   <xsl:import href="file_ext.xsl"/>
 
-  <xsl:output method="html"/>
+
+  <xsl:output 
+    method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
+    indent="yes"
+    />
 
 
   <xsl:template match="resource_clause">

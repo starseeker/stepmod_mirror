@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_resdocindex.xsl,v 1.3 2004/01/27 00:06:29 thendrix Exp $
+$Id: sect_resdocindex.xsl,v 1.4 2004/11/12 17:06:14 robbod Exp $
   Author:  Tom Hendrix, Boeing
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -334,7 +334,7 @@ $Id: sect_resdocindex.xsl,v 1.3 2004/01/27 00:06:29 thendrix Exp $
       <xsl:with-param name="normrefs_list" select="$normrefs"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:value-of select="concat('3.',$def_section+1)"/>
+  <xsl:value-of select="concat('3.',$def_section+2)"/>
 </xsl:template>
 
 </xsl:stylesheet>

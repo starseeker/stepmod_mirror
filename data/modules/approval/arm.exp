@@ -1,24 +1,22 @@
 (* N712 - ISO/CD TS - 10303-1012 Approval - EXPRESS ARM *)
+{iso standard 10303 part (11) version (4)} 
    
 SCHEMA Approval_arm;
 
    
 USE FROM Date_time_arm; -- ISO/TS 10303-1010&#9;&#9;
-USE FROM Person_organisation_arm; -- ISO/TS 10303-1011
+USE FROM Person_organization_arm; -- ISO/TS 10303-1011
 
    
 ENTITY Approval;
-  approver       : OPTIONAL organisation_or_person_in_organisation_select;
+  approver       : OPTIONAL organization_or_person_in_organization_select;
   discipline     : OPTIONAL STRING;
   planned_date   : OPTIONAL date_or_date_time_select;
-  effective_date : OPTIONAL date_or_date_time_select;
+  actual_date : OPTIONAL date_or_date_time_select;
   purpose        : OPTIONAL STRING;
   status         : STRING;
 WHERE
-  WR1 : (EXISTS (approver) OR
-         EXISTS (discipline));
-  WR2: SELF.status IN ['approved', 'dissaproved', 'withdrawn', 'not yet approved'];
-  WR3: NOT (SELF.status IN ['approved', 'dissaproved', 'withdrawn'] AND (NOT EXISTS(SELF.effective_date)));
+  WR1 : (EXISTS (approver));
 END_ENTITY;
 
    
@@ -29,7 +27,7 @@ END_ENTITY;
 
    
 ENTITY Approval_relationship;
-  relation_type : OPTIONAL STRING;
+  relation_type : STRING;
   description   : OPTIONAL STRING;
   approval1     : Approval;
   approval2     : Approval;

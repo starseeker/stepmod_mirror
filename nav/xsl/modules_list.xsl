@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.9 2002/10/10 11:29:24 nigelshaw Exp $
+$Id: modules_list.xsl,v 1.10 2002/10/24 17:46:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -217,6 +217,12 @@ $Id: modules_list.xsl,v 1.9 2002/10/10 11:29:24 nigelshaw Exp $
         <xsl:variable name="select_view" 
           select="concat('../data/modules/',@name,'/nav/select_view',$FILE_EXT)"/>
         &#160;&#160;<a href="{$select_view}" target="content">ARM SELECTs view</a>
+      </p>
+
+      <p class="menuitem">
+        <xsl:variable name="mapping_view" 
+          select="concat('../data/modules/',@name,'/nav/mapping_view',$FILE_EXT)"/>
+        &#160;&#160;<a href="{$mapping_view}" target="content">Mapping view</a>
       </p>
 
       <p class="menuitem">

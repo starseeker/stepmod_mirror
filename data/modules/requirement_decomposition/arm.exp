@@ -127,15 +127,18 @@ USE FROM Conductivity_material_aspects_arm;
       requirement_specification           : SET[1:?] OF Specification_definition;
       required_characteristic             : OPTIONAL SET[1:?] OF characteristic;
       reference_clause                    : OPTIONAL Structured_text_id_in_document;
+   INVERSE
+	  required_material : set [0:1] OF material_identification FOR items;      
     UNIQUE
       UR1 : associated_definition;
     WHERE  
-	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
-	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
-	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
-	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) <= 1);
+	  WR1 : NOT (SIZEOF(required_material) = 1) OR
+            ('CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (material));
   END_ENTITY;
+
+
+
+
 
   ENTITY Shape_and_ee_product_definition_based_constraint_occurrence
     SUBTYPE OF (Ee_product_definition_based_constraint_occurrence);

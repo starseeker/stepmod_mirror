@@ -1,23 +1,59 @@
 (*
-$Id: risk_schema.exp,v 1.4 2003/02/11 19:39:43 magnevs Exp $
+$Id: risk_schema.exp,v 1.1 2003/02/20 20:43:05 magnevs Exp $
   WG12N???? - ISO 10303-58 risk_schema
 *)
 
 SCHEMA risk_schema; 
 
 
-TYPE risk_event_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+TYPE mitigation_select = SELECT
+   (risk, 
+    risk_consequence, 
+    risk_impact, 
+    risk_probability);
+END_TYPE; 
+
+TYPE risk_criteria_select = SELECT
+   (applied_risk_source_assignment, 
+    risk_perception, 
+    risk_treatment);
+END_TYPE; 
+
+TYPE risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+TYPE risk_item = EXTENSIBLE GENERIC_ENTITY SELECT;
 END_TYPE; 
 
 TYPE risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT;
 END_TYPE; 
 
+ENTITY applied_risk_consequence;
+  name : STRING;
+  description : STRING;
+  effect : risk_impact;
+  related : risk_consequence;
+  role : STRING;
+END_ENTITY;
+
+ENTITY applied_risk_criteria;
+  inputs : SET[1:?] OF risk_criteria_select;
+  pertaining_criteria : risk_criteria;
+  role : STRING;
+END_ENTITY;
+
+ENTITY applied_risk_impact_assignment;
+  described_impact : risk_impact;
+  items : SET[1:?] OF risk_impact_item;
+  role : STRING;
+END_ENTITY;
+
 ENTITY applied_risk_probability;
   name : STRING;
   description : STRING;
-  assigned_to : risk_event_item;
-  described_risk_probability : risk_probability;
-  described_risk : risk;
+  assigned_to : risk_item;
+  probability_of_occurrence : risk_probability;
+  role : STRING;
 END_ENTITY;
 
 ENTITY applied_risk_source_assignment;
@@ -27,9 +63,10 @@ ENTITY applied_risk_source_assignment;
 END_ENTITY;
 
 ENTITY defined_risk_consequence;
+  name : STRING;
+  description : STRING;
   relating_consequence : risk_consequence;
   related_risk : risk;
-  risk_criteria : STRING;
 END_ENTITY;
 
 ENTITY defined_risk_probability;
@@ -39,20 +76,56 @@ ENTITY defined_risk_probability;
   related_risk : risk;
 END_ENTITY;
 
+ENTITY residual_risk;
+  name : STRING;
+  description : STRING;
+  protective_measure : risk_reduction;
+  remaining_risk : risk;
+END_ENTITY;
+
 ENTITY risk;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  negation : LOGICAL;
+END_ENTITY;
+
+ENTITY risk_consequence;
   name : STRING;
   description : STRING;
 END_ENTITY;
 
-ENTITY risk_consequence;
+ENTITY risk_context;
+  name : STRING;
+  description : STRING;
+  pertinent_criteria : SET[0:?] OF risk_criteria;
+  related_risk : risk;
+END_ENTITY;
+
+ENTITY risk_criteria;
+  name : STRING;
+  description : STRING;
+END_ENTITY;
+
+ENTITY risk_impact;
+  name : STRING;
+  description : STRING;
+  severity : OPTIONAL STRING;
 END_ENTITY;
 
 ENTITY risk_perception;
   name : STRING;
   description : STRING;
-  perceived_consequence : defined_risk_consequence;
+  perceived_consequence : applied_risk_consequence;
   perceived_probability : applied_risk_probability;
   perceived_risk : risk;
+END_ENTITY;
+
+ENTITY risk_perception_relationship;
+  name : STRING;
+  description : OPTIONAL STRING;
+  relating : risk_perception;
+  related : risk_perception;
 END_ENTITY;
 
 ENTITY risk_probability;
@@ -60,7 +133,17 @@ ENTITY risk_probability;
   description : STRING;
 END_ENTITY;
 
+ENTITY risk_reduction;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  assumptions : OPTIONAL STRING;
+  approach : risk_treatment;
+  resolves : SET[1:?] OF mitigation_select;
+END_ENTITY;
+
 ENTITY risk_relationship;
+  id : STRING;
   name : STRING;
   description : OPTIONAL STRING;
   relating : risk;
@@ -73,4 +156,19 @@ ENTITY risk_source_role;
   description : STRING;
 END_ENTITY;
 
+ENTITY risk_status;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  status : risk;
+END_ENTITY;
+
+ENTITY risk_treatment;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  rationale : OPTIONAL STRING;
+END_ENTITY;
+
 END_SCHEMA;  -- risk_schema
+

@@ -2,13 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: extract_descriptions.xsl,v 1.1 2002/03/19 13:24:23 robbod Exp $
+     $Id: extract_descriptions.xsl,v 1.2 2002/03/19 15:13:42 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
-     Used to display the commented XML encoded Express
-     in clause 4 and 5 of a module.
+     Used to extract the description elements out of a an EXPRESS XML file
 -->
 
 <xsl:stylesheet 
@@ -59,10 +58,10 @@
     </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="'$Date: 2002/03/19 13:24:23 $'"/>
+    <xsl:value-of select="'$Date: 2002/03/19 15:13:42 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="'$Revision: 1.1 $'"/>
+    <xsl:value-of select="'$Revision: 1.2 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      

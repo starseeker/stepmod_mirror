@@ -19,6 +19,13 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
         
   <xsl:template match="ballot_index">
+  
+    <xsl:if test="count(//ap_doc) &gt; 1">
+      <xsl:message>
+        Error - A ballot cycle should only contain one AP document (ap_doc).
+      </xsl:message>
+    </xsl:if>
+
     <xsl:text>
     </xsl:text>
     <xsl:comment>
@@ -995,7 +1002,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   <!-- output the variable for the dependent modules and resources -->
   <xsl:template match="ballot_index" mode="dependent_mod_res_variables">
     <xsl:variable name="mim_modules">
-      <xsl:apply-templates select="./ballot_package/ap_doc" mode="get_mod_node_set"/>
+      <xsl:call-template name="get_mod_node_set"/>
     </xsl:variable>
     
     <xsl:variable name="mim_modules_node_set" select="exslt:node-set($mim_modules)"/>
@@ -6624,6 +6631,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:template>
 
 
+  <!--
   <xsl:template match="ap_doc" mode="get_mod_node_set">
     <xsl:variable name="selected_ap" select="@name"/>
     <xsl:variable name="ap_file" 
@@ -6686,6 +6694,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:choose>
       </xsl:for-each>
   </xsl:template>
+-->
 
 <xsl:template name="depends-on-recurse-mim-x">
   <xsl:param name="todo" select="' '"/>
@@ -6754,16 +6763,96 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:if>
 </xsl:template>
 
+
+<!-- return a node set of all the dependent modules and resources,
+     excluding any that are explicitly part of the ballot -->
+<xsl:template name="get_mod_node_set">
+  <xsl:variable name="modules">
+    <xsl:for-each select="/ballot_index/ballot_package/module">
+      <xsl:variable name="mod_schema">
+        <xsl:call-template name="schema_name">
+          <xsl:with-param name="module_name" select="@name"/>
+          <xsl:with-param name="arm_mim" select="'mim'"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:value-of select="concat(' ',$mod_schema,' ')"/>
+    </xsl:for-each>
+  </xsl:variable>
+
+  <xsl:variable name="aps">
+    <xsl:for-each select="/ballot_index/ballot_package/ap_doc">
+      <xsl:variable name="selected_ap" select="@name"/>
+      <xsl:variable name="ap_file" 
+        select="concat('../../data/application_protocols/',$selected_ap,'/application_protocol.xml')"/>	    
+      <xsl:variable name="ap_node" select="document($ap_file)"/>
+      <xsl:variable name="ap_top_module" select="$ap_node/application_protocol/@module_name"/>
+      <xsl:variable name="mod_schema">
+        <xsl:call-template name="schema_name">
+          <xsl:with-param name="module_name" select="$ap_top_module"/>
+          <xsl:with-param name="arm_mim" select="'mim'"/>
+        </xsl:call-template>
+      </xsl:variable>
+
+      <xsl:value-of select="concat(' ',$mod_schema,' ')"/>
+    </xsl:for-each>
+  </xsl:variable>
+  
+  <xsl:variable name="todo_schema_list" select="concat(string($aps),string($modules))"/>
+
+  <xsl:variable name="mim_schemas">
+    <xsl:call-template name="depends-on-recurse-mim-x">
+      <xsl:with-param name="todo" select="$todo_schema_list"/>
+      <xsl:with-param name="done" select="' '"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
+
+  <xsl:for-each select="$schemas-node-set//x">
+    <xsl:sort/>
+    <xsl:choose>
+      <xsl:when test="substring-before(.,'/mim.xml')">
+        <xsl:variable name="module" select="substring-after(substring-before(.,'/mim'),'modules/')"/>
+        <xsl:variable name="module_ok">
+          <xsl:call-template name="check_module_exists">
+            <xsl:with-param name="module" select="$module"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:choose>
+          <xsl:when test="$module_ok='true'">
+            <xsl:variable name="mod_schema">
+              <xsl:call-template name="schema_name">
+                <xsl:with-param name="module_name" select="$module"/>
+                <xsl:with-param name="arm_mim" select="'mim'"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:if test="not(contains($todo_schema_list,concat(' ',$mod_schema,' ')))">
+              <module>
+                <xsl:attribute name="name">
+                  <xsl:value-of select="$module"/>
+                </xsl:attribute>
+              </module>
+            </xsl:if>
+          </xsl:when>
+          <xsl:otherwise>
+            <error>
+              <xsl:value-of select="$module"/>
+            </error>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="resource" 
+          select="substring-after(substring-before(.,'.xml'),'../../data/resources/')"/>
+        <resource>
+          <xsl:attribute name="name">
+            <xsl:value-of select="$resource"/>
+          </xsl:attribute>
+        </resource>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:for-each>
+
+</xsl:template>
+
 </xsl:stylesheet>
-
-
-
-
-
-
-
-
-
-
-
-

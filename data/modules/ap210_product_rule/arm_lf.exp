@@ -1377,7 +1377,8 @@ ENTITY pdm_material_property
 END_ENTITY; -- Pdm_material_property
 
 
-ENTITY group;
+ENTITY group
+	ABSTRACT SUPERTYPE;
 	id : OPTIONAL STRING;
 	name : STRING;
 	description : OPTIONAL STRING;
@@ -1386,7 +1387,8 @@ ENTITY group;
 END_ENTITY; -- Group
 
 
-ENTITY group_relationship;
+ENTITY group_relationship
+	ABSTRACT SUPERTYPE;
 	description : OPTIONAL STRING;
 	relation_type : STRING;
 	relating_group : Group;
@@ -1830,11 +1832,11 @@ ENTITY rule_function
 	SUPERTYPE OF (Rule_boolean_function);
 	identifier : STRING;
 	representation_language : Language_reference_manual;
-	reference_document : Document_definition;
 	source_code : Specification_definition;
 INVERSE
 	domain_parameter: SET [1:?] OF Rule_function_domain_parameter FOR accessed_rule_function;
 	range_parameter: SET [1:?] OF Rule_function_range_parameter FOR accessed_rule_function;
+	reference_document: Document_assignment FOR is_assigned_to;
 UNIQUE
 	UR1 : identifier, reference_document;
 END_ENTITY; -- Rule_function
@@ -2271,7 +2273,8 @@ END_ENTITY; -- Structured_text
 ENTITY structured_text_id_in_document;
 	identifier : STRING;
 	text : Structured_text;
-	document : Document_definition;
+INVERSE
+	document: Document_assignment FOR is_assigned_to;
 UNIQUE
 	UR1 : identifier, document;
 END_ENTITY; -- Structured_text_id_in_document
@@ -2429,11 +2432,15 @@ END_ENTITY; -- Activity_data_element
 
 ENTITY amount_of_substance_data_element
 	SUBTYPE OF (Value_with_unit);
+WHERE
+	WR1 :  'VALUE_WITH_UNIT_ARM.AMOUNT_OF_SUBSTANCE_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Amount_of_substance_data_element
 
 
 ENTITY angle_data_element
 	SUBTYPE OF (Value_with_unit);
+WHERE
+	WR1 :  'VALUE_WITH_UNIT_ARM.PLANE_ANGLE_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Angle_data_element
 
 
@@ -2469,6 +2476,8 @@ END_ENTITY; -- Electric_charge_data_element
 
 ENTITY electric_current_data_element
 	SUBTYPE OF (Value_with_unit);
+WHERE
+	WR1 :  'VALUE_WITH_UNIT_ARM.ELECTRIC_CURRENT_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Electric_current_data_element
 
 
@@ -2506,6 +2515,7 @@ ENTITY length_data_element
 	SUBTYPE OF (Value_with_unit);
 WHERE
 	WR1 :  SELF \ value_with_unit.value_component >= 0.0 ;
+	WR2 :  'VALUE_WITH_UNIT_ARM.LENGTH_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Length_data_element
 
 
@@ -2516,6 +2526,8 @@ END_ENTITY; -- Luminous_flux_data_element
 
 ENTITY luminous_intensity_data_element
 	SUBTYPE OF (Value_with_unit);
+WHERE
+	WR1 :  'VALUE_WITH_UNIT_ARM.LUMINOUS_INTENSITY_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Luminous_intensity_data_element
 
 
@@ -2531,6 +2543,8 @@ END_ENTITY; -- Magnetic_flux_density_data_element
 
 ENTITY mass_data_element
 	SUBTYPE OF (Value_with_unit);
+WHERE
+	WR1 :  'VALUE_WITH_UNIT_ARM.MASS_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Mass_data_element
 
 
@@ -2546,6 +2560,8 @@ END_ENTITY; -- Pressure_data_element
 
 ENTITY ratio_data_element
 	SUBTYPE OF (Value_with_unit);
+WHERE
+	WR1 :  'VALUE_WITH_UNIT_ARM.RATIO_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Ratio_data_element
 
 
@@ -2566,11 +2582,15 @@ END_ENTITY; -- Scattering_parameter_data_element
 
 ENTITY solid_angle_data_element
 	SUBTYPE OF (Value_with_unit);
+WHERE
+	WR1 :  'VALUE_WITH_UNIT_ARM.SOLID_ANGLE_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Solid_angle_data_element
 
 
 ENTITY thermodynamic_temperature_data_element
 	SUBTYPE OF (Value_with_unit);
+WHERE
+	WR1 :  'VALUE_WITH_UNIT_ARM.THERMODYNAMIC_TEMPERATURE_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Thermodynamic_temperature_data_element
 
 
@@ -2618,6 +2638,12 @@ ENTITY work_request_status;
 	work_request : Work_request;
 END_ENTITY; -- Work_request_status
 
+
+SUBTYPE_CONSTRAINT group_abstract FOR Group;
+END_SUBTYPE_CONSTRAINT; -- group_abstract
+
+SUBTYPE_CONSTRAINT group_relationship_abstract FOR Group_relationship;
+END_SUBTYPE_CONSTRAINT; -- group_relationship_abstract
 
 SUBTYPE_CONSTRAINT alternate_measure_items FOR Measure_item;
 	ONEOF (Measure_item_with_precision, Numerical_item_with_global_unit, Numerical_item_with_unit, Value_limit, Value_limit_with_global_unit, Value_list, Value_range, Value_range_with_global_unit, Value_set, Value_with_tolerances);
@@ -2683,7 +2709,7 @@ FUNCTION types_of_product
  i : INTEGER;
  END_LOCAL
 ;
- category_assignments := USEDIN(obj, 'PRODUCT_IDENTIFICATION_ARM.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+ category_assignments := USEDIN(obj, 'AP210_PRODUCT_RULE_ARM_LF.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
  REPEAT i := LOINDEX(category_assignments)TO HIINDEX(category_assignments)BY 1;
  categories := categories + category_assignments [ i ].category.name;
  END_REPEAT;

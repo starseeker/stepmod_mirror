@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-05T10:57:20" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-10T12:02:23" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_connection_zone_based_model_extraction_arm_lf schema_instance"/>
    <schema name="Ap210_connection_zone_based_model_extraction_arm_lf">
       <type name="activity_item">
@@ -50,6 +50,12 @@
       <type name="classification_item">
          <select extensible="YES" genericentity="YES"/>
       </type>
+      <type name="classification_item_extended">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_classification_item" selectitems="part part_version part_view_definition"/>
+      </type>
+      <type name="classified_element_select">
+         <select extensible="YES" genericentity="YES" selectitems="part part_version part_view_definition"/>
+      </type>
       <type name="contract_item">
          <select extensible="YES"/>
       </type>
@@ -67,7 +73,10 @@
       </type>
       <type name="day_in_month_number">
          <builtintype type="INTEGER"/>
-         <where label="wr1" expression=" { 1 &lt;= self &lt;= 31 } "/>
+         <where label="WR1" expression=" { 1 &lt;= SELF &lt;= 31 } "/>
+      </type>
+      <type name="definable_objects">
+         <select selectitems="part part_version part_view_definition"/>
       </type>
       <type name="dependent_or_independent_property_representation">
          <select selectitems="independent_property_representation property_representation"/>
@@ -90,6 +99,9 @@
       <type name="external_class_assigned_name_select">
          <select basedon="_SELECT_assigned_name_select" selectitems="external_class_library"/>
       </type>
+      <type name="external_class_select">
+         <select selectitems="plib_class_reference external_class"/>
+      </type>
       <type name="external_identification_item">
          <select extensible="YES" genericentity="YES"/>
       </type>
@@ -98,11 +110,11 @@
       </type>
       <type name="groupable_item">
          <select extensible="YES" genericentity="YES"/>
-         <where label="wr1" expression=" not ( 'ap210_connection_zone_based_model_extraction_arm_lf.group' in typeof ( self ) ) "/>
+         <where label="WR1" expression=" NOT ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.GROUP' IN TYPEOF ( SELF ) ) "/>
       </type>
       <type name="hour_in_day">
          <builtintype type="INTEGER"/>
-         <where label="wr1" expression=" { 0 &lt;= self &lt; 24 } "/>
+         <where label="WR1" expression=" { 0 &lt;= SELF &lt; 24 } "/>
       </type>
       <type name="identification_item">
          <select extensible="YES"/>
@@ -124,11 +136,11 @@
       </type>
       <type name="minute_in_hour">
          <builtintype type="INTEGER"/>
-         <where label="wr1" expression=" { 0 &lt;= self &lt;= 59 } "/>
+         <where label="WR1" expression=" { 0 &lt;= SELF &lt;= 59 } "/>
       </type>
       <type name="month_in_year_number">
          <builtintype type="INTEGER"/>
-         <where label="wr1" expression=" { 1 &lt;= self &lt;= 12 } "/>
+         <where label="WR1" expression=" { 1 &lt;= SELF &lt;= 12 } "/>
       </type>
       <type name="offset_orientation">
          <enumeration items="ahead exact behind"/>
@@ -225,7 +237,7 @@
       </type>
       <type name="second_in_minute">
          <builtintype type="REAL"/>
-         <where label="wr1" expression=" { 0 &lt;= self &lt;= 60.0 } "/>
+         <where label="WR1" expression=" { 0 &lt;= SELF &lt;= 60.0 } "/>
       </type>
       <type name="security_classification_item">
          <select extensible="YES"/>
@@ -385,7 +397,7 @@
          <explicit name="url" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <where label="wr1" expression=" ( exists ( street_number ) or exists ( street ) or exists ( postal_box ) or exists ( town ) or exists ( region ) or exists ( postal_code ) or exists ( country ) or exists ( internal_location ) or exists ( facsimile_number ) or exists ( telephone_number ) or exists ( electronic_mail_address ) or exists ( telex_number ) ) "/>
+         <where label="WR1" expression=" ( EXISTS ( street_number ) OR EXISTS ( street ) OR EXISTS ( postal_box ) OR EXISTS ( town ) OR EXISTS ( region ) OR EXISTS ( postal_code ) OR EXISTS ( country ) OR EXISTS ( internal_location ) OR EXISTS ( facsimile_number ) OR EXISTS ( telephone_number ) OR EXISTS ( electronic_mail_address ) OR EXISTS ( telex_number ) ) "/>
       </entity>
       <entity name="address_assignment">
          <explicit name="address_type" optional="YES">
@@ -413,7 +425,7 @@
             <builtintype type="STRING"/>
             <redeclaration entity-ref="identification_assignment"/>
          </derived>
-         <where label="wr1" expression=" sizeof ( query ( item &lt;* self \ identification_assignment . items | not ( 'ap210_connection_zone_based_model_extraction_arm_lf.alias_identification_item' in typeof ( item ) ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( item &lt;* SELF \ Identification_assignment . items | NOT ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF ( item ) ) ) ) = 0 "/>
       </entity>
       <entity name="alternate_product_relationship">
          <explicit name="name" optional="YES">
@@ -431,15 +443,19 @@
          <explicit name="criteria">
             <builtintype type="STRING"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="alternate_product_relationship" attribute="alternate_product"/>
             <unique.attribute entity-ref="alternate_product_relationship" attribute="base_product"/>
          </unique>
-         <where label="wr1" expression=" alternate_product :&lt;&gt;: base_product "/>
+         <where label="WR1" expression=" alternate_product :&lt;&gt;: base_product "/>
       </entity>
-      <entity name="amount_of_substance_data_element" supertypes="value_with_unit"/>
+      <entity name="amount_of_substance_data_element" supertypes="value_with_unit">
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.AMOUNT_OF_SUBSTANCE_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
+      </entity>
       <entity name="amount_of_substance_unit" supertypes="unit"/>
-      <entity name="angle_data_element" supertypes="value_with_unit"/>
+      <entity name="angle_data_element" supertypes="value_with_unit">
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.PLANE_ANGLE_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
+      </entity>
       <entity name="applied_activity_assignment">
          <explicit name="assigned_activity">
             <typename name="activity"/>
@@ -537,7 +553,7 @@
          <explicit name="location_indicator" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <where label="wr1" expression=" not ( exists ( quantity ) ) or ( ( not ( 'number' in typeof ( quantity . value_component ) ) ) xor ( quantity . value_component &gt; 0 ) ) "/>
+         <where label="WR1" expression=" NOT ( EXISTS ( quantity ) ) OR ( ( NOT ( 'NUMBER' IN TYPEOF ( quantity . value_component ) ) ) XOR ( quantity . value_component &gt; 0 ) ) "/>
       </entity>
       <entity name="assembly_relationship_substitution">
          <explicit name="name" optional="YES">
@@ -552,12 +568,12 @@
          <explicit name="substitute_relationship">
             <typename name="assembly_component_relationship"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="assembly_relationship_substitution" attribute="base_relationship"/>
             <unique.attribute entity-ref="assembly_relationship_substitution" attribute="substitute_relationship"/>
          </unique>
-         <where label="wr1" expression=" base_relationship . relating_view :=: substitute_relationship . relating_view "/>
-         <where label="wr2" expression=" base_relationship :&lt;&gt;: substitute_relationship "/>
+         <where label="WR1" expression=" base_relationship . relating_view :=: substitute_relationship . relating_view "/>
+         <where label="WR2" expression=" base_relationship :&lt;&gt;: substitute_relationship "/>
       </entity>
       <entity name="assigned_property">
          <explicit name="id" optional="YES">
@@ -586,7 +602,7 @@
          <explicit name="translation_language">
             <typename name="language"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="attribute_translation_assignment" attribute="considered_instance"/>
             <unique.attribute entity-ref="attribute_translation_assignment" attribute="considered_attribute"/>
             <unique.attribute entity-ref="attribute_translation_assignment" attribute="translation_language"/>
@@ -602,12 +618,12 @@
          <explicit name="y_axis">
             <typename name="direction"/>
          </explicit>
-         <derived name="dim" expression=" sizeof ( origin . coordinates ) ">
+         <derived name="dim" expression=" SIZEOF ( origin . coordinates ) ">
             <builtintype type="INTEGER"/>
          </derived>
-         <where label="wr1" expression=" dim &gt; 1 "/>
-         <where label="wr2" expression=" dim = sizeof ( x_axis . coordinates ) "/>
-         <where label="wr3" expression=" dim = sizeof ( y_axis . coordinates ) "/>
+         <where label="WR1" expression=" dim &gt; 1 "/>
+         <where label="WR2" expression=" dim = SIZEOF ( x_axis . coordinates ) "/>
+         <where label="WR3" expression=" dim = SIZEOF ( y_axis . coordinates ) "/>
       </entity>
       <entity name="axis_placement_mapping">
          <explicit name="source">
@@ -616,7 +632,7 @@
          <explicit name="target">
             <typename name="axis_placement"/>
          </explicit>
-         <where label="wr1" expression=" source \ axis_placement . dim = target \ axis_placement . dim "/>
+         <where label="WR1" expression=" source \ Axis_placement . dim = target \ Axis_placement . dim "/>
       </entity>
       <entity name="axis_placement_transformation_mapping">
          <explicit name="source">
@@ -625,7 +641,7 @@
          <explicit name="target">
             <typename name="cartesian_transformation"/>
          </explicit>
-         <where label="wr1" expression=" source \ axis_placement . dim = sizeof ( target . translation \ cartesian_point . coordinates ) "/>
+         <where label="WR1" expression=" source \ Axis_placement . dim = SIZEOF ( target . translation \ Cartesian_point . coordinates ) "/>
       </entity>
       <entity name="calendar_date">
          <explicit name="year_component">
@@ -653,9 +669,9 @@
          <explicit name="translation">
             <typename name="cartesian_point"/>
          </explicit>
-         <where label="wr1" expression=" sizeof ( multiplication_matrix [ 1 ] \ direction . coordinates ) = 2 "/>
-         <where label="wr2" expression=" sizeof ( multiplication_matrix [ 2 ] \ direction . coordinates ) = 2 "/>
-         <where label="wr3" expression=" sizeof ( translation . coordinates ) = 2 "/>
+         <where label="WR1" expression=" SIZEOF ( multiplication_matrix [ 1 ] \ Direction . coordinates ) = 2 "/>
+         <where label="WR2" expression=" SIZEOF ( multiplication_matrix [ 2 ] \ Direction . coordinates ) = 2 "/>
+         <where label="WR3" expression=" SIZEOF ( translation . coordinates ) = 2 "/>
       </entity>
       <entity name="cartesian_transformation_3d" supertypes="detailed_geometric_model_element">
          <explicit name="multiplication_matrix">
@@ -665,10 +681,10 @@
          <explicit name="translation">
             <typename name="cartesian_point"/>
          </explicit>
-         <where label="wr1" expression=" sizeof ( multiplication_matrix [ 1 ] \ direction . coordinates ) = 3 "/>
-         <where label="wr2" expression=" sizeof ( multiplication_matrix [ 2 ] \ direction . coordinates ) = 3 "/>
-         <where label="wr3" expression=" sizeof ( multiplication_matrix [ 3 ] \ direction . coordinates ) = 3 "/>
-         <where label="wr4" expression=" sizeof ( translation . coordinates ) = 3 "/>
+         <where label="WR1" expression=" SIZEOF ( multiplication_matrix [ 1 ] \ Direction . coordinates ) = 3 "/>
+         <where label="WR2" expression=" SIZEOF ( multiplication_matrix [ 2 ] \ Direction . coordinates ) = 3 "/>
+         <where label="WR3" expression=" SIZEOF ( multiplication_matrix [ 3 ] \ Direction . coordinates ) = 3 "/>
+         <where label="WR4" expression=" SIZEOF ( translation . coordinates ) = 3 "/>
       </entity>
       <entity name="celsius_temperature_data_element" supertypes="value_with_unit"/>
       <entity name="certification">
@@ -716,6 +732,25 @@
       </entity>
       <entity name="class_by_extension" supertypes="class"/>
       <entity name="class_by_intension" supertypes="class"/>
+      <entity name="class_hierarchy">
+         <explicit name="super_class">
+            <typename name="class_with_attributes"/>
+         </explicit>
+         <explicit name="sub_class">
+            <typename name="class_with_attributes"/>
+         </explicit>
+      </entity>
+      <entity name="class_with_attributes" supertypes="class">
+         <explicit name="version_id" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="used_classification_system" optional="YES">
+            <typename name="classification_system"/>
+         </explicit>
+         <inverse name="characterization_attributes" entity="classification_attribute" attribute="characterized_class">
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         </inverse>
+      </entity>
       <entity name="classification_assignment">
          <explicit name="assigned_class">
             <typename name="class"/>
@@ -728,6 +763,43 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
+      <entity name="classification_association" supertypes="classification_assignment">
+         <explicit name="definitional">
+            <builtintype type="LOGICAL"/>
+         </explicit>
+         <explicit name="assigned_class">
+            <typename name="class_with_attributes"/>
+            <redeclaration entity-ref="classification_assignment"/>
+         </explicit>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( it &lt;* SELF \ Classification_assignment . items | NOT ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.DEFINABLE_OBJECTS' IN TYPEOF ( it ) ) AND definitional ) ) = 0 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( it &lt;* SELF \ Classification_assignment . items | NOT ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF ( it ) ) ) ) = 0 "/>
+      </entity>
+      <entity name="classification_attribute">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="name" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="allowed_values" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="measure_item"/>
+         </explicit>
+         <explicit name="characterized_class">
+            <typename name="class_with_attributes"/>
+         </explicit>
+      </entity>
+      <entity name="classification_system">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
       <entity name="component_upper_level_identification" supertypes="assembly_component_relationship">
          <explicit name="upper_assembly_relationship">
             <typename name="assembly_component_relationship"/>
@@ -735,26 +807,26 @@
          <explicit name="sub_assembly_relationship">
             <typename name="next_assembly_usage"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="component_upper_level_identification" attribute="upper_assembly_relationship"/>
             <unique.attribute entity-ref="component_upper_level_identification" attribute="sub_assembly_relationship"/>
          </unique>
-         <where label="wr1" expression=" self :&lt;&gt;: upper_assembly_relationship "/>
-         <where label="wr2" expression=" self \ view_definition_relationship . relating_view :=: upper_assembly_relationship \ view_definition_relationship . relating_view "/>
-         <where label="wr3" expression=" self \ view_definition_relationship . related_view :=: sub_assembly_relationship \ view_definition_relationship . related_view "/>
-         <where label="wr4" expression=" ( upper_assembly_relationship \ view_definition_relationship . related_view :=: sub_assembly_relationship \ view_definition_relationship . relating_view ) or ( sizeof ( query ( pdr &lt;* usedin ( upper_assembly_relationship \ view_definition_relationship . related_view , 'product_view_definition_relationship_arm.view_definition_relationship.related_view' ) | pdr . relating_view :=: sub_assembly_relationship \ view_definition_relationship . relating_view ) ) = 1 ) "/>
-         <where label="wr5" expression=" sizeof ( [ 'ap210_connection_zone_based_model_extraction_arm_lf.next_assembly_usage' , 'ap210_connection_zone_based_model_extraction_arm_lf.component_upper_level_identification' ] * typeof ( upper_assembly_relationship ) ) = 1 "/>
+         <where label="WR1" expression=" SELF :&lt;&gt;: upper_assembly_relationship "/>
+         <where label="WR2" expression=" SELF \ View_definition_relationship . relating_view :=: upper_assembly_relationship \ View_definition_relationship . relating_view "/>
+         <where label="WR3" expression=" SELF \ View_definition_relationship . related_view :=: sub_assembly_relationship \ View_definition_relationship . related_view "/>
+         <where label="WR4" expression=" ( upper_assembly_relationship \ View_definition_relationship . related_view :=: sub_assembly_relationship \ View_definition_relationship . relating_view ) OR ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( upper_assembly_relationship \ View_definition_relationship . related_view , 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW' ) | pdr . relating_view :=: sub_assembly_relationship \ View_definition_relationship . relating_view ) ) = 1 ) "/>
+         <where label="WR5" expression=" SIZEOF ( [ 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.NEXT_ASSEMBLY_USAGE' , 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.COMPONENT_UPPER_LEVEL_IDENTIFICATION' ] * TYPEOF ( upper_assembly_relationship ) ) = 1 "/>
       </entity>
       <entity name="conductance_data_element" supertypes="value_with_unit"/>
       <entity name="context_dependent_unit" supertypes="unit">
-         <where label="wr1" expression=" exists ( self \ unit . name ) "/>
+         <where label="WR1" expression=" EXISTS ( SELF \ Unit . name ) "/>
       </entity>
       <entity name="contextual_item_shape" supertypes="item_shape">
          <explicit name="described_element">
             <typename name="view_definition_usage"/>
             <redeclaration entity-ref="item_shape"/>
          </explicit>
-         <derived name="shaped_product" expression=" described_element \ view_definition_relationship . related_view ">
+         <derived name="shaped_product" expression=" described_element \ View_definition_relationship . related_view ">
             <typename name="product_view_definition"/>
          </derived>
       </entity>
@@ -782,7 +854,7 @@
          <explicit name="conversion_factor">
             <typename name="value_with_unit"/>
          </explicit>
-         <where label="wr1" expression=" exists ( self \ unit . name ) "/>
+         <where label="WR1" expression=" EXISTS ( SELF \ Unit . name ) "/>
       </entity>
       <entity name="data_environment">
          <explicit name="environment_name">
@@ -834,7 +906,7 @@
          <explicit name="derived_from">
             <typename name="product_view_definition"/>
          </explicit>
-         <where label="wr1" expression=" self \ product_view_definition . defined_version = derived_from . defined_version "/>
+         <where label="WR1" expression=" SELF \ Product_view_definition . defined_version = derived_from . defined_version "/>
       </entity>
       <entity name="derived_unit" supertypes="unit">
          <explicit name="elements">
@@ -904,10 +976,10 @@
          <explicit name="related_document_definition">
             <typename name="document_definition"/>
          </explicit>
-         <where label="wr1" expression=" relating_document_definition :&lt;&gt;: related_document_definition "/>
+         <where label="WR1" expression=" relating_document_definition :&lt;&gt;: related_document_definition "/>
       </entity>
       <entity name="document_location_identification" supertypes="external_source_identification">
-         <where label="wr1" expression=" 'ap210_connection_zone_based_model_extraction_arm_lf.document_definition' in typeof ( self \ external_source_identification . item ) "/>
+         <where label="WR1" expression=" 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.DOCUMENT_DEFINITION' IN TYPEOF ( SELF \ External_source_identification . item ) "/>
       </entity>
       <entity name="document_version" supertypes="product_version">
          <explicit name="of_product">
@@ -917,7 +989,7 @@
       </entity>
       <entity name="dose_equivalent_data_element" supertypes="value_with_unit"/>
       <entity name="duration" supertypes="value_with_unit">
-         <where label="wr1" expression=" 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'time_unit' in typeof ( self \ value_with_unit . unit ) "/>
+         <where label="WR1" expression=" 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'TIME_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
       </entity>
       <entity name="effectivity" super.expression="ONEOF (serial_effectivity, dated_effectivity, lot_effectivity, time_interval_effectivity)">
          <explicit name="id">
@@ -957,7 +1029,9 @@
          </explicit>
       </entity>
       <entity name="electric_charge_data_element" supertypes="value_with_unit"/>
-      <entity name="electric_current_data_element" supertypes="value_with_unit"/>
+      <entity name="electric_current_data_element" supertypes="value_with_unit">
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.ELECTRIC_CURRENT_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
+      </entity>
       <entity name="electric_current_unit" supertypes="unit"/>
       <entity name="electromotive_force_data_element" supertypes="value_with_unit"/>
       <entity name="energy_data_element" supertypes="value_with_unit"/>
@@ -1022,6 +1096,11 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
+      <entity name="external_class_with_attributes" supertypes="class_with_attributes">
+         <explicit name="source">
+            <typename name="external_class_select"/>
+         </explicit>
+      </entity>
       <entity name="external_geometric_model" supertypes="geometric_model">
          <explicit name="external_file">
             <typename name="digital_file"/>
@@ -1031,8 +1110,8 @@
             <typename name="axis_placement"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
-         <where label="wr1" expression=" self \ representation . context_of_items . dimension_count = 3 "/>
-         <where label="wr2" expression=" self \ representation . context_of_items . kind = 'external' "/>
+         <where label="WR1" expression=" SELF \ Representation . context_of_items . dimension_count = 3 "/>
+         <where label="WR2" expression=" SELF \ Representation . context_of_items . kind = 'external' "/>
       </entity>
       <entity name="external_item_identification" supertypes="external_source_identification">
          <explicit name="external_id">
@@ -1065,7 +1144,7 @@
          </explicit>
       </entity>
       <entity name="file_location_identification" supertypes="external_item_identification">
-         <where label="wr1" expression=" 'ap210_connection_zone_based_model_extraction_arm_lf.file' in typeof ( self \ external_source_identification . item ) "/>
+         <where label="WR1" expression=" 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.FILE' IN TYPEOF ( SELF \ External_source_identification . item ) "/>
       </entity>
       <entity name="file_relationship">
          <explicit name="relation_type">
@@ -1080,7 +1159,7 @@
          <explicit name="related_document_file">
             <typename name="file"/>
          </explicit>
-         <where label="wr1" expression=" relating_document_file :&lt;&gt;: related_document_file "/>
+         <where label="WR1" expression=" relating_document_file :&lt;&gt;: related_document_file "/>
       </entity>
       <entity name="force_data_element" supertypes="value_with_unit"/>
       <entity name="frequency_data_element" supertypes="value_with_unit"/>
@@ -1088,7 +1167,7 @@
          <explicit name="dimension_count">
             <builtintype type="INTEGER"/>
          </explicit>
-         <where label="wr1" expression=" dimension_count &gt; 0 "/>
+         <where label="WR1" expression=" dimension_count &gt; 0 "/>
       </entity>
       <entity name="geometric_model" supertypes="representation">
          <explicit name="version_id" optional="YES">
@@ -1107,7 +1186,7 @@
             <redeclaration entity-ref="representation"/>
          </explicit>
       </entity>
-      <entity name="group">
+      <entity name="group" abstract.supertype="YES">
          <explicit name="id" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
@@ -1125,7 +1204,7 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="group_relationship">
+      <entity name="group_relationship" abstract.supertype="YES">
          <explicit name="description" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
@@ -1203,7 +1282,7 @@
          <explicit name="design">
             <typename name="version_or_definition"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="item_design_association" attribute="configuration"/>
             <unique.attribute entity-ref="item_design_association" attribute="design"/>
          </unique>
@@ -1237,7 +1316,7 @@
          <explicit name="country_code" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="language" attribute="language_code"/>
          </unique>
       </entity>
@@ -1253,7 +1332,8 @@
          </explicit>
       </entity>
       <entity name="length_data_element" supertypes="value_with_unit">
-         <where label="wr1" expression=" self \ value_with_unit . value_component &gt;= 0.0 "/>
+         <where label="WR1" expression=" SELF \ value_with_unit . value_component &gt;= 0.0 "/>
+         <where label="WR2" expression=" 'VALUE_WITH_UNIT_ARM.LENGTH_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
       </entity>
       <entity name="length_unit" supertypes="unit"/>
       <entity name="local_time">
@@ -1279,7 +1359,9 @@
          </explicit>
       </entity>
       <entity name="luminous_flux_data_element" supertypes="value_with_unit"/>
-      <entity name="luminous_intensity_data_element" supertypes="value_with_unit"/>
+      <entity name="luminous_intensity_data_element" supertypes="value_with_unit">
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.LUMINOUS_INTENSITY_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
+      </entity>
       <entity name="luminous_intensity_unit" supertypes="unit"/>
       <entity name="magnetic_flux_data_element" supertypes="value_with_unit"/>
       <entity name="magnetic_flux_density_data_element" supertypes="value_with_unit"/>
@@ -1291,7 +1373,9 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="mass_data_element" supertypes="value_with_unit"/>
+      <entity name="mass_data_element" supertypes="value_with_unit">
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.MASS_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
+      </entity>
       <entity name="mass_unit" supertypes="unit"/>
       <entity name="material_identification">
          <explicit name="material_name">
@@ -1321,7 +1405,7 @@
             <typename name="applied_independent_property"/>
             <redeclaration entity-ref="property_representation"/>
          </explicit>
-         <where label="wr1" expression=" 'material_aspects_arm.pdm_material_property' in typeof ( self \ property_representation . property . base_independent_property ) "/>
+         <where label="WR1" expression=" 'MATERIAL_ASPECTS_ARM.PDM_MATERIAL_PROPERTY' IN TYPEOF ( SELF \ Property_representation . property . base_independent_property ) "/>
       </entity>
       <entity name="maximum_tolerance_characteristic" supertypes="tolerance_characteristic">
          <explicit name="items">
@@ -1331,7 +1415,7 @@
          </explicit>
       </entity>
       <entity name="measure_item" abstract.supertype="YES" supertypes="representation_item">
-         <where label="wr1" expression=" sizeof ( usedin ( self , 'foundation_representation_arm.representation.items' ) ) &gt; 0 "/>
+         <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS' ) ) &gt; 0 "/>
       </entity>
       <entity name="measure_item_with_precision" supertypes="measure_item">
          <explicit name="significant_digits">
@@ -1377,7 +1461,7 @@
          <explicit name="value_component">
             <typename name="measure_value"/>
          </explicit>
-         <where label="wr1" expression=" sizeof ( query ( pvr &lt;* query ( r &lt;* usedin ( self , 'foundation_representation_arm.representation.items' ) | 'ap210_connection_zone_based_model_extraction_arm_lf.property_value_representation' in typeof ( r ) ) | exists ( pvr . context_of_items . units ) ) ) &gt; 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pvr &lt;* QUERY ( r &lt;* USEDIN ( SELF , 'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS' ) | 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.PROPERTY_VALUE_REPRESENTATION' IN TYPEOF ( r ) ) | EXISTS ( pvr . context_of_items . units ) ) ) &gt; 0 "/>
       </entity>
       <entity name="numerical_item_with_unit" supertypes="measure_item value_with_unit"/>
       <entity name="numerical_representation_context" supertypes="representation_context">
@@ -1425,7 +1509,7 @@
          </explicit>
       </entity>
       <entity name="part" supertypes="product">
-         <where label="wr1" expression=" sizeof ( [ 'part' , 'raw material' , 'tool' ] * types_of_product ( self ) ) = 1 "/>
+         <where label="WR1" expression=" SIZEOF ( [ 'part' , 'raw material' , 'tool' ] * types_of_product ( SELF ) ) = 1 "/>
       </entity>
       <entity name="part_occurrence_definition_relationship" supertypes="view_definition_relationship">
          <explicit name="related_view">
@@ -1436,11 +1520,11 @@
             <typename name="part_view_definition"/>
             <redeclaration entity-ref="view_definition_relationship"/>
          </explicit>
-         <derived name="id" expression=" self \ view_definition_relationship . related_view \ product_view_definition . id ">
+         <derived name="id" expression=" SELF \ View_definition_relationship . related_view \ Product_view_definition . id ">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="view_definition_relationship"/>
          </derived>
-         <where label="wr1" expression=" not ( ( 'assembly_structure_arm.assembly_component_relationship' in typeof ( self ) ) and ( exists ( self \ assembly_component_relationship . quantity ) ) ) "/>
+         <where label="WR1" expression=" NOT ( ( 'ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF ( SELF ) ) AND ( EXISTS ( SELF \ Assembly_component_relationship . quantity ) ) ) "/>
       </entity>
       <entity name="part_version" supertypes="product_version">
          <explicit name="of_product">
@@ -1575,7 +1659,7 @@
          <explicit name="target_market" optional="YES">
             <typename name="market"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="product_concept" attribute="id"/>
          </unique>
       </entity>
@@ -1631,7 +1715,7 @@
          <explicit name="related_version">
             <typename name="product_version"/>
          </explicit>
-         <where label="wr1" expression=" relating_version :&lt;&gt;: related_version "/>
+         <where label="WR1" expression=" relating_version :&lt;&gt;: related_version "/>
       </entity>
       <entity name="product_view_definition">
          <explicit name="id">
@@ -1653,7 +1737,7 @@
          <explicit name="defined_version">
             <typename name="product_version"/>
          </explicit>
-         <where label="wr1" expression=" not ( initial_context in additional_contexts ) "/>
+         <where label="WR1" expression=" NOT ( initial_context IN additional_contexts ) "/>
       </entity>
       <entity name="project">
          <explicit name="id">
@@ -1747,7 +1831,7 @@
             <typename name="value_with_unit"/>
             <redeclaration entity-ref="product_occurrence"/>
          </explicit>
-         <where label="wr1" expression=" not ( exists ( self \ product_occurrence . quantity_criterion ) ) "/>
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ Product_occurrence . quantity_criterion ) ) "/>
       </entity>
       <entity name="range_characteristic" supertypes="characteristic_representation">
          <explicit name="range_type">
@@ -1759,7 +1843,9 @@
             <redeclaration entity-ref="representation"/>
          </explicit>
       </entity>
-      <entity name="ratio_data_element" supertypes="value_with_unit"/>
+      <entity name="ratio_data_element" supertypes="value_with_unit">
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.RATIO_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
+      </entity>
       <entity name="ratio_unit" supertypes="unit"/>
       <entity name="relative_event" supertypes="event">
          <explicit name="base_event">
@@ -1887,8 +1973,8 @@
             <builtintype type="REAL"/>
             <redeclaration entity-ref="value_with_unit" old_name="value_component"/>
          </explicit>
-         <where label="wr1" expression=" radius &gt;= 0 "/>
-         <where label="wr2" expression=" { 0 &lt;= angle &lt; 6.28218519999 } "/>
+         <where label="WR1" expression=" radius &gt;= 0 "/>
+         <where label="WR2" expression=" { 0 &lt;= angle &lt; 6.28218519999 } "/>
       </entity>
       <entity name="security_classification">
          <explicit name="classification_level">
@@ -1972,9 +2058,11 @@
          </explicit>
       </entity>
       <entity name="single_instance" supertypes="product_occurrence">
-         <where label="wr1" expression=" not ( exists ( self \ product_occurrence . occurrence_quantity ) or exists ( self \ product_occurrence . quantity_criterion ) ) "/>
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ Product_occurrence . occurrence_quantity ) OR EXISTS ( SELF \ Product_occurrence . quantity_criterion ) ) "/>
       </entity>
-      <entity name="solid_angle_data_element" supertypes="value_with_unit"/>
+      <entity name="solid_angle_data_element" supertypes="value_with_unit">
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.SOLID_ANGLE_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
+      </entity>
       <entity name="solid_angle_unit" supertypes="unit"/>
       <entity name="standard_uncertainty" supertypes="uncertainty_qualifier" super.expression="expanded_uncertainty">
          <explicit name="uncertainty_value">
@@ -1988,7 +2076,7 @@
          </explicit>
       </entity>
       <entity name="supplied_part_relationship" supertypes="product_version_relationship">
-         <where label="wr1" expression=" self \ product_version_relationship . relation_type in [ 'supplied item' , 'supplied document' ] "/>
+         <where label="WR1" expression=" SELF \ Product_version_relationship . relation_type IN [ 'supplied item' , 'supplied document' ] "/>
       </entity>
       <entity name="symmetrical_tolerance_characteristic" supertypes="tolerance_characteristic">
          <explicit name="items">
@@ -2004,7 +2092,9 @@
             <redeclaration entity-ref="representation_item"/>
          </derived>
       </entity>
-      <entity name="thermodynamic_temperature_data_element" supertypes="value_with_unit"/>
+      <entity name="thermodynamic_temperature_data_element" supertypes="value_with_unit">
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.THERMODYNAMIC_TEMPERATURE_UNIT' IN TYPEOF ( SELF \ Value_with_unit . unit ) "/>
+      </entity>
       <entity name="thermodynamic_temperature_unit" supertypes="unit"/>
       <entity name="time_interval">
          <explicit name="id">
@@ -2046,8 +2136,8 @@
          <explicit name="duration_from_primary_bound" optional="YES">
             <typename name="duration"/>
          </explicit>
-         <where label="wr1" expression=" not ( exists ( secondary_bound ) and exists ( duration_from_primary_bound ) ) "/>
-         <where label="wr2" expression=" exists ( primary_bound ) or exists ( secondary_bound ) "/>
+         <where label="WR1" expression=" NOT ( EXISTS ( secondary_bound ) AND EXISTS ( duration_from_primary_bound ) ) "/>
+         <where label="WR2" expression=" EXISTS ( primary_bound ) OR EXISTS ( secondary_bound ) "/>
       </entity>
       <entity name="time_offset">
          <explicit name="hour_offset">
@@ -2059,12 +2149,12 @@
          <explicit name="sense">
             <typename name="offset_orientation"/>
          </explicit>
-         <derived name="actual_minute_offset" expression=" nvl ( minute_offset , 0 ) ">
+         <derived name="actual_minute_offset" expression=" NVL ( minute_offset , 0 ) ">
             <builtintype type="INTEGER"/>
          </derived>
-         <where label="wr1" expression=" { 0 &lt;= hour_offset &lt; 24 } "/>
-         <where label="wr2" expression=" { 0 &lt;= actual_minute_offset &lt;= 59 } "/>
-         <where label="wr3" expression=" not ( ( ( hour_offset &lt;&gt; 0 ) or ( actual_minute_offset &lt;&gt; 0 ) ) and ( sense = exact ) ) "/>
+         <where label="WR1" expression=" { 0 &lt;= hour_offset &lt; 24 } "/>
+         <where label="WR2" expression=" { 0 &lt;= actual_minute_offset &lt;= 59 } "/>
+         <where label="WR3" expression=" NOT ( ( ( hour_offset &lt;&gt; 0 ) OR ( actual_minute_offset &lt;&gt; 0 ) ) AND ( sense = exact ) ) "/>
       </entity>
       <entity name="time_unit" supertypes="unit"/>
       <entity name="tolerance_characteristic" supertypes="characteristic_representation" super.expression="ONEOF (minimum_tolerance_characteristic, statistical_tolerance_characteristic, symmetrical_tolerance_characteristic, maximum_tolerance_characteristic, plus_minus_tolerance_characteristic, nominal_tolerance_characteristic)">
@@ -2240,19 +2330,21 @@
             <typename name="work_request"/>
          </explicit>
       </entity>
+      <subtype.constraint name="group_abstract" entity="group"/>
+      <subtype.constraint name="group_relationship_abstract" entity="group_relationship"/>
       <subtype.constraint name="alternate_measure_items" entity="measure_item" super.expression="ONEOF (measure_item_with_precision, numerical_item_with_global_unit, numerical_item_with_unit, value_limit, value_limit_with_global_unit, value_list, value_range, value_range_with_global_unit, value_set, value_with_tolerances)"/>
       <subtype.constraint name="value_with_unit_subtypes" entity="value_with_unit" super.expression="ONEOF (absorbed_dose_data_element, activity_data_element, amount_of_substance_data_element, angle_data_element, area_data_element, capacitance_data_element, celsius_temperature_data_element, conductance_data_element, dose_equivalent_data_element, electric_charge_data_element, electric_current_data_element, electromotive_force_data_element, energy_data_element, force_data_element, frequency_data_element, illuminance_data_element, inductance_data_element, length_data_element, luminous_flux_data_element, luminous_intensity_data_element, magnetic_flux_data_element, magnetic_flux_density_data_element, mass_data_element, power_data_element, pressure_data_element, ratio_data_element, resistance_data_element, scattering_parameter_data_element, solid_angle_data_element, thermodynamic_temperature_data_element, volume_data_element)"/>
       <rule name="document_definition_constraint" appliesto="product_view_definition">
-         <where label="wr1" expression=" sizeof ( query ( dd &lt;* product_view_definition | ( not ( 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'document_definition' in typeof ( dd ) ) ) and ( 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'document_version' in typeof ( dd . defined_version ) ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( dd &lt;* Product_view_definition | ( NOT ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'DOCUMENT_DEFINITION' IN TYPEOF ( dd ) ) ) AND ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF ( dd . defined_version ) ) ) ) = 0 "/>
       </rule>
       <rule name="document_version_constraint" appliesto="product_version">
-         <where label="wr1" expression=" sizeof ( query ( pv &lt;* product_version | ( not ( 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'document_version' in typeof ( pv ) ) ) and ( 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'document' in typeof ( pv . of_product ) ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF ( pv ) ) ) AND ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'DOCUMENT' IN TYPEOF ( pv . of_product ) ) ) ) = 0 "/>
       </rule>
       <rule name="part_version_constraint" appliesto="product_version">
-         <where label="wr1" expression=" sizeof ( query ( pv &lt;* product_version | ( not ( 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'part_version' in typeof ( pv ) ) ) and ( 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'part' in typeof ( pv . of_product ) ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'PART_VERSION' IN TYPEOF ( pv ) ) ) AND ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'PART' IN TYPEOF ( pv . of_product ) ) ) ) = 0 "/>
       </rule>
       <rule name="part_view_definition_constraint" appliesto="product_view_definition">
-         <where label="wr1" expression=" sizeof ( query ( pvd &lt;* product_view_definition | ( not ( 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'part_view_definition' in typeof ( pvd ) ) ) and ( 'ap210_connection_zone_based_model_extraction_arm_lf.' + 'part_version' in typeof ( pvd . defined_version ) ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'PART_VIEW_DEFINITION' IN TYPEOF ( pvd ) ) ) AND ( 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'PART_VERSION' IN TYPEOF ( pvd . defined_version ) ) ) ) = 0 "/>
       </rule>
       <function name="types_of_product">
          <parameter name="obj">
@@ -2260,7 +2352,7 @@
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
-         <algorithm> local category_assignments : bag of product_category_assignment ; categories : set of string := [ ] ; i : integer ; end_local ; category_assignments := usedin ( obj , 'product_identification_arm.' + 'product_category_assignment.products' ) ; repeat i := loindex ( category_assignments ) to hiindex ( category_assignments ) by 1 ; categories := categories + category_assignments [ i ] . category . name ; end_repeat ; return ( categories ) ; </algorithm>
+         <algorithm> LOCAL category_assignments : BAG OF Product_category_assignment ; categories : SET OF STRING := [ ] ; i : INTEGER ; END_LOCAL ; category_assignments := USEDIN ( obj , 'AP210_CONNECTION_ZONE_BASED_MODEL_EXTRACTION_ARM_LF.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) ; REPEAT i := LOINDEX ( category_assignments ) TO HIINDEX ( category_assignments ) BY 1 ; categories := categories + category_assignments [ i ] . category . name ; END_REPEAT ; RETURN ( categories ) ; </algorithm>
       </function>
    </schema>
 </express>

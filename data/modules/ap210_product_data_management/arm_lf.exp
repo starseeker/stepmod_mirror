@@ -250,6 +250,29 @@ END_TYPE; -- certification_item
 TYPE classification_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE; -- classification_item
 
+TYPE classification_item_extended = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH (
+	Part,
+	Part_version,
+	Part_view_definition);
+END_TYPE; -- classification_item_extended
+
+TYPE classified_element_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+	Part,
+	Part_version,
+	Part_view_definition);
+END_TYPE; -- classified_element_select
+
+TYPE definable_objects = SELECT (
+	Part,
+	Part_version,
+	Part_view_definition);
+END_TYPE; -- definable_objects
+
+TYPE external_class_select = SELECT (
+	Plib_class_reference,
+	External_class);
+END_TYPE; -- external_class_select
+
 TYPE version_or_definition = SELECT (
 	Product_version,
 	Product_view_definition);
@@ -624,6 +647,52 @@ ENTITY classification_assignment;
 	items : SET [1:?] OF classification_item;
 	role : OPTIONAL STRING;
 END_ENTITY; -- Classification_assignment
+
+
+ENTITY class_hierarchy;
+	super_class : Class_with_attributes;
+	sub_class : Class_with_attributes;
+END_ENTITY; -- Class_hierarchy
+
+
+ENTITY class_with_attributes
+	SUBTYPE OF (Class);
+	version_id : OPTIONAL STRING;
+	used_classification_system : OPTIONAL Classification_system;
+INVERSE
+	characterization_attributes: SET [0:?] OF Classification_attribute FOR characterized_class;
+END_ENTITY; -- Class_with_attributes
+
+
+ENTITY classification_association
+	SUBTYPE OF (Classification_assignment);
+	definitional : LOGICAL;
+	SELF\Classification_assignment.assigned_class : Class_with_attributes;
+WHERE
+	WR1 :  SIZEOF(QUERY(it <* SELF \ Classification_assignment.items | NOT('AP210_PRODUCT_DATA_MANAGEMENT_ARM_LF.DEFINABLE_OBJECTS' IN TYPEOF(it))AND definitional))= 0 ;
+	WR2 :  SIZEOF(QUERY(it <* SELF \ Classification_assignment.items | NOT('AP210_PRODUCT_DATA_MANAGEMENT_ARM_LF.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it))))= 0 ;
+END_ENTITY; -- Classification_association
+
+
+ENTITY classification_attribute;
+	id : STRING;
+	name : OPTIONAL STRING;
+	description : OPTIONAL STRING;
+	allowed_values : OPTIONAL SET [1:?] OF Measure_item;
+	characterized_class : Class_with_attributes;
+END_ENTITY; -- Classification_attribute
+
+
+ENTITY classification_system;
+	id : STRING;
+	description : OPTIONAL STRING;
+END_ENTITY; -- Classification_system
+
+
+ENTITY external_class_with_attributes
+	SUBTYPE OF (Class_with_attributes);
+	source : external_class_select;
+END_ENTITY; -- External_class_with_attributes
 
 
 ENTITY item_usage_effectivity;
@@ -1145,7 +1214,8 @@ ENTITY pdm_material_property
 END_ENTITY; -- Pdm_material_property
 
 
-ENTITY group;
+ENTITY group
+	ABSTRACT SUPERTYPE;
 	id : OPTIONAL STRING;
 	name : STRING;
 	description : OPTIONAL STRING;
@@ -1154,7 +1224,8 @@ ENTITY group;
 END_ENTITY; -- Group
 
 
-ENTITY group_relationship;
+ENTITY group_relationship
+	ABSTRACT SUPERTYPE;
 	description : OPTIONAL STRING;
 	relation_type : STRING;
 	relating_group : Group;
@@ -1881,6 +1952,12 @@ ENTITY work_request_status;
 END_ENTITY; -- Work_request_status
 
 
+SUBTYPE_CONSTRAINT group_abstract FOR Group;
+END_SUBTYPE_CONSTRAINT; -- group_abstract
+
+SUBTYPE_CONSTRAINT group_relationship_abstract FOR Group_relationship;
+END_SUBTYPE_CONSTRAINT; -- group_relationship_abstract
+
 SUBTYPE_CONSTRAINT alternate_measure_items FOR Measure_item;
 	ONEOF (Measure_item_with_precision, Numerical_item_with_global_unit, Numerical_item_with_unit, Value_limit, Value_limit_with_global_unit, Value_list, Value_range, Value_range_with_global_unit, Value_set, Value_with_tolerances);
 END_SUBTYPE_CONSTRAINT; -- alternate_measure_items
@@ -1917,7 +1994,7 @@ FUNCTION types_of_product
  i : INTEGER;
  END_LOCAL
 ;
- category_assignments := USEDIN(obj, 'PRODUCT_IDENTIFICATION_ARM.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+ category_assignments := USEDIN(obj, 'AP210_PRODUCT_DATA_MANAGEMENT_ARM_LF.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
  REPEAT i := LOINDEX(category_assignments)TO HIINDEX(category_assignments)BY 1;
  categories := categories + category_assignments [ i ].category.name;
  END_REPEAT;

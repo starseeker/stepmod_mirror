@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.148 2004/12/29 13:13:11 robbod Exp $
+$Id: common.xsl,v 1.149 2004/12/31 07:48:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1029,6 +1029,12 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   <b>
     <xsl:apply-templates/>
   </b>
+</xsl:template>
+
+<xsl:template match="tt">
+  <tt>
+    <xsl:apply-templates/>
+  </tt>
 </xsl:template>
 
 

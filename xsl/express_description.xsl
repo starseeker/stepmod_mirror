@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.47 2004/10/23 08:01:48 robbod Exp $
+$Id: express_description.xsl,v 1.48 2004/10/25 23:45:24 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -510,8 +510,9 @@ $Id: express_description.xsl,v 1.47 2004/10/23 08:01:48 robbod Exp $
     <xsl:variable name="d" select="$description"/>
     <xsl:variable name="p" select="$d//text()"/>
     <xsl:variable name="q" select="$d//b/text()"/>
+    <xsl:variable name="qt" select="$d//tt/text()"/>
     <xsl:variable name="q1" select="$d//express_ref/text()"/>
-    <xsl:variable name="q2" select="$q | $q1"/>
+    <xsl:variable name="q2" select="$q | $q1 | $qt"/>
             
     <xsl:variable name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]"/>
     <!-- <xsl:call-template name="chktxt">

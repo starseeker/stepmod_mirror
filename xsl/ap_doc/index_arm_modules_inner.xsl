@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_inner.xsl,v 1.12 2004/09/28 22:13:47 nigelshaw Exp $
+$Id: index_arm_modules_inner.xsl,v 1.13 2004/12/04 09:25:53 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -129,6 +129,7 @@ $Id: index_arm_modules_inner.xsl,v 1.12 2004/09/28 22:13:47 nigelshaw Exp $
 
         <!-- RBN - I do not understand why the EXSLT apporach is different
              to the MSXML approach ??? -->
+        <!--
 	<xsl:when test="function-available('exslt:node-set')">
 
 		  <xsl:variable name="schemas-node-set2">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.11 2003/02/05 20:50:35 nigelshaw Exp $
+$Id: select_view.xsl,v 1.12 2003/02/06 09:39:23 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -326,7 +326,7 @@ $Id: select_view.xsl,v 1.11 2003/02/05 20:50:35 nigelshaw Exp $
 					<xsl:variable name="the-assertions-mapped" >
 						<xsl:for-each 
 							select="($module_node//mapping_table/ae[@entity=$this-ent]
-							/aa[@attribute=$current-attrib/@name])" >
+							//aa[@attribute=$current-attrib/@name])" >
 							<xsl:value-of select="concat(' ',@assertion_to,' ')"/>
 						</xsl:for-each>
 					</xsl:variable>
@@ -469,7 +469,7 @@ $Id: select_view.xsl,v 1.11 2003/02/05 20:50:35 nigelshaw Exp $
 
 <!--	ZZZZ<xsl:value-of select="concat($this-ent,' ',$this-attr,' ',$this-mod)" />ZZZ -->
 
-	<xsl:if test="not($module_node//mapping_table/ae[@entity=$this-ent][@original_module=$this-mod]/aa[@attribute=$this-attr])" >
+	<xsl:if test="not($module_node//mapping_table/ae[@entity=$this-ent][@original_module=$this-mod]//aa[@attribute=$this-attr])" >
 	        <xsl:call-template name="error_message">
 		  <xsl:with-param name="inline" select="'yes'"/>
 		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -863,7 +863,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 			<xsl:variable name="the-assertions-mapped" >
 				<xsl:for-each 
 					select="($module_node//mapping_table/ae[@entity=$this-ent]
-							[@original_module=$this-mod]/aa[@attribute=$this-attr])" >
+							[@original_module=$this-mod]//aa[@attribute=$this-attr])" >
 						<xsl:value-of select="concat(' ',@assertion_to,' ')"/>
 				</xsl:for-each>
 			</xsl:variable>

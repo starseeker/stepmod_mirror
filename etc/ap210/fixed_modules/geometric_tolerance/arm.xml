@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2005-03-31T15:32:23" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="geometric_tolerance_arm schema_instance"/>
+   <schema name="Geometric_tolerance_arm">
+      <interface kind="use" schema="Derived_shape_element_arm"/>
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Measure_representation_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
+      <type name="tolerance_condition">
+         <enumeration items="maximum_material_condition least_material_condition regardless_of_feature_size"/>
+      </type>
+      <entity name="Angularity_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Circular_runout_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="angle" optional="YES">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Coaxiality_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Common_datum" supertypes="Datum">
+         <explicit name="made_up_by">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="Single_datum"/>
+         </explicit>
+      </entity>
+      <entity name="Concentricity_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Cylindricity_tolerance" supertypes="Geometric_tolerance"/>
+      <entity name="Datum"/>
+      <entity name="Datum_defined_by_derived_shape" supertypes="Derived_geometry Single_datum"/>
+      <entity name="Datum_defined_by_feature" supertypes="Single_datum">
+         <explicit name="defined_by">
+            <typename name="Shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Datum_defined_by_targets" supertypes="Single_datum">
+         <explicit name="defined_by">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Datum_target"/>
+         </explicit>
+         <explicit name="rule_description">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Datum_reference">
+         <explicit name="precedence">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="referenced_datum">
+            <typename name="Datum"/>
+         </explicit>
+      </entity>
+      <entity name="Datum_target">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Flatness_tolerance" supertypes="Geometric_tolerance"/>
+      <entity name="Geometric_tolerance" abstract.supertype="YES" super.expression="ONEOF (Angularity_tolerance, Circular_runout_tolerance, Coaxiality_tolerance, Concentricity_tolerance, Cylindricity_tolerance, Flatness_tolerance, Line_profile_tolerance, Parallelism_tolerance, Perpendicularity_tolerance, Position_tolerance, Roundness_tolerance, Straightness_tolerance, Surface_profile_tolerance, Symmetry_tolerance, Total_runout_tolerance)">
+         <explicit name="name" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="applied_to">
+            <typename name="Shape_element"/>
+         </explicit>
+         <explicit name="modification" optional="YES">
+            <typename name="tolerance_condition"/>
+         </explicit>
+         <explicit name="qualifying_note" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="segment_size" optional="YES">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <explicit name="significant_digits" optional="YES">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="tolerance_value">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <explicit name="value_determination" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <where label="WR1" expression=" ( NOT ( EXISTS ( segment_size ) ) ) OR ( 'GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF ( segment_size . value_component ) ) "/>
+         <where label="WR2" expression=" ( NOT ( EXISTS ( tolerance_value ) ) ) OR ( 'GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF ( tolerance_value . value_component ) ) "/>
+         <where label="WR3" expression=" ( NOT ( EXISTS ( significant_digits ) ) ) OR ( significant_digits &gt; 0 ) "/>
+      </entity>
+      <entity name="Geometric_tolerance_relationship">
+         <explicit name="relation_type">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Geometric_tolerance"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Geometric_tolerance"/>
+         </explicit>
+      </entity>
+      <entity name="Line_profile_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="affected_plane" optional="YES">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="0" upper="3"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Parallelism_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="affected_plane" optional="YES">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Perpendicularity_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="affected_plane" optional="YES">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="1" upper="3"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Placed_target" abstract.supertype="YES" supertypes="Datum_target" super.expression="ONEOF (Target_circle, Target_point, Target_rectangle, Target_straight_line)">
+         <explicit name="defined_in">
+            <typename name="Geometric_coordinate_space"/>
+         </explicit>
+         <explicit name="parameter_reference">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="Position_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="affected_plane" optional="YES">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="0" upper="3"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Projection" supertypes="Tolerance_zone_definition">
+         <explicit name="projection_end">
+            <typename name="Shape_element"/>
+         </explicit>
+         <explicit name="projection_length">
+            <typename name="Value_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Roundness_tolerance" supertypes="Geometric_tolerance"/>
+      <entity name="Single_datum" supertypes="Datum">
+         <explicit name="datum_name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="modification" optional="YES">
+            <typename name="tolerance_condition"/>
+         </explicit>
+      </entity>
+      <entity name="Straightness_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="affected_plane" optional="YES">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="Surface_profile_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="0" upper="3"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Symmetry_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="affected_plane" optional="YES">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="1" upper="3"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+      <entity name="Target_area" supertypes="Datum_target"/>
+      <entity name="Target_circle" supertypes="Placed_target">
+         <explicit name="diameter">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Target_point" supertypes="Placed_target"/>
+      <entity name="Target_rectangle" supertypes="Placed_target">
+         <explicit name="target_length">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+         <explicit name="target_width">
+            <typename name="Numerical_item_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Target_straight_line" supertypes="Placed_target"/>
+      <entity name="Tolerance_zone">
+         <explicit name="form_type">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="zone_for">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Geometric_tolerance"/>
+         </explicit>
+      </entity>
+      <entity name="Tolerance_zone_definition">
+         <explicit name="defining">
+            <typename name="Tolerance_zone"/>
+         </explicit>
+         <explicit name="first_element">
+            <typename name="Shape_element"/>
+         </explicit>
+         <explicit name="second_element" optional="YES">
+            <typename name="Shape_element"/>
+         </explicit>
+      </entity>
+      <entity name="Total_runout_tolerance" supertypes="Geometric_tolerance">
+         <explicit name="angle">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="reference_datum">
+            <aggregate type="SET" lower="1" upper="2"/>
+            <typename name="Datum_reference"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

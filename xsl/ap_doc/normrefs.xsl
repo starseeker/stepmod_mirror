@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: normrefs.xsl,v 1.2 2002/10/08 10:19:07 mikeward Exp $
+	$Id: normrefs.xsl,v 1.3 2003/07/28 17:10:55 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
@@ -32,12 +32,9 @@
 			<xsl:value-of select="$stdnumber"/>
 			<xsl:if test="stdref[@published='n']">
 				<sup>
-					<a href="#tobepub">
-						1)
-					</a>
+                                  <a href="#tobepub">1)x</a>
 				</sup>
-			</xsl:if>
-			,&#160;
+			</xsl:if>,&#160;
 			<i>
 				<xsl:value-of select="stdref/stdtitle"/>
 				<xsl:variable name="subtitle" select="normalize-space(stdref/subtitle)"/>

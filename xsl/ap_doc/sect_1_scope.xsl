@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_1_scope.xsl,v 1.12 2003/06/01 13:56:35 robbod Exp $
+$Id: sect_1_scope.xsl,v 1.13 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -121,7 +121,7 @@ $Id: sect_1_scope.xsl,v 1.12 2003/06/01 13:56:35 robbod Exp $
               </xsl:call-template>
             </xsl:variable>
             <xsl:apply-templates
-              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+              select="document(concat($module_dir,'/module.xml'))/module/outscope/li"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">

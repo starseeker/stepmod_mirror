@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.13 2003/08/11 07:00:23 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.14 2003/08/11 15:16:07 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -199,9 +199,8 @@ $Id: sect_2_refs.xsl,v 1.13 2003/08/11 07:00:23 robbod Exp $
         <xsl:variable name="normref_node" select="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
         <xsl:choose>
           <xsl:when test="$normref_node">
-            
+
             <xsl:variable name="part_no" select="substring-after($normref_node/stdref/stdnumber,'-')"/>
-            
             <xsl:if test="$application_protocol_number!=$part_no">
               <xsl:apply-templates 
                 select="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
@@ -703,7 +702,7 @@ $Id: sect_2_refs.xsl,v 1.13 2003/08/11 07:00:23 robbod Exp $
       select="concat('&#8212; Part ',$part,': Application module: ', $module_name,'.')"/>
     
 
-    <xsl:value-of select="$stdnumber"/>&#160;
+    <xsl:value-of select="$stdnumber"/>
 
     <xsl:choose>
       <!-- if the module is a TS or IS module and is referring to a 
@@ -712,18 +711,10 @@ $Id: sect_2_refs.xsl,v 1.13 2003/08/11 07:00:23 robbod Exp $
         test="( string(./@status)='TS' or 
               string(./@status)='IS') and
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
-        <sup>
-          <a href="#derogation">
-            2
-          </a>)
-        </sup>
+        &#160;<sup><a href="#derogation">2</a>)</sup>
       </xsl:when>
       <xsl:when test="@published='n'">
-        <sup>
-          <a href="#tobepub">
-            1
-          </a>)
-        </sup>
+        &#160;<sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160;
     <i>

@@ -88,6 +88,36 @@
     </entity>
 
     <entity
+      name="inclusion_product_concept_feature"
+      supertypes="conditional_concept_feature">
+      <where
+        label="wr1"
+        expression="NOT ( 'PRODUCT_CLASS_MIM.' + 'PACKAGE_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( SELF ) ) ">
+      </where>
+      <where
+        label="wr2"
+        expression="SIZEOF (QUERY( cfr &lt;* USEDIN ( SELF ,'PRODUCT_CLASS_MIM.' + 'CONCEPT_FEATURE_RELATIONSHIP.' +'RELATING_PRODUCT_CONCEPT_FEATURE' ) | 'PRODUCT_CLASS_MIM.'+ 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF( cfr ) ) ) +  SIZEOF(QUERY( cfr &lt;* USEDIN ( SELF , 'PRODUCT_CLASS_MIM.' + 'CONCEPT_FEATURE_RELATIONSHIP.' +'RELATED_PRODUCT_CONCEPT_FEATURE' ) | 'PRODUCT_CLASS_MIM.'+ 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF(cfr)))= 0">
+      </where>
+      <where
+        label="wr3"
+        expression="SELF.condition.conditional_operator.name = 'implication'">
+      </where>
+    </entity>
+
+    <entity
+      name="package_product_concept_feature"
+      supertypes="product_concept_feature">
+      <where
+        label="wr1"
+        expression="NOT ( 'PRODUCT_CLASS_MIM.' + 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF ( SELF ) ) ">
+      </where>
+      <where
+        label="wr2"
+        expression="SIZEOF ( QUERY ( cfr &lt;* USEDIN ( SELF ,'PRODUCT_CLASS_MIM.' + 'CONCEPT_FEATURE_RELATIONSHIP.' +'RELATING_PRODUCT_CONCEPT_FEATURE' ) | ('AUTOMOTIVE_DESIGN.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION' IN TYPEOF (cfr ) ) AND ( SIZEOF ( QUERY ( ipcf &lt;* USEDIN ( cfr , 'PRODUCT_CLASS_MIM.' + 'CONDITIONAL_CONCEPT_FEATURE.' +'CONDITION' ) | 'PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( ipcf ) ))= 1 )))&gt;0">
+      </where>
+    </entity>
+
+    <entity
       name="product_class"
       supertypes="product_concept characterized_object">
     </entity>
@@ -142,7 +172,7 @@
         </where>
         <where
           label="wr3"
-          expression="SIZEOF( QUERY (cfo &lt;* concept_feature_operator | (cfo.name = 'not') AND (SIZEOF(QUERY(cfrwc &lt;* USEDIN(cfo, 'PRODUCT_CLASS_MIM.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.' +'CONDITIONAL_OPERATOR') | cfrwc.related_product_concept_feature :&lt;&gt;: cfrwc.relating_product_concept_feature)) &gt;0 ))) = 0">
+          expression="SIZEOF( QUERY (cfo &lt;* concept_feature_operator | (cfo.name = 'not') AND (SIZEOF(QUERY(cfrwc &lt;* USEDIN(cfo, 'PRODUCT_CLASS_MIM.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.' +'CONDITIONAL_OPERATOR') |  cfrwc.related_product_concept_feature :&lt;&gt;: cfrwc.relating_product_concept_feature)) &gt;0 ))) = 0">
         </where>
 
       </rule>
@@ -167,8 +197,8 @@
         </algorithm>
 
         <where
-          label="WR1"
-          expression="SIZEOF( QUERY( pcf &lt;* product_concept_feature |   SIZEOF( QUERY( aga &lt;* USEDIN(pcf, 'PRODUCT_CLASS_MIM.' + 'APPLIED_GROUP_ASSIGNMENT.ITEMS') |   (aga.role.name = 'specification category member') AND   ('PRODUCT_CLASS_MIM.' +'PRODUCT_CONCEPT_FEATURE_CATEGORY' IN TYPEOF(aga.assigned_group)) )) &lt;&gt; 1 )) = 0">
+          label="wr1"
+          expression="SIZEOF ( QUERY ( pcf &lt;* product_concept_feature |(SIZEOF(['PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE','PRODUCT_CLASS_MIM.' + 'CONDITIONAL_CONCEPT_FEATURE'] * TYPEOF(pcf)) = 0) AND (SIZEOF ( QUERY ( aga &lt;* USEDIN ( pcf , 'PRODUCT_CLASS_MIM.' + 'APPLIED_GROUP_ASSIGNMENT.' +'ITEMS' ) | ( aga.role.name = 'specification category member' ) AND ('PRODUCT_CLASS_MIM.' + 'PRODUCT_CONCEPT_FEATURE_CATEGORY' IN TYPEOF ( aga.assigned_group )))) &lt;&gt;1 ) ) ) = 0">
         </where>
 
       </rule>

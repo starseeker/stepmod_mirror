@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.62 2003/02/25 09:39:59 nigelshaw Exp $
+$Id: sect_5_mapping.xsl,v 1.63 2003/03/13 19:17:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -759,8 +759,14 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
   <tr valign="top">
     <td>MIM element:</td>
     <td>
+      <xsl:variable name="aimelt_string">
+        <xsl:call-template name="remove_start_end_whitespace">
+          <xsl:with-param name="string" select="string(.)"/>
+        </xsl:call-template>
+      </xsl:variable>
+
       <xsl:call-template name="output_string_with_linebreaks">
-        <xsl:with-param name="string" select="string(.)"/>
+        <xsl:with-param name="string" select="$aimelt_string"/>
       </xsl:call-template>
     </td>
   </tr>
@@ -768,7 +774,11 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 
 
 <xsl:template match="source" mode="specification">
-  <xsl:variable name="str" select="string(.)"/>
+  <xsl:variable name="str">
+    <xsl:call-template name="remove_start_end_whitespace">
+      <xsl:with-param name="string" select="string(.)"/>
+    </xsl:call-template>
+  </xsl:variable> 
   <xsl:if test="string-length($str)>0">
     <tr valign="top">
       <td>Source:</td>

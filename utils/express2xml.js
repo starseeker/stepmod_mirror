@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $
+//$Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -346,7 +346,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -356,7 +356,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.24 $";
+    var appCVSRevision = "$Revision: 1.25 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -805,7 +805,9 @@ function xmlInterface(statement, outTs) {
 
 function xmlUnderlyingType(statement,outTs) {
     statement = normaliseStatement(statement);
-    var reg = /\bSET|BAG|LIST|ARRAY\b/;
+
+// PH: Add aggregate for function parameters
+    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE\b/;
     var agg = statement.match(reg);
     if (agg) {
 	var opos = statement.search(/\[/);
@@ -960,7 +962,7 @@ function xmlBuiltInType(typeType,statement,outTs) {
 }
 
 function getType(statement) {
-    var reg = /\bSET|BAG|LIST|ARRAY|SELECT|ENUMERATION|BINARY|BOOLEAN|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
+    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE|SELECT|ENUMERATION|BINARY|BOOLEAN|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
     var type = statement.match(reg);
     if (type) 
 	type = type.toString();
@@ -1022,6 +1024,7 @@ function xmlType(statement,outTs,expTs) {
     case "ARRAY" :
 	xmlUnderlyingType(statement,outTs);
 	break;
+
     default :	
 	xmlOpenElement("<typename",outTs);
 	xmlAttr("name",typeType,outTs);

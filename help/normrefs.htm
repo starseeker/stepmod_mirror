@@ -1,0 +1,447 @@
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<!-- $Id: -->
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<TITLE>Normative references</TITLE>
+<link rel="stylesheet" type="text/css" href="../css/stepmod.css">
+</HEAD>
+<BODY>
+
+  <!-- table of contents -->
+  <table border="0" cellspacing="0" cellpadding="0">
+    <tr>          
+      <td width="120">
+        <h3 align="left">
+          <b>Help</b><br/>
+          <font size="1">$Revision: 1.1 $</font>
+        </h3>
+      </td>
+      <td width="300" align="center">
+        <h3 align="left">Module Documentation</h3>
+          
+      </td>
+    </tr>    
+  </table>
+  <hr/>
+  <center>
+    <font size="2">
+      [
+      <a href="../repository_index.htm">STEPmod</a>
+      &nbsp;|&nbsp;
+      <a href="index.htm">Help index</a>
+      ]
+    </font>
+  </center>
+<h2>Introduction</h2>
+  This section describes the use of normative references, terms,
+  definitions and abbreviations.
+
+  <dl>
+    <dt><a href="#normrefs">Normative reference</a></dt>
+       <dd>A reference to another standard</dd>	    
+    <dt><a href="#terms">Term</a></dt>
+	<dd>A term used in this module. The term may be defined in another
+	    standard, in which case that standard must be identified as a
+	    normative reference</dd>
+
+    <dt><a href="#definitions">Definition</a></dt>
+	<dd>A term defined in this module</dd>
+<dt><a href="#abbreviations">Abbreviation</a></dt>
+
+	<dd>An abbreviation for a term</dd>
+  </dl>
+  
+<h2>
+  <a name="normrefs">Normative References</a>
+</h2>
+The approach to normative references in the module repository is to
+automate the inclusion of the references as far as possible.
+<p>
+This is achieved by:
+</p>
+<ul>
+  <li>
+      providing a set of predefined normative references in the XML file:
+      <a href="../data/basic/normrefs.xml">data/basic/normrefs.xml</a>
+      that can be referenced in the module documentation using
+      <code>&lt;normref.inc&gt;</code>;
+  </li>
+  <li>
+      specifying a set of default normative references that get included in
+      every module documentation by the XSL. These are defined in:
+      <a href="../data/basic/normrefs_default.xml">data/basic/normrefs_default.xml</a>;
+  </li>
+  <li>
+      the XSL style sheets automatically including all normative references
+      to any module referenced by a USE FROM in the module ARM or MIM.
+      All integrated resources referenced by a USE FROM in the MIM
+      are also output for information. The normative reference will need to
+      be added.
+  </li>
+</ul>
+
+If any additional normative references are required, then they should
+either be added to
+<a href="../data/basic/normrefs.xml">data/basic/normrefs.xml</a> and
+referenced in the module documentation using
+<code>&lt;<a href="#normref.inc">normref.inc</a>&gt;</code>
+or identified in the module documentation (<code>module.xml</code>) using
+the element <tt>&lt;normref&gt;</tt>.
+<p>
+As well as identifying that a normative reference issued by the module, the
+<tt>&lt;<a href="#normref.inc">normref.inc</a>&gt;</tt> element will also
+enable the identification of 
+the terms in the normative reference that are used in the module. This is
+done through the <tt>&lt;term.ref&gt;</tt> element.
+
+<h3>Defining a normative reference</h3>
+A normative reference is either defined in
+<a href="../data/basic/normrefs.xml">data/basic/normrefs.xml</a> or
+the module documentation <code>module.xml</code>.
+<p>
+If defined in <a
+href="../data/basic/normrefs.xml">data/basic/normrefs.xml</a> then the top
+element is:
+<pre>
+  &lt;!ELEMENT normref.list (<a href="#normref">normref</a>+)&gt;
+</pre>
+</p>
+
+<p>
+If defined in <code>module.xml</code> then the top
+element is:
+<pre>
+  &lt;!ELEMENT normrefs (<a href="#nromref">normref</a>*, <a href="#normref.inc">normref.inc</a>*)&gt;
+</pre>
+</p>
+
+<h3><a name="normref">normref</a></h3>
+A normative reference is defined by the XML element:
+<pre>
+&lt;!ELEMENT  normref      (<a href="#stdref">stdref</a>, <a href="#terms">term</a>*)&gt;
+&lt;!ATTLIST  normref
+             url        CDATA   #IMPLIED
+             id         ID      #REQUIRED
+             docbook-atts
+                        CDATA   #FIXED "url #DEFAULT"
+             docbook    NMTOKEN #FIXED "bibliomixed" &gt;
+</pre>
+where:
+<ul>
+  <li><code><a href="#stdref">stdref</a></code>
+      provides bibliographic information about the
+      normative reference.
+  </li>
+  <li><code><a href="#terms">term</a></code> lists the terms defined in the
+      normative reference and are used in this module.
+  </li>
+  <li><code>id</code> is the identifier given to the normative
+      reference. This will be used by &lt;<a
+      href="#normref.inc">normref.inc</a>&gt; to when including 
+      the normative reference in a module.
+  </li>      
+</ul>
+
+<h3><a name="stdref">stdref</a></h3>
+A definition of the standard reference, defined by:
+<pre>
+&lt;!ELEMENT  stdref       (%bib-elts;)* >
+
+&lt;!ENTITY % bib-elts    "
+  #PCDATA
+  | orgname
+  | pubdate
+  | stdnumber
+  | subtitle
+  | stdtitle
+  | ulink">
+</pre>
+Where <code> bib-elts</code> are bibliographic elements.
+<p>
+The organization name is defined by:
+<p>
+<pre>
+&lt;!ELEMENT  orgname      (#PCDATA) &gt;
+&lt;!ATTLIST  orgname
+             docbook    NMTOKEN   #FIXED "orgname" &gt;
+</pre>
+<p>
+The publication date is defined by:
+<p>
+<pre>
+&lt;!ELEMENT  pubdate      (#PCDATA)  &gt;
+&lt;!ATTLIST  pubdate
+             docbook    NMTOKEN   #FIXED "pubdate">
+</pre>
+<p>
+The standard number is defined by:
+<p>
+<pre>
+&lt;!ELEMENT  stdnumber  (#PCDATA) &gt;
+&lt;!ATTLIST  stdnumber
+             docbook    NMTOKEN  #FIXED "stdnumber"&gt;
+</pre>
+<p>
+The subtitle of the standard is defined by:
+<p>
+<pre>
+&lt;!ELEMENT  subtitle     (#PCDATA)  &gt;
+&lt;!ATTLIST  subtitle
+             docbook    NMTOKEN   #FIXED "subtitle"&gt;
+</pre>
+<p>
+
+The title of standard is defined by:
+<p>
+<pre>
+&lt;!ELEMENT  stdtitle     (#PCDATA) &gt;
+&lt;!ATTLIST  stdtitle
+             docbook    NMTOKEN   #FIXED "title"&gt;
+</pre>
+<p>
+A link to URL where the standard is held is defined by:
+<p>
+<pre>
+&lt;!ELEMENT  ulink        (#PCDATA) &gt;
+&lt;!ATTLIST  ulink
+             docbook    NMTOKEN  #FIXED "ulink"
+             url        CDATA    #REQUIRED&gt;
+</pre>
+<p>
+
+<h4>Example</h4>
+An example of a normative reference is:
+  <p/>
+  <table border="1" width="500" 
+    cellspacing="0" cellpadding="3" bgcolor="#FFFFCC">
+    <tr>
+      <td width="100%" bordercolor="#808080" valign="top" align="left">
+      <pre>
+   &lt;normref id="ref10303-501.2000"&gt;
+    &lt;stdref&gt;
+      &lt;orgname&gt;ISO&lt;/orgname&gt;
+      &lt;stdnumber&gt;10303-501:2000&lt;/stdnumber&gt;
+      &lt;stdtitle&gt;
+        Industrial automation systems and integration - Product data
+        representation and exchange
+      &lt;/stdtitle&gt;
+      &lt;subtitle&gt;
+        - Part 501: Application interpreted construct: Edge based wireframe
+      &lt;/subtitle&gt; 
+    &lt;/stdref&gt;
+  &lt;/normref&gt;</pre>      
+      </td>
+    </tr>
+  </table>
+  <p>
+A complete example is given in
+  <a href="../data/modules/example/module.xml">data/modules/example/module.xml</a>.
+The results of the XSL stylesheet being applied are:
+    <a href="../data/modules/example/sys/2_refs.htm">data/modules/example/sys/2_refs.htm</a>.
+
+  <h3><a name="terms">Terms</a></h3>
+  Terms are defined in standards and are identified in two ways.
+  <ul>
+    <li>Either terms may be defined as part of a module, in which case they
+	form part of a <a href="#definition">definition</a>. </li>
+    <li>Or terms are defined in some other a standard. If the standard is not
+	a module in the repository, then
+	the standard needs to be identified as a normative reference
+	and the terms in the normative reference identified.
+  </ul>
+  Hence part of the definition of a normative reference is the
+  identification of the terms that have been defined in that standard.
+  Once the term has been identified, it can be included as part of a
+  normative reference in the module by using the
+  <code>&lt;normref.inc&gt; and <code>&lt;term.ref&gt;</code> elements.
+  <p>
+  The term is defined by the element:
+  <pre>
+  &lt;!ELEMENT  term         (#PCDATA)&gt;                                 
+  &lt;!ATTLIST  term
+             id         ID                                 #IMPLIED
+             linkend    IDREF                              #IMPLIED
+             url        CDATA                              #IMPLIED&gt;
+
+  </pre>
+  where <code>&lt;id&gt;</code> is the identifier by which the term will be
+  referenced in <code>&lt;term.ref&gt;</code> element and hence included in
+  the module documentation.
+
+<h4>Example</h4>
+An example of a term defined in a normative reference is:
+  <p/>
+  <table border="1" width="500" 
+    cellspacing="0" cellpadding="3" bgcolor="#FFFFCC">
+    <tr>
+      <td width="100%" bordercolor="#808080" valign="top" align="left">
+      <pre>
+ &lt;normref id="ref10303-1.1994"&gt;
+   &lt;stdref&gt;
+     &lt;orgname&gt;ISO&lt;/orgname&gt; 
+     &lt;stdnumber&gt;10303-1:1994&lt;/stdnumber&gt;
+     &lt;stdtitle&gt;
+       Industrial automation systems and integration - Product data
+       representation and exchange
+     &lt;/stdtitle&gt;
+     &lt;subtitle&gt; - Part 1: Overview and fundamental principles&lt;/subtitle&gt;
+   &lt;/stdref&gt;
+   &lt;term id="term1"&gt;application&lt;/term&gt;
+ &lt;/normref&gt;
+      </pre>
+      </td>
+    </tr>
+  </table>
+  <p>
+A complete example is given in
+  <a href="../data/modules/example/module.xml">data/modules/example/module.xml</a>.
+The results of the XSL stylesheet being applied are:
+    <a href="../data/modules/example/sys/2_refs.htm">data/modules/example/sys/2_refs.htm</a>.
+
+
+  
+<h3><a name="normref.inc">Including a normative reference in a module</a></h3>
+A normative reference can be included in the module documentation by the
+element:
+<pre>
+&lt;!ELEMENT  normref.inc (<a href="#terminc">term.ref</a>*)&gt;
+&lt;!ATTLIST  normref.inc normref NMTOKEN #IMPLIED&gt;
+&lt;!ATTLIST  normref.inc module.name NMTOKEN #IMPLIED&gt;
+&lt;!ATTLIST  normref.inc resource.name NMTOKEN #IMPLIED&gt;
+</pre>
+Where:
+<ul>
+  <li><code>normref</code> is the id of a normative reference to be
+      included. The normative reference should be defined in
+      <a href="../data/basic/normrefs.xml">data/basic/normrefs.xml</a>
+      or <code>module.xml</code> using <a href="#normref">normref</a>.
+  </li>
+  <li><code>module.name</code> is the name of a module to be included as a
+      normative reference.</li> 
+  <li><code>resource.name</code> is the name of an integrated resource to
+      be included as a normative reference.</li> 
+</ul>
+<h4>Example</h4>
+An example of a normative reference being included in a module document is
+shown below. The normative reference is detailed in data/basic/normrefs.xml
+  <p/>
+  <table border="1" width="500" 
+    cellspacing="0" cellpadding="3" bgcolor="#FFFFCC">
+    <tr>
+      <td width="100%" bordercolor="#808080" align="left">
+      <pre>
+      &lt;normref.inc normref="ref10303-501.2000"/&gt;</pre>      
+      </td>
+    </tr>
+  </table>
+  <p>
+A complete example is given in
+  <a href="../data/modules/example/module.xml">data/modules/example/module.xml</a>.
+The results of the XSL stylesheet being applied are:
+    <a href="../data/modules/example/sys/3_defs.htm">data/modules/example/sys/3_defs.htm</a>.
+</p>
+
+<h3><a name="terminc">Identifying terms from normative
+  reference for inclusion in a module</a></h3>
+  If any term is to be referenced in the module, then it must be specified as
+  part of the normative reference that is being included in the
+  module. This done using the element:
+  <pre>
+  &lt;!ELEMENT  term.ref     EMPTY&gt;
+  &lt;!ATTLIST  term.ref     linkend            NMTOKEN         #IMPLIED&gt;
+  </pre>
+  where <code>&lt;linkend&gt;</code> is the <code>id</code> attribute of
+  the <code>&lt;<a href="#terms">term</a>&gt;</code>.
+  <h4>Example</h4>
+  An example of terms form a normative reference being included in a module
+  document is 
+  shown below. The normative reference is detailed in data/basic/normrefs.xml
+  <p/>
+  <table border="1" width="500" 
+    cellspacing="0" cellpadding="3" bgcolor="#FFFFCC">
+    <tr>
+      <td width="100%" bordercolor="#808080" align="left">
+      <pre>
+      &lt;normref.inc normref="ref10303-1.1994"&gt;
+        &lt;term.ref linkend="term1"/&gt; &lt;!-- application --&gt;
+      &lt;/normref.inc&gt;</pre>
+      </td>
+    </tr>
+  </table>
+  <p>
+A complete example is given in
+  <a
+  href="../data/modules/example/module.xml">data/modules/example/module.xml</a>.
+  The results of the XSL stylesheet being applied are:
+    <a href="../data/modules/example/sys/3_defs.htm">data/modules/example/sys/3_defs.htm</a>.
+The results of the XSL stylesheet being applied are:
+    <a href="../data/modules/example/sys/3_defs.htm">data/modules/example/sys/3_defs.htm</a>.
+</p>
+
+  <h3><a name="termincmod">Identifying terms from another module
+  for inclusion in a module</a></h3>
+  If a term defined in another module, is to be referenced in the module,
+  then the element &lt;normref.inc&gt; must be used with the attribute
+  &lt;module.name&gt; indicating the module where the term is defined.
+
+  <h4>Example</h4>
+  To include the module "example" as a normative reference and the use the
+  term "test term" which is defined in the module "example":
+  <p/>
+  <table border="1" width="500" 
+    cellspacing="0" cellpadding="3" bgcolor="#FFFFCC">
+    <tr>
+      <td width="100%" bordercolor="#808080" valign="top" align="left">
+      <pre>
+        &lt;normref.inc module.name="example"&gt;
+          &lt;term.ref linkend="ttt"/&gt;
+        &lt;/normref.inc&gt;
+
+      ....
+
+        &lt;definition&gt;
+          &lt;term id="ttt"&gt;test term&lt;/term&gt;
+          &lt;def&gt;The definition of the term test term.&lt;/def&gt;
+        &lt;/definition&gt;
+      </pre>
+      </td>
+    </tr>
+  </table>
+  <p>
+  <p>
+A complete example is given in
+  <a
+  href="../data/modules/example/module.xml">data/modules/example/module.xml</a>.
+  The results of the XSL stylesheet being applied are:
+    <a href="../data/modules/example/sys/3_defs.htm">data/modules/example/sys/3_defs.htm</a>.
+
+</p>
+
+<h3><a name="definitions">Definitions</a></h3>
+Each module may provide new definitions. These are defined using the
+  element:
+  <pre>
+&lt;!ELEMENT  definition   (term, def)                                  &gt;
+&lt;!ATTLIST  definition
+             id         ID                                 #IMPLIED  &gt;
+
+&lt;!ELEMENT  def          (%text-elts;)*                               &gt;
+</pre>
+  Where term is the <code>&lt;term&gt;</code> being defined and
+  <code>&lt;def&gt;</code> is the definition of the term.
+  
+<h3><a name="abbreviations">Abbreviations</a></h3>
+Abbreviations are abbreviations or acronyms for terms.
+  Like normative references, abbreviations are defined in a common file in
+  the repository for reuse.
+  <a href="../data/basic/abbreviations.xml">data/basic/abbreviations.xml</a>
+  and a set of abbreviations are defined as default in:
+  <a href="../data/basic/abbreviations_default.xml">data/basic/abbreviations_default.xml</a>
+
+  </BODY>
+</HTML>
+  
+  

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: resource_clause.xsl,v 1.5 2002/03/04 07:54:14 robbod Exp $
+$Id: resource_clause.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -10,7 +10,7 @@ $Id: resource_clause.xsl,v 1.5 2002/03/04 07:54:14 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
-
+  
   <xsl:template match="/" >
     <xsl:apply-templates select="./resource_clause" />
   </xsl:template>
@@ -21,9 +21,12 @@ $Id: resource_clause.xsl,v 1.5 2002/03/04 07:54:14 robbod Exp $
          NOTE: that the path used by document is relative to the directory
          of this xsl file
          -->
+    
+ 
     <xsl:variable 
       name="resource_xml_file"
       select="concat('../../data/resource_docs/',@directory,'/resource.xml')"/>
+
     <HTML>
       <HEAD>
         <!-- apply a cascading stylesheet.
@@ -47,9 +50,18 @@ $Id: resource_clause.xsl,v 1.5 2002/03/04 07:54:14 robbod Exp $
           select="document($resource_xml_file)/resource"
           mode="TOCmultiplePage"/>
 
-        <!-- now apply the stylesheet specified in the document -->
-        <xsl:apply-templates select="document($resource_xml_file)/resource"/>
-      </BODY>
+        <xsl:choose>
+          <xsl:when test="@pos">
+            <!--           <xsl:value-of select="@pos"/> -->
+            <xsl:apply-templates select="document($resource_xml_file)/resource">
+             <xsl:with-param name="pos" select="string(@pos)"/>
+           </xsl:apply-templates>
+         </xsl:when>
+         <xsl:otherwise>
+           <xsl:apply-templates select="document($resource_xml_file)/resource"/>
+         </xsl:otherwise>
+       </xsl:choose>
+</BODY>
     </HTML>
   </xsl:template>
 

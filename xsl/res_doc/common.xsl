@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.76 2002/09/15 20:46:28 robbod Exp $
+$Id: common.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1827,11 +1827,11 @@ $Id: common.xsl,v 1.76 2002/09/15 20:46:28 robbod Exp $
   </xsl:variable>
   <xsl:variable name="part">
     <xsl:value-of
-      select="document(concat($resdoc_dir,'/resdoc.xml'))/resdoc/@part"/>
+      select="document(concat($resdoc_dir,'/resource.xml'))/resource/@part"/>
   </xsl:variable>
   <xsl:variable name="status">
     <xsl:value-of
-      select="document(concat($resdoc_dir,'/resdoc.xml'))/resdoc/@status"/>
+      select="document(concat($resdoc_dir,'/resource.xml'))/resource/@status"/>
   </xsl:variable>
   <xsl:value-of select="concat('ISO/',$status,'&#160;10303-',$part)"/>
 </xsl:template>

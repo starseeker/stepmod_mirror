@@ -2,51 +2,51 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-30T15:27:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T17:18:59" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layout_macro_definition_arm schema_instance"/>
-   <schema name="LAYOUT_MACRO_DEFINITION_ARM">
-      <interface kind="use" schema="FABRICATION_JOINT_ARM"/>
-      <interface kind="use" schema="LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM"/>
-      <interface kind="use" schema="PHYSICAL_UNIT_DESIGN_VIEW_ARM"/>
-      <interface kind="use" schema="PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM"/>
-      <entity name="layout_macro_component" supertypes="printed_component">
+   <schema name="Layout_macro_definition_arm">
+      <interface kind="use" schema="Fabrication_joint_arm"/>
+      <interface kind="use" schema="Layered_interconnect_module_with_printed_component_design_arm"/>
+      <interface kind="use" schema="Physical_unit_design_view_arm"/>
+      <interface kind="use" schema="Printed_physical_layout_template_arm"/>
+      <entity name="Layout_macro_component" supertypes="Printed_component">
          <explicit name="design_definition">
-            <typename name="layout_macro_definition"/>
+            <typename name="Layout_macro_definition"/>
          </explicit>
          <explicit name="derived_from">
-            <typename name="layout_macro_floor_plan_template"/>
-            <redeclaration entity-ref="printed_component"/>
+            <typename name="Layout_macro_floor_plan_template"/>
+            <redeclaration entity-ref="Printed_component"/>
          </explicit>
-         <where label="wr1" expression=" not ( exists ( self \ printed_component . stratum_feature_implementation ) ) and not ( exists ( self \ printed_component . printed_component_stack ) ) and not ( exists ( self \ printed_component . associated_precedent_link ) ) and not ( exists ( self \ printed_component . associated_subsequent_link ) ) and not ( exists ( self \ printed_component . required_material_stack ) ) "/>
-         <where label="wr2" expression=" not ( exists ( self \ printed_component . footprint_implementation ) ) "/>
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ Printed_component . stratum_feature_implementation ) ) AND NOT ( EXISTS ( SELF \ Printed_component . printed_component_stack ) ) AND NOT ( EXISTS ( SELF \ Printed_component . associated_precedent_link ) ) AND NOT ( EXISTS ( SELF \ Printed_component . associated_subsequent_link ) ) AND NOT ( EXISTS ( SELF \ Printed_component . required_material_stack ) ) "/>
+         <where label="WR2" expression=" NOT ( EXISTS ( SELF \ Printed_component . footprint_implementation ) ) "/>
       </entity>
-      <entity name="layout_macro_definition" supertypes="interconnect_module">
+      <entity name="Layout_macro_definition" supertypes="Interconnect_module">
          <explicit name="floor_layout_view">
-            <typename name="layout_macro_floor_plan_template"/>
+            <typename name="Layout_macro_floor_plan_template"/>
          </explicit>
-         <where label="wr1" expression=" not ( exists ( self \ part_design_view . usage_view ) ) "/>
-         <where label="wr2" expression=" sizeof ( usedin ( self , 'layout_macro_definition_arm.definition_based_product_occurrence.derived_from' ) ) = 0 "/>
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ Part_design_view . usage_view ) ) "/>
+         <where label="WR2" expression=" SIZEOF ( USEDIN ( SELF , 'LAYOUT_MACRO_DEFINITION_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE.DERIVED_FROM' ) ) = 0 "/>
       </entity>
-      <entity name="layout_macro_definition_terminal_to_usage_terminal_assignment">
+      <entity name="Layout_macro_definition_terminal_to_usage_terminal_assignment">
          <explicit name="defined_template_feature">
-            <typename name="printed_part_template_terminal"/>
+            <typename name="Printed_part_template_terminal"/>
          </explicit>
          <explicit name="assigned_design_object">
             <typename name="fabricated_feature_select"/>
          </explicit>
-         <where label="wr1" expression=" sizeof ( usedin ( self , 'layout_macro_definition_arm.layout_macro_floor_plan_template.access_maps' ) ) = 1 "/>
+         <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'LAYOUT_MACRO_DEFINITION_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE.ACCESS_MAPS' ) ) = 1 "/>
       </entity>
-      <entity name="layout_macro_floor_plan_template" supertypes="printed_part_template">
+      <entity name="Layout_macro_floor_plan_template" supertypes="Printed_part_template">
          <explicit name="access_maps">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="layout_macro_definition_terminal_to_usage_terminal_assignment"/>
+            <typename name="Layout_macro_definition_terminal_to_usage_terminal_assignment"/>
          </explicit>
-         <inverse name="macro_definition" entity="layout_macro_definition" attribute="floor_layout_view">
+         <inverse name="macro_definition" entity="Layout_macro_definition" attribute="floor_layout_view">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="wr1" expression=" not ( exists ( self \ printed_part_template . of_stratum_technology ) ) and not ( exists ( self \ printed_part_template . material_stack ) ) and not ( exists ( self \ printed_part_template . printed_part_template_stack ) ) "/>
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ Printed_part_template . of_stratum_technology ) ) AND NOT ( EXISTS ( SELF \ Printed_part_template . material_stack ) ) AND NOT ( EXISTS ( SELF \ Printed_part_template . printed_part_template_stack ) ) "/>
       </entity>
-      <subtype.constraint name="printed_component_subtypes" entity="printed_component" super.expression="ONEOF (layout_macro_component, printed_connector_component, routed_printed_component)"/>
-      <subtype.constraint name="printed_part_template_subtypes" entity="printed_part_template" super.expression="ONEOF (layout_macro_floor_plan_template, printed_connector_template)"/>
+      <subtype.constraint name="printed_component_subtypes" entity="Printed_component" super.expression="ONEOF (Layout_macro_component, Printed_connector_component, Routed_printed_component)"/>
+      <subtype.constraint name="printed_part_template_subtypes" entity="Printed_part_template" super.expression="ONEOF (Layout_macro_floor_plan_template, Printed_connector_template)"/>
    </schema>
 </express>

@@ -2,43 +2,43 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-30T15:27:08" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T17:18:57" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="device_marking_arm schema_instance"/>
-   <schema name="DEVICE_MARKING_ARM">
-      <interface kind="use" schema="APPROVAL_ARM"/>
-      <interface kind="use" schema="CHARACTERISTIC_ARM"/>
-      <interface kind="use" schema="CONDUCTIVITY_MATERIAL_ASPECTS_ARM"/>
-      <interface kind="use" schema="PART_TEMPLATE_2D_SHAPE_ARM"/>
-      <interface kind="use" schema="PART_TEMPLATE_3D_SHAPE_ARM"/>
-      <interface kind="use" schema="PART_TEMPLATE_NON_PLANAR_SHAPE_ARM"/>
-      <interface kind="use" schema="PERSON_ORGANIZATION_ARM"/>
-      <interface kind="use" schema="PHYSICAL_UNIT_2D_SHAPE_ARM"/>
-      <interface kind="use" schema="PHYSICAL_UNIT_3D_SHAPE_ARM"/>
-      <interface kind="use" schema="PRODUCT_VERSION_ARM"/>
-      <interface kind="use" schema="SPECIFICATION_DOCUMENT_ARM"/>
-      <interface kind="use" schema="STYLED_TEXT_ARM"/>
-      <interface kind="reference" schema="SPECIFICATION_DOCUMENT_ARM">
+   <schema name="Device_marking_arm">
+      <interface kind="use" schema="Approval_arm"/>
+      <interface kind="use" schema="Characteristic_arm"/>
+      <interface kind="use" schema="Conductivity_material_aspects_arm"/>
+      <interface kind="use" schema="Part_template_2d_shape_arm"/>
+      <interface kind="use" schema="Part_template_3d_shape_arm"/>
+      <interface kind="use" schema="Part_template_non_planar_shape_arm"/>
+      <interface kind="use" schema="Person_organization_arm"/>
+      <interface kind="use" schema="Physical_unit_2d_shape_arm"/>
+      <interface kind="use" schema="Physical_unit_3d_shape_arm"/>
+      <interface kind="use" schema="Product_version_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
+      <interface kind="use" schema="Styled_text_arm"/>
+      <interface kind="reference" schema="Specification_document_arm">
          <interfaced.item name="get_document_definition"/>
       </interface>
       <type name="dm_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="marking"/>
+         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Marking"/>
       </type>
       <type name="dm_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="marking"/>
+         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Marking"/>
       </type>
       <type name="marked_message_select">
-         <select selectitems="configuration_controlled_message text_representation_item"/>
+         <select selectitems="Configuration_controlled_message Text_representation_item"/>
       </type>
       <type name="marking_shape_select">
-         <select selectitems="part_template_3d_shape physical_unit_3d_shape part_template_non_planar_2d_shape part_template_planar_shape physical_unit_planar_shape"/>
+         <select selectitems="Part_template_3d_shape Physical_unit_3d_shape Part_template_non_planar_2d_shape Part_template_planar_shape Physical_unit_planar_shape"/>
       </type>
       <type name="message_source_select">
-         <select selectitems="organization approval product_version"/>
+         <select selectitems="Organization Approval Product_version"/>
       </type>
       <type name="message_type">
          <enumeration items="part_number manufacturer_code revision_identifier approval_date"/>
       </type>
-      <entity name="configuration_controlled_message">
+      <entity name="Configuration_controlled_message">
          <explicit name="message_source">
             <typename name="message_source_select"/>
          </explicit>
@@ -49,7 +49,7 @@
             <typename name="message_type"/>
          </explicit>
       </entity>
-      <entity name="marking">
+      <entity name="Marking">
          <explicit name="marked_message">
             <typename name="marked_message_select"/>
          </explicit>
@@ -57,24 +57,24 @@
             <typename name="marking_shape_select"/>
          </explicit>
          <explicit name="placement">
-            <typename name="axis_placement"/>
+            <typename name="Axis_placement"/>
          </explicit>
          <explicit name="message_representation">
-            <typename name="feature_shape_definition"/>
+            <typename name="Feature_shape_definition"/>
          </explicit>
          <explicit name="message_representation_text">
-            <typename name="styled_text"/>
+            <typename name="Styled_text"/>
          </explicit>
-         <derived name="marking_specification" expression=" get_document_definition ( self , 'marking specification' , 'specification_document_arm.specification_definition' ) ">
+         <derived name="marking_specification" expression=" get_document_definition ( SELF , 'marking specification' , 'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="specification_definition"/>
+            <typename name="Specification_definition"/>
          </derived>
-         <inverse name="marking_material" entity="material_identification" attribute="items"/>
-         <where label="wr1" expression=" sizeof ( query ( st &lt;* message_representation \ geometric_model . items | ( st = message_representation_text ) ) ) = 1 "/>
-         <where label="wr2" expression=" sizeof ( query ( ap &lt;* marked_device_shape \ geometric_model . items | ( ap = placement ) ) ) = 1 "/>
-         <where label="wr3" expression=" sizeof ( typeof ( marked_device_shape ) * [ 'device_marking_arm.physical_unit_3d_shape' , 'device_marking_arm.physical_unit_planar_shape' ] ) = 1 "/>
-         <where label="wr4" expression=" 'conductivity_material_aspects.' + 'material_identification_with_conductivity_classification' in typeof ( marking_material ) "/>
-         <where label="wr5" expression=" exists ( marking_specification ) and sizeof ( marking_specification ) = 1 "/>
+         <inverse name="marking_material" entity="Material_identification" attribute="items"/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( st &lt;* message_representation \ Geometric_model . items | ( st = message_representation_text ) ) ) = 1 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( ap &lt;* marked_device_shape \ Geometric_model . items | ( ap = placement ) ) ) = 1 "/>
+         <where label="WR3" expression=" SIZEOF ( TYPEOF ( marked_device_shape ) * [ 'DEVICE_MARKING_ARM.PHYSICAL_UNIT_3D_SHAPE' , 'DEVICE_MARKING_ARM.PHYSICAL_UNIT_PLANAR_SHAPE' ] ) = 1 "/>
+         <where label="WR4" expression=" 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( marking_material ) "/>
+         <where label="WR5" expression=" EXISTS ( marking_specification ) AND SIZEOF ( marking_specification ) = 1 "/>
       </entity>
    </schema>
 </express>

@@ -2,74 +2,74 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-30T15:27:08" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T17:18:57" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_arm schema_instance"/>
-   <schema name="ASSEMBLY_TECHNOLOGY_ARM">
-      <interface kind="use" schema="ANALYTICAL_MODEL_ARM"/>
-      <interface kind="use" schema="ASSEMBLY_MODULE_DESIGN_ARM"/>
-      <interface kind="use" schema="COMPONENT_GROUPING_ARM"/>
-      <interface kind="use" schema="CONDUCTIVITY_MATERIAL_ASPECTS_ARM"/>
-      <interface kind="use" schema="EXTENDED_ELEMENTAL_GEOMETRIC_SHAPE_ARM"/>
-      <interface kind="use" schema="EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_ARM"/>
-      <interface kind="use" schema="PRODUCT_IDENTIFICATION_EXTENSION_ARM"/>
-      <interface kind="use" schema="SPECIFICATION_DOCUMENT_ARM"/>
+   <schema name="Assembly_technology_arm">
+      <interface kind="use" schema="Analytical_model_arm"/>
+      <interface kind="use" schema="Assembly_module_design_arm"/>
+      <interface kind="use" schema="Component_grouping_arm"/>
+      <interface kind="use" schema="Conductivity_material_aspects_arm"/>
+      <interface kind="use" schema="Extended_elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="External_item_identification_assignment_arm"/>
+      <interface kind="use" schema="Product_identification_extension_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
       <type name="at_external_identification_item">
-         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="assembly_bond_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Assembly_bond_definition"/>
       </type>
       <type name="at_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="assembly_bond_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Assembly_bond_definition"/>
       </type>
       <type name="at_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="assembly_joint"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Assembly_joint"/>
       </type>
       <type name="degree_of_freedom">
          <enumeration items="x y z u v w"/>
       </type>
-      <entity name="assembled_with_bonding" supertypes="assembly_joint">
+      <entity name="Assembled_with_bonding" supertypes="Assembly_joint">
          <explicit name="default_bond_definition">
-            <typename name="assembly_bond_definition"/>
+            <typename name="Assembly_bond_definition"/>
          </explicit>
-         <where label="wr1" expression=" self \ assembly_joint . assembly_features_1 . definition :=: default_bond_definition . bonded_feature_1 "/>
-         <where label="wr2" expression=" self \ assembly_joint . assembly_features_2 . definition :=: default_bond_definition . bonded_feature_2 "/>
+         <where label="WR1" expression=" SELF \ Assembly_joint . assembly_features_1 . definition :=: default_bond_definition . bonded_feature_1 "/>
+         <where label="WR2" expression=" SELF \ Assembly_joint . assembly_features_2 . definition :=: default_bond_definition . bonded_feature_2 "/>
       </entity>
-      <entity name="assembled_with_fasteners" supertypes="assembly_joint">
+      <entity name="Assembled_with_fasteners" supertypes="Assembly_joint">
          <explicit name="associated_assembly">
-            <typename name="assembly_group_component"/>
-            <redeclaration entity-ref="assembly_joint"/>
+            <typename name="Assembly_group_component"/>
+            <redeclaration entity-ref="Assembly_joint"/>
          </explicit>
       </entity>
-      <entity name="assembly_bond_definition">
+      <entity name="Assembly_bond_definition">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="analytical_assembly_bond_representation" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="analytical_model_application"/>
+            <typename name="Analytical_model_application"/>
          </explicit>
          <explicit name="associated_definition">
-            <typename name="externally_defined_view_definition"/>
+            <typename name="Externally_defined_view_definition"/>
          </explicit>
          <explicit name="bonded_feature_1">
-            <typename name="part_feature"/>
+            <typename name="Part_feature"/>
          </explicit>
          <explicit name="bonded_feature_2">
-            <typename name="part_feature"/>
+            <typename name="Part_feature"/>
          </explicit>
-         <inverse name="default_shape" entity="default_assembly_bond_shape" attribute="characterized_bond_definition">
+         <inverse name="default_shape" entity="Default_assembly_bond_shape" attribute="characterized_bond_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <inverse name="bond_category" entity="external_source_identification" attribute="item"/>
-         <inverse name="bond_material" entity="material_identification" attribute="items"/>
-         <unique label="ur1">
-            <unique.attribute entity-ref="assembly_bond_definition" attribute="name"/>
+         <inverse name="bond_category" entity="External_source_identification" attribute="item"/>
+         <inverse name="bond_material" entity="Material_identification" attribute="items"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Assembly_bond_definition" attribute="name"/>
          </unique>
-         <unique label="ur2">
-            <unique.attribute entity-ref="assembly_bond_definition" attribute="associated_definition"/>
+         <unique label="UR2">
+            <unique.attribute entity-ref="Assembly_bond_definition" attribute="associated_definition"/>
          </unique>
-         <where label="wr1" expression=" bonded_feature_1 &lt;&gt; bonded_feature_2 "/>
-         <where label="wr2" expression=" 'conductivity_material_aspects.' + 'material_identification_with_conductivity_classification' in typeof ( bond_material ) "/>
+         <where label="WR1" expression=" bonded_feature_1 &lt;&gt; bonded_feature_2 "/>
+         <where label="WR2" expression=" 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( bond_material ) "/>
       </entity>
-      <entity name="assembly_joint" super.expression="assembled_with_fasteners ANDOR assembled_with_bonding">
+      <entity name="Assembly_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -85,53 +85,53 @@
          <explicit name="description" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <unique label="ur1">
-            <unique.attribute entity-ref="assembly_joint" attribute="name"/>
-            <unique.attribute entity-ref="assembly_joint" attribute="associated_assembly"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Assembly_joint" attribute="name"/>
+            <unique.attribute entity-ref="Assembly_joint" attribute="associated_assembly"/>
          </unique>
-         <where label="wr1" expression=" assembly_features_1 :&lt;&gt;: assembly_features_2 "/>
-         <where label="wr2" expression=" ( 'assembly_technology_arm.assembled_with_fasteners' in typeof ( self ) ) or ( ( 'assembly_technology_arm.component_feature' in typeof ( assembly_features_1 ) ) and ( sizeof ( query ( ay &lt;* assembly_features_1 \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
-         <where label="wr3" expression=" ( 'assembly_technology_arm.assembled_with_fasteners' in typeof ( self ) ) or ( ( 'assembly_technology_arm.component_feature' in typeof ( assembly_features_2 ) ) and ( sizeof ( query ( ay &lt;* assembly_features_2 \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
+         <where label="WR1" expression=" assembly_features_1 :&lt;&gt;: assembly_features_2 "/>
+         <where label="WR2" expression=" ( 'ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF ( SELF ) ) OR ( ( 'ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF ( assembly_features_1 ) ) AND ( SIZEOF ( QUERY ( ay &lt;* assembly_features_1 \ Component_feature . associated_component \ Definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
+         <where label="WR3" expression=" ( 'ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF ( SELF ) ) OR ( ( 'ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF ( assembly_features_2 ) ) AND ( SIZEOF ( QUERY ( ay &lt;* assembly_features_2 \ Component_feature . associated_component \ Definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
       </entity>
-      <entity name="assembly_technology_specification" supertypes="process_specification"/>
-      <entity name="component_mating_constraint_condition">
+      <entity name="Assembly_technology_specification" supertypes="Process_specification"/>
+      <entity name="Component_mating_constraint_condition">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="constraining_joint">
             <aggregate type="SET" lower="1" upper="3"/>
-            <typename name="assembly_joint"/>
+            <typename name="Assembly_joint"/>
          </explicit>
          <explicit name="constrained_degree_of_freedom">
             <aggregate type="SET" lower="1" upper="5"/>
             <typename name="degree_of_freedom"/>
          </explicit>
          <explicit name="of_context">
-            <typename name="part_design_view"/>
+            <typename name="Part_design_view"/>
          </explicit>
-         <unique label="ur1">
-            <unique.attribute entity-ref="component_mating_constraint_condition" attribute="name"/>
-            <unique.attribute entity-ref="component_mating_constraint_condition" attribute="of_context"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Component_mating_constraint_condition" attribute="name"/>
+            <unique.attribute entity-ref="Component_mating_constraint_condition" attribute="of_context"/>
          </unique>
       </entity>
-      <entity name="connection_zone_based_assembly_joint" supertypes="assembly_joint">
+      <entity name="Connection_zone_based_assembly_joint" supertypes="Assembly_joint">
          <explicit name="zone_1">
-            <typename name="connection_zone_in_design_view"/>
+            <typename name="Connection_zone_in_design_view"/>
          </explicit>
          <explicit name="zone_2">
-            <typename name="connection_zone_in_design_view"/>
+            <typename name="Connection_zone_in_design_view"/>
          </explicit>
-         <where label="wr1" expression=" zone_1 :&lt;&gt;: zone_2 "/>
+         <where label="WR1" expression=" zone_1 :&lt;&gt;: zone_2 "/>
       </entity>
-      <entity name="default_assembly_bond_shape" supertypes="feature_shape_definition">
+      <entity name="Default_assembly_bond_shape" supertypes="Feature_shape_definition">
          <explicit name="characterized_bond_definition">
-            <typename name="assembly_bond_definition"/>
+            <typename name="Assembly_bond_definition"/>
          </explicit>
       </entity>
-      <entity name="reference_packaged_part_assembly_implementation" supertypes="assembly_module">
-         <where label="wr1" expression=" sizeof ( query ( pca &lt;* usedin ( self \ product_view_definition . defined_version . of_product , 'assembly_technology_arm.product_category_assignment.products' ) | not ( pca . category \ product_category . name = 'template model' ) ) ) = 0 "/>
+      <entity name="Reference_packaged_part_assembly_implementation" supertypes="Assembly_module">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pca &lt;* USEDIN ( SELF \ Product_view_definition . defined_version . of_product , 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | NOT ( pca . category \ Product_category . name = 'template model' ) ) ) = 0 "/>
       </entity>
-      <subtype.constraint name="assembly_module_subtypes" entity="assembly_module" super.expression="ONEOF (pca, reference_packaged_part_assembly_implementation)"/>
-      <subtype.constraint name="process_specification_subtypes" entity="process_specification" super.expression="ONEOF (assembly_technology_specification, fabrication_technology_specification)"/>
+      <subtype.constraint name="assembly_module_subtypes" entity="Assembly_module" super.expression="ONEOF (Pca, Reference_packaged_part_assembly_implementation)"/>
+      <subtype.constraint name="process_specification_subtypes" entity="Process_specification" super.expression="ONEOF (Assembly_technology_specification, Fabrication_technology_specification)"/>
    </schema>
 </express>

@@ -2,152 +2,152 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-30T15:27:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T17:18:59" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="network_functional_design_view_arm schema_instance"/>
-   <schema name="NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM">
-      <interface kind="use" schema="MODEL_PARAMETER_ARM"/>
-      <interface kind="use" schema="NETWORK_FUNCTIONAL_USAGE_VIEW_ARM"/>
-      <interface kind="use" schema="PART_OCCURRENCE_ARM"/>
-      <interface kind="use" schema="REQUIREMENT_ASSIGNMENT_ARM"/>
+   <schema name="Network_functional_design_view_arm">
+      <interface kind="use" schema="Model_parameter_arm"/>
+      <interface kind="use" schema="Network_functional_usage_view_arm"/>
+      <interface kind="use" schema="Part_occurrence_arm"/>
+      <interface kind="use" schema="Requirement_assignment_arm"/>
       <type name="bus_structural_definition_or_node">
-         <select selectitems="functional_unit_network_node_definition bus_structural_definition"/>
+         <select selectitems="Functional_unit_network_node_definition Bus_structural_definition"/>
       </type>
       <type name="nfdw_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="functional_unit"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Functional_unit"/>
       </type>
-      <entity name="bus_element_link">
+      <entity name="Bus_element_link">
          <explicit name="precedent_element">
             <typename name="bus_structural_definition_or_node"/>
          </explicit>
          <explicit name="subsequent_element">
             <typename name="bus_structural_definition_or_node"/>
          </explicit>
-         <unique label="ur1">
-            <unique.attribute entity-ref="bus_element_link" attribute="precedent_element"/>
-            <unique.attribute entity-ref="bus_element_link" attribute="subsequent_element"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Bus_element_link" attribute="precedent_element"/>
+            <unique.attribute entity-ref="Bus_element_link" attribute="subsequent_element"/>
          </unique>
-         <where label="wr1" expression=" precedent_element &lt;&gt; subsequent_element "/>
+         <where label="WR1" expression=" precedent_element &lt;&gt; subsequent_element "/>
       </entity>
-      <entity name="bus_structural_definition">
+      <entity name="Bus_structural_definition">
          <explicit name="bus_name">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="composition">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="bus_element_link"/>
+            <typename name="Bus_element_link"/>
          </explicit>
-         <inverse name="external_bus_access" entity="functional_unit_network_terminal_definition_bus_assignment" attribute="connected_bus">
+         <inverse name="external_bus_access" entity="Functional_unit_network_terminal_definition_bus_assignment" attribute="connected_bus">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <unique label="ur1">
-            <unique.attribute entity-ref="bus_structural_definition" attribute="bus_name"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Bus_structural_definition" attribute="bus_name"/>
          </unique>
-         <where label="wr1" expression=" consistent_bus_structural_definition ( composition ) "/>
+         <where label="WR1" expression=" consistent_bus_structural_definition ( composition ) "/>
       </entity>
-      <entity name="functional_unit" supertypes="definition_based_product_occurrence">
+      <entity name="Functional_unit" supertypes="Definition_based_product_occurrence">
          <explicit name="definition">
-            <typename name="functional_unit_definition"/>
-            <redeclaration entity-ref="definition_based_product_occurrence" old_name="derived_from"/>
+            <typename name="Functional_unit_definition"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
          </explicit>
          <explicit name="reference_designation">
             <builtintype type="STRING"/>
-            <redeclaration entity-ref="product_view_definition" old_name="id"/>
+            <redeclaration entity-ref="Product_view_definition" old_name="id"/>
          </explicit>
          <explicit name="functional_property" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="parameter_assignment_override"/>
+            <typename name="Parameter_assignment_override"/>
          </explicit>
-         <derived name="composed_network" expression=" self \ definition_based_product_occurrence . occurrence_contexts [ 1 ] . relating_view ">
-            <typename name="functional_unit_network_definition"/>
+         <derived name="composed_network" expression=" SELF \ Definition_based_product_occurrence . occurrence_contexts [ 1 ] . relating_view ">
+            <typename name="Functional_unit_network_definition"/>
          </derived>
-         <inverse name="access_mechanisms" entity="functional_unit_terminal" attribute="accessed_functional_unit">
+         <inverse name="access_mechanisms" entity="Functional_unit_terminal" attribute="accessed_functional_unit">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <unique label="ur1">
-            <unique.attribute entity-ref="functional_unit" attribute="reference_designation"/>
-            <unique.attribute entity-ref="functional_unit" attribute="composed_network"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Functional_unit" attribute="reference_designation"/>
+            <unique.attribute entity-ref="Functional_unit" attribute="composed_network"/>
          </unique>
-         <where label="wr1" expression=" sizeof ( self \ definition_based_product_occurrence . occurrence_contexts ) = 1 "/>
-         <where label="wr2" expression=" exists ( composed_network ) "/>
+         <where label="WR1" expression=" SIZEOF ( SELF \ Definition_based_product_occurrence . occurrence_contexts ) = 1 "/>
+         <where label="WR2" expression=" EXISTS ( composed_network ) "/>
       </entity>
-      <entity name="functional_unit_network_definition" supertypes="functional_unit_definition">
+      <entity name="Functional_unit_network_definition" supertypes="Functional_unit_definition">
          <explicit name="usage_view">
-            <typename name="functional_unit_usage_view"/>
+            <typename name="Functional_unit_usage_view"/>
          </explicit>
       </entity>
-      <entity name="functional_unit_network_node_definition">
+      <entity name="Functional_unit_network_node_definition">
          <explicit name="associated_functional_unit_definition">
-            <typename name="functional_unit_network_definition"/>
+            <typename name="Functional_unit_network_definition"/>
          </explicit>
          <explicit name="functional_unit_network_node_name">
             <builtintype type="STRING"/>
          </explicit>
-         <derived name="valid_conservative_node" expression=" ( ( sizeof ( usedin ( self , 'network_functional_design_view_arm.bus_element_link.precedent_element' ) ) + sizeof ( usedin ( self , 'network_functional_design_view_arm.bus_element_link.subsequent_element' ) ) + sizeof ( usedin ( self , 'network_functional_design_view_arm.functional_unit_terminal_node_assignment.composed_node' ) ) + sizeof ( external_node_access ) ) &gt; 1 ) ">
+         <derived name="valid_conservative_node" expression=" ( ( SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) ) + SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' ) ) + SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE' ) ) + SIZEOF ( external_node_access ) ) &gt; 1 ) ">
             <builtintype type="BOOLEAN"/>
          </derived>
-         <inverse name="external_node_access" entity="functional_unit_network_terminal_definition_node_assignment" attribute="composed_node">
+         <inverse name="external_node_access" entity="Functional_unit_network_terminal_definition_node_assignment" attribute="composed_node">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <unique label="ur1">
-            <unique.attribute entity-ref="functional_unit_network_node_definition" attribute="functional_unit_network_node_name"/>
-            <unique.attribute entity-ref="functional_unit_network_node_definition" attribute="associated_functional_unit_definition"/>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Functional_unit_network_node_definition" attribute="functional_unit_network_node_name"/>
+            <unique.attribute entity-ref="Functional_unit_network_node_definition" attribute="associated_functional_unit_definition"/>
          </unique>
-         <where label="wr1" expression=" exists ( valid_conservative_node ) "/>
+         <where label="WR1" expression=" EXISTS ( valid_conservative_node ) "/>
       </entity>
-      <entity name="functional_unit_network_terminal_definition_bus_assignment">
+      <entity name="Functional_unit_network_terminal_definition_bus_assignment">
          <explicit name="connected_bus">
-            <typename name="bus_structural_definition"/>
+            <typename name="Bus_structural_definition"/>
          </explicit>
          <explicit name="connected_terminal">
-            <typename name="functional_unit_usage_view_terminal_definition"/>
+            <typename name="Functional_unit_usage_view_terminal_definition"/>
          </explicit>
       </entity>
-      <entity name="functional_unit_network_terminal_definition_node_assignment">
+      <entity name="Functional_unit_network_terminal_definition_node_assignment">
          <explicit name="composed_node">
-            <typename name="functional_unit_network_node_definition"/>
+            <typename name="Functional_unit_network_node_definition"/>
          </explicit>
          <explicit name="connected_terminal">
-            <typename name="functional_unit_usage_view_terminal_definition"/>
+            <typename name="Functional_unit_usage_view_terminal_definition"/>
          </explicit>
       </entity>
-      <entity name="functional_unit_terminal">
+      <entity name="Functional_unit_terminal">
          <explicit name="accessed_functional_unit">
-            <typename name="functional_unit"/>
+            <typename name="Functional_unit"/>
          </explicit>
          <explicit name="definition">
-            <typename name="functional_unit_usage_view_terminal_definition"/>
+            <typename name="Functional_unit_usage_view_terminal_definition"/>
          </explicit>
-         <inverse name="bus_assignment" entity="functional_unit_terminal_bus_assignment" attribute="connected_terminal">
+         <inverse name="bus_assignment" entity="Functional_unit_terminal_bus_assignment" attribute="connected_terminal">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <inverse name="node_assignment" entity="functional_unit_terminal_node_assignment" attribute="connected_terminal">
+         <inverse name="node_assignment" entity="Functional_unit_terminal_node_assignment" attribute="connected_terminal">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
       </entity>
-      <entity name="functional_unit_terminal_bus_assignment">
+      <entity name="Functional_unit_terminal_bus_assignment">
          <explicit name="connected_bus">
-            <typename name="bus_structural_definition"/>
+            <typename name="Bus_structural_definition"/>
          </explicit>
          <explicit name="connected_terminal">
-            <typename name="functional_unit_terminal"/>
+            <typename name="Functional_unit_terminal"/>
          </explicit>
       </entity>
-      <entity name="functional_unit_terminal_node_assignment">
+      <entity name="Functional_unit_terminal_node_assignment">
          <explicit name="composed_node">
-            <typename name="functional_unit_network_node_definition"/>
+            <typename name="Functional_unit_network_node_definition"/>
          </explicit>
          <explicit name="connected_terminal">
-            <typename name="functional_unit_terminal"/>
+            <typename name="Functional_unit_terminal"/>
          </explicit>
       </entity>
-      <subtype.constraint name="functional_unit_definition_subtypes" entity="functional_unit_definition" super.expression="ONEOF (functional_unit_network_definition, functional_unit_usage_view)"/>
+      <subtype.constraint name="functional_unit_definition_subtypes" entity="Functional_unit_definition" super.expression="ONEOF (Functional_unit_network_definition, Functional_unit_usage_view)"/>
       <function name="consistent_bus_structural_definition">
          <parameter name="input">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="bus_element_link"/>
+            <typename name="Bus_element_link"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> local vertex : set of bus_structural_definition_or_node := [ ] ; edge : integer := sizeof ( input ) ; vc : integer := 0 ; vertex_degree : integer := 0 ; end_local ; repeat i := 1 to sizeof ( input ) by 1 ; vertex := vertex + input [ i ] . precedent_element ; vertex := vertex + input [ i ] . subsequent_element ; end_repeat ; vc := sizeof ( vertex ) ; if ( vc &lt;&gt; ( edge + 1 ) ) then return ( false ) ; end_if ; repeat i := 1 to vc by 1 ; vertex_degree := 0 ; repeat j := 1 to sizeof ( input ) by 1 ; if input [ j ] . precedent_element = vertex [ i ] then vertex_degree := vertex_degree + 1 ; end_if ; if input [ j ] . subsequent_element = vertex [ i ] then vertex_degree := vertex_degree + 1 ; end_if ; end_repeat ; if ( vertex_degree &gt; 2 ) then return ( false ) ; end_if ; end_repeat ; return ( true ) ; </algorithm>
+         <algorithm> LOCAL vertex : SET OF bus_structural_definition_or_node := [ ] ; edge : INTEGER := SIZEOF ( input ) ; vc : INTEGER := 0 ; vertex_degree : INTEGER := 0 ; END_LOCAL ; REPEAT i := 1 TO SIZEOF ( input ) BY 1 ; vertex := vertex + input [ i ] . precedent_element ; vertex := vertex + input [ i ] . subsequent_element ; END_REPEAT ; vc := SIZEOF ( vertex ) ; IF ( vc &lt;&gt; ( edge + 1 ) ) THEN RETURN ( FALSE ) ; END_IF ; REPEAT i := 1 TO vc BY 1 ; vertex_degree := 0 ; REPEAT j := 1 TO SIZEOF ( input ) BY 1 ; IF input [ j ] . precedent_element = vertex [ i ] THEN vertex_degree := vertex_degree + 1 ; END_IF ; IF input [ j ] . subsequent_element = vertex [ i ] THEN vertex_degree := vertex_degree + 1 ; END_IF ; END_REPEAT ; IF ( vertex_degree &gt; 2 ) THEN RETURN ( FALSE ) ; END_IF ; END_REPEAT ; RETURN ( TRUE ) ; </algorithm>
       </function>
    </schema>
 </express>

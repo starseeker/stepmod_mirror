@@ -511,52 +511,54 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXARMMAPPINGSTOP</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/xml arm_mappings_top.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_mappings_top.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXARMMODULES</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/arm_modules.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_modules.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXARMMODULESINNER</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/arm_modules_inner.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_modules_inner.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXARMMODULESTOP</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/arm_modules_top.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_modules_top.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXMIMEXPRESS</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/mim_express.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_mim_express.xml</xsl:attribute>
     </xsl:element>
-    
+
+    <!--    
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXMIMEXPRESSINNERXML</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/mim_express_inner.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_mim_express_inner.xml</xsl:attribute>
     </xsl:element>
-    
+
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXMIMEXPRESSTOP</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/mim_express_top.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_mim_express_top.xml</xsl:attribute>
     </xsl:element>
+    -->
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXMIMMODULES</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/mim_modules.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_mim_modules.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXMIMMODULESINNER</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/mim_modules_inner.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_mim_modules_inner.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXMIMMODULESTOP</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/mim_modules_top.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_mim_modules_top.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
@@ -571,7 +573,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXRESOURCESTOP</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/xmlindex_resources_top.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_resources_top.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
@@ -2696,7 +2698,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/xml arm_mappings_top.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_arm_mappings_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -2737,7 +2739,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/arm_modules.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_arm_modules.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -2778,7 +2780,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/arm_modules_inner.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_arm_modules_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -2819,7 +2821,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/arm_modules_top.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_arm_modules_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -2860,7 +2862,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/mim_express.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_mim_express.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -2888,9 +2890,10 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${ISOMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+      </xsl:element>
 
-        <xsl:element name="style">
+      <!-- RBN NOT USED ???
+           <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMEXPRESSINNERXML}'"/>
         </xsl:attribute>
@@ -2901,7 +2904,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/mim_express_inner.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_mim_express_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -2929,7 +2932,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${ISOMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2942,7 +2945,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/mim_express_top.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_mim_express_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -2971,7 +2974,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
          </xsl:element>
-
+-->
         <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMMODULES}'"/>
@@ -2983,7 +2986,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/mim_modules.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_mim_modules.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -3024,7 +3027,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/mim_modules_inner.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_mim_modules_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -3065,7 +3068,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/mim_modules_top.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_mim_modules_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">
@@ -3188,7 +3191,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${APXSL}/xmlindex_resources_top.xsl'"/>
+          <xsl:value-of select="'${APXSL}/index_resources_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
          <xsl:element name="param">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.14 2003/03/21 10:06:18 robbod Exp $
+$Id: ballot_summary.xsl,v 1.15 2003/05/17 00:48:14 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -107,42 +107,84 @@ $Id: ballot_summary.xsl,v 1.14 2003/03/21 10:06:18 robbod Exp $
       </table>
 
       <xsl:choose>
-        <xsl:when test="./*/module">   
-      <hr/>
-      <table border="1">
-        <tr>
-          <td><b>Module package</b></td>
-          <td><b>Module</b></td>
-          <td><b>Part</b></td>
-          <td><b>Version</b></td>
-          <td><b>Status</b></td>
-          <td><b>Year</b></td>
-          <td><b>Abstract</b></td>
-          <td><b>ARM EXPRESS</b></td>
-          <td><b>ARM LF EXPRESS</b></td>          
-          <td><b>MIM EXPRESS</b></td>
-          <td><b>MIM LF EXPRESS</b></td>
-        </tr>
-        <xsl:apply-templates select="./*/module"/>
-      </table>
-    </xsl:when>
-    <xsl:when test="./*/resource">   
-      <hr/>
-      <table border="1">
-        <tr>
-          <td><b>Resource part package</b></td>
-          <td><b>Resource part</b></td>
-          <td><b>Part</b></td>
-          <td><b>Version</b></td>
-          <td><b>Status</b></td>
-          <td><b>Year</b></td>
-        </tr>
-        <xsl:apply-templates select="./*/resource"/>
-      </table>
-    </xsl:when>
-    </xsl:choose>
+        <xsl:when test="./*/module">
+          <hr/>
+          <table border="1">
+            <tr>
+              <td><b>Module package</b></td>
+              <td><b>Module</b></td>
+              <td><b>Part</b></td>
+              <td><b>Version</b></td>
+              <td><b>Status</b></td>
+              <td><b>Year</b></td>
+              <td><b>Abstract</b></td>
+              <td><b>ARM EXPRESS</b></td>
+              <td><b>ARM LF EXPRESS</b></td>          
+              <td><b>MIM EXPRESS</b></td>
+              <td><b>MIM LF EXPRESS</b></td>
+            </tr>
+            <xsl:apply-templates select="./*/module"/>
+          </table>
+        </xsl:when>
+        <xsl:when test="./*/resource">
+          <hr/>
+          <table border="1">
+            <tr>
+              <td><b>Resource part package</b></td>
+              <td><b>Resource part</b></td>
+              <td><b>Part</b></td>
+              <td><b>Version</b></td>
+              <td><b>Status</b></td>
+              <td><b>Year</b></td>
+            </tr>
+            <xsl:apply-templates select="./*/resource"/>
+          </table>
+        </xsl:when>
+        <xsl:when test="./*/ap_doc">
+          <hr/>
+          <table border="1">
+            <tr>
+              <td><b>AP document part package</b></td>
+              <td><b>AP document part</b></td>
+              <td><b>Part</b></td>
+              <td><b>Version</b></td>
+              <td><b>Status</b></td>
+              <td><b>Year</b></td>
+            </tr>
+            <xsl:apply-templates select="./*/ap_doc"/>
+          </table>
+        </xsl:when>
+      </xsl:choose>
     </body>
   </HTML>
+</xsl:template>
+
+
+<xsl:template match="ap_doc">
+  <xsl:variable name="apdoc_ok">
+    <!-- not yet implemented 
+    <xsl:call-template name="check_apdoc_exists">
+      <xsl:with-param name="resdoc" select="@name"/>
+    </xsl:call-template> -->
+    'true'
+  </xsl:variable>
+  <xsl:choose>
+    <xsl:when test="$apdoc_ok='true'">
+      <tr>
+        <!-- Ballot package -->
+        <td>
+          <xsl:choose>
+            <xsl:when test="../@id">
+              <xsl:value-of select="concat(../@id,' - ',../@name)"/>    
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="../@name"/> 
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+      </tr>
+    </xsl:when>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="resource">

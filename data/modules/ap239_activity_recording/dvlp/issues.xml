@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.18 2004/09/17 13:59:41 robbod Exp $ -->
+<!-- $Id: issues.xml,v 1.19 2004/09/22 09:11:10 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="ap239_activity_recording">
@@ -175,17 +175,54 @@ Resource_item_relationship
 			</description>
 		</comment>
 	</issue>
-	<issue id="IB1" type="arm" linkend="" status="open"
-category="minor_technical" by="Ian Bailey" date="04-07-29" seds="no"
-ballot="PLCS DIS ballot" ballot_comment="no" member_body="UK" resolution="accept">
-		<description>
-Not sure if this is the correct module to raise this, but it does not seem to be possible to assign a requirement to an activity, or to a resource. 
+<issue id="IB1" type="arm" linkend="" status="open"
+  category="minor_technical" by="Ian Bailey" date="04-07-29" seds="no"
+  ballot="PLCS DIS ballot" ballot_comment="no" member_body="UK" resolution="TBD">
+  
+  <issue_management
+    owner="Leif Gyllstrom"
+    priority="low"
+    category=""/>
+<description>
+    <p>
+Not sure if this is the correct module to raise this, but it does not seem
+to be possible to assign a requirement to an activity, or to a resource. 
+    </p>
+    <p>
+For required resources we sometimes have required properties (see example
+in the assigning_required_resources capability with the test equipment with
+a required accuracy). For every other case in PLCS we assign requirements
+when we want to have required properties - i.e. we create instances of
+requirement_assignment, requirement, requirement_version, etc. Requirement
+is a subtype of product because there is a need to configuration control
+requirements. In the case of required resources however, we cannot do this
+as the requirement_assignment select does not have
+required_resource_by_resource_item in it.  
+    </p>
+    <p> 
+Hence I have just shown properties being assigned in this
+capability. However, I am not comfortable with this, as those properties
+will be requirements and will effectively slip through the configuration
+control net. It also provides endless possibilities for data inconsistency
+through the product lifecycle. For example, imagine a system requirements
+document that defines supportability requirements - one of which is an
+inspection ramp that can lift a 2 tonne road vehicle. This would be
+modelled as a system_element (qualified as "required" and e.g. assembled
+into a system breakdown called "support solution"). However, when we get
+into the support phase, the required_resource_by_resource_item instance
+will be used to duplicate the same information originally defined in the
+requirements.  
+     </p>
+    <p>
+My recommendation is to go for a consistent approach, where requirement,
+requirement_version, etc. are always used to represent required properties
+- chances are these properties originated in a requirements management
+tool, anyway. But, to do this we need a change to the model to extend the
+requirement_assignment select to inclide required_resource_by_resource_item
+(and any other resource entities the PLCS modellers deem fit to include).
+    </p>
 </description>
-		<comment by="Rob Bodington" date="03-11-13">
-			<description>
-The diagram was erroneously showing a REFERENCE FROM - changed to a USE FROM.
-</description>
-		</comment>
+
 	</issue>
 		<issue id="SMB-G-1" type="arm"
 linkend="Ap239_task_specification_resourced_arm" status="open"

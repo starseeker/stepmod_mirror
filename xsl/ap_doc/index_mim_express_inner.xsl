@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_express_modules_inner.xsl,v 1.1 2003/05/23 12:13:20 nigelshaw Exp $
+$Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -647,9 +647,14 @@ $Id: index_express_modules_inner.xsl,v 1.1 2003/05/23 12:13:20 nigelshaw Exp $
 			<br/>
 			</xsl:when>
 			<xsl:otherwise>
-			<br/>
-			BAD SCHEMA name !!! <xsl:value-of select="$schema-name"/>
-			<br/>
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error APindex6: Unable to locate defining schema  for entity ',
+				    @name, ' found in MIM Long Form')"/>
+				</xsl:call-template>    	
 			</xsl:otherwise>
 		</xsl:choose>
 
@@ -659,30 +664,93 @@ $Id: index_express_modules_inner.xsl,v 1.1 2003/05/23 12:13:20 nigelshaw Exp $
 <xsl:template match="constant" mode="module-index" >
 	<xsl:param name="called-schemas" />
 
-		<xsl:variable name="mod-name" select="substring-before(../@name,'_mim')" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+	<xsl:choose>
+		<xsl:when test="@name='schema_name'" >
+
+			<xsl:variable name="mod-name" select="substring-before(../@name,'_mim')" />
+	
+			<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
 
 		
-		<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{../@name}.{@name}" TARGET="content" >
-		<xsl:value-of select="@name" /></A>
+			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{../@name}.{@name}" TARGET="content" >
+				<xsl:value-of select="@name" /></A>
 			<br/>
+	</xsl:when>
+	<xsl:otherwise>
+		<xsl:variable name="this-const-name" select="translate(@name,$UPPER, $LOWER)" />
+		<b><xsl:value-of select="@name" /></b>
+		<br/>
+		<!-- find original definition -->
+
+		<xsl:variable name="orig" 
+		select="$called-schemas//constant[translate(@name,$UPPER, $LOWER)=$this-const-name]" />
+
+		<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
+
+		<xsl:choose>
+			<xsl:when test="substring-before($schema-name,'_mim')" >
+    				<xsl:variable name="mod-dir" 
+				 select="translate(concat('../../../../../stepmod/data/modules/',
+						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+				<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" 
+					TARGET="content" >Definition</A>
+				<xsl:text> </xsl:text>
+				<A 
+			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+				TARGET="content" >Long-form</A>
+				<br/>
+			
+			</xsl:when>
+			<xsl:when test="substring-before($schema-name,'_schema')" >
+ 	 			<xsl:variable name="res-dir" 
+				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" 
+					TARGET="content" >Definition</A>
+				<xsl:text> </xsl:text>
+				<A 
+			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+				TARGET="content" >Long-form</A>
+				<br/>
+				</xsl:when>
+				<xsl:when test="starts-with($schema-name,'aic_')" >
+		    			<xsl:variable name="res-dir" 
+					 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
+				<xsl:text> </xsl:text>
+				<A 
+			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+				TARGET="content" >Long-form</A>
+				<br/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+				            select="concat('Error APindex1: Unable to locate defining schema  for constant ',
+					    @name, ' found in MIM Long Form')"/>
+					</xsl:call-template>    	
+				</xsl:otherwise>
+			</xsl:choose>
 		
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 
 <xsl:template match="type" mode="module-index" >
 	<xsl:param name="called-schemas" />
 
-	<xsl:variable name="this-type-name" select="@name" />
+	<xsl:variable name="this-type-name" select="translate(@name,$UPPER, $LOWER)" />
 	<b><xsl:value-of select="@name" /></b>
 	<br/>
 	<!-- find original definition -->
 
-	<xsl:variable name="orig" select="$called-schemas//type[@name=$this-type-name]" />
+	<xsl:variable name="orig" select="$called-schemas//type[translate(@name,$UPPER, $LOWER)=$this-type-name]" />
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
-
 
 	<xsl:choose>
 		<xsl:when test="substring-before($schema-name,'_mim')" >
@@ -718,9 +786,14 @@ $Id: index_express_modules_inner.xsl,v 1.1 2003/05/23 12:13:20 nigelshaw Exp $
 			<br/>
 			</xsl:when>
 			<xsl:otherwise>
-			<br/>
-			BAD SCHEMA name !!! <xsl:value-of select="$schema-name"/>
-			<br/>
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error APindex2: Unable to locate defining schema  for type ',
+				    @name, ' found in MIM Long Form')"/>
+				</xsl:call-template>    	
 			</xsl:otherwise>
 		</xsl:choose>
 		
@@ -790,9 +863,14 @@ $Id: index_express_modules_inner.xsl,v 1.1 2003/05/23 12:13:20 nigelshaw Exp $
 			<br/>
 			</xsl:when>
 			<xsl:otherwise>
-			<br/>
-			BAD SCHEMA name !!! <xsl:value-of select="$schema-name"/>
-			<br/>
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error APindex3: Unable to locate defining schema  for rule ',
+				    @name, ' found in MIM Long Form')"/>
+				</xsl:call-template>    	
 			</xsl:otherwise>
 		</xsl:choose>
 		
@@ -847,9 +925,14 @@ $Id: index_express_modules_inner.xsl,v 1.1 2003/05/23 12:13:20 nigelshaw Exp $
 			<br/>
 			</xsl:when>
 			<xsl:otherwise>
-			<br/>
-			BAD SCHEMA name !!! <xsl:value-of select="$schema-name"/>
-			<br/>
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error APindex4: Unable to locate defining schema  for function ',
+				    @name, ' found in MIM Long Form')"/>
+				</xsl:call-template>    	
 			</xsl:otherwise>
 		</xsl:choose>
 		
@@ -902,9 +985,14 @@ $Id: index_express_modules_inner.xsl,v 1.1 2003/05/23 12:13:20 nigelshaw Exp $
 			<br/>
 			</xsl:when>
 			<xsl:otherwise>
-			<br/>
-			BAD SCHEMA name !!! <xsl:value-of select="$schema-name"/>
-			<br/>
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error APindex5: Unable to locate defining schema  for procedure ',
+				    @name, ' found in MIM Long Form')"/>
+				</xsl:call-template>    	
 			</xsl:otherwise>
 		</xsl:choose>
 		

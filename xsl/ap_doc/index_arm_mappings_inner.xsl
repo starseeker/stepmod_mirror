@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -81,7 +81,14 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 		</xsl:call-template>
 	</xsl:variable>
 
+	<xsl:variable name="modules-list" >
+		<xsl:call-template name="depends-on-recurse-no-list-x-modules">
+			<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')" />
+			<xsl:with-param name="done" select="' '" />
+		</xsl:call-template>
+	</xsl:variable>
 
+      
       <xsl:choose>
 	<xsl:when test="function-available('msxsl:node-set')">
 
@@ -98,10 +105,24 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 		<xsl:variable name="dep-schemas" 
 		  	select="msxsl:node-set($dep-schemas3)" />
 				
+		<xsl:variable name="modules-node-set" select="msxsl:node-set($modules-list)" />
+
+		<xsl:variable name="dep-modules1">
+			<xsl:for-each select="$modules-node-set//x" >
+				<xsl:sort /> <!-- added sort here which is not in the saxon version below -->
+				<xsl:copy-of select="document(.)" />
+			</xsl:for-each> -->
+		</xsl:variable>
+
+
+		<xsl:variable name="modules-node" 
+		  	select="msxsl:node-set($dep-modules1)" />
+
 
 			<xsl:call-template name="modules_index" >
 				<xsl:with-param name="this-schema" select="$top_module_node" />
 				<xsl:with-param name="called-schemas" select="$dep-schemas" />
+				<xsl:with-param name="called-modules" select="$modules-node" />
 			</xsl:call-template>
 
 	</xsl:when>
@@ -121,9 +142,24 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 
 		<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" />
 
+		  <xsl:variable name="modules-nodes2">
+		      <xsl:choose>
+			<xsl:when test="2 > string-length($arm_schemas)" >
+		        </xsl:when>
+		        <xsl:otherwise>
+		          <xsl:copy-of select="exslt:node-set($arm_schemas)"/>
+		        </xsl:otherwise>
+		      </xsl:choose>
+		    </xsl:variable>
+
+		<xsl:variable name="modules-node" select="document(exslt:node-set($modules-nodes2)//x)" />
+
+
+
 			<xsl:call-template name="modules_index" >
 				<xsl:with-param name="this-schema" select="$top_module_node" />
 				<xsl:with-param name="called-schemas" select="$dep-schemas" />
+				<xsl:with-param name="called-modules" select="$modules-node" />
 			</xsl:call-template>
 
 
@@ -139,6 +175,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 <xsl:template name="modules_index" >
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
+	<xsl:param name="called-modules" />
 
 <!--	<xsl:apply-templates select="$called-schemas//schema" mode="module-index" >
 		<xsl:sort select="@name" />		
@@ -148,6 +185,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 			<xsl:with-param name="items" select="$called-schemas//entity" />
 			<xsl:with-param name="internal-link-root" select="'letter'" />
 			<xsl:with-param name="called-schemas" select="$called-schemas" />
+			<xsl:with-param name="called-modules" select="$called-modules" />
 		</xsl:call-template>
 
 
@@ -156,17 +194,27 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 
 <xsl:template match="entity" mode="module-index" >
 	<xsl:param name="called-schemas" />
+	<xsl:param name="called-modules" />
 
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
-		<xsl:variable name="lc-ent" select="translate(@name,$UPPER,$LOWER)"/>
+		<xsl:variable name="ent-name" select="@name" />
+		<xsl:variable name="lc-ent" select="translate(@name,$UPPER,$LOWER)" />
 
 		<br/>
 		<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}" TARGET="content">
 			<xsl:value-of select="@name"/>
 		</A>
 		<br/>
+
+<!-- check that mapping exists -->
+		<xsl:if test="not($called-modules//module[@name=$mod-name]//ae[@entity=$ent-name])" >
+			Mapping NOT found
+		</xsl:if>
+		
+<!-- are there any attributes? -->
+		
 		<xsl:if test="explicit" >
 			<TABLE>
 			<TR>
@@ -175,6 +223,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 			<small>
 			<xsl:apply-templates select="explicit" mode="module-index" >
 				<xsl:with-param name="called-schemas" select="$called-schemas" />
+				<xsl:with-param name="called-modules" select="$called-modules" />
 			</xsl:apply-templates> 
 			</small>
 			</TD>
@@ -188,6 +237,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 
 <xsl:template match="explicit" mode="module-index" >
 	<xsl:param name="called-schemas" />
+	<xsl:param name="called-modules" />
 
 <!--	<small> -->
 		<xsl:variable name="current-schema" select="../../@name" />
@@ -196,6 +246,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
 		<xsl:variable name="lc-ent" select="translate(../@name,$UPPER,$LOWER)"/>
+		<xsl:variable name="ent-name" select="../@name"/>
 
 <!--		&#160;&#160;<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
 		<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
@@ -205,14 +256,21 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 
 <!-- if attribute points to an extensible select then may have further mappings in other modules -->
 		
+		<xsl:variable name="attr-name" select="@name" />
 		<xsl:variable name="attr-type-name" select="./typename/@name" />
+		<xsl:variable name="lc-typename" select="translate(./typename/@name,$UPPER,$LOWER)" />
 		<xsl:variable name="found-type" 
 			select="$called-schemas//type[@name=$attr-type-name][select/@extensible='YES']" />
 		
 	<xsl:choose>	
 		<xsl:when test="$found-type" >
 		
+<!--			<xsl:value-of select="concat(' ',../@name,'.',@name)"/> -->
+			<A 
+			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}assertion_to{$lc-typename}" 
+			TARGET="content">
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+			</A>
 			
 		<TABLE>
 			<TR>
@@ -230,15 +288,30 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 
 
 			<small>
-			EXTENDED to:
+			EXTENDED BY:
 			<br/>
 			<xsl:variable name="lc-attr" select="@name"/>
+			
 			<xsl:for-each select="$called-schemas//type[select]
-				[contains($extensions,concat(' ',@name,' '))]" >
+				[contains($extensions,concat(' ',@name,' '))][string-length(select/@selectitems) > 0] " >
 				<xsl:sort select="concat(../@name,'.',@name)" />
 
 				<xsl:variable name="the-mod-name" 
 					select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
+
+				<xsl:variable name="the-select-mod-dir" 
+					select="concat('../../../../../stepmod/data/modules/', $the-mod-name)" />
+
+				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$the-mod-name}_arm.{@name}" 
+					TARGET="content"><xsl:value-of select="@name"/></A>
+				<br/>
+				TO INCLUDE:
+				<TABLE>
+				<TR>
+				<TD><small>&#160;&#160;</small></TD>
+				<TD ALIGN="LEFT" >
+
+				<small>
 
 				<xsl:call-template name="assertion-links-for-select">
 					<xsl:with-param name="select-items" select="./select/@selectitems" />
@@ -248,7 +321,13 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 					<xsl:with-param name="this-entity" select="$lc-ent" />
 					<xsl:with-param name="this-module" select="$the-mod-name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:call-template>
+
+				</small>
+				</TD>
+				</TR>
+				</TABLE>
 
 				
 			</xsl:for-each>
@@ -259,19 +338,60 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 			
 		</xsl:when>
 		<xsl:when test="./typename">
-			<xsl:variable name="lc-typename" select="translate(./typename/@name,$UPPER,$LOWER)" />
 		
 			<A 
 			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}assertion_to{$lc-typename}" 
 			TARGET="content">
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 			</A>
+
+			<!-- check that mapping exists -->
+			<xsl:choose>
+			<xsl:when test="$called-modules//module[@name=$mod-name]//ae[@entity=$ent-name]//aa[@attribute=$attr-name][@assertion_to=$attr-type-name]">
+				<!-- Mapping found q -->
+			</xsl:when>
+			<xsl:when 
+			  test="$called-modules//module[@name=$mod-name]//ae[@entity=$ent-name]//aa[@attribute=$attr-name]">
+				<br/>WARNING: Missing assertion_to="<xsl:value-of select="$attr-type-name" />" in mapping
+			</xsl:when>
+			<xsl:when 
+			  test="$called-modules//module[@name=$mod-name]//ae[@entity=$ent-name]//aa
+			  	[contains(@attribute,$attr-name) and starts-with(@attribute,'SELF')]">
+				<br/>WARNING: Attribute in mapping contains SELF !!!
+			</xsl:when>
+			<xsl:otherwise>
+<!--				Mapping NOT found q -->
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error APmapindex1: Unable to locate mapping for entity ',
+				    ../@name,'.',@name)"/>
+				</xsl:call-template>    	
+			</xsl:otherwise>
+			
+			</xsl:choose>
 			<br/>
 		</xsl:when>
 		<xsl:otherwise>
 			<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 			</A>
+
+			<!-- check that mapping exists -->
+			<xsl:if test="not($called-modules//module[@name=$mod-name]//ae[@entity=$ent-name]//aa[@attribute=$attr-name])">
+<!--				Mapping NOT found p -->
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error APmapindex2: Unable to locate mapping for entity ',
+				    $ent-name,'.',$attr-name)"/>
+				</xsl:call-template>    	
+			</xsl:if>
+
 			<br/>
 		</xsl:otherwise>
 		
@@ -287,10 +407,24 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 	<xsl:param name="this-entity" />
 	<xsl:param name="this-module" />
 	<xsl:param name="called-schemas" />
+	<xsl:param name="called-modules" />
+
+	<xsl:variable name="test" >
+		<xsl:call-template name="find-first-word-in-list" >
+			<xsl:with-param name="word-list" select="$select-items"/>
+		</xsl:call-template>
+	</xsl:variable>
+
 
 	<xsl:variable name="this-item" select="substring-before(concat(normalize-space($select-items),' '),' ')" />
+	<xsl:variable name="Uc-this-entity" select="concat(
+						translate(substring($this-entity,1,1),$LOWER,$UPPER),
+						substring($this-entity,2))" />
 
 	<xsl:if test="string-length($this-item) > 0" >
+<!--
+	VVVV<xsl:value-of select="$test" />VVVV<xsl:value-of select="$this-item" />XXX
+	-->
 
 <!-- this may fail if a select type contains another select type -->
 
@@ -312,6 +446,20 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$this-item}" TARGET="content">map</A>
 				<xsl:text> </xsl:text>
 
+				<!-- check that mapping exists -->
+				<xsl:if 
+				  test="not($called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to=$this-item])">
+<!--				Mapping NOT found select -->
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error APmapindex1: Unable to locate mapping for select extension to entity ',
+				 	$this-item)"/>
+				</xsl:call-template>    	
+				</xsl:if>
+<!--
 				<xsl:variable name="the-select-mod" 
 					select="substring-before($this-select-mod,'_arm')" />
 
@@ -320,6 +468,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 
 				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$this-select-mod}.{$this-select/@name}" 
 					TARGET="content">select</A>
+-->
 				<br/>
 
 
@@ -332,6 +481,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.7 2003/06/06 12:05:58 nigelshaw Exp $
 			<xsl:with-param name="this-entity" select="$this-entity" />
 			<xsl:with-param name="this-module" select="$this-module" />
 			<xsl:with-param name="called-schemas" select="$called-schemas" />
+			<xsl:with-param name="called-modules" select="$called-modules" />
 		</xsl:call-template>
 
 	</xsl:if>
@@ -432,6 +582,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 	<xsl:param name="items" />
 	<xsl:param name="internal-link-root" />
 	<xsl:param name="called-schemas" />
+	<xsl:param name="called-modules" />
 
 		<xsl:variable name="name-list" >
 			<xsl:for-each select="$items">
@@ -446,6 +597,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='A']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' B')" >
@@ -455,6 +607,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='B']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' C')" >
@@ -464,6 +617,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='C']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' D')" >
@@ -473,6 +627,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='D']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' E')" >
@@ -482,6 +637,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='E']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' F')" >
@@ -491,6 +647,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='F']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' G')" >
@@ -500,6 +657,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='G']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' H')" >
@@ -509,6 +667,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='H']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' I')" >
@@ -518,6 +677,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='I']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' J')" >
@@ -527,6 +687,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='J']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' K')" >
@@ -536,6 +697,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='K']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' L')" >
@@ -545,6 +707,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='L']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' M')" >
@@ -554,6 +717,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='M']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' N')" >
@@ -563,6 +727,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='N']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' O')" >
@@ -572,6 +737,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='O']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' P')" >
@@ -581,6 +747,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='P']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' Q')" >
@@ -590,6 +757,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Q']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' R')" >
@@ -599,6 +767,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='R']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' S')" >
@@ -608,6 +777,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='S']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' T')" >
@@ -617,6 +787,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='T']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' U')" >
@@ -626,6 +797,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='U']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' V')" >
@@ -636,6 +808,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='V']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' W')" >
@@ -645,6 +818,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='W']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' X')" >
@@ -654,6 +828,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='X']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' Y')" >
@@ -663,6 +838,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Y']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' Z')" >
@@ -672,6 +848,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Z']" mode="module-index" >
 					<xsl:sort select="@name" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
 				</xsl:apply-templates>
 			</xsl:if>
 </xsl:template>
@@ -699,7 +876,131 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 </xsl:template>
 
 
+<xsl:template name="depends-on-recurse-no-list-x-modules" >
+<!-- this version assumes dealing with ARM level modules only and outputs a list of X elements containing module addresses
+-->
+	<xsl:param name="todo" select="' '"/>
+	<xsl:param name="done" />
+	<!--
+	For each interfaced schema:
+		Check if not already done
+		Otherwise output and add to todo
+	-->
 
+	<xsl:variable name="this-schema" select="substring-before(concat(normalize-space($todo),' '),' ')" />
+
+		<xsl:if test="$this-schema" >
+
+			<xsl:if test="not(contains($done,$this-schema))" >
+				<xsl:variable name="mod" 
+				select="substring-before(translate($this-schema,$UPPER,$LOWER),'_arm')" />
+<!-- notes:
+msxml needs addresses relative to the original xml file
+saxon needs addresses relative to the xsl file.
+msxml Only seems to pick up on first file - treating parameter to document() differently from saxon.
+-->
+
+				<xsl:variable name="dir" >
+					<xsl:choose>
+						<xsl:when test="function-available('exslt:node-set')">../../../</xsl:when>
+					<xsl:otherwise>../../../../../</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
+
+
+				<x>
+					<xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/module.xml ')" />
+				</x>
+			</xsl:if>
+
+<!-- open up the relevant schema -->
+
+			<xsl:variable name="arm_file" 
+			    select="concat('../../data/modules/',
+			    		translate(substring-before($this-schema,'_arm'),$UPPER,$LOWER),'/arm.xml')"/>
+
+			<xsl:variable name="arm-node"
+			    select="document($arm_file)/express"/>
+
+
+<!-- get the list of schemas for this level that have not already been done -->
+
+			<xsl:variable name="my-kids" >
+				<xsl:apply-templates select="$arm-node//interface" mode="interface-schemas" >
+					<xsl:with-param name="done" select="$done" />
+				</xsl:apply-templates>
+			</xsl:variable>
+
+		<xsl:variable name="after" select="normalize-space(concat(substring-after($todo, $this-schema),$my-kids))" />
+
+
+			<xsl:if test="$after" >
+				<xsl:call-template name="depends-on-recurse-no-list-x-modules">
+					<xsl:with-param name="todo" select="$after" />
+					<xsl:with-param name="done" select="concat($done,' ',$this-schema,' ')" />
+				</xsl:call-template>
+
+	
+			</xsl:if>
+
+		</xsl:if>
+
+</xsl:template>
+
+<xsl:template name="find-first-word-in-list" >
+	<xsl:param name="word-list" />
+	<xsl:param name="top-word" select="' '"/>
+
+	<!-- outputs the word from word-list that comes first in alphabetic order -->
+
+	<!-- get first item in list -->
+
+	<xsl:variable name="first" select="substring-before(concat(normalize-space($word-list),' '),' ')" />
+	<xsl:variable name="rest" select="normalize-space(substring-after($word-list, concat(first,' ')))" />
+
+<!-- ZZ1:<xsl:value-of select="$first" />ZZ2:<xsl:value-of select="$top-word" />XX -->
+
+	<xsl:choose>
+	<xsl:when test="$top-word=' '" >
+	<!-- at first call so select first word as new top word and recurse -->
+		<xsl:call-template name="find-first-word-in-list">
+			<xsl:with-param name="word-list" select="substring-after($word-list,$first)" />
+			<xsl:with-param name="top-word" select="$first" />
+		</xsl:call-template>
+	</xsl:when>
+	<xsl:when test="not($first)" >
+		<xsl:value-of select="$top-word" /> 
+	</xsl:when>
+	<xsl:when test="string-length(translate($rest,' ','')) = 0 " >
+		<xsl:choose>
+			<xsl:when test="not($top-word > $first)" >
+				<xsl:value-of select="$top-word" /> 
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$first" /> 
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:when>
+	<xsl:otherwise>
+		<xsl:choose>
+			<xsl:when test="not($top-word > $first)" >
+				<xsl:call-template name="find-first-word-in-list">
+					<xsl:with-param name="word-list" select="substring-after($word-list,$first)" />
+					<xsl:with-param name="top-word" select="$top-word" />
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="find-first-word-in-list">
+					<xsl:with-param name="word-list" select="substring-after($word-list,$first)" />
+					<xsl:with-param name="top-word" select="$first" />
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+		
+	</xsl:otherwise>
+	</xsl:choose>
+
+</xsl:template>
 
 
 </xsl:stylesheet>

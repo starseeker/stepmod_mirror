@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.20 2004/12/02 01:46:30 thendrix Exp $
+<!--  $Id: build.xsl,v 1.21 2005/01/24 15:56:26 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -1353,7 +1353,7 @@
       </dependset>
       <xsl:element name="style">
         <xsl:attribute name="in">
-          <xsl:value-of select="'${PUBSRCDIR}/normref_check.xml'"/>
+          <xsl:value-of select="'${PUBSRCDIR}/sys/normref_check.xml'"/>
         </xsl:attribute>
         <xsl:attribute name="out">
           <xsl:value-of select="'${PUBDIR}/normref_check.htm'"/>
@@ -4807,7 +4807,7 @@
       -->
     <xsl:element name="move">
       <xsl:attribute name="file">
-        <xsl:value-of select="concat($module_dir,'/data/modules/',@name,'/sys/abstract.htm')"/>
+        <xsl:value-of select="concat($module_dir,'data/modules/',@name,'/sys/abstract.htm')"/>
       </xsl:attribute>
       <xsl:attribute name="tofile">
         <xsl:value-of select="concat($module_dir,'abstracts/abstract_',$module_xml/module/@part,'.htm')"/>
@@ -5081,7 +5081,7 @@
     </xsl:variable>
     <xsl:element name="target">
       <xsl:attribute name="name">all</xsl:attribute>
-      <xsl:attribute name="depends"><xsl:value-of select="$target"/>, finish</xsl:attribute>
+      <xsl:attribute name="depends"><xsl:value-of select="$target"/>, normref_check, finish</xsl:attribute>
       <xsl:attribute name="description">Generate the HTML for ISO publication</xsl:attribute>
     </xsl:element>
   </xsl:template>
@@ -6218,6 +6218,7 @@
       </xsl:element>
     </xsl:element>
   </xsl:template>
+
 
   <xsl:template match="publication_index" mode="target_finish">
     <xsl:text>

@@ -1,0 +1,74 @@
+(* N	ISO/CD-TS 10303-	Extended measure representation	Express ARM *)
+
+SCHEMA Extended_measure_representation_arm;
+
+USE FROM Measure_representation_arm;
+
+TYPE limitation_definition_select = SELECT
+      (limits_and_fits,plus_minus_bounds);
+END_TYPE;
+
+TYPE limit_qualifier_list = ENUMERATION (minimum, maximum);
+END_TYPE;
+
+TYPE numerical_value = SELECT (Numerical_item_with_global_unit, Numerical_item_with_unit);
+END_TYPE;
+ 
+TYPE property_value_qualifier = ENUMERATION (nominal,  specified, typical);
+END_TYPE;
+
+ENTITY Limits_and_fits;
+  deviation : STRING;
+  grade : STRING;
+  fitting_type : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Plus_minus_bounds;
+  upper_bound : measure_value;
+  lower_bound : measure_value;
+  value_determination : OPTIONAL STRING ;
+  significant_digits : OPTIONAL INTEGER;
+END_ENTITY;
+
+ENTITY Qualified_property_value_representation
+SUBTYPE OF (Property_value_representation);
+  value_determination : OPTIONAL STRING;
+  qualifier : OPTIONAL property_value_qualifier;
+END_ENTITY;
+
+ENTITY Value_limit
+  SUBTYPE OF (Measure_item);
+  limit_qualifier : limit_qualifier_list;
+  limit : Value_with_unit;
+END_ENTITY;
+
+ENTITY Value_limit_with_global_unit
+  SUBTYPE OF (Measure_item);
+  limit_qualifier : limit_qualifier_list;
+  limit : measure_value;
+END_ENTITY;
+
+ENTITY Value_limitation;
+  is_defined_by : limitation_definition_select;
+  envelope_principle : OPTIONAL BOOLEAN;
+  limited_value : numerical_value;
+END_ENTITY;
+
+ENTITY Value_list
+  SUBTYPE OF (Measure_item);
+  values : LIST[1:?] OF Measure_item;
+END_ENTITY;
+
+ENTITY Value_range
+  SUBTYPE OF (Measure_item);
+  lower_limit : Value_with_unit;
+  upper_limit : Value_with_unit;
+END_ENTITY;
+
+ENTITY Value_range_with_global_unit
+  SUBTYPE OF (Measure_item);
+  lower_limit : measure_value;
+  upper_limit : measure_value;
+END_ENTITY;
+
+END_SCHEMA;

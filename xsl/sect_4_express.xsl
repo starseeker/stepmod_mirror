@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.74 2002/10/24 12:20:06 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.75 2002/11/14 15:10:31 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2948,13 +2948,37 @@
           </xsl:call-template>
           to the list of alternate data types.
         </xsl:if>
+
+        
+        <xsl:variable name="ext_notes">
+          <xsl:call-template name="notes_in_external_description">
+            <xsl:with-param name="schema" select="../../@name"/>
+            <xsl:with-param name="entity" select="../@name"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <p class="note">
           <small>
-            NOTE&#160;&#160;The list of entity data types may be
-            extended in application modules that use the constructs of
-            this module.                 
+            <xsl:choose>
+              <xsl:when test="./note">
+                NOTE&#160;1&#160;&#160;The list of entity data types may be
+                extended in application modules that use the constructs of
+                this module.
+              </xsl:when>
+              <xsl:when test="string-length($ext_notes)>0">
+                NOTE&#160;1&#160;&#160;The list of entity data types may be
+                extended in application modules that use the constructs of
+                this module.
+              </xsl:when>
+              <xsl:otherwise>
+                NOTE&#160;&#160;The list of entity data types may be
+                extended in application modules that use the constructs of
+                this module.
+              </xsl:otherwise>
+            </xsl:choose>
           </small>
         </p>
+          
       </xsl:when>
 
       <xsl:when test="(@basedon and @extensible='NO') or @basedon">

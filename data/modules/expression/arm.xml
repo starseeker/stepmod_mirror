@@ -1,12 +1,29 @@
 <?xml version="1.0"?>
 <!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by olavo (UNINOVA) -->
-<!-- $Id: arm.xml,v 1.11 2003/01/20 14:00:40 goset1 Exp $ -->
+<!-- $Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/01/20 14:00:40 $" rcs.revision="$Revision: 1.11 $">
-	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.26" source="../data/modules/expression/arm.exp"/>
+<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision: $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.25" source="../data/modules/expression/arm.exp"/>
 	<schema name="Expression_arm">
-		<interface kind="use" schema="Generic_expression_arm"/>
+		<interface kind="use" schema="Generic_expression_arm">
+			<interfaced.item name="Generic_literal"/>
+			<interfaced.item name="Binary_generic_expression"/>
+			<interfaced.item name="Generic_expression"/>
+			<interfaced.item name="Simple_generic_expression"/>
+			<interfaced.item name="Variable"/>
+			<interfaced.item name="Unary_generic_expression"/>
+			<interfaced.item name="Multiple_arity_generic_expression"/>
+		</interface>
+		<interface kind="use" schema="Numeric_function_arm">
+			<interfaced.item name="Length_function"/>
+			<interfaced.item name="Value_function"/>
+			<interfaced.item name="Maximum_function"/>
+			<interfaced.item name="Minimum_function"/>
+			<interfaced.item name="Unary_function_call"/>
+			<interfaced.item name="Odd_function"/>
+			<interfaced.item name="Numeric_defined_function"/>
+		</interface>
 		<entity name="Expression" abstract.supertype="YES" super.expression="(ONEOF (Numeric_expression,Boolean_expression,String_expression))" supertypes="Generic_expression"/>
 		<entity name="Numeric_variable" super.expression="(ONEOF (Int_numeric_variable,			          Real_numeric_variable))" supertypes="Simple_numeric_expression Variable">
 			<where label="WR1" expression="('EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(SELF) ) OR	('EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(SELF) )"/>
@@ -304,6 +321,169 @@ END_IF ;
 
 RETURN (FALSE);
 
+                          </algorithm>
+		</function>
+		<function name="Is_sql_mappable">
+			<parameter name="arg">
+				<typename name="expression"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
+
+LOCAL
+	i: INTEGER;
+END_LOCAL;
+
+IF 'EXPRESSION_ARM.SIMPLE_NUMERIC_EXPRESSION' 
+								IN TYPEOF (arg) 
+THEN 
+	RETURN (TRUE);
+END_IF;
+IF 'EXPRESSION_ARM.SQL_MAPPABLE_DEFINED_FUNCTION' 
+								IN TYPEOF (arg) 
+THEN 
+	RETURN (TRUE);
+END_IF;
+IF 'EXPRESSION_ARM.MINUS_FUNCTION' IN TYPEOF(arg) 
+THEN 
+	RETURN (Is_sql_mappable(arg\Unary_numeric_expression.operand)); 
+END_IF;
+IF ('EXPRESSION_ARM.ABS_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.SIN_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.COS_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.TAN_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.ASIN_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.ACOS_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.Atan_function' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.EXP_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.LOG_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.LOG2_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.LOG10_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.SQUARE_ROOT_FUNCTION' 
+								IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.VALUE_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.LENGTH_FUNCTION' 
+								IN TYPEOF(arg))
+THEN 
+	RETURN (FALSE);
+END_IF;
+IF ('EXPRESSION_ARM.PLUS_EXPRESSION' IN TYPEOF(arg)) 
+		OR('EXPRESSION_ARM.MULT_EXPRESSION' IN TYPEOF(arg)) 
+		OR('EXPRESSION_ARM.MAXIMUM_FUNCTION' 
+								IN TYPEOF(arg)) 
+		OR('EXPRESSION_ARM.MAXIMUM_FUNCTION' 
+								IN TYPEOF(arg)) 
+THEN 
+	REPEAT i :=1 TO SIZEOF (
+			arg\Multiple_arity_numeric_expression.operands);
+		IF NOT Is_sql_mappable(
+			arg\Multiple_arity_numeric_expression.operands[i])
+		THEN 
+			RETURN (FALSE);
+		END_IF;
+	END_REPEAT;
+RETURN (TRUE);
+END_IF;
+IF ('EXPRESSION_ARM.MINUS_EXPRESSION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.SLASH_EXPRESSION' IN 
+								TYPEOF(arg))
+THEN
+		RETURN (Is_sql_mappable(
+			arg\Binary_numeric_expression.operands[1])
+		AND Is_sql_mappable(arg\Binary_numeric_expression.operands[2]));
+END_IF;
+IF ('EXPRESSION_ARM.DIV_EXPRESSION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.MOD_EXPRESSION' IN TYPEOF(arg)) 
+		OR('EXPRESSION_ARM.POWER_EXPRESSION' 
+								IN TYPEOF(arg))
+THEN 
+	RETURN (FALSE); 	
+END_IF;
+IF 'EXPRESSION_ARM.SIMPLE_BOOLEAN_EXPRESSION' 
+								IN TYPEOF (arg) 
+THEN 
+	RETURN (TRUE);
+END_IF;
+IF 'EXPRESSION_ARM.NOT_EXPRESSION' IN TYPEOF (arg) 
+THEN 
+	RETURN (Is_sql_mappable (arg\UNARY_GENERIC_EXPRESSION.OPERAND));
+END_IF;
+IF ('EXPRESSION_ARM.ODD_FUNCTION'IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.XOR_EXPRESSION' 
+								IN TYPEOF (arg)) 
+THEN	
+	RETURN (FALSE);
+END_IF;
+IF ('EXPRESSION_ARM.AND_EXPRESSION' IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.OR_EXPRESSION' IN TYPEOF (arg)) 
+THEN
+	REPEAT i:=1 TO SIZEOF (
+			arg\MULTIPLE_ARITY_BOOLEAN_EXPRESSION.OPERANDS);
+		IF NOT Is_sql_mappable (
+			arg\MULTIPLE_ARITY_BOOLEAN_EXPRESSION.OPERANDS[i]) 
+		THEN 
+			RETURN (FALSE);
+		END_IF;
+	END_REPEAT;
+	RETURN (TRUE);
+END_IF;
+IF 'EXPRESSION_ARM.EQUALS_EXPRESSION' IN TYPEOF (arg) 
+THEN
+	RETURN(Is_sql_mappable (
+			arg\Binary_generic_expression.OPERANDS [1])
+		AND Is_sql_mappable(
+			arg\Binary_generic_expression.OPERANDS [2]));
+END_IF;
+IF	('EXPRESSION_ARM.COMPARISON_EQUAL' IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.COMPARISON_GREATER' 
+								IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.COMPARISON_GREATER_EQUAL'
+								IN TYPEOF (arg))
+		OR ('EXPRESSION_ARM.COMPARISON_LESS' 
+								IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.COMPARISON_LESS_EQUAL' 
+								IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.COMPARISON_NOT_EQUAL' 
+								IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.LIKE_EXPRESSION' 
+								IN TYPEOF (arg)) 
+THEN
+	RETURN (Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[1])
+		AND Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[2]));
+END_IF;
+IF 'EXPRESSION_ARM.INTERVAL_EXPRESSION' IN TYPEOF(arg) 
+THEN 
+	RETURN (Is_sql_mappable(arg\interval_expression.interval_low) 
+		AND Is_sql_mappable(arg\interval_expression.interval_high)
+		AND Is_sql_mappable(arg\interval_expression.interval_item));
+END_IF;
+IF ('EXPRESSION_ARM.NUMERIC_DEFINED_FUNCTION' 
+								IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.BOOLEAN_DEFINED_FUNCTION' 
+								IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.STRING_DEFINED_FUNCTION' 
+								IN TYPEOF(arg))  
+THEN 
+		RETURN (FALSE) ;
+END_IF;
+
+IF 'EXPRESSION_ARM.SIMPLE_STRING_EXPRESSION' 
+								IN TYPEOF(ARG) 
+THEN 
+	RETURN (TRUE);
+END_IF;
+IF 	('EXPRESSION_ARM.INDEX_EXPRESSION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.SUBSTRING_EXPRESSION' 
+								IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.CONCAT_EXPRESSION' 
+								IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.FORMAT_FUNCTION' 
+								IN TYPEOF(arg)) 
+THEN 
+	RETURN (FALSE);
+END_IF;
+
+	RETURN (FALSE);
                           </algorithm>
 		</function>
 	</schema>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.8 2004/11/05 02:29:52 thendrix Exp $
+<!--  $Id: build.xsl,v 1.9 2004/11/05 05:36:19 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -1260,6 +1260,7 @@
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
+
 
   </xsl:template>
 
@@ -4287,7 +4288,7 @@
       <xsl:element name="copy">
         <xsl:attribute name="todir">
           <xsl:value-of select="'${TMPDIR}'"/>
-        </xsl:attribute>
+       </xsl:attribute>
         <xsl:element name="fileset">
           <xsl:attribute name="dir">
             <xsl:value-of select="'.'"/>
@@ -4311,7 +4312,6 @@
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-
     </target>
   </xsl:template>
     
@@ -4678,6 +4678,18 @@
     <xsl:variable name="resdoc_iso_no" select="concat('iso10303_',$resdoc_xml/resource/@part)"/>
     <xsl:variable name="resdoc_dir" select="concat('${PUBDIR}/',$resdoc_iso_no,'/')"/>
 
+    <xsl:variable name="data_resdoc_dir" select="concat($resdoc_dir,'data/resource_docs/',@name,'/')"/>
+
+
+    <xsl:variable name="part" select="$resdoc_xml/resource/@part"/>
+    <xsl:variable name="status" 
+      select="translate(translate($resdoc_xml/resource/@status,$UPPER,$LOWER),'-','')"/>
+    <xsl:variable name="wg" select="$resdoc_xml/resource/@sc4.working_group"/>
+    <xsl:variable name="prefix" select="concat('part',$part,$status,'_wg',$wg,'n')"/>
+    
+    <xsl:variable name="wg.number.express" select="$resdoc_xml/resource/@wg.number.express"/>
+
+
     <xsl:text>
     </xsl:text>
     <xsl:comment>Publish resource doc: <xsl:value-of select="@name"/> </xsl:comment>
@@ -4778,9 +4790,68 @@
       </xsl:attribute>
     </xsl:element>
 
-    <!-- copy the resource express -->
-    <!-- NOT YET IMPLEMENTED -->
+
     <xsl:apply-templates select="." mode="copy_express"/>
+
+
+    <!-- cocatenate the resource doc  express -->
+
+       <xsl:variable name="schemalist">
+         <xsl:apply-templates select="$resdoc_xml//schema" mode="list">
+          <xsl:with-param name="prefix" select="'data/resources/'"/>
+          <xsl:with-param name="suffix" select="'.exp'"/>
+          <xsl:with-param name="terminate" select="'NO'"/>
+        </xsl:apply-templates>
+      </xsl:variable>
+
+      <xsl:variable name="express_file"
+                select="concat('part',
+                        $resdoc_xml/resource/@part,
+                        $resdoc_xml/resource/@status, '_wg',
+                        $resdoc_xml/resource/@sc4.working_group,'n',
+                        $resdoc_xml/resource/@wg.number.express,
+                        'express.exp')"/>
+
+
+      <xsl:variable name="express_dir">
+         <xsl:value-of select="concat('${PUBDIR}','/iso10303_',$resdoc_xml/resource/@part,'express/')"/>
+      </xsl:variable>
+
+
+      <xsl:element name="mkdir">
+        <xsl:attribute name="dir">
+          <xsl:value-of select="$express_dir"/>
+        </xsl:attribute>          
+      </xsl:element>
+
+      <xsl:element name="concat">
+        <xsl:attribute name="destfile">
+          <xsl:value-of select="concat($data_resdoc_dir,'wg12n',$wg.number.express,'.exp')" />
+        </xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="$schemalist"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>   
+
+      <xsl:element name="concat">
+        <xsl:attribute name="destfile">
+          <!--          <xsl:value-of select="concat('wg12n',$wg.number.express,'.exp')" /> -->
+          <xsl:value-of select="concat($express_dir,$express_file)" /> 
+        </xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="$schemalist"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>   
 
 
     <xsl:element name="zip">
@@ -4877,7 +4948,6 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-
     
     <xsl:variable name="part" select="$module_xml/module/@part"/>
     <xsl:variable name="status" 
@@ -4930,11 +5000,14 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="resource_docs" mode="copy_express">
+  <!--
+  <xsl:template match="res_doc" mode="copy_express">
     <xsl:param name="express_dir"/>
+    <xsl:variable name="resdoc_schema">
+      <xsl:call-template name="get_resource_schema_node_set"/>
+    </xsl:variable>
+
     <xsl:variable name="resdoc" select="@name"/>
-    <xsl:variable name="resdoc_xml"
-      select="document(concat('../../data/resource_docs/',$resdoc,'/resource.xml'))"/>
     <xsl:variable name="resdoc_iso_no" select="concat('iso10303_',$resdoc_xml/resource/@part)"/>
     <xsl:variable name="express_dir1">
       <xsl:choose>
@@ -4956,7 +5029,6 @@
     
     <xsl:variable name="wg.number.express" select="$resdoc_xml/resource/@wg.number.express"/>
     <xsl:element name="copy">
-      <!-- need to go through the schema sections of the resource.xml and for each, copy from the data/resources/schema_name.xml dir to the target express dir.  -->
       <xsl:attribute name="file">
         <xsl:value-of select="concat('data/resource_docs/',@name,'/',@name,'.exp')"/>
       </xsl:attribute>
@@ -4967,7 +5039,33 @@
     
 
   </xsl:template>
+-->
 
+  <xsl:template match="schema" mode="list">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="terminate" select="'YES'"/>
+    <!-- the name of the resource directory should be in lower case -->
+    <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
+    <!-- workaround - only output first occurrence of a module -->
+    <xsl:if test="not(./preceding-sibling::*[@name = $lname])">
+    <xsl:choose>
+      <xsl:when test="$terminate='YES'">
+        <xsl:choose>
+          <xsl:when test="position()=last()">
+            <xsl:value-of select="concat($prefix,$lname,'/',$lname,$suffix)"/><xsl:text/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat($prefix,$lname,'/',$lname,$suffix)"/>,<xsl:text/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($prefix,$lname,'/',$lname,$suffix)"/>,<xsl:text/>
+      </xsl:otherwise>
+    </xsl:choose>
+    </xsl:if>
+  </xsl:template>
 
   <xsl:template match="resource|module|application_protocol|res_doc" mode="list">
     <xsl:param name="prefix"/>
@@ -5191,7 +5289,7 @@
   <xsl:variable name="todo_schema_list" select="string($resource_docs)"/>
 
   <xsl:variable name="mim_schemas">
-    <xsl:call-template name="depends-on-recurse-mim-x">
+"    <xsl:call-template name="depends-on-recurse-mim-x">
       <xsl:with-param name="todo" select="$todo_schema_list"/>
       <xsl:with-param name="done" select="' '"/>
     </xsl:call-template>

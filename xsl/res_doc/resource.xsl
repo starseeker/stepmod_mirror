@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.7 2002/11/08 17:45:11 thendrix Exp $
+$Id: resource.xsl,v 1.8 2002/12/04 15:55:00 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -186,7 +186,7 @@ $Id: resource.xsl,v 1.7 2002/11/08 17:45:11 thendrix Exp $
 
   <xsl:variable name="resdoc_name">
     <xsl:call-template name="res_display_name">
-      <xsl:with-param name="resdoc" select="./@name"/>
+      <xsl:with-param name="res" select="./@name"/>
     </xsl:call-template>           
   </xsl:variable>
     
@@ -777,7 +777,7 @@ o=isocs; s=central<br/>
   </xsl:call-template>
   <xsl:variable name="resdoc_name">
     <xsl:call-template name="res_display_name">
-      <xsl:with-param name="resdoc" select="../@name"/>
+      <xsl:with-param name="res" select="../@name"/>
     </xsl:call-template>           
   </xsl:variable>
   <p>
@@ -788,10 +788,11 @@ o=isocs; s=central<br/>
   </p>
 <!--
   output any issues
+-->
   <xsl:apply-templates select=".." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'inscope'"/>
   </xsl:apply-templates>
--->
+
   <ul>
     <xsl:apply-templates/>
   </ul>
@@ -1653,11 +1654,10 @@ defined in annex D of ISO 10303-11.
   registers of currently valid International Standards. 
 
   <!-- output any issues -->
-<!--
+
   <xsl:apply-templates select="." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'normrefs'"/>
   </xsl:apply-templates>  
--->
 
 
   <!-- output the normative references explicitly defined in the resource -->
@@ -2135,7 +2135,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 
     <xsl:variable name="resdoc_name">
       <xsl:call-template name="res_display_name">
-        <xsl:with-param name="resdoc" select="@name"/>
+        <xsl:with-param name="res" select="@name"/>
       </xsl:call-template>
     </xsl:variable>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.5 2002/01/04 18:58:51 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.6 2002/01/07 10:12:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -157,6 +157,7 @@ $Id: sect_5_mapping.xsl,v 1.5 2002/01/04 18:58:51 robbod Exp $
         <xsl:value-of select="$arm_entity"/>
       </a>
     </font>
+    <xsl:apply-templates select="./alt"/>
   </td>
 
 </xsl:template>
@@ -183,9 +184,19 @@ $Id: sect_5_mapping.xsl,v 1.5 2002/01/04 18:58:51 robbod Exp $
   <tr>
     <td VALIGN="TOP" width="21%">
       <font size="-1">
-        <a href="{$aa_xref}">
-          <xsl:value-of select="@attribute"/>
-        </a>
+        <xsl:choose>
+          <xsl:when test="@assertion_to">
+            <xsl:value-of select="../@entity"/> 
+            to 
+            <xsl:value-of select="@assertion_to"/><br/>
+            (as <xsl:value-of select="@attribute"/>)
+          </xsl:when>
+          <xsl:otherwise>
+            <a href="{$aa_xref}">
+              <xsl:value-of select="@attribute"/>
+            </a>
+          </xsl:otherwise>
+        </xsl:choose>
       </font>
     </td>
 
@@ -212,6 +223,10 @@ $Id: sect_5_mapping.xsl,v 1.5 2002/01/04 18:58:51 robbod Exp $
 </xsl:template>
 
 <xsl:template match="aimelt">
+  <xsl:apply-templates />  
+</xsl:template>
+
+<xsl:template match="aimelt" mode="old">
 
   <xsl:variable 
     name="aimelt"
@@ -232,6 +247,9 @@ $Id: sect_5_mapping.xsl,v 1.5 2002/01/04 18:58:51 robbod Exp $
   <xsl:choose>
     <xsl:when test="$aimelt='PATH'">
       <xsl:value-of select="$aimelt"/>
+    </xsl:when>
+    <xsl:when test="./express_ref">
+      <xsl:apply-templates select="./express_ref"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:variable name="aim_xref">
@@ -280,13 +298,12 @@ $Id: sect_5_mapping.xsl,v 1.5 2002/01/04 18:58:51 robbod Exp $
       &#160;
     </xsl:if>
     <xsl:apply-templates 
-      select="$rule_parent/express_ref"
-      mode="rule_cell"/>
+      select="$rule_parent/express_ref"/>
   </td>
 </xsl:template>
 
-<!-- output the rule cell in the mapping table -->
-<xsl:template match="express_ref" mode="rule_cell">
+<!-- output alt text in the mapping table -->
+<xsl:template match="alt">
   <font size="-1">
     <xsl:value-of select="string(.)"/>
   </font>  

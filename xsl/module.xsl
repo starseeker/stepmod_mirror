@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.28 2002/01/29 17:25:16 robbod Exp $
+$Id: module.xsl,v 1.29 2002/02/07 16:14:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1604,14 +1604,21 @@ defines it. Use: normref.inc')"/>
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="orgname" select="'ISO'"/>
+    
     <xsl:variable name="stdtitle"
       select="concat('Industrial automation systems and integration',
               '- Product data representation and exchange')"/>
+
+    <xsl:variable name="module_name">
+      <xsl:call-template name="module_display_name">
+        <xsl:with-param name="module" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
     <xsl:variable name="subtitle"
-      select="concat('- Part ',$part,': Application module ', @name)"/>
+      select="concat('- Part ',$part,': Application module: ', $module_name)"/>
     
-    <xsl:value-of select="$orgname"/>
+
     <xsl:value-of select="$stdnumber"/>
 
     <xsl:if test="@published='n'">

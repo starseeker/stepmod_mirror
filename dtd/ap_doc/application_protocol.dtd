@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-     $Id: application_protocol.dtd,v 1.15 2003/05/23 06:58:52 robbod Exp $
+     $Id: application_protocol.dtd,v 1.16 2003/05/23 07:42:10 robbod Exp $
      Author:  Mike Ward, David Price, Rob Bodington, Nigel Shaw,  Eurostep Limited
      Owner:   Developed by Eurostep and supplied to PDES / NIST under contract.
      Purpose: DTD for AP document
@@ -10,12 +10,17 @@
 
 
 <!--  application protocol -->
-<!ELEMENT application_protocol (keywords?, abstract?, changes?, contacts, purpose, inscope?, outscope?, normrefs?, definition*, abbreviations?, inforeqt, aam,  imp_meths, usage_guide?, tech_disc?, bibliography?)>
+<!ELEMENT application_protocol (keywords, abstract?, changes?, contacts, purpose, inscope, outscope?, normrefs?, definition*, abbreviations?, inforeqt, terminology_map?, aam,  imp_meths, usage_guide?, tech_disc?, bibliography?)>
 <!--    
         name            AP directory name
 	module_name     top level implementation module, the AP module
         title           AP title
         part            ISO 10303 part number of the AP document
+        purpose         Used to complete the first sentence in the introduction
+                          "This part of ISO 10303 specifies an application protocol (AP) for ....."
+                        and clause 4
+                           "This clause specifies the information required for ....."
+
         wg.number       SC4 N-number of the AP document
         wg.number.supersedes    the SC4 N-number of the document that this AP document supercedes
 	version         version of AP document 
@@ -34,8 +39,8 @@
 	checklist.project_leader 
 	checklist.convener 
  Attributes for source control software like RCS or CVS
-        rcs.date      $Date: 2003/05/23 06:58:52 $     
-        rcs.revision  $Revision: 1.15 $                
+        rcs.date      $Date: 2003/05/23 07:42:10 $     
+        rcs.revision  $Revision: 1.16 $                
 -->
 
 <!ATTLIST application_protocol
@@ -44,6 +49,7 @@
 	module_name NMTOKEN #REQUIRED
 	title CDATA #REQUIRED
 	part NMTOKEN #REQUIRED
+        purpose CDATA #REQUIRED
 	wg.number CDATA #REQUIRED
 	wg.number.supersedes CDATA #IMPLIED
 	version NMTOKEN #REQUIRED
@@ -73,8 +79,8 @@
 <!-- Clause 4 -->
 <!ELEMENT inforeqt (fundamentals, reqtover+)>
 
-<!-- Clause 4 immediate text which is 4.1 in San Diego paper -->
-<!ELEMENT fundamentals (%description.content;)*>
+<!-- Clause 4.1 immediate text which is 4.1 in San Diego paper -->
+<!ELEMENT fundamentals (data_plan?,description)*>
 
 <!-- Clauses 4.2x one for each module overview -->
 <!ELEMENT reqtover (description)>
@@ -92,4 +98,24 @@
 	part (21 | 22 | 23 | 24 | 25 | 27 | 28 | 29) #REQUIRED
 >
 <!ELEMENT tech_disc (%description.content;)*>
+
+<!-- Terminology map -->
+<!ELEMENT terminology_map (term_map)>
+
+<!-- the mapping of a business term to a term defined in an ap documet or module -->
+<!ELEMENT term_map (description, business_term, ap_term?, module_term?)>
+
+<!ELEMENT business_term (%description.content;)*>
+<!ATTLIST business_term
+        term_id CDATA #REQUIRED>
+
+<!ELEMENT ap_term EMPTY>
+<!ATTLIST ap_term 
+        term_id CDATA #REQUIRED
+        application_protocol CDATA #REQUIRED>
+
+<!ELEMENT module_term EMPTY>
+<!ATTLIST module_term
+        term_id CDATA #REQUIRED
+        module CDATA #REQUIRED>
 

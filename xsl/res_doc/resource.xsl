@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.28 2003/04/23 02:45:55 thendrix Exp $
+$Id: resource.xsl,v 1.29 2003/06/02 09:59:53 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1171,7 +1171,7 @@ defined in annex D of ISO 10303-11.
         </xsl:variable>
 
         <xsl:variable name="rel_clauseno">
-          <xsl:value-of select="'1'"/>
+		<xsl:number/>
         </xsl:variable>
 
         <xsl:variable name="img_count">

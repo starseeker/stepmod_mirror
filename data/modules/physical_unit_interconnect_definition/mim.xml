@@ -2,10 +2,38 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:36" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:24:21" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_interconnect_definition_mim schema_instance"/>
    <schema name="Physical_unit_interconnect_definition_mim">
-      <interface kind="use" schema="Assembly_structure_mim"/>
-      <interface kind="use" schema="Part_view_definition_mim"/>
+      <interface kind="use" schema="ASSEMBLY_STRUCTURE_MIM"/>
+      <interface kind="use" schema="PART_VIEW_DEFINITION_MIM"/>
+      <interface kind="use" schema="DATE_TIME_SCHEMA"/>
+      <interface kind="use" schema="DOCUMENT_SCHEMA"/>
+      <interface kind="use" schema="PERSON_ORGANIZATION_SCHEMA"/>
+      <interface kind="use" schema="PRODUCT_DEFINITION_SCHEMA"/>
+      <interface kind="use" schema="PRODUCT_PROPERTY_DEFINITION_SCHEMA"/>
+      <entity name="connector_based_interconnect_definition" supertypes="property_definition">
+         <unique label="ur1">
+            <unique.attribute entity-ref="connector_based_interconnect_definition" attribute="name"/>
+            <unique.attribute entity-ref="connector_based_interconnect_definition" attribute="definition"/>
+         </unique>
+         <where label="wr1" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'physical_interconnect_definition' in typeof ( self \ property_definition . definition ) "/>
+      </entity>
+      <entity name="physical_interconnection_definition" supertypes="property_definition">
+         <unique label="ur1">
+            <unique.attribute entity-ref="physical_interconnection_definition" attribute="name"/>
+            <unique.attribute entity-ref="physical_interconnection_definition" attribute="definition"/>
+         </unique>
+         <where label="wr1" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'physical_unit_interconnect_definition' in typeof ( self \ property_definition . definition ) "/>
+      </entity>
+      <entity name="physical_unit_interconnect_definition" supertypes="product_definition">
+         <where label="wr1" expression=" ( not ( 'electronic_assembly_interconnect_and_packaging_design.' + 'product_definition_with_associated_documents' in typeof ( self ) ) ) or ( sizeof ( query ( docs &lt;* self \ product_definition_with_associated_documents . documentation_ids | docs . kind \ document_type . product_data_type = 'cad filename' ) ) &lt;= 1 ) "/>
+         <where label="wr2" expression=" sizeof ( query ( adta &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_date_and_time_assignment.items' ) | adta . role \ date_time_role . name = 'creation date' ) ) + sizeof ( query ( ada &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_date_assignment.items' ) | ada . role \ date_role . name = 'creation date' ) ) = 1 "/>
+         <where label="wr3" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_approval_assignment.items' ) ) = 1 "/>
+         <where label="wr4" expression=" sizeof ( query ( apoa &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_person_and_organization_assignment.items' ) | apoa . role \ person_and_organization_role . name = 'creator' ) ) + sizeof ( query ( apoa &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_organization_assignment.items' ) | apoa . role \ organization_role . name = 'creator' ) ) &gt;= 1 "/>
+         <where label="wr5" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_security_classification_assignment.items' ) ) = 1 "/>
+         <where label="wr6" expression=" sizeof ( typeof ( self ) - ( typeof ( self \ product_definition || self \ physical_unit_interconnect_definition ) ) ) = 0 "/>
+         <where label="wr7" expression=" self . frame_of_reference . name in [ 'physical interconnect design' ] "/>
+      </entity>
    </schema>
 </express>

@@ -1,10 +1,12 @@
+(* 
+$Id: arm.exp,v 1.5 2003/01/02 16:23:53 UNINOVA Exp $
+N1342	 - ISO/CD-TS 10303-1342	Expression - Express ARM 
+*)
+
 SCHEMA Expression_arm;
 
 USE FROM Generic_expression_arm;
 USE FROM Numeric_function_arm;
-USE FROM Value_with_unit_arm;
-USE FROM Dimension_tolerance_arm;
-USE FROM Measure_representation_arm;
 
 ENTITY Expression
 	ABSTRACT SUPERTYPE OF (ONEOF (Numeric_expression,Boolean_expression,String_expression))
@@ -18,9 +20,9 @@ SUBTYPE OF (Simple_numeric_expression, Variable);
 
 
 WHERE 
-	WR1:	('Expression_arm_EXPRESSIONS_SCHEMA.Int_numeric_variable' 
+	WR1:	('EXPRESSION_ARM.INT_NUMERIC_VARIABLE' 
 			IN TYPEOF(SELF) ) OR
-			('Expression_arm_EXPRESSIONS_SCHEMA.Real_numeric_variable' 
+			('EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' 
 			IN TYPEOF(SELF) );
 END_ENTITY;
 
@@ -131,7 +133,7 @@ ENTITY Power_expression
 END_ENTITY;
 
 ENTITY Binary_function_call
-	ABSTRACT SUPERTYPE OF (ONEOF (Atan_function))
+	ABSTRACT SUPERTYPE OF (Atan_function)
 	SUBTYPE OF (Binary_numeric_expression);
 END_ENTITY;
 
@@ -153,7 +155,7 @@ SUBTYPE OF (Expression);
 END_ENTITY;
 
 ENTITY Simple_string_expression
-ABSTRACT SUPERTYPE OF (ONEOF (String_literal,string_variable))
+ABSTRACT SUPERTYPE OF (ONEOF (String_literal,String_variable))
 SUBTYPE OF (String_expression, Simple_generic_expression);
 END_ENTITY;
 
@@ -169,9 +171,9 @@ DERIVE
 	operand:generic_expression:= SELF\binary_generic_expression.operands[1];
 	index:generic_expression:= SELF\binary_generic_expression.operands[2];
 WHERE
-	WR1: ('Expression_arm_EXPRESSIONS_SCHEMA.String_expression' 
+	WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' 
 			IN TYPEOF(operand))
-		AND ('Expression_arm_EXPRESSIONS_SCHEMA.NUMERIC_EXPRESSION' 
+		AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 
 			IN TYPEOF(index));
 	WR2: is_int_expr (index);
 END_ENTITY;
@@ -184,11 +186,11 @@ DERIVE
 	index1:generic_expression:=SELF\multiple_arity_generic_expression.operands[2];
 	index2:generic_expression:=SELF\multiple_arity_generic_expression.operands[3]; 
 WHERE
-	WR1: ('Expression_arm_EXPRESSIONS_SCHEMA.String_expression' 
+	WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' 
 					IN TYPEOF(operand))
-			AND ('Expression_arm_EXPRESSIONS_SCHEMA.NUMERIC_EXPRESSION' 
+			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 
 					IN TYPEOF(index1))
-			AND ('Expression_arm_EXPRESSIONS_SCHEMA.NUMERIC_EXPRESSION' 
+			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 
 					IN TYPEOF(index2));
 	WR2: SIZEOF(SELF\multiple_arity_generic_expression.operands)=3;
 	WR3: is_int_expr (index1);
@@ -206,15 +208,15 @@ DERIVE
 	value_to_format: generic_expression:=SELF\binary_generic_expression.operands[1];
 	format_string:generic_expression:=SELF\binary_generic_expression.operands[2];
 WHERE
-	WR1: (('Expression_arm_EXPRESSIONS_SCHEMA.NUMERIC_EXPRESSION') 
+	WR1: (('EXPRESSION_ARM.NUMERIC_EXPRESSION') 
 					IN TYPEOF(value_to_format)) 
-			AND (('Expression_arm_EXPRESSIONS_SCHEMA.String_expression') 
+			AND (('EXPRESSION_ARM.STRING_EXPRESSION') 
 					IN TYPEOF(format_string));
 END_ENTITY;
 
 ENTITY Boolean_expression
-ABSTRACT SUPERTYPE OF (ONEOF (Simple_Boolean_expression,
-				Unary_Boolean_expression,
+ABSTRACT SUPERTYPE OF (ONEOF (Simple_boolean_expression,
+				Unary_boolean_expression,
 				Binary_boolean_expression,
 				Multiple_arity_boolean_expression,
 				Comparison_expression,
@@ -329,9 +331,9 @@ END_ENTITY;
 ENTITY Like_expression
 SUBTYPE OF (Comparison_expression);
 WHERE
-	WR1: ('Expression_arm_EXPRESSIONS_SCHEMA.STRING_EXPRESSION' 
+	WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' 
 		IN TYPEOF(SELF\Comparison_expression.operands[1])) AND 
-		('Expression_arm_EXPRESSIONS_SCHEMA.STRING_EXPRESSION' 
+		('EXPRESSION_ARM.STRING_EXPRESSION' 
 		IN TYPEOF(SELF\Comparison_expression.operands[2]));
 END_ENTITY;
 
@@ -345,40 +347,28 @@ DERIVE
 	interval_high: generic_expression
 			:= SELF\Multiple_arity_generic_expression.operands[3];
 WHERE
-	WR1:('Expression_arm_EXPRESSIONS_SCHEMA.EXPRESSION' 
+	WR1:('EXPRESSION_ARM.EXPRESSION' 
 				IN TYPEOF(interval_low))
-		AND ('Expression_arm_EXPRESSIONS_SCHEMA.EXPRESSION' 
+		AND ('EXPRESSION_ARM.EXPRESSION' 
 				IN TYPEOF(interval_item) )
-		AND ('Expression_arm_EXPRESSIONS_SCHEMA.EXPRESSION' 
+		AND ('EXPRESSION_ARM.EXPRESSION' 
 				IN TYPEOF(interval_high));
-	WR2:(('Expression_arm_EXPRESSIONS_SCHEMA.STRING_EXPRESSION' 
+	WR2:(('EXPRESSION_ARM.STRING_EXPRESSION' 
 				IN TYPEOF (SELF.interval_low)) 
-			AND ('Expression_arm_EXPRESSIONS_SCHEMA.STRING_EXPRESSION'  
+			AND ('EXPRESSION_ARM.STRING_EXPRESSION'  
 				IN TYPEOF (SELF.interval_high)) 
-			AND ('Expression_arm_EXPRESSIONS_SCHEMA.STRING_EXPRESSION' 
+			AND ('EXPRESSION_ARM.STRING_EXPRESSION' 
 				IN TYPEOF (SELF.interval_item))) 
 		OR
-		(('Expression_arm_EXPRESSIONS_SCHEMA.STRING_EXPRESSION' 
+		(('EXPRESSION_ARM.STRING_EXPRESSION' 
 			IN TYPEOF(SELF.interval_low)) 
-			AND ('Expression_arm_EXPRESSIONS_SCHEMA.NUMERIC_EXPRESSION' 
+			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 
 				IN TYPEOF(SELF.interval_item)) 
-			AND ('Expression_arm_EXPRESSIONS_SCHEMA.NUMERIC_EXPRESSION' 
+			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 
 				IN TYPEOF(SELF.interval_high)));
 END_ENTITY;
 
-ENTITY Expression_extension
-    SUBTYPE OF (Value_with_unit);
-    expression_associated: Expression_extension_select;
-END_ENTITY; 
- 
-
 ENTITY Length_function
-	SUBTYPE OF (Numeric_expression, Unary_generic_expression);
-	SELF\Unary_generic_expression.operand: String_expression;
-END_ENTITY;
-
-ENTITY Value_function
-	SUPERTYPE OF (Int_value_function)
 	SUBTYPE OF (Numeric_expression, Unary_generic_expression);
 	SELF\Unary_generic_expression.operand: String_expression;
 END_ENTITY;
@@ -412,51 +402,51 @@ LOCAL
 	i: INTEGER;
 END_LOCAL;
 
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.Int_literal' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.INT_LITERAL' IN TYPEOF(arg) 
 THEN 
 	RETURN (TRUE); 
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.Real_literal' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.REAL_LITERAL' IN TYPEOF(arg) 
 THEN 
 	RETURN (FALSE); 
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.INT_NUMERIC_VARIABLE' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(arg) 
 THEN 
 	RETURN (TRUE); 
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.REAL_NUMERIC_VARIABLE' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(arg) 
 THEN 
 	RETURN (FALSE); 
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.ABS_FUNCTION' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.ABS_FUNCTION' IN TYPEOF(arg) 
 THEN 
 	RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.MINUS_FUNCTION' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.MINUS_FUNCTION' IN TYPEOF(arg) 
 THEN 
 	RETURN (Is_int_expr(arg\Unary_numeric_expression.operand)); 
 END_IF;
-IF ('Expression_arm_EXPRESSIONS_SCHEMA.SIN_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.COS_FUNCTION' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.TAN_FUNCTION' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.ASIN_FUNCTION' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.ACOS_FUNCTION' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Atan_function' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.EXP_FUNCTION' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.LOG_FUNCTION' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.LOG2_FUNCTION' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.LOG10_FUNCTION' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.SQUARE_ROOT_FUNCTION' 
+IF ('EXPRESSION_ARM.SIN_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.COS_FUNCTION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.TAN_FUNCTION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.ASIN_FUNCTION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.ACOS_FUNCTION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.Atan_function' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.EXP_FUNCTION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.LOG_FUNCTION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.LOG2_FUNCTION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.LOG10_FUNCTION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.SQUARE_ROOT_FUNCTION' 
 								IN TYPEOF(arg))
 THEN 
 	RETURN (FALSE);
 END_IF;
-IF 	('Expression_arm_EXPRESSIONS_SCHEMA.Plus_expression' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Mult_expression' 
+IF 	('EXPRESSION_ARM.PLUS_EXPRESSION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.MULT_EXPRESSION' 
 								IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Maximum_function'
+		OR ('EXPRESSION_ARM.MAXIMUM_FUNCTION'
 								IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Maximum_function'
+		OR ('EXPRESSION_ARM.MAXIMUM_FUNCTION'
 								IN TYPEOF(arg)) 
 THEN 
 	REPEAT i :=1 TO SIZEOF (
@@ -469,29 +459,29 @@ THEN
 	END_REPEAT;
 	RETURN (TRUE);
 END_IF;
-IF 	('Expression_arm_EXPRESSIONS_SCHEMA.Minus_expression' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Power_expression' 
+IF 	('EXPRESSION_ARM.MINUS_EXPRESSION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.POWER_EXPRESSION' 
 								IN TYPEOF(arg))
 THEN 
 	RETURN (Is_int_expr(arg\Binary_numeric_expression.operands[1])
 		AND Is_int_expr(arg\Binary_numeric_expression.operands[2]));
 END_IF;
-IF	('Expression_arm_EXPRESSIONS_SCHEMA.Div_expression' IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Mod_expression' IN TYPEOF(arg))
+IF	('EXPRESSION_ARM.DIV_EXPRESSION' IN TYPEOF(arg))
+		OR ('EXPRESSION_ARM.MOD_EXPRESSION' IN TYPEOF(arg))
 THEN 
 	RETURN(TRUE);	
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.Slash_expression' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.SLASH_EXPRESSION' IN TYPEOF(arg) 
 THEN 
 	RETURN (FALSE); 	
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.Length_function' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.LENGTH_FUNCTION' IN TYPEOF(arg) 
 THEN 
 	RETURN (TRUE); 
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.Value_function' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.VALUE_FUNCTION' IN TYPEOF(arg) 
 THEN 
-	IF 'Expression_arm_EXPRESSIONS_SCHEMA.Int_value_function' 
+	IF 'EXPRESSION_ARM.INT_VALUE_FUNCTION' 
 								IN TYPEOF(arg) 
 	THEN 
 		RETURN (TRUE); 
@@ -499,21 +489,21 @@ THEN
 		RETURN (FALSE); 
 	END_IF;
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.INTEGER_DEFINED_FUNCTION' 
+IF 'EXPRESSION_ARM.INTEGER_DEFINED_FUNCTION' 
 								IN TYPEOF(arg)
 THEN 
 	RETURN(TRUE) ;
 END_IF;
-IF'Expression_arm_EXPRESSIONS_SCHEMA.REAL_DEFINED_FUNCTION' IN TYPEOF(arg) 
+IF'EXPRESSION_ARM.REAL_DEFINED_FUNCTION' IN TYPEOF(arg) 
 THEN 
 	RETURN(FALSE) ;
 END_IF ;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.BOOLEAN_DEFINED_FUNCTION' 
+IF 'EXPRESSION_ARM.BOOLEAN_DEFINED_FUNCTION' 
 								IN TYPEOF(arg)
 THEN 
 	RETURN(FALSE) ;
 END_IF ;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.STRING_DEFINED_FUNCTION' 
+IF 'EXPRESSION_ARM.STRING_DEFINED_FUNCTION' 
 								IN TYPEOF(arg)
 THEN 
 	RETURN (FALSE) ;
@@ -529,44 +519,44 @@ LOCAL
 	i: INTEGER;
 END_LOCAL;
 
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.Simple_numeric_expression' 
+IF 'EXPRESSION_ARM.SIMPLE_NUMERIC_EXPRESSION' 
 								IN TYPEOF (arg) 
 THEN 
 	RETURN (TRUE);
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.SQL_MAPPABLE_DEFINED_FUNCTION' 
+IF 'EXPRESSION_ARM.SQL_MAPPABLE_DEFINED_FUNCTION' 
 								IN TYPEOF (arg) 
 THEN 
 	RETURN (TRUE);
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.MINUS_FUNCTION' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.MINUS_FUNCTION' IN TYPEOF(arg) 
 THEN 
 	RETURN (Is_sql_mappable(arg\Unary_numeric_expression.operand)); 
 END_IF;
-IF ('Expression_arm_EXPRESSIONS_SCHEMA.ABS_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.SIN_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.COS_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.TAN_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.ASIN_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.ACOS_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Atan_function' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.EXP_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.LOG_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.LOG2_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.LOG10_FUNCTION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.SQUARE_ROOT_FUNCTION' 
+IF ('EXPRESSION_ARM.ABS_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.SIN_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.COS_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.TAN_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.ASIN_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.ACOS_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.Atan_function' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.EXP_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.LOG_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.LOG2_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.LOG10_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.SQUARE_ROOT_FUNCTION' 
 								IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Value_function' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Length_function' 
+		OR ('EXPRESSION_ARM.VALUE_FUNCTION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.LENGTH_FUNCTION' 
 								IN TYPEOF(arg))
 THEN 
 	RETURN (FALSE);
 END_IF;
-IF ('Expression_arm_EXPRESSIONS_SCHEMA.Plus_expression' IN TYPEOF(arg)) 
-		OR('Expression_arm_EXPRESSIONS_SCHEMA.Mult_expression' IN TYPEOF(arg)) 
-		OR('Expression_arm_EXPRESSIONS_SCHEMA.Maximum_function' 
+IF ('EXPRESSION_ARM.PLUS_EXPRESSION' IN TYPEOF(arg)) 
+		OR('EXPRESSION_ARM.MULT_EXPRESSION' IN TYPEOF(arg)) 
+		OR('EXPRESSION_ARM.MAXIMUM_FUNCTION' 
 								IN TYPEOF(arg)) 
-		OR('Expression_arm_EXPRESSIONS_SCHEMA.Maximum_function' 
+		OR('EXPRESSION_ARM.MAXIMUM_FUNCTION' 
 								IN TYPEOF(arg)) 
 THEN 
 	REPEAT i :=1 TO SIZEOF (
@@ -579,38 +569,38 @@ THEN
 	END_REPEAT;
 RETURN (TRUE);
 END_IF;
-IF ('Expression_arm_EXPRESSIONS_SCHEMA.Minus_expression' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Slash_expression' IN 
+IF ('EXPRESSION_ARM.MINUS_EXPRESSION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.SLASH_EXPRESSION' IN 
 								TYPEOF(arg))
 THEN
 		RETURN (Is_sql_mappable(
 			arg\Binary_numeric_expression.operands[1])
 		AND Is_sql_mappable(arg\Binary_numeric_expression.operands[2]));
 END_IF;
-IF ('Expression_arm_EXPRESSIONS_SCHEMA.Div_expression' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.Mod_expression' IN TYPEOF(arg)) 
-		OR('Expression_arm_EXPRESSIONS_SCHEMA.Power_expression' 
+IF ('EXPRESSION_ARM.DIV_EXPRESSION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.MOD_EXPRESSION' IN TYPEOF(arg)) 
+		OR('EXPRESSION_ARM.POWER_EXPRESSION' 
 								IN TYPEOF(arg))
 THEN 
 	RETURN (FALSE); 	
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.SIMPLE_BOOLEAN_EXPRESSION' 
+IF 'EXPRESSION_ARM.SIMPLE_BOOLEAN_EXPRESSION' 
 								IN TYPEOF (arg) 
 THEN 
 	RETURN (TRUE);
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.NOT_EXPRESSION' IN TYPEOF (arg) 
+IF 'EXPRESSION_ARM.NOT_EXPRESSION' IN TYPEOF (arg) 
 THEN 
 	RETURN (Is_sql_mappable (arg\UNARY_GENERIC_EXPRESSION.OPERAND));
 END_IF;
-IF ('Expression_arm_EXPRESSIONS_SCHEMA.ODD_FUNCTION'IN TYPEOF (arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.XOR_EXPRESSION' 
+IF ('EXPRESSION_ARM.ODD_FUNCTION'IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.XOR_EXPRESSION' 
 								IN TYPEOF (arg)) 
 THEN	
 	RETURN (FALSE);
 END_IF;
-IF ('Expression_arm_EXPRESSIONS_SCHEMA.AND_EXPRESSION' IN TYPEOF (arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.OR_EXPRESSION' IN TYPEOF (arg)) 
+IF ('EXPRESSION_ARM.AND_EXPRESSION' IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.OR_EXPRESSION' IN TYPEOF (arg)) 
 THEN
 	REPEAT i:=1 TO SIZEOF (
 			arg\MULTIPLE_ARITY_BOOLEAN_EXPRESSION.OPERANDS);
@@ -622,57 +612,57 @@ THEN
 	END_REPEAT;
 	RETURN (TRUE);
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.EQUALS_EXPRESSION' IN TYPEOF (arg) 
+IF 'EXPRESSION_ARM.EQUALS_EXPRESSION' IN TYPEOF (arg) 
 THEN
 	RETURN(Is_sql_mappable (
 			arg\Binary_generic_expression.OPERANDS [1])
 		AND Is_sql_mappable(
 			arg\Binary_generic_expression.OPERANDS [2]));
 END_IF;
-IF	('Expression_arm_EXPRESSIONS_SCHEMA.COMPARISON_EQUAL' IN TYPEOF (arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.COMPARISON_GREATER' 
+IF	('EXPRESSION_ARM.COMPARISON_EQUAL' IN TYPEOF (arg)) 
+		OR ('EXPRESSION_ARM.COMPARISON_GREATER' 
 								IN TYPEOF (arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.COMPARISON_GREATER_EQUAL'
+		OR ('EXPRESSION_ARM.COMPARISON_GREATER_EQUAL'
 								IN TYPEOF (arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.COMPARISON_LESS' 
+		OR ('EXPRESSION_ARM.COMPARISON_LESS' 
 								IN TYPEOF (arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.COMPARISON_LESS_EQUAL' 
+		OR ('EXPRESSION_ARM.COMPARISON_LESS_EQUAL' 
 								IN TYPEOF (arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.COMPARISON_NOT_EQUAL' 
+		OR ('EXPRESSION_ARM.COMPARISON_NOT_EQUAL' 
 								IN TYPEOF (arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.LIKE_EXPRESSION' 
+		OR ('EXPRESSION_ARM.LIKE_EXPRESSION' 
 								IN TYPEOF (arg)) 
 THEN
 	RETURN (Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[1])
 		AND Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[2]));
 END_IF;
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.INTERVAL_EXPRESSION' IN TYPEOF(arg) 
+IF 'EXPRESSION_ARM.INTERVAL_EXPRESSION' IN TYPEOF(arg) 
 THEN 
 	RETURN (Is_sql_mappable(arg\interval_expression.interval_low) 
 		AND Is_sql_mappable(arg\interval_expression.interval_high)
 		AND Is_sql_mappable(arg\interval_expression.interval_item));
 END_IF;
-IF ('Expression_arm_EXPRESSIONS_SCHEMA.NUMERIC_DEFINED_FUNCTION' 
+IF ('EXPRESSION_ARM.NUMERIC_DEFINED_FUNCTION' 
 								IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.BOOLEAN_DEFINED_FUNCTION' 
+		OR ('EXPRESSION_ARM.BOOLEAN_DEFINED_FUNCTION' 
 								IN TYPEOF(arg))
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.STRING_DEFINED_FUNCTION' 
+		OR ('EXPRESSION_ARM.STRING_DEFINED_FUNCTION' 
 								IN TYPEOF(arg))  
 THEN 
 		RETURN (FALSE) ;
 END_IF;
 
-IF 'Expression_arm_EXPRESSIONS_SCHEMA.SIMPLE_STRING_EXPRESSION' 
+IF 'EXPRESSION_ARM.SIMPLE_STRING_EXPRESSION' 
 								IN TYPEOF(ARG) 
 THEN 
 	RETURN (TRUE);
 END_IF;
-IF 	('Expression_arm_EXPRESSIONS_SCHEMA.INDEX_EXPRESSION' IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.SUBSTRING_EXPRESSION' 
+IF 	('EXPRESSION_ARM.INDEX_EXPRESSION' IN TYPEOF(arg)) 
+		OR ('EXPRESSION_ARM.SUBSTRING_EXPRESSION' 
 								IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.CONCAT_EXPRESSION' 
+		OR ('EXPRESSION_ARM.CONCAT_EXPRESSION' 
 								IN TYPEOF(arg)) 
-		OR ('Expression_arm_EXPRESSIONS_SCHEMA.FORMAT_FUNCTION' 
+		OR ('EXPRESSION_ARM.FORMAT_FUNCTION' 
 								IN TYPEOF(arg)) 
 THEN 
 	RETURN (FALSE);

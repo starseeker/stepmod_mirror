@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.12 2003/10/22 07:14:55 robbod Exp $
+     $Id: issues.xsl,v 1.13 2003/10/22 10:54:39 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -180,6 +180,13 @@
     </xsl:choose>
   </xsl:variable>
 
+  <xsl:variable name="resolution">
+    <xsl:choose>
+      <xsl:when test="@resolution='reject'">Reject</xsl:when>
+      <xsl:otherwise>Accept</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <blockquote>
     <span style="background-color: {$bg_color}">
       <b>
@@ -190,7 +197,7 @@
                                 string(@id), 
                                 ' by ', string(@by),
                                 ' (', string(@date), 
-                                ') [', string(@category),', ', string(@status),']')" />
+                                ') [', string(@category),', ',string(@status), ', ',$resolution']')" />
         </a>
       </b> 
       <br/>
@@ -212,19 +219,7 @@
           <xsl:value-of select="@member_body"/>
         </i>
         <br/>
-        <i>
-          Resolution:
-          <xsl:choose>
-            <xsl:when test="@ballot_resolution='reject'">
-              Reject
-            </xsl:when>
-            <xsl:otherwise>
-              Accept
-            </xsl:otherwise>
-          </xsl:choose>
-        </i>
-      </xsl:if>
-      
+      </xsl:if>      
       <xsl:apply-templates/>
     </span>
   </blockquote>

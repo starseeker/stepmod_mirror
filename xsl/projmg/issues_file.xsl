@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: issues_file.xsl,v 1.15 2003/10/20 09:09:30 robbod Exp $
+     $Id: issues_file.xsl,v 1.16 2003/10/22 10:54:39 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -310,6 +310,13 @@
               '&#xA;', '' ) "/>
     
     <xsl:variable name="status" select="@status"/>  
+    <xsl:variable name="resolution">
+      <xsl:choose>
+        <xsl:when test="@resolution='reject'">Reject</xsl:when>
+        <xsl:otherwise>Accept</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <!-- put in place to use CSS -->
     <p class="{$status}">      
     <hr size="3" />
@@ -343,6 +350,10 @@
         <xsl:call-template name="resolve_linkend"/>
       </i>
     <br/>
+    <i>
+      <xsl:value-of select="concat('Resolution: ',$resolution, '.  Status: ',@status)"/>
+    </i>
+    <br/>
     <xsl:if test="@seds='yes'">
       <i>
         Registered in the 
@@ -360,20 +371,7 @@
         <xsl:value-of select="@member_body"/>
       </i>
       <br/>
-      <i>
-        Resolution:
-        <xsl:choose>
-          <xsl:when test="@ballot_resolution='reject'">
-            Reject
-          </xsl:when>
-          <xsl:otherwise>
-            Accept
-          </xsl:otherwise>
-        </xsl:choose>
-      </i>
-      <br/>           
     </xsl:if>
-
     </p>
     <xsl:apply-templates />
   </xsl:template>

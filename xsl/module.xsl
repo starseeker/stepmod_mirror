@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.182 2005/03/02 13:40:37 robbod Exp $
+$Id: module.xsl,v 1.183 2005/03/02 20:23:45 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -898,7 +898,7 @@ o=isocs; s=central<br/>
     separately. The structure of ISO 10303 is described in ISO 10303-1.
     <sup>
       <a href="#10303-1">1</a>)
-    </sup>.
+    </sup>
   </p>
   <p>
     Each part of ISO 10303 is a member of one of the following series:

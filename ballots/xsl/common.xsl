@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.2 2002/09/27 12:08:15 robbod Exp $
+$Id: common.xsl,v 1.3 2002/12/05 09:31:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -17,11 +17,11 @@ $Id: common.xsl,v 1.2 2002/09/27 12:08:15 robbod Exp $
           <td><h2><xsl:value-of select="@name"/></h2></td>
         </tr>
         <tr>
-          <td><small>Ballot package WG number:</small></td>
+          <td><small>Ballot cycle WG number:</small></td>
           <td><small><xsl:value-of select="@wg.number.ballot_package"/></small></td>
         </tr>
         <tr>
-          <td><small>Ballot package comments:</small></td>
+          <td><small>Ballot cycle comments:</small></td>
           <td><small><xsl:value-of select="@wg.number.ballot_package_comment"/></small></td>
         </tr>
 
@@ -72,5 +72,18 @@ $Id: common.xsl,v 1.2 2002/09/27 12:08:15 robbod Exp $
 <xsl:template match="description">
   <xsl:apply-templates/>
 </xsl:template>
+
+<xsl:template name="get_module_wg_group">
+  <xsl:choose>
+    <xsl:when test="string-length(/module/@sc4.working_group)>0">
+      <xsl:value-of select="normalize-space(/module/@sc4.working_group)"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="string('12')"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
 
 </xsl:stylesheet>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.20 2003/07/25 00:33:31 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -44,26 +44,28 @@ $Id: ballot_summary.xsl,v 1.20 2003/07/25 00:33:31 thendrix Exp $
 
 
 <xsl:template match="ballot_index">
-
+  <!-- removed per wg12 convener
   <xsl:variable name="resdoc_xref"
     select="concat($stepmodhome,'/data/resource_docs/',.//resource/@name,'/sys/cover',$FILE_EXT)"/>
-  
-
-
+-->
   <HTML>
     <head>
+      <!-- removed at request of wg12 convener.
       <xsl:if test="./ballot_package/resource">
           <meta http-equiv="Refresh" content="0;URL={$resdoc_xref}"/>
       </xsl:if>
+-->
+      <xsl:call-template name="meta_data"/>
+
 
       <title>
-            <xsl:choose>
+        <xsl:choose>
               <xsl:when test="@title or ./title">
                 <xsl:value-of select="@title"/><xsl:value-of select="./title"/>              </xsl:when>
                 <xsl:otherwise>
                   <xsl:value-of select="@name"/>
                 </xsl:otherwise>
-            </xsl:choose>
+            </xsl:choose>            
       </title>
     </head>
     <body>
@@ -673,5 +675,82 @@ $Id: ballot_summary.xsl,v 1.20 2003/07/25 00:33:31 thendrix Exp $
   </xsl:choose>
 </xsl:template>
 
+<xsl:template name="meta_data" >
+  <xsl:param name="clause"/>
+  <link rel = "schema.DC"
+    href    = "http://www.dublincore.org/documents/2003/02/04/dces/"/>
+      <xsl:variable name="ballot_name" select="./@name"/>
+      <xsl:variable name="stdnumber"  select="./@wg.number.ballot_package"/>
+
+  <xsl:variable name="ballot_title">
+    <xsl:value-of select="./description"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Title'"/>
+    <xsl:with-param name="content" select="$ballot_title"/>
+  </xsl:call-template>
+
+  <xsl:variable name="dc.dates"
+    select="normalize-space(substring-after((translate(@rcs.date,'$','')),'Date: '))"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Dates'"/>
+    <xsl:with-param name="content" select="$dc.dates"/>
+  </xsl:call-template>
+
+  <xsl:variable name="editor_ref" select="./contacts/editor/@ref"/>
+  <xsl:variable name="editor_contact"
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$editor_ref]"/>
+  <xsl:variable name="dc.contributor">
+    <xsl:value-of select="normalize-space(concat($editor_contact/lastname,', ',$editor_contact/firstname))"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Contributor'"/>
+    <xsl:with-param name="content" select="$dc.contributor"/>
+  </xsl:call-template>
+
+  <xsl:variable name="projlead_ref" select="./contacts/projlead/@ref"/>
+  <xsl:variable name="projlead_contact"
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$projlead_ref]"/>
+  <xsl:variable name="dc.creator">
+    <xsl:value-of select="normalize-space(concat($projlead_contact/lastname,', ',$projlead_contact/firstname))"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Creator'"/>
+    <xsl:with-param name="content" select="$dc.creator"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Description'"/>
+    <xsl:with-param name="content" select="./description"/>
+  </xsl:call-template>
+
+  <xsl:variable name="keywords">
+ISO SC4 STEP ballot 
+    <xsl:apply-templates select="./keywords"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Subject'"/>
+    <xsl:with-param name="content" select="normalize-space($keywords)"/>
+  </xsl:call-template>
+
+  <xsl:variable name="id"
+    select="./@wg.number.ballot_package"/>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Identifier'"/>
+    <xsl:with-param name="content" select="$id"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.resource.rcs.date'"/>
+    <xsl:with-param name="content" select="translate(./@rcs.date,'$','')"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.resource.rcs.revision'"/>
+    <xsl:with-param name="content" select="translate(./@rcs.revision,'$','')"/>
+  </xsl:call-template>
+
+  </xsl:template>
 
 </xsl:stylesheet>

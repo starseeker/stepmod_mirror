@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.4 2002/07/15 08:56:44 goset1 Exp $
+     $Id: express_description.xsl,v 1.5 2002/12/11 08:06:38 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -82,6 +82,23 @@
     
     <xsl:variable name="description"
       select="document($description_file)/ext_descriptions/ext_description[@linkend=$xref]"/>
+    <xsl:if test="string-length($attribute)>0">
+      <xsl:variable name="attr_start_char"
+        select="substring(normalize-space($description),1,1)"/>
+      <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
+      <xsl:if test="contains($UPPER,$attr_start_char)">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Attr1: The first word of the attribute
+                    definition should be lower case. It is: ',$attr_start_char)"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:if>
+
+
+
     <xsl:apply-templates select="$description"/>      
   </xsl:if>
 </xsl:template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.1 2004/02/06 13:46:37 robbod Exp $
+$Id: p28xsd.xsl,v 1.2 2004/02/10 15:05:30 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -92,12 +92,13 @@ $Id: p28xsd.xsl,v 1.1 2004/02/06 13:46:37 robbod Exp $
 			<xsl:variable name="element_name" select="name()"/>
 			<xsl:value-of select="$indent_param"/>&lt;<xsl:value-of select="$element_name"/>
 			<xsl:for-each select="namespace::*">
+				<xsl:value-of select="string(' ')"/>
 				<xsl:if test="not(../ancestor::*[namespace::*[name() = name(current()) and . = current()]][last()])">
 					<xsl:choose>
 						<xsl:when test="name()">xmlns:<xsl:value-of select="name()" /></xsl:when>
             					<xsl:otherwise>xmlns</xsl:otherwise>
             				</xsl:choose>
-            				<xsl:text />="<xsl:value-of select="." />"&#xA;<xsl:text />
+            				<xsl:text />=&quot;<xsl:value-of select="." />&quot;<xsl:text />
             			</xsl:if>
 			</xsl:for-each>
 			<xsl:for-each select="./@*">

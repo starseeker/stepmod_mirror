@@ -41,17 +41,16 @@
      version;
    </li>
    <li>
-     Assignment of properties to a file.
+     Assignment of properties to a file;
    </li>
+	 <li>
+	 Specification of document-specific properties;</li>
+	 <li>Spcification of the representation of document-specific properties.</li>
  </inscope>
 
  <outscope>
    <li>
      Identification of documents and versions of documents;
-   </li>
-   <li>
-     Assignment of properties to a particular representation of a product
-     version. 
    </li>
  </outscope>
 
@@ -71,8 +70,10 @@
    <uof name="Document_Properties">
      <description>
        The Document_Properties UoF specifies the data structure for the
-       description of properties assigned to Documents.
+       description of properties assigned to document definitions and to files.
      </description> 
+     <uof.ae entity="Assigned_document_property"/>
+     <uof.ae entity="Document_property_representation"/>
      <uof.ae entity="Descriptive_document_property"/>
      <uof.ae entity="Numerical_document_property"/>
    </uof>
@@ -83,142 +84,67 @@
  </arm>
 
 <mapping_table>
-<ae entity="Descriptive_document_property">
-<aimelt>representation</aimelt>
-<source>ISO 10303-43</source>
-<refpath>representation &lt;-
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}</refpath>
-<aa attribute="property_type">
-<aimelt>representation.name</aimelt>
-<source>ISO 10303-43</source>
-<refpath>representation
-{(representation.name='document content')
-(representation.name='document creation')
-(representation.name='document format')
-}</refpath>
-</aa>
-
-<aa attribute="property_name">
-<aimelt>PATH</aimelt>
-<refpath>representation
-representation.items[i] -&gt; 
-descriptive_representation_item &lt;=
-representation_item
-representation_item.name</refpath>
-</aa>
-
-<aa attribute="property_value">
-<aimelt>PATH</aimelt>
-<refpath>representation
-representation.items[i] -&gt;
-descriptive_representation_item
-descriptive_representation_item.description</refpath>
-</aa>
+<ae entity="Assigned_document_property">
+<aimelt>property_definition</aimelt>
+<source>ISO 10303-41</source>
+<refpath>
+property_definition
+{property_definition.name = 'document property'}
+</refpath>
 
 <aa attribute="described_element" assertion_to="Document_definition">
   <alt_map id="1">
-    <description>If the Descriptive_document_property applies to a Digital_document.</description>
+    <description>If the Assigned_document_property applies to a Digital_document_definition.</description>
 <aimelt>PATH</aimelt>
-<source></source>
-<refpath>representation &lt;-
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}
+<refpath>
 property_definition
-property_definition.definition -&gt;
-characterized_definition
-characterized_definition = product_definition
-product_definition
-{product_definition.frame_of_reference -&gt;
-product_definition_context &lt;=
-application_context_element
-application_context_element.name = 'digital document definition'}</refpath>
+property_definition.definition -&gt; characterized_definition
+characterized_definition = characterized_product_definition
+characterized_product_definition = product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element
+application_context_element.name = 'digital document definition'}
+</refpath>
 </alt_map>
 
   <alt_map id="2">
-<description>If the Descriptive_document_property applies to a Physical_document.</description>
+<description>If the Assigned_document_property applies to a Physical_document_definition.</description>
 <aimelt>PATH</aimelt>
-<source></source>
-<refpath>representation &lt;-
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}
+<refpath>
 property_definition
-property_definition.definition -&gt;
-characterized_definition
-characterized_definition = product_definition
-product_definition
-{product_definition.frame_of_reference -&gt;
-product_definition_context &lt;=
-application_context_element
-application_context_element.name = 'physical document definition'}</refpath>
+property_definition.definition -&gt; characterized_definition
+characterized_definition = characterized_product_definition
+characterized_product_definition = product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element
+application_context_element.name = 'physical document definition'}
+</refpath>
 </alt_map>
 </aa>
 
 <aa attribute="described_element" assertion_to="File">
   <alt_map id="1">
-    <description>If the Descriptive_document_property applies to a Digital_File.</description>
+    <description>If the Assigned_document_property applies to a Digital_File.</description>
   <aimelt>PATH</aimelt>
-  <refpath>representation &lt;-
-{representation.name = 'document size'}
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}
+<refpath>
 property_definition
-property_definition.definition -&gt;
-characterized_definition
+property_definition.definition -&gt; characterized_definition
 characterized_definition = characterized_object
 characterized_object =&gt;
 document_file
-{document_file &lt;=
-document
+{document_file &lt;= document
 document.representation_types[i] -&gt; 
 document_representation_type
-document_representation_type.name = 'digital'}</refpath>
+document_representation_type.name = 'digital'}
+</refpath>
 </alt_map>
 
   <alt_map id="2">
-    <description>If the Descriptive_document_property applies to a Hardcopy.</description>
+    <description>If the Assigned_document_property applies to a Hardcopy.</description>
   <aimelt>PATH</aimelt>
-  <refpath>{representation.name = 'document size'}
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}
+  <refpath>
 property_definition
-property_definition.definition -&gt;
-characterized_definition
+property_definition.definition -&gt; characterized_definition
 characterized_definition = characterized_object
 characterized_object =&gt;
 document_file
@@ -231,167 +157,62 @@ document_representation_type.name = 'physical'}</refpath>
 </aa>
 </ae>
 
-<ae entity="Numerical_document_property">
+<ae entity="Document_property_representation">
 <aimelt>representation</aimelt>
 <source>ISO 10303-43</source>
-<refpath>representation &lt;-
-{representation.context_of_items -&gt;
-representation_context 
+<refpath>
+representation
+{(representation.name='document content')
+(representation.name='document creation')
+(representation.name='document format')
+(representation.name='document size')
+(representation.name)}
+{representation.context_of_items -&gt; representation_context 
 representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
+{representation &lt; - property_definition_representation.used_representation
+property_definition_representation.definition -&gt; represented_definition
 represented_definition = property_definition
-{property_definition.name = 'document property'}</refpath>
-<aa attribute="property_type">
-<aimelt>representation.name</aimelt>
-<source>ISO 10303-43</source>
-<refpath></refpath>
-</aa>
+property_definition.name = 'document property'}
+</refpath>
 
-<aa attribute="described_element" assertion_to="Document_definition">
-  <alt_map id="1">
-<description>If the Numerical_document_property applies to a Digital_document.</description>
+<aa attribute="items" assertion_to="Descriptive_document_property">
 <aimelt>PATH</aimelt>
-<source></source>
-<refpath>representation &lt;-
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}
-property_definition
-property_definition.definition -&gt;
-characterized_definition
-characterized_definition = product_definition
-product_definition
-{product_definition.frame_of_reference -&gt;
-product_definition_context &lt;=
-application_context_element
-application_context_element.name = 'digital document definition'}</refpath>
-</alt_map>
-
-<alt_map id="2">
-<description>If the Numerical_document_property applies to a Physical_document.</description>
-<aimelt>PATH</aimelt>
-<source></source>
-<refpath>representation &lt;-
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}
-property_definition
-property_definition.definition -&gt;
-characterized_definition
-characterized_definition = product_definition
-product_definition
-{product_definition.frame_of_reference -&gt;
-product_definition_context &lt;=
-application_context_element
-application_context_element.name = 'physical document definition'}</refpath>
-</alt_map>
-</aa>
-
-<aa attribute="described_element" assertion_to="File">
-  <alt_map id="1">
-    <description>If the Numerical_document_property applies to a Digital_File.</description>
-  <aimelt>PATH</aimelt>
-  <refpath>representation &lt;-
-{representation.name = 'document size'}
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}
-property_definition
-property_definition.definition -&gt;
-characterized_definition
-characterized_definition = characterized_object
-characterized_object =&gt;
-document_file
-{document_file &lt;=
-document
-document.representation_types[i] -&gt; 
-document_representation_type
-document_representation_type.name = 'digital'}</refpath>
-</alt_map>
-
-  <alt_map id="2">
-    <description>If the Descriptive_document_property applies to a Hardcopy.</description>
-  <aimelt>PATH</aimelt>
-  <refpath>{representation.name = 'document size'}
-{representation.context_of_items -&gt;
-representation_context 
-representation_context.context_type = 'document parameters'}
-property_definition_representation.used_representation
-property_definition_representation
-property_definition_representation.definition -&gt;
-represented_definition
-represented_definition = property_definition
-{property_definition.name = 'document property'}
-property_definition
-property_definition.definition -&gt;
-characterized_definition
-characterized_definition = characterized_object
-characterized_object =&gt;
-document_file
-{document_file &lt;=
-document
-document.representation_types[i] -&gt; 
-document_representation_type
-document_representation_type.name = 'physical'}</refpath>
-</alt_map>
-</aa>
-
-
-<aa attribute="representation_item" assertion_to="Property_value_with_unit">
-<aimelt>PATH</aimelt>
-<source></source>
-<refpath>representation
-representation.items[i] -&gt; 
-representation_item =&gt;
-measure_representation_item
+<refpath>
+representation.items[i] -&gt; representation_item
+representation_item = descriptive_representation_item
 </refpath>
 </aa>
+<aa attribute="items" assertion_to="Numerical_document_property">
+<aimelt>PATH</aimelt>
+<refpath>
+representation.items[i] -&gt; representation_item
+representation_item = measure_representation_item
+</refpath>
+</aa>
+</ae>
 
-<!--
-<aa attribute="property_name">
-<aimelt>PATH</aimelt>
-<source></source>
-<refpath>representation
-representation.items[i] -&gt; 
-measure_representation_item &lt;=
-representation_item
-representation_item.name</refpath>
-</aa>
-<aa attribute="property_unit" assertion_to="Unit">
-<aimelt>PATH</aimelt>
-<refpath>representation
-representation.items[i] -&gt; 
-measure_representation_item.unit_component</refpath>
-</aa>
-<aa attribute="property_value">
-<aimelt>PATH</aimelt>
-<source></source>
-<refpath>representation
-representation.items[i] -&gt; 
-measure_representation_item.value_component</refpath>
-</aa>
--->
+<ae entity="Descriptive_document_property">
+<aimelt>descritive_representation_item</aimelt>
+<source>ISO 10303-45</source>
+<refpath>
+descriptive_representation_item &lt;= representation_item
+representation_item &lt;- representation.items[i]
+representation.context_of_items -&gt; representation_context 
+{representation_context.context_type = 'document parameters'}
+</refpath>
+
+</ae>
+
+<ae entity="Numerical_document_property">
+<aimelt>measure_representation_tem</aimelt>
+<source>ISO 10303-45</source>
+<refpath>
+measure_representation_item &lt;= representation_item
+representation_item &lt;- representation.items[i]
+representation.context_of_items -&gt; representation_context 
+{representation_context.context_type = 'document parameters'}
+</refpath>
+
 </ae>
 
 </mapping_table>

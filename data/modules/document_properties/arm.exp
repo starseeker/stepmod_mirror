@@ -1,5 +1,5 @@
 (*
-  $Id: arm.exp,v 1.9 2002/07/10 09:04:08 robbod Exp $
+  $Id: arm.exp,v 1.10 2002/07/10 16:27:57 goset1 Exp $
   N1201 - ISO TS - 10303-1126 Document properties - EXPRESS ARM 
 *)
 SCHEMA Document_properties_arm;
@@ -29,7 +29,7 @@ DERIVE
 UNIQUE
 UR1: SELF\Assigned_property.described_element;
 WHERE
-WR1: 'DOCUMENT_PROPERTIES_ARM.DOCUMENT_PROPERTY_ITEM' IN TYPEOF(SELF\Assigned_property.assigned_element);
+WR1: SIZEOF(['DOCUMENT_PROPERTIES_ARM.DOCUMENT_DEFINITION', 'DOCUMENT_PROPERTIES_ARM.FILE']*TYPEOF(SELF\Assigned_property.assigned_element)) = 1;
 END_ENTITY;
 
 ENTITY Document_property_representation
@@ -47,10 +47,14 @@ END_ENTITY;
 
 ENTITY Descriptive_document_property
 SUBTYPE OF (String_representation_item);
+INVERSE
+  valued_characteristic : SET[1:1] OF Document_property_representation FOR items;
 END_ENTITY;
 
 ENTITY Numerical_document_property
 SUBTYPE OF (Numerical_item_with_unit);
+INVERSE
+  valued_characteristic : SET[1:1] OF Document_property_representation FOR items;
 END_ENTITY;
 
 FUNCTION valid_document_property_representation (rep: Document_property_representation): LOGICAL;

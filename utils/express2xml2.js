@@ -1,4 +1,4 @@
-//  $Id: express2xml2.js,v 1.1 2003/03/13 14:20:52 darla Exp $
+//  $Id: express2xml2.js,v 1.2 2003/04/15 11:06:03 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -495,7 +495,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.1 2003/03/13 14:20:52 darla Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.2 2003/04/15 11:06:03 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -510,7 +510,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.1 $";
+    var appCVSRevision = "$Revision: 1.2 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -534,7 +534,7 @@ function trim(s) {
 function xmlApplication(outTs) {
     var appRevision = getApplicationRevision();
     xmlOpenElement("<application",outTs);
-    xmlAttr("name","express2xml.js",outTs);
+    xmlAttr("name","express2xml2.js",outTs);
     xmlAttr("owner","Eurostep Limited",outTs);
     xmlAttr("url","http://www.eurostep.com",outTs);
     xmlAttr("version",appRevision,outTs);

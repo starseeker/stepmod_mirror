@@ -1,4 +1,4 @@
-//  $Id:    express2xml.js,v 1.27 2003/02/10 13:57:21 goset1 Exp $
+//  $Id: express2xml.js,v 1.31 2003/03/12 04:59:55 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -461,7 +461,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.0 2003/03/07 12:00:00 NIST Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.31 2003/03/12 04:59:55 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -475,7 +475,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.27 $";
+    var appCVSRevision = "$Revision: 1.31 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -1965,6 +1965,7 @@ function Main() {
 	var msg="Incorrect arguments\n"+
 	    "  express2xml.js <express>\nOr\n"+
 	    "  express2xml.js <module> arm\nOr\n"+
+	    "  express2xml.js <module> arm_lf\nOr\n"+
 	    "  express2xml.js <module> mim\nOr\n"+
 	    "  express2xml.js <module> mim_lf\nOr\n"+
 	    "  express2xml.js <module> module\nOr\n"+
@@ -1976,7 +1977,7 @@ function Main() {
     var module, expFile, type;
 
     if (cArgs.length > 1) {
-	switch(cArgs(0)) {
+	switch(cArgs(1)) {
 	case "arm" :
 	    var module = cArgs(0);
 	    expFile = '../data/modules/'+module+'/arm.exp';

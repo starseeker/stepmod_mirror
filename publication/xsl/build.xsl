@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.21 2005/01/24 15:56:26 thendrix Exp $
+<!--  $Id: build.xsl,v 1.22 2005/02/02 22:10:00 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -147,6 +147,14 @@
           <xsl:value-of select="concat('publication/isopub/',@name)"/>
         </xsl:attribute>
       </xsl:element>
+
+      <xsl:element name="property">
+        <xsl:attribute name="name">SC4COVERDIR</xsl:attribute>
+        <xsl:attribute name="value">
+          <xsl:value-of select="concat('publication/isopub/',@name, '/sc4covers')"/>
+        </xsl:attribute>
+      </xsl:element>
+
       <xsl:element name="property">
         <xsl:attribute name="name">TMPDIR</xsl:attribute>
         <xsl:attribute name="value">
@@ -1510,6 +1518,14 @@
           <xsl:value-of select="'${PUBDIR}/zip'"/>
         </xsl:attribute>          
       </xsl:element>
+
+<!--
+      <xsl:element name="mkdir">
+        <xsl:attribute name="dir">
+          <xsl:value-of select="'${PUBDIR}/sc4covers'"/>
+        </xsl:attribute>          
+      </xsl:element>
+-->
       
       <xsl:element name="copy">
         <xsl:attribute name="todir">
@@ -2241,16 +2257,15 @@
         </xsl:element>
       </xsl:element>
 
-      <!-- move the cover page to SC4 cover page -->
-      <!-- RBN Commented out as per request from ISO
+      <!-- THX  collect into separate folder per request from secretariat 
       <xsl:element name="move">
-        <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
+        <xsl:attribute name="todir">${SC4COVERDIR}</xsl:attribute>
         <xsl:element name="fileset">
           <xsl:attribute name="dir">${TMPDIR}</xsl:attribute>
           <xsl:attribute name="includes">${COVERHTM}</xsl:attribute>
         </xsl:element>
-        <mapper type="glob" from="*.htm" to="*_sc4.htm"/>
-      </xsl:element>  -->
+<mapper type="regexp" from="^.*\\([^\\]+)\\sys\\([^\\].*)$$" to="\1_\2"  /> 
+      </xsl:element> -->
 
 
       <xsl:element name="style">

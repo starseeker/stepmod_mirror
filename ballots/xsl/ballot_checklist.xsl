@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.3 2002/06/20 17:06:13 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.1 2002/07/31 08:00:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -45,6 +45,8 @@ $Id: ballot_summary.xsl,v 1.3 2002/06/20 17:06:13 robbod Exp $
       <xsl:call-template name="output_menubar">
         <xsl:with-param name="module_root" select="'.'"/>
         <xsl:with-param name="module_name" select="@name"/>
+        <xsl:with-param name="new_menubar_file" 
+          select="concat('./ballots/ballots/',@name,'/menubar_ballot.xml')"/>
       </xsl:call-template>
       <hr/>
 

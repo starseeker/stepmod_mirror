@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_start.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
+$Id: ballot_start.xsl,v 1.2 2002/07/31 07:59:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
-  Purpose: To display a the modules order according to ballot packages
+  Purpose: To display the modules order according to ballot packages
 
 -->
 
@@ -45,6 +45,8 @@ $Id: ballot_start.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
       <xsl:call-template name="output_menubar">
         <xsl:with-param name="module_root" select="'.'"/>
         <xsl:with-param name="module_name" select="@name"/>
+        <xsl:with-param name="new_menubar_file" 
+          select="concat('./ballots/ballots/',@name,'/menubar_ballot.xml')"/>
       </xsl:call-template>
       <hr/>
 

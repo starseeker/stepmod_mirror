@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.2 2001/11/14 17:58:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -21,25 +21,44 @@ $Id: sect_5_mapping.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
+  <xsl:apply-templates select="./mapping_table" mode="toc"/>
   <xsl:apply-templates select="./mapping_table/ae" mode="table"/>
 </xsl:template>
 
+<xsl:template match="mapping_table" mode="toc">
+  <xsl:variable name="table_count" select="(count(./ae)+1) div 2"/>
+  <blockquote>
+    <table width="90%" cellspacing="0" cellpadding="4">
+      <tr>
+        <td>
+          <xsl:apply-templates 
+            select="./ae[not(position() > $table_count)]"
+            mode="toc">
+            <xsl:sort select="@entity"/>
+          </xsl:apply-templates>
+        </td>
+        <td>
+          <xsl:apply-templates 
+            select="./ae[position() > $table_count]"
+            mode="toc">
+            <xsl:sort select="@entity"/>
+          </xsl:apply-templates>
+        </td>
+      </tr>
+    </table>
+  </blockquote>
+  <hr/>
+</xsl:template>
+
+<xsl:template match="ae" mode="toc">
+  <xsl:variable name="aname" select="@entity"/>
+  <a href="#{$aname}">
+    <xsl:value-of select="concat('Table: ', $aname)"/>
+  </a>
+  <br/>
+</xsl:template>
+
 <xsl:template match="ae" mode="table">
-  <xsl:if test="position()=1">
-    <b>
-    <font color="#FF0000">
-      <p>
-      RBN - maybe list the mapping tables here and link back up to it from
-      individual tables 
-      </p>
-      <p>
-        RBN - where should the express links go
-      </p>
-    </font>
-  </b>
-
-  </xsl:if>
-
   <xsl:variable name="aname" select="@entity"/>
   <a name="{$aname}">
     <h3>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: issues_file.xsl,v 1.10 2002/10/21 08:33:28 robbod Exp $
+     $Id: issues_file.xsl,v 1.11 2003/02/10 02:54:15 thendrix Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -332,8 +332,19 @@
         <xsl:call-template name="resolve_linkend"/>
       </i>
     <br/>
-    <xsl:apply-templates />
+    <i>
+      <xsl:if test="string-length(@seds)>0">
+        Registered in the 
+        <a href="http://www.tc184-sc4.org/private/Projects/maindisp.cfm">
+          SC4 database
+        </a>
+        as SEDS: 
+        <xsl:value-of select="@seds"/>
+      </xsl:if>
+    </i>
+    <br/>
     </p>
+    <xsl:apply-templates />
   </xsl:template>
 
 

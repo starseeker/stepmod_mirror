@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.7 2002/10/08 16:05:47 mikeward Exp $
+     $Id: issues.xsl,v 1.8 2003/01/02 15:59:00 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -192,7 +192,18 @@
                                 ' (', string(@date), 
                                 ') [', string(@category),', ', string(@status),']')" />
         </a>
-      </b>
+      </b> 
+      <br/>
+      <i>
+        <xsl:if test="string-length(@seds)>0">
+          Registered in the 
+          <a href="http://www.tc184-sc4.org/private/Projects/maindisp.cfm">
+            SC4 database
+          </a>
+          as SEDS: 
+          <xsl:value-of select="@seds"/>
+        </xsl:if>
+      </i>
       <br/>
       <xsl:apply-templates/>
     </span>

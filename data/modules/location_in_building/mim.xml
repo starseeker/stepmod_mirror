@@ -1,12 +1,179 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.24 2002/09/30 09:10:26 robbod Exp $ -->
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
 <express
-   language_version="2"
-   rcs.date="$Date: 2002/09/30 09:10:26 $"
-   rcs.revision="$Revision: 1.24 $">
+  language_version="2"
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.24"
+    source="../data/modules/location_in_building/mim.exp"/>
+
   <schema name="Location_in_building_mim">
+    <interface
+      kind="use"
+      schema="Building_component_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Building_item_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Building_structure_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_definition_schema">
+      <interfaced.item
+        name="product_definition_relationship"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_definition_schema">
+      <interfaced.item
+        name="characterized_definition"/>
+      <interfaced.item
+        name="characterized_product_definition"/>
+      <interfaced.item
+        name="represented_definition"/>
+      <interfaced.item
+        name="product_definition_shape"/>
+      <interfaced.item
+        name="shape_aspect"/>
+      <interfaced.item
+        name="shape_definition"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_representation_schema">
+      <interfaced.item
+        name="shape_representation"/>
+      <interfaced.item
+        name="property_definition_representation"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="functionally_defined_transformation"/>
+      <interfaced.item
+        name="mapped_item"/>
+      <interfaced.item
+        name="representation"/>
+      <interfaced.item
+        name="representation_map"/>
+      <interfaced.item
+        name="representation_relationship_with_transformation"/>
+			<interfaced.item
+        name="transformation"/>	
+    </interface>
+
+    <interface
+      kind="use"
+      schema="geometry_schema">
+      <interfaced.item
+        name="cartesian_transformation_operator_3d"/>
+      <interfaced.item
+        name="placement"/>
+    </interface>
+
+    <rule
+      name="building_element_maps_into_building_section_or_space"
+      appliesto="mapped_item representation_relationship_with_transformation">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (mi &lt;* mapped_item |        (SIZEOF (QUERY (pdr &lt;*        USEDIN(mi.mapping_source.mapped_representation,        'LOCATION_IN_BUILDING_MIM.'+        'PROPERTY_DEFINITION_REPRESENTATION.'+        'USED_REPRESENTATION') |	  SIZEOF (TYPEOF (pdr.definition.definition) *        ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',        'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',        'BUILDING_ITEM_MIM.SERVICE_ELEMENT',        'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']        ) = 1        )) &gt;= 1)        AND        (NOT (SIZEOF (QUERY (r &lt;* USEDIN (mi,'LOCATION_IN_BUILDING_MIM.'+        'REPRESENTATION.ITEMS') |        SIZEOF (QUERY (pdr &lt;* USEDIN(r,'LOCATION_IN_BUILDING_MIM.'+        'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |         (['BUILDING_STRUCTURE_MIM.BUILDING_SECTION',	    'BUILDING_ITEM_MIM.SPACE_ELEMENT'] IN        TYPEOF (pdr.definition.definition))        )) &gt;= 1        )) = 1))        )) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="(SIZEOF (QUERY (rrwt &lt;*       representation_relationship_with_transformation |       (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt\representation_relationship.rep_2,       'LOCATION_IN_BUILDING_MIM.'+       'PROPERTY_DEFINITION_REPRESENTATION.'+       'USED_REPRESENTATION') |       SIZEOF (TYPEOF (pdr.definition.definition) *       ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',       'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',       'BUILDING_ITEM_MIM.SERVICE_ELEMENT',       'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']       ) = 1       )) &gt;= 1)       AND      (NOT (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt\representation_relationship.rep_1,       'LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_'+       'REPRESENTATION.USED_REPRESENTATION') |       (['BUILDING_STRUCTURE_MIM.BUILDING_SECTION',	   'BUILDING_ITEM_MIM.SPACE_ELEMENT'] IN       TYPEOF (pdr.definition.definition))       )) = 1))       )) = 0)">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (rrwt_1 &lt;*       representation_relationship_with_transformation |       SIZEOF (QUERY (rrwt_2 &lt;*       representation_relationship_with_transformation |       (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt_1\representation_relationship.rep_2,       'LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_' +       'REPRESENTATION.USED_REPRESENTATION') |       SIZEOF (TYPEOF (pdr.definition.definition) *       ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',       'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',       'BUILDING_ITEM_MIM.SERVICE_ELEMENT',       'BUILDING_ITEM_MIM.' +       'STRUCTURE_ENCLOSURE_ELEMENT']) = 1       )) &gt;= 1)       AND       (rrwt_1\representation_relationship.rep_2 =       rrwt_2\representation_relationship.rep_2)       )) &gt;= 1       )) = 0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="space_or_building_level_maps_into_building_section"
+      appliesto="mapped_item representation_relationship_with_transformation">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (mi &lt;* mapped_item |        (SIZEOF (QUERY (pdr &lt;*        USEDIN(mi.mapping_source.mapped_representation,        'LOCATION_IN_BUILDING_MIM.'+        'PROPERTY_DEFINITION_REPRESENTATION.'+        'USED_REPRESENTATION') |	  SIZEOF (TYPEOF (pdr.definition.definition) *        ['BUILDING_ITEM_MIM.SPACE_ELEMENT',        'BUILDING_STRUCTURE_MIM.BUILDING_LEVEL']        ) = 1        )) &gt;= 1)        AND        (NOT (SIZEOF (QUERY (r &lt;* USEDIN (mi,'LOCATION_IN_BUILDING_MIM.'+        'REPRESENTATION.ITEMS') |        SIZEOF (QUERY (pdr &lt;* USEDIN(r,'LOCATION_IN_BUILDING_MIM.'+        'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |         ('BUILDING_STRUCTURE_MIM.BUILDING_SECTION' IN        TYPEOF (pdr.definition.definition))        )) &gt;= 1        )) = 1))        )) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="(SIZEOF (QUERY (rrwt &lt;*       representation_relationship_with_transformation |       (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt\representation_relationship.rep_2,       'LOCATION_IN_BUILDING_MIM.'+       'PROPERTY_DEFINITION_REPRESENTATION.'+       'USED_REPRESENTATION') |       SIZEOF (TYPEOF (pdr.definition.definition) *       ['BUILDING_ITEM_MIM.SPACE_ELEMENT',       'BUILDING_STRUCTURE_MIM.BUILDING_LEVEL]       ) = 1       )) &gt;= 1)       AND      (NOT (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt\representation_relationship.rep_1,       'LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_'+       'REPRESENTATION.USED_REPRESENTATION') |       ('BUILDING_STRUCTURE_MIM.BUILDING_SECTION' IN       TYPEOF (pdr.definition.definition))       )) = 1))       )) = 0)">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (rrwt_1 &lt;*       representation_relationship_with_transformation |       SIZEOF (QUERY (rrwt_2 &lt;*       representation_relationship_with_transformation |       (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt_1\representation_relationship.rep_2,       'LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_' +       'REPRESENTATION.USED_REPRESENTATION') |       SIZEOF (TYPEOF (pdr.definition.definition) *       ['BUILDING_ITEM_MIM.SPACE_ELEMENT',       'BUILDING_STRUCTURE_MIM.BUILDING_LEVEL']) = 1       )) &gt;= 1)       AND       (rrwt_1\representation_relationship.rep_2 =       rrwt_2\representation_relationship.rep_2)       )) &gt;= 1       )) = 0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="building_element_component_maps_into_building_element"
+      appliesto="mapped_item representation_relationship_with_transformation">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (mi &lt;* mapped_item |        (SIZEOF (QUERY (pdr &lt;*        USEDIN(mi.mapping_source.mapped_representation,        'LOCATION_IN_BUILDING_MIM.'+        'PROPERTY_DEFINITION_REPRESENTATION.'+        'USED_REPRESENTATION') |	  SIZEOF (TYPEOF (pdr.definition.definition) *        ['BUILDING_COMPONENT_MIM.NEGATIVE_COMPOMENT',         'BUILDING_COMPONENT_MIM.POSITIVE_COMPOMENT']        ) = 1        )) &gt;= 1)        AND        (NOT (SIZEOF (QUERY (r &lt;* USEDIN (mi,'LOCATION_IN_BUILDING_MIM.'+        'REPRESENTATION.ITEMS') |        SIZEOF (QUERY (pdr &lt;* USEDIN(r,'LOCATION_IN_BUILDING_MIM.'+        'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |         (['BUILDING_ITEM_MIM.BUILDING_ELEMENT',	    'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',          'BUILDING_ITEM_MIM.SERVICE_ELEMENT',          'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT'] IN        TYPEOF (pdr.definition.definition))        )) &gt;= 1        )) = 1))        )) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="(SIZEOF (QUERY (rrwt &lt;*       representation_relationship_with_transformation |       (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt\representation_relationship.rep_2,       'LOCATION_IN_BUILDING_MIM.'+       'PROPERTY_DEFINITION_REPRESENTATION.'+       'USED_REPRESENTATION') |       SIZEOF (TYPEOF (pdr.definition.definition) *       ['BUILDING_COMPONENT_MIM.NEGATIVE_COMPOMENT',        'BUILDING_COMPONENT_MIM.POSITIVE_COMPOMENT']       ) = 1       )) &gt;= 1)       AND      (NOT (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt\representation_relationship.rep_1,       'LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_'+       'REPRESENTATION.USED_REPRESENTATION') |       ((['BUILDING_ITEM_MIM.BUILDING_ELEMENT',	    'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',          'BUILDING_ITEM_MIM.SERVICE_ELEMENT',          'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT'] IN       TYPEOF (pdr.definition.definition))       )) = 1))       )) = 0)">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (rrwt_1 &lt;*       representation_relationship_with_transformation |       SIZEOF (QUERY (rrwt_2 &lt;*       representation_relationship_with_transformation |       (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt_1\representation_relationship.rep_2,       'LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_' +       'REPRESENTATION.USED_REPRESENTATION') |       SIZEOF (TYPEOF (pdr.definition.definition) *       ['BUILDING_COMPONENT_MIM.NEGATIVE_COMPONENT',        'BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT']) = 1       )) &gt;= 1)       AND       (rrwt_1\representation_relationship.rep_2 =       rrwt_2\representation_relationship.rep_2)       )) &gt;= 1       )) = 0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="building_section_maps_into_building"
+      appliesto="mapped_item representation_relationship_with_transformation">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (mi &lt;* mapped_item |        (SIZEOF (QUERY (pdr &lt;*        USEDIN(mi.mapping_source.mapped_representation,        'LOCATION_IN_BUILDING_MIM.'+        'PROPERTY_DEFINITION_REPRESENTATION.'+        'USED_REPRESENTATION') |	  SIZEOF (TYPEOF (pdr.definition.definition) *        ['BUILDING_STRUTURE_MIM.BUILDING_SECTION']        ) = 1        )) &gt;= 1)        AND        (NOT (SIZEOF (QUERY (r &lt;* USEDIN (mi,'LOCATION_IN_BUILDING_MIM.'+        'REPRESENTATION.ITEMS') |        SIZEOF (QUERY (pdr &lt;* USEDIN(r,'LOCATION_IN_BUILDING_MIM.'+        'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |         (['BUILDING_STRUCTURE_MIM.BUILDING] IN        TYPEOF (pdr.definition.definition))        )) &gt;= 1        )) = 1))        )) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="(SIZEOF (QUERY (rrwt &lt;*       representation_relationship_with_transformation |       (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt\representation_relationship.rep_2,       'LOCATION_IN_BUILDING_MIM.'+       'PROPERTY_DEFINITION_REPRESENTATION.'+       'USED_REPRESENTATION') |       SIZEOF (TYPEOF (pdr.definition.definition) *       ['BUILDING_STRUCTURE_MIM.BUILDING_SECTION']       ) = 1       )) &gt;= 1)       AND      (NOT (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt\representation_relationship.rep_1,       'LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_'+       'REPRESENTATION.USED_REPRESENTATION') |       ((['BUILDING_STRUCTURE_MIM.BUILDING'] IN       TYPEOF (pdr.definition.definition))       )) = 1))       )) = 0)">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (rrwt_1 &lt;*       representation_relationship_with_transformation |       SIZEOF (QUERY (rrwt_2 &lt;*       representation_relationship_with_transformation |       (SIZEOF (QUERY (pdr &lt;*       USEDIN(rrwt_1\representation_relationship.rep_2,       'LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_' +       'REPRESENTATION.USED_REPRESENTATION') |       SIZEOF (TYPEOF (pdr.definition.definition) *       'BUILDING_STRUCTURE_MIM.BUILDING_SECTION') = 1       )) &gt;= 1)       AND       (rrwt_1\representation_relationship.rep_2 =       rrwt_2\representation_relationship.rep_2)       )) &gt;= 1       )) = 0">
+      </where>
+
+    </rule>
+
   </schema>
+
 </express>

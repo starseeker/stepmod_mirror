@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.14 2003/10/28 06:37:19 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.15 2003/11/30 10:30:26 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -19,19 +19,19 @@ $Id: sect_5_mapping_check.xsl,v 1.14 2003/10/28 06:37:19 robbod Exp $
   <!-- the SAXON and MSXML proprietary extensions are for node-set -->
 
   <!-- checks all the ARM entities are mapped -->
-<xsl:template match="mapping_table" mode="check_all_arm_mapped">
+<xsl:template match="mapping_table" mode="check_all_arm_mapped"> 
   <xsl:variable name="module_dir">
     <xsl:call-template name="module_directory">
       <xsl:with-param name="module" select="/module/@name"/>
     </xsl:call-template>
   </xsl:variable>
   <xsl:variable name="ae_nodes" select="./ae"/>
-  <xsl:variable name="aa_nodes" select="./ae//aa"/>
 
   <xsl:for-each
     select="document(concat($module_dir,'/arm.xml'))/express/schema/entity">
     <xsl:variable name="entity" select="@name"/>
     <xsl:variable name="ae_node" select="$ae_nodes[@entity=$entity]"/>
+    <xsl:variable name="aa_nodes" select="$ae_node/aa"/>
     <xsl:choose>
       <!-- check mapping for entity exists -->
       <xsl:when test="not($ae_node)">
@@ -52,10 +52,21 @@ $Id: sect_5_mapping_check.xsl,v 1.14 2003/10/28 06:37:19 robbod Exp $
           <xsl:when test="./redeclaration">
             <!-- Not yet implemented redeclaration check 
                  so only check if not redeclared -->            
+            <xsl:variable name="arm_attr_self" select="concat('SELF\',./redeclaration/@entity-ref,'.',@name)"/>
+            <xsl:variable name="arm_attr" select="@name"/>   
+            <xsl:if  test="not($aa_nodes[@attribute=$arm_attr_self]) and not($aa_nodes[@attribute=$arm_attr])">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Error mc6: the attribute ',
+                          $entity,'.',$arm_attr,
+                          ' has not been mapped.')"/>
+              </xsl:call-template> 
+            </xsl:if>
           </xsl:when>
 
           <xsl:otherwise>
-            <xsl:variable name="arm_attr" select="@name"/>
+            <xsl:variable name="arm_attr" select="@name"/>            
             <xsl:choose>
               <xsl:when test="not($aa_nodes[@attribute=$arm_attr])">
                 <xsl:call-template name="error_message">

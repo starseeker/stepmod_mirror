@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.78 2004/08/31 12:16:10 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.79 2004/09/25 07:49:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1373,8 +1373,8 @@ the mapping specification')"/>
 
 <!-- give the A NAME for the mapping of the entity attribute in sect 5 -->
 <xsl:template match="aa" mode="map_attr_aname_output">
-  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ\'"/>
 
   <xsl:variable name="attr">
     <xsl:choose>
@@ -1388,7 +1388,8 @@ the mapping specification')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  <a name="{$attr}"/>
+  <!-- need to put in whitespace to make HREF work in IExplorer -->
+  <a name="{$attr}"> </a>
 
   <!-- cater for the fact that the assertion may be written as:
        aa attribute="SELF\Applied_activity_assignment.assigned_activity"
@@ -1415,7 +1416,8 @@ the mapping specification')"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <a name="{$attr1}"/>
+    <!-- need to put in whitespace to make HREF work in IExplorer -->
+    <a name="{$attr1}"> </a>
   </xsl:if>  
 </xsl:template>
 

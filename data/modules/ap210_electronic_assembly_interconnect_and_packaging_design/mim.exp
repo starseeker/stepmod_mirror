@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.17 2004/12/30 09:29:22 liutkus Exp $
+   $Id: mim.exp,v 1.20 2005/01/04 07:21:18 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Ap210 electronic assembly interconnect and packaging design - EXPRESS MIM
 *)
 
@@ -967,6 +967,53 @@ FUNCTION valid_2d_wireframe_edge_curve
   END_IF;
   RETURN (FALSE);
 END_FUNCTION;
+
+RULE ee_material_unique_constraint FOR
+ ( material_designation );
+LOCAL
+  name_bag : BAG OF STRING := [];
+  md_bag : BAG OF material_designation;
+  adr_bag : BAG OF applied_document_reference;
+  pass : BOOLEAN := TRUE;
+  doc_bag : BAG OF ee_specification;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(material_designation) by 1;
+  IF EXISTS( material_designation[i].name ) THEN
+    IF( NOT( material_designation[i].name IN name_bag ) ) THEN
+      name_bag := name_bag + material_designation[i].name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  md_bag := QUERY( md <* material_designation | (md\material_designation.name = name_bag[i]) );
+  doc_bag := [];
+  REPEAT j := 1 to SIZEOF(md_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adr_bag := QUERY( adr <* USEDIN( md_bag[j], 
+('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'APPLIED_DOCUMENT_REFERENCE.ITEMS')) | 
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'DOCUMENT') IN TYPEOF(adr.assigned_document)) );
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN doc_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          doc_bag := doc_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
 
 END_SCHEMA;
 

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.6 2004/12/31 11:52:33 kovaliovas Exp $
+   $Id: mim.exp,v 1.7 2005/01/04 07:21:21 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Component grouping - EXPRESS MIM *)
 (* UNDER DEVELOPMENT *)
 SCHEMA Component_grouping_mim;
@@ -216,6 +216,17 @@ END_ENTITY;
 ENTITY rectangular_array_placement_group_component_shape_aspect
   SUBTYPE OF (array_placement_group_component_shape_aspect);
 END_ENTITY;
+
+RULE product_definition_formation_requires_approval FOR
+(product_definition,
+  applied_approval_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* product_definition |
+       (NOT('COMPONENT_GROUPING_MIM.' +
+       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF(pd))) AND
+       (NOT (SIZEOF (QUERY (aaa <* applied_approval_assignment |
+       pd.formation IN aaa.items )) = 1 )))) = 0;
+END_RULE;
 
 END_SCHEMA;
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.106 2002/09/30 13:36:41 robbod Exp $
+$Id: module.xsl,v 1.107 2002/10/16 14:20:13 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -796,6 +796,25 @@ o=isocs; s=central<br/>
     </a>
   </h3>
 
+  <xsl:if test="not( string-length(normalize-space(.)) > 85)" >
+        <xsl:call-template name="error_message">
+	  <xsl:with-param name="inline" select="'yes'"/>
+	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+          <xsl:with-param 
+		            name="message" 
+		            select="'Error P1: Insufficient introduction material provided.'"/>
+        </xsl:call-template>    
+  </xsl:if>
+  <xsl:if test="not(substring-after(.,'This part of ISO 10303 specifies'))" >
+        <xsl:call-template name="error_message">
+	  <xsl:with-param name="inline" select="'yes'"/>
+	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+          <xsl:with-param 
+		            name="message" 
+		            select="'Error P2: Introduction does not start with required text: This part of ISO 10303 specifies .'"/>
+        </xsl:call-template>    
+  </xsl:if>
+
   <p>
     ISO 10303 is an International Standard for the computer-interpretable 
     representation of product information and for the exchange of product data.
@@ -812,25 +831,6 @@ o=isocs; s=central<br/>
   </xsl:apply-templates>
   <xsl:apply-templates/>
 
-
-  <xsl:if test="not( string-length(normalize-space(.)) > 85)" >
-        <xsl:call-template name="error_message">
-	  <xsl:with-param name="inline" select="'yes'"/>
-	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-          <xsl:with-param 
-		            name="message" 
-		            select="'Insufficient introduction material provided.'"/>
-        </xsl:call-template>    
-  </xsl:if>
-  <xsl:if test="not(substring-after(.,'This part of ISO 10303 specifies'))" >
-        <xsl:call-template name="error_message">
-	  <xsl:with-param name="inline" select="'yes'"/>
-	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-          <xsl:with-param 
-		            name="message" 
-		            select="'Introduction does not start with required text: This part of ISO 10303 specifies .'"/>
-        </xsl:call-template>    
-  </xsl:if>
 
   <p>
     Clause <a href="1_scope{$FILE_EXT}">1</a> defines the scope of the

@@ -1,6 +1,6 @@
 (*
-  $Id: $
-  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-ZZZZ Geometric_tolerance *)
+  $Id: arm.exp,v 1.3 2002/09/12 23:00:30 thendrix Exp $
+  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS 10303-1051 Geometric_tolerance *)
 
 SCHEMA Geometric_tolerance_arm;
 
@@ -15,24 +15,25 @@ USE FROM Shape_property_assignment_arm;
 USE FROM Value_with_unit_arm;
 
 TYPE datum_representation_select = SELECT 
-  (Datum_target,
-   Shape_element);
+  (Datum_target_set,
+   Shape_element,
+   Derived_geometry);
 END_TYPE;
 
 ENTITY Angularity_tolerance
 SUBTYPE OF (Geometric_tolerance);
-  reference_datum : SET [1 : 2] OF Datum;
+  reference_datum : SET [1:2] OF Datum;
 END_ENTITY;
 
 ENTITY Circular_runout_tolerance
 SUBTYPE OF (Geometric_tolerance);
   angle : REAL;
-  reference_datum : SET [1 : 2] OF Datum;
+  reference_datum : SET [1:2] OF Datum;
 END_ENTITY;
 
 ENTITY Coaxiality_tolerance
 SUBTYPE OF (Geometric_tolerance);
-  reference_datum : SET [1 : 2] OF Datum;
+  reference_datum : SET [1:2] OF Datum;
 END_ENTITY;
 
 ENTITY Compound_datum
@@ -66,15 +67,40 @@ ENTITY Flatness_tolerance
 SUBTYPE OF (Geometric_tolerance);
 END_ENTITY;
 
-ENTITY Geometric_tolerance;
+ENTITY Geometric_tolerance
+ABSTRACT SUPERTYPE OF (ONEOF (
+	Angularity_tolerance,
+	Concentricity_tolerance,
+	Circularity_tolerance,
+	Circular_runout_tolerance,
+	Coaxiality_tolerance,
+	Cylindricity_tolerance,
+	Flatness_tolerance,
+	Line_profile_tolerance,
+	Parallelism_tolerance,
+	Perpendicularity_tolerance,
+	Position_tolerance,
+	Roundness_tolerance,
+	Straightness_tolerance,
+	Surface_profile_tolerance,
+	Symmetry_tolerance,
+	Total_runout_tolerance
+	));
   applied_to : Shape_element;
   modification : Tolerance_condition;
   name : OPTIONAL STRING;
   qualifying_note : OPTIONAL STRING;
-  segment_size : OPTIONAL STRING;
-  significant_digits : OPTIONAL STRING;
+  segment_size : OPTIONAL Value_with_unit;
+  significant_digits : OPTIONAL INTEGER;
   tolerance_value : Value_with_unit;
   value_determination : OPTIONAL STRING;
+WHERE
+WR1: (NOT (EXISTS(segment_size))) OR 
+  ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(segment_size.value_component));
+WR2: (NOT (EXISTS(tolerance_value))) OR 
+  ('GEOMETRIC_TOLERANCE_ARM.LENGTH_MEASURE' IN TYPEOF(tolerance_value.value_component));
+WR3: (NOT (EXISTS(significant_digits))) OR 
+  (significant_digits > 0);
 END_ENTITY;
 
 ENTITY Geometric_tolerance_relationship;

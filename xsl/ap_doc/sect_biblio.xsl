@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.11 2004/09/21 07:49:17 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.12 2004/09/29 13:41:43 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -40,7 +40,8 @@
        and start the numbering of the bibitem from there
        -->
   <xsl:variable name="bibitem_inc_cnt" 
-    select="count(document('../../data/basic/bibliography_default.xml')/bibliography/bibitem.inc)"/>
+    select="count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc)"/>
+
   <xsl:apply-templates select="./bibitem">
     <xsl:with-param name="number_start" select="$bibitem_inc_cnt"/>
   </xsl:apply-templates>
@@ -51,10 +52,10 @@
        counting from there
        -->
   <xsl:variable name="bibitem_cnt" 
-    select="count(./bibitem)"/>
+    select="count(./bibitem)+$bibitem_inc_cnt"/>
 
   <xsl:apply-templates select="./bibitem.inc">
-    <xsl:with-param name="number_start" select="$bibitem_cnt+1"/>
+    <xsl:with-param name="number_start" select="$bibitem_cnt"/>
   </xsl:apply-templates>
 </xsl:template>
 

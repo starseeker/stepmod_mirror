@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.110 2003/07/30 06:58:05 robbod Exp $
+$Id: common.xsl,v 1.111 2003/08/06 06:40:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -888,7 +888,19 @@ $Id: common.xsl,v 1.110 2003/07/30 06:58:05 robbod Exp $
   </div>
 </xsl:template>
 
-<xsl:template match="tr|td">
+<xsl:template match="td">
+  <xsl:variable name="node" select="string(name(.))"/>
+  <xsl:element name="{$node}">
+    <!-- copy across the attributes -->
+    <xsl:copy-of select="@*"/>    
+    <xsl:if test="string-length(./text())=0" > 
+      <xsl:value-of select="string('&#x00A0;')" />
+      </xsl:if>
+      <xsl:apply-templates/>
+  </xsl:element>
+</xsl:template>
+
+<xsl:template match="tr">
   <xsl:variable name="node" select="string(name(.))"/>
   <xsl:element name="{$node}">
     <!-- copy across the attributes -->

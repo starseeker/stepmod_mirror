@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.7 2003/03/14 01:41:27 nigelshaw Exp $
+$Id: mapping_view_with_test.xsl,v 1.8 2003/06/29 13:07:01 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -1577,6 +1577,13 @@ $Id: mapping_view_with_test.xsl,v 1.7 2003/03/14 01:41:27 nigelshaw Exp $
 						<xsl:with-param name="schemas" select="$schemas"/>
 						<xsl:with-param name="done-list" select="$output"/>
 					</xsl:apply-templates>
+					<xsl:apply-templates 
+						select="$schemas//schema[translate(@name,$UPPER,$LOWER)=
+						$current-item-schema]/function[@name=$current-item-thing]" 
+						mode="dependent-items-restricted" >
+						<xsl:with-param name="schemas" select="$schemas"/>
+						<xsl:with-param name="done-list" select="$output"/>
+					</xsl:apply-templates>
 				</xsl:if>
 			</xsl:variable>				
 
@@ -1713,6 +1720,23 @@ $Id: mapping_view_with_test.xsl,v 1.7 2003/03/14 01:41:27 nigelshaw Exp $
 -->
 		</xsl:when>
 	</xsl:choose>
+</xsl:template>
+
+
+<xsl:template match="function" mode="dependent-items-restricted" >
+	<xsl:param name="schemas" />
+	<xsl:param name="done-list" />
+
+	<xsl:for-each select="typename | parameter/typename" >
+		<xsl:variable name="typename" select="@name" />
+
+		<xsl:for-each select="$schemas//schema/*[@name=$typename][name()='entity' or name()='type']" >
+			<xsl:if test="not(contains($done-list,concat(' ',../@name,'.',@name,' ')))" >
+				<xsl:apply-templates select="." mode="schema-name"/>
+			</xsl:if>
+		</xsl:for-each>
+	</xsl:for-each>
+
 </xsl:template>
 
 

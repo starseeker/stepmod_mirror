@@ -735,6 +735,11 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:attribute name="name">APDOCCONTENTSXML</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/contents.xml</xsl:attribute>
     </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXAPDOCXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_apdoc.xml</xsl:attribute>
+    </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCCOVERXML</xsl:attribute>
@@ -3841,7 +3846,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+      <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCCONTENTSXML}'"/>
         </xsl:attribute>
@@ -3921,7 +3926,89 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
 
-        <xsl:element name="style">
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXAPDOCXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_index_apdoc.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+
+      <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCCOVERXML}'"/>
         </xsl:attribute>

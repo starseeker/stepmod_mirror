@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_top.xsl,v 1.4 2003/06/02 11:25:02 nigelshaw Exp $
+$Id: index_arm_express_top.xsl,v 1.5 2003/07/28 07:31:54 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -52,7 +52,7 @@ $Id: index_arm_express_top.xsl,v 1.4 2003/06/02 11:25:02 nigelshaw Exp $
     </head>
   <body>
   <small> 
-  	<A HREF="frame_index{$FILE_EXT}" TARGET="toc" >Back to main index</A>
+  	<A HREF="frame_index{$FILE_EXT}" TARGET="index" >Back to main index</A>
 	<BR/>
 	<B>ARM EXPRESS index</B>
 	<br/>

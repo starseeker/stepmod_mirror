@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.14 2003/07/28 07:31:55 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.15 2003/07/31 07:29:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -21,6 +21,13 @@ $Id: sect_6_ccs.xsl,v 1.14 2003/07/28 07:31:55 robbod Exp $
       <xsl:with-param name="heading" select="'6 Conformance requirements'"/>
       <xsl:with-param name="aname" select="'ccs'"/>
     </xsl:call-template>
+
+    <xsl:variable name="module" select="./@module_name"/>           
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="$module"/>
+      </xsl:call-template>
+    </xsl:variable>
     <p>
       Conformance to this part of ISO 10303 includes satisfying the
       requirements stated in this part, the requirements of the
@@ -76,9 +83,30 @@ $Id: sect_6_ccs.xsl,v 1.14 2003/07/28 07:31:55 robbod Exp $
           <xsl:apply-templates
             select="$ccs_xml/conformance/cc" mode="summary"/>
         </ul>        
+
         <p>
           This option shall be supported by a single class of conformance
-          that consists of all the ARM elements defined in this part of ISO 10303. 
+          that consists of all the ARM elements defined in the AP module
+          <xsl:choose>
+            <xsl:when test="$module_ok='true'">
+              <xsl:variable name="module_dir">
+                <xsl:call-template name="ap_module_directory">
+                  <xsl:with-param name="application_protocol" select="$module"/>
+                </xsl:call-template>
+              </xsl:variable>
+              <xsl:variable name="module_node"
+                select="document(concat($module_dir,'/module.xml'))/module"/>              
+              (<a href="../../../modules/{$module}/sys/cover{$FILE_EXT}">ISO 10303-<xsl:value-of select="$module_node/@part"/></a>).
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="message">
+                  <xsl:value-of select="concat('Error APCC1: The module ',$module,' does not exist.',
+                                        '  Correct CC module_name in ccs.xml')"/>
+                </xsl:with-param>
+              </xsl:call-template>
+            </xsl:otherwise>
+          </xsl:choose>
         </p>
       </xsl:when>
       <xsl:otherwise>
@@ -560,7 +588,29 @@ conformance class')"/>
         <small>
           NOTE&#160;&#160;Conformance to 
           <b><xsl:value-of select="@name"/></b>
-          requires that all ARM and MIM elements defined in this part of ISO 10303 be supported.
+          requires that all ARM and MIM elements defined in the AP module, 
+          <xsl:choose>
+            <xsl:when test="$module_ok='true'">
+              <xsl:variable name="module_dir">
+                <xsl:call-template name="ap_module_directory">
+                  <xsl:with-param name="application_protocol" select="$module"/>
+                </xsl:call-template>
+              </xsl:variable>
+              <xsl:variable name="module_node"
+                select="document(concat($module_dir,'/module.xml'))/module"/>              
+              (<a href="../../../modules/{$module}/sys/cover{$FILE_EXT}">ISO 10303-<xsl:value-of select="$module_node/@part"/></a>),
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="message">
+                  <xsl:value-of select="concat('Error APCC1: The module ',$module,' does not exist.',
+                                        '  Correct CC module_name in ccs.xml')"/>
+                </xsl:with-param>
+              </xsl:call-template>
+              (??),
+            </xsl:otherwise>
+          </xsl:choose>
+          be supported.
         </small>
       </p>
     </xsl:if>
@@ -584,28 +634,26 @@ conformance class')"/>
         <xsl:with-param name="module" select="$module"/>
       </xsl:call-template>
     </xsl:variable>
+    <xsl:if test="$module_ok!='true'">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          <xsl:value-of select="concat('Error APCC1: The module ',$module,' does not exist.',
+                                '  Correct CC module_name in ccs.xml')"/>
+        </xsl:with-param>
+      </xsl:call-template>      
+    </xsl:if>
 
     <xsl:if test="./@from_module!='NO'">
       <!-- output the scope statements from the module -->
-      <xsl:choose>
-        <xsl:when test="$module_ok='true'">
-            <xsl:variable name="module_dir">
-              <xsl:call-template name="ap_module_directory">
-                <xsl:with-param name="application_protocol" select="$module"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:apply-templates
-              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-            <xsl:value-of select="concat('Error APCC1: The module ',$module,' does not exist.',
-                                  '  Correct CC module_name in ccs.xml')"/>
-            </xsl:with-param>
+      <xsl:if test="$module_ok='true'">
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="ap_module_directory">
+            <xsl:with-param name="application_protocol" select="$module"/>
           </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
+        </xsl:variable>
+        <xsl:apply-templates
+          select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+      </xsl:if>
     </xsl:if>
         
     <!-- output the scope statements from the AP doc -->

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_top.xsl,v 1.6 2003/06/16 16:41:27 robbod Exp $
+$Id: index_arm_mappings_top.xsl,v 1.7 2003/07/28 07:31:54 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -56,7 +56,7 @@ $Id: index_arm_mappings_top.xsl,v 1.6 2003/06/16 16:41:27 robbod Exp $
 
     </head>
   <body>
-  	<A HREF="frame_index{$FILE_EXT}" TARGET="toc" >Back to main index</A>
+  	<A HREF="frame_index{$FILE_EXT}" TARGET="index" >Back to main index</A>
 	<BR/>
 	<B>Entity Mapping index</B>
 	<br/>

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_modules_top.xsl,v 1.5 2003/06/16 16:41:27 robbod Exp $
+$Id: index_mim_modules_top.xsl,v 1.6 2003/07/28 07:31:54 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -55,7 +55,7 @@ $Id: index_mim_modules_top.xsl,v 1.5 2003/06/16 16:41:27 robbod Exp $
     </head>
   <body>
 
-  	<A HREF="frame_index{$FILE_EXT}" TARGET="toc" >Back to main index</A>
+  	<A HREF="frame_index{$FILE_EXT}" TARGET="index" >Back to main index</A>
 	<br/>
 
 	<xsl:variable name="top_module_file" 

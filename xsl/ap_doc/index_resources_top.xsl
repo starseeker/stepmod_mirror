@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_top.xsl,v 1.4 2003/06/22 16:06:30 thendrix Exp $
+$Id: index_resources_top.xsl,v 1.5 2003/07/28 07:31:55 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -55,7 +55,7 @@ $Id: index_resources_top.xsl,v 1.4 2003/06/22 16:06:30 thendrix Exp $
     </head>
   <body>
 
-  	<A HREF="frame_index{$FILE_EXT}" TARGET="toc" >Back to main index</A>
+  	<A HREF="frame_index{$FILE_EXT}" TARGET="index" >Back to main index</A>
 	<br/>
 
 	<xsl:variable name="top_module_file" 

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_inner.xsl,v 1.10 2003/06/16 16:41:27 robbod Exp $
+$Id: index_arm_express_inner.xsl,v 1.11 2003/07/28 07:31:54 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -253,10 +253,10 @@ $Id: index_arm_express_inner.xsl,v 1.10 2003/06/16 16:41:27 robbod Exp $
 
 
 		<xsl:apply-templates select="." mode="expressg_icon">
-                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="target" select="'info'"/>
                   <xsl:with-param name="expressg" select="$expressg" />
                 </xsl:apply-templates> 
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
                   <xsl:value-of select="@name" /></A>
 			<br/>
 </xsl:template>
@@ -269,7 +269,7 @@ $Id: index_arm_express_inner.xsl,v 1.10 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
                   <br/>
 		
@@ -284,11 +284,11 @@ $Id: index_arm_express_inner.xsl,v 1.10 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
                 <xsl:apply-templates select="." mode="expressg_icon">
-                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="target" select="'info'"/>
                   <xsl:with-param name="expressg" select="$expressg" />
                 </xsl:apply-templates> 
 
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		
@@ -302,11 +302,11 @@ $Id: index_arm_express_inner.xsl,v 1.10 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
                   <xsl:apply-templates select="." mode="expressg_icon">
-                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="target" select="'info'"/>
                   <xsl:with-param name="expressg" select="$expressg" />
                 </xsl:apply-templates> 
 
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		
@@ -320,7 +320,7 @@ $Id: index_arm_express_inner.xsl,v 1.10 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		
@@ -336,7 +336,7 @@ $Id: index_arm_express_inner.xsl,v 1.10 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		
@@ -350,7 +350,7 @@ $Id: index_arm_express_inner.xsl,v 1.10 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		

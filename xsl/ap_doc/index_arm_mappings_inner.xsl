@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.12 2003/07/28 07:31:54 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -207,7 +207,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="lc-ent" select="translate(@name,$UPPER,$LOWER)" />
 
 		<br/>
-		<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}" TARGET="content">
+		<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}" target="info">
 			<xsl:value-of select="@name"/>
 		</A>
 		<br/>
@@ -260,7 +260,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="lc-ent" select="translate(../@name,$UPPER,$LOWER)"/>
 		<xsl:variable name="ent-name" select="../@name"/>
 
-<!--		&#160;&#160;<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
+<!--		&#160;&#160;<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" target="info">
 		<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 		</A>
 		<br/>
@@ -281,7 +281,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 <!--			<xsl:value-of select="concat(' ',../@name,'.',@name)"/> -->
 			<A 
 			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}assertion_to{$lc-typename}" 
-			TARGET="content">
+			target="info">
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 			</A>
 			
@@ -315,7 +315,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 					select="concat($STEPMOD_DATA_MODULES, $the-mod-name)" />
 
 				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$the-mod-name}_arm.{@name}" 
-					TARGET="content"><xsl:value-of select="@name"/></A>
+					target="info"><xsl:value-of select="@name"/></A>
 				<br/>
 				TO INCLUDE:
 				<TABLE>
@@ -375,7 +375,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 <!--		
 			<A 
 			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}assertion_to{$lc-typename}" 
-			TARGET="content">
+			target="info">
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 			</A>
 -->
@@ -385,7 +385,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 				<!-- Mapping found q -->
 				<A 
 			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}assertion_to{$lc-typename}" 
-				TARGET="content">
+				target="info">
 				<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 				</A>
 			</xsl:when>
@@ -398,7 +398,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 				
 				<A 
 			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" 
-				TARGET="content">
+				target="info">
 				<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 				</A>
 				<br/>
@@ -417,7 +417,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 				
 				<A 
 			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattributeself\{$redeclared-from}.{@name}assertion_to{$lc-typename}" 
-				TARGET="content">
+				target="info">
 				<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 				</A>
 <!--				<br/>WARNING: Attribute in mapping contains SELF !!! -->
@@ -441,7 +441,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 			<br/>
 		</xsl:when>
 		<xsl:otherwise>
-			<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
+			<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" target="info">
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 			</A>
 
@@ -504,12 +504,12 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 					select="translate($this-item,$UPPER,$LOWER)" />
 
 				<A HREF="{$this-item-dir}/sys/4_info_reqs{$FILE_EXT}#{$this-item-mod}.{$lc-this-item}" 
-					TARGET="content"><xsl:value-of select="$this-item" /></A>
+					target="info"><xsl:value-of select="$this-item" /></A>
 				<xsl:text>  </xsl:text>
 				<xsl:variable name="the-mod-dir" 
 					select="concat($STEPMOD_DATA_MODULES,$this-module)" />
 				<br/>&#160;&#160;
-				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$lc-this-item}" TARGET="content">map</A>
+				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$lc-this-item}" target="info">map</A>
 				<xsl:text> </xsl:text>
 
 				<!-- check that mapping exists -->
@@ -533,7 +533,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.11 2003/06/16 16:41:27 robbod Exp $
 					select="concat($STEPMOD_DATA_MODULES, $the-select-mod)" />
 
 				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$this-select-mod}.{$this-select/@name}" 
-					TARGET="content">select</A>
+					target="info">select</A>
 -->
 				<br/>
 

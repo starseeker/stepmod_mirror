@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.26 2003/07/28 12:32:41 robbod Exp $
+$Id: frame_toc_short.xsl,v 1.1 2003/07/31 07:30:30 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -33,7 +33,7 @@ $Id: sect_contents.xsl,v 1.26 2003/07/28 12:32:41 robbod Exp $
         <small>
           <xsl:apply-templates select="$application_protocol_xml_file/application_protocol" mode="contents">
             <xsl:with-param name="complete" select="'yes'"/>
-            <xsl:with-param name="target" select="'content'"/>
+            <xsl:with-param name="target" select="'info'"/>
             <xsl:with-param name="short" select="'yes'"/>
           </xsl:apply-templates>
         </small>

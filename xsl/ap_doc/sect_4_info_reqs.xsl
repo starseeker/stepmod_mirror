@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.16 2003/06/26 12:54:54 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.17 2003/07/28 12:32:41 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -86,13 +86,13 @@ $Id: sect_4_info_reqs.xsl,v 1.16 2003/06/26 12:54:54 robbod Exp $
      <h2><a name="42">4.2&#160;Information requirements model</a></h2>
      <xsl:variable name="module_clause4" select="concat('../../../modules/',$module,'/sys/4_info_reqs',$FILE_EXT)"/>
      The detailed information requirements for this AP are defined in
-     clause <a href="{$module_clause4}">4</a> of the AP module, 
-     <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
+     clause <a href="{$module_clause4}">4</a> of the AP module 
+     (<a href="{$module_href}"><xsl:value-of select="$module_partno"/>)</a>.
      <p class="note">
        <small>
          NOTE&#160;1&#160;&#160;
          The ARM EXPRESS 
-         <a href="index_arm_express{$FILE_EXT}" target="toc">index</a>
+         <a href="index_arm_express{$FILE_EXT}" target="index">index</a>
          contains a complete list of all
          ARM objects identified in the information requirements in
          clause <a href="{$module_clause4}">4</a> of the AP module 
@@ -103,7 +103,7 @@ $Id: sect_4_info_reqs.xsl,v 1.16 2003/06/26 12:54:54 robbod Exp $
        <small>
          NOTE&#160;2&#160;&#160;
          The module 
-         <a href="index_arm_modules{$FILE_EXT}" target="toc">index</a>
+         <a href="index_arm_modules{$FILE_EXT}" target="index">index</a>
          contains a complete list of all the modules used in the ARM of
          this part of ISO 10303. 
        </small>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.26 2003/07/28 12:32:41 robbod Exp $
+$Id: sect_contents.xsl,v 1.27 2003/07/31 07:29:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -510,7 +510,7 @@ $Id: sect_contents.xsl,v 1.26 2003/07/28 12:32:41 robbod Exp $
   <xsl:variable name="clause_aname" select="concat('cc_',@id)"/>
   <xsl:variable name="clause_hdr"
     select="concat('6.',position(),' Conformance class for ',@name,' (',@id,')')"/> 
-  &#160;&#160;&#160;
+  &#160;&#160;&#160;&#160;&#160;
   <a href="./6_ccs{$FILE_EXT}#{$clause_aname}" target="{$target}">
     <xsl:value-of select="$clause_hdr"/>
   </a>
@@ -520,7 +520,7 @@ $Id: sect_contents.xsl,v 1.26 2003/07/28 12:32:41 robbod Exp $
 <xsl:template match="idef0" mode="toc">
   <xsl:param name="target" select="'_self'"/>
   <xsl:param name="short" select="'no'"/>
-  &#160;&#160;&#160;
+  &#160;&#160;&#160;&#160;&#160;
   <a href="./annex_aam{$FILE_EXT}#activity_defn" target="{$target}">
     F.1 Application activity model definitions
   </a>
@@ -531,7 +531,7 @@ $Id: sect_contents.xsl,v 1.26 2003/07/28 12:32:41 robbod Exp $
       <xsl:variable name="clause_aname">
         <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
       </xsl:variable>
-      &#160;&#160;&#160;&#160;&#160;&#160;
+      &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
       <a href="./annex_aam{$FILE_EXT}#{$clause_aname}" target="{$target}">
         <xsl:value-of select="concat('F.1.',position(),' ',normalize-space(./name))"/>
       </a>

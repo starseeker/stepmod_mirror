@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
+$Id: index_arm_express_nav_inner.xsl,v 1.3 2003/07/28 07:31:54 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -263,10 +263,10 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 
 
 		<xsl:apply-templates select="." mode="expressg_icon">
-                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="target" select="'info'"/>
                   <xsl:with-param name="expressg" select="$expressg" />
                 </xsl:apply-templates> 
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 		<TABLE>
 			<TR>
@@ -284,7 +284,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="content">
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="info">
 						<xsl:value-of select="@name" /></a>
 						<br/>
 					</xsl:for-each>
@@ -299,7 +299,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="content">
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="info">
 						<xsl:value-of select="@name" /></a>
 						<br/>
 					</xsl:for-each>
@@ -314,7 +314,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}" TARGET="content" >
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}" TARGET="info" >
 						<xsl:value-of select="concat(../@name,'.',@name)" /></a>
 						<br/>
 					</xsl:for-each>
@@ -329,7 +329,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="content">
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="info">
 						<xsl:value-of select="@name" /></a>
 						<br/>
 					</xsl:for-each>
@@ -351,7 +351,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		
@@ -370,11 +370,11 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="typ-name-spaced" select="concat(' ',@name,' ')" />
 
                 <xsl:apply-templates select="." mode="expressg_icon">
-                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="target" select="'info'"/>
                   <xsl:with-param name="expressg" select="$expressg" />
                 </xsl:apply-templates> 
 
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 		<TABLE>
 			<TR>
@@ -391,7 +391,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}"  TARGET="content">
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}"  TARGET="info">
 
 						<xsl:value-of select="concat(../@name,'.',@name)" /></a>
 						<br/>
@@ -407,7 +407,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="content">
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="info">
 						<xsl:value-of select="@name" /></a>
 						<br/>
 					</xsl:for-each>
@@ -429,11 +429,11 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
                   <xsl:apply-templates select="." mode="expressg_icon">
-                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="target" select="'info'"/>
                   <xsl:with-param name="expressg" select="$expressg" />
                 </xsl:apply-templates> 
 
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		
@@ -447,7 +447,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		
@@ -464,7 +464,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		
@@ -479,7 +479,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.2 2003/06/16 16:41:27 robbod Exp $
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
 		

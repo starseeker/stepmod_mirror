@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_inner.xsl,v 1.6 2003/06/16 16:41:27 robbod Exp $
+$Id: index_arm_modules_inner.xsl,v 1.7 2003/07/28 07:31:54 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -158,7 +158,7 @@ $Id: index_arm_modules_inner.xsl,v 1.6 2003/06/16 16:41:27 robbod Exp $
 
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 
-		<A HREF="{$mod-dir}/sys/1_scope{$FILE_EXT}" TARGET="content"><xsl:value-of select="$mod-name" /></A>
+		<A HREF="{$mod-dir}/sys/1_scope{$FILE_EXT}" target="info"><xsl:value-of select="$mod-name" /></A>
 		<br/>
 		
 </xsl:template>

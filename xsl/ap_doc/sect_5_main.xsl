@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.8 2003/06/11 06:39:30 robbod Exp $
+$Id: sect_5_main.xsl,v 1.9 2003/06/11 14:28:10 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -69,7 +69,7 @@ $Id: sect_5_main.xsl,v 1.8 2003/06/11 06:39:30 robbod Exp $
       <small>
         NOTE&#160;1&#160;&#160;
         The ARM entity mapping
-        <a href="index_arm_mappings{$FILE_EXT}" target="toc">index</a>
+        <a href="index_arm_mappings{$FILE_EXT}" target="index">index</a>
         contains a complete list of the
         mappings of ARM entities identified (through inclusion or
         reference) in the information requirements in the AP module 
@@ -91,7 +91,7 @@ $Id: sect_5_main.xsl,v 1.8 2003/06/11 06:39:30 robbod Exp $
       <small>
         NOTE&#160;2&#160;&#160;
         The MIM EXPRESS
-        <a href="index_mim_express{$FILE_EXT}" target="toc">index</a>
+        <a href="index_mim_express{$FILE_EXT}" target="index">index</a>
         contains a complete list of MIM
         objects identified in clause <a href="{$module_clause5}">5.2</a> of the AP module 
          (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).

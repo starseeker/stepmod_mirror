@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.14 2003/04/17 09:20:10 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.15 2003/04/21 18:25:53 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -1346,7 +1346,17 @@ $Id: mapping_view.xsl,v 1.14 2003/04/17 09:20:10 nigelshaw Exp $
 <!--	<xsl:variable name="first" select="string(preceding-sibling::*[not(name() ='new-line')][1])" />
 	<xsl:variable name="second" select="string(following-sibling::*[not(name() ='new-line')][1])" />  -->
 	<xsl:variable name="first" select="string(preceding-sibling::word[1])" />
-	<xsl:variable name="second" select="string(following-sibling::word[1])" />
+	<xsl:variable name="second">
+		<xsl:choose>
+			<xsl:when test="name(following-sibling::*[not(name() ='new-line')][1])='start-constraint'" >
+				<xsl:value-of select="string(following-sibling::word[preceding-sibling::end-constraint][1])" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="string(following-sibling::word[1])" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+
 
 <!-- note that this will only test one possible supertype relationship. 
 It is possible that two supertypes are declared delineated by [] [] 

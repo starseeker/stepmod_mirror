@@ -1,161 +1,550 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.24 2002/09/30 09:10:26 robbod Exp $ -->
+<!-- $Id: mim.xml,v 1.1 2002/10/25 13:36:07 davidleal Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 <express
    language_version="2"
-   rcs.date="$Date: 2002/09/30 09:10:26 $"
-   rcs.revision="$Revision: 1.24 $">
-  <schema name="schematic_element_mim">
-<interface kind="use" schema="class_mim"/>
-<interface kind="use" schema="set_theory_mim"/>
-<interface kind="use" schema="draughting_annotation_mim"/>
-<interface kind="use" schema="foundation_representation_mim"/>
+   rcs.date="$Date: 2002/10/25 13:36:07 $"
+   rcs.revision="$Revision: 1.1 $">
+  <schema name="Schematic_element_mim">
+<interface kind="use" schema="Class_mim"/>
+<interface kind="use" schema="Set_theory_mim"/>
+<interface kind="use" schema="Draughting_annotation_mim"/>
+<interface kind="use" schema="Foundation_representation_mim"/>
 <interface kind="use" schema="aic_geometrically_bounded_2d_wireframe"/>
-<interface kind="use" schema="presentation_organization_schema">
-  <interfaced.item name="presentation_representation"/>
-  <interfaced.item name="presentation_representation_relationship"/>
+<interface kind="use" schema="representation_schema">
+  <interfaced.item name="mapped_item"/>
 </interface>
-    <entity
+
+<entity 
        name="composition_of_schematic_element_occurrence"
-       supertypes="representation_relationship">
+       supertypes="mapped_item">
 <description>
-A <B>composition_of_schematic_element_occurrence</B> is a <B>representation_relationship</B> that is a
-<express_ref linkend="schematic_element:arm:Schematic_element_arm.Composition_of_schematic_element_occurrence">Composition_of_schematic_element_occurrence</express_ref>.</description>
-<explicit name="SELF\representation_relationship.rep_1">
- <typename name="schematic_element_occurrence" />
-<description>a
-<B>schematic_element_occurrence</B> that contains the <B>part</B>.
+<p>A <b>composition_of_schematic_element_occurrence</b> is a <b>mapped_item</b> that is a
+<express_ref linkend="schematic_element:arm:Schematic_element_arm.Composition_of_schematic_element_occurrence">Composition_of_schematic_element_occurrence</express_ref>.</p>
+<p>A <b>composition_of_schematic_element_definition</b> shall not specify a scaling, 
+translation or rotation.</p>
 </description>
-</explicit>
-<explicit name="SELF\representation_relationship.rep_2">
-<typename name="schematic_element_occurrence" />
- <description>a
-<B>schematic_element_occurrence</B> that is a part of the <B>whole</B>.
-</description> 
-</explicit>
+
+<where label="schematic_element_occurrence_as_part"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF
+               (SELF\mapped_item.mapping_source.mapped_representation)"
+>
+ <description>The part shall be a
+<b>schematic_element_occurrence</b>.
+</description>
+</where>
+
+<where label="schematic_element_occurrence_as_whole"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF
+               (using_representation(SELF))"
+>
+ <description>The whole shall be a
+<b>schematic_element_occurrence</b>.
+</description>
+</where>
 </entity>
+
 <entity
        name="connection_of_schematic_element_occurrence"
        supertypes="representation_relationship">
 <description>
-A <B>connection_of_schematic_element_occurrence</B> is a <B>representation_relationship</B> that is a
-<express_ref linkend="schematic_element:arm:Schematic_element_arm.Connection_of_schematic_element_occurrence">Connection_of_schematic_element_occurrence</express_ref>.</description>
-<explicit name="SELF\representation_relationship.rep_1">
- <typename name="schematic_element_occurrence" />
-<description>a
-<B>schematic_element_occurrence</B> that is connected to <B>side_1</B>.
+<p>A <b>connection_of_schematic_element_occurrence</b> is a <b>representation_relationship</b> that is a
+<express_ref linkend="schematic_element:arm:Schematic_element_arm.Connection_of_schematic_element_occurrence">Connection_of_schematic_element_occurrence</express_ref>.</p>
+<p>A <b>connection_of_schematic_element_occurrence</b> shall not specify a scaling, 
+translation or rotation.</p>
 </description>
-</explicit>
-<explicit name="SELF\representation_relationship.rep_2">
-<typename name="schematic_element_occurrence" />
- <description>a
-<B>schematic_element_occurrence</B> that is connected to <B>side_2</B>.
-</description> 
-</explicit>
+
+<where label="schematic_element_occurrence_as_side_1"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF
+               (SELF\mapped_item.mapping_source.mapped_representation)"
+>
+ <description>The side 1 shall be a
+<b>schematic_element_occurrence</b>.
+</description>
+</where>
+
+<where label="schematic_element_occurrence_as_side_2"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF
+               (using_representation(SELF))"
+>
+ <description>The side 2 shall be a
+<b>schematic_element_occurrence</b>.
+</description>
+</where>
 </entity>
+
 <entity
        name="definition_of_schematic_element_occurrence"
-       supertypes="subset">
+       supertypes="mapped_item">
 <description>
-A <B>definition_of_schematic_element_occurrence</B> is a <B>subset</B> relationship that is a
-<express_ref linkend="schematic_element:arm:Schematic_element_arm.Definition_of_schematic_element_occurrence">Definition_of_schematic_element_occurrence</express_ref>.</description>
-<explicit name="SELF\subset.subset">
-<typename name="schematic_element_occurrence" />
-<description>a
-<B>schematic_element_occurrence</B> that is defined by the <B>superset</B>.
+<p>A <b>definition_of_schematic_element_occurrence</b> is a <b>mapped_item</b> relationship that is a
+<express_ref linkend="schematic_element:arm:Schematic_element_arm.Definition_of_schematic_element_occurrence">Definition_of_schematic_element_occurrence</express_ref>.</p>
+<note>This entity is regarded as a type of <b>mapped_item</b>
+rather than <b>subset</b>, for compatibility with other parts of ISO 10303.</note>
+
+<p>A <b>definition_of_schematic_element_occurrence</b> shall not
+specify a scaling, rotation or transformation.</p>
 </description>
-</explicit>
-<explicit name="SELF\subset.superset">
-<typename name="schematic_element" />
- <description>a
-<B>schematic_element</B> that defines the <B>subset</B>.
-</description> 
-</explicit>
+
+<where label="schematic_element_as_superset"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'SCHEMATIC_ELEMENT' IN TYPEOF
+               (SELF\mapped_item.mapping_source.mapped_representation)"
+>
+ <description>the superset shall be a
+<b>schematic_element</b>.
+</description>
+</where>
+
+<where label="schematic_element_occurrence_as_subset"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF
+               (using_representation(SELF))"
+>
+ <description>the subset shall be a
+<b>schematic_element_occurrence</b>.
+</description>
+</where>
+
 </entity>
+
 <entity
        name="derivation_of_schematic_element_definition"
-       supertypes="presentation_representation_relationship">
+       supertypes="mapped_item">
 <description>
-A <B>derivation_of_schematic_element_definition</B> is a <B>presentation_representation_relationship</B> that is a
-<express_ref linkend="schematic_element:arm:Schematic_element_arm.Derivation_of_schematic_element_definition">Derivation_of_schematic_element_definition</express_ref>.</description>
-<explicit name="SELF\presentation_representation_relationship.rep_1">
-<typename name="schematic_element_definition" />
-<description>a <B>schematic_element_definition</B> that is input to the geometric transformation to give the <B>derived</B>.
+<p>A <b>derivation_of_schematic_element_definition</b> is 
+a <b>mapped_item</b> that is a
+<express_ref linkend="schematic_element:arm:Schematic_element_arm.Derivation_of_schematic_element_definition">Derivation_of_schematic_element_definition</express_ref>.</p>
+
+<p>A <b>derivation_of_schematic_element_definition</b> can specify
+a scaling, but shall not specify a translation or rotation.</p>
 </description>
-</explicit>
-<explicit name="SELF\presentation_representation_relationship.rep_2">
-<typename name="implicit_schematic_element_definition" />
- <description>a
-<B>implicit_schematic_element_definition</B> that is obtained from the <B>base</B> by the geometric transformation.
-</description> 
-</explicit>
+
+<where label="schematic_element_definition_as_base"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'SCHEMATIC_ELEMENT_DEFINITION' IN TYPEOF
+               (SELF\mapped_item.mapping_source.mapped_representation)"
+>
+ <description>the base shall be a
+<b>schematic_element_definition</b>.
+</description>
+</where>
+
+<where label="implicit_schematic_element_definition_as_derived"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'IMPLICIT_SCHEMATIC_ELEMENT_DEFINITION' IN TYPEOF
+               (using_representation(SELF))"
+>
+ <description>the derived shall be an
+<b>implicit_schematic_element_definition</b>.
+</description>
+</where>
 </entity>
+
+<entity
+       name="draughting_model"
+       supertypes="representation">
+<description>
+<p>A <b>draughting_model</b> is a specification that
+can be reproduced as patches of ink on paper or pixels on a
+visual display screen, and that represents one or more of
+the following:</p>
+<ul>
+<li>the shape of a product;</li>
+<li>the type of a product or activity;</li>
+<li>relationships of a product or activity;</li>
+<li>properties of a product or activity.</li>
+</ul>
+<p>A <b>draughting_model</b> can be:</p>
+<ul>
+<li>defined by algorithm from the shape model of a product;</li>
+<li>defined by explicit annotation text, curves and filled areas;</li>
+<li>be an assembly of two or more other draughting models.</li>
+</ul>
+<note>This entity is identitical to the entity of the same name
+defined within ISO 10303-201:1994</note>
+</description>
+
+<unique label="unique_id">
+ <unique.attribute attribute="SELF\representation.name"/>
+ <description>The name of a <b>draughting_model</b> shall be
+ unique.
+ </description>
+</unique>
+
+<where label="valid_draughting_model_items"
+expression=
+"SIZEOF(QUERY ( it &lt;* SELF.items |
+   (NOT (SIZEOF([
+               'REPRESENTATION_SCHEMA.MAPPED_ITEM',
+               'DRAUGHTING_ANNOTATION_MIM.STYLED_ITEM',
+               'DRAUGHTING_ANNOTATION_MIM.AXIS2_PLACEMENT'] *
+         TYPEOF(it)) = 1)) )) = 0"
+>
+ <description>Each item of a <b>draughting_model</b>
+ shall be a <b>mapped_item</b>,
+ <b>styled_item</b> or <b>axis2_placement</b>.
+</description>
+</where>
+
+<where label="valid_mapped_items"
+expression=
+"SIZEOF(QUERY ( mi &lt;* QUERY ( it &lt;* SELF.items |
+     ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(it)) ) |
+     (NOT (SIZEOF(['DRAUGHTING_ANNOTATION_MIM.SHAPE_REPRESENTATION',
+                   'SCHEMATIC_ELEMENT_MIM.DRAUGHTING_MODEL'] *
+           TYPEOF(mi\mapped_item.mapping_source.mapped_representation)) = 1
+ )) )) = 0"
+>
+ <description>If there is a <b>mapped_item</b> in a 
+ <b>draughting_model</b>, then the source of the <b>mapped_item</b>
+ shall be a <b>shape_representation</b> or another
+ <b>draughting_model</b>.
+</description>
+</where>
+
+<where label="valid_use_of_style"
+expression=
+"SIZEOF(QUERY ( smi &lt;* QUERY ( si &lt;* QUERY ( it &lt;* SELF.items |
+   ('DRAUGHTING_ANNOTATION_MIM.STYLED_ITEM' IN TYPEOF(it)) ) | (
+    'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(si\styled_item.item)) ) | 
+   (NOT (('DRAUGHTING_ANNOTATION_MIM.SHAPE_REPRESENTATION' 
+      IN TYPEOF(smi\styled_item.item\mapped_item.mapping_source.mapped_representation))
+      AND (SIZEOF(QUERY ( sty &lt;* smi\styled_item.styles |
+        (NOT (SIZEOF(QUERY ( psa &lt;* sty.styles |
+           (NOT ('DRAUGHTING_ANNOTATION_MIM.CURVE_STYLE' IN TYPEOF(psa))) )) = 1
+      )) )) = 1))) )) = 0"
+>
+ <description>If a <b>mapped_item</b> is styled, then the
+ source of the <b>mapped_item</b> shall be a
+ <b>shape_representation</b> and the style applied to the 
+ <b>mapped_item</b> shall be a <b>curve_style</b>.
+</description>
+</where>
+</entity>
+
 <entity
        name="explicit_schematic_element_definition"
        supertypes="schematic_element_definition draughting_subfigure_representation">
 <description>
-An <B>explicit_schematic_element_definition</B> is a <B>schematic_subfigure_representation</B> and a <B>schematic_element_definition</B> that is a
+An <b>explicit_schematic_element_definition</b> is a <b>schematic_subfigure_representation</b> and a <b>schematic_element_definition</b> that is a
 <express_ref linkend="schematic_element:arm:Schematic_element_arm.Explicit_schematic_element_definition">Explicit_schematic_element_definition</express_ref>.
 </description>
+
+<where label="not_derived_or_defined_by_assembly"
+expression=
+"(SIZEOF(
+                 QUERY(it &lt;* SELF.items |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION'
+                    IN TYPEOF(it)
+                 )   
+               ) = 0) AND
+               (SIZEOF(
+                 QUERY(it &lt;* SELF.items |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
+                    IN TYPEOF(it)
+                 )   
+               ) &gt;= 0)"
+>
+<description><p>The form of an 
+<b>explicit_schematic_element_definition</b> shall be defined by
+neither a single instance of
+<b>derivation_of_schematic_element_definition</b>
+nor by one or more instances of
+<b>usage_of_schematic_element_occurrence</b>.</p>
+<note>A <b>explicit_schematic_element_definition</b> is defined by
+its instances of <b>styled_item</b>.</note>
+</description>
+</where>
+
 </entity>
+
 <entity
        name="implicit_schematic_element_definition"
        supertypes="schematic_element_definition">
 <description>
-An <B>implicit_schematic_element_definition</B> is a <B>schematic_subfigure_representation</B> that is a
+An <b>implicit_schematic_element_definition</b> is a <b>schematic_subfigure_representation</b> that is a
 <express_ref linkend="schematic_element:arm:Schematic_element_arm.Implicit_schematic_element_definition">Implicit_schematic_element_definition</express_ref>.
 </description>
+
+<where label="no_styled_item"
+expression=
+"SIZEOF(
+                 QUERY(it &lt;* SELF.items |
+                    'DRAUGHTING_ANNOTATION_MIM.STYLED_ITEM'
+                    IN TYPEOF(it)
+                 )   
+               ) = 0"
+>
+<description><p>The form of an <b>implicit_schematic_element_definition</b> shall not
+be defined explicitly by reference to instances of
+<b>styled_item</b>.</p>
+<note>Instead the form of an <b>implicit_schematic_element_definition</b>
+is defined as an assembly of instances of
+<b>schematic_element_occurrence</b> or by derivation from
+another instance of <b>schematic_element_definition</b>.
+</note>
+</description>
+</where>
+
+<where label="either_derived_once_or_defined_by_assembly"
+expression=
+"(SIZEOF(
+                 QUERY(it &lt;* SELF.items |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION'
+                    IN TYPEOF(it)
+                 )   
+               ) = 1) OR
+               (SIZEOF(
+                 QUERY(it &lt;* SELF.items |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
+                    IN TYPEOF(it)
+                 )   
+               ) &gt;= 1)"
+>
+<description>The form of an 
+<b>implicit_schematic_element_definition</b> shall be defined by
+either a single instance of
+<b>derivation_of_schematic_element_definition</b>
+or by one or more instances of
+<b>usage_of_schematic_element_occurrence</b>.
+</description>
+</where>
+
 </entity>
+
 <entity
        name="schematic_element"
        abstract.supertype="YES"
        super.expression="(ONEOF (schematic_element_definition,
                                  schematic_element_occurrence))"
-       supertypes="class presentation_representation">
+       supertypes="class draughting_model">
 <description>
-A <B>schematic_element</B> is a <B>presentation_representation</B> and a <B>class</B> that is a
+A <b>schematic_element</b> is a <b>draughting_model</b> and a <b>class</b> that is a
 <express_ref linkend="schematic_element:arm:Schematic_element_arm.Schematic_element">Schematic_element</express_ref>.
 </description>
+
+<where label="valid_mapping"
+expression=
+"SIZEOF(
+                 QUERY(it &lt;* SELF.items |
+                   'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(it) |
+                   'SCHEMATIC_ELEMENT_MIM.DRAUGHTING_MODEL' IN TYPEOF
+                     (it\mapped_item.mapping_source.mapped_representation) |
+                   NOT(
+                     SIZEOF(
+                       ['SCHEMATIC_ELEMENT_MIM.' +
+                        'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION',
+                        'SCHEMATIC_ELEMENT_MIM.' +
+                        'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE',
+                        'SCHEMATIC_ELEMENT_MIM.' +
+                        'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' 
+                       ] * TYPEOF(it)
+                     ) = 1
+                   )
+                 )
+               ) = 0"
+>
+<description>If there is a <b>mapped_item</b> in a 
+  <b>schematic_element</b> that has a <b>draughting_model</b>
+  as its source, then the <b>mapped_item</b>
+  shall be a <b>derivation_of_schematic_element_definition</b>,
+  <b>usage_of_schematic_element_occurrence</b>, or
+  <b>definition_of_schematic_element_occurrence</b>.
+</description>  
+</where>
 </entity>
+
 <entity
        name="schematic_element_definition"
        super.expression="(ONEOF (explicit_schematic_element_definition,
                                  implicit_schematic_element_definition))"
        supertypes="schematic_element">
 <description>
-A <B>schematic_element_definition</B> is a <B>schematic_element</B> that is a
-<express_ref linkend="schematic_element:arm:Schematic_element_arm.Schematic_element_definition">Schematic_element_definition</express_ref>.
+<p>A <b>schematic_element_definition</b> is a <b>schematic_element</b> that is a
+<express_ref linkend="schematic_element:arm:Schematic_element_arm.Schematic_element_definition">Schematic_element_definition</express_ref>.</p>
+
+<p>A 'top' <b>schematic_element_definition</b> that corresponds
+to a complete drawing and is subject to configuration management
+shall also be a <b>drawing_sheet_revision</b>.</p>
 </description>
 </entity>
+
 <entity
        name="schematic_element_occurrence"
        supertypes="schematic_element">
 <description>
-A <B>schematic_element_occurrence</B> is a <B>schematic_element</B> that is a
-<express_ref linkend="schematic_element:arm:Schematic_element_arm.Schematic_element_occurrence">Schematic_element_occurrence</express_ref>.
+<p>A <b>schematic_element_occurrence</b> is a <b>schematic_element</b> that is a
+<express_ref linkend="schematic_element:arm:Schematic_element_arm.Schematic_element_occurrence">Schematic_element_occurrence</express_ref>.</p>
+
+<p>A <b>schematic_element_occurrence</b> plays a particular role
+within a <b>schematic_element_definition</b>.  This role is specified
+by either:</p>
+<ul>
+<li>a <b>usage_of_schematic_element_occurrence</b>;  or</li>
+<li>a <b>definition_of_schematic_element_occurrence</b> that references
+a <b>schematic_element_occurrence</b>.</li>
+</ul>
+
+<p>The form of a <b>schematic_element_occurrence</b> is specified
+by a <b>definition_of_schematic_element_occurrence</b>.  Two instances
+of <b>definition_of_schematic_element_occurrence</b> can be specified
+for a <b>schematic_element_occurrence</b>, where:</p>
+<ul>
+<li>one references another <b>schematic_element_occurrence</b>; and</li>
+<li>the other references a <b>schematic_element_definition</b>.</li>
+</ul>
+<p>In this case, the form specified by the reference to a
+<b>schematic_element_definition</b> takes precidence over any form 
+specified by reference to a <b>schematic_element_occurrence</b>.</p>
+<p>A form need not specified for a <b>schematic_element_occurrence</b>.
+This is valid if:</p>
+<ul>
+<li>the <b>schematic_element_occurrence</b> is part of a
+<b>schematic_element_definition</b> from which other occurrences are
+created;  and</li>
+<li>a form is set for each of these higher order occurrences.</li>
+</ul>
 </description>
+
+<inverse name="usage_in_map"
+         entity="representation_map"
+         attribute="mapped_representation">
+	 <inverse.aggregate type="SET" lower="1" upper="?"/>
+<description>
+The instances of <b>representation_map</b> in which the 
+<b>schematic_element_occurrence</b> is referenced.
+</description>
+</inverse>
+
+<where label="no_styled_item"
+expression=
+"SIZEOF(
+                 QUERY(it &lt;* SELF.items |
+                    'DRAUGHTING_ANNOTATION_MIM.STYLED_ITEM'
+                    IN TYPEOF(it)
+                 )   
+               ) = 0"
+>
+<description><p>The form of a <b>schematic_element_occurrence</b> shall not
+be defined explicitly by reference to instances of
+<b>styled_item</b>.</p>
+<note number="1">Instead the form of a <b>schematic_element_occurrence</b>
+can be defined only by reference to a <b>schematic_element_definition</b>.
+</note>
+</description>
+</where>
+
+<where label="defined_with_respect_to_definition_no_more_than_once"
+expression=
+"SIZEOF(
+                 QUERY(it &lt;* SELF.usage_in_map.map_usage |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
+                    IN TYPEOF(it) |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'SCHEMATIC_ELEMENT_DEFINITION' IN TYPEOF
+                    (it\mapped_item.mapping_source.mapped_representation)
+                 )   
+               ) &lt;= 1"
+>
+<description>The form of a
+<b>schematic_element_occurrence</b> shall not
+be defined by reference to more than one instance of
+<b>schematic_element_definition</b>.
+</description>
+</where>
+
+<where label="referenced_as_usage_or_defined_with_respect_to_occurrence"
+expression=
+"(SIZEOF(
+                 QUERY(it &lt;* SELF.usage_in_map.map_usage |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
+                    IN TYPEOF(it)
+                 )   
+                ) +
+                SIZEOF(
+                 QUERY(it &lt;* SELF.usage_in_map.map_usage |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
+                    IN TYPEOF(it) |
+                    'SCHEMATIC_ELEMENT_MIM.' +
+                    'SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF
+                    (it\mapped_item.mapping_source.mapped_representation)
+                 )   
+                ) = 1"
+>
+<description><p>A
+<b>schematic_element_occurrence</b> shall either:</p>
+<ul>
+<li>be referenced by a <b>usage_of_schematic_element_occurrence</b>
+which places it as part of a <b>schematic_element_definition</b>
+that is an assembly of instances of
+<b>schematic_element_occurrence</b>; or </li>
+<li>be defined <b>definition_of_schematic_element_occurrence</b>
+that references a <b>schematic_element_occurrence</b>.  In this
+case the <b>schemaic_element_occurence</b> also has a
+<b>composition_of_schematic_element</b> relationship with the
+<b>schematic_element_occurrence</b> of which it is a part.</li>
+</ul>
+</description>
+</where>
+
 </entity>
+
 <entity
        name="usage_of_schematic_element_occurrence"
-       supertypes="presentation_representation_relationship">
+       supertypes="mapped_item">
 <description>
-A <B>usage_of_schematic_element_occurrence</B> is a <B>presentation_representation_relationship</B> that is a
-<express_ref linkend="schematic_element:arm:Schematic_element_arm.Usage_of_schematic_element_occurrence">Usage_of_schematic_element_occurrence</express_ref>.</description>
-<explicit name="SELF\presentation_representation_relationship.rep_1">
-<typename name="schematic_element_definition" />
- <description>a
-<B>schematic_element_definition</B> that contains the <B>part</B>.
+<p>A <b>usage_of_schematic_element_occurrence</b> is a <b>mapped_item</b> that is a
+<express_ref linkend="schematic_element:arm:Schematic_element_arm.Usage_of_schematic_element_occurrence">Usage_of_schematic_element_occurrence</express_ref>.</p>
+
+<p>A <b>usage_of_schematic_element_occurrence</b> can specify a
+translation or rotation, but shall not specify a scaling.</p>
 </description>
-</explicit>
-<explicit name="SELF\presentation_representation_relationship.rep_2">
-<typename name="schematic_element_occurrence" />
- <description>a
-<B>schematic_element_occurrence</B> that has a particular position and orientation within the <B>whole</B>.
-</description> 
-</explicit>
+
+<where label="schematic_element_occurrence_as_part"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF
+               (SELF\mapped_item.mapping_source.mapped_representation)"
+>
+ <description>the part shall be a
+<b>schematic_element_occurrence</b>.
+</description>
+</where>
+
+<where label="implicit_schematic_element_definition_as_whole"
+expression=
+"'SCHEMATIC_ELEMENT_MIM.' +
+               'IMPLICIT_SCHEMATIC_ELEMENT_DEFINITION' IN TYPEOF
+               (using_representation(SELF))"
+>
+ <description>the whole shall be an
+<b>implicit_schematic_element_definition</b>.
+</description>
+</where>
 </entity>
+
 </schema>
 </express>
 

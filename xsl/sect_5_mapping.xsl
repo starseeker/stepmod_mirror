@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.13 2002/02/24 23:14:01 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.14 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -94,7 +94,7 @@ NOT USED
 <xsl:template match="ae" mode="table">
   <xsl:variable name="aname" select="@entity"/>
   <center>
-  <table border="1" width="622">
+  <table border="1" width="722">
     <tr>
       <td VALIGN="TOP" width="21%">
         <small><b>Application element</b></small>

@@ -17,26 +17,20 @@ USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
 USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
 
 
-TYPE datum_representation_select = SELECT
-   (Datum_target_set, 
-    Derived_geometry, 
-    Shape_element);
-END_TYPE; 
-
 ENTITY Angularity_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : SET[1:2] OF Datum;
+  reference_datum : SET[1:2] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Circular_runout_tolerance
   SUBTYPE OF (Geometric_tolerance);
   angle : OPTIONAL REAL;
-  reference_datum : SET[1:2] OF Datum;
+  reference_datum : SET[1:2] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Coaxiality_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : SET[1:2] OF Datum;
+  reference_datum : SET[1:2] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Common_datum
@@ -46,25 +40,38 @@ END_ENTITY;
 
 ENTITY Concentricity_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : SET[1:2] OF Datum;
+  reference_datum : SET[1:2] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Cylindricity_tolerance
   SUBTYPE OF (Geometric_tolerance);
 END_ENTITY;
 
-ENTITY Datum
-  ABSTRACT SUPERTYPE ;
+ENTITY Datum;
+END_ENTITY;
+
+ENTITY Datum_defined_by_derived_shape
+  SUBTYPE OF (Derived_geometry, Single_datum);
+END_ENTITY;
+
+ENTITY Datum_defined_by_feature
+  SUBTYPE OF (Single_datum);
+  defined_by : Shape_element;
+END_ENTITY;
+
+ENTITY Datum_defined_by_targets
+  SUBTYPE OF (Single_datum);
+  rule_description : STRING;
+  target : SET[1:?] OF Datum_target;
+END_ENTITY;
+
+ENTITY Datum_reference;
   precedence : INTEGER;
+  referenced_datum : Datum;
 END_ENTITY;
 
 ENTITY Datum_target;
   id : STRING;
-END_ENTITY;
-
-ENTITY Datum_target_set;
-  rule_description : STRING;
-  target : SET[1:?] OF Datum_target;
 END_ENTITY;
 
 ENTITY Flatness_tolerance
@@ -110,19 +117,19 @@ END_ENTITY;
 ENTITY Line_profile_tolerance
   SUBTYPE OF (Geometric_tolerance);
   affected_plane : OPTIONAL Axis_placement;
-  reference_datum : SET[0:3] OF Datum;
+  reference_datum : SET[0:3] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Parallelism_tolerance
   SUBTYPE OF (Geometric_tolerance);
   affected_plane : OPTIONAL Axis_placement;
-  reference_datum : SET[1:2] OF Datum;
+  reference_datum : SET[1:2] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Perpendicularity_tolerance
   SUBTYPE OF (Geometric_tolerance);
   affected_plane : OPTIONAL Axis_placement;
-  reference_datum : SET[1:3] OF Datum;
+  reference_datum : SET[1:3] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Placed_target
@@ -138,7 +145,7 @@ END_ENTITY;
 ENTITY Position_tolerance
   SUBTYPE OF (Geometric_tolerance);
   affected_plane : OPTIONAL Axis_placement;
-  reference_datum : SET[0:3] OF Datum;
+  reference_datum : SET[0:3] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Projection
@@ -154,8 +161,7 @@ END_ENTITY;
 ENTITY Single_datum
   SUBTYPE OF (Datum);
   datum_name : STRING;
-  defined_by : datum_representation_select;
-  modification : Tolerance_condition;
+  modification : OPTIONAL Tolerance_condition;
 END_ENTITY;
 
 ENTITY Straightness_tolerance
@@ -165,13 +171,13 @@ END_ENTITY;
 
 ENTITY Surface_profile_tolerance
   SUBTYPE OF (Geometric_tolerance);
-  reference_datum : SET[0:3] OF Datum;
+  reference_datum : SET[0:3] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Symmetry_tolerance
   SUBTYPE OF (Geometric_tolerance);
   affected_plane : OPTIONAL Axis_placement;
-  reference_datum : SET[1:3] OF Datum;
+  reference_datum : SET[1:3] OF Datum_reference;
 END_ENTITY;
 
 ENTITY Target_area
@@ -215,7 +221,7 @@ END_ENTITY;
 ENTITY Total_runout_tolerance
   SUBTYPE OF (Geometric_tolerance);
   angle : REAL;
-  reference_datum : SET[1:2] OF Datum;
+  reference_datum : SET[1:2] OF Datum_reference;
 END_ENTITY;
 
 END_SCHEMA;  -- Geometric_tolerance_arm

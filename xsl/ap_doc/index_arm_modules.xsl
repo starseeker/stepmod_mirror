@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: select_matrix_view.xsl,v 1.1 2003/03/10 19:19:49 nigelshaw Exp $
+$Id: index_arm_modules.xsl,v 1.2 2003/05/22 09:35:26 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -56,7 +56,8 @@ $Id: select_matrix_view.xsl,v 1.1 2003/03/10 19:19:49 nigelshaw Exp $
     </head>
   <body>
 
-<!-- ???? assume top module name same as ap name for now ??? -->
+  	<A HREF="frame_index.xml" TARGET="toc" >Back to main index</A>
+	<br/>
 
 	<xsl:variable name="top_module_file" 
 	    select="concat('../../data/modules/',$selected_ap,'/arm.xml')"/>

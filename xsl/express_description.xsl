@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.34 2003/10/31 08:01:32 robbod Exp $
+$Id: express_description.xsl,v 1.35 2003/10/31 08:20:09 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -255,12 +255,28 @@ and
           </xsl:call-template>     
         </xsl:if>
       
-        <!-- If the attribute is OPTIONAL, then it must have the phrase.
-             The value of the attribute need not be specified.
-             -->
         <xsl:variable name="flat_description">
           <xsl:apply-templates select="$description" mode="flatten_description"/>
         </xsl:variable>
+
+        <!-- if the attribute is a relating or related attribute check that
+             the phrase contains an instance -->             
+        <xsl:if test="string-length($attribute)>0 and
+          (contains($attribute,'relating') or contains($attribute,'related'))">
+          <xsl:if test="not(contains($flat_description,'instance'))">
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Warning Ent99 ' , $description/@linkend, 
+                        '. The attribute is a relating or related so it should contain the
+                        phrase &quot;instance&quot;.')"/>
+            </xsl:call-template>            
+          </xsl:if>
+        </xsl:if>
+
+        <!-- If the attribute is OPTIONAL, then it must have the phrase.
+             The value of the attribute need not be specified.
+             -->
         
         <xsl:variable name="optional_text1" select="'The value of the attribute need not be specified.'"/>
         <xsl:variable name="optional_text2" select="'The value of this attribute need not be specified.'"/>

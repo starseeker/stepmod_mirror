@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.79 2002/12/30 13:09:24 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.80 2003/01/20 08:40:24 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2927,6 +2927,14 @@
 
   <xsl:variable name="typename" select="../@name"/>
 
+  <xsl:variable name="ext_notes">
+    <xsl:call-template name="notes_in_external_description">
+      <xsl:with-param name="schema" select="../../@name"/>
+      <xsl:with-param name="entity" select="../@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+
   <xsl:if test="$select_description='YES'">    
     <xsl:choose>
       <xsl:when test="@basedon and @extensible='YES'">
@@ -2963,14 +2971,6 @@
           </xsl:call-template>
           to the list of alternate data types.
         </xsl:if>
-
-        
-        <xsl:variable name="ext_notes">
-          <xsl:call-template name="notes_in_external_description">
-            <xsl:with-param name="schema" select="../../@name"/>
-            <xsl:with-param name="entity" select="../@name"/>
-          </xsl:call-template>
-        </xsl:variable>
 
         <p class="note">
           <small>
@@ -3066,9 +3066,20 @@
             extended in application modules that use the constructs of this
             module.
                  -->
+
             <p class="note">
               <small>
-                NOTE&#160;&#160;This empty extensible select requires
+                <xsl:choose>
+                  <xsl:when test="./note">
+                    NOTE&#160;1&#160;&#160;
+                  </xsl:when>
+                  <xsl:when test="string-length($ext_notes)>0">
+                    NOTE&#160;1&#160;&#160;
+                  </xsl:when>
+                  <xsl:otherwise>
+                    NOTE&#160;&#160;
+                  </xsl:otherwise>
+                </xsl:choose>This empty extensible select requires
                 extension in a further module to ensure that entities that refer to it have
                 at least one valid instantiation.
               </small>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.119 2003/01/02 07:40:11 robbod Exp $
+$Id: module.xsl,v 1.120 2003/01/03 10:04:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1320,8 +1320,18 @@ o=isocs; s=central<br/>
   </h3>
   This subclause specifies the units of functionality (UoF) for this part
   ISO 10303 as well as any support elements needed for the application module
-  definition. This part of ISO 10303 specifies the following units of
-  functionality and application objects:
+  definition. 
+
+  <xsl:choose>
+    <xsl:when test="(./uof.ae)">
+      This part of ISO 10303 specifies the following units of
+      functionality and application objects:
+    </xsl:when>
+    <xsl:otherwise>
+      This part of ISO 10303 specifies the following units of
+      functionality:
+    </xsl:otherwise>
+  </xsl:choose>
   <ul>
     <xsl:apply-templates select="uof" mode="toc"/>
   </ul>

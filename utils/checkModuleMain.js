@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.7 2003/10/09 09:47:18 robbod Exp $
+//$Id: checkModuleMain.js,v 1.8 2003/10/09 09:53:30 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -261,6 +261,92 @@ function getExpSchema(moduleName,armmim) {
     }
 }
 
+//Return the source of the model
+function getExpModelSource(moduleName,armmim) {
+    var xmlFile = "../data/modules/"+moduleName+"/"+armmim+".xml";
+    var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
+    xml.async = false;
+    var source = '0';
+    xml.load(xmlFile);
+    if (checkXMLParse(xml)) {
+	var expr = '/express/application';	
+	var expNodes = xml.selectNodes(expr);
+	var members = expNodes.length;
+	for (var i = 0; i < members; i++) {	
+	    var node = expNodes(i);
+	    source = node.attributes.getNamedItem("source").nodeValue;
+	}
+    } 
+    return(source);
+}
+
+
+//THIS IS A HACK FOR PLCS
+// Given an HTML file of <li> with PLCS models, return an array fo file names
+function getPLCSmodels() {    
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var htmlFileName = "plcs_models.htm";
+    var modelArray = new Array();
+    var i = 0;
+
+    if (fso.FileExists(htmlFileName)) {
+	var htmlF = fso.GetFile(htmlFileName);
+	var htmlTs = htmlF.OpenAsTextStream(ForReading, TristateUseDefault);
+	while (!htmlTs.AtEndOfStream)
+	    {
+		var l = htmlTs.ReadLine();
+		var reg = /Core_Model.*zip/;
+		if (l.match(reg)) {
+		    var pos = l.lastIndexOf('/')+1;
+		    var model = l.substr(pos);
+		    reg = /\.zip\"/;
+		    if (model.match(reg)) {
+			pos = model.lastIndexOf('.');
+			model = model.substr(0,pos);
+			model = model.toLowerCase();
+			modelArray[i++] = normalizeModelName(model);
+			//userMessage(model);
+		    }
+		}
+	    }
+    }
+    return(modelArray);
+}
+var PLCSmodels = getPLCSmodels();
+function isPLCSmodel(modelName) {
+    var i;
+    var pos = modelName.lastIndexOf('.');
+    modelName = modelName.substr(0,pos).toLowerCase();
+    modelName = normalizeModelName(modelName);
+    for (i = 0; i < PLCSmodels.length; i++) {
+	if (PLCSmodels[i] == modelName) {
+	    return(true);	    
+	}
+    }
+    return(false);
+}
+
+
+function normalizeModelName(modelName) {
+    var re = /00/g;
+    modelName = modelName.replace(re, "");
+
+    re = /v0/g;
+    modelName = modelName.replace(re, "v");    
+
+    re = / /g;
+    modelName = modelName.replace(re, "_");    
+    return(modelName);
+}
+
+function checkPLCSExpress(moduleName,armmim) {
+    var modelName = getExpModelSource(moduleName,armmim);
+    var modelName1 = normalizeModelName(modelName);
+    if (!isPLCSmodel(modelName1)) {
+	errorMessage("Have not uploaded "+modelName+" to ATI ("+moduleName+"/"+armmim+")");
+    }
+}
+
 
 // Check that all the sys, nav and dvlp folders are present
 function checkModuleFldr(moduleName, fldrName, fileArray) {
@@ -417,6 +503,24 @@ function checkExpressFile(moduleName,armmim) {
 	} else {
 	    sc4wg = 12;
 	}
+	
+	var exprFileName = armmim.toUpperCase();
+	if (armmim == 'mim_lf') {
+	    var mimLfNodes = xml.selectNodes('/module/mim_lf');
+	    if ((mimLfNodes) && (mimLfNodes.length == 1)) {
+		exprFileName = 'MIM Long form';
+	    } else { 
+		return(0);
+	    }
+	} else if (armmim == 'arm_lf') {
+	    var armLfNodes = xml.selectNodes('/module/arm_lf');
+	    if ((armLfNodes) && (armLfNodes.length == 1)) {
+		exprFileName = 'ARM Long form';
+	    } else { 
+		return(0);
+	    }
+	}
+	    
 
 	var wgnAttr = "wg.number."+armmim;
 	var wgn = moduleNode.attributes.getNamedItem(wgnAttr);
@@ -425,7 +529,7 @@ function checkExpressFile(moduleName,armmim) {
 	} else {
 	    wgn = "";
 	}
-	var header = "ISO TC184/SC4/WG"+sc4wg+" N"+wgn+" - ISO/"+status+" 10303-"+part+" "+name+" - EXPRESS "+armmim.toUpperCase();
+	var header = "ISO TC184/SC4/WG"+sc4wg+" N"+wgn+" - ISO/"+status+" 10303-"+part+" "+name+" - EXPRESS "+exprFileName;
 	var line1 = normalizeSpace(header);
 	var supersedes = "";
 
@@ -438,7 +542,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.7 2003/10/09 09:47:18 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.8 2003/10/09 09:53:30 robbod Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";
@@ -446,8 +550,8 @@ function checkExpressFile(moduleName,armmim) {
 		msg = msg+"\n "+id+"\n "+header+"\n*)\n";
 	    }
 	    errorMessage(msg);
-	    //userMessage(line1);
-	    //userMessage(line2);
+	    //userMessage("1:"+line1);
+	    //userMessage("2:"+line2);
 	}
 
 	var schema = getExpSchema(moduleName,armmim);
@@ -472,6 +576,12 @@ function testModule(moduleName) {
     checkExpress(moduleName,"mim.xml");
     checkExpressFile(moduleName,"arm");
     checkExpressFile(moduleName,"mim");
+
+    checkExpressFile(moduleName,"arm_lf");
+    checkExpressFile(moduleName,"mim_lf");
+
+    //checkPLCSExpress(moduleName,"arm");
+    //checkPLCSExpress(moduleName,"mim");
 
     if (errorCount > 0) {
 	userMessage("There are "+errorCount+" errors in the module files\n");
@@ -532,10 +642,11 @@ function Main() {
 
 //MainWindow("ap239_management_resource_information");
 //testModule("condition");
-//testModule("ap239_product_definition_information");
-//checkExpressFile("condition", "arm");
-//checkExpressFile("ap239_product_definition_information", "arm");
-//checkExpressFile("ap239_document_management","arm");
+//testModule("ap239_product_life_cycle_support");
+//checkExpressFile("attachment_slot", "arm");
+//checkExpressFile("required_resource_characterized", "mim");
+
 //testRepository();
+
 
 

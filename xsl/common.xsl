@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.105 2003/07/29 07:59:17 robbod Exp $
+$Id: common.xsl,v 1.106 2003/07/29 10:11:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -716,6 +716,7 @@ $Id: common.xsl,v 1.105 2003/07/29 07:59:17 robbod Exp $
   </xsl:variable>
   <xsl:variable name="item" select="normalize-space($item1)"/>
 
+
   <xsl:variable name="position">
     <!-- use number rather than position as SAXON gives wrong results -->
     <xsl:number/>
@@ -748,6 +749,12 @@ $Id: common.xsl,v 1.105 2003/07/29 07:59:17 robbod Exp $
     <xsl:apply-templates/>
   </li>
 </xsl:template>
+
+<xsl:template match="example|note|ul" mode="flatten"/>
+<xsl:template match="p" mode="flatten">
+  <xsl:value-of select="."/>
+</xsl:template>
+
 
 <!--
      A definition list
@@ -3701,10 +3708,6 @@ is case sensitive.')"/>
   </xsl:if>
 </xsl:template>
 
-<xsl:template match="example|note" mode="flatten"/>
-<xsl:template match="p" mode="flatten">
-  <xsl:value-of select="."/>
-</xsl:template>
 
 </xsl:stylesheet>
 

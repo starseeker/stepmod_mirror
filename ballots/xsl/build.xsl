@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+$Id: build.xsl,v 1.38 2005/02/09 19:46:45 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -5001,7 +5001,7 @@ utable as in buildscript -->
     </xsl:choose>
   </xsl:template>
 
-<xsl:template match="resource" mode="resources">
+<xsl:template match="res_doc" mode="resources">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
     <xsl:param name="terminate" select="'YES'"/>
@@ -5034,7 +5034,7 @@ utable as in buildscript -->
     </xsl:choose>
   </xsl:template>
 
-<xsl:template match="resource" mode="resdoc_resources">
+<xsl:template match="res_doc" mode="resdoc_resources">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
     <xsl:param name="terminate" select="'YES'"/>
@@ -5203,7 +5203,7 @@ utable as in buildscript -->
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="resource">
+  <xsl:template match="res_doc">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
     <xsl:param name="terminate" select="'YES'"/>
@@ -5232,6 +5232,10 @@ utable as in buildscript -->
   </xsl:template>
  
   <xsl:template match="resource" mode="name">
+    <xsl:value-of select="./@name" />     
+  </xsl:template>
+
+  <xsl:template match="resource">
     <xsl:value-of select="./@name" />     
   </xsl:template>
 

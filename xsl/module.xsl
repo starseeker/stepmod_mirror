@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.65 2002/06/05 16:34:07 robbod Exp $
+$Id: module.xsl,v 1.66 2002/06/06 09:22:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1749,13 +1749,11 @@ o=isocs; s=central<br/>
               <xsl:apply-templates 
                 select="document($module_xml)/module" mode="prune_normrefs_list"/>
             </xsl:variable>
-            <xsl:message><xsl:value-of select="concat('mm: ',$normref)"/></xsl:message>          
             <!-- if the normref for the module has been already been added,
                  ignore -->
             <xsl:if test="not(contains($pruned_normrefs_ids,$normref))">
               <!-- return the normref to be added to the list -->
               <xsl:value-of select="$normref"/>
-              <xsl:message><xsl:value-of select="concat('m2: ',$normref,'*',$pruned_normrefs_ids)"/></xsl:message>          
             </xsl:if>
           </xsl:when>
           <xsl:otherwise/>
@@ -1763,7 +1761,6 @@ o=isocs; s=central<br/>
         </xsl:choose>
       </xsl:variable> <!-- add_to_pruned_normrefs_ids -->
       
-      <xsl:message><xsl:value-of select="concat('add:  ',$add_to_pruned_normrefs_ids)"/></xsl:message>
       <xsl:variable name="new_pruned_normrefs_ids">
         <xsl:choose>
           <xsl:when test="string-length($add_to_pruned_normrefs_ids)>0">
@@ -1787,10 +1784,6 @@ o=isocs; s=central<br/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-
-
-      <xsl:message><xsl:value-of select="concat('IDS:  ',$new_pruned_normrefs_ids)"/></xsl:message>
-      <xsl:message><xsl:value-of select="concat('LIST: ',$new_pruned_normrefs_list)"/></xsl:message>
 
       <xsl:call-template name="prune_normrefs_list">
         <xsl:with-param name="normrefs_list" select="$rest"/>

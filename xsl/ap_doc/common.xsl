@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.35 2004/12/21 01:40:10 thendrix Exp $
+$Id: common.xsl,v 1.36 2004/12/29 13:13:30 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -535,12 +535,12 @@ $Id: common.xsl,v 1.35 2004/12/21 01:40:10 thendrix Exp $
   </xsl:call-template>
 
   <xsl:call-template name="meta-elements">
-    <xsl:with-param name="name" select="'STEPMOD.module.rcs.date'"/>
+    <xsl:with-param name="name" select="'STEPMOD.application_protocol.rcs.date'"/>
     <xsl:with-param name="content" select="normalize-space(translate(./@rcs.date,'$/',' -'))"/>
   </xsl:call-template>
 
   <xsl:call-template name="meta-elements">
-    <xsl:with-param name="name" select="'STEPMOD.module.rcs.revision'"/>
+    <xsl:with-param name="name" select="'STEPMOD.application_protocol.rcs.revision'"/>
     <xsl:with-param name="content" select="normalize-space(translate(./@rcs.revision,'$',''))"/>
   </xsl:call-template>  
   </xsl:template>

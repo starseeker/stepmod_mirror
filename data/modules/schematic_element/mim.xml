@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim.xml,v 1.2 2003/09/23 15:42:35 davidleal Exp $ -->
+<!-- $Id: mim.xml,v 1.3 2003/09/25 15:11:07 davidleal Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 <express
    language_version="2"
-   rcs.date="$Date: 2003/09/23 15:42:35 $"
-   rcs.revision="$Revision: 1.2 $">
+   rcs.date="$Date: 2003/09/25 15:11:07 $"
+   rcs.revision="$Revision: 1.3 $">
   <schema name="Schematic_element_mim">
 <interface kind="use" schema="Class_mim"/>
 <interface kind="use" schema="Set_theory_mim"/>
@@ -219,15 +219,14 @@ expression=
 
 <where label="valid_use_of_style"
 expression=
-"SIZEOF(QUERY ( smi &lt;* QUERY ( si &lt;* QUERY ( it &lt;* SELF.items |
-   ('DRAUGHTING_ANNOTATION_MIM.STYLED_ITEM' IN TYPEOF(it)) ) | (
-    'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(si\styled_item.item)) ) | 
-   (NOT (('DRAUGHTING_ANNOTATION_MIM.SHAPE_REPRESENTATION' 
-      IN TYPEOF(smi\styled_item.item\mapped_item.mapping_source.mapped_representation))
-      AND (SIZEOF(QUERY ( sty &lt;* smi\styled_item.styles |
-        (NOT (SIZEOF(QUERY ( psa &lt;* sty.styles |
-           (NOT ('DRAUGHTING_ANNOTATION_MIM.CURVE_STYLE' IN TYPEOF(psa))) )) = 1
-      )) )) = 1))) )) = 0"
+"     SIZEOF(QUERY ( smi &lt;* QUERY ( si &lt;* QUERY ( it &lt;* SELF.items |
+         ('DRAUGHTING_ANNOTATION_MIM.STYLED_ITEM' IN TYPEOF(it)) ) |
+         ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(si\styled_item.item)) ) |
+         (NOT (('DRAUGHTING_ANNOTATION_MIM.SHAPE_REPRESENTATION' 
+         IN TYPEOF(smi\styled_item.item\mapped_item.mapping_source.mapped_representation)) AND
+         (SIZEOF(QUERY ( sty &lt;* smi\styled_item.styles |
+         (NOT (SIZEOF(QUERY ( psa &lt;* sty.styles |
+         (NOT ('DRAUGHTING_ANNOTATION_MIM.CURVE_STYLE' IN TYPEOF(psa))) )) = 1 )) )) = 1))) )) = 0"
 >
  <description>If a <b>mapped_item</b> is styled, then the
  source of the <b>mapped_item</b> shall be a
@@ -247,20 +246,12 @@ An <b>explicit_schematic_element_definition</b> is a <b>schematic_element_defini
 
 <where label="not_derived_or_defined_by_assembly"
 expression=
-"(SIZEOF(
-                 QUERY(it &lt;* SELF.items |
-                    'SCHEMATIC_ELEMENT_MIM.' +
-                    'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION'
-                    IN TYPEOF(it)
-                 )   
-               ) = 0) AND
-               (SIZEOF(
-                 QUERY(it &lt;* SELF.items |
-                    'SCHEMATIC_ELEMENT_MIM.' +
-                    'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
-                    IN TYPEOF(it)
-                 )   
-               ) &gt;= 0)"
+"      (SIZEOF( QUERY(it &lt;* SELF.items |
+         'SCHEMATIC_ELEMENT_MIM.' + 'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION'
+         IN TYPEOF(it) ) ) = 0) AND
+      (SIZEOF( QUERY(it &lt;* SELF.items |
+         'SCHEMATIC_ELEMENT_MIM.' + 'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
+         IN TYPEOF(it) ) ) &gt;= 0)"
 >
 <description><p>The form of an 
 <b>explicit_schematic_element_definition</b> shall be defined by
@@ -344,24 +335,14 @@ A <b>schematic_element</b> is a <b>draughting_model</b> and a <b>class</b> that 
 
 <where label="valid_mapping"
 expression=
-"SIZEOF(
-                 QUERY(it &lt;* SELF.items |
-                   'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(it) |
-                   'SCHEMATIC_ELEMENT_MIM.DRAUGHTING_MODEL' IN TYPEOF
-                     (it\mapped_item.mapping_source.mapped_representation) |
-                   NOT(
-                     SIZEOF(
-                       ['SCHEMATIC_ELEMENT_MIM.' +
-                        'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION',
-                        'SCHEMATIC_ELEMENT_MIM.' +
-                        'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE',
-                        'SCHEMATIC_ELEMENT_MIM.' +
-                        'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' 
-                       ] * TYPEOF(it)
-                     ) = 1
-                   )
-                 )
-               ) = 0"
+"      SIZEOF( QUERY(it &lt;* SELF.items |
+         ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(it)) AND
+         ('SCHEMATIC_ELEMENT_MIM.DRAUGHTING_MODEL' 
+             IN TYPEOF (it\mapped_item.mapping_source.mapped_representation)) AND
+         (NOT( SIZEOF( ['SCHEMATIC_ELEMENT_MIM.' + 'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION',
+                        'SCHEMATIC_ELEMENT_MIM.' + 'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE',
+                        'SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' ] * TYPEOF(it) ) = 1 ))
+            ) ) = 0"
 >
 <description>If there is a <b>mapped_item</b> in a 
   <b>schematic_element</b> that has a <b>draughting_model</b>
@@ -455,16 +436,11 @@ can be defined only by reference to a <b>schematic_element_definition</b>.
 
 <where label="defined_with_respect_to_definition_no_more_than_once"
 expression=
-"SIZEOF(
-                 QUERY(it &lt;* SELF.usage_in_map.map_usage |
-                    'SCHEMATIC_ELEMENT_MIM.' +
-                    'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
-                    IN TYPEOF(it) |
-                    'SCHEMATIC_ELEMENT_MIM.' +
-                    'SCHEMATIC_ELEMENT_DEFINITION' IN TYPEOF
-                    (it\mapped_item.mapping_source.mapped_representation)
-                 )   
-               ) &lt;= 1"
+"      SIZEOF( QUERY(it &lt;* SELF.usage_in_map.map_usage |
+         ('SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF(it)) AND
+         ('SCHEMATIC_ELEMENT_MIM.' + 'SCHEMATIC_ELEMENT_DEFINITION'
+              IN TYPEOF (it\mapped_item.mapping_source.mapped_representation) ) 
+            ) ) &lt;= 1"
 >
 <description>The form of a
 <b>schematic_element_occurrence</b> shall not
@@ -475,23 +451,13 @@ be defined by reference to more than one instance of
 
 <where label="referenced_as_usage_or_defined_with_respect_to_occurrence"
 expression=
-"(SIZEOF(
-                 QUERY(it &lt;* SELF.usage_in_map.map_usage |
-                    'SCHEMATIC_ELEMENT_MIM.' +
-                    'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
-                    IN TYPEOF(it)
-                 )   
-                ) +
-                SIZEOF(
-                 QUERY(it &lt;* SELF.usage_in_map.map_usage |
-                    'SCHEMATIC_ELEMENT_MIM.' +
-                    'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE'
-                    IN TYPEOF(it) |
-                    'SCHEMATIC_ELEMENT_MIM.' +
-                    'SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF
-                    (it\mapped_item.mapping_source.mapped_representation)
-                 )   
-                ) = 1"
+"       SIZEOF( QUERY(it &lt;* SELF.usage_in_map.map_usage |
+         'SCHEMATIC_ELEMENT_MIM.' + 'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF(it) ) ) +
+       SIZEOF( QUERY(it &lt;* SELF.usage_in_map.map_usage |
+         ('SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF(it)) AND
+         ('SCHEMATIC_ELEMENT_MIM.' + 'SCHEMATIC_ELEMENT_OCCURRENCE'
+             IN TYPEOF (it\mapped_item.mapping_source.mapped_representation) ) ) ) 
+        = 1"
 >
 <description><p>A
 <b>schematic_element_occurrence</b> shall either:</p>

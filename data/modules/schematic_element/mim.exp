@@ -112,12 +112,13 @@ ENTITY schematic_element
 WHERE
   valid_mapping:
       SIZEOF( QUERY(it <* SELF.items |
-         'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(it) |
-         'SCHEMATIC_ELEMENT_MIM.DRAUGHTING_MODEL' 
-          IN TYPEOF (it\mapped_item.mapping_source.mapped_representation) |
-          NOT( SIZEOF( ['SCHEMATIC_ELEMENT_MIM.' + 'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION',
+         ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN TYPEOF(it)) AND
+         ('SCHEMATIC_ELEMENT_MIM.DRAUGHTING_MODEL' 
+             IN TYPEOF (it\mapped_item.mapping_source.mapped_representation)) AND
+         (NOT( SIZEOF( ['SCHEMATIC_ELEMENT_MIM.' + 'DERIVATION_OF_SCHEMATIC_ELEMENT_DEFINITION',
                         'SCHEMATIC_ELEMENT_MIM.' + 'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE',
-                        'SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' ] * TYPEOF(it) ) = 1 ) ) ) = 0;
+                        'SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' ] * TYPEOF(it) ) = 1 ))
+            ) ) = 0;
 END_ENTITY;
 
 ENTITY schematic_element_definition
@@ -136,16 +137,18 @@ WHERE
          'DRAUGHTING_ANNOTATION_MIM.STYLED_ITEM' IN TYPEOF(it) ) ) = 0;
   defined_with_respect_to_definition_no_more_than_once:
       SIZEOF( QUERY(it <* SELF.usage_in_map.map_usage |
-         'SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF(it) |
-         'SCHEMATIC_ELEMENT_MIM.' + 'SCHEMATIC_ELEMENT_DEFINITION'
-         IN TYPEOF (it\mapped_item.mapping_source.mapped_representation) ) ) <= 1;
+         ('SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF(it)) AND
+         ('SCHEMATIC_ELEMENT_MIM.' + 'SCHEMATIC_ELEMENT_DEFINITION'
+              IN TYPEOF (it\mapped_item.mapping_source.mapped_representation) ) 
+            ) ) <= 1;
   referenced_as_usage_or_defined_with_respect_to_occurrence:
-      (SIZEOF( QUERY(it <* SELF.usage_in_map.map_usage |
+       SIZEOF( QUERY(it <* SELF.usage_in_map.map_usage |
          'SCHEMATIC_ELEMENT_MIM.' + 'USAGE_OF_SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF(it) ) ) +
        SIZEOF( QUERY(it <* SELF.usage_in_map.map_usage |
-         'SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF(it) |
-         'SCHEMATIC_ELEMENT_MIM.' + 'SCHEMATIC_ELEMENT_OCCURRENCE'
-         IN TYPEOF (it\mapped_item.mapping_source.mapped_representation) ) ) = 1;
+         ('SCHEMATIC_ELEMENT_MIM.' + 'DEFINITION_OF_SCHEMATIC_ELEMENT_OCCURRENCE' IN TYPEOF(it)) AND
+         ('SCHEMATIC_ELEMENT_MIM.' + 'SCHEMATIC_ELEMENT_OCCURRENCE'
+             IN TYPEOF (it\mapped_item.mapping_source.mapped_representation) ) ) ) 
+        = 1;
 END_ENTITY;
 
 ENTITY usage_of_schematic_element_occurrence

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
+$Id: index_mim_express_inner.xsl,v 1.8 2003/08/01 08:58:23 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -673,7 +673,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-ent-name" select="@name" />
-	<b><xsl:value-of select="@name" /></b>
+	<xsl:value-of select="@name"/>
 	<br/>
 	<!-- find original definition -->
 	<xsl:variable name="orig" select="$called-schemas//entity[@name=$this-ent-name]" />
@@ -700,7 +700,9 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		</xsl:when>
 		<xsl:when test="substring-before($schema-name-l,'_schema')" >
  	 		<xsl:variable name="res-dir" 
-				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)"/>
+                        <xsl:text> </xsl:text>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -711,6 +713,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -751,7 +754,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 	</xsl:when>
 	<xsl:otherwise>
 		<xsl:variable name="this-const-name" select="translate(@name,$UPPER, $LOWER)" />
-		<b><xsl:value-of select="@name" /></b>
+		<xsl:value-of select="@name"/>
 		<br/>
 		<!-- find original definition -->
 
@@ -765,6 +768,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
     				<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 				<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" 
 					TARGET="info" >Definition</A>
 				<xsl:text> </xsl:text>
@@ -777,6 +781,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 			<xsl:when test="substring-before($schema-name,'_schema')" >
  	 			<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 				<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" 
 					TARGET="info" >Definition</A>
 				<xsl:text> </xsl:text>
@@ -788,6 +793,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 				<xsl:when test="starts-with($schema-name,'aic_')" >
 		    			<xsl:variable name="res-dir" 
 					 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 				<xsl:text> </xsl:text>
 				<A 
@@ -817,7 +823,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-type-name" select="translate(@name,$UPPER, $LOWER)" />
-	<b><xsl:value-of select="@name" /></b>
+	<xsl:value-of select="@name"/>
 	<br/>
 	<!-- find original definition -->
 
@@ -829,13 +835,11 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="substring-before($schema-name,'_mim')" >
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
-						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
-                          <xsl:apply-templates select="." mode="expressg_icon">
+						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" /><xsl:apply-templates select="." mode="expressg_icon">
                             <xsl:with-param name="target" select="'info'"/>
                             <xsl:with-param name="expressg" select="$expressg"/>
                           </xsl:apply-templates> 
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
-			<xsl:text> </xsl:text>
 			<A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="info" >Long-form</A>
@@ -845,9 +849,10 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
+			<A
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="info" >Long-form</A>
 			<br/>
@@ -855,6 +860,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -900,7 +906,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-rule-name" select="@name" />
-	<b><xsl:value-of select="@name" /></b>
+	<xsl:value-of select="@name"/>
 	<br/>
 	<!-- find original definition -->
 
@@ -915,6 +921,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -926,6 +933,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -936,6 +944,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -963,7 +972,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-function-name" select="@name" />
-	<b><xsl:value-of select="@name" /></b>
+	<xsl:value-of select="@name"/>
 	<br/>
 	<!-- find original definition -->
 
@@ -977,6 +986,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -988,6 +998,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -998,6 +1009,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1023,7 +1035,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-proc-name" select="@name" />
-	<b><xsl:value-of select="@name" /></b>
+	<xsl:value-of select="@name"/>
 	<br/>
 	<!-- find original definition -->
 
@@ -1037,6 +1049,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1048,6 +1061,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1058,6 +1072,7 @@ $Id: index_mim_express_inner.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 

@@ -1,0 +1,57 @@
+(*
+   $Id: mkmodule.js,v 1.29 2002/12/24 14:41:15 robbod Exp $
+ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Requirement assignment - EXPRESS ARM
+*)
+(* UNDER DEVELOPMENT *)
+
+
+SCHEMA Requirement_assignment_arm; 
+
+USE FROM Class_arm;    -- ISO/CD-TS 10303-1070
+
+USE FROM Classification_arm;    -- ISO/CD-TS 10303-1212
+
+USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
+
+USE FROM Requirement_view_definition_arm;    -- ISO/WD 10303-1141
+
+
+TYPE requirement_assignment_classified_select = SELECT BASED_ON classified_select WITH 
+   (Requirement_assignment);
+END_TYPE; 
+
+TYPE requirement_assignment_item = EXTENSIBLE SELECT;
+END_TYPE; 
+
+TYPE Requirement_assignment_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
+   (Requirement_assignment);
+END_TYPE; 
+
+TYPE requirement_source_item = EXTENSIBLE SELECT;
+END_TYPE; 
+
+ENTITY Class_of_requirement_assignment
+  SUBTYPE OF (Class);
+END_ENTITY;
+
+ENTITY Classification_of_requirement_assignment
+  SUBTYPE OF (Classification);
+  SELF\Classification.classified : requirement_assignment_classified_select;
+  SELF\Classification.classifier : Class_of_requirement_assignment;
+END_ENTITY;
+
+ENTITY Requirement_assignment;
+  assigned_requirement : Requirement_view_definition;
+  assigned_to : requirement_assignment_item;
+  description : OPTIONAL STRING;
+  id : STRING;
+END_ENTITY;
+
+ENTITY Requirement_source;
+  description : OPTIONAL STRING;
+  id : STRING;
+  source : requirement_source_item;
+  sourced_requirement : Requirement_view_definition;
+END_ENTITY;
+
+END_SCHEMA;  -- Requirement_assignment_arm

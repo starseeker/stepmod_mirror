@@ -1,4 +1,4 @@
-//$Id:  $
+//$Id: mk_html.js,v 1.1 2002/07/16 16:02:03 goset1 Exp $
 //  Author: P. Huau
 //  Purpose:  JScript to generate the default XML for the module.
 //     cscript mkmodule.js <module> 
@@ -128,14 +128,14 @@ comm= Saxon_exe +" -a -o " +target+".htm " +mod_p+".xml output_type=HTM";
 
 if (source=="data/resources/")
 {
-comm= Saxon_exe +" -a -o " +target+"/"+module+".htm " +mod_p+"/"+module+".xml output_type=HTM";
+  comm= Saxon_exe +" -a -o " +target+"/"+module+".htm " +mod_p+"/"+module+".xml output_type=HTM";
 	  objShell.run(comm,1,true);
 
 }
 if (source=="data/modules/")
 {
-var mod_sys=MODULES_HOME + source + module+ "/sys";
-var fso = new ActiveXObject("Scripting.FileSystemObject");
+  var mod_sys=MODULES_HOME + source + module+ "/sys";
+  var fso = new ActiveXObject("Scripting.FileSystemObject");
 
 comm= Saxon_exe +" -a -o " +target+"/armexpg1.htm " +mod_p+"/armexpg1.xml output_type=HTM output_rcs=NO";
 	  objShell.run(comm,1,true);
@@ -182,10 +182,15 @@ comm= Saxon_exe +" -a -o " +target+"/sys/3_defs.htm " +mod_sys+"/3_defs.xml outp
 	  objShell.run(comm,1,true);
 comm= Saxon_exe +" -a -o " +target+"/sys/4_info_reqs.htm " +mod_sys+"/4_info_reqs.xml output_type=HTM output_rcs=NO";
 	  objShell.run(comm,1,true);
+
+comm= Saxon_exe +" -a -o " +target+"/sys/5_main.htm " +mod_sys+"/5_main.xml output_type=HTM output_rcs=NO";
+	  objShell.run(comm,1,true);
+
 comm= Saxon_exe +" -a -o " +target+"/sys/5_mim.htm " +mod_sys+"/5_mim.xml output_type=HTM output_rcs=NO";
 	  objShell.run(comm,1,true);
 comm= Saxon_exe +" -a -o " +target+"/sys/5_mapping.htm " +mod_sys+"/5_mapping.xml output_type=HTM output_rcs=NO";
 	  objShell.run(comm,1,true);
+
 comm= Saxon_exe +" -a -o " +target+"/sys/a_short_names.htm " +mod_sys+"/a_short_names.xml output_type=HTM output_rcs=NO";
 	  objShell.run(comm,1,true);
 comm= Saxon_exe +" -a -o " +target+"/sys/b_obj_reg.htm " +mod_sys+"/b_obj_reg.xml output_type=HTM output_rcs=NO";

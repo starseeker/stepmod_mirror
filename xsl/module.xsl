@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.110 2002/11/19 08:15:18 robbod Exp $
+$Id: module.xsl,v 1.111 2002/12/11 14:20:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -365,6 +365,14 @@ o=isocs; s=central<br/>
         </xsl:choose>
       </xsl:variable>
   
+      <xsl:if test="$status='CD-TS'">
+        <p>
+          Recipients of this draft are invited to submit, with their comments,
+          notification of any relevant patent rights of which they are aware and to
+          provide supporting documentation.
+        </p>
+      </xsl:if>
+
       This document has been reviewed using the internal review checklist 
       (see <xsl:value-of select="concat('WG12&#160;N',@checklist.internal_review)"/>),
       <!-- test the checklist WG number for checklist.internal_review -->

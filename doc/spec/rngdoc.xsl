@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.5 2004/10/05 20:45:24 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.6 2004/10/08 13:20:55 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -70,7 +70,15 @@
       <xsl:for-each select="//rng:element">
 	<xsl:sort select="@name"/>
 	<section id="{@name}">
-	  <title>Element <literal><xsl:value-of select="@name"/></literal></title>
+	  <title>
+	    <xsl:text>Element </xsl:text>
+	    <literal>
+	      <xsl:value-of select="@name"/>
+	    </literal>
+	    <xsl:if test="$root=@name">
+	      <xsl:text> (Root Element)</xsl:text>
+	    </xsl:if>
+	  </title>
 	  <informaltable>
 	    <tgroup cols="2">
 	      <tbody>
@@ -98,6 +106,18 @@
 		    </literal>
 		  </entry>
 		</row>
+		<xsl:if test="@name != $root">
+		  <row>
+		    <entry><emphasis role="bold">Parent Elements</emphasis></entry>
+		    <entry>
+		      <literal>
+			<xsl:apply-templates
+			    select=".."
+			    mode="parents"/>
+		      </literal>
+		    </entry>
+		  </row>
+		</xsl:if>
 	      </tbody>
 	    </tgroup>
 	  </informaltable>
@@ -281,6 +301,27 @@
     <xsl:if test="following-sibling::*">
       <xsl:text> | </xsl:text>
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="rng:define" mode="parents">
+    <xsl:variable name="name" select="@name"/>
+    <xsl:apply-templates select="//rng:ref[@name=$name]" mode="parents"/>
+  </xsl:template>
+
+  <xsl:template match="rng:ref |
+		       rng:zeroOrMore |
+		       rng:oneOrMore |
+		       rng:optional |
+		       rng:choice" 
+		mode="parents">
+    <xsl:apply-templates select=".." mode="parents"/>
+  </xsl:template>
+
+  <xsl:template match="rng:element" mode="parents">
+    <link linkend="{@name}">
+      <xsl:value-of select="@name"/>
+    </link>
+    <xsl:text> </xsl:text>
   </xsl:template>
 
 </xsl:stylesheet>

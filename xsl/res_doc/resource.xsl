@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.46 2004/11/06 20:36:50 thendrix Exp $
+$Id: resource.xsl,v 1.47 2004/11/08 17:59:09 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2512,8 +2512,10 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 
 
   <p>
-    For the purposes of this part of ISO 10303, the following abbreviations
-    apply:
+    <!-- RBN Changed due to request from ISO
+    For the purposes of this part of ISO 10303, -->              
+    For the purposes of this document,
+    the following abbreviations apply:
   </p>
   <table width="80%">
     <!-- get the default abbreviations out of the abbreviations_resdoc_defaultxml
@@ -2648,7 +2650,9 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
       <xsl:with-param name="resource" select="/resource"/>
       <xsl:with-param name="section" select="concat('3.',$def_section+1)"/>
     </xsl:call-template>
-    For the purposes of this part of ISO 10303, 
+    <!-- RBN Changed due to request from ISO
+    For the purposes of this part of ISO 10303, -->              
+    For the purposes of this document,
     the following definitions apply:
   </xsl:if>
 
@@ -2723,7 +2727,9 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
             <xsl:value-of select="concat('3.',$section_no,
                                   ' Terms defined in ',$stdnumber)"/>
             </h2>
-            For the purposes of this part of ISO 10303, 
+            <!-- RBN Changed due to request from ISO
+                 For the purposes of this part of ISO 10303, -->              
+            For the purposes of this document,
             the following terms defined in 
             <xsl:value-of select="$stdnumber"/>
             apply:
@@ -2789,7 +2795,9 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
                   <xsl:value-of select="concat('3.',$section_no,
                                         ' Terms defined in ', $stdnumber)"/>
                 </h2>
-                For the purposes of this part of ISO 10303, 
+                <!-- RBN Changed due to request from ISO
+                  For the purposes of this part of ISO 10303,-->              
+                  For the purposes of this document, 
                 the following terms defined in 
                 <xsl:value-of select="$stdnumber"/>
                 apply:

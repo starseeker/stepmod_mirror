@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.15 2004/08/03 12:19:52 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.16 2004/11/03 10:48:30 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -84,7 +84,9 @@ $Id: sect_3_defs.xsl,v 1.15 2004/08/03 12:19:52 robbod Exp $
       <xsl:with-param name="module" select="."/>
       <xsl:with-param name="section" select="concat('3.',$def_section+1)"/>
     </xsl:call-template>
-    For the purposes of this part of ISO 10303, 
+    <!-- RBN Changed due to request from ISO
+    For the purposes of this part of ISO 10303, -->
+    For the purposes of this document, 
     the following definitions apply:
   </xsl:if>
 
@@ -159,7 +161,9 @@ $Id: sect_3_defs.xsl,v 1.15 2004/08/03 12:19:52 robbod Exp $
                                   ' Terms defined in ',$stdnumber)"/>
             </h2>
             <p>
-              For the purposes of this part of ISO 10303, 
+              <!-- RBN Changed due to request from ISO
+                   For the purposes of this part of ISO 10303, -->
+              For the purposes of this document,
               the following terms defined in 
               <xsl:value-of select="$stdnumber"/>
               apply:
@@ -216,7 +220,9 @@ $Id: sect_3_defs.xsl,v 1.15 2004/08/03 12:19:52 robbod Exp $
                                         ' Terms defined in ', $stdnumber)"/>
                 </h2>
                 <p>
-                  For the purposes of this part of ISO 10303, 
+                  <!-- RBN Changed due to request from ISO
+                  For the purposes of this part of ISO 10303, -->
+                  For the purposes of this document,
                   the following terms defined in 
                   <xsl:value-of select="$stdnumber"/>
                   apply:
@@ -475,8 +481,10 @@ $module_ok,' Check the normatives references')"/>
 
 
   <p>
-    For the purposes of this part of ISO 10303, the following abbreviations
-    apply:
+    <!-- RBN Changed due to request from ISO 
+         For the purposes of this part of ISO 10303, -->
+    For the purposes of this document,
+    the following abbreviations apply:
   </p>
   <!-- get the default abbreviations out of the abbreviations_default.xml
        database -->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.172 2004/11/04 17:02:18 robbod Exp $
+$Id: module.xsl,v 1.173 2004/11/08 09:22:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3606,7 +3606,9 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
                                   ' Terms defined in ',$stdnumber)"/>
             </h2>
             <p>
-              For the purposes of this part of ISO 10303, 
+              <!-- RBN Changed due to request from ISO
+                   For the purposes of this part of ISO 10303, -->
+              For the purposes of this document,
               the following terms defined in 
               <xsl:value-of select="$stdnumber"/>
               apply:
@@ -3674,7 +3676,9 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
                                         ' Terms defined in ', $stdnumber)"/>
                 </h2>
                 <p>
-                  For the purposes of this part of ISO 10303, 
+              <!-- RBN Changed due to request from ISO
+                  For the purposes of this part of ISO 10303, -->              
+                  For the purposes of this document,
                   the following terms defined in 
                   <xsl:value-of select="$stdnumber"/>
                   apply:

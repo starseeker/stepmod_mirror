@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.4 2002/12/17 11:43:33 nigelshaw Exp $
+$Id: common.xsl,v 1.5 2002/12/23 20:57:30 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -742,7 +742,7 @@ $Id: common.xsl,v 1.4 2002/12/17 11:43:33 nigelshaw Exp $
     <xsl:variable name="ret_val">
         <xsl:choose>
           <xsl:when
-            test="document('../res_doc_index.xml')/res_doc_index/resource_docs/resource[@name=$resdoc_name]">
+            test="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc_name]">
             <xsl:value-of select="'true'"/>
           </xsl:when>
           <xsl:otherwise>
@@ -849,13 +849,13 @@ $Id: common.xsl,v 1.4 2002/12/17 11:43:33 nigelshaw Exp $
   <!-- given the name of a resource document , return the name of resource document - dont ask
        -->
   <xsl:template name="resdoc_name">
-    <xsl:param name="resdoc_name"/>
+    <xsl:param name="resdoc"/>
     <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
     <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
     <xsl:variable name="first_char" 
-      select="translate(substring($resdoc_name,1,1),$LOWER,$LOWER)"/>
+      select="translate(substring($resdoc,1,1),$UPPER,$LOWER)"/>
     <xsl:value-of 
-      select="concat($first_char,substring($resdoc_name,2))"/>
+      select="concat($first_char,substring($resdoc,2))"/>
   </xsl:template>
 
 

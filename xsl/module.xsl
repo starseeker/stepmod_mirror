@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.90 2002/08/05 16:34:48 robbod Exp $
+$Id: module.xsl,v 1.91 2002/08/06 06:20:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -178,7 +178,7 @@ $Id: module.xsl,v 1.90 2002/08/05 16:34:48 robbod Exp $
   </xsl:variable>
     
   <xsl:variable name="stdnumber">
-    <xsl:call-template name="get_module_stdnumber">
+    <xsl:call-template name="get_module_pageheader">
       <xsl:with-param name="module" select="."/>
     </xsl:call-template>
   </xsl:variable>
@@ -3307,7 +3307,7 @@ $module_ok,' Check the normatives references')"/>
                 <li><xsl:apply-templates select="$term"/>.</li>
               </xsl:when>
               <xsl:otherwise>
-                <li><xsl:apply-templates select="$term"/>.</li>
+                <li><xsl:apply-templates select="$term"/>;</li>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>

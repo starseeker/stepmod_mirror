@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.159 2003/08/15 07:14:24 robbod Exp $
+$Id: p28xsd.xsl,v 1.1 2004/02/06 13:46:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -60,7 +60,7 @@ $Id: module.xsl,v 1.159 2003/08/15 07:14:24 robbod Exp $
             <xsl:choose>
               <xsl:when test="function-available('msxsl:node-set')">
                 <xsl:variable name="p28_node_set" select="msxsl:node-set($p28_xml)"/>
-                <xsl:apply-templates select="$p28_node_set"/>
+                <xsl:apply-templates select="$p28_node_set" mode="schema"/>
               </xsl:when>
             </xsl:choose>
           </xsl:when>
@@ -75,6 +75,67 @@ $Id: module.xsl,v 1.159 2003/08/15 07:14:24 robbod Exp $
       </BODY>
     </HTML>
   </xsl:template>
+  
+  <xsl:template match="/" mode="schema">
+		
+			<xsl:call-template name="generate_xsd">
+				<xsl:with-param name="schema_node_param" select="."/>
+				<xsl:with-param name="indent_param" select="string('')"/>
+			</xsl:call-template>
+		
+	</xsl:template>
+	<xsl:template name="generate_xsd">
+		<xsl:param name="schema_node_param"/>
+		<xsl:param name="indent_param"/>
+		<xsl:variable name="new_indent" select="concat($indent_param, '&#160;&#160;&#160;&#160;')"/>
+		<xsl:for-each select="$schema_node_param/*">
+			<xsl:variable name="element_name" select="name()"/>
+			<xsl:value-of select="$indent_param"/>&lt;<xsl:value-of select="$element_name"/>
+			<xsl:for-each select="namespace::*">
+				<xsl:if test="not(../ancestor::*[namespace::*[name() = name(current()) and . = current()]][last()])">
+					<xsl:choose>
+						<xsl:when test="name()">xmlns:<xsl:value-of select="name()" /></xsl:when>
+            					<xsl:otherwise>xmlns</xsl:otherwise>
+            				</xsl:choose>
+            				<xsl:text />="<xsl:value-of select="." />"&#xA;<xsl:text />
+            			</xsl:if>
+			</xsl:for-each>
+			<xsl:for-each select="./@*">
+				<xsl:value-of select="string(' ')"/>
+				<xsl:value-of select="name()"/>=&quot;<xsl:value-of select="."/>&quot;<xsl:text/>
+			</xsl:for-each>&gt;<xsl:text/>
+			
+			<br/>
+			<xsl:choose>
+				<xsl:when test="$new_indent='&#160;&#160;&#160;&#160;'">
+					<br/>
+				</xsl:when>
+				<xsl:otherwise/>
+			</xsl:choose>
+			<xsl:variable name="content" select="text()"/>
+			<xsl:if test="$content">
+				<xsl:value-of select="$new_indent"/>
+				<xsl:value-of select="$content"/>
+				<br/>
+			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="./*">
+					<xsl:call-template name="generate_xsd">
+						<xsl:with-param name="schema_node_param" select="."/>
+						<xsl:with-param name="indent_param" select="$new_indent"/>
+					</xsl:call-template>
+				</xsl:when>
+				<xsl:otherwise/>
+			</xsl:choose>
+			<xsl:value-of select="$indent_param"/>&lt;/<xsl:value-of select="$element_name"/>&gt;<br/>
+			<xsl:choose>
+				<xsl:when test="$indent_param='&#160;&#160;&#160;&#160;'">
+					<br/>
+				</xsl:when>
+				<xsl:otherwise/>
+			</xsl:choose>
+		</xsl:for-each>
+	</xsl:template>
 
 
 

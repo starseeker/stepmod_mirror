@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.35 2003/10/31 08:20:09 robbod Exp $
+$Id: express_description.xsl,v 1.36 2003/10/31 15:57:42 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -245,8 +245,74 @@ and
     <xsl:if test="string-length($type)=0 and contains(substring-after($description/@linkend,'.'),'.') and not(contains($schema,$description/@linkend)) and not(contains($description/@linkend,'.wr:'))">
 
       <xsl:if test="$ERROR_CHECK_ATTRIBUTES='YES'">
+        <xsl:variable name="phrase" select="normalize-space($description/text())"/>
         <xsl:variable name="first_word"
-          select="substring-before(normalize-space($description/text()),' ')"/>
+          select="substring-before($phrase,' ')"/>
+        
+        <xsl:if test="string-length($attribute)>0">
+          <xsl:choose>
+            <xsl:when test="$attribute='identifier'">
+              <xsl:if test="not(contains($phrase,'identifier'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr1 ' ,
+                            $description/@linkend,
+                            '. Name attribute description should be a
+phrase. Usually will start with &quot;the identifier for xxx&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>
+            </xsl:when>
+
+            <xsl:when test="$attribute='name'">
+              <xsl:if test="not(contains($phrase,'word'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr1 ' ,
+                            $description/@linkend,
+                            '. Name attribute description should be a phrase. Usually will start with &quot;the words by which the xxx is known&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>
+            </xsl:when>
+            <xsl:when test="$attribute='description'">
+              <xsl:if test="not(contains($phrase,'the text that provides further information about the'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr1 ' ,
+                            $description/@linkend,
+                            '. Name attribute description should be a phrase. Usually will start with &quot;the text that provides further information about the&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>              
+            </xsl:when>
+            <xsl:when test="$attribute='purpose'">
+              <xsl:if test="not(contains($phrase,'the purpose of'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr1 ' ,
+                            $description/@linkend,
+                            '. Name attribute description should be a phrase. Usually will start with &quot;the purpose of&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>              
+            </xsl:when>
+
+            <xsl:when test="$attribute='restriction'">
+              <xsl:if test="not(contains($phrase,'the restriction of'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr1 ' ,
+                            $description/@linkend,
+                            '. Name attribute description should be a phrase. Usually will start with &quot;the restriction of&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>              
+            </xsl:when>
+          </xsl:choose>
+        </xsl:if>
+
+
         <xsl:if test="not(contains('the a an one specifies', $first_word))">
           <xsl:call-template name="error_message">
             <xsl:with-param 

@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.23 2002/01/15 09:54:24 robbod Exp $
+$Id: module.xsl,v 1.24 2002/01/21 14:22:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -590,15 +590,21 @@ $Id: module.xsl,v 1.23 2002/01/15 09:54:24 robbod Exp $
   <xsl:variable name="sect51" 
     select="concat('./5_mim',$FILE_EXT)"/>
 
+  <xsl:variable name="current_module">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="../@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
   <p>
     This clause specifies the information requirements for 
-    <xsl:value-of select="../@name"/>
+    <xsl:value-of select="$current_module"/>
     application module.
   </p>
   <p>
     The information requirements are specified as a set of units of
-    functionality, objects. The information requirements are defined using the
-    terminology of the subject area of this application module.
+    functionality and application objects. The information requirements are
+    defined using the terminology of the subject area of this application
+    module. 
   </p>
   <blockquote>
     NOTE 1 A graphical representation of the information requirements is
@@ -1670,6 +1676,10 @@ defines it. Use: normref.inc')"/>
   <xsl:value-of select="."/>
 </xsl:template>
 
+<xsl:template match="term">
+  <xsl:value-of select="."/>
+</xsl:template>
+
 <!-- output the normative references, terms, definitions and abbreviations -->
 <xsl:template name="output_terms">
   <!-- get a list of normative references that have terms defined -->
@@ -2114,8 +2124,8 @@ defines it. Use: normref.inc')"/>
     <xsl:param name="section"/>
     <h4>
       <xsl:value-of select="$section"/>.<xsl:number/>
-      <xsl:apply-templates select="term"/>
     </h4>
+    <b><xsl:apply-templates select="term"/></b><br/>
     <xsl:apply-templates select="def"/>
   </xsl:template>
   

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_toc.xsl,v 1.3 2001/11/14 17:23:26 robbod Exp $
+$Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -262,9 +262,12 @@ $Id: module_toc.xsl,v 1.3 2001/11/14 17:23:26 robbod Exp $
         registration</A><BR/>
         <A HREF="c_arm_expg{$FILE_EXT}#annexc">C ARM EXPRESS-G</A><BR/>
         <A HREF="d_mim_expg{$FILE_EXT}#annexd">D MIM EXPRESS-G</A><BR/>
-        <A HREF="e_exp{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS listings</A><BR/>
-        <A HREF="f_guide{$FILE_EXT}#annexf">F Application module implementation and
-        usage guide</A><BR/>
+        <A HREF="e_exp{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS
+listings</A><BR/>
+        <xsl:if test="./usage_guide">
+          <A HREF="f_guide{$FILE_EXT}#annexf">
+            F Application module implementation and usage guide</A><BR/>
+        </xsl:if>
         <A HREF="biblio{$FILE_EXT}#biblio">Bibliography</A>
       </TD>
     </TR>
@@ -298,8 +301,10 @@ $Id: module_toc.xsl,v 1.3 2001/11/14 17:23:26 robbod Exp $
       </TD>
       <TD valign="TOP">
         <A HREF="module{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS listings</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexf">F Application module implementation and
-        usage guide</A><BR/>
+        <xsl:if test="./usage_guide">
+          <A HREF="module{$FILE_EXT}#annexf">
+            F Application module implementation and usage guide</A><BR/>
+        </xsl:if>
         <A HREF="module{$FILE_EXT}#biblio">Bibliography</A>
       </TD>
     </TR>

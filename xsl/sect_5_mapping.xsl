@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.7 2002/01/12 08:41:51 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.8 2002/01/21 14:22:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -91,14 +91,7 @@ $Id: sect_5_mapping.xsl,v 1.7 2002/01/12 08:41:51 robbod Exp $
 
 <xsl:template match="ae" mode="table">
   <xsl:variable name="aname" select="@entity"/>
-  <a name="{$aname}">
-    <h3>
-      <a href="../../../basic/mapping.htm">Mapping specification</a>
-    </h3>
-  </a>
-  <h3>
-      <xsl:value-of select="concat('Table ',position(),' - Mapping table for ', @entity)"/>
-  </h3>
+  <center>
   <table border="1" width="622">
     <tr>
       <td VALIGN="TOP" width="21%">
@@ -129,6 +122,15 @@ $Id: sect_5_mapping.xsl,v 1.7 2002/01/12 08:41:51 robbod Exp $
     <!-- now do the attributes rows -->
     <xsl:apply-templates select="./aa"/>
   </table>
+  <h3>
+      <xsl:value-of select="concat('Table ',position(),' - Mapping table for ', @entity)"/>
+  </h3>
+  <a name="{$aname}">
+    <h3>
+      <a href="../../../basic/mapping.htm">Mapping specification</a>
+    </h3>
+  </a>
+</center>
 </xsl:template>
 
 <xsl:template match="ae">

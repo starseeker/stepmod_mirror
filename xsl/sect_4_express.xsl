@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.80 2003/01/20 08:40:24 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.81 2003/01/27 14:38:31 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -3046,11 +3046,21 @@
             extensions.  
             <p class="note">
               <small>
-                NOTE&#160;&#160;The list of entity data types may be
+                <xsl:choose>
+                  <xsl:when test="./note">
+                    NOTE&#160;1&#160;&#160;
+                  </xsl:when>
+                  <xsl:when test="string-length($ext_notes)>0">
+                    NOTE&#160;1&#160;&#160;
+                  </xsl:when>
+                  <xsl:otherwise>
+                    NOTE&#160;&#160;
+                  </xsl:otherwise>
+                </xsl:choose>The list of entity data types may be
                 extended in application modules that use the constructs of
                 this module.                 
               </small>
-            </p>
+              </p>
           </xsl:when>
 
           <xsl:otherwise>

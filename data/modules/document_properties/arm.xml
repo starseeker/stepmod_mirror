@@ -1,63 +1,181 @@
 <?xml version="1.0"?>
-<?xml-stylesheet 
-  type="text/xsl" 
-  href="../../../xsl/express.xsl"
-?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $"
+<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
   description.file="arm_descriptions.xml"
->
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Document_properties_armNEW_v12.vsd" />
-<schema name="Document_properties_arm">
-<interface kind="use" schema="Document_definition_arm">
-</interface>
-<interface kind="use" schema="File_identification_arm">
-</interface>
-<interface kind="use" schema="Foundation_representation_arm">
-</interface>
-<interface kind="use" schema="Measure_representation_arm">
-</interface>
-<interface kind="use" schema="Value_with_unit_arm">
-</interface>
-<type name="document_property_item">
-<select selectitems="Document_definition File" />
-<graphic.element page="2" xcoord="476" ycoord="204" />
-</type>
-<entity name="Descriptive_document_property">
-<explicit name="property_type">
-<builtintype type="STRING" />
-</explicit>
-<explicit name="property_name">
-<builtintype type="STRING" />
-</explicit>
-<explicit name="property_value">
-<builtintype type="STRING" />
-</explicit>
-<explicit name="described_element">
-<typename name="document_property_item" />
-</explicit>
-<graphic.element page="2" xcoord="317" ycoord="260" />
-</entity>
-<entity name="Numerical_document_property">
-<explicit name="property_type">
-<builtintype type="STRING" />
-</explicit>
-<explicit name="described_element">
-<typename name="document_property_item" />
-</explicit>
-<explicit name="representation_item">
-<typename name="Numerical_item_with_unit" />
-</explicit>
-<derived name="property_name" expression="representation_item.name">
-<builtintype type="STRING" />
-</derived>
-<derived name="property_unit" expression="representation_item.unit">
-<typename name="Unit" />
-</derived>
-<derived name="property_value" expression="representation_item.value_component">
-<typename name="measure_value" />
-</derived>
-<graphic.element page="2" xcoord="317" ycoord="141" />
-</entity>
-<graphic.element page="1" xcoord="277" ycoord="49" />
-</schema>
-</express>
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.17"
+    source="../data/modules/document_properties/arm.exp"/>
+
+  <schema name="Document_properties_arm">
+    <interface
+      kind="use"
+      schema="Document_definition_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="File_identification_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Foundation_representation_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Measure_representation_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Property_assignment_arm">
+    </interface>
+
+    <type name="document_property_item">
+      <select
+        basedon="property_assignment_select"
+        selectitems="Document_definition File">
+      </select>
+
+    </type>
+    <type name="descriptive_or_numerical">
+      <select
+        selectitems="Descriptive_document_property Numerical_document_property">
+      </select>
+
+    </type>
+    <entity
+      name="Assigned_document_property"
+      supertypes="Assigned_property">
+      <derived
+        name="SELF\Assigned_property.name"
+        expression="'document property'">
+        <builtintype
+          type="STRING"/>
+      </derived>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="SELF\Assigned_property.described_element"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="'DOCUMENT_PROPERTIES_ARM.DOCUMENT_PROPERTY_ITEM' IN TYPEOF(SELF\Assigned_property.assigned_element)">
+      </where>
+    </entity>
+
+    <entity
+      name="Document_property_representation"
+      supertypes="Representation">
+      <explicit
+        name="items">
+        <redeclaration
+          entity-ref="Representation"/>
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="descriptive_or_numerical"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="SIZEOF(QUERY( pr &lt;* USEDIN(SELF, 'DOCUMENT_PROPERTIES_ARM.PROPERTY_REPRESENTATION.REP') |    'DOCUMENT_PROPERTIES_ARM.ASSIGNED_PROPERTY' IN TYPEOF(pr.property)))&gt; 0">
+        </where>
+        <where
+          label="WR2"
+          expression="SELF\Representation.context_of_items.kind = 'document parameters'">
+        </where>
+        <where
+          label="WR3"
+          expression="valid_document_property_representation(SELF)">
+        </where>
+        <where
+          label="WR4"
+          expression="SIZEOF(QUERY(it1 &lt;* SELF\Representation.items | 	SIZEOF(QUERY(it2 &lt;* SELF\Representation.items | it1.name = it2.name)) &gt; 1	))= 0">
+        </where>
+      </entity>
+
+      <entity
+        name="Descriptive_document_property"
+        supertypes="String_representation_item">
+      </entity>
+
+      <entity
+        name="Numerical_document_property"
+        supertypes="Numerical_item_with_unit">
+      </entity>
+
+      <function
+        name="valid_document_property_representation">
+        <parameter
+          name="rep">
+          <typename
+            name="Document_property_representation"/>
+        </parameter>
+        <builtintype
+          type="LOGICAL"/>
+        <algorithm>
+
+CASE rep.name OF
+'document content': 
+   BEGIN
+RETURN (
+  SIZEOF(QUERY( items &lt;* rep\Representation.items | 
+  NOT (items.name IN ['detail level', 'geometry type', 'real world scale'])))= 0
+ );
+   END;
+
+'document creation': 
+   BEGIN
+IF NOT (SIZEOF(QUERY( items &lt;* rep\Representation.items | 
+  NOT (items.name IN ['creating interface', 'creating system', 'operating system'])))= 0
+ ) THEN
+  RETURN(FALSE);
+END_IF;
+IF NOT (SIZEOF(QUERY( items &lt;* rep\Representation.items | 
+  NOT (items.name IN ['creating system'])))= 1
+ ) THEN
+  RETURN(FALSE);
+ELSE
+  RETURN(TRUE);
+END_IF;
+
+   END;
+
+'document format': 
+   BEGIN
+RETURN (
+  SIZEOF(QUERY( items &lt;* rep\Representation.items | 
+  NOT (items.name IN ['character code', 'data format', 'size format', 'size format standard'])))= 0
+ );
+   END;
+
+'document size': 
+   BEGIN
+RETURN (
+  SIZEOF(QUERY( items &lt;* rep\Representation.items | 
+  NOT (items.name IN ['file size', 'page count'])))= 0
+ );
+   END;
+
+OTHERWISE:
+  RETURN(UNKNOWN);
+END_CASE;
+        </algorithm>
+
+      </function>
+
+    </schema>
+
+  </express>

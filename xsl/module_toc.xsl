@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.12 2002/05/19 07:55:13 robbod Exp $
+$Id: module_toc.xsl,v 1.13 2002/05/21 12:20:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -16,9 +16,8 @@ $Id: module_toc.xsl,v 1.12 2002/05/19 07:55:13 robbod Exp $
        PLCS specific menu bar - this should not used in the ISO documents
        If this line in uncommented, then it has been checked in error
        so comment out and check back in
-
   <xsl:import href="../../plcsmod/xsl/module_menu.xsl"/>
-       -->
+  -->
 
 
 <!--
@@ -477,13 +476,15 @@ abbreviations</A>
         <A HREF="{$module_root}/sys/b_obj_reg{$FILE_EXT}#annexb">B Information requirements object
         registration</A><BR/>
         <A HREF="{$module_root}/sys/c_arm_expg{$FILE_EXT}#annexc">C ARM EXPRESS-G</A>
-        <xsl:apply-templates 
-          select="arm/express-g/imgfile" mode="page_number"/>
+        <xsl:apply-templates select="arm/express-g/imgfile" mode="page_number">
+          <xsl:with-param name="module_root" select="$module_root"/>
+        </xsl:apply-templates>
         <BR/>
 
         <A HREF="{$module_root}/sys/d_mim_expg{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
-        <xsl:apply-templates 
-          select="mim/express-g/imgfile" mode="page_number"/>
+        <xsl:apply-templates select="mim/express-g/imgfile" mode="page_number">
+          <xsl:with-param name="module_root" select="$module_root"/>
+        </xsl:apply-templates>
         <BR/>
         <A HREF="{$module_root}/sys/e_exp{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS
 listings</A><BR/>
@@ -539,9 +540,11 @@ listings</A><BR/>
 </xsl:template>
 
 <xsl:template match="imgfile" mode="page_number">
+  <xsl:param name="module_root" select="'..'"/>
+
   <xsl:variable name="href">
     <xsl:call-template name="set_file_ext">
-      <xsl:with-param name="filename" select="concat('../',@file)"/>
+      <xsl:with-param name="filename" select="concat($module_root,'/',@file)"/>
     </xsl:call-template>
   </xsl:variable>
 

@@ -1,6 +1,4 @@
-(* $Id: arm.exp,v 1.2 2002/08/10 00:47:58 thendrix Exp $
-ISO/TC184/SC4 WG12Nnnnn  ISO/TS 10303-mmmm Dimension tolerance  - EXPRESS ARM *)
-
+(*  $Id: $ *) 
 SCHEMA Dimension_tolerance_arm;
 
 USE FROM Construction_geometry_arm;
@@ -15,14 +13,22 @@ USE FROM Measure_representation_arm;
 
 USE FROM Shape_property_assignment_arm;
 
-TYPE dimension_value = SELECT 
-  (Numerical_item_with_unit,
+USE FROM Value_with_unit_arm;
+
+TYPE dimension_value_select = SELECT 
+  (Dimension_value_with_limitation,
+   Numerical_item_with_unit,
    Value_limit,
    Value_range);
 END_TYPE;
 
 TYPE element_with_dimension_select = EXTENSIBLE SELECT 
   (Shape_element);
+END_TYPE;
+
+TYPE limitation_definition_select = SELECT 
+  (Limits_and_fits,
+   Plus_minus_bounds);
 END_TYPE;
 
 TYPE origin_enumeration = ENUMERATION OF 
@@ -55,6 +61,11 @@ SUBTYPE OF (Location_dimension);
   with_curve_direction : BOOLEAN;
 END_ENTITY;
 
+ENTITY Dimension_value_with_limitation;
+  defined_by : limitation_definition_select;
+  envelope_principle : OPTIONAL BOOLEAN;
+END_ENTITY;
+
 ENTITY General_size_dimension
 SUBTYPE OF (Size_dimension);
   dimension_type : STRING;
@@ -63,8 +74,14 @@ END_ENTITY;
 
 ENTITY Geometric_dimension
 ABSTRACT SUPERTYPE OF (ONEOF(Location_dimension, Size_dimension));
-  characteristic : dimension_value;
+  dimension_value : dimension_value_select;
   id : STRING;
+END_ENTITY;
+
+ENTITY Limits_and_fits;
+  deviation : STRING;
+  fitting_type : STRING;
+  grade : STRING;
 END_ENTITY;
 
 ENTITY Linear_distance_dimension
@@ -84,6 +101,13 @@ END_ENTITY;
 ENTITY Measurement_path;
   defined_as : Curve;
   defined_in : Geometric_coordinate_space;
+END_ENTITY;
+
+ENTITY Plus_minus_bounds;
+  lower_bound : Value_with_unit;
+  significant_digits : OPTIONAL INTEGER;
+  upper_bound : Value_with_unit;
+  value_determination : OPTIONAL STRING;
 END_ENTITY;
 
 ENTITY Size_dimension

@@ -1,184 +1,77 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
+<!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by Ricardo Olavo (UNINOVA) -->
+<!-- $Id: mim.xml,v 1.8 2003/02/03 18:37:08 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="mim_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.26"
-    source="../data/modules/product_occurrence/mim.exp"/>
-
-  <schema name="Product_occurrence_mim">
-    <interface
-      kind="use"
-      schema="Functional_breakdown_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Extended_measure_representation_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Measure_representation_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Part_view_definition_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Product_view_definition_relationship_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Specified_product_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Value_with_unit_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="product_property_definition_schema">
-      <interfaced.item
-        name="characterized_product_definition"/>
-      <interfaced.item
-        name="property_definition"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="product_property_representation_schema">
-      <interfaced.item
-        name="property_definition_representation"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="product_structure_schema">
-      <interfaced.item
-        name="product_definition_occurrence_relationship"/>
-      <interfaced.item
-        name="quantified_assembly_component_usage"/>
-    </interface>
-
-    <type name="product_definition_or_assembly_relationship">
-      <select
-        selectitems="assembly_component_usage product_definition">
-      </select>
-
-    </type>
-    <rule
-      name="restrict_part_occurrence"
-      appliesto="product_definition">
-      <algorithm>
+<express language_version="2" description.file="mim_descriptions.xml" rcs.date="$Date: 2003/02/03 18:37:08 $" rcs.revision="$Revision: 1.8 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.26" source="../data/modules/product_occurrence/mim.exp"/>
+	<schema name="Product_occurrence_mim">
+		<interface kind="use" schema="Functional_breakdown_mim"/>
+		<interface kind="use" schema="Extended_measure_representation_mim"/>
+		<interface kind="use" schema="Measure_representation_mim"/>
+		<interface kind="use" schema="Part_view_definition_mim"/>
+		<interface kind="use" schema="Product_view_definition_relationship_mim"/>
+		<interface kind="use" schema="Specified_product_mim"/>
+		<interface kind="use" schema="Value_with_unit_mim"/>
+		<interface kind="use" schema="product_property_definition_schema">
+			<interfaced.item name="characterized_product_definition"/>
+			<interfaced.item name="property_definition"/>
+		</interface>
+		<interface kind="use" schema="product_property_representation_schema">
+			<interfaced.item name="property_definition_representation"/>
+		</interface>
+		<interface kind="use" schema="product_structure_schema">
+			<interfaced.item name="product_definition_occurrence_relationship"/>
+			<interfaced.item name="quantified_assembly_component_usage"/>
+		</interface>
+		<type name="product_definition_or_assembly_relationship">
+			<select selectitems="assembly_component_usage product_definition"/>
+		</type>
+		<rule name="restrict_part_occurrence" appliesto="product_definition">
+			<algorithm>
 LOCAL
   part_occurrences: SET OF product_definition := [];
 END_LOCAL;
   part_occurrences := QUERY(pd &lt;* product_definition | 
 	( pd.frame_of_reference.name = 'part occurrence' ));
       </algorithm>
-
-      <where
-        label="wr1"
-        expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | 	( NOT( pd.name IN ['single instance' , 'selected instance' ,'quantified instance' , 'specified instance' ] ) ) ) ) = 0">
-      </where>
-      <where
-        label="wr2"
-        expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences |  	(SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd ,'PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 	pdr.name = 'definition usage' ) ) &lt;&gt;1 ) AND 	( SIZEOF ( QUERY ( cd &lt;* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' + 'CONFIGURATION_DESIGN.DESIGN' ) | 	( cd.name = 'occurrence usage definition' ) AND 	( NOT ('PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_IDENTIFICATION' IN TYPEOF( cd.configuration ) ) ) ) ) &lt;&gt;1 ) ) ) = 0">
-      </where>
-      <where
-        label="wr3"
-        expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences |  	(SIZEOF ( QUERY ( cd &lt;* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.'+ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 	( 'PRODUCT_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_USAGE' IN TYPEOF ( cd ) ) ) ) = 0 )AND 	( SIZEOF ( USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) ) = 0 ) ) ) = 0">
-      </where>
-      <where
-        label="wr4"
-        expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | 	( pd.name = 'selected instance' ) AND 	NOT valid_selected_instance_representation(pd) ))=0">
-      </where>
-      <where
-        label="wr5"
-        expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences |  	( pd.name = 'quantified instance' ) AND 	( SIZEOF ( QUERY (ppd &lt;* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION.DEFINITION' ) | 	( ppd.name ='occurrence quantity' ) AND 	( SIZEOF ( QUERY ( pdr &lt;*USEDIN ( ppd , 'PRODUCT_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | (	pdr.used_representation.name = 'quantity' ) AND 	(SIZEOF ( pdr.used_representation.items ) = 1 ) AND  	(SIZEOF ( QUERY ( i &lt;* pdr.used_representation.items | 	('PRODUCT_OCCURRENCE_MIM.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND	( i.name = 'quantity measure' ) ) ) = 1)))= 1 )))= 0 )))= 0">
-      </where>
-      <where
-        label="wr6"
-        expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | 	( pd.name = 'specified instance' ) AND 	( SIZEOF ( QUERY ( pdor &lt;* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) |   'PRODUCT_OCCURRENCE_MIM.' +'SPECIFIED_HIGHER_USAGE_OCCURRENCE' IN TYPEOF ( pdor.occurrence_usage ) ) ) = 0 ) ) ) = 0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="selected_instance_usage_requires_representation"
-      appliesto="assembly_component_usage">
-      <algorithm>
+			<where label="wr1" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | 	( NOT( pd.name IN ['single instance' , 'selected instance' ,'quantified instance' , 'specified instance' ] ) ) ) ) = 0"/>
+			<where label="wr2" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences |  	(SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd ,'PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 	pdr.name = 'definition usage' ) ) &lt;&gt;1 ) AND 	( SIZEOF ( QUERY ( cd &lt;* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' + 'CONFIGURATION_DESIGN.DESIGN' ) | 	( cd.name = 'occurrence usage definition' ) AND 	( NOT ('PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_IDENTIFICATION' IN TYPEOF( cd.configuration ) ) ) ) ) &lt;&gt;1 ) ) ) = 0"/>
+			<where label="wr3" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences |  	(SIZEOF ( QUERY ( cd &lt;* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.'+ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 	( 'PRODUCT_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_USAGE' IN TYPEOF ( cd ) ) ) ) = 0 )AND 	( SIZEOF ( USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) ) = 0 ) ) ) = 0"/>
+			<where label="wr4" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | 	( pd.name = 'selected instance' ) AND 	NOT valid_selected_instance_representation(pd) ))=0"/>
+			<where label="wr5" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences |  	( pd.name = 'quantified instance' ) AND 	( SIZEOF ( QUERY (ppd &lt;* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION.DEFINITION' ) | 	( ppd.name ='occurrence quantity' ) AND 	( SIZEOF ( QUERY ( pdr &lt;*USEDIN ( ppd , 'PRODUCT_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | (	pdr.used_representation.name = 'quantity' ) AND 	(SIZEOF ( pdr.used_representation.items ) = 1 ) AND  	(SIZEOF ( QUERY ( i &lt;* pdr.used_representation.items | 	('PRODUCT_OCCURRENCE_MIM.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND	( i.name = 'quantity measure' ) ) ) = 1)))= 1 )))= 0 )))= 0"/>
+			<where label="wr6" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | 	( pd.name = 'specified instance' ) AND 	( SIZEOF ( QUERY ( pdor &lt;* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) |   'PRODUCT_OCCURRENCE_MIM.' +'SPECIFIED_HIGHER_USAGE_OCCURRENCE' IN TYPEOF ( pdor.occurrence_usage ) ) ) = 0 ) ) ) = 0"/>
+		</rule>
+		<rule name="selected_instance_usage_requires_representation" appliesto="assembly_component_usage">
+			<algorithm>
 LOCAL
   selected_instance_usages: SET OF assembly_component_usage := [];
 END_LOCAL;
   selected_instance_usages:=  QUERY( acr &lt;* assembly_component_usage|
 		(acr.name = 'selected instance usage'));
       </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( acr &lt;* selected_instance_usages | 	NOT valid_selected_instance_representation(acr) ))=0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_part_occurrence_category"
-      appliesto="product_definition">
-      <algorithm>
+			<where label="WR1" expression="SIZEOF ( QUERY ( acr &lt;* selected_instance_usages | 	NOT valid_selected_instance_representation(acr) ))=0"/>
+		</rule>
+		<rule name="restrict_part_occurrence_category" appliesto="product_definition">
+			<algorithm>
 LOCAL
   part_occurrences: SET OF product_definition := [];
 END_LOCAL;
   part_occurrences :=  QUERY( pd &lt;* product_definition |(
 		pd.frame_of_reference.name = 'part occurrence'));
       </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF( QUERY( pd &lt;* part_occurrences | (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'PRODUCT_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |   prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_product_definitions_for_definition_usage"
-      appliesto="product_definition_relationship">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |     ( pdr.name = 'definition usage' ) AND 	( ( pdr.relating_product_definition.frame_of_reference.name&lt;&gt; 'part definition' ) OR 	( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'part occurrence' )))) =0">
-      </where>
-
-    </rule>
-
-    <function
-      name="valid_selected_instance_representation">
-      <parameter
-        name="pd">
-        <typename
-          name="product_definition_or_assembly_relationship"/>
-      </parameter>
-      <builtintype
-        type="LOGICAL"/>
-      <algorithm>
+			<where label="WR1" expression="SIZEOF( QUERY( pd &lt;* part_occurrences | (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'PRODUCT_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |   prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0"/>
+		</rule>
+		<rule name="restrict_product_definitions_for_definition_usage" appliesto="product_definition_relationship">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |     ( pdr.name = 'definition usage' ) AND 	( ( pdr.relating_product_definition.frame_of_reference.name&lt;&gt; 'part definition' ) OR 	( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'part occurrence' )))) =0"/>
+		</rule>
+		<function name="valid_selected_instance_representation">
+			<parameter name="pd">
+				<typename name="product_definition_or_assembly_relationship"/>
+			</parameter>
+			<builtintype type="LOGICAL"/>
+			<algorithm>
 LOCAL
   properties: SET OF property_definition :=[];
   property_definition_representations: SET OF property_definition_representation :=[];
@@ -229,9 +122,6 @@ END_IF;
 	
 RETURN(TRUE);
       </algorithm>
-
-    </function>
-
-  </schema>
-
+		</function>
+	</schema>
 </express>

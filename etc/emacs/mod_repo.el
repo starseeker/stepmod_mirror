@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.8 2002/12/24 14:40:34 robbod Exp $
+;;; $Id: mod_repo.el,v 1.9 2003/01/02 13:59:45 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -276,7 +276,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.8 2002/12/24 14:40:34 robbod Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.9 2003/01/02 13:59:45 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-org)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")
@@ -595,7 +595,7 @@
     (find-file (concat modrep-home "/xsl/")) t]
   ["Dired stepmod/data/modules" 
     (find-file (concat modrep-home "/data/modules/")) t]
-   ["Open mod_repo.el" 
+   ["Edit mod_repo.el" 
     (find-file (concat modrep-home "/etc/emacs/mod_repo.el")) t]
    ["Insert description LVars " (modrep-insert-issue-lvars) t]
    ["Insert XSL file header" (modrep-insert-file-header-xsl) t]

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.6 2002/12/09 14:54:26 nigelshaw Exp $
+$Id: select_view.xsl,v 1.7 2003/01/24 11:12:18 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -372,6 +372,8 @@ $Id: select_view.xsl,v 1.6 2002/12/09 14:54:26 nigelshaw Exp $
 
 <!-- check if mapping has been defined in the current module-->
 
+<!--	ZZZZ<xsl:value-of select="concat($this-ent,' ',$this-attr,' ',$this-mod)" />ZZZ -->
+
 	<xsl:if test="not($module_node//mapping_table/ae[@entity=$this-ent][@original_module=$this-mod]/aa[@attribute=$this-attr])" >
 	        <xsl:call-template name="error_message">
 		  <xsl:with-param name="inline" select="'yes'"/>
@@ -384,8 +386,78 @@ $Id: select_view.xsl,v 1.6 2002/12/09 14:54:26 nigelshaw Exp $
 
 	</xsl:if>
 
+	<xsl:variable name="this-select-items" select="concat(' ',$this-select/select/@selectitems,' ')" />
+
+<!--
+	<xsl:for-each select="($module_node//mapping_table/ae[@entity=$this-ent][@original_module=$this-mod]/aa[@attribute=$this-attr])" >
+		<xsl:if test="not(contains($this-select-items,concat(' ',@assertion_to ,' ')))" >
+		        <xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+	        	    select="concat('Error Sel5: Mapping defined in module ',//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
+			    ' assertion_to (',@assertion_to,') not member of SELECT extensions')"/>
+		        </xsl:call-template>    
+		</xsl:if>
+	</xsl:for-each>
+-->
+
+	<!-- now need to loop through the select items making sure there is a mapping for each extension -->
+
+	<!-- construct list of names of assertions that are mapped -->
+	
+	<xsl:variable name="the-assertions-mapped" >
+		<xsl:for-each 
+			select="($module_node//mapping_table/ae[@entity=$this-ent]
+					[@original_module=$this-mod]/aa[@attribute=$this-attr])" >
+				<xsl:value-of select="concat(' ',@assertion_to,' ')"/>
+		</xsl:for-each>
+	</xsl:variable>
+	
+	<!-- now compare the list with the select items -->
+
+	<xsl:variable name="not-found-assertions" >
+		<xsl:call-template name="filter-word-list-negated" >
+			<xsl:with-param name="allowed-list" select="$the-assertions-mapped" />
+			<xsl:with-param name="word-list" select="$this-select-items" />
+		</xsl:call-template>
+	</xsl:variable>
+		
+		<xsl:if test="string-length($not-found-assertions) > 3" >
+		        <xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+	        	    select="concat('Error Sel6: Mapping not defined in module ',//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
+			    ' for SELECT extensions: ',$not-found-assertions)"/>
+		        </xsl:call-template>    
+		</xsl:if>
+
+
+
+	<xsl:variable name="extra-assertions" >
+		<xsl:call-template name="filter-word-list-negated" >
+			<xsl:with-param name="allowed-list" select="$this-select-items" />
+			<xsl:with-param name="word-list" select="$the-assertions-mapped" />
+		</xsl:call-template>
+	</xsl:variable>
+		
+<!--	ZYYY<xsl:value-of select="$extra-assertions" /> VVVV -->
+		<xsl:if test="string-length($extra-assertions) > 3" >
+		        <xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+	        	    select="concat('Error Sel7: Mapping defined in module ',//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
+			    ' for assertion_to that is not needed : ',$extra-assertions)"/>
+		        </xsl:call-template>    
+		</xsl:if>
 
 	<br/>
+	
 	  &lt;ae entity="<xsl:value-of select="../@name"/>" 
 	  original_module="<xsl:value-of select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>"
 	  &gt;
@@ -681,6 +753,30 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 </xsl:template>
 
 
+<xsl:template name="filter-word-list-negated" >
+	<xsl:param name="allowed-list" />
+	<xsl:param name="word-list" />
+
+	<!-- outputs all words from word-list that are NOT in allowed-list -->
+
+	<!-- get first item in list -->
+
+	<xsl:variable name="first" select="substring-before(concat(normalize-space($word-list),' '),' ')" />
+
+	<xsl:if test="$first" >
+
+		<xsl:if test="not(contains(concat(' ',$allowed-list,' '),concat(' ',$first,' ')))" >
+			<xsl:value-of select="concat(' ',$first,' ')" /> 
+		</xsl:if>
+
+		<xsl:call-template name="filter-word-list-negated">
+			<xsl:with-param name="allowed-list" select="$allowed-list" />
+			<xsl:with-param name="word-list" select="substring-after($word-list,$first)" />
+		</xsl:call-template>
+
+	</xsl:if>
+
+</xsl:template>
 
 
 </xsl:stylesheet>

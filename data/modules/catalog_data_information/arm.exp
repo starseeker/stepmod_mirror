@@ -21,7 +21,7 @@ TYPE alias_select_236cc1 = EXTENSIBLE SELECT BASED_ON alias_identification_item 
 \tab Document,Document_version,Document_definition,\par
 \tab Specification,Specification_category,Product_class,\par
 \tab Part,Part_version,part_occurrence_select,Part_view_definition,\par
-      Individual_definition,Geometric_model,Class_with_attributes,\par
+      Geometric_model,Class_with_attributes,\par
 \tab complex_product_select, \par
       Classification_system,Independent_property,Classification_attribute);\par
 END_TYPE;\par
@@ -53,7 +53,7 @@ TYPE certified_element_select_236cc1  = EXTENSIBLE SELECT BASED_ON certification
 END_TYPE;\par
 \par
 TYPE classified_element_select_236cc1  = EXTENSIBLE SELECT BASED_ON classification_item_extended WITH\par
-      (Requirement_version,Approval_status,\par
+      (Approval_status,\par
        Document,Document_version,Document_definition,\par
 \tab Contract,\par
        Independent_property,Applied_independent_property,Material_identification,\par
@@ -76,7 +76,7 @@ TYPE documented_element_select_236cc1  = EXTENSIBLE SELECT BASED_ON documented_e
 \tab complex_product_select, \par
        Product_specification,Product_class,\par
 \tab Breakdown_node_relationship, Solution_element,\par
-       Project,Independent_property, Applied_independent_property,\par
+       Independent_property, Applied_independent_property,\par
 \tab Class_breakdown_association,Part,\par
        Part_version,Person,Organization, \par
        Specification_category,Specification,\par
@@ -130,11 +130,10 @@ TYPE documented_element_select_236cc1  = EXTENSIBLE SELECT BASED_ON documented_e
 END_TYPE;\par
 \par
 TYPE identification_item_236cc1 = EXTENSIBLE SELECT BASED_ON identification_item WITH\par
-      (Organization,Approval_status,Security_classification,\par
+      (Organization,Approval_status,\par
 \tab Document,Document_version,Document_definition,\par
 \tab Specification,Specification_category,Product_class,\par
 \tab Part,Part_version,part_occurrence_select,Part_view_definition,\par
-      Individual_definition,\par
       Geometric_model,Class_with_attributes,\par
 \tab complex_product_select, \par
       Classification_system,Independent_property,Classification_attribute);\par
@@ -148,14 +147,12 @@ TYPE item_property_select_236cc1 = EXTENSIBLE SELECT BASED_ON property_assignmen
 \tab Part_occurrence_definition_relationship,Part_occurrence_relationship,\par
 \tab Item_shape, Shape_element, Shape_element_relationship,\par
 \tab breakdown_element_select, Alternative_solution,\par
-\tab File, Document_definition,Product_specification,\par
-\tab Individual_definition);\par
+\tab File, Document_definition,Product_specification);\par
  END_TYPE;\par
 \par
  \par
 TYPE string_select_236cc1 = EXTENSIBLE SELECT BASED_ON string_select WITH\par
   (Alias_identification,\par
-   Alternate_part_relationship,\par
    View_definition_context,\par
    Approval_relationship,\par
    Assembly_relationship_substitution,\par
@@ -185,15 +182,11 @@ TYPE string_select_236cc1 = EXTENSIBLE SELECT BASED_ON string_select WITH\par
    Class_inclusion_association,\par
    Product_class_relationship,\par
    Product_category,\par
-   Product,\par
    Product_view_definition,\par
-   Product_version,\par
-   Product_version_relationship,\par
    Product_specification,\par
    Applied_independent_property,\par
    Representation,\par
    Representation_relationship,\par
-   Security_classification_assignment,\par
    Shape_element,\par
    Shape_element_relationship,\par
    Specification,Specification_category,\par
@@ -218,15 +211,7 @@ ONEOF (Part_view_definition,\par
 \tab Design_constraint_definition);\par
 END_SUBTYPE_CONSTRAINT;\par
 \par
-SUBTYPE_CONSTRAINT exclusive_product_versions_236cc1 FOR Product_version;\par
-ONEOF ( Document_version,\par
-\tab Part_version,\par
-\tab Functional_element_version,\par
-\tab Physical_element_version,\par
-\tab Product_as_individual,\par
-\tab Requirement_version);\par
-END_SUBTYPE_CONSTRAINT;\par
-\par
+ \par
 \par
 RULE addresses_are_assigned FOR\par
     (Address);\par
@@ -254,13 +239,6 @@ WR2: SIZEOF(QUERY( is <* Item_shape |\par
 \tab ))= 0;\par
 END_RULE;\par
 \par
-RULE Design_or_specification_for_individual FOR (Product_as_individual);\par
-WHERE\par
-WR1: SIZEOF(QUERY( pai <* Product_as_individual |\par
-  SIZEOF(USEDIN(pai, schema_name + '.PRODUCT_DESIGN_TO_INDIVIDUAL.INDIVIDUAL_PRODUCT')) +\par
-  SIZEOF(USEDIN(pai, schema_name + '.PRODUCT_SPECIFICATION_TO_INDIVIDUAL.INDIVIDUAL_PRODUCT'))\par
-\tab >1 ))=0;\par
-END_RULE;\par
 \par
 END_SCHEMA;\par
 \par

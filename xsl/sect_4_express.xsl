@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.29 2002/04/26 13:44:16 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.30 2002/05/02 10:30:53 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2228,7 +2228,7 @@ SELF\<xsl:call-template name="link_object">
     <xsl:choose>
       <xsl:when test="@basedon and @extensible='YES'">
         <!-- an extended and extensible SELECT type -->
-        <p><b><i>an extended and extensible SELECT type</i></b></p>
+        <!-- <p><b><i>an extended and extensible SELECT type</i></b></p> -->
         The <b><xsl:value-of select="$typename"/></b> type is an extension
         of the 
         <b>
@@ -2270,7 +2270,7 @@ SELF\<xsl:call-template name="link_object">
 
       <xsl:when test="(@basedon and @extensible='NO') or @basedon">
         <!-- an extended not extensible SELECT type  -->
-        <p><b><i>an extended not extensible SELECT type</i></b></p>
+        <!-- <p><b><i>an extended not extensible SELECT type</i></b></p> -->
         The <b><xsl:value-of select="$typename"/></b> type is an extension
         of the 
         <b>
@@ -2309,7 +2309,7 @@ SELF\<xsl:call-template name="link_object">
 
           <xsl:when test="@selectitems">
             <!-- an extensible non-empty SELECT type -->
-            <p><b><i>an extensible non-empty SELECT type</i></b></p>
+            <!-- <p><b><i>an extensible non-empty SELECT type</i></b></p> -->
             The <b><xsl:value-of select="$typename"/></b> type is an
             extensible list of alternate data types. It provides a
             mechanism to refer to instances of the data types included in
@@ -2326,7 +2326,7 @@ SELF\<xsl:call-template name="link_object">
 
           <xsl:otherwise>
             <!-- an extensible empty SELECT type -->
-            <p><b><i>an extensible empty SELECT type</i></b></p>
+            <!-- <p><b><i>an extensible empty SELECT type</i></b></p> -->
             The <b><xsl:value-of select="$typename"/></b> type is an
             extensible list of alternate data types. It provides a
             mechanism to refer to instances of the data types included in
@@ -2342,7 +2342,7 @@ SELF\<xsl:call-template name="link_object">
       </xsl:when>
       <xsl:otherwise>
         <!-- a non extensible SELECT type -->
-        <p><b><i>a non extensible SELECT type</i></b></p>
+        <!-- <p><b><i>a non extensible SELECT type</i></b></p> -->
         The <b><xsl:value-of select="$typename"/></b> type is a list of
         alternate data types. It provides a mechanism to refer to an
         instance of one of these data types.  

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.9 2002/06/06 09:22:41 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.10 2002/06/17 15:48:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -108,12 +108,14 @@ $Id: sect_a_short_names.xsl,v 1.9 2002/06/06 09:22:41 robbod Exp $
 </xsl:template>
 
 <xsl:template match="shortname">
-  <td width="77%" align="left">
-    <xsl:value-of select="@entity"/>
-  </td>
-  <td width="23%" align="left">
-    <xsl:value-of select="@name"/>
-  </td>
+  <tr>
+    <td width="77%" align="left">
+      <xsl:value-of select="@entity"/>
+    </td>
+    <td width="23%" align="left">
+      <xsl:value-of select="@name"/>
+    </td>
+  </tr>
 </xsl:template>
   
 </xsl:stylesheet>

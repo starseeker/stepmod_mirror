@@ -1,7 +1,7 @@
 <!DOCTYPE html
 PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
-<!-- $Id: mod_doc.htm,v 1.5 2002/01/16 15:37:03 robbod Exp $ -->
+<!-- $Id: mod_doc.htm,v 1.6 2002/01/28 11:10:38 robbod Exp $ -->
 <HTML>
 <HEAD>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -16,7 +16,7 @@ PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
       <td width="120">
         <h3 align="left">
           <b>Help</b><br/>
-          <font size="1">$Revision: 1.5 $</font>
+          <font size="1">$Revision: 1.6 $</font>
         </h3>
       </td>
       <td width="300" align="center">
@@ -102,9 +102,9 @@ Where:
     ISO standard</li>
     <li><tt>language</tt> the language of the standard. Defaults to E - English</li>
     <li><tt>rcs.date</tt> Date attribute for source control software like
-	RCS or CVS. E.g. <tt>$Date: 2002/01/16 15:37:03 $</tt></li>
+	RCS or CVS. E.g. <tt>$Date: 2002/01/28 11:10:38 $</tt></li>
     <li><tt>rcs.revision</tt>Revision attribute for source control software
-	like RCS or CVS. E.g. <tt>$Revision: 1.5 $</tt></li>
+	like RCS or CVS. E.g. <tt>$Revision: 1.6 $</tt></li>
   </ul>
 
 
@@ -168,30 +168,76 @@ Where:
   </pre>
 
   <h3><a name="arm">ARM</a></h3>
-  The element <tt>&lt;arm&gt;</tt> is defined by:
+  The Application Reference Model (ARM) of a module (or Clause 4 Information
+  requirement in the module documentation) is defined by
+  the element <tt>&lt;arm&gt;</tt>:
   <pre>
   &lt;!ELEMENT arm (uof+, uoflink?, express-g)&gt;
   </pre>
-  This element is used to define the Application Reference Model
-  (ARM). Where:
+  Where:
   <ul>
     <li>
 	The element <tt>&lt;<a href="#arm_uof">uof</a>&gt;</tt> describes
 	the ARM Units of functionality.
     </li>
     <li>
+      The element <tt>&lt;<a href="#arm_uoflink">uoflink</a>&gt;</tt>
+      describes the Units of functionality from other modules that have
+      been interfaced to.
+    </li>
+    <li>
 	The element <tt>&lt;<a href="#expg">express-g</a>&gt;</tt>
-	identifies the ARM EXPRESS-G diagrams..
+	identifies the ARM EXPRESS-G diagrams.
     </li>
   </ul>
 
   <h3><a name="arm_uof">ARM UOF</a></h3>
-  The element <tt>&lt;uof&gt;</tt> and <tt>&lt;uof_link&gt;</tt> is defined by:
+  The Units of functionality of the module are defined by the element
+  <tt>&lt;uof&gt;</tt>.
+  
   <pre>
-
-  </pre>
-  This element is used to define the Application Reference Model (ARM).
-  The element <tt>&lt;uof&gt;</tt> describes the ARM Units of functionality.
+  &lt;!ELEMENT  uof        (description, uof.ae+)                       &gt;
+  &lt;!ATTLIST  uof
+             name       NMTOKEN                            #REQUIRED &gt;  </pre>
+  Where:
+  <ul>
+    <li>
+      the attribute <tt>name</tt> is the name of the unit of
+      functionality. The name provides an identification that is used to 
+      link to the unit of functionality from another module through the use
+    of the <a href="#arm_uoflink"><tt>&lt;uoflink&gt;</tt></a> element.
+    </li>
+    <li>
+      the <tt>&lt;description&gt;</tt> element provides the description of
+      the unit of functionality. 
+    </li>
+    <li>
+      the <tt>&lt;uof.ae&gt;</tt> elements identify the ARM EXPESS entities
+      that make up the unit of functionality.
+    </li>
+  </ul>
+  
+  <h3><a name="arm_uoflink">ARM Foreign UOF</a></h3>
+  Any units of functionality from other modules that have been interfaced
+  to by USE FROM constructs in the EXPRESS are defined by:
+  <pre>
+  &lt;!ELEMENT  uoflink    EMPTY                                        &gt;
+  &lt;!ATTLIST  uoflink
+             module     CDATA                            #REQUIRED &gt;
+             uof        CDATA                            #REQUIRED &gt;  </pre>
+  Where:
+  <ul>
+    <li>
+      the attribute <tt>module</tt> is the name of the module in which the
+      unit of functionality being included has been declared.
+    </li>
+    <li>
+      the attribute <tt>uof</tt> is the name of the 
+      unit of functionality being included. Note: This is the name declared
+    in the <a href="#arm_uof"><tt>&lt;uof&gt;</tt></a> element. It is case
+    sensitive.
+    </li>
+  </ul>  
 
   <h3><a name="expg">EXPRESS-G</a></h3>
   The element <tt>&lt;express-g&gt;</tt> is defined by:
@@ -204,13 +250,424 @@ Where:
   EXPRESS-G diagrams being displayed in a new browser window.
   
   <h3><a name="mapping">Mapping_table</a></h3>
-  The element <tt>&lt;mapping&gt;</tt> is defined by:
+  The mapping for the ARM to MIM is defined by the
+  <tt>&lt;mapping_table&gt;</tt> element which comprises of set of
+  application element mappings, each of which is defined 
+  by the element <tt>&lt;ae&gt;</tt>. This represents a row in the mapping
+  table. 
   <pre>
+  &lt;!ELEMENT  mapping_table (ae+)                                   &gt;
+  &lt;!ELEMENT  ae           (%mapping;, aa*)                         &gt;
+  &lt;!ATTLIST  ae
+             entity     NMTOKEN                            #REQUIRED&gt;
   </pre>
+  <p>
+  Where:
+  <ul>
+    <li>
+	<tt>&lt;entity&gt;</tt> is the name of the application element
+	entity being mapped;
+    </li>
+    <li>
+	<a href="#mapping_spec"><tt>%mapping;</tt></a> is
+	a specification of the mapping. <tt>aa</tt> is the definition of the
+	mapping of the application element attributes.
+    </li>
+  </ul>
+  </p>
 
+  <p>
+  The attribute mapping specification is defined by:
+  <pre>
+  &lt;!ELEMENT  aa           (%mapping;)                                  &gt;
+  &lt;!ATTLIST  aa
+             attribute  NMTOKEN                            #REQUIRED 
+             assertion_to NMTOKEN                          #IMPLIED  &gt;
+  </pre>
+ Where:
+  <ul>
+    <li><tt>attribute</tt> is the name of the attribute being mapped.</li>
+    <li><tt>assertion_to</tt></li> the mapping assertion. This will be
+	placed in parentheses in the table.
+  </ul>
+
+  <h4><a name="mapping_spec">Mapping specification</a></h4>
+  <p>
+  The  mapping specification row is defined by:
+  <pre>
+  &lt;!ENTITY % mapping     "alt?, aimelt, source, express_ref*, refpath?" &gt;
+  </pre>
+  </p>
+  Where:
+  <ul>
+    <li><tt>alt</tt> indeicates an alternative mapping.</li>
+    <li><tt>aimelt</tt> is the AIM element that is being mapped to.</li>
+    <li><tt>source</tt> is the source of the AIM element.</li>
+    <li><tt>express_ref</tt> is a reference to a rule. 
+    See <a href="bookmarks.htm#xmlexpref">express_ref</a> for details.
+    <li><tt>refpath</tt> is the reference path.</li>
+  </ul>
+
+
+  <h4><a name="mapping_ex">Mapping examples</a></h4>
+  <h5>Mapping example 1</h5>
+  
+  <table border="1" width="500" 
+    cellspacing="0" cellpadding="3" bgcolor="#FFFFCC">
+    <tr>
+      <td width="100%"
+      bordercolor="#808080" 
+      bgcolor="#CCCCCC" 
+      valign="top" align="left">
+      <tt><b>Mapping example 1</b></tt>
+      </td>
+    </tr>
+    <tr>
+      <td width="100%" bordercolor="#808080" valign="top" align="left">
+      <pre>
+&lt;mapping_table&gt;
+   &lt;ae entity="Work_definition"&gt;
+      &lt;aimelt&gt;directed_action&lt;/aimelt&gt;
+      &lt;source&gt;41&lt;/source&gt;
+      &lt;aa attribute="associated_order"&gt;
+         &lt;aimelt&gt;directed_action.directive&lt;/aimelt&gt;
+         &lt;source&gt;41&lt;/source&gt;
+      &lt;/aa&gt;
+   &lt;/ae&gt;
+ &lt;/mapping_table&gt;</pre>      
+      </td>
+    </tr>
+  </table>
+  <p>
+  The mapping table defined above results in:
+  </p>
+  <table border="1" width="622">
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><b>Application element</b></font>
+</td>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><b>MIM element</b></font>
+</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1"><b>Source</b></font>
+</td>
+<td VALIGN="TOP" width="5%">
+<font size="-1"><b>Rules</b></font>
+</td>
+<td VALIGN="TOP" width="47%">
+<font size="-1"><b>Reference path</b></font>
+</td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><a href="./4_info_reqs.htm#work_order_arm.work_definition">WORK_DEFINITION</a></font>
+</td>
+<td VALIGN="TOP" width="21%">directed_action</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1">41</font>
+</td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+       
+    </td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><a href="./4_info_reqs.htm#work_order_arm.work_definition.associated_order">associated_order</a></font>
+</td>
+<td VALIGN="TOP" width="21%">directed_action.directive</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1">41</font>
+</td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+       
+    </td>
+</tr>
+</table>
+
+  
+
+  <h5>Mapping example 2</h5>
+  
+  <table border="1" width="500" 
+    cellspacing="0" cellpadding="3" bgcolor="#FFFFCC">
+    <tr>
+      <td width="100%"
+      bordercolor="#808080" 
+      bgcolor="#CCCCCC" 
+      valign="top" align="left">
+      <tt><b>Mapping example 2</b></tt>
+      </td>
+    </tr>
+    <tr>
+      <td width="100%" bordercolor="#808080" valign="top" align="left">
+      <pre>
+ &lt;mapping_table&gt;
+   &lt;ae entity="Work_order"&gt;
+      &lt;aimelt&gt;action_directive&lt;/aimelt&gt;
+      &lt;source&gt;41&lt;/source&gt;
+
+      &lt;aa attribute="name"&gt;
+         &lt;aimelt&gt;action_directive.name&lt;/aimelt&gt;
+         &lt;source&gt;41&lt;/source&gt;
+      &lt;/aa&gt;
+      &lt;aa attribute="description"&gt;
+         &lt;aimelt&gt;action_directive.description&lt;/aimelt&gt;
+         &lt;source&gt;41&lt;/source&gt;
+      &lt;/aa&gt;
+      &lt;aa attribute="in_response_to"&gt;
+         &lt;aimelt&gt;PATH&lt;/aimelt&gt;
+         &lt;source&gt;41&lt;/source&gt;
+         &lt;refpath&gt;
+           action_directive.requests[i] -&gt;
+           versioned_action_request
+         &lt;/refpath&gt;
+      &lt;/aa&gt;
+      &lt;aa attribute="directed_activity"&gt;
+         &lt;aimelt&gt;action_directive.directed_activity&lt;/aimelt&gt;
+         &lt;source&gt;41&lt;/source&gt;
+         &lt;refpath&gt;
+           action_directive &lt;-
+           directed_action.directive
+           directed_action
+         &lt;/refpath&gt;
+      &lt;/aa&gt;      
+   &lt;/ae&gt;
+&lt;/mapping_table&gt;</pre>      
+      </td>
+    </tr>
+  </table>
+
+  <p>
+  The mapping table defined above results in:
+  </p>
+
+<table border="1" width="622">
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><b>Application element</b></font>
+</td>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><b>MIM element</b></font>
+</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1"><b>Source</b></font>
+</td>
+<td VALIGN="TOP" width="5%">
+<font size="-1"><b>Rules</b></font>
+</td>
+<td VALIGN="TOP" width="47%">
+<font size="-1"><b>Reference path</b></font>
+</td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><a href="./4_info_reqs.xml#work_order_arm.work_order">WORK_ORDER</a></font>
+</td>
+<td VALIGN="TOP" width="21%">action_directive</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1">41</font>
+</td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+       
+    </td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><a href="./4_info_reqs.xml#work_order_arm.work_order.name">name</a></font>
+</td>
+<td VALIGN="TOP" width="21%">action_directive.name</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1">41</font>
+</td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+       
+    </td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><a href="./4_info_reqs.xml#work_order_arm.work_order.description">description</a></font>
+</td>
+<td VALIGN="TOP" width="21%">action_directive.description</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1">41</font>
+</td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+       
+    </td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><a href="./4_info_reqs.xml#work_order_arm.work_order.in_response_to">in_response_to</a></font>
+</td>
+<td VALIGN="TOP" width="21%">PATH</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1">41</font>
+</td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+<center>
+<font size="-1"><br>           action_directive.requests[i] -&gt;<br>           versioned_action_request<br>         </font>
+</center>
+</td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><a href="./4_info_reqs.xml#work_order_arm.work_order.directed_activity">directed_activity</a></font>
+</td>
+<td VALIGN="TOP" width="21%">action_directive.directed_activity</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1">41</font>
+</td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+<center>
+<font size="-1"><br>           action_directive &lt;-<br>           directed_action.directive<br>           directed_action<br>         </font>
+</center>
+</td>
+</tr>
+</table>
+
+  <h5>Mapping example 3</h5>
+  
+  <table border="1" width="500" 
+    cellspacing="0" cellpadding="3" bgcolor="#FFFFCC">
+    <tr>
+      <td width="100%"
+      bordercolor="#808080" 
+      bgcolor="#CCCCCC" 
+      valign="top" align="left">
+      <tt><b>Mapping example 3</b></tt>
+      </td>
+    </tr>
+    <tr>
+      <td width="100%" bordercolor="#808080" valign="top" align="left">
+      <pre>
+&lt;mapping_table&gt;
+  &lt;ae entity="value_with_unit"&gt;
+    &lt;alt&gt;
+      #1:
+        If the value_with_unit is a numerical_value or a value_limit
+        and the unit is not assigned globally. 
+      #2: If the value_with_unit is a value_range.
+    &lt;/alt&gt;
+    &lt;aimelt&gt;
+      #1: (#3: (&lt;express_ref&gt;measure_representation_item&lt;/express_ref&gt;)
+           #4: ([&lt;express_ref&gt;measure_representation_item&lt;/express_ref&gt;][&lt;express_ref&gt;qualified_representation_item&lt;/express_ref&gt;]))
+      #2: (#3: (&lt;express_ref&gt;value_range&lt;/express_ref&gt;)
+           #4: ([&lt;express_ref&gt;value_range&lt;/express_ref&gt;][&lt;express_ref&gt;qualified_representation_item&lt;/express_ref&gt;]))
+    &lt;/aimelt&gt;
+
+    &lt;aa attribute="unit_component" assertion_to="unit"&gt;
+      &lt;aimelt&gt;PATH&lt;/aimelt&gt;
+      &lt;refpath&gt;
+      #1: (measure_representation_item &lt;=)
+      #2: (compound_representation_item
+      compound_representation_item.item_element -&gt;
+      compound_item_definition
+      compound_item_definition = set_representation_item
+      set_representation_item
+      set_representation_item[i] -&gt;
+      representation_item =&gt;
+      measure_representation_item &lt;=)
+      measure_with_unit
+      measure_with_unit.unit_component -&gt;
+      unit
+      #5: (unit = named_unit
+      named_unit)
+      #6: (unit = derived_unit
+      derived_unit)
+    &lt;/refpath&gt;
+  &lt;/aa&gt;
+  &lt;/ae&gt;
+&lt;/mapping_table&gt;</pre>      
+      </td>
+    </tr>
+  </table>
+
+  <p>
+  The mapping table defined above results in:
+  </p>
+<table border="1" width="622">
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><b>Application element</b></font>
+</td>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><b>MIM element</b></font>
+</td>
+<td VALIGN="TOP" width="6%">
+<font size="-1"><b>Source</b></font>
+</td>
+<td VALIGN="TOP" width="5%">
+<font size="-1"><b>Rules</b></font>
+</td>
+<td VALIGN="TOP" width="47%">
+<font size="-1"><b>Reference path</b></font>
+</td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1"><a href="./4_info_reqs.xml#example_arm.value_with_unit">VALUE_WITH_UNIT</a></font>
+<font size="-1"><br>      #1:<br>        If the value_with_unit is a numerical_value or a value_limit<br>        and the unit is not assigned globally. <br>      #2: If the value_with_unit is a value_range.<br>    </font>
+</td>
+<td VALIGN="TOP" width="21%"><br>      #1: (#3: (measure_representation_item)<br>           #4: ([measure_representation_item][qualified_representation_item]))<br>      #2: (#3: (value_range)<br>           #4: ([value_range][qualified_representation_item]))<br>    </td>
+<td VALIGN="TOP" width="6%">
+       
+    </td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+       
+    </td>
+</tr>
+<tr>
+<td VALIGN="TOP" width="21%">
+<font size="-1">value_with_unit 
+            to 
+            unit<br>
+            (as unit_component)
+          </font>
+</td>
+<td VALIGN="TOP" width="21%">PATH</td>
+<td VALIGN="TOP" width="6%">
+       
+    </td>
+<td VALIGN="TOP" width="5%">
+       
+    </td>
+<td VALIGN="TOP" width="6%">
+<center>
+<font size="-1"><br>      #1: (measure_representation_item &lt;=)<br>      #2: (compound_representation_item<br>      compound_representation_item.item_element -&gt;<br>      compound_item_definition<br>      compound_item_definition = set_representation_item<br>      set_representation_item<br>      set_representation_item[i] -&gt;<br>      representation_item =&gt;<br>      measure_representation_item &lt;=)<br>      measure_with_unit<br>      measure_with_unit.unit_component -&gt;<br>      unit<br>      #5: (unit = named_unit<br>      named_unit)<br>      #6: (unit = derived_unit<br>      derived_unit)<br>    </font>
+</center>
+</td>
+</tr>
+</table>
+  
   <h3><a name="mim">MIM</a></h3>
   The element <tt>&lt;mim&gt;</tt> is defined by:
   <pre>
+  &lt;!ELEMENT  mim          (express-g)                       &gt;
   </pre>
 
   <h3><a name="usage">Usage_guide (optional)</a></h3>

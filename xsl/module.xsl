@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.29 2002/02/07 16:14:41 robbod Exp $
+$Id: module.xsl,v 1.30 2002/02/12 09:46:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2189,7 +2189,8 @@ defines it. Use: normref.inc')"/>
   <xsl:template match="definition">
     <xsl:param name="section"/>
     <h4>
-      <xsl:value-of select="$section"/>.<xsl:number/><br/>
+      <!-- <xsl:value-of select="$section"/>.<xsl:number/><br/> -->
+      <xsl:value-of select="concat($section,'.',position())"/><br/> 
       <xsl:apply-templates select="term"/>
     </h4>
     <xsl:apply-templates select="def"/>

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.7 2004/12/30 10:25:00 liutkus Exp $
+   $Id: mim.exp,v 1.10 2005/01/04 07:21:33 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit usage view - EXPRESS MIM
 *)
 
@@ -689,6 +689,48 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE;
+
+FUNCTION is_interconnect_module_usage ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pass : BOOLEAN := FALSE;
+END_LOCAL;
+IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
+IF ((pd\product_definition.name = 'interconnect module') AND
+   (pd.frame_of_reference\application_context_element.name = 'physical design usage'))
+THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+RULE product_definition_requires_date_or_date_and_time FOR
+  (product_definition, applied_date_and_time_assignment,
+   applied_date_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* product_definition | NOT 
+       (NOT(is_ee_product_definition(pd)) OR 
+       ((SIZEOF (QUERY (adata <* applied_date_and_time_assignment |
+       pd IN adata.items )) = 1 ) OR
+       (SIZEOF (QUERY (ada <* applied_date_assignment |
+       pd IN ada.items )) = 1 )))
+       )) = 0;
+END_RULE; -- product_definition_requires_date_or_date_and_time
+
+RULE product_definition_requires_person_organization FOR
+  (product_definition,
+  applied_person_and_organization_assignment,
+  applied_organization_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* product_definition | NOT
+       (NOT(is_ee_product_definition(pd)) OR
+       ((SIZEOF (QUERY (apaoa <*
+       applied_person_and_organization_assignment |
+       pd IN apaoa.items )) = 1 ) OR
+       (SIZEOF (QUERY (aoa <*
+       applied_organization_assignment |
+       pd IN aoa.items )) = 1 )))
+       )) = 0;
+END_RULE; -- product_definition_requires_person_organization
 	
 END_SCHEMA;
 

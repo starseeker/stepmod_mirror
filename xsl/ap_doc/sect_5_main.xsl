@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_5_main.xsl,v 1.3 2002/10/08 10:18:09 mikeward Exp $
+	$Id: sect_5_main.xsl,v 1.4 2003/05/22 21:27:11 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -65,6 +65,7 @@
         <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
       </small>
     </p>
+
   </xsl:template>
 	
 </xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: common.xsl,v 1.10 2003/02/06 22:35:11 goset1 Exp $
+     $Id: common.xsl,v 1.11 2003/03/03 17:15:13 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../common.xsl"/>
@@ -72,10 +72,12 @@
 	<xsl:template match="application_protocol" mode="TOCbannertitle">
 		<xsl:param name="selected"/>
 		<xsl:param name="module_root" select="'..'"/>
+
 		<xsl:call-template name="rcs_output">
-			<xsl:with-param name="module" select="@name"/>
+			<xsl:with-param name="module" select="@module_name"/>
 			<xsl:with-param name="module_root" select="$module_root"/>
 		</xsl:call-template>
+
 		<TABLE cellspacing="0" border="0" width="100%">
 			<tr>
 				<td>

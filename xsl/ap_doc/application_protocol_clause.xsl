@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_clause.xsl,v 1.8 2003/05/21 13:18:32 robbod Exp $
+$Id: application_protocol_clause.xsl,v 1.9 2003/05/21 14:37:17 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -31,10 +31,11 @@ $Id: application_protocol_clause.xsl,v 1.8 2003/05/21 13:18:32 robbod Exp $
         </title>
       </head>
       <body bgcolor="#FAFAFA">
-        
-        <xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol" mode="TOCmultiplePage"/>
+        <xsl:apply-templates 
+          select="document($application_protocol_xml_file)/application_protocol" 
+          mode="TOCmultiplePage"/>
         <xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol"/>
-        
+
         <!-- RBN don't think that we need this
         <xsl:apply-templates select="document($module_xml_file)/module"/>
         -->

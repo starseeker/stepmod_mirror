@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol_toc.xsl,v 1.16 2003/05/21 13:18:32 robbod Exp $
+     $Id: application_protocol_toc.xsl,v 1.17 2003/05/22 21:27:11 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -18,6 +18,7 @@
     <xsl:apply-templates select="." mode="TOCbannertitle">
       <xsl:with-param name="module_root" select="$application_protocol_root"/>
     </xsl:apply-templates> 
+
     <xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
     <xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>
     <xsl:variable name="ap_name" select="./@name"/>
@@ -138,8 +139,8 @@
 				</td>
 			</tr>
 		</table>
-	</xsl:template>
 
+  </xsl:template>
 <!--
      Output the Table of contents banner for a module where all clauses are 
      displayed on a single page

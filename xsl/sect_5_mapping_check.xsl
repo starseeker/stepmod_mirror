@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.13 2003/07/28 07:37:34 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.14 2003/10/28 06:37:19 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -133,18 +133,18 @@ $Id: sect_5_mapping_check.xsl,v 1.13 2003/07/28 07:37:34 robbod Exp $
     <xsl:variable name="arm_attr" select="@attribute"/>
     <xsl:variable name="module_dir">
       <xsl:choose>
-        <!-- original_module specified then the ARM object is declared in
-             another module -->
-        <xsl:when test="../@original_module">
-          <xsl:call-template name="module_directory">
-            <xsl:with-param name="module" select="../@original_module"/>
-          </xsl:call-template>
-        </xsl:when>
         <!-- inherited_from_module specified then the ARM object is declared in
              another module -->
         <xsl:when test="@inherited_from_module">
           <xsl:call-template name="module_directory">
             <xsl:with-param name="module" select="@inherited_from_module"/>
+          </xsl:call-template>
+        </xsl:when>
+        <!-- original_module specified then the ARM object is declared in
+             another module -->
+        <xsl:when test="../@original_module">
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="../@original_module"/>
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>

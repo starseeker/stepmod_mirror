@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.72 2003/08/11 16:48:42 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.73 2003/10/22 07:14:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -723,18 +723,18 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 
   <xsl:variable name="module_dir">
     <xsl:choose>
-      <!-- original_module specified then the ARM object is declared in
-           another module -->
-      <xsl:when test="../@original_module">
-        <xsl:call-template name="module_directory">
-          <xsl:with-param name="module" select="../@original_module"/>
-        </xsl:call-template>
-      </xsl:when>
       <!-- inherited_from_module specified then the ARM object is declared in
            another module -->
       <xsl:when test="@inherited_from_module">
         <xsl:call-template name="module_directory">
           <xsl:with-param name="module" select="@inherited_from_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="../@original_module">
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="../@original_module"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -754,18 +754,18 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 
   <xsl:variable name="module_aok">
     <xsl:choose>
-      <!-- original_module specified then the ARM object is declared in
-           another module -->
-      <xsl:when test="../@original_module">
-        <xsl:call-template name="check_module_exists">
-          <xsl:with-param name="module" select="../@original_module"/>
-        </xsl:call-template>
-      </xsl:when>
       <!-- inherited_from_module specified then the ARM object is declared in
            another module -->
       <xsl:when test="@inherited_from_module">
         <xsl:call-template name="check_module_exists">
           <xsl:with-param name="module" select="@inherited_from_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="../@original_module">
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="../@original_module"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>

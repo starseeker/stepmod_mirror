@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: resdoc_index.xsl,v 1.4 2002/10/17 19:21:56 thendrix Exp $
+     $Id: resdoc_index.xsl,v 1.5 2002/10/17 22:59:53 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -83,19 +83,24 @@
         </tr>
       </table>
       <p>      
+      <!--
       <font size="-1">
       NB This is a test page. Contents may not be up-to-date and links may not always work. The repository can be found  at <a href="repository_index{$FILE_EXT}">
         <xsl:value-of select="concat('repository_index',$FILE_EXT)"/> </a>
     </font>
+    -->
   </p>
-      <font size="-1">
-        An improved navigation facility is under development.<br/>
-      The prototype is available at: 
-      <a href="nav/index{$FILE_EXT}">
-        <xsl:value-of select="concat('nav/index',$FILE_EXT)"/>        
-      </a>
-    </font>
-
+  <font size="-1">
+  <b>
+    This page has been deprecated. 
+    <br/>
+    It has been replaced by a significantly improved navigation facility available at: 
+    <br/>
+    <a href="nav/index{$FILE_EXT}">
+      <xsl:value-of select="concat('./nav/index',$FILE_EXT)"/>        
+    </a>
+  </b>
+</font>
       <xsl:variable name="module_mid_point"
         select="(count(./modules/module)+1) div 2"/>
 

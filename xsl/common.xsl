@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.13 2001/12/28 16:03:36 robbod Exp $
+$Id: common.xsl,v 1.14 2002/01/03 09:29:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -411,11 +411,37 @@ $Id: common.xsl,v 1.13 2001/12/28 16:03:36 robbod Exp $
   </li>
 </xsl:template>
 
+<!-- 
+     A definition list
+     -->
+<xsl:template match="dl">
+  <dl>
+    <xsl:apply-templates/>
+  </dl>
+</xsl:template>
+
+<!-- 
+     A definition term
+     -->
+<xsl:template match="dt">
+  <dt>
+    <xsl:apply-templates/>
+  </dt>
+</xsl:template>
+
+<!-- 
+     A definition desription
+     -->
+<xsl:template match="dd">
+  <dd>
+    <xsl:apply-templates/>
+  </dd>
+</xsl:template>
 
 <!-- 
      A paragraph
      -->
-<xsl:template match="p" >
+<xsl:template match="p">
   <!-- if a paragraph is specified immediately after NOTE of EXAMPLE, then
        ignore it
        -->
@@ -430,6 +456,21 @@ $Id: common.xsl,v 1.13 2001/12/28 16:03:36 robbod Exp $
     </xsl:otherwise>
   </xsl:choose>  
 </xsl:template>
+
+<!-- subscript -->
+<xsl:template match="sub" >
+  <sub>
+    <xsl:apply-templates/>
+  </sub>
+</xsl:template>
+
+<!-- superscript -->
+<xsl:template match="sup" >
+  <sup>
+    <xsl:apply-templates/>
+  </sup>
+</xsl:template>
+
 
 
 <xsl:template match="screen" >

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.119 2003/10/08 08:16:28 robbod Exp $
+$Id: common.xsl,v 1.120 2003/10/09 06:49:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1302,7 +1302,7 @@ $Id: common.xsl,v 1.119 2003/10/08 08:16:28 robbod Exp $
                     '# is incorrectly specified.')"/>
         </xsl:call-template>
         <xsl:choose>
-          <xsl:when test="string-length(.)>0">
+          <xsl:when test="string-length(normalize-space(.))>0">
             <b><xsl:apply-templates/></b>
           </xsl:when>
           <xsl:otherwise>
@@ -1312,7 +1312,7 @@ $Id: common.xsl,v 1.119 2003/10/08 08:16:28 robbod Exp $
       </xsl:when>
       <xsl:otherwise>
         <xsl:choose>
-          <xsl:when test="string-length(.)>0">
+          <xsl:when test="string-length(normalize-space(.))>0">
             <a href="{$href}"><b><xsl:apply-templates/></b></a>
           </xsl:when>
           <xsl:otherwise>

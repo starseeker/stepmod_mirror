@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.4 2003/05/28 09:27:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output section 4 Information model as a web page
@@ -30,9 +30,7 @@ $Id: sect_4_info_reqs.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
     
     <!-- global variable - Used by templates in expressg_icon.xsl to
          resolve href for expressg icon -->
-    <xsl:variable name="mim_expressg">
-      <xsl:call-template name="make_mim_expressg_node_set"/>
-    </xsl:variable>
+    <xsl:variable name="mim_expressg"/>
 
 
 <!-- overwrites the template declared in module.xsl -->

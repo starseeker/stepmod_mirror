@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mim.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_5_mim.xsl,v 1.5 2003/05/28 09:27:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -12,21 +12,19 @@ $Id: sect_5_mim.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
                 version="1.0">
 
   <xsl:import href="module.xsl"/>
-  <xsl:import href="expressg_icon.xsl"/> 
-
   <!-- 
        the stylesheet that allows different stylesheets to be applied 
        -->
   <xsl:import href="module_clause.xsl"/>
+  <xsl:import href="expressg_icon.xsl"/> 
+
 
 
   <xsl:output method="html"/>
 
     <!-- global variable - Used by templates in expressg_icon.xsl to
          resolve href for expressg icon -->
-    <xsl:variable name="arm_expressg">
-      <xsl:call-template name="make_arm_expressg_node_set"/>
-    </xsl:variable>
+    <xsl:variable name="arm_expressg"/>
     
     <!-- global variable - Used by templates in expressg_icon.xsl to
          resolve href for expressg icon -->

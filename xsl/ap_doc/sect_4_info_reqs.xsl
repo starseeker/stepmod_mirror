@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.19 2003/08/11 16:48:03 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.20 2004/02/05 17:51:07 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -66,9 +66,9 @@ $Id: sect_4_info_reqs.xsl,v 1.19 2003/08/11 16:48:03 robbod Exp $
     <xsl:variable name="annex_aam" select="concat('./annex_aam',$FILE_EXT)"/>
     <p class="note">
       <small>
-        NOTE&#160;1&#160;&#160;The information requirements correspond to those of the activities 
+        NOTE&#160;&#160;The information requirements correspond to those of the activities 
         identified as being within the scope of this application protocol
-        in Annex <a href="{$annex_aam}">E</a>.
+        in Annex <a href="{$annex_aam}">F</a>.
       </small>
     </p>
 

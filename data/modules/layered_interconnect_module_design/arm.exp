@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.30 2005/01/06 14:07:58 liutkus Exp $
+   $Id: arm.exp,v 1.32 2005/01/10 22:09:47 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -638,11 +638,16 @@ USE FROM Basic_curve_arm;
   ENTITY Intra_stratum_join_relationship
     SUBTYPE OF (Join_relationship);
       points_to_be_connected : SET[2:?] OF Layer_connection_point;
+    DERIVE
+      associated_stratum : Design_layer_stratum := points_to_be_connected[1].resident_design_layer_stratum;
     INVERSE
       ordered_implementation : SET[0:1] OF conductor FOR implementation_requirement;
       random_implementation  : SET[0:1] OF connected_filled_area FOR implementation_requirement;
     WHERE
       WR1 : (EXISTS(ordered_implementation)) XOR (EXISTS(random_implementation));
+      WR2 : SIZEOF(QUERY(ptbc <* points_to_be_connected |
+            NOT(ptbc.resident_design_layer_stratum = associated_stratum)
+              )) = 0;
   END_ENTITY;
 
   ENTITY Join_relationship
@@ -675,13 +680,13 @@ USE FROM Basic_curve_arm;
     INVERSE
       padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view; --related_component;      
       footprint_occurrence_assembly : SET[0:1] OF footprint_occurrence_sub_assembly_relationship FOR related_view;
-	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      
+	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      	  
     WHERE
-      WR1 : ((SIZEOF(padstack_occurrence_assembly) = SIZEOF(footprint_occurrence_assembly)) AND (SIZEOF(padstack_occurrence_assembly) = 0) AND (SIZEOF(SELF\Definition_based_product_occurrence.occurrence_contexts) > 0)) OR ((SIZEOF(padstack_occurrence_assembly) <> SIZEOF(footprint_occurrence_assembly)) AND (SIZEOF(SELF\Definition_based_product_occurrence.occurrence_contexts) = 0));
-      -- SEDS 1351
-      WR2 : NOT (SIZEOF(occurrence_contexts) = 0) OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(SELF));
-      WR3 : NOT (SIZEOF(occurrence_contexts) = 0) OR (SIZEOF(SELF\Laminate_component.padstack_occurrence_assembly) + SIZEOF(SELF\Laminate_component.footprint_occurrence_assembly) = 1);
-      WR4 : (SIZEOF(occurrence_contexts) > 0) OR (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(SELF)) AND (SIZEOF(SELF\Laminate_component.padstack_occurrence_assembly) + SIZEOF(SELF\Laminate_component.footprint_occurrence_assembly) = 1));
+      WR1 : SIZEOF(padstack_occurrence_assembly) + SIZEOF(footprint_occurrence_assembly) < 2;
+      WR2 : NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR 
+            	padstack_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1];
+      WR3 : NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR 
+            	footprint_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1];            	
   END_ENTITY;
 
   ENTITY Laminate_component_feature
@@ -840,9 +845,12 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 		SUPERTYPE OF (ONEOF (Default_via_definition,
  			Default_component_termination_passage_definition,
  			Default_unsupported_passage_definition));
+      name                                     : STRING; --ee_name;   			
 	  of_technology						: Passage_technology_parameters;
       associated_definition				: Interconnect_module;
       as_finished_inter_stratum_extent	: Inter_stratum_extent;      
+      UNIQUE
+       UR1 : name, associated_definition;
 	  WHERE
 	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
 	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 

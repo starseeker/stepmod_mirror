@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.21 2003/02/27 01:34:21 thendrix Exp $
+$Id: resource.xsl,v 1.22 2003/03/16 01:26:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -373,11 +373,7 @@ o=isocs; s=central<br/>
     <tr>
     <td valign="TOP" colspan="2" height="88">
       <h3>ABSTRACT:</h3>
-      This document is the
-      <xsl:value-of select="$status_words"/>
-      of the resource for 
-      <xsl:value-of select="$resdoc_name"/>.
-
+      <xsl:apply-templates select="." mode="abstract"/>
       <h3>
         <a name="keywords">
           KEYWORDS:
@@ -494,6 +490,55 @@ o=isocs; s=central<br/>
   </table>
 
 </xsl:template>
+
+<xsl:template match="resource" mode="abstract">
+
+  <xsl:variable name="resdoc_name">
+    <xsl:call-template name="res_display_name">
+      <xsl:with-param name="res" select="./@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="./abstract">
+      <xsl:apply-templates select="./abstract"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <P>
+        This part of ISO 10303 specifies the integrated resource 
+        <xsl:value-of select="$resdoc_name"/>.
+      </P>
+      <P>
+        The following are within the scope of this part of ISO 10303:
+      </P>
+
+      <UL>
+        <xsl:apply-templates select="./inscope/li"/>
+      </UL>
+    </xsl:otherwise>
+  </xsl:choose>
+      
+</xsl:template>
+
+<xsl:template match="abstract">
+  <xsl:variable name="resdoc_name">
+    <xsl:call-template name="res_display_name">
+      <xsl:with-param name="resource" select="/resource/@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
+
+  <P>
+    This part of ISO 10303 specifies the application module for 
+    <xsl:value-of select="$resdoc_name"/>.
+  </P>
+  <P>
+    The following are within the scope of this part of ISO 10303:
+  </P>
+  <UL>
+    <xsl:apply-templates select="./li"/>
+  </UL>  
+</xsl:template>
+
 
 <xsl:template match="keywords">
   <xsl:variable name="keywords1">
@@ -907,7 +952,7 @@ o=isocs; s=central<br/>
 
 
   <xsl:variable name="UPPER"
-    select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    select="'ABCDEFGHIEYLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER"
     select="'abcdefghijklmnopqrstuvwxyz'"/>
   <xsl:variable name="mim_schema"

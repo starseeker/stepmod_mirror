@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
+  description.file="mim_descriptions.xml"
   rcs.date="$Date: $"
-  rcs.revision="$Revision: $"
-    description.file="mim_descriptions.xml">>>
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.9"
+    version="1.25"
     source="../data/modules/product_view_definition/mim.exp"/>
 
   <schema name="Product_view_definition_mim">
@@ -36,6 +36,44 @@
       <interfaced.item
         name="product_definition_context"/>
     </interface>
+
+    <rule
+      name="valid_context_partitions"
+      appliesto="product_definition">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF (pd &lt;* product_definition | initial_context_is_additional(pd)) = 0">
+      </where>
+
+    </rule>
+
+    <function
+      name="initial_context_is_additional">
+      <parameter
+        name="pd">
+        <typename
+          name="product_definition"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+LOCAL
+  initial_context: product_definition_context;
+  context_associations: SET OF product_definition_context_association;
+END_LOCAL;
+
+initial_context := pd.frame_of_reference;
+context_associations := QUERY(pdca &lt;* USEDIN(pd, 
+'PRODUCT_VIEW_DEFINITION_MIM.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION')|
+(pdca.role.name='additional context') AND (pdca.frame_of_reference :=: initial_context));
+
+RETURN (SIZEOF(context_associations) &gt; 0);
+      </algorithm>
+
+    </function>
 
   </schema>
 

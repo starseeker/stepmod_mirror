@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-26T18:20:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-01T11:09:02" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_arm schema_instance"/>
    <schema name="Assembly_technology_arm">
       <interface kind="use" schema="Pdm_material_aspects_arm"/>
@@ -14,40 +14,24 @@
       <interface kind="use" schema="Product_identification_extension_arm">
          <interfaced.item name="Externally_defined_ee_product_definition"/>
       </interface>
-      <type name="degree_of_freedom">
-         <enumeration items="x y z u v w"/>
-      </type>
       <type name="at_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Assembly_bond_definition"/>
       </type>
-      <entity name="Connection_zone_based_assembly_joint" supertypes="Assembly_joint">
-         <explicit name="zone_2">
-            <typename name="Connection_zone_in_design_view"/>
+      <type name="degree_of_freedom">
+         <enumeration items="x y z u v w"/>
+      </type>
+      <entity name="Assembled_with_bonding" supertypes="Assembly_joint">
+         <explicit name="default_bond_definition">
+            <typename name="Assembly_bond_definition"/>
          </explicit>
-         <explicit name="zone_1">
-            <typename name="Connection_zone_in_design_view"/>
-         </explicit>
-         <where label="WR1" expression=" zone_1 :&lt;&gt;: zone_2 "/>
+         <where label="Wr2" expression=" SELF \ assembly_joint . assembly_features_2 . definition :=: default_bond_definition . bonded_feature_2 "/>
+         <where label="Wr1" expression=" SELF \ assembly_joint . assembly_features_1 . definition :=: default_bond_definition . bonded_feature_1 "/>
       </entity>
-      <entity name="Component_mating_constraint_condition">
-         <explicit name="name">
-            <builtintype type="STRING"/>
+      <entity name="Assembled_with_fasteners" supertypes="Assembly_joint">
+         <explicit name="associated_assembly">
+            <typename name="Assembly_group_component"/>
+            <redeclaration entity-ref="Assembly_joint" old_name="associated_assembly"/>
          </explicit>
-         <explicit name="of_context">
-            <typename name="Part_design_view"/>
-         </explicit>
-         <explicit name="constrained_degree_of_freedom">
-            <aggregate type="SET" lower="1" upper="5"/>
-            <typename name="degree_of_freedom"/>
-         </explicit>
-         <explicit name="constraining_joint">
-            <aggregate type="SET" lower="1" upper="3"/>
-            <typename name="Assembly_joint"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Component_mating_constraint_condition" attribute="name"/>
-            <unique.attribute entity-ref="Component_mating_constraint_condition" attribute="of_context"/>
-         </unique>
       </entity>
       <entity name="Assembly_bond_definition">
          <explicit name="name">
@@ -73,23 +57,10 @@
          <inverse name="default_shape" entity="Default_assembly_bond_shape" attribute="characterized_bond_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <unique label="ur1">
+         <unique label="Ur1">
             <unique.attribute entity-ref="Assembly_bond_definition" attribute="name"/>
          </unique>
-         <where label="wr1" expression=" bonded_feature_1 &lt;&gt; bonded_feature_2 "/>
-      </entity>
-      <entity name="Assembled_with_bonding" supertypes="Assembly_joint">
-         <explicit name="default_bond_definition">
-            <typename name="Assembly_bond_definition"/>
-         </explicit>
-         <where label="WR2" expression=" SELF \ assembly_joint . assembly_features_2 . definition :=: default_bond_definition . bonded_feature_2 "/>
-         <where label="WR1" expression=" SELF \ assembly_joint . assembly_features_1 . definition :=: default_bond_definition . bonded_feature_1 "/>
-      </entity>
-      <entity name="Assembled_with_fasteners" supertypes="Assembly_joint">
-         <explicit name="associated_assembly">
-            <typename name="Assembly_group_component"/>
-            <redeclaration entity-ref="Assembly_joint" old_name="associated_assembly"/>
-         </explicit>
+         <where label="Wr1" expression=" bonded_feature_1 &lt;&gt; bonded_feature_2 "/>
       </entity>
       <entity name="Assembly_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding">
          <explicit name="name">
@@ -107,22 +78,51 @@
          <explicit name="assembly_features_1">
             <typename name="assembled_feature_select"/>
          </explicit>
-         <unique label="UR1">
+         <unique label="Ur1">
             <unique.attribute entity-ref="Assembly_joint" attribute="name"/>
             <unique.attribute entity-ref="Assembly_joint" attribute="associated_assembly"/>
          </unique>
-         <where label="WR3" expression=" ( 'AP210_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF ( SELF ) ) OR ( ( 'AP210_ARM.COMPONENT_FEATURE' IN TYPEOF ( assembly_features_2 ) ) AND ( SIZEOF ( QUERY ( ay &lt;* assembly_features_2 \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
-         <where label="WR2" expression=" ( 'AP210_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF ( SELF ) ) OR ( ( 'AP210_ARM.COMPONENT_FEATURE' IN TYPEOF ( assembly_features_1 ) ) AND ( SIZEOF ( QUERY ( ay &lt;* assembly_features_1 \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
-         <where label="WR1" expression=" assembly_features_1 :&lt;&gt;: assembly_features_2 "/>
+         <where label="Wr3" expression=" ( 'AP210_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF ( SELF ) ) OR ( ( 'AP210_ARM.COMPONENT_FEATURE' IN TYPEOF ( assembly_features_2 ) ) AND ( SIZEOF ( QUERY ( ay &lt;* assembly_features_2 \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
+         <where label="Wr2" expression=" ( 'AP210_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF ( SELF ) ) OR ( ( 'AP210_ARM.COMPONENT_FEATURE' IN TYPEOF ( assembly_features_1 ) ) AND ( SIZEOF ( QUERY ( ay &lt;* assembly_features_1 \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
+         <where label="Wr1" expression=" assembly_features_1 :&lt;&gt;: assembly_features_2 "/>
       </entity>
       <entity name="Assembly_technology_specification" supertypes="Process_specification"/>
+      <entity name="Component_mating_constraint_condition">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="of_context">
+            <typename name="Part_design_view"/>
+         </explicit>
+         <explicit name="constrained_degree_of_freedom">
+            <aggregate type="SET" lower="1" upper="5"/>
+            <typename name="degree_of_freedom"/>
+         </explicit>
+         <explicit name="constraining_joint">
+            <aggregate type="SET" lower="1" upper="3"/>
+            <typename name="Assembly_joint"/>
+         </explicit>
+         <unique label="Ur1">
+            <unique.attribute entity-ref="Component_mating_constraint_condition" attribute="name"/>
+            <unique.attribute entity-ref="Component_mating_constraint_condition" attribute="of_context"/>
+         </unique>
+      </entity>
+      <entity name="Connection_zone_based_assembly_joint" supertypes="Assembly_joint">
+         <explicit name="zone_2">
+            <typename name="Connection_zone_in_design_view"/>
+         </explicit>
+         <explicit name="zone_1">
+            <typename name="Connection_zone_in_design_view"/>
+         </explicit>
+         <where label="Wr1" expression=" zone_1 :&lt;&gt;: zone_2 "/>
+      </entity>
       <entity name="Default_assembly_bond_shape" supertypes="Feature_shape_definition">
          <explicit name="characterized_bond_definition">
             <typename name="Assembly_bond_definition"/>
          </explicit>
       </entity>
       <entity name="Reference_packaged_part_assembly_implementation" supertypes="Assembly_module">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ product_view_definition . defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | NOT ( SIZEOF ( QUERY ( epcr &lt;* USEDIN ( prpc , 'AP210_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY' ) | ( epcr . sub_category \ product_category . name = 'template model' ) ) ) = 1 ) ) ) = 0 "/>
+         <where label="Wr1" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ product_view_definition . defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | NOT ( SIZEOF ( QUERY ( epcr &lt;* USEDIN ( prpc , 'AP210_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY' ) | ( epcr . sub_category \ product_category . name = 'template model' ) ) ) = 1 ) ) ) = 0 "/>
       </entity>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-26T18:16:45" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-01T11:09:01" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_functional_interface_requirement_arm schema_instance"/>
    <schema name="Assembly_functional_interface_requirement_arm">
       <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
@@ -21,6 +21,35 @@
          <explicit name="interface_to_next_higher_assembly" optional="YES">
             <typename name="Next_higher_assembly_interface_requirement"/>
          </explicit>
+      </entity>
+      <entity name="Mating_connector_termination">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="accessed_connector">
+            <typename name="Mating_connector_component"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="mating_connector_definition_select"/>
+         </explicit>
+         <unique label="Ur1">
+            <unique.attribute entity-ref="Mating_connector_termination" attribute="definition"/>
+            <unique.attribute entity-ref="Mating_connector_termination" attribute="accessed_connector"/>
+         </unique>
+      </entity>
+      <entity name="Minimally_defined_connector" supertypes="Packaged_part">
+         <explicit name="used_package">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Package_external_reference"/>
+            <redeclaration entity-ref="Packaged_part" old_name="used_package"/>
+         </explicit>
+         <inverse name="terminal" entity="Shape_element" attribute="containing_shape">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
+         <where label="Wr4" expression=" NOT ( 'AP210_ARM.ALTERED_PACKAGED_PART' IN TYPEOF ( SELF ) ) "/>
+         <where label="Wr3" expression=" NOT EXISTS ( SELF \ packaged_part . potting_compound ) "/>
+         <where label="Wr2" expression=" NOT EXISTS ( SELF \ packaged_part . implemented_function ) "/>
+         <where label="Wr1" expression=" SIZEOF ( QUERY ( t &lt;* SELF \ packaged_part . access_mechanisms | ( 'AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF ( t ) ) ) ) &gt;= 0 "/>
       </entity>
       <entity name="Protocol_physical_layer_definition" supertypes="Product_view_definition">
          <explicit name="media_functional_definition" optional="YES">
@@ -48,9 +77,9 @@
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Document_definition"/>
          </derived>
-         <where label="WR3" expression=" EXISTS ( host_functional_definition ) OR EXISTS ( media_functional_definition ) "/>
-         <where label="WR2" expression=" SIZEOF ( SELF \ product_view_definition . documentation ) = 1 "/>
-         <where label="WR1" expression=" EXISTS ( SELF \ product_view_definition . documentation ) "/>
+         <where label="Wr3" expression=" EXISTS ( host_functional_definition ) OR EXISTS ( media_functional_definition ) "/>
+         <where label="Wr2" expression=" SIZEOF ( SELF \ product_view_definition . documentation ) = 1 "/>
+         <where label="Wr1" expression=" EXISTS ( SELF \ product_view_definition . documentation ) "/>
       </entity>
       <entity name="Protocol_requirement_allocation_to_part_terminal" supertypes="Requirement_assignment">
          <explicit name="protocol_signal">
@@ -64,37 +93,8 @@
             <typename name="Part_terminal"/>
             <redeclaration entity-ref="Requirement_assignment" old_name="assigned_to"/>
          </explicit>
-         <where label="WR2" expression=" protocol_signal IN SELF \ requirement_assignment . assigned_requirement . reference_protocol . host_functional_definition \ functional_unit_usage_view . access_mechanism "/>
-         <where label="WR1" expression=" EXISTS ( SELF \ requirement_assignment . assigned_requirement . reference_protocol ) "/>
-      </entity>
-      <entity name="Mating_connector_termination">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="accessed_connector">
-            <typename name="Mating_connector_component"/>
-         </explicit>
-         <explicit name="definition">
-            <typename name="mating_connector_definition_select"/>
-         </explicit>
-         <unique label="ur1">
-            <unique.attribute entity-ref="Mating_connector_termination" attribute="definition"/>
-            <unique.attribute entity-ref="Mating_connector_termination" attribute="accessed_connector"/>
-         </unique>
-      </entity>
-      <entity name="Minimally_defined_connector" supertypes="Packaged_part">
-         <explicit name="used_package">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Package_external_reference"/>
-            <redeclaration entity-ref="Packaged_part" old_name="used_package"/>
-         </explicit>
-         <inverse name="terminal" entity="Shape_element" attribute="containing_shape">
-            <inverse.aggregate type="SET" lower="1"/>
-         </inverse>
-         <where label="WR4" expression=" NOT ( 'AP210_ARM.ALTERED_PACKAGED_PART' IN TYPEOF ( SELF ) ) "/>
-         <where label="WR3" expression=" NOT EXISTS ( SELF \ packaged_part . potting_compound ) "/>
-         <where label="WR2" expression=" NOT EXISTS ( SELF \ packaged_part . implemented_function ) "/>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( t &lt;* SELF \ packaged_part . access_mechanisms | ( 'AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF ( t ) ) ) ) &gt;= 0 "/>
+         <where label="Wr2" expression=" protocol_signal IN SELF \ requirement_assignment . assigned_requirement . reference_protocol . host_functional_definition \ functional_unit_usage_view . access_mechanism "/>
+         <where label="Wr1" expression=" EXISTS ( SELF \ requirement_assignment . assigned_requirement . reference_protocol ) "/>
       </entity>
       <entity name="Termination_constraint">
          <explicit name="constrained_termination">

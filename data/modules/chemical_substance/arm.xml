@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-26T18:21:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-01T11:09:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="chemical_substance_arm schema_instance"/>
    <schema name="Chemical_substance_arm">
       <interface kind="use" schema="Value_with_unit_arm"/>
@@ -19,19 +19,16 @@
       <type name="substance_composition_basis">
          <enumeration extensible="YES" items="VOLUME WEIGHT MOLES ATOMS"/>
       </type>
-      <entity name="Substance" supertypes="Product" super.expression="ONEOF (Chemical_element, Chemical_compound, Physical_particle)">
-         <where label="wr1" expression=" SIZEOF ( [ 'substance' ] * types_of_product ( SELF ) ) = 1 "/>
+      <entity name="Chemical_compound" supertypes="Substance">
+         <where label="Wr2" expression=" SIZEOF ( QUERY ( t &lt;* SELF \ organization_or_person_in_organization_assignment . items | t . role = 'id owner' ) = 1 ) "/>
+         <where label="Wr1" expression=" SIZEOF ( [ 'chemical compound' ] * types_of_product ( SELF ) ) = 1 "/>
       </entity>
       <entity name="Chemical_element" supertypes="Substance">
-         <where label="wr2" expression=" SELF / product . name in chemical_elements "/>
-         <where label="wr1" expression=" SIZEOF ( [ 'chemical element' ] * types_of_product ( SELF ) ) = 1 "/>
-      </entity>
-      <entity name="Chemical_compound" supertypes="Substance">
-         <where label="WR2" expression=" SIZEOF ( QUERY ( t &lt;* SELF \ organization_or_person_in_organization_assignment . items | t . role = 'id owner' ) = 1 ) "/>
-         <where label="WR1" expression=" SIZEOF ( [ 'chemical compound' ] * types_of_product ( SELF ) ) = 1 "/>
+         <where label="Wr2" expression=" SELF / product . name in chemical_elements "/>
+         <where label="Wr1" expression=" SIZEOF ( [ 'chemical element' ] * types_of_product ( SELF ) ) = 1 "/>
       </entity>
       <entity name="Physical_particle" supertypes="Substance">
-         <where label="WR1" expression=" SIZEOF ( [ 'physical particle' ] * types_of_product ( SELF ) ) = 1 "/>
+         <where label="Wr1" expression=" SIZEOF ( [ 'physical particle' ] * types_of_product ( SELF ) ) = 1 "/>
       </entity>
       <entity name="Raw_material_definition_relationship" supertypes="View_definition_relationship">
          <explicit name="definition">
@@ -43,17 +40,8 @@
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
       </entity>
-      <entity name="Substance_version" supertypes="Product_version">
-         <explicit name="of_product">
-            <typename name="Substance"/>
-            <redeclaration entity-ref="Product_version" old_name="of_product"/>
-         </explicit>
-      </entity>
-      <entity name="Substance_view_definition" supertypes="Product_view_definition">
-         <explicit name="defined_version">
-            <typename name="Substance_version"/>
-            <redeclaration entity-ref="Product_view_definition" old_name="defined_version"/>
-         </explicit>
+      <entity name="Substance" supertypes="Product" super.expression="ONEOF (Chemical_element, Chemical_compound, Physical_particle)">
+         <where label="Wr1" expression=" SIZEOF ( [ 'substance' ] * types_of_product ( SELF ) ) = 1 "/>
       </entity>
       <entity name="Substance_composition_relationship" supertypes="View_definition_relationship">
          <explicit name="amount">
@@ -73,6 +61,18 @@
          <explicit name="constituent">
             <typename name="Substance"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         </explicit>
+      </entity>
+      <entity name="Substance_version" supertypes="Product_version">
+         <explicit name="of_product">
+            <typename name="Substance"/>
+            <redeclaration entity-ref="Product_version" old_name="of_product"/>
+         </explicit>
+      </entity>
+      <entity name="Substance_view_definition" supertypes="Product_view_definition">
+         <explicit name="defined_version">
+            <typename name="Substance_version"/>
+            <redeclaration entity-ref="Product_view_definition" old_name="defined_version"/>
          </explicit>
       </entity>
    </schema>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.17 2003/06/16 16:59:57 robbod Exp $
+$Id: ballot_summary.xsl,v 1.18 2003/06/20 09:41:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -108,14 +108,23 @@ $Id: ballot_summary.xsl,v 1.17 2003/06/16 16:59:57 robbod Exp $
         </tr>
       </table>
       <hr/>
-      <xsl:apply-templates select="./ballot_package/ap_doc[1]" mode="table"/>
-      <xsl:apply-templates select="./ballot_package/module[1]" mode="table"/>
-      <xsl:apply-templates select="./ballot_package/resource[1]" mode="table"/>
+      <xsl:if test="./ballot_package/module">
+        <xsl:call-template name="module_table_hdr"/>
+      </xsl:if>
+
+      <xsl:if test="./ballot_package/ap_doc">
+        <xsl:call-template name="ap_doc_table_hdr"/>
+      </xsl:if>
+
+      <xsl:if test="./ballot_package/resource">
+        <xsl:call-template name="resource_table_hdr"/>
+      </xsl:if>
+
     </body>
   </HTML>
 </xsl:template>
 
-<xsl:template match="ap_doc" mode="table">
+<xsl:template name="ap_doc_table_hdr">
   <p/>
   <table border="1">
     <tr>
@@ -246,7 +255,7 @@ $Id: ballot_summary.xsl,v 1.17 2003/06/16 16:59:57 robbod Exp $
 </xsl:template>
 
 
-<xsl:template match="resource" mode="table">
+<xsl:template name="resource_table_hdr">
   <p/>
   <table border="1">
     <tr>
@@ -390,7 +399,7 @@ $Id: ballot_summary.xsl,v 1.17 2003/06/16 16:59:57 robbod Exp $
 </xsl:template>
 
 
-<xsl:template match="module" mode="table">
+<xsl:template name="module_table_hdr">
   <p/>
   <table border="1">
     <tr>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.125 2003/02/11 13:25:11 robbod Exp $
+$Id: module.xsl,v 1.126 2003/02/24 10:47:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1475,10 +1475,21 @@ o=isocs; s=central<br/>
 <xsl:template match="uof" mode="uof_toc">
   <h3>
     <xsl:variable name="name" select="concat('uof',@name)"/>
-    <a name="{$name}">
-      <xsl:value-of select="concat('4.1.',position(),' ',@name)"/>
-    </a>
+    <!-- only number section if more than one UOF -->
+    <xsl:choose>
+      <xsl:when test="count(../uof) > 1 ">
+        <a name="{$name}">
+          <xsl:value-of select="concat('4.1.',position(),' ',@name)"/>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <a name="{$name}">
+          <xsl:value-of select="@name"/>
+        </a>        
+      </xsl:otherwise>
+    </xsl:choose>
   </h3>
+
   <!-- The <xsl:value-of select="@name"/> UoF specifies -->
   <xsl:choose>
     <xsl:when test="string-length(./description) > 0">

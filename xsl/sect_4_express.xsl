@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.83 2003/02/21 09:05:26 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.84 2003/02/27 15:55:16 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -517,9 +517,19 @@
     </xsl:call-template>
   </xsl:variable>    
   <h3>
-    <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
-    </A>
+    <!-- only number section if more than one constant -->
+    <xsl:choose>
+      <xsl:when test="count(../constant) > 1 ">
+        <a name="{$aname}">
+          <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <a name="{$aname}">
+          <xsl:value-of select="@name"/>
+        </a>
+      </xsl:otherwise>
+    </xsl:choose>
   </h3>
 
   <!-- output description from express --> 
@@ -644,12 +654,26 @@
     </xsl:call-template>
   </xsl:variable>   
 
-  <h3>
-    <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
-    </A>
-    <xsl:apply-templates select="." mode="expressg_icon"/>
-  </h3>
+
+  <!-- only number section if more than one type -->
+  <xsl:choose>
+    <xsl:when test="count(../type) > 1 ">
+      <h3>
+        <a name="{$aname}">
+          <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
+        </a>
+        <xsl:apply-templates select="." mode="expressg_icon"/>
+      </h3>      
+    </xsl:when>
+    <xsl:otherwise>
+      <h3>
+        <a name="{$aname}">
+          <xsl:value-of select="@name"/>
+        </a>
+        <xsl:apply-templates select="." mode="expressg_icon"/>
+      </h3>      
+    </xsl:otherwise>
+  </xsl:choose>
 
   <xsl:call-template name="check_type_name">
     <xsl:with-param name="type_name" select="@name"/>
@@ -952,9 +976,19 @@
   </xsl:variable>
 
   <h3>
-    <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
-    </A>
+    <!-- only number section if more than one entity -->
+    <xsl:choose>
+      <xsl:when test="count(../entity) > 1 ">
+        <a name="{$aname}">
+          <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <a name="{$aname}">
+          <xsl:value-of select="@name"/>
+        </a>        
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates select="." mode="expressg_icon"/>
     <xsl:if test="substring($schema_name, string-length($schema_name)-3)='_arm'">
 
@@ -1600,12 +1634,23 @@
       <xsl:with-param name="section2" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-             
+
   <h3>
-    <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
-    </A>
-    <xsl:apply-templates select="." mode="expressg_icon"/>
+  <!-- only number section if more than one sub type constraint -->
+  <xsl:choose>
+    <xsl:when test="count(../subtype.constraint) > 1 ">      
+      <A NAME="{$aname}">
+        <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+      </A>
+    </xsl:when>
+    <xsl:otherwise>
+      <A NAME="{$aname}">
+        <xsl:value-of select="@name"/>
+      </A>
+    </xsl:otherwise>
+  </xsl:choose>
+
+  <xsl:apply-templates select="." mode="expressg_icon"/>
 
     <xsl:if test="substring($schema_name, string-length($schema_name)-3)='_arm'">
       <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
@@ -1619,6 +1664,8 @@
           alt="Mapping table" src="../../../../images/mapping.gif"/></a>
     </xsl:if>
   </h3>
+
+
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>

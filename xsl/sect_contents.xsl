@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.15 2003/02/12 12:08:34 robbod Exp $
+$Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -651,6 +651,35 @@ $Id: sect_contents.xsl,v 1.15 2003/02/12 12:08:34 robbod Exp $
 </xsl:template>
 
 
+<xsl:template match="constant" mode="count">
+  <xsl:value-of select="count(../constant)"/>
+</xsl:template>
+
+<xsl:template match="type" mode="count">
+  <xsl:value-of select="count(../type)"/>
+</xsl:template>
+
+<xsl:template match="entity" mode="count">
+  <xsl:value-of select="count(../entity)"/>
+</xsl:template>
+
+<xsl:template match="subtype.constraint" mode="count">
+  <xsl:value-of select="count(../subtype.constraint)"/>
+</xsl:template>
+
+<xsl:template match="rule" mode="count">
+  <xsl:value-of select="count(../rule)"/>
+</xsl:template>
+
+<xsl:template match="procedure" mode="count">
+  <xsl:value-of select="count(../procedure)"/>
+</xsl:template>
+
+<xsl:template match="function" mode="count">
+  <xsl:value-of select="count(../function)"/>
+</xsl:template>
+
+
 <xsl:template match="constant|type|entity|subtype.constraint|rule|procedure|function" 
   mode="contents">
   <xsl:variable name="node_type" select="name(.)"/>
@@ -680,11 +709,24 @@ $Id: sect_contents.xsl,v 1.15 2003/02/12 12:08:34 robbod Exp $
     </xsl:choose>
   </xsl:variable>
   
+  <xsl:variable name="no_nodes">
+    <xsl:apply-templates select="." mode="count"/>
+  </xsl:variable>
+
   <p class="content">
     &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-    <A HREF="{$xref}">
-      <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
-    </A>
+    <xsl:choose>
+      <xsl:when test="$no_nodes > 1">
+        <a href="{$xref}">
+          <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <a href="{$xref}">
+          <xsl:value-of select="@name"/>
+        </a>
+      </xsl:otherwise>
+    </xsl:choose>
   </p>
 </xsl:template>
 

@@ -576,15 +576,13 @@
 				<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
 					<xs:complexContent>
 						<xs:extension base="ex:Entity">
-							<xsl:if test="./explicit">
-								<xs:all>
-									<xsl:call-template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
-										<xsl:with-param name="raw_entity_param" select="$raw_entity_name_param"/>
-										<xsl:with-param name="redeclared_attributes_param" select="string(' ')"/>
-									</xsl:call-template>
-									<xsl:apply-templates select="explicit"/>
-								</xs:all>
-							</xsl:if>
+							<xs:all>
+								<xsl:call-template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
+									<xsl:with-param name="raw_entity_param" select="$raw_entity_name_param"/>
+									<xsl:with-param name="redeclared_attributes_param" select="string(' ')"/>
+								</xsl:call-template>
+								<xsl:apply-templates select="explicit"/>
+							</xs:all>
 						</xs:extension>
 					</xs:complexContent>
 				</xs:complexType>
@@ -1085,7 +1083,6 @@
 	<xsl:template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
 		<xsl:param name="raw_entity_param"/>
 		<xsl:param name="redeclared_attributes_param"/>
-		
 		<xsl:variable name="next_supertype_name" select="//entity[@name=$raw_entity_param]/@supertypes"/>
 		
 		<!-- xsl:variable name="new_list_of_redeclared_attributes">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.12 2004/01/29 23:55:26 thendrix Exp $
+$Id: common.xsl,v 1.13 2004/02/10 23:47:54 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -671,6 +671,22 @@ $Id: common.xsl,v 1.12 2004/01/29 23:55:26 thendrix Exp $
     <xsl:apply-templates/>
   </dd>
 </xsl:template>
+
+
+<!-- 
+     flag an error if a paragraph contains another <p> or <ul> or <screen>
+     as these will lead to invalid HTML -->
+<xsl:template match="p|P" mode="check_html">
+  <xsl:if test="./child::*[name()='p' or name()='ul' or name='screen']">
+    <xsl:call-template name="error_message">
+      <xsl:with-param 
+        name="message" 
+        select="'Error HTM1: A paragraph should not enclose a &lt;p&gt; or &lt;ul&gt; or &lt;screen&gt;. Close the &lt;p&gt; first'"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+
 
 <!--
      A paragraph

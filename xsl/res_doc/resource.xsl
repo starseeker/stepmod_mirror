@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: resource.xsl,v 1.2 2002/10/19 00:44:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -987,6 +987,81 @@ o=isocs; s=central<br/>
     </xsl:choose>    
   </td>
 </xsl:template>
+
+<xsl:template match="resource" mode="annexd">
+  <xsl:call-template name="annex_header">
+    <xsl:with-param name="annex_no" select="'D'"/>
+    <xsl:with-param name="heading" 
+      select="'EXPRESS-G diagrams'"/>
+    <xsl:with-param name="aname" select="'annexd'"/>
+  </xsl:call-template>
+
+  <p>
+The diagrams in this annex correspond to the EXPRESS schemas specified in this part of ISO 10303.
+The diagrams use the EXPRESS-G graphical notation for the EXPRESS language. EXPRESS-G is
+defined in annex D of ISO 10303-11.
+  </p>
+  <div align="center">
+    <a name="table_d1">
+      <b>
+            Table D.1 &#8212; EXPRESS listings
+      </b>
+    </a>
+  </div>
+
+  <br/>
+
+  <div align="center">
+    <table border="1" cellspacing="1">
+
+      <xsl:for-each select="./schema/express-g/imgfile" >
+        <xsl:variable name="schema">
+          <xsl:value-of 
+            select="substring-before(@file,'expg')"/>
+        </xsl:variable>
+        <xsl:variable name="ldiagno">
+          <xsl:value-of select="substring-after(@file,'expg')"/>       
+        </xsl:variable>
+        <xsl:variable name="diagno">
+          <xsl:value-of select="substring-before($ldiagno,'.xml')"/>
+        </xsl:variable>
+
+        <xsl:variable name="clauseno">
+          <xsl:value-of select="position()"/>
+        </xsl:variable>
+
+        <xsl:variable name="resource_dir">
+          <xsl:call-template name="resource_directory">
+            <xsl:with-param name="resource" select="$schema"/>
+          </xsl:call-template>
+        </xsl:variable>
+
+        <xsl:variable name="expg_path" select="concat('../../../../..',$resource_dir,'/',$schema,'expg',$diagno)"/>
+
+        <xsl:variable name="schema_url">
+          <xsl:choose>
+            <xsl:when test="$FILE_EXT='.xml'">
+              <xsl:value-of select="concat($expg_path,'.xml')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($expg_path,'.htm')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+
+       <tr>
+        <td>
+          <a href="{$schema_url}">
+            <xsl:value-of select="concat('Figure D.',$clauseno,' Entity level diagram of ', $schema)"/>
+          </a>
+        </td>
+      </tr>
+    </xsl:for-each>
+
+    </table>
+  </div>
+</xsl:template>
+
 
 
 <xsl:template match="schema">

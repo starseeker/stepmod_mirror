@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.68 2002/06/07 08:22:51 robbod Exp $
+$Id: module.xsl,v 1.69 2002/06/07 15:32:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -54,7 +54,7 @@ $Id: module.xsl,v 1.68 2002/06/07 08:22:51 robbod Exp $
 
 
 <!-- test the WG number. 
-     return a tring containing Error if incorrect
+     return a string containing Error if incorrect
      
      -->
 <xsl:template name="test_wg_number">
@@ -256,7 +256,7 @@ $Id: module.xsl,v 1.68 2002/06/07 08:22:51 robbod Exp $
               ISO's member body in the country of the requestor 
             </p>
             <p>
-              <center>
+              <div align="center">
                 Copyright Manager<br/>
                 ANSI<br/>
                 11 West 42nd Street<br/>
@@ -264,7 +264,7 @@ $Id: module.xsl,v 1.68 2002/06/07 08:22:51 robbod Exp $
                 USA<br/>
                 phone: +1-212-642-4900<br/>
                 fax: +1-212-398-0023<br/>
-              </center>
+              </div>
             </p>
             <p>
               Reproduction for sales purposes may be subject to royalty
@@ -292,7 +292,7 @@ $Id: module.xsl,v 1.68 2002/06/07 08:22:51 robbod Exp $
               country of the requester:
             </p>
             <p>
-            <center>
+            <div align="center">
               <!--
               Copyright Manager, ISO Central Secretariat<br/>
               1 rue de Varembe<br/>
@@ -309,7 +309,7 @@ o=isocs; s=central<br/>
               E-mail copyright@iso.ch<br/>
  
 
-            </center>
+            </div>
           </p>
             <p>
               Reproduction for sales purposes may be subject to
@@ -557,11 +557,71 @@ o=isocs; s=central<br/>
 <!-- Outputs the foreword -->
 <xsl:template match="module" mode="foreword">
   <h3>
-    <a name="foreword"/>
-    <a href="../../../basic/foreword.htm">
+    <a name="foreword">
       Foreword
     </a>
   </h3>
+  <p>
+    ISO (the International Organization for Standardization) is a worldwide
+    federation of national standards bodies (ISO member bodies). The work of
+    preparing International Standards is normally carried out through ISO
+    technical committees. Each member body interested in a subject for
+    which a technical committee has been established has the right to be
+    represented on that committee. International organizations,
+    governmental and non-governmental, in liaison with ISO, also take
+    part in the work. ISO collaborates closely with the International
+    Electrotechnical Commission (IEC) on all matters of electrotechnical
+    standardization. 
+  </p>
+  
+  <p>
+    International Standards are drafted in accordance with the rules given in
+    the ISO/IEC Directives, Part 2.
+  </p>
+  
+  <p>
+    The main task of technical committees is to prepare International
+    Standards. Draft International Standards adopted by the technical
+    committees are circulated to the member bodies for voting. Publication as
+    an International Standard requires approval by at least 75% of the member
+    bodies casting a vote.
+  </p>
+  
+  <p>
+    In other circumstances, particularly when there is an urgent market
+    requirement for such documents, a technical committee may decide to
+    publish other types of normative document: 
+  </p>
+  
+  <ul>
+    <li>
+      an ISO Publicly Available Specification (ISO/PAS) represents an
+      agreement between technical experts in an ISO working group and  is
+      accepted for publication if it is approved by more than 50% 
+      of the members of the parent committee casting a vote;
+    </li>  
+  </ul>
+  
+  <ul>
+    <li>
+      an ISO Technical Specification (ISO/TS) represents an agreement between
+      the members of a technical committee and is accepted for
+      publication if it is approved by 2/3 of the members of the committee
+      casting a vote. 
+    </li>
+  </ul>
+  
+  <p>
+    An ISO/PAS or ISO/TS is reviewed every three years with a view to
+    deciding whether it can be transformed into an International Standard.
+  </p>
+  
+  <p>
+    Attention is drawn to the possibility that some of the elements of this
+    part of ISO 10303 may be the subject of patent rights. ISO shall not be
+    held responsible for identifying any or all such patent rights.
+  </p>    
+  
   <p>
     <xsl:choose>
       <xsl:when test="string-length(@part)>0">
@@ -592,10 +652,12 @@ o=isocs; s=central<br/>
     A complete list of parts of ISO 10303 is available from the Internet: 
   </p>
   <blockquote>
-    <A HREF="http://www.nist.gov/sc4/editing/step/titles/">
-      &lt;http://www.nist.gov/sc4/editing/step/titles/&gt;
+    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf/">
+      &lt;http://www.tc184-sc4.org/titles/STEP_Titles.rtf/&gt;
     </A>.
   </blockquote>
+
+
   <p>
     Annexes A and B form an integral part of this part of ISO 10303. Annexes C,
     D, E<xsl:if test="./usage_guide"> and F </xsl:if> are for information only.  
@@ -659,9 +721,11 @@ o=isocs; s=central<br/>
   abstract test suites, implementation methods, and conformance testing.
   The series are described in ISO 10303-1<sup>1</sup>. 
   A complete list of parts of ISO 10303 is available from the Internet:
-  <a href="http://www.nist.gov/sc4/editing/step/titles/">
-    &lt; http://www.nist.gov/sc4/editing/step/titles/&gt;.
-  </a>
+  <blockquote>
+    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf/">
+      &lt;http://www.tc184-sc4.org/titles/STEP_Titles.rtf/&gt;
+    </A>.
+  </blockquote>
 </p>
 <p>
   This part of ISO 10303 is a member of the application modules series.
@@ -679,11 +743,20 @@ o=isocs; s=central<br/>
 
 <xsl:template match="purpose">
   <h3>
-    <a name="introduction"/>
-    <a href="../../../basic/introduction.htm">
-      0&#160;Introduction
+    <a name="introduction">
+      Introduction
     </a>
   </h3>
+
+  <p>
+    ISO 10303 is an International Standard for the computer-interpretable 
+    representation of product information and for the exchange of product data.
+    The objective is to provide a neutral mechanism capable of describing
+    products throughout their life cycle. This mechanism is suitable not only
+    for neutral file exchange, but also as a basis for implementing and
+    sharing product databases, and as a basis 
+    for archiving.
+  </p>
   <xsl:apply-templates/>
 </xsl:template>
 
@@ -724,7 +797,7 @@ o=isocs; s=central<br/>
   <xsl:call-template name="annex_header">
     <xsl:with-param name="annex_no" select="'E'"/>
     <xsl:with-param name="heading" 
-      select="'Computer Interpretable Listings'"/>
+      select="'Computer interpretable listings'"/>
     <xsl:with-param name="aname" select="'annexe'"/>
   </xsl:call-template>
 
@@ -793,69 +866,144 @@ o=isocs; s=central<br/>
   </p>
   <blockquote>
     Short names:
-    <a href="{$names_url}">
+    &lt;<a href="{$names_url}">
       <xsl:value-of select="$names_url"/>
-    </a>
+    </a>&gt;
 
     <br/>
     EXPRESS: 
-    <a href="{$parts_url}">
+    &lt;<a href="{$parts_url}">
       <xsl:value-of select="$parts_url"/>
-    </a>
+    </a>&gt;
   </blockquote>
   
   <b>
-
-      <p align="center">
-        Table E.1 - ARM to MIM EXPRESS short and long form listing
-      </p>
-
+    <p align="center">
+      Table E.1 - ARM to MIM EXPRESS short and long form listing
+    </p>
   </b>
   <br/>
 
+  <div align="center">
+    <table border="1" cellspacing="1">
+      <tr>
+        <td><b>Description</b></td>
+        <td><b>File</b> </td>
+        <td><b>File</b></td>
+        <td><b>Identifier</b></td>
+      </tr>
+      
+      <!-- ARM HTML row -->
+      <tr>
+        <xsl:choose>
+          <xsl:when test="$FILE_EXT='.xml'">
+            <td>ARM short form EXPRESS</td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>ARM short form EXPRESS</td>
+          </xsl:otherwise>
+        </xsl:choose>
+        <td>
+          <a href="{$arm}">
+            <xsl:value-of select="concat('arm',$FILE_EXT)"/>
+          </a>
+        </td>
 
-  <CENTER>
-    <TABLE BORDER="1" CELLSPACING="1">
-        <TR>
-          <TD VALIGN="MIDDLE" ROWSPAN="2">
-            <P>&#160;</P>
-          </TD>
-          <TD VALIGN="MIDDLE" ALIGN="CENTER" ROWSPAN="2"><B>ARM</B></TD>
-          <TD VALIGN="MIDDLE" ALIGN="CENTER" COLSPAN="2"><B>MIM</B></TD>
-        </TR>
-        <TR>
-          <TD VALIGN="MIDDLE"><B>Short form</B></TD>
-          <TD VALIGN="MIDDLE"><B>Long form</B></TD>
-        </TR>
-        <TR>
-          <TD VALIGN="MIDDLE">HTML version</TD>
-          <TD VALIGN="MIDDLE"><A HREF="{$arm}">ARM EXPRESS</A></TD>
-          <TD VALIGN="MIDDLE"><A HREF="{$mim}">MIM SF EXPRESS</A></TD>
-          <TD VALIGN="MIDDLE"><A HREF="{$mim_lf}">MIM LF EXPRESS</A></TD>
-        </TR>
-        <TR>
-          <TD VALIGN="MIDDLE">Text version</TD>
-          <TD VALIGN="MIDDLE"><A HREF="../arm.exp">ARM EXPRESS text</A></TD>
-          <TD VALIGN="MIDDLE"><A HREF="../mim.exp">MIM SF EXPRESS text</A></TD>
-          <TD VALIGN="MIDDLE"><A HREF="../mim_lf.exp">MIM LF EXPRESS text</A></TD>
-        </TR>
-      </TABLE>
-    </CENTER>
+        <xsl:call-template name="output_express_links">
+          <xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
+          <xsl:with-param name="file" select="'arm.exp'"/>
+        </xsl:call-template>        
+      </tr>
+      <tr>
+        <xsl:apply-templates select="arm_lf" mode="annexe"/>
+      </tr>
 
-    <P>
-      If there is difficulty accessing these sites, contact ISO Central
-      Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
-      sc4sec@cme.nist.gov.
-    </P>
-    <p class="note">
-      <small>
-        NOTE&#160;&#160;The information provided in computer-interpretable form at the
-        above URLs is informative. The information that is contained in the
-        body of this part of ISO 10303 is normative. 
-      </small>
-    </p>
+      <!-- MIM HTML row -->
+      <tr>
+        <xsl:choose>
+          <xsl:when test="$FILE_EXT='.xml'">
+            <td>MIM short form EXPRESS</td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>MIM short form EXPRESS</td>
+          </xsl:otherwise>
+        </xsl:choose>
+        <td>
+          <a href="{$arm}">
+            <xsl:value-of select="concat('arm',$FILE_EXT)"/>
+          </a>
+        </td>
+        <xsl:call-template name="output_express_links">
+          <xsl:with-param name="wgnumber" select="./@wg.number.mim"/>
+          <xsl:with-param name="file" select="'mim.exp'"/>
+        </xsl:call-template>        
+      </tr>
+      <tr>
+        <xsl:apply-templates select="mim_lf" mode="annexe"/>
+      </tr>
+    </table>
+  </div>
+  <p>
+    If there is difficulty accessing these sites, contact ISO Central
+    Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
+    <a href="mailto:sc4sec@tc184-sc4.org">sc4sec@tc184-sc4.org</a>.
+  </p>
+  <p class="note">
+    <small>
+      NOTE&#160;&#160;The information provided in computer-interpretable
+      form at the 
+      above URLs is informative. The information that is contained in the
+      body of this part of ISO 10303 is normative. 
+    </small>
+  </p>
 </xsl:template>
 
+
+<xsl:template name="output_express_links">
+  <xsl:param name="wgnumber"/>
+  <xsl:param name="file"/>
+
+  <td>
+    <a href="../{$file}"><xsl:value-of select="$file"/></a>
+  </td>
+  <td>
+    <xsl:variable name="test_wg_number">
+      <xsl:call-template name="test_wg_number">
+        <xsl:with-param name="wgnumber" select="$wgnumber"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="type">
+      <xsl:choose>
+        <xsl:when test="$file='arm.exp'">
+          arm
+        </xsl:when>
+        <xsl:otherwise>
+          mim
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="contains($test_wg_number,'Error')">
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('(Error in
+                                  module.xml/module/@wg.number.',$type,' - ',
+                                  $test_wg_number)"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat('WG',$wgnumber)"/>
+      </xsl:otherwise>
+    </xsl:choose>    
+  </td>
+</xsl:template>
+
+<xsl:template match="arm_lf" mode="annexe">
+</xsl:template>
+
+<xsl:template match="mim_lf" mode="annexe">
+</xsl:template>
 
 <xsl:template match="arm">
   <xsl:call-template name="clause_header">
@@ -916,6 +1064,11 @@ o=isocs; s=central<br/>
   <xsl:variable 
     name="schema_name" 
     select="document($arm_xml)/express/schema/@name"/>
+
+  <xsl:call-template name="check_schema_name">
+    <xsl:with-param name="arm_mim" select="'arm'"/>
+    <xsl:with-param name="schema_name" select="$schema_name"/>
+  </xsl:call-template>
 
   <xsl:variable name="xref">
     <xsl:call-template name="express_a_name">
@@ -1198,10 +1351,12 @@ o=isocs; s=central<br/>
 
 
 <xsl:template match="mim">
+  <!--
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="'5 Module interpreted model'"/>
     <xsl:with-param name="aname" select="'mim'"/>
   </xsl:call-template>
+
 
   <h3>
     <a name="mapping">5.1 Mapping specification</a>
@@ -1214,7 +1369,7 @@ o=isocs; s=central<br/>
       No mappings are specified in this application module.
     </xsl:otherwise>
   </xsl:choose>
-
+  -->
 
   <h3>
     <a name="mim_express">5.2 MIM EXPRESS short listing</a>
@@ -1255,6 +1410,7 @@ o=isocs; s=central<br/>
   <xsl:variable 
     name="schema_name" 
     select="document($mim_xml)/express/schema/@name"/>
+
 
 
   <xsl:variable name="xref">
@@ -1364,7 +1520,7 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <xsl:template match="mapping_table" mode="toc">
-    <xsl:apply-templates select="ae" mode="toc"/> 
+  <xsl:apply-templates select="ae" mode="toc"/> 
 </xsl:template>
 
 <!-- Output the application element table of contents for the mapping table

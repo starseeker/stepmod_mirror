@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.19 2002/06/05 12:47:33 robbod Exp $
+     $Id: express_code.xsl,v 1.21 2002/06/06 07:45:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -159,10 +159,18 @@
 
       <xsl:choose>
         <xsl:when test="$resource_ok='true'">
+
+          <!-- the IR directory must be all lower case - the schema itself
+               sometimes is mixed case -->
+          <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+          <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+          <xsl:variable name="lmodule" 
+            select="translate($module,$UPPER,$LOWER)"/>
+
           <!-- found integrated resource schema, so get IR title -->
           <xsl:variable name="reference">
             <xsl:value-of
-              select="document(concat('../data/resources/',$module,'/',$module,'.xml'))/express/@reference"/>
+              select="document(concat('../data/resources/',$lmodule,'/',$lmodule,'.xml'))/express/@reference"/>
           </xsl:variable>
 
           <xsl:choose>
@@ -210,6 +218,10 @@
     <xsl:with-param name="clause" select="'annexe'"/>
   </xsl:call-template>
 
+  <xsl:if test="@alias">
+    AS&#160;<xsl:value-of select="@alias"/>
+  </xsl:if>
+
   <xsl:if test="position()!=last()">,<br/></xsl:if>
 
   <xsl:if test="position()=last()">)</xsl:if>
@@ -255,7 +267,15 @@
   <br/>
   <A NAME="{$aname}">TYPE </A><b><xsl:value-of select="@name"/></b> =
       <xsl:apply-templates select="./aggregate" mode="code"/>        
-      <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
+      <xsl:choose>
+        <xsl:when test="./where">
+          <xsl:apply-templates select="./*" mode="underlying"/><br/>
+          <xsl:apply-templates select="./where" mode="code"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
+        </xsl:otherwise>
+      </xsl:choose>
     END_TYPE; 
   <br/>
 </xsl:template>
@@ -273,6 +293,7 @@
     <xsl:with-param name="clause" select="'annexe'"/>
   </xsl:call-template>
 </xsl:template>
+
 
 
 <xsl:template match="builtintype" mode="underlying">
@@ -636,7 +657,7 @@ SELF\<xsl:call-template name="link_object">
     <xsl:value-of select="@name"/>
   </b></A><xsl:text> FOR </xsl:text>
   <br/>
-  &#160;(<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
+  (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
   <pre>
     <xsl:apply-templates select="./algorithm" mode="code"/> 
     <xsl:apply-templates select="./where" mode="code"/>

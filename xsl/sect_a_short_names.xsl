@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.8 2002/05/30 09:51:20 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.9 2002/06/06 09:22:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -40,6 +40,7 @@ $Id: sect_a_short_names.xsl,v 1.8 2002/05/30 09:51:20 robbod Exp $
         parts of ISO 10303. Requirements on the use of the short names are
         found in the implementation methods included in ISO 10303.  
       </p>
+      <!--
       <p class="note">
         <small>
           NOTE&#160;&#160;The EXPRESS entity names are available from
@@ -50,22 +51,19 @@ $Id: sect_a_short_names.xsl,v 1.8 2002/05/30 09:51:20 robbod Exp $
           select="'abcdefghijklmnopqrstuvwxyz'"/>
         <xsl:variable name="mim_schema"
           select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
-        <!--
-             It has been decided to point to the index instead
-             <xsl:variable name="names_url"
-               select="concat('http://www.steptools.com/cgi-bin/getnames.cgi?schema=',
-                       $mim_schema)"/>
-             -->
-             <xsl:variable name="names_url"
-               select="'http://www.tc184-sc4.org/Short_Names/'"/>
-             
-             <a href="{$names_url}">
-               <xsl:value-of select="$names_url"/>
-             </a>
-           </small>
-         </p>
-       </xsl:otherwise>
-     </xsl:choose>
+        <xsl:variable name="names_url"
+          select="'http://www.tc184-sc4.org/Short_Names/'"/>
+        <p class="center">
+          &lt;
+          <a href="{$names_url}">
+            <xsl:value-of select="$names_url"/>
+          </a>
+          &gt;
+        </p>
+       </small>
+     </p> -->
+   </xsl:otherwise>
+ </xsl:choose>
 </xsl:template>
 
 <xsl:template match="shortnames">
@@ -80,9 +78,13 @@ $Id: sect_a_short_names.xsl,v 1.8 2002/05/30 09:51:20 robbod Exp $
       Internet:<br/>  
       <xsl:variable name="names_url"
         select="'http://www.tc184-sc4.org/Short_Names/'"/>      
-      <a href="{$names_url}">
-        <xsl:value-of select="$names_url"/>
-      </a>
+      <p align="center">
+        &lt;
+        <a href="{$names_url}">
+          <xsl:value-of select="$names_url"/>
+        </a>
+        &gt;
+      </p>
     </small>
   </p>
   <p align="center">
@@ -90,7 +92,7 @@ $Id: sect_a_short_names.xsl,v 1.8 2002/05/30 09:51:20 robbod Exp $
       Table A.1 - MIM short names of entities 
     </b>
   </p>
-  <center>
+  <div align="center">
     <table border="1" cellspacing="0" cellpadding="7" width="537">
       <tr>
         <td>
@@ -102,7 +104,7 @@ $Id: sect_a_short_names.xsl,v 1.8 2002/05/30 09:51:20 robbod Exp $
       </tr>
       <xsl:apply-templates select="shortname"/>
     </table>
-  </center>
+  </div>
 </xsl:template>
 
 <xsl:template match="shortname">

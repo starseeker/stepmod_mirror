@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.42 2002/06/06 07:45:26 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.43 2002/06/06 09:22:41 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -127,6 +127,7 @@
         <xsl:value-of select="$clause_header"/>
       </A>
     </h3>
+
     <xsl:value-of select="$clause_intro"/>
     <xsl:if test="contains($schema_name,'_arm')">
       <p><u>EXPRESS specification:</u></p>
@@ -595,7 +596,17 @@ select="document($module_file)/module/arm/express-g/imgfile">
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
     </A>
+    <xsl:call-template name="expressg_icon">
+      <xsl:with-param name="module_root" select="'..'"/>
+      <xsl:with-param name="schema" select="$schema_name"/>
+      <xsl:with-param name="entity" select="@name"/>      
+    </xsl:call-template>
   </h3>
+
+  <xsl:call-template name="check_type_name">
+    <xsl:with-param name="type_name" select="@name"/>
+  </xsl:call-template>
+
 
   <xsl:apply-templates select="./select" mode="description"/>
 
@@ -644,8 +655,16 @@ select="document($module_file)/module/arm/express-g/imgfile">
       <xsl:value-of select="@name" />
         =
         <xsl:apply-templates select="./aggregate" mode="code"/>        
-        <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
-      END_TYPE; <br/>
+        <xsl:choose>
+          <xsl:when test="./where">
+            <xsl:apply-templates select="./*" mode="underlying"/><br/>
+            <xsl:apply-templates select="./where" mode="code"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
+          </xsl:otherwise>
+        </xsl:choose>
+        END_TYPE; <br/>
     </code>
   <!-- </blockquote> -->
 </p>
@@ -740,7 +759,9 @@ select="document($module_file)/module/arm/express-g/imgfile">
 
     <xsl:variable name="clause_intro">
       <xsl:choose>
-        <xsl:when test="contains($schema_name,'_arm')">
+        <xsl:when 
+          test="substring($schema_name, string-length($schema_name)-3)= '_arm'">
+
           This subclause specifies the application entities for this
           module. Each application entity is an atomic element that
           embodies a unique application concept and contains attributes
@@ -758,6 +779,7 @@ select="document($module_file)/module/arm/express-g/imgfile">
         <xsl:value-of select="$clause_header"/>
       </a>
     </h3>
+
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -772,7 +794,36 @@ select="document($module_file)/module/arm/express-g/imgfile">
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
+    <xsl:call-template name="expressg_icon">
+      <xsl:with-param name="module_root" select="'..'"/>
+      <xsl:with-param name="schema" select="$schema_name"/>
+      <xsl:with-param name="entity" select="@name"/>      
+    </xsl:call-template>
+
+    <xsl:if test="substring($schema_name, string-length($schema_name)-3)= '_arm'">
+      <xsl:variable name="maphref" 
+        select="concat('./5_mapping',$FILE_EXT,'#',@name)"/>
+      <a href="{$maphref}">
+        <img align="middle" border="0" 
+          alt="Mapping table" src="../../../../images/mapping.gif"/>
+      </a>
+    </xsl:if>
   </h3>
+
+  <xsl:choose>
+    <xsl:when 
+      test="substring($schema_name, string-length($schema_name)-3)= '_arm'">
+      <xsl:call-template name="check_arm_entity_name">
+        <xsl:with-param name="entity_name" select="@name"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="check_mim_entity_name">
+        <xsl:with-param name="entity_name" select="@name"/>
+      </xsl:call-template>        
+    </xsl:otherwise>
+  </xsl:choose>
+
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -1636,7 +1687,7 @@ SELF\<xsl:call-template name="link_object">
     <code>
       RULE <xsl:value-of select="@name"/> FOR
       <br/>
-      &#160;(<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
+      (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
       <pre>
         <xsl:apply-templates select="./algorithm" mode="code"/>
         <xsl:apply-templates select="./where" mode="code"/>
@@ -2486,7 +2537,7 @@ SELF\<xsl:call-template name="link_object">
         </xsl:if>
         <p class="note">
           <small>
-            NOTE:&#160;&#160;The list of entity data types will be
+            NOTE&#160;&#160;The list of entity data types will be
             extended in application modules that use the constructs of
             this module.                 
           </small>
@@ -2542,7 +2593,7 @@ SELF\<xsl:call-template name="link_object">
             extensions.  
             <p class="note">
               <small>
-                NOTE:&#160;&#160;The list of entity data types will be
+                NOTE&#160;&#160;The list of entity data types will be
                 extended in application modules that use the constructs of
                 this module.                 
               </small>
@@ -2564,7 +2615,7 @@ SELF\<xsl:call-template name="link_object">
                  -->
             <p class="note">
               <small>
-                NOTE:&#160;&#160;This empty extensible select requires
+                NOTE&#160;&#160;This empty extensible select requires
                 extension in a further module to ensure that all entities have
                 at least one valid instantiation.
               </small>

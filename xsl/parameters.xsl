@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.6 2002/05/10 13:47:23 robbod Exp $
+     $Id: parameters.xsl,v 1.7 2002/06/06 12:11:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -41,6 +41,20 @@
        -->
   <xsl:param name="INLINE_ERRORS" select="'yes'"/>
 
+
+  <!-- When 
+          'yes' the mapping tables will be checked and errors will be
+                displayed in the HTML 
+          'no'  NO checking is done 
+       Turning off mapping checking will speed up display of mapping
+       tables as a list of all mim and integrated resources are loaded into
+       global variables.      
+       Used by:
+       sect5_mapping.xsl
+       -->
+  <xsl:param name="check_mapping" select="'yes'"/>
+
+
   <!-- when YES issues will be read from the issues.xml file stored in the
        module directory -->
   <xsl:param name="output_issues" select="'YES'"/>
@@ -49,14 +63,12 @@
 
   <!-- Every module can display a menubar at the top of the module.
        The default menubar is menubar_default.xml -->
+  <!--
   <xsl:param name="menubar_file" select="'menubar_default.xml'"/>
-
-  <!--
   <xsl:param name="menubar_file" select="'../plcsmod/menubar.xml'"/>
-  -->
-  
-  <!--
   <xsl:param name="menubar_file" select="'menubar_pdm_ballot.xml'"/>
   -->
+  <xsl:param name="menubar_file" select="'menubar_pdm_ballot.xml'"/>
+
 
 </xsl:stylesheet>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.9 2002/05/16 07:32:07 robbod Exp $
+$Id: imgfile.xsl,v 1.10 2002/05/21 16:20:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -11,7 +11,11 @@ $Id: imgfile.xsl,v 1.9 2002/05/16 07:32:07 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-  <xsl:import href="common.xsl"/>
+
+  <xsl:import href="sect_4_express.xsl"/>
+  <xsl:import href="module_toc.xsl"/>
+
+
 
   <xsl:output 
     method="html"
@@ -22,7 +26,6 @@ $Id: imgfile.xsl,v 1.9 2002/05/16 07:32:07 robbod Exp $
 
 
 <xsl:template match="imgfile.content">
-  <xsl:variable name="module" select="@module"/>
   <HTML>
     <HEAD>
       <TITLE>
@@ -30,26 +33,9 @@ $Id: imgfile.xsl,v 1.9 2002/05/16 07:32:07 robbod Exp $
       </TITLE>
     </HEAD>
 
-    <BODY>
-
-      <!-- Need to identify whether looking at an ARM or MIM expressG
-           diagram. Make an assumption if an ARM diagram then the href of
-           img.area will contain 4_info_reqs -->
-      <xsl:variable name="href">
-        <xsl:choose>
-          <xsl:when test="./img/img.area[contains(@href,'4_info_reqs.xml')]">
-            <xsl:value-of select="concat('./sys/c_arm_expg',$FILE_EXT)"/>  
-          </xsl:when>
-          <xsl:when test="./img/img.area[contains(@href,'5_mim.xml')]">
-            <xsl:value-of select="concat('./sys/d_mim_expg',$FILE_EXT)"/>  
-          </xsl:when>
-          <xsl:otherwise>
-            <!-- the image map is probably incorrect -->
-            <xsl:value-of select="concat('./sys/1_scope',$FILE_EXT)"/>  
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-
+    <body>
+      <xsl:variable name="module" select="@module"/>
+      <xsl:variable name="self" select="."/>
       <xsl:choose>
         <xsl:when test="@module">
           <xsl:variable name="module_dir">
@@ -59,54 +45,128 @@ $Id: imgfile.xsl,v 1.9 2002/05/16 07:32:07 robbod Exp $
           </xsl:variable>
           <xsl:variable name="module_file"
             select="concat($module_dir,'/module.xml')"/>
+          <xsl:apply-templates 
+            select="document($module_file)/module"
+            mode="TOCmultiplePage">
+            <xsl:with-param name="module_root" select="'.'"/>
+          </xsl:apply-templates>
 
-        <xsl:apply-templates 
-          select="document($module_file)/module"
-          mode="TOCbannertitle">
-          <xsl:with-param name="module_root" select="'.'"/>
-        </xsl:apply-templates>
+          <!-- display navigation arrows -->
+          <xsl:choose>
+            <xsl:when test="./@file">
+              <xsl:apply-templates 
+                select="document($module_file)/module/*/express-g/imgfile"
+                mode="nav_arrows">
+                <xsl:with-param name="file" select="@file"/>
+              </xsl:apply-templates>
+            </xsl:when>
+            <xsl:otherwise>
+              To enable navigation, add file parameter to expressg file
+            </xsl:otherwise>
+          </xsl:choose>
 
-          <!-- only proceed if a module is specified -->
-          <small>
-            <A HREF="../../../repository_index{$FILE_EXT}">
-              Index
-            </A>&#160;&#160;&#160;
-          </small>
-          <small>
-            <xsl:variable name="maphref" 
-              select="concat('./sys/5_mapping',$FILE_EXT,'#interfaces')"/>
-            <a href="{$maphref}">Mapping</a>&#160;&#160;&#160;
-          </small>
-          
-          <small>
-            <xsl:variable name="armhref" 
-              select="concat('./sys/4_info_reqs',$FILE_EXT,'#interfaces')"/>
-            <a href="{$armhref}">ARM</a> EXPRESS-G:&#160;
-            <xsl:apply-templates 
-              select="document(concat('../data/modules/',@module,'/module.xml'))/module/arm/express-g"/>
-          </small>
-&#160;&#160;&#160;
-          <small>
-            <xsl:variable name="mimhref" 
-              select="concat('./sys/5_mim',$FILE_EXT,'#mim_express')"/>
-            <a href="{$mimhref}">MIM</a> EXPRESS-G:&#160;
-            <xsl:apply-templates 
-              select="document(concat('../data/modules/',@module,'/module.xml'))/module/mim/express-g"/>
-          </small>
-          <br/>
+          <!-- now display the image -->
+          <xsl:apply-templates select="img"/>
+          <div align="center"><h3><xsl:value-of select="@title"/></h3></div>
         </xsl:when>
         <xsl:otherwise>
-          <h3>
-            <a href="{$href}">
-              application module: <xsl:value-of select="@module"/>
-          </a>
-        </h3>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of 
+                select="'Error IM1: Error in image file - module not specified'"/>
+            </xsl:with-param>
+          </xsl:call-template>
+          <xsl:apply-templates select="img"/>
+          <div align="center"><h3><xsl:value-of select="@title"/></h3></div>
         </xsl:otherwise>
-      </xsl:choose>      
-      <xsl:apply-templates select="img"/>
-      <center><h3><xsl:value-of select="@title"/></h3></center>
-    </BODY>
+      </xsl:choose>
+    </body>
   </HTML>
+</xsl:template>
+
+
+
+<xsl:template match="imgfile" mode="nav_arrows">
+  <xsl:param name="file"/>
+  <xsl:if test="$file=@file">
+      Page navigation:&#160; 
+      <xsl:variable name="maphref" 
+        select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
+      <a href="{$maphref}">
+        <img align="middle" border="0" 
+          alt="Mapping table" src="../../../images/mapping.gif"/>
+      </a>
+
+      <xsl:variable name="home">
+        <xsl:choose>
+          <xsl:when test="name(../..)='arm'">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="'./sys/c_arm_expg.xml'"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="name(../..)='mim'">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="'./sys/d_mim_expg.xml'"/>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:variable>
+
+      <a href="./{$home}">
+        <img align="middle" border="0" 
+          alt="Index of Express-G pages" src="../../../images/home.gif"/>
+      </a>
+
+      
+      <xsl:if test="position() != 1">
+        <!-- not first page, so start page and previous page -->
+        <xsl:variable name="start">
+          <xsl:call-template name="set_file_ext">
+            <xsl:with-param name="filename" select="../imgfile[1]/@file"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <a href="./{$start}">
+          <img align="middle" border="0" 
+            alt="First page" src="../../../images/start.gif"/>
+        </a>
+        
+        <xsl:variable name="previous">
+          <xsl:call-template name="set_file_ext">
+            <xsl:with-param name="filename" select="preceding-sibling::*/@file"/>
+          </xsl:call-template>
+        </xsl:variable>          
+        <a href="./{$previous}">
+          <img align="middle" border="0" 
+            alt="Previous page" src="../../../images/prev.gif"/>
+        </a>
+      </xsl:if> <!-- end of NOT first page -->
+      
+      <xsl:if test="count(following-sibling::*)>0">
+        <!-- there are subsequent diagrams, so next and end -->
+        <xsl:variable name="next">
+          <xsl:call-template name="set_file_ext">
+            <xsl:with-param name="filename" 
+              select="following-sibling::*/@file"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <a href="./{$next}">
+          <img align="middle" border="0" 
+            alt="Next page" src="../../../images/next.gif"/>
+        </a>
+        
+        <xsl:variable name="last">
+          <xsl:call-template name="set_file_ext">
+            <xsl:with-param name="filename" 
+              select="../imgfile[last()]/@file"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <a href="./{$last}">
+          <img align="middle" border="0" 
+            alt="Last page" src="../../../images/end.gif"/>
+        </a>
+      </xsl:if>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template match="imgfile">

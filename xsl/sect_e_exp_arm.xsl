@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_arm.xsl,v 1.1 2001/11/22 12:37:15 robbod Exp $
+$Id: sect_e_exp_arm.xsl,v 1.2 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM short form express 
@@ -99,6 +99,27 @@ $Id: sect_e_exp_arm.xsl,v 1.1 2001/11/22 12:37:15 robbod Exp $
     <xsl:with-param name="aname" select="'annexe-arm-express'"/>
   </xsl:call-template>
   
+  <xsl:variable name="stdnumber">
+    <xsl:call-template name="get_module_iso_number">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <code>
+  (*<br/>
+    <xsl:value-of 
+      select="concat('N',@wg.number.arm, ' - ',
+              $stdnumber,' ', $module_name, ' - EXPRESS ARM')"/>
+    <br/>*)
+  </code>
+  <br/>
+
   <!-- output all the EXPRESS specifications -->
   <xsl:variable name="module_dir">
     <xsl:call-template name="module_directory">
@@ -109,7 +130,6 @@ $Id: sect_e_exp_arm.xsl,v 1.1 2001/11/22 12:37:15 robbod Exp $
   <xsl:variable 
     name="arm_xml"
     select="concat($module_dir,'/arm.xml')"/>
-
   <!-- get the express and display using the express_code.xsl stylesheet that
        has been imported.
        -->

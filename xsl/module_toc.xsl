@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.18 2002/06/05 06:38:30 robbod Exp $
+$Id: module_toc.xsl,v 1.19 2002/06/07 15:32:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -28,7 +28,6 @@ $Id: module_toc.xsl,v 1.18 2002/06/05 06:38:30 robbod Exp $
   <!-- the entry that has been selected -->
   <xsl:param name="selected"/>
   <xsl:param name="module_root" select="'..'"/>
-
   <xsl:apply-templates select="." mode="TOCbannertitle">
     <xsl:with-param name="module_root" select="$module_root"/>
   </xsl:apply-templates>
@@ -53,9 +52,11 @@ $Id: module_toc.xsl,v 1.18 2002/06/05 06:38:30 robbod Exp $
       
           <!-- use #foreword to link direct -->
           <A HREF="{$module_root}/sys/foreword{$FILE_EXT}">Foreword</A><BR/>
+
+          <A HREF="{$module_root}/sys/contents{$FILE_EXT}">Table of contents</A><BR/>
         
           <!-- use #intro to link direct -->
-          <A HREF="{$module_root}/sys/introduction{$FILE_EXT}">0 Introduction</A><BR/>
+          <A HREF="{$module_root}/sys/introduction{$FILE_EXT}">Introduction</A><BR/>
           
           <!-- use #scope to link direct -->
           <A HREF="{$module_root}/sys/1_scope{$FILE_EXT}">1 Scope</A><BR/>
@@ -299,7 +300,7 @@ $Id: module_toc.xsl,v 1.18 2002/06/05 06:38:30 robbod Exp $
 
         <!-- Output clause 5 index -->
         <!-- use #mim to link direct -->
-        <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}">5 Module interpreted model</A><BR/>
+        <A HREF="{$module_root}/sys/5_main{$FILE_EXT}">5 Module interpreted model</A><BR/>
         <small>
           <A HREF="{$module_root}/sys/5_mapping{$FILE_EXT}">&#160; &#160;5.1 Mapping specification</A><BR/>
           <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mim_express">&#160; &#160;5.2 MIM EXPRESS short listing</A><BR/>
@@ -501,17 +502,35 @@ $Id: module_toc.xsl,v 1.18 2002/06/05 06:38:30 robbod Exp $
         <A HREF="{$module_root}/sys/b_obj_reg{$FILE_EXT}">B Information requirements object
         registration</A><BR/>
         <!-- use #annexc to link direct -->
-        <A HREF="{$module_root}/sys/c_arm_expg{$FILE_EXT}">C ARM EXPRESS-G</A>
+        <A HREF="{$module_root}/sys/c_arm_expg{$FILE_EXT}">
+          C ARM EXPRESS-G
+        </A>
+        <!-- This will output links to the ExpresG diagrams (1 2) 
+             not however allowed in ISO 
         <xsl:apply-templates select="arm/express-g/imgfile" mode="page_number">
           <xsl:with-param name="module_root" select="$module_root"/>
         </xsl:apply-templates>
-        <BR/>
+        -->
+        <xsl:call-template name="expressg_icon">
+          <xsl:with-param name="schema" select="concat(./@name,'_arm')"/>
+          <xsl:with-param name="module_root" select="$module_root"/>
+        </xsl:call-template>
+        <br/>
 
         <!-- use #annexd to link direct -->
-        <A HREF="{$module_root}/sys/d_mim_expg{$FILE_EXT}">D MIM EXPRESS-G</A>
-        <xsl:apply-templates select="mim/express-g/imgfile" mode="page_number">
+        <A HREF="{$module_root}/sys/d_mim_expg{$FILE_EXT}">
+          D MIM EXPRESS-G
+        </A>
+        <!-- This will output links to the ExpresG diagrams (1 2) 
+             not however allowed in ISO 
+             <xsl:apply-templates select="mim/express-g/imgfile" mode="page_number">
+               <xsl:with-param name="module_root" select="$module_root"/>
+             </xsl:apply-templates>
+           -->
+        <xsl:call-template name="expressg_icon">
+          <xsl:with-param name="schema" select="concat(./@name,'_mim')"/>
           <xsl:with-param name="module_root" select="$module_root"/>
-        </xsl:apply-templates>
+        </xsl:call-template>
         <BR/>
 
         <!-- use #annexe to link direct -->

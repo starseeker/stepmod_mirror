@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
+$Id: common.xsl,v 1.47 2002/06/06 12:11:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -309,7 +309,7 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
   <xsl:param name="title"/>
   <xsl:param name="aname"/>
   <xsl:param name="informative" select="'informative'"/>
-  <center>
+  <div align="center">
     <h2>
       <A NAME="{$aname}">
         <xsl:value-of select="concat('Annex ', $annex_no)"/>
@@ -317,7 +317,7 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
     (<xsl:value-of select="$informative"/>)<br/><br/>
       <xsl:value-of select="$heading"/>
     </h2>
-  </center>
+  </div>
 </xsl:template>
 
 
@@ -388,11 +388,11 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
 
 
     <xsl:apply-templates select="./img"/>
-    <center>
+    <div align="center">
       <a name="{$aname}">
         <xsl:value-of select="concat('Figure ',$number,
                               ' - ')"/></a>&#160;&#160;<xsl:apply-templates select="./title"/>
-    </center>
+    </div>
 
   </xsl:template>
 
@@ -416,13 +416,13 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  <center>
+  <div align="center">
     <IMG src="{$src}" border="0" usemap="#map">
       <MAP NAME="map">
         <xsl:apply-templates select="img.area"/>
       </MAP>
     </IMG>
-  </center>
+  </div>
 </xsl:template>
 
 <xsl:template match="img.area">
@@ -606,17 +606,33 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
 
 
 <xsl:template match="table">
+
+  <xsl:variable name="number">
+    <xsl:number/>
+  </xsl:variable>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="table_aname">
+      <xsl:with-param name="table" select="."/>
+      <xsl:with-param name="number" select="$number"/>
+      <xsl:with-param name="id" select="@id"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <p align="center">
     <b>
       Table 
-      <xsl:value-of select="@number"/> &#8212; <xsl:value-of select="@caption"/>
+      <a name="{$aname}">
+        <xsl:value-of select="@number"/> &#8212; <xsl:value-of
+        select="@caption"/>
+      </a>
     </b>
   </p>
-  <center>
+  <div align="center">
     <table border="1" cellpadding="2" cellspacing="0">
       <xsl:apply-templates/>
     </table>
-  </center>
+  </div>
 </xsl:template>
 
 <xsl:template match="tr|td">
@@ -725,15 +741,19 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
   <xsl:template name="check_resource_exists">
     <xsl:param name="schema"/>
 
+    <!-- the name of the resource directory should be in lower case -->
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="lschema" select="translate($schema,$UPPER,$LOWER)"/>
     <xsl:variable name="ret_val">
         <xsl:choose>
           <xsl:when
-            test="document('../repository_index.xml')/repository_index/resources/resource[@name=$schema]">
+            test="document('../repository_index.xml')/repository_index/resources/resource[@name=$lschema]">
             <xsl:value-of select="'true'"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of
-              select="concat(' The schema ', $schema,
+              select="concat(' The schema ', $lschema,
                       ' is not identified as a resource in repository_index.xml')"/>
           </xsl:otherwise>
         </xsl:choose>
@@ -1450,7 +1470,7 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
     <xsl:param name="string"/>
 
     <xsl:variable name="nstring"
-      select="translate( $string,'&#xA;&#xD;','&#xA;')"/>
+      select="translate($string,'&#xA;&#xD;','&#xA;')"/>
 
     <xsl:choose>
       <xsl:when test="contains($nstring,'&#xA;')">
@@ -1531,6 +1551,24 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
 
       select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
 		<xsl:value-of select="$stdnumber"/>
+</xsl:template>
+
+<xsl:template name="get_module_iso_number">
+  <xsl:param name="module"/>
+  <xsl:variable name="mod_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="$module"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="part">
+    <xsl:value-of
+      select="document(concat($mod_dir,'/module.xml'))/module/@part"/>
+  </xsl:variable>
+  <xsl:variable name="status">
+    <xsl:value-of
+      select="document(concat($mod_dir,'/module.xml'))/module/@status"/>
+  </xsl:variable>
+  <xsl:value-of select="concat('ISO/',$status,'&#160;10303-',$part)"/>
 </xsl:template>
 
 
@@ -1781,8 +1819,262 @@ $Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
     </xsl:if>        
   </xsl:template>
 
+  <!-- check the schema name starts with Upper case and rest is lower case
+       the schema ends in _arm or _mim -->
+  <xsl:template name="check_schema_name">
+    <xsl:param name="arm_mim"/>
+    <xsl:param name="schema_name"/>
+    
+    <xsl:variable name="_arm_mim" select="concat('_',$arm_mim)"/>
+    <!-- check that the schema name ends in _arm or _mim -->
+    <xsl:if 
+      test="substring($schema_name, string-length($schema_name)-3) != $_arm_mim">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error q1: ',$arm_mim,' schema ',$schema_name,' must end in', $_arm_mim)"/>
+      </xsl:call-template>
+    </xsl:if>
 
-  
+    <!-- check that the schema name starts with Uppercase and rest is
+         lower case -->
+    <xsl:variable name="test">
+      <xsl:call-template name="check_upper_lower_case">
+        <xsl:with-param name="str" select="$schema_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:if test="$test = -1">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error q2: ',$arm_mim,' schema ',$schema_name,' incorrectly
+                  named. First letter must uppercase, rest is lower case')"/>
+      </xsl:call-template>    
+    </xsl:if>
+  </xsl:template>
+
+  <!-- return 1 if the first letter in the string is Upper case and all the
+       rest are lower case -->
+  <xsl:template name="check_upper_lower_case">
+    <xsl:param name="str"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:choose>
+      <xsl:when test="contains($UPPER,substring($str,1,1))">
+        <xsl:call-template name="check_all_lower_case">
+          <xsl:with-param name="str" select="substring($str,2)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- failed -->
+        -1
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+
+  <!-- check the entity name starts with Upper case and rest is lower case -->
+  <xsl:template name="check_arm_entity_name">
+    <xsl:param name="entity_name"/>
+    <xsl:variable name="test">
+      <xsl:call-template name="check_upper_lower_case">
+        <xsl:with-param name="str" select="$entity_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:if test="$test = -1">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error q3: the entity ',$entity_name,' incorrectly
+                  named. First letter must uppercase, rest is lower case')"/>
+      </xsl:call-template>    
+    </xsl:if>
+  </xsl:template>
+
+
+  <!-- check that the type name is all lower case -->
+  <xsl:template name="check_type_name">
+    <xsl:param name="type_name"/>
+    <xsl:variable name="test">
+      <xsl:call-template name="check_all_lower_case">
+        <xsl:with-param name="str" select="$type_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:if test="$test = -1">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error q4: the type ',$type_name,' incorrectly
+                  named. Should be all lower case')"/>
+      </xsl:call-template>    
+    </xsl:if>
+  </xsl:template>
+
+  <!-- check that the mim entity name is all lower case -->
+  <xsl:template name="check_mim_entity_name">
+    <xsl:param name="entity_name"/>
+    <xsl:variable name="test">
+      <xsl:call-template name="check_all_lower_case">
+        <xsl:with-param name="str" select="$entity_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:if test="$test = -1">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error q5: the entity ',$entity_name,' incorrectly
+                  named. Should be all lower case')"/>
+      </xsl:call-template>    
+    </xsl:if>
+  </xsl:template>
+
+
+
+  <!-- return 1 if all the letters in string are lower case -->
+  <xsl:template name="check_all_lower_case">
+    <xsl:param name="str"/>
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="first" select="substring($str,1,1)"/>
+    <xsl:variable name="rest" select="substring($str,2)"/>
+    <xsl:choose>
+      <xsl:when test="contains($LOWER,$first)">
+        <xsl:choose>
+          <xsl:when test="$rest">
+            <xsl:call-template name="check_all_lower_case">
+              <xsl:with-param name="str" select="$rest"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <!-- tested all the string -->
+            1 
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        -1
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- return the HREF to a table -->
+  <xsl:template name="table_href">
+    <xsl:param name="table" select="."/>
+
+    <xsl:variable name="file">
+      <xsl:call-template name="in_file">
+        <xsl:with-param name="table_fig_node" select="$table"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="aname">
+      <xsl:call-template name="table_aname"/>
+    </xsl:variable>
+    <xsl:value-of select="concat($file,'#',$aname)"/>
+  </xsl:template>
+
+  <!-- Return the A name with which a table will tagged -->
+  <xsl:template name="table_aname">
+    <xsl:param name="table" select="."/>
+    <xsl:param name="number"/>
+    <xsl:param name="id"/>
+
+    <xsl:variable name="aname">
+      <xsl:choose>
+        <xsl:when test="$id">
+          <xsl:value-of select="concat('table:',$id)"/>
+        </xsl:when>
+        <xsl:otherwise>          
+          <xsl:value-of select="concat('table:',$number)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$aname"/>   
+  </xsl:template>
+
+  <!-- return the file that any table or figure XML element is in -->
+  <xsl:template name="in_file">
+    <xsl:param name="table_fig_node"/>
+
+    <xsl:choose>
+      <xsl:when test="$table_fig_node/ancestor::purpose[1]">
+        <xsl:value-of select="concat('introduction',$FILE_EXT)"/>
+      </xsl:when>
+      <xsl:when test="$table_fig_node/ancestor::scope[1]">
+        <xsl:value-of select="concat('scope',$FILE_EXT)"/>
+      </xsl:when>
+      <xsl:when test="$table_fig_node/ancestor::inscope[1]|$table_fig_node/ancestor::outscope[1]">
+        <xsl:value-of select="concat('1_scope',$FILE_EXT)"/>
+      </xsl:when>
+      <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1]">
+        <xsl:value-of select="concat('arm',$FILE_EXT)"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="expressg_icon">
+    <xsl:param name="schema"/>
+    <xsl:param name="entity"/>
+    <xsl:param name="module_root" select="'..'"/>
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="$schema"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="module_file"
+      select="concat($module_dir,'/module.xml')"/> 
+
+    <xsl:variable name="href_expg">
+      <xsl:choose>
+        <xsl:when test="$entity">
+          <!-- temporary hack -need to search for the page on which the entity
+               is displayed -->
+          <xsl:choose>
+            <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
+              <xsl:choose>
+                <xsl:when test="./graphic.element/@page">
+                  <xsl:value-of select="concat('../armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="concat('../armexpg1',$FILE_EXT)"/>
+                </xsl:otherwise>
+              </xsl:choose>
+
+            </xsl:when>
+            <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
+              <xsl:choose>
+                <xsl:when test="./graphic.element/@page">
+                  <xsl:value-of select="concat('../mimexpg',./graphic.element/@page,$FILE_EXT)"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="concat('../mimexpg1',$FILE_EXT)"/>
+                </xsl:otherwise>
+              </xsl:choose>
+
+            </xsl:when>      
+          </xsl:choose>
+        </xsl:when>
+        
+        <xsl:otherwise>
+          <xsl:choose>
+            <xsl:when test="substring($schema, string-length($schema)-3)='_arm'">
+              <xsl:value-of select="concat($module_root,'/armexpg1',$FILE_EXT)"/>
+            </xsl:when>
+            <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
+              <xsl:value-of select="concat($module_root,'/mimexpg1',$FILE_EXT)"/>
+            </xsl:when>      
+          </xsl:choose>        
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    &#160;&#160;<a href="{$href_expg}">
+      <img align="middle" border="0" 
+        alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
+    </a>
+
+  </xsl:template>
+
+    
 </xsl:stylesheet>
 
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.8 2003/11/04 09:58:30 robbod Exp $ -->
+<!-- $Id: issues.xml,v 1.9 2003/11/06 17:02:11 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="required_resource_characterized">
@@ -112,6 +112,69 @@ I can't see any reason to assign a document to the required_resource
 (which basically is an assignment of a resource_item to a ...).
 </description>
 </comment>
+</issue>
+
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="RBN-4"
+   type="arm"
+   linkend="Required_resource_characterized_arm"
+   status="open"
+   category="minor_technical"
+   by="Rob Bodington"
+   date="2004-11-31"
+   seds="yes"
+   ballot_comment="no"
+   member_body="GB"
+   resolution="accept">
+<description>
+  <p>Raised as ballot comment IB1 against ap239_activity_recording</p>
+  <p>
+For required resources we sometimes have required properties (see example
+in the assigning_required_resources capability with the test equipment with
+a required accuracy). For every other case in PLCS we assign requirements
+when we want to have required properties - i.e. we create instances of
+requirement_assignment, requirement, requirement_version, etc. Requirement
+is a subtype of product because there is a need to configuration control
+requirements. In the case of required resources however, we cannot do this
+as the requirement_assignment select does not have
+required_resource_by_resource_item in it.  
+    </p>
+			<p> 
+Hence I have just shown properties being assigned in this
+capability. However, I am not comfortable with this, as those properties
+will be requirements and will effectively slip through the configuration
+control net. It also provides endless possibilities for data inconsistency
+through the product lifecycle. For example, imagine a system requirements
+document that defines supportability requirements - one of which is an
+inspection ramp that can lift a 2 tonne road vehicle. This would be
+modelled as a system_element (qualified as "required" and e.g. assembled
+into a system breakdown called "support solution"). However, when we get
+into the support phase, the required_resource_by_resource_item instance
+will be used to duplicate the same information originally defined in the
+requirements.  
+     </p>
+			<p>
+My recommendation is to go for a consistent approach, where requirement,
+requirement_version, etc. are always used to represent required properties
+- chances are these properties originated in a requirements management
+tool, anyway. But, to do this we need a change to the model to extend the
+requirement_assignment select to inclide required_resource_by_resource_item
+(and any other resource entities the PLCS modellers deem fit to include).
+    </p>
+		</description>
+	
+<comment
+   by="Rob Bodington"
+   date="2004-11-31">
+<description>
+The select required_resource_requirement_assignment_item in 
+ISO/TS 10303-1280 Required resource characterized
+should be extended to include required_resource (the supertype 
+of required_resource_by_specification and
+Required_resource_by_resource_item)
+</description>
 </issue>
 
 </issues>

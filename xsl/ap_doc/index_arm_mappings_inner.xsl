@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.13 2003/07/31 08:57:56 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.14 2003/08/01 08:58:23 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -494,6 +494,12 @@ $Id: index_arm_mappings_inner.xsl,v 1.13 2003/07/31 08:57:56 robbod Exp $
 
 <!-- this may fail if a select type contains another select type -->
 
+		<xsl:choose>
+
+			<xsl:when test="$called-schemas//schema/entity[@name=$this-item]" >
+
+<!-- named item is an entity -->
+
 				<xsl:variable name="this-item-mod" 
 					select="translate($called-schemas//schema[entity/@name=$this-item]/@name,$UPPER,$LOWER)" />
 				<xsl:variable name="this-item-dir" 
@@ -535,8 +541,45 @@ $Id: index_arm_mappings_inner.xsl,v 1.13 2003/07/31 08:57:56 robbod Exp $
 				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$this-select-mod}.{$this-select/@name}" 
 					target="info">select</A>
 -->
-				<br/>
 
+				<br/>
+			</xsl:when>
+			
+			<xsl:when test="$called-schemas//schema/type[@name=$this-item]" >
+
+<!-- named item is a type -->
+				<xsl:variable name="this-type-item" 
+					select="$called-schemas//schema/type[@name=$this-item]" />
+
+				<xsl:choose>
+					<xsl:when test="$this-type-item/select" >
+						<!-- select type - so recurse again -->
+						
+		<xsl:call-template name="assertion-links-for-select" >
+			<xsl:with-param name="select-items" select="substring-after(normalize-space($this-type-item/select/selectitems),' ')" />
+			<xsl:with-param name="this-select" select="$this-select"/>
+<!--			<xsl:with-param name="this-select-mod" select="$this-select-mod" /> -->
+			<xsl:with-param name="this-attribute" select="$this-attribute" />
+			<xsl:with-param name="this-entity" select="$this-entity" />
+			<xsl:with-param name="this-module" select="$this-module" />
+			<xsl:with-param name="called-schemas" select="$called-schemas" />
+			<xsl:with-param name="called-modules" select="$called-modules" />
+		</xsl:call-template>
+
+						
+					</xsl:when>
+					<xsl:otherwise>
+						<!-- named type -->
+						<xsl:value-of select="$this-item" /><br/>
+					</xsl:otherwise>
+				</xsl:choose>
+				
+
+
+
+			</xsl:when>
+
+		</xsl:choose>
 
 
 		<xsl:call-template name="assertion-links-for-select" >

@@ -3,8 +3,10 @@
   type="text/xsl" 
   href="../../../xsl/express.xsl"
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Justification5.vsd" />
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $"
+  description.file="arm_descriptions.xml"
+>
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="arm.vsd" />
 <schema name="Justification_arm">
 <interface kind="use" schema="Activity_arm">
 </interface>
@@ -14,36 +16,46 @@
 </interface>
 <interface kind="use" schema="Document_definition_arm">
 </interface>
+<interface kind="use" schema="Event_arm">
+</interface>
+<interface kind="use" schema="External_item_identification_assignment_arm">
+</interface>
 <interface kind="use" schema="Identification_assignment_arm">
 </interface>
-<interface kind="use" schema="State_arm">
+<interface kind="use" schema="Product_view_definition_arm">
 </interface>
-<type name="justification_application_element">
-<select extensible="YES" />
-<graphic.element page="4" xcoord="126" ycoord="694" />
+<interface kind="use" schema="Scheme_arm">
+</interface>
+<interface kind="use" schema="State_definition_arm">
+</interface>
+<interface kind="use" schema="Task_specification_arm">
+</interface>
+<type name="justification_classified_select">
+<select basedon="classified_select" selectitems="justification Justification_assignment" />
+<graphic.element page="2" xcoord="133" ycoord="722" />
 </type>
 <type name="justification_element">
-<select extensible="YES" selectitems="activity document_definition state" />
-<graphic.element page="3" xcoord="106" ycoord="708" />
+<select extensible="YES" selectitems="document_definition external_source_identification product_view_definition scheme scheme_entry task" />
+<graphic.element page="3" xcoord="283" ycoord="759" />
 </type>
-<type name="justification_select">
-<select basedon="classified_select" selectitems="justification justification_initiator justification_relationship justification_target_relationship" />
-<graphic.element page="2" xcoord="453" ycoord="745" />
-</type>
-<type name="justification_target">
-<select extensible="YES" />
-<graphic.element page="9" xcoord="99" ycoord="708" />
-</type>
-<type name="justification_target_context">
+<type name="justification_item_context">
 <select extensible="YES" />
 <graphic.element page="5" xcoord="100" ycoord="708" />
 </type>
-<entity name="and_justification_target" supertypes="justification_target_relationship">
+<type name="justification_reason">
+<select extensible="YES" selectitems="activity event justification state support_opportunity" />
+<graphic.element page="2" xcoord="354" ycoord="666" />
+</type>
+<type name="justified_item_select">
+<select extensible="YES" selectitems="activity task" />
+<graphic.element page="9" xcoord="106" ycoord="708" />
+</type>
+<entity name="and_justification_item" supertypes="justified_item_relationship">
 <explicit name="resolution">
 <aggregate type="LIST" lower="1" upper="?" />
-<typename name="justification_target_assignment" />
+<typename name="justified_item_assignment" />
 </explicit>
-<graphic.element page="2" xcoord="148" ycoord="141" />
+<graphic.element page="2" xcoord="128" ycoord="170" />
 </entity>
 <entity name="justification">
 <explicit name="description">
@@ -61,34 +73,34 @@
 <explicit name="performer">
 <typename name="identification_item" />
 </explicit>
-<graphic.element page="2" xcoord="248" ycoord="566" />
+<graphic.element page="2" xcoord="276" ycoord="558" />
 </entity>
-<entity name="justification_application">
-<explicit name="applies_to">
-<typename name="justification_application_element" />
-</explicit>
-<explicit name="justification">
-<typename name="justification" />
-</explicit>
-<graphic.element page="2" xcoord="513" ycoord="474" />
+<entity name="justification_application" supertypes="Justification_assignment">
+<graphic.element page="2" xcoord="133" ycoord="558" />
 </entity>
-<entity name="justification_initiator">
-<explicit name="addresses">
-<typename name="justification_target_assignment" />
-</explicit>
+<entity name="Justification_assignment" abstract.supertype="YES">
 <explicit name="description" optional="YES">
 <builtintype type="STRING" />
+</explicit>
+<explicit name="effect">
+<typename name="justification" />
 </explicit>
 <explicit name="involves">
 <typename name="justification_element" />
 </explicit>
-<explicit name="justification">
-<typename name="justification" />
-</explicit>
-<graphic.element page="2" xcoord="248" ycoord="687" />
+<graphic.element page="2" xcoord="134" ycoord="603" />
+</entity>
+<entity name="justification_impact" supertypes="Justification_assignment">
+<graphic.element page="2" xcoord="133" ycoord="518" />
 </entity>
 <entity name="justification_relationship">
-<graphic.element page="2" xcoord="453" ycoord="687" />
+<explicit name="related">
+<typename name="justification" />
+</explicit>
+<explicit name="relating">
+<typename name="justification" />
+</explicit>
+<graphic.element page="2" xcoord="493" ycoord="426" />
 </entity>
 <entity name="justification_relationship_relationship">
 <explicit name="related">
@@ -97,84 +109,111 @@
 <explicit name="relating">
 <typename name="justification_relationship" />
 </explicit>
-<graphic.element page="2" xcoord="513" ycoord="602" />
+<graphic.element page="2" xcoord="493" ycoord="361" />
 </entity>
-<entity name="justification_target_assignment">
-<explicit name="action">
+<entity name="justified_item_assignment">
+<explicit name="context_for">
+<aggregate type="SET" lower="0" upper="?" />
+<typename name="justification_item_context" />
+</explicit>
+<explicit name="item">
+<typename name="justification" />
+</explicit>
+<explicit name="justifies">
 <aggregate type="SET" lower="1" upper="?" />
-<typename name="justification_target" />
+<typename name="justified_item_select" />
 </explicit>
 <explicit name="residual_justification" optional="YES">
 <aggregate type="SET" lower="1" upper="?" />
 <typename name="justification" />
 </explicit>
-<explicit name="targeting">
-<typename name="justification" />
-</explicit>
-<explicit name="under">
-<aggregate type="SET" lower="0" upper="?" />
-<typename name="justification_target_context" />
-</explicit>
-<graphic.element page="2" xcoord="337" ycoord="347" />
+<graphic.element page="2" xcoord="307" ycoord="318" />
 </entity>
-<entity name="justification_target_relationship">
-<explicit name="description">
-<builtintype type="STRING" />
-</explicit>
+<entity name="justified_item_relationship">
 <explicit name="related">
-<typename name="justification_target_relationship_relationship" />
+<typename name="justified_item_assignment" />
 </explicit>
 <explicit name="relating">
-<typename name="justification_target_relationship_relationship" />
+<typename name="justified_item_assignment" />
 </explicit>
-<graphic.element page="2" xcoord="83" ycoord="283" />
+<graphic.element page="2" xcoord="128" ycoord="318" />
 </entity>
-<entity name="justification_target_relationship_relationship">
-<graphic.element page="2" xcoord="97" ycoord="375" />
-</entity>
-<entity name="or_justification_target" supertypes="justification_target_relationship">
+<entity name="or_justification_item" supertypes="justified_item_relationship">
 <explicit name="resolution">
 <aggregate type="LIST" lower="1" upper="?" />
-<typename name="justification_target_assignment" />
+<typename name="justified_item_assignment" />
 </explicit>
-<graphic.element page="2" xcoord="148" ycoord="99" />
+<graphic.element page="2" xcoord="128" ycoord="127" />
 </entity>
 <entity name="originates_from" supertypes="justification_relationship">
-<explicit name="justification">
+<explicit name="original">
 <typename name="justification" />
+<redeclaration entity-ref="justification_relationship" old_name="relating" />
 </explicit>
-<graphic.element page="2" xcoord="394" ycoord="609" />
+<explicit name="originate">
+<typename name="justification" />
+<redeclaration entity-ref="justification_relationship" old_name="related" />
+</explicit>
+<graphic.element page="2" xcoord="490" ycoord="603" />
 </entity>
 <entity name="reference_to" supertypes="justification_relationship">
-<explicit name="justification">
+<explicit name="referral">
 <typename name="justification" />
+<redeclaration entity-ref="justification_relationship" old_name="related" />
 </explicit>
-<graphic.element page="2" xcoord="394" ycoord="566" />
+<explicit name="referred">
+<typename name="justification" />
+<redeclaration entity-ref="justification_relationship" old_name="relating" />
+</explicit>
+<graphic.element page="2" xcoord="490" ycoord="561" />
 </entity>
-<entity name="sequence_of_justification_assignment" supertypes="justification_target_relationship">
-<explicit name="precessor">
-<typename name="justification_target_assignment" />
+<entity name="sequence_of" supertypes="justification_relationship">
+<explicit name="predecessor">
+<typename name="justification" />
+<redeclaration entity-ref="justification_relationship" old_name="relating" />
 </explicit>
 <explicit name="successor">
-<typename name="justification_target_assignment" />
+<typename name="justification" />
+<redeclaration entity-ref="justification_relationship" old_name="related" />
 </explicit>
-<graphic.element page="2" xcoord="148" ycoord="226" />
+<graphic.element page="2" xcoord="490" ycoord="476" />
+</entity>
+<entity name="sequence_of_justification_item" supertypes="justified_item_relationship">
+<explicit name="precessor">
+<typename name="justified_item_assignment" />
+<redeclaration entity-ref="justified_item_relationship" old_name="relating" />
+</explicit>
+<explicit name="successor">
+<typename name="justified_item_assignment" />
+<redeclaration entity-ref="justified_item_relationship" old_name="related" />
+</explicit>
+<graphic.element page="2" xcoord="128" ycoord="254" />
 </entity>
 <entity name="supeceeds" supertypes="justification_relationship">
-<explicit name="justification">
+<explicit name="Replacing">
 <typename name="justification" />
+<redeclaration entity-ref="justification_relationship" old_name="related" />
 </explicit>
-<graphic.element page="2" xcoord="394" ycoord="524" />
+<explicit name="superseded">
+<typename name="justification" />
+<redeclaration entity-ref="justification_relationship" old_name="relating" />
+</explicit>
+<graphic.element page="2" xcoord="490" ycoord="518" />
 </entity>
-<entity name="xor_justification_target" supertypes="justification_target_relationship">
+<entity name="support_opportunity">
+<graphic.element page="2" xcoord="496" ycoord="772" />
+</entity>
+<entity name="xor_justification_item" supertypes="justified_item_relationship">
 <explicit name="either">
-<typename name="justification_target_assignment" />
+<typename name="justified_item_assignment" />
+<redeclaration entity-ref="justified_item_relationship" old_name="relating" />
 </explicit>
 <explicit name="or_">
-<typename name="justification_target_assignment" />
+<typename name="justified_item_assignment" />
+<redeclaration entity-ref="justified_item_relationship" old_name="related" />
 </explicit>
-<graphic.element page="2" xcoord="148" ycoord="184" />
+<graphic.element page="2" xcoord="128" ycoord="212" />
 </entity>
-<graphic.element page="1" xcoord="297" ycoord="538" />
+<graphic.element page="1" xcoord="191" ycoord="772" />
 </schema>
 </express>

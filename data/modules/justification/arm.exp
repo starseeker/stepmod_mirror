@@ -1,6 +1,152 @@
 (*
-   $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
-   N - ISO/CD-TS - 10303- justification - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+  $Id: $
+  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-ZZZZ Justification *)
+
 SCHEMA Justification_arm;
+
+USE FROM Activity_arm;
+
+USE FROM Classification_arm;
+
+USE FROM Date_time_assignment_arm;
+
+USE FROM Document_definition_arm;
+
+USE FROM Event_arm;
+
+USE FROM External_item_identification_assignment_arm;
+
+USE FROM Identification_assignment_arm;
+
+USE FROM Product_view_definition_arm;
+
+USE FROM Scheme_arm;
+
+USE FROM State_definition_arm;
+
+USE FROM Task_specification_arm;
+
+TYPE justification_classified_select = SELECT BASED_ON classified_select WITH
+  (justification,
+   Justification_assignment);
+END_TYPE;
+
+TYPE justification_element = EXTENSIBLE SELECT 
+  (document_definition,
+   external_source_identification,
+   product_view_definition,
+   scheme,
+   scheme_entry,
+   task);
+END_TYPE;
+
+TYPE justification_item_context = EXTENSIBLE SELECT ;
+END_TYPE;
+
+TYPE justification_reason = EXTENSIBLE SELECT 
+  (activity,
+   event,
+   justification,
+   state,
+   support_opportunity);
+END_TYPE;
+
+TYPE justified_item_select = EXTENSIBLE SELECT 
+  (activity,
+   task);
+END_TYPE;
+
+ENTITY and_justification_item
+SUBTYPE OF (justified_item_relationship);
+  resolution : LIST [1 : ?] OF justified_item_assignment;
+END_ENTITY;
+
+ENTITY justification;
+  description : STRING;
+  origin_date : date_or_time_assigment;
+  originator : identification_item;
+  perform_date : date_or_time_assigment;
+  performer : identification_item;
+END_ENTITY;
+
+ENTITY justification_application
+SUBTYPE OF (Justification_assignment);
+END_ENTITY;
+
+ENTITY Justification_assignment ABSTRACT SUPERTYPE;
+  description : OPTIONAL STRING;
+  effect : justification;
+  involves : justification_element;
+END_ENTITY;
+
+ENTITY justification_impact
+SUBTYPE OF (Justification_assignment);
+END_ENTITY;
+
+ENTITY justification_relationship;
+  related : justification;
+  relating : justification;
+END_ENTITY;
+
+ENTITY justification_relationship_relationship;
+  related : justification_relationship;
+  relating : justification_relationship;
+END_ENTITY;
+
+ENTITY justified_item_assignment;
+  context_for : SET [0 : ?] OF justification_item_context;
+  item : justification;
+  justifies : SET [1 : ?] OF justified_item_select;
+  residual_justification : OPTIONAL SET [1 : ?] OF justification;
+END_ENTITY;
+
+ENTITY justified_item_relationship;
+  related : justified_item_assignment;
+  relating : justified_item_assignment;
+END_ENTITY;
+
+ENTITY or_justification_item
+SUBTYPE OF (justified_item_relationship);
+  resolution : LIST [1 : ?] OF justified_item_assignment;
+END_ENTITY;
+
+ENTITY originates_from
+SUBTYPE OF (justification_relationship);
+  SELF\justification_relationship.relating RENAMED original : justification;
+  SELF\justification_relationship.related RENAMED originate : justification;
+END_ENTITY;
+
+ENTITY reference_to
+SUBTYPE OF (justification_relationship);
+  SELF\justification_relationship.related RENAMED referral : justification;
+  SELF\justification_relationship.relating RENAMED referred : justification;
+END_ENTITY;
+
+ENTITY sequence_of
+SUBTYPE OF (justification_relationship);
+  SELF\justification_relationship.relating RENAMED predecessor : justification;
+  SELF\justification_relationship.related RENAMED successor : justification;
+END_ENTITY;
+
+ENTITY sequence_of_justification_item
+SUBTYPE OF (justified_item_relationship);
+  SELF\justified_item_relationship.relating RENAMED precessor : justified_item_assignment;
+  SELF\justified_item_relationship.related RENAMED successor : justified_item_assignment;
+END_ENTITY;
+
+ENTITY supeceeds
+SUBTYPE OF (justification_relationship);
+  SELF\justification_relationship.related RENAMED Replacing : justification;
+  SELF\justification_relationship.relating RENAMED superseded : justification;
+END_ENTITY;
+
+ENTITY support_opportunity;
+END_ENTITY;
+
+ENTITY xor_justification_item
+SUBTYPE OF (justified_item_relationship);
+  SELF\justified_item_relationship.relating RENAMED either : justified_item_assignment;
+  SELF\justified_item_relationship.related RENAMED or_ : justified_item_assignment;
+END_ENTITY;
+
 END_SCHEMA;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.31 2003/09/08 22:11:46 thendrix Exp $
+$Id: resource.xsl,v 1.32 2003/10/09 04:08:06 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -282,10 +282,88 @@ $Id: resource.xsl,v 1.31 2003/09/08 22:11:46 thendrix Exp $
           </xsl:when>
 
           <xsl:when test="$status='FDIS'">
-            Final Draft International Standard
+            <p>
+              This document is a Final Draft International Standard  and is
+              copyright-protected by ISO. Except as permitted under the
+              applicable laws of the user's country, neither this ISO
+              document nor any extract from it may be reproduced, stored in
+              a retrieval system or transmitted in any form or by 
+              any means, electronic, photocopying, recording, or otherwise,
+              without prior written permission being secured.  
+            </p>
+            <p>
+              Requests for permission to reproduce should be addressed to
+              ISO at the address below or ISO's member body in the 
+              country of the requester:
+            </p>
+
+            <div align="center">
+              <!--
+              Copyright Manager, ISO Central Secretariat<br/>
+              1 rue de Varembe<br/>
+              CH-1211 Geneva 20 Switzerland<br/>
+              telephone: +41 22 749 0111<br/>
+              telefacsimile: +41 22 734 0179<br/>
+              Internet: central@isocs.iso.ch, X.400: c=ch; a=400net; p=iso;
+o=isocs; s=central<br/>
+-->
+              ISO copyright office<br/>
+              Case postale 56, CH-1211 Geneva 20<br/>
+              Tel. +41 22 749 01 11<br/>
+              Fax +41-22-734-10 79<br/>
+              E-mail copyright@iso.ch<br/>
+             </div>
+ 
+            <p>
+              Reproduction for sales purposes may be subject to
+              royalty payments or a licensing agreement.
+            </p>
+            <p>
+              Violators may be prosecuted.
+            </p>
+
           </xsl:when>
           <xsl:when test="$status='DIS'">
-            Draft International Standard
+            <p>
+              This document is a Draft International Standard  and is
+              copyright-protected by ISO. Except as permitted under the
+              applicable laws of the user's country, neither this ISO
+              document nor any extract from it may be reproduced, stored in
+              a retrieval system or transmitted in any form or by 
+              any means, electronic, photocopying, recording, or otherwise,
+              without prior written permission being secured.  
+            </p>
+            <p>
+              Requests for permission to reproduce should be addressed to
+              ISO at the address below or ISO's member body in the 
+              country of the requester:
+            </p>
+
+            <div align="center">
+              <!--
+              Copyright Manager, ISO Central Secretariat<br/>
+              1 rue de Varembe<br/>
+              CH-1211 Geneva 20 Switzerland<br/>
+              telephone: +41 22 749 0111<br/>
+              telefacsimile: +41 22 734 0179<br/>
+              Internet: central@isocs.iso.ch, X.400: c=ch; a=400net; p=iso;
+o=isocs; s=central<br/>
+-->
+              ISO copyright office<br/>
+              Case postale 56, CH-1211 Geneva 20<br/>
+              Tel. +41 22 749 01 11<br/>
+              Fax +41-22-734-10 79<br/>
+              E-mail copyright@iso.ch<br/>
+             </div>
+ 
+            <p>
+              Reproduction for sales purposes may be subject to
+              royalty payments or a licensing agreement.
+            </p>
+            <p>
+              Violators may be prosecuted.
+            </p>
+
           </xsl:when>
           <xsl:when test="$status='IS'">
             International Standard

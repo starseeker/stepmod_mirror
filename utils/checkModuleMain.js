@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.1 2003/02/15 12:45:22 robbod Exp $
+//$Id: checkModuleMain.js,v 1.2 2003/02/18 08:10:46 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -37,7 +37,7 @@ var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
 
 
 
-var moduleSysFiles = new Array("main.xml", "cover.xml", "contents.xml", 
+var moduleSysFiles = new Array("main.xml", "abstract.xml", "cover.xml", "contents.xml", 
 			      "introduction.xml", "foreword.xml", 
 			      "1_scope.xml", "2_refs.xml", "3_defs.xml", "4_info_reqs.xml", 
 			      "5_main.xml", "5_mim.xml", "5_mapping.xml", 
@@ -60,8 +60,10 @@ var moduleNavFiles = new Array("arm_descriptions.xml",
 			       "summary.xml");
 
 var moduleFiles = new Array("module.xml",
-			   "arm.xml",
-			   "mim.xml");
+			    "arm.xml",
+			    "mim.xml",
+			    "arm.exp",
+			    "mim.exp");
 
 
 
@@ -304,7 +306,7 @@ function checkModule(moduleName) {
 }
 
 // Check that the express file is valid XML
-// Check that the description fileis present
+// Check that the description file is present
 function checkExpress(moduleName,expressXml) {
     var xmlFile = "../data/modules/"+moduleName+"/"+expressXml;
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
@@ -334,6 +336,33 @@ function checkExpress(moduleName,expressXml) {
     }
 }
 
+
+// check that the arm.exp and mim.exp file have the same WG Numbers as 
+// arm.xml and mim.xml
+// NOT FINISHED
+function checkExpressFiles(moduleName,armmim) {
+    var xmlFile = "../data/modules/"+moduleName+"/module.xml";
+    var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
+    xml.async = false;
+    xml.load(xmlFile);
+    if (checkXMLParse(xml)) {
+	var expr = '/module';	
+	var moduleNodes = xml.selectNodes(expr);
+	var members = moduleNodes.length;
+	var moduleNode = moduleNodes(0);
+	var wgnAttr = "wg.number."+armmim;
+	userMessage(wgnAttr);
+	var wgn = moduleNode.attributes.getNamedItem(wgnAttr);
+	if (wgn) {
+	    wgn = wgn.nodeValue;
+	} else {
+	    wgn = "";
+	}
+	// Now open arm.exp and make sure that:
+	// - there is one schema and it is the correct name
+	// - the header is correc tand has the same number as in the module.
+    }
+}
 
 function testModule(moduleName) {
     errorCount = 0;
@@ -402,9 +431,7 @@ function Main() {
 //Main();
 
 //MainWindow("ap239_management_resource_information");
-//checkModule("condition");
-//checkModule("condition_criteria");
-//testModule("classification_with_attributes");
+//testModule("approval");
 
 
 //testRepository();

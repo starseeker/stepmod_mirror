@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.87 2002/08/05 09:41:09 robbod Exp $
+$Id: module.xsl,v 1.88 2002/08/05 12:39:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2237,6 +2237,7 @@ o=isocs; s=central<br/>
      -->
 <xsl:template name="output_normrefs">
   <xsl:param name="module_number"/>
+  <xsl:param name="current_module"/>
   <h3>2 Normative references</h3>
   The following normative documents contain provisions which, through
   reference in this text, constitute provisions of this International
@@ -2249,12 +2250,15 @@ o=isocs; s=central<br/>
   registers of currently valid International Standards. 
 
   <!-- output the normative reference explicitly defined in the module -->
-  <xsl:apply-templates select="/modules/normrefs/normref"/>
+  <xsl:apply-templates select="/modules/normrefs/normref">
+    <xsl:with-param name="current_module" select="$current_module"/>
+  </xsl:apply-templates>
 
   <!-- output the default normative reference and any implicit in the
        module through the ARM and MIM -->
   <xsl:call-template name="output_default_normrefs">
     <xsl:with-param name="module_number" select="$module_number"/>
+    <xsl:with-param name="current_module" select="$current_module"/>
   </xsl:call-template>
 
 </xsl:template>
@@ -2264,6 +2268,7 @@ o=isocs; s=central<br/>
      module through the ARM and MIM -->
 <xsl:template name="output_default_normrefs">
   <xsl:param name="module_number"/>
+  <xsl:param name="current_module"/>
   <xsl:variable name="normrefs">
     <xsl:call-template name="normrefs_list"/>
   </xsl:variable>
@@ -2277,6 +2282,7 @@ o=isocs; s=central<br/>
   <xsl:call-template name="output_normrefs_rec">
     <xsl:with-param name="normrefs" select="$pruned_normrefs"/>
     <xsl:with-param name="module_number" select="$module_number"/>
+    <xsl:with-param name="current_module" select="$current_module"/>
   </xsl:call-template>  
 
 
@@ -2285,11 +2291,19 @@ o=isocs; s=central<br/>
   <xsl:call-template name="output_unpublished_normrefs">
     <xsl:with-param name="normrefs" select="$normrefs"/>
   </xsl:call-template>
+
+  <!-- output a footnote to say that the normative reference has not been
+       published -->
+  <xsl:call-template name="output_derogated_normrefs">
+    <xsl:with-param name="normrefs" select="$normrefs"/>
+    <xsl:with-param name="current_module" select="$current_module"/>
+  </xsl:call-template>
   
 </xsl:template>
 
 <xsl:template name="output_normrefs_rec">
   <xsl:param name="module_number"/>
+  <xsl:param name="current_module"/>
   <xsl:param name="normrefs"/>
   <xsl:choose>
     <xsl:when test="$normrefs">
@@ -2321,7 +2335,10 @@ o=isocs; s=central<br/>
             <xsl:if test="$module_number!=$part_no">
               
               <xsl:apply-templates 
-                select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
+                select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]">
+
+                <xsl:with-param name="current_module" select="$current_module"/>
+              </xsl:apply-templates>
             </xsl:if>
           </xsl:when>
           <xsl:otherwise>
@@ -2350,7 +2367,9 @@ o=isocs; s=central<br/>
         
         <!-- output the normative reference derived from the module -->
         <xsl:apply-templates 
-          select="document($module_xml)/module" mode="normref"/>
+          select="document($module_xml)/module" mode="normref">
+          <xsl:with-param name="current_module" select="$current_module"/>
+        </xsl:apply-templates>
         
       </xsl:when>
       
@@ -2367,6 +2386,7 @@ o=isocs; s=central<br/>
     <xsl:call-template name="output_normrefs_rec">
       <xsl:with-param name="normrefs" select="$rest"/>
       <xsl:with-param name="module_number" select="$module_number"/>
+      <xsl:with-param name="current_module" select="$current_module"/>
     </xsl:call-template>
     
   </xsl:when>
@@ -2489,13 +2509,142 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
   </xsl:choose>
 </xsl:template>
 
+<!-- output a footnote to say that the normative reference has been
+     derogated 
+     Check the normative references in the nodule, then all the auto
+     generated normrefs. These should be passed as a parameter the value of
+     which is deduced by: template name="normrefs_list"
+-->
+<xsl:template name="output_derogated_normrefs">
+  <xsl:param name="current_module"/>
+  <xsl:param name="normrefs"/>
+
+  <xsl:variable name="footnote">
+    <xsl:choose>
+      <xsl:when 
+        test="( string($current_module/@status)='TS' or 
+                string($current_module/@status)='IS') and
+              ( string(./@status)='CD' or string(./@status)='CD-TS')">
+        <xsl:value-of select="'y'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:if test="( string($current_module/@status)='TS' or 
+                      string($current_module/@status)='IS')">
+          <xsl:call-template name="output_derogated_normrefs_rec">
+            <xsl:with-param name="normrefs" select="$normrefs"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:if test="$footnote='y'">
+    <p>
+      <a name="derogation">
+        2) Reference applicable during ballot or review period.
+      </a>      
+    </p>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="output_derogated_normrefs_rec">
+  <xsl:param name="normrefs"/>
+
+  <xsl:choose>
+    <xsl:when test="$normrefs">
+      <xsl:variable 
+        name="first"
+        select="substring-before(substring-after($normrefs,','),',')"/>
+      <xsl:variable 
+        name="rest"
+        select="substring-after(substring-after($normrefs,','),',')"/>      
+      
+      <xsl:variable name="footnote">
+        <xsl:choose>
+    <!-- ASSUMING THAT ALL NORMREFS IN normrefs.xml ARE
+         PUBLISHED THERE FORE CANNOT BE DEROGATED 
+
+          <xsl:when test="contains($first,'normref:')">
+            <xsl:variable 
+              name="normref" 
+              select="substring-after($first,'normref:')"/>
+            <xsl:choose>
+              <xsl:when
+test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/stdref[@published='n']">
+                <xsl:value-of select="'y'"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'n'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+          -->
+
+          <xsl:when test="contains($first,'module:')">
+            <xsl:variable 
+              name="module" 
+              select="substring-after($first,'module:')"/>
+            
+            <xsl:variable name="module_dir">
+              <xsl:call-template name="module_directory">
+                <xsl:with-param name="module" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+
+            <xsl:variable name="module_xml" 
+              select="concat($module_dir,'/module.xml')"/>
+
+            <xsl:variable name="module_status" 
+              select="string(document($module_xml)/module/@status)"/>
+            <xsl:choose>
+              <xsl:when test="$module_status='CD-TS' or $module_status='CD'">
+                <xsl:value-of select="'y'"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'n'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+
+          <xsl:otherwise>
+            <xsl:value-of select="'n'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:choose>
+        <xsl:when test="$footnote='n'">
+          <!-- only recurse if no unpublished standard found -->      
+          <xsl:call-template name="output_derogated_normrefs_rec">
+            <xsl:with-param name="normrefs" select="$rest"/>
+          </xsl:call-template>        
+        </xsl:when>
+        <xsl:otherwise>
+          <!-- footnote found so stop -->
+          <xsl:value-of select="'y'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      
+    </xsl:when>
+    <xsl:otherwise>
+      <!-- end of recursion -->
+      <!-- <xsl:value-of select="$footnote"/> -->
+      <xsl:value-of select="'n'"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 
 
 <!-- get the normrefs out of the normrefs.xml database -->
 <xsl:template match="normref.inc">
+  <xsl:param name="current_module"/>
   <xsl:variable name="ref" select="@ref"/>
   <xsl:apply-templates 
-    select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$ref]"/>
+    select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$ref]">
+
+    <xsl:with-param name="current_module" select="$current_module"/>
+  </xsl:apply-templates>
 </xsl:template>
 
 <xsl:template name="output_resource_normref">
@@ -2530,6 +2679,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 </xsl:template>
 
 <xsl:template match="module" mode="normref">
+  <xsl:param name="current_module"/>
   <p>
 
     <xsl:variable name="part">
@@ -2566,13 +2716,27 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 
     <xsl:value-of select="$stdnumber"/>
 
-    <xsl:if test="@published='n'">
-      <sup>
-        <a href="#tobepub">
-          1
-        </a>
-      </sup>
-    </xsl:if>,&#160;
+    <xsl:choose>
+      <!-- if the module is a TS or IS module and is referring to a 
+           CD or CD-TS module -->
+      <xsl:when 
+        test="( string($current_module/@status)='TS' or 
+                string($current_module/@status)='IS') and
+              ( string(./@status)='CD' or string(./@status)='CD-TS')">
+        <sup>
+          <a href="#derogation">
+            2
+          </a>
+        </sup>
+      </xsl:when>
+      <xsl:when test="@published='n'">
+        <sup>
+          <a href="#tobepub">
+            1
+          </a>
+        </sup>
+      </xsl:when>
+    </xsl:choose>,&#160;
     <i>
       <xsl:value-of select="$stdtitle"/>
       <xsl:value-of select="$subtitle"/>
@@ -2582,6 +2746,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 
 <!-- Output the normative reference -->
 <xsl:template match="normref">
+  <xsl:param name="current_module"/>
   <xsl:variable name="stdnumber">
     <xsl:choose>
       <xsl:when test="stdref/pubdate">
@@ -2598,13 +2763,27 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
   <p>
     <!-- <xsl:value-of select="concat(stdref/orgname,' ',stdref/stdnumber)"/> -->
     <xsl:value-of select="$stdnumber"/>
-    <xsl:if test="stdref[@published='n']">
-      <sup>
-        <a href="#tobepub">
-          1
-        </a>
-      </sup>
-    </xsl:if>,&#160;
+    <xsl:choose>
+      <!-- if the module is a TS or IS module and is referring to a 
+           CD or CD-TS module -->
+      <xsl:when 
+        test="( string($current_module/@status)='TS' or 
+                string($current_module/@status)='IS') and
+              ( string(./@status)='CD' or string(./@status)='CD-TS')">
+        <sup>
+          <a href="#derogation">
+            2
+          </a>
+        </sup>
+      </xsl:when>
+      <xsl:when test="stdref[@published='n']">
+        <sup>
+          <a href="#tobepub">
+            1
+          </a>
+        </sup>
+      </xsl:when>
+    </xsl:choose>,&#160;
     <i>
       <xsl:value-of select="stdref/stdtitle"/>
       <!-- make sure that the title ends with a . -->
@@ -2788,6 +2967,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
   <xsl:param name="normref_ids"/>
   <xsl:param name="section"/>
   <xsl:param name="module_number"/>
+  <xsl:param name="current_module"/>
 
   <xsl:choose>
     <xsl:when test="$normrefs">
@@ -2835,7 +3015,9 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
             <ul>
               <!-- now output the terms -->
               <xsl:apply-templates 
-                select="document('../data/basic/normrefs_default.xml')/normrefs/normref.inc[@normref=$ref]/term.ref" mode="normref"/>
+                select="document('../data/basic/normrefs_default.xml')/normrefs/normref.inc[@normref=$ref]/term.ref" mode="normref">
+                <xsl:with-param name="current_module" select="$current_module"/>
+              </xsl:apply-templates>
               <!-- check to see if any terms from the same normref are 
                    identified in module -->
               <xsl:apply-templates 
@@ -2845,6 +3027,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
                 select="/module/normrefs/normref.inc"
                 mode="normref_check">
                 <xsl:with-param name="module_number" select="$part_no"/>
+                <xsl:with-param name="current_module" select="$current_module"/>
               </xsl:apply-templates>
 
             </ul>
@@ -2928,6 +3111,7 @@ $module_ok,' Check the normatives references')"/>
         <xsl:with-param name="normref_ids" select="$normref_ids"/>
         <xsl:with-param name="section" select="$section_no"/>
         <xsl:with-param name="module_number" select="$module_number"/>
+        <xsl:with-param name="current_module" select="$current_module"/>
       </xsl:call-template>
 
     </xsl:when>

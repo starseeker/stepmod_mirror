@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.109 2003/07/29 16:24:17 robbod Exp $
+$Id: common.xsl,v 1.110 2003/07/30 06:58:05 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -657,11 +657,8 @@ $Id: common.xsl,v 1.109 2003/07/29 16:24:17 robbod Exp $
      An unordered list
      -->
 <xsl:template match="ul|UL">
-  <xsl:param name="check_punctuation" select="'no'"/>
   <ul>
-    <xsl:apply-templates>
-      <xsl:with-param name="check_punctuation" select="$check_punctuation"/>
-    </xsl:apply-templates>
+    <xsl:apply-templates/>
   </ul>
 </xsl:template>
 
@@ -708,9 +705,8 @@ $Id: common.xsl,v 1.109 2003/07/29 16:24:17 robbod Exp $
      for the punctuation of a list
      -->
 <xsl:template match="li|LI">
-  <xsl:param name="check_punctuation" select="'no'"/>
   <xsl:choose>
-    <xsl:when test="$check_punctuation = 'no'">
+    <xsl:when test="$ERROR_CHECK_LIST_ITEMS = 'NO'">
       <li>
         <xsl:apply-templates/>
       </li>
@@ -752,9 +748,7 @@ $Id: common.xsl,v 1.109 2003/07/29 16:24:17 robbod Exp $
             </xsl:call-template>
           </xsl:when>
         </xsl:choose>
-        <xsl:apply-templates>
-          <xsl:with-param name="check_punctuation" select="$check_punctuation"/>
-        </xsl:apply-templates> 
+        <xsl:apply-templates/>
       </li>
     </xsl:otherwise>
   </xsl:choose>

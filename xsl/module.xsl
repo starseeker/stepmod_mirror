@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.153 2003/07/28 17:09:22 robbod Exp $
+$Id: module.xsl,v 1.154 2003/07/30 06:58:05 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1032,9 +1032,7 @@ o=isocs; s=central<br/>
   </xsl:apply-templates>
 
   <ul>
-    <xsl:apply-templates select="li">
-      <xsl:with-param name="check_punctuation" select="'yes'"/>
-    </xsl:apply-templates>
+    <xsl:apply-templates select="li"/>
   </ul>
 </xsl:template>
 
@@ -1050,9 +1048,7 @@ o=isocs; s=central<br/>
   </xsl:apply-templates>
 
   <ul>
-    <xsl:apply-templates>
-      <xsl:with-param name="check_punctuation" select="'yes'"/>
-    </xsl:apply-templates>
+    <xsl:apply-templates/>
   </ul>
 </xsl:template>
 

@@ -1,9 +1,7 @@
 (*
-
-	WG12 N2161 								2000-05-30
-
-	EXPRESS Declarations for ISO 10303-41: 3rd Edition
-*)
+$Id: $
+ISO TC184/SC4/WG12 N12 - ISO/CD-TS 10303-41 Fundamentals of product description and support - EXPRESS
+*) 
 
 
 SCHEMA action_schema; 
@@ -131,8 +129,9 @@ ENTITY versioned_action_request_relationship;
   related_versioned_action_request : versioned_action_request;
 END_ENTITY;
 
-FUNCTION acyclic_action_method_relationship (relation : action_method_relationship; relatives : SET [1:?] OF action_method; specific_relation : STRING):BOOLEAN;
-    LOCAL
+FUNCTION acyclic_action_method_relationship
+ (relation : action_method_relationship; relatives : SET OF action_method; specific_relation : STRING) : BOOLEAN; 
+ LOCAL
       x : SET OF action_method_relationship;
     END_LOCAL;
 
@@ -146,10 +145,11 @@ FUNCTION acyclic_action_method_relationship (relation : action_method_relationsh
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-  END_FUNCTION;
+END_FUNCTION; 
 
-  FUNCTION acyclic_action_relationship (relation : action_relationship; relatives : SET [1:?] OF action; specific_relation : STRING):BOOLEAN;
-    LOCAL
+FUNCTION acyclic_action_relationship
+ (relation : action_relationship; relatives : SET OF action; specific_relation : STRING) : BOOLEAN; 
+   LOCAL
       x : SET OF action_relationship;
     END_LOCAL;
 
@@ -163,10 +163,11 @@ FUNCTION acyclic_action_method_relationship (relation : action_method_relationsh
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-  END_FUNCTION;
+END_FUNCTION; 
 
-  FUNCTION acyclic_action_resource_relationship (relation : action_resource_relationship; relatives : SET [1:?] OF action_resource; specific_relation : STRING):BOOLEAN;
-    LOCAL
+FUNCTION acyclic_action_resource_relationship
+ (relation : action_resource_relationship; relatives : SET OF action_resource; specific_relation : STRING) : BOOLEAN; 
+LOCAL
       x : SET OF action_resource_relationship;
     END_LOCAL;
 
@@ -180,6 +181,24 @@ FUNCTION acyclic_action_method_relationship (relation : action_method_relationsh
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-  END_FUNCTION;
+END_FUNCTION; 
+
+FUNCTION acyclic_versioned_action_request_relationship
+ (relation : versioned_action_request_relationship; relatives : SET OF versioned_action_request; specific_relation : STRING) : BOOLEAN; 
+   LOCAL
+      x : SET OF versioned_action_request_relationship;
+    END_LOCAL;
+
+    IF relation.relating_versioned_action_request IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(actn <* bag_to_set(USEDIN(relation.relating_versioned_action_request, 'ACTION_SCHEMA.' + 'VERSIONED_ACTION_REQUEST_RELATIONSHIP.' + 'RELATED_VERSIONED_ACTION_REQUEST')) | specific_relation IN TYPEOF(actn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_versioned_action_request_relationship(x[i], relatives + relation.relating_versioned_action_request, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
 
 END_SCHEMA;  -- action_schema

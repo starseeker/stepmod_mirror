@@ -3,7 +3,7 @@
   href="../../../xsl/express.xsl"
 ?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: 2003/07/02 09:12:27 $" rcs.revision="$Revision: 1.9 $" reference="ISO 10303-41" description.file="descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2003/07/02 13:10:11 $" rcs.revision="$Revision: 1.10 $" reference="ISO 10303-41" description.file="descriptions.xml">
 	<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="Action_schema_v006.vsd"/>
 	<schema name="action_schema">
 		<interface kind="reference" schema="basic_attribute_schema">
@@ -305,7 +305,37 @@ LOCAL
     RETURN (TRUE);
       </algorithm>
 		</function>
+		
+		<function name="acyclic_versioned_action_request_relationship">
+			<parameter name="relation">
+				<typename name="versioned_action_request_relationship"/>
+			</parameter>
+			<parameter name="relatives">
+				<aggregate type="SET"/>
+				<typename name="versioned_action_request"/>
+			</parameter>
+			<parameter name="specific_relation">
+				<builtintype type="STRING"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
+   LOCAL
+      x : SET OF versioned_action_request_relationship;
+    END_LOCAL;
 
+    IF relation.relating_versioned_action_request IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(actn &lt;* bag_to_set(USEDIN(relation.relating_versioned_action_request, 'ACTION_SCHEMA.' + 'VERSIONED_ACTION_REQUEST_RELATIONSHIP.' + 'RELATED_VERSIONED_ACTION_REQUEST')) | specific_relation IN TYPEOF(actn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_versioned_action_request_relationship(x[i], relatives + relation.relating_versioned_action_request, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+			</algorithm>
+		</function>
+		
 		<graphic.element page="1" xcoord="156" ycoord="149"/>
 	</schema>
 </express>

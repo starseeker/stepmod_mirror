@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.99 2003/06/09 11:07:18 robbod Exp $
+$Id: common.xsl,v 1.100 2003/07/07 11:12:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1135,6 +1135,16 @@ $Id: common.xsl,v 1.99 2003/06/09 11:07:18 robbod Exp $
 
   </xsl:template>
 
+
+  <!-- a reference to an EXPRESS construct in a module ARM or MIM or in
+       a standard outside of STEPMOD -->
+  <xsl:template match="express_extref">
+    <b>
+      <xsl:value-of select="@linkend"/>
+    </b>
+    defined in 
+    <xsl:value-of select="@standard"/>
+  </xsl:template>
 
   <!-- a reference to an EXPRESS construct in a module ARM or MIM or in the
        Integrated Resource. The format of the linkend attribute that
@@ -2597,7 +2607,14 @@ is case sensitive.')"/>
           <xsl:if
             test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]
                   or 
-                  $express_nodes/express/schema[@name=$schema]/type[@name=$entity_type])">
+                  $express_nodes/express/schema[@name=$schema]/type[@name=$entity_type]
+                  or
+                  $express_nodes/express/schema[@name=$schema]/rule[@name=$entity_type]
+                  or 
+                  $express_nodes/express/schema[@name=$schema]/function[@name=$entity_type]
+                  or
+                  $express_nodes/express/schema[@name=$schema]/procedure[@name=$entity_type]
+                  )">
             <xsl:call-template name="error_message">
               <xsl:with-param name="message" 
                 select="concat('Error ER-7: The express_ref linkend#', 

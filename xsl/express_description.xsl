@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.25 2003/06/30 20:51:49 robbod Exp $
+$Id: express_description.xsl,v 1.26 2003/06/30 21:53:12 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -294,7 +294,7 @@ and  string is more than the schema name ( hence not the  schema )
 
 
     </xsl:if>
-    
+
     <xsl:variable name="d" select="$description" />
       <xsl:variable name="p" select="$d//text()"/>
       <xsl:variable name="q" select="$d//b/text()" />

@@ -1,10 +1,10 @@
-//$Id: express2xml.js,v 1.20 2002/07/30 10:44:41 robbod Exp $
+//$Id: express2xml.js,v 1.21 2002/08/07 06:36:23 goset1 Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
 //  Other editors:
 //	T. Hendrix (Boeing) 
-//	P. Huau (GOSET) for subtype_constraint
+//	P. Huau (GOSET) for subtype_constraint and algorithms of global rules
 //
 //  Purpose:
 //    JScript to convert an Express file to an XML file
@@ -346,7 +346,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.20 2002/07/30 10:44:41 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.21 2002/08/07 06:36:23 goset1 Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -356,7 +356,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.20 $";
+    var appCVSRevision = "$Revision: 1.21 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -1147,7 +1147,7 @@ FunctionObj.prototype.loadAlgorithm = function(algoStr,expTs,outTs)
 {
     var l = expTs.ReadLine();
     lNumber = expTs.Line;
-    var reg = /\bEND_FUNCTION|END_PROCEDURE/;
+    var reg = /\bEND_FUNCTION|END_PROCEDURE|WHERE/;
     if (l.match(reg)) {
 	this.algorithm = algoStr+"\n";
     } else {
@@ -1181,6 +1181,7 @@ function xmlFunction(line,expTs,outTs) {
 function xmlProcedure(line,expTs,outTs) {
     var name = getWord(2,line);
     var fnObj = new FunctionObj(name);
+
     fnObj.loadParamList(line,expTs,outTs);
     xmlOpenElement("<procedure",outTs);
     xmlAttr("name",fnObj.name,outTs);
@@ -1191,7 +1192,6 @@ function xmlProcedure(line,expTs,outTs) {
     xmlCloseElement("</procedure>",outTs);
     outTs.WriteLine("");
 }
-
 
 
 // found WHERE 
@@ -1235,18 +1235,15 @@ function xmlRule(line,expTs,outTs) {
     var statement = readStatement(line,expTs);
     var name = getWord(2,line);
     var appliesTo = getList(statement);
-    var algorithm = loadRuleAlgorithm("",expTs);
-    var where;
+    var fnObj = new FunctionObj(name);
     
     xmlOpenElement("<rule",outTs);
     xmlAttr("name",name,outTs);
     xmlAttr("appliesto",appliesTo,outTs);
     outTs.WriteLine(">");
-    if (algorithm.length >0) {
-	xmlOpenElement("<algorithm>",outTs);
-	outTs.Write(tidyExpression(algorithm));
-	xmlCloseElement("</algorithm>",outTs);
-    } 
+    fnObj.loadAlgorithm("",expTs,outTs);
+    fnObj.xmlAlgorithm(outTs);
+
     loadDomainRule(expTs,outTs);
 
     outTs.WriteLine("");

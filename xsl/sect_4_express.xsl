@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.58 2002/08/06 08:05:47 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.59 2002/08/12 06:36:38 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1857,8 +1857,8 @@
       *)<br/>
       RULE <xsl:value-of select="@name"/> FOR
     <br/>
-      (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
-    <xsl:apply-templates select="./algorithm" mode="code"/><br/>
+      (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);<br/>
+    <xsl:apply-templates select="./algorithm" mode="code"/>
     <xsl:apply-templates select="./where" mode="code"/>
       END_RULE;
     <br/>(*

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -43,7 +43,7 @@ $Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
   <xsl:variable name="aname" select="@entity"/>
   <a name="{$aname}">
     <h3>
-      <a href="../../basic/mapping.htm">Mapping specification</a>
+      <a href="../../../basic/mapping.htm">Mapping specification</a>
     </h3>
   </a>
   <h3>

@@ -1,6 +1,28 @@
-(*
-   $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
-   N - ISO/CD-TS - 10303- property_condition - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
-SCHEMA Property_condition_mim;
+(*  ISO/TC184/SC4 WG12N2061 - ISO/CD-TS - 10303-1074 property_condition - EXPRESS MIM*)
+
+SCHEMA property_condition_mim;
+
+USE FROM class_of_activity_mim;    --  ISO/CD-TS 10303-1071
+USE FROM class_of_product_mim;    --  ISO/CD-TS 10303-1077
+USE FROM independent_property_definition_mim;    --  ISO/CD-TS 10303-1099
+USE FROM process_property_assignment_mim;    --  ISO/TS 10303-1040
+USE FROM property_assignment_mim;    --  ISO/TS 10303-1030
+
+ENTITY condition_property
+  SUBTYPE OF (general_property_association);
+  SELF\general_property_association.base_definition : independent_property_definition;
+WHERE
+  link_to_condition: ('PROPERTY_CONDITION_MIM.PROPERTY_CONDITION_FOR_ACTIVITY' IN TYPEOF(SELF\general_property_association.derived_definition)) OR ('PROPERTY_CONDITION_MIM.PROPERTY_CONDITION_FOR_PRODUCT' IN TYPEOF(SELF\general_property_association.derived_definition));
+END_ENTITY;
+
+ENTITY property_condition_for_activity
+  SUBTYPE OF (action_property);
+  SELF\action_property.definition : class_of_activity;
+END_ENTITY;
+
+ENTITY property_condition_for_product
+  SUBTYPE OF (property_definition);
+  SELF\property_definition.definition : class_of_product;
+END_ENTITY;
+
 END_SCHEMA;

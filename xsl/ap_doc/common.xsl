@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.18 2003/06/02 14:12:48 robbod Exp $
+$Id: common.xsl,v 1.19 2003/06/03 08:49:43 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -31,25 +31,26 @@ $Id: common.xsl,v 1.18 2003/06/02 14:12:48 robbod Exp $
     <xsl:value-of select="concat('../../data/application_protocols/', $ap_dir)"/>
   </xsl:template>
 	
-	<xsl:template name="check_application_protocol_exists">
-		<xsl:param name="application_protocol"/>
-		<xsl:variable name="application_protocol_name">
-			<xsl:call-template name="module_name">
-				<xsl:with-param name="module" select="$application_protocol"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:variable name="ret_val">
-			<xsl:choose>
-				<xsl:when test="document('../../repository_index.xml')/repository_index/modules/module[@name=$application_protocol_name]">
-					<xsl:value-of select="'true'"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="concat(' The application_protocol ', $application_protocol_name, ' is not identified as a application_protocol module in repository_index.xml')"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
-		<xsl:value-of select="$ret_val"/>
-	</xsl:template>
+  <xsl:template name="check_application_protocol_exists">
+    <xsl:param name="application_protocol"/>
+    <xsl:variable name="application_protocol_name">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$application_protocol"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:variable name="ret_val">
+      <xsl:choose>
+        <xsl:when test="document('../../repository_index.xml')/repository_index/application_protocols/application_protocol[@name=$application_protocol_name]">
+          <xsl:value-of select="'true'"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat(' The application_protocol ', $application_protocol_name, ' is not identified as an application_protocol module in repository_index.xml')"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$ret_val"/>
+  </xsl:template>
 
 	<xsl:template name="idef0_icon">
 		<xsl:param name="schema"/>
@@ -79,14 +80,16 @@ $Id: common.xsl,v 1.18 2003/06/02 14:12:48 robbod Exp $
                   <xsl:with-param name="apdoc_root" select="$module_root"/>
                 </xsl:apply-templates>
 
+                <xsl:variable name="ap_module" select="@module_name"/>
+
 		<TABLE cellspacing="0" border="0" width="100%">
 			<tr>
-				<td>
-					<xsl:call-template name="output_menubar">
-						<xsl:with-param name="module_root" select="$module_root"/>
-						<xsl:with-param name="module_name" select="@name"/>
-					</xsl:call-template>
-				</td>
+                          <td>
+                          <xsl:call-template name="output_menubar">
+                              <xsl:with-param name="module_root" select="$module_root"/>
+                              <xsl:with-param name="module_name" select="@name"/>
+                            </xsl:call-template>
+                          </td>
 			</tr>
 			<tr>
 				<td valign="MIDDLE">

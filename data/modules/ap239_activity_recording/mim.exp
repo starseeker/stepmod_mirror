@@ -1,9 +1,8 @@
 (*
- $Id: mim.exp,v 1.7 2003/10/14 14:39:54 seanbarker Exp $
+ $Id: mim.exp,v 1.8 2003/10/21 13:30:20 robbod Exp $
  ISO TC184/SC4/WG3 N1394 - ISO/TS 10303-1287 AP239 activity recording - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG3 N1289
 *) 
-
 
 SCHEMA Ap239_activity_recording_mim; 
 
@@ -12,6 +11,7 @@ USE FROM action_schema   -- ISO 10303-41
    action_directive,
    action_method,
    action_resource,
+   action_resource_relationship,
    versioned_action_request); 
 
 USE FROM Activity_as_realized_mim;    -- ISO/TS 10303-1259
@@ -24,8 +24,12 @@ USE FROM Activity_mim;    -- ISO/TS 10303-1047
 
 USE FROM Ap239_work_definition_mim;    -- ISO/TS 10303-1307
 
+USE FROM Condition_evaluation_mim;    -- ISO/TS 10303-1254
+
 USE FROM date_time_schema   -- ISO 10303-41
   (event_occurrence); 
+
+USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
 
 USE FROM Event_mim;    -- ISO/TS 10303-1064
 
@@ -35,8 +39,12 @@ USE FROM Multi_linguism_mim;    -- ISO/TS 10303-1105
 
 USE FROM Observation_mim;    -- ISO/TS 10303-1258
 
+USE FROM Process_property_assignment_mim;    -- ISO/TS 10303-1040
+
 USE FROM process_property_schema   -- ISO 10303-49
-  (action_resource_requirement); 
+  (action_property,
+   action_resource_requirement,
+   resource_property); 
 
 USE FROM product_definition_schema   -- ISO 10303-41
   (product,
@@ -58,6 +66,10 @@ USE FROM Resource_as_realized_characterized_mim;    -- ISO/TS 10303-1283
 USE FROM Resource_as_realized_mim;    -- ISO/TS 10303-1269
 
 USE FROM Resource_item_mim;    -- ISO/TS 10303-1268
+
+USE FROM Resource_management_mim;    -- ISO/TS 10303-1266
+
+USE FROM Resource_property_assignment_mim;    -- ISO/TS 10303-1273
 
 USE FROM Scheme_mim;    -- ISO/TS 10303-1260
 
@@ -82,6 +94,20 @@ TYPE ar_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attr
     observation_consequence);
 END_TYPE; 
 
+TYPE ar_condition_evaluation_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_evaluation_action_items WITH 
+   (action, 
+    action_method, 
+    action_property, 
+    action_resource, 
+    action_resource_relationship, 
+    resource_property);
+END_TYPE; 
+
+TYPE ar_document_reference_item = EXTENSIBLE SELECT BASED_ON document_reference_item WITH 
+   (observation, 
+    observation_consequence);
+END_TYPE; 
+
 TYPE ar_justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_support_item WITH 
    (observation);
 END_TYPE; 
@@ -98,6 +124,7 @@ TYPE ar_observed_context_item = SELECT BASED_ON observed_context_item WITH
     action_method, 
     action_resource, 
     action_resource_requirement, 
+    applied_action_assignment, 
     event_occurrence, 
     product, 
     product_definition, 
@@ -107,4 +134,7 @@ TYPE ar_observed_context_item = SELECT BASED_ON observed_context_item WITH
 END_TYPE; 
 
 END_SCHEMA;  -- Ap239_activity_recording_mim
+
+
+
 

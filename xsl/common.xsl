@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.145 2004/12/20 22:06:03 thendrix Exp $
+$Id: common.xsl,v 1.146 2004/12/21 23:34:19 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -19,7 +19,6 @@ $Id: common.xsl,v 1.145 2004/12/20 22:06:03 thendrix Exp $
        Sets variable global FILE_EXT
        -->
   <xsl:import href="file_ext.xsl"/>
-
 
   <!-- parameters that control the output -->
   <xsl:import href="parameters.xsl"/>
@@ -1433,17 +1432,20 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:value-of select="@standard"/>
   </xsl:template>
 
+
   <!-- a reference to an EXPRESS construct in a module ARM or MIM or in the
        Integrated Resource. The format of the linkend attribute that
        defines the reference is:
-     <module>:mim|arm:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
+       <module>:<link_type>:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
 
      where:
       <module> - the name of the module
+      <link_type>
        arm - links to the arm documentation
        arm_express - links to the arm express
        mim - links to the mim documentation
        mim_express - links to the mim express
+       mim_lf_express - links to the mim long form express
        ir - links to the ir express
 
      e.g. work_order:arm:work_order_arm.Activity.name
@@ -1487,6 +1489,10 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
            linkend="" -->
         <xsl:when test="contains($last_section,':arm:')">
           <xsl:value-of select="substring-after($last_section,':arm:')"/>
+        </xsl:when>
+
+        <xsl:when test="contains($last_section,':mim_lf_express:')">
+          <xsl:value-of select="substring-after($last_section,':mim_lf_express:')"/>
         </xsl:when>
 
         <xsl:otherwise>
@@ -1552,6 +1558,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:when test="$nlinkend1='arm'
                         or $nlinkend1='arm_express'
                         or $nlinkend1='mim'
+                        or $nlinkend1='mim_lf_express'
                         or $nlinkend1='mim_express'
                         or $nlinkend1='ir_express'">
           <xsl:value-of select="$nlinkend1"/>
@@ -1598,12 +1605,17 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
             select="concat($baselink,'modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
-
-
+        
+        
         <xsl:when test="$arm_mim_ir='mim_express'">
           <xsl:value-of
             select="concat($baselink,'modules/',$module,
                     '/mim',$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+        <xsl:when test="$arm_mim_ir='mim_lf_express'">
+          <xsl:value-of
+            select="concat($baselink,'modules/',$module,
+                    '/sys/e_exp_mim_lf',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
       </xsl:choose>
     </xsl:variable>
@@ -2823,7 +2835,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
 <xsl:template name="check_express_ref">
   <xsl:param name="linkend"/>
-
   <xsl:variable name="first_sect">
     <xsl:call-template name="check_express_ref_first_section">
       <xsl:with-param name="linkend" select="$linkend"/>
@@ -2929,6 +2940,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
                           or $arm_mim_res='mim_express'">
             <xsl:value-of select="concat($mod_dir,'/mim.xml')"/>
           </xsl:when>
+          <xsl:when test="$arm_mim_res='mim_lf_express'">
+            <xsl:value-of select="concat($mod_dir,'/mim_lf.xml')"/>
+          </xsl:when>
           <xsl:when test="$arm_mim_res='ir_express'">
             <xsl:value-of select="concat('../data/resources/',$schema,'/',$schema,'.xml')"/>
           </xsl:when>
@@ -3008,6 +3022,7 @@ is case sensitive.')"/>
             </xsl:call-template>
 
           </xsl:if>
+
         </xsl:when>
 
         <xsl:when test="string-length($schema) != 0">
@@ -3046,7 +3061,7 @@ is case sensitive.')"/>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
-
+ 
 <!-- 
      Return an error message if the linkend of an express_ref is incorrect 
      Just checks the first section i.e module:arm: 
@@ -3072,7 +3087,8 @@ is case sensitive.')"/>
       <xsl:when test="$nlinkend1='arm'
                       or $nlinkend1='arm_express'
                       or $nlinkend1='mim'
-                      or $nlinkend1='mim_express'">
+                      or $nlinkend1='mim_express'
+                      or $nlinkend1='mim_lf_express'">
         <xsl:call-template name="check_module_exists">
           <xsl:with-param name="module" select="$module_section"/>
         </xsl:call-template>
@@ -3094,6 +3110,7 @@ is case sensitive.')"/>
                       or $nlinkend1='arm_express'
                       or $nlinkend1='mim'
                       or $nlinkend1='mim_express'
+                      or $nlinkend1='mim_lf_express'
                       or $nlinkend1='ir_express'">
         <xsl:value-of select="$nlinkend1"/>
       </xsl:when>

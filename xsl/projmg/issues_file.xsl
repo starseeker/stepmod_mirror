@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     $Id: issues_file.xsl,v 1.2 2002/08/18 17:37:33 robbod Exp $
+     $Id: issues_file.xsl,v 1.3 2002/08/20 13:51:01 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -59,13 +59,245 @@
           Issues raised against:
           <xsl:value-of select="@module"/>
         </h3>
-        <xsl:apply-templates select="issue"/>
+        
+        <xsl:if test="issue[@type='general']">
+          &#160;<a href="#general">general</a>&#160;|
+        </xsl:if>
+  
+      <xsl:if test="issue[@type='keywords']">
+        &#160;<a href="#keywords">keywords</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='contacts']">
+        &#160;<a href="#contacts">contacts</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='purpose']">
+        &#160;<a href="#purpose">purpose</a>&#160;|
+      </xsl:if>  
+      <xsl:if test="issue[@type='inscope']">
+        &#160;<a href="#inscope">inscope</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='outscope']">
+        &#160;<a href="#outscope">outscope</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='normrefs']">
+        &#160;<a href="#normrefs">normrefs</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='definition']">
+        &#160;<a href="#definition">definition</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='abbreviations']">
+        &#160;<a href="#abbreviations">abbreviations</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='arm']">
+        &#160;<a href="#arm">arm</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='armexpg']">
+        &#160;<a href="#armexpg">armexpg</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='arm_lf']">
+        &#160;<a href="#arm_lf">arm_lf</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='armexpg_lf']">
+        &#160;<a href="#armexpg_lf">armexpg_lf</a>&#160;|
+     </xsl:if>
+     <xsl:if test="issue[@type='mapping_table']">
+        &#160;<a href="#mapping_table">mapping_table</a>&#160;|
+     </xsl:if>
+     <xsl:if test="issue[@type='mim']">
+       &#160;<a href="#mim ">mim</a>&#160;|
+     </xsl:if>
+     <xsl:if test="issue[@type='mimexpg']">
+        &#160;<a href="#mimexpg">mimexpg</a>&#160;|
+     </xsl:if>
+     <xsl:if test="issue[@type='mim_lf']">
+        &#160;<a href="#mim_lf">mim_lf</a>&#160;|
+     </xsl:if>
+     <xsl:if test="issue[@type='mimexpg_lf']">
+       &#160;<a href="#mimexpg_lf">mimexpg_lf</a>&#160;|
+     </xsl:if>
+     <xsl:if test="issue[@type='usage_guide']">
+        &#160;<a href="#usage_guide">usage_guide</a>&#160;|
+     </xsl:if>
+     <xsl:if test="issue[@type='bibliography']">
+        &#160;<a href="#bibliography">bibliography</a>&#160;|
+     </xsl:if>
+     <xsl:if test="(issue[@type!='general']) and (issue[@type!='keywords'])
+                   and (issue[@type!='contacts'])
+                   and (issue[@type!='purpose'])
+                   and (issue[@type!='inscope'])
+                   and (issue[@type!='outscope'])
+                   and (issue[@type!='normrefs'])
+                   and (issue[@type!='definition'])
+                   and (issue[@type!='abbreviations'])
+                   and (issue[@type!='arm'])
+                   and (issue[@type!='armexpg'])
+                   and (issue[@type!='arm_lf'])
+                   and (issue[@type!='armexpg_lf'])
+                   and (issue[@type!='mapping_table'])
+                   and (issue[@type!='mim'])
+                   and (issue[@type!='mimexpg'])
+                   and (issue[@type!='mim_lf'])
+                   and (issue[@type!='mimexpg_lf'])
+                   and (issue[@type!='usage_guide'])
+                   and (issue[@type!='bibliography'])">       
+     &#160;<a href="#other">Other</a>
+   </xsl:if>
+
+        <!-- Order the issues -->
+        <xsl:apply-templates select="issue[@type='general']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='keywords']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='contacts']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='purpose']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='inscope']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='outscope']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='normrefs']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='definition']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='abbreviations']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='arm']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='armexpg']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='arm_lf']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='armexpg_lf']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='mapping_table']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='mim ']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='mimexpg']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='mim_lf']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='mimexpg_lf']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='usage_guide']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='bibliography']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <!-- deal with unknown type -->
+        <xsl:apply-templates select="issue[(@type!='general')
+                                     and (@type!='keywords')
+                                     and (@type!='contacts')
+                                     and (@type!='purpose')
+                                     and (@type!='inscope')
+                                     and (@type!='outscope')
+                                     and (@type!='normrefs')
+                                     and (@type!='definition')
+                                     and (@type!='abbreviations')
+                                     and (@type!='arm')
+                                     and (@type!='armexpg')
+                                     and (@type!='arm_lf')
+                                     and (@type!='armexpg_lf')
+                                     and (@type!='mapping_table')
+                                     and (@type!='mim')
+                                     and (@type!='mimexpg')
+                                     and (@type!='mim_lf')
+                                     and (@type!='mimexpg_lf')
+                                     and (@type!='usage_guide')
+                                     and (@type!='bibliography')]">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
       </body>
     </html>
   </xsl:template>
 
 
+
   <xsl:template match="issue">
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
+    <xsl:if test="position()=1">
+      <xsl:variable name="aname">
+        <xsl:choose>
+          <xsl:when test="(@type!='general') and (@type!='keywords')
+                          and (@type!='contacts')
+                          and (@type!='purpose')
+                          and (@type!='inscope')
+                          and (@type!='outscope')
+                          and (@type!='normrefs')
+                          and (@type!='definition')
+                          and (@type!='abbreviations')
+                          and (@type!='arm')
+                          and (@type!='armexpg')
+                          and (@type!='arm_lf')
+                          and (@type!='armexpg_lf')
+                          and (@type!='mapping_table')
+                          and (@type!='mim')
+                          and (@type!='mimexpg')
+                          and (@type!='mim_lf')
+                          and (@type!='mimexpg_lf')
+                          and (@type!='usage_guide')
+                          and (@type!='bibliography')">
+            <xsl:value-of select="'other'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="@type"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <span style="background-color: #FFFF99">
+        <h3>
+          <a name="{$aname}">
+            <b>
+              <xsl:value-of select="translate($aname,$LOWER,$UPPER)"/>
+            </b>
+          </a>
+          issues
+        </h3>
+      </span>
+    </xsl:if>
+
     <xsl:variable name="issue_target" 
       select="translate(
               concat(string(@id), string(@by)),
@@ -114,7 +346,7 @@
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:choose>
       <xsl:when test="@type='keywords'">
-        against keywords
+        <b> keywords</b> issue<br/>
         <a href="../sys/cover{$FILE_EXT}#keywords">
           (module.xml/module/keywords).
         </a>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.1 2002/03/19 13:21:28 robbod Exp $
+     $Id: issues.xsl,v 1.1 2002/08/20 13:51:32 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -20,9 +20,8 @@
 
   <!--  <xsl:import href="module_toc.xsl"/> -->
   
+
 <xsl:template name="output_express_issue">
-
-
   <!--
        The name of the express schema 
        Compulsory parameter -->
@@ -44,7 +43,6 @@
        Optional exclusive parameter -->
   <xsl:param name="unique" select="''"/>
 
-
   <!-- only proceed if global parameter "output_issues" is YES -->
   <xsl:if test="$output_issues='YES'">
 
@@ -54,6 +52,19 @@
       </xsl:call-template>
     </xsl:variable>
 
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="$schema"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="module_xml"
+      select="concat('../',$module_dir,'/module.xml')"/>
+    
+    <xsl:variable name="dvlp_fldr"
+      select="string(document($module_xml)/module/@development.folder)"/> 
+
+    <xsl:if test="string-length($dvlp_fldr)>0">
     <xsl:variable name="arm_mim">
       <xsl:choose>
         <xsl:when test="contains($schema,'_arm')">
@@ -96,21 +107,20 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-      <!-- <xsl:value-of
-           select="concat($schema,':',$arm_mim,':',$return2)"/> -->
       <xsl:value-of select="$return2"/>      
     </xsl:variable>
-    
-    <xsl:variable name="mod_dir">
-      <xsl:call-template name="module_directory">
-        <xsl:with-param name="module" select="$module"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:variable name="issue_file" select="concat('../',$mod_dir,'/dvlp/issues.xml')"/>
-    
+
+
+    <xsl:variable name="issue_file" select="concat('../',$module_dir,'/dvlp/issues.xml')"/>
+
     <xsl:apply-templates
       select="document($issue_file)/issues/issue[@type='arm' and @linkend=$xref]" mode="inline_issue"/>
 
+    <xsl:apply-templates
+      select="document($issue_file)/issues/issue[@type='mim' and
+@linkend=$xref]" mode="inline_issue"/>
+
+  </xsl:if>
   </xsl:if>
 </xsl:template>
 
@@ -148,5 +158,65 @@
   </blockquote>
   </xsl:template>
 
+  <xsl:template name="issue_ae_map_aname">
+    <xsl:param name="linkend"/>
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:value-of 
+      select="translate(normalize-space(translate(@linkend,$UPPER,$LOWER)),' :=','')"/>
+  </xsl:template>
+
+
+<xsl:template match="ae"  mode="output_mapping_issue">
+  <!-- only proceed if global parameter "output_issues" is YES -->
+  <xsl:if test="$output_issues='YES'">
+    <xsl:variable name="ae_map_aname">
+      <xsl:apply-templates select="." mode="map_attr_aname"/>  
+    </xsl:variable>
+    <xsl:variable name="dvlp_fldr" select="/module/@development.folder"/>
+    <xsl:if test="string-length($dvlp_fldr)>0">
+      
+      <xsl:variable name="issue_file" select="concat('../../data/modules/',../../@name,'/dvlp/issues.xml')"/>
+      <xsl:for-each select="document($issue_file)/issues/issue[@type='mapping_table']">
+        <xsl:variable name="linkend">
+          <xsl:call-template name="issue_ae_map_aname">
+            <xsl:with-param name="linkend" select="@linkend"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:if test="$linkend=$ae_map_aname">
+          <xsl:apply-templates select="." mode="inline_issue"/>
+        </xsl:if>        
+      </xsl:for-each>
+    </xsl:if>
+  </xsl:if>
+</xsl:template>
+
+
+
+
+<xsl:template match="aa" mode="output_mapping_issue">
+  <!-- only proceed if global parameter "output_issues" is YES -->
+  <xsl:if test="$output_issues='YES'">
+    <xsl:variable name="aa_map_aname">
+      <xsl:apply-templates select="." mode="map_attr_aname"/>  
+    </xsl:variable>
+    <xsl:variable name="dvlp_fldr" select="/module/@development.folder"/>
+    <xsl:if test="string-length($dvlp_fldr)>0">      
+      <xsl:variable name="issue_file"
+        select="concat('../../data/modules/',../../../@name,'/dvlp/issues.xml')"/>
+
+      <xsl:for-each select="document($issue_file)/issues/issue[@type='mapping_table']">
+        <xsl:variable name="linkend">
+          <xsl:call-template name="issue_ae_map_aname">
+            <xsl:with-param name="linkend" select="@linkend"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:if test="$linkend=$aa_map_aname">
+          <xsl:apply-templates select="." mode="inline_issue"/>
+        </xsl:if>        
+      </xsl:for-each>
+    </xsl:if>
+  </xsl:if>
+  </xsl:template>
 
 </xsl:stylesheet>

@@ -1,8 +1,7 @@
 (*
- $Id: mim.exp,v 1.2 2003/04/08 13:07:59 robbod Exp $
+ $Id: mim.exp,v 1.3 2003/04/08 14:49:42 robbod Exp $
  ISO TC184/SC4/WG3 N1181 - ISO/CD-TS 10303-1292 Ap239 product definition information - EXPRESS MIM
 *) 
-
 
 SCHEMA Ap239_product_definition_information_mim; 
 
@@ -24,7 +23,8 @@ USE FROM Classification_assignment_mim;    -- ISO/CD-TS 10303-1114
 
 USE FROM Contract_mim;    -- ISO/TS 10303-1062
 
-USE FROM contract_schema;    -- ISO 10303-41
+USE FROM contract_schema   -- ISO 10303-41
+  (contract); 
 
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 
@@ -34,11 +34,14 @@ USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
 
 USE FROM Document_definition_mim;    -- ISO/TS 10303-1123
 
-USE FROM document_schema;    -- ISO 10303-41
+USE FROM document_schema   -- ISO 10303-41
+  (document_type); 
 
 USE FROM Document_structure_mim;    -- ISO/TS 10303-1124
 
 USE FROM Effectivity_application_mim;    -- ISO/TS 10303-1059
+
+USE FROM External_item_identification_assignment_mim;    -- ISO/TS 10303-1128
 
 USE FROM File_identification_mim;    -- ISO/TS 10303-1127
 
@@ -62,7 +65,8 @@ USE FROM Part_view_definition_mim;    -- ISO/TS 10303-1023
 
 USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
 
-USE FROM person_organization_schema;    -- ISO 10303-41
+USE FROM person_organization_schema   -- ISO 10303-41ed3
+  (organizational_project); 
 
 USE FROM Physical_breakdown_mim;    -- ISO/CD-TS 10303-1215
 
@@ -74,7 +78,12 @@ USE FROM Product_concept_identification_mim;    -- ISO/TS 10303-1060
 
 USE FROM product_concept_schema;    -- ISO 10303-44
 
-USE FROM product_definition_schema;    -- ISO 10303-41
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product,
+   product_definition,
+   product_definition_formation,
+   product_definition_formation_relationship,
+   product_definition_relationship); 
 
 USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
 
@@ -82,7 +91,10 @@ USE FROM Product_replacement_mim;    -- ISO/TS 10303-1046
 
 USE FROM Product_structure_mim;    -- ISO/CD-TS 10303-1134
 
-USE FROM product_structure_schema;    -- ISO 10303-44
+USE FROM product_structure_schema   -- ISO 10303-44
+  (alternate_product_relationship,
+   assembly_component_usage,
+   assembly_component_usage_substitute); 
 
 USE FROM Product_version_mim;    -- ISO/TS 10303-1018
 
@@ -102,15 +114,17 @@ USE FROM Requirement_view_definition_relationship_mim;    -- ISO/CD-TS 10303-114
 
 USE FROM Security_classification_mim;    -- ISO/TS 10303-1015
 
-USE FROM Selected_item_mim;    -- ISO/CD-TS 10303-xxxx
+USE FROM Selected_item_mim;    -- ISO/CD-TS 10303-1357
 
 USE FROM State_definition_mim;    -- ISO/CD-TS 10303-1255
 
 USE FROM State_observed_mim;    -- ISO/CD-TS 10303-1256
 
-USE FROM state_observed_schema;    -- ISO 10303-56
+USE FROM state_observed_schema   -- ISO 10303-56
+  (state_of_item); 
 
-USE FROM state_type_schema;    -- ISO 10303-56
+USE FROM state_type_schema   -- ISO 10303-56
+  (state_type_of_item); 
 
 USE FROM System_breakdown_mim;    -- ISO/CD-TS 10303-1214
 
@@ -146,8 +160,6 @@ END_TYPE;
 
 TYPE ap239_prdi_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_classification_item WITH 
    (alternate_product_relationship, 
-    assembly_component_usage, 
-    assembly_component_usage_substitute, 
     breakdown_context, 
     breakdown_element_group_assignment, 
     breakdown_element_usage, 
@@ -230,6 +242,9 @@ END_TYPE;
 
 TYPE ap239_prdi_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH 
    (alternate_product_relationship, 
+    applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    applied_external_identification_assignment, 
     applied_security_classification_assignment, 
     assembly_component_usage, 
     assembly_component_usage_substitute, 
@@ -239,9 +254,20 @@ TYPE ap239_prdi_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON eff
     product, 
     product_definition, 
     product_definition_formation, 
-    product_definition_formation, 
+    product_definition_formation_relationship, 
     product_definition_group_assignment, 
-    product_definition_relationship);
+    product_definition_relationship, 
+    product_in_slot, 
+    requirement_assignment, 
+    requirement_source, 
+    slot_as_planned, 
+    slot_as_realized, 
+    slot_design, 
+    slot_design, 
+    slot_design_to_planned, 
+    slot_design_to_realized, 
+    slot_on_product, 
+    slot_planned_to_realized);
 END_TYPE; 
 
 TYPE ap239_prdi_identification_item = EXTENSIBLE SELECT BASED_ON identification_item WITH 
@@ -393,10 +419,8 @@ SUBTYPE_CONSTRAINT restrict_product_definition_relationship_subtypes FOR product
          in_zone,
          interface_connection,
          interface_definition_for,
-         product_definition_usage,
          product_in_slot,
          slot_on_product);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Ap239_product_definition_information_mim
-

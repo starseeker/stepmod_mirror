@@ -1,142 +1,78 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<?xml-stylesheet type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-41"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/group_schema/group_schema.exp"/>
-
-  <schema name="group_schema">
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="bag_to_set"/>
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="basic_attribute_schema">
-      <interfaced.item
-        name="get_id_value"/>
-      <interfaced.item
-        name="id_attribute"/>
-    </interface>
-
-    <entity
-      name="group">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <derived
-        name="id"
-        expression="get_id_value (SELF)">
-        <typename
-          name="identifier"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="group_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_group">
-        <typename
-          name="group"/>
-      </explicit>
-      <explicit
-        name="related_group">
-        <typename
-          name="group"/>
-      </explicit>
-    </entity>
-
-    <function
-      name="acyclic_group_relationship">
-      <parameter
-        name="relation">
-        <typename
-          name="group_relationship"/>
-      </parameter>
-      <parameter
-        name="relatives">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="group"/>
-      </parameter>
-      <parameter
-        name="specific_relation">
-        <builtintype
-          type="STRING"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $" reference="ISO 10303-41" description.file="descriptions.xml">
+	<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="group_schema_v002.vsd"/>
+	<schema name="group_schema">
+		<interface kind="reference" schema="support_resource_schema">
+			<interfaced.item name="label"/>
+			<interfaced.item name="bag_to_set"/>
+			<interfaced.item name="identifier"/>
+			<interfaced.item name="text"/>
+		</interface>
+		<interface kind="reference" schema="basic_attribute_schema">
+			<interfaced.item name="get_id_value"/>
+			<interfaced.item name="id_attribute"/>
+		</interface>
+				<entity name="group">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<derived name="id" expression="get_id_value (SELF)">
+				<typename name="identifier"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+			<graphic.element page="2" xcoord="313" ycoord="112"/>
+		</entity>
+		<entity name="group_relationship">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="relating_group">
+				<typename name="group"/>
+			</explicit>
+			<explicit name="related_group">
+				<typename name="group"/>
+			</explicit>
+			<graphic.element page="2" xcoord="312" ycoord="42"/>
+		</entity>
+		<function name="acyclic_group_relationship">
+			<parameter name="relation">
+				<typename name="group_relationship"/>
+			</parameter>
+			<parameter name="relatives">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="group"/>
+			</parameter>
+			<parameter name="specific_relation">
+				<builtintype type="STRING"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
   LOCAL
-    x                : SET OF group_relationship;
-  END_LOCAL;
-  IF relation.relating_group IN relatives THEN 
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY (grp &lt;* bag_to_set 
-             (USEDIN (relation.relating_group,
-             'GROUP_SCHEMA.' + 
-             'GROUP_RELATIONSHIP.' +
-             'RELATED_GROUP')) |
-              specific_relation IN TYPEOF (grp));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_group_relationship
-      (x[i], 
-       relatives + relation.relating_group, 
-       specific_relation) THEN
-      RETURN(FALSE);
+      x : SET OF group_relationship;
+    END_LOCAL;
+
+    IF relation.relating_group IN relatives THEN
+      RETURN (FALSE);
     END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+    x := QUERY(grp &lt;* bag_to_set(USEDIN(relation.relating_group, 'GROUP_SCHEMA.' + 'GROUP_RELATIONSHIP.' + 'RELATED_GROUP')) | specific_relation IN TYPEOF(grp));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_group_relationship(x[i], relatives + relation.relating_group, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+			</algorithm>
+		</function>
+		<graphic.element page="1" xcoord="94" ycoord="135"/>
+	</schema>
 </express>

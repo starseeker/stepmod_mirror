@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.4 2002/11/05 01:03:59 thendrix Exp $
+$Id: sect_contents.xsl,v 1.5 2002/12/12 23:08:06 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -97,8 +97,7 @@ $Id: sect_contents.xsl,v 1.4 2002/11/05 01:03:59 thendrix Exp $
 
    <!-- use #annexa to link direct -->
    <p class="content">
-     <A HREF="./a_short_names{$FILE_EXT}">A Short names of entities
-     short names</A>
+     <A HREF="./a_short_names{$FILE_EXT}">A Short names of entities</A>
    </p>
    <!-- use #annexb to link direct -->
    <p class="content">
@@ -246,6 +245,7 @@ $Id: sect_contents.xsl,v 1.4 2002/11/05 01:03:59 thendrix Exp $
 
    <h3>Tables</h3>
    <xsl:apply-templates select="//table" mode="toc"/>
+   <xsl:apply-templates select="//shortnames" mode="toc" />
    <h3>Figures</h3>
    <!-- collect up the figures from the Module -->
    <xsl:apply-templates select="./purpose//figure" mode="toc"/>
@@ -290,11 +290,27 @@ $Id: sect_contents.xsl,v 1.4 2002/11/05 01:03:59 thendrix Exp $
    <p class="content">
      <a href="{$href}">      
      <xsl:value-of 
-       select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title)"/>
+       select="concat($table_or_fig,' ',$number, ' &#8212; ', ./@title, ./@caption)"/>
      </a>
    </p>
 
+
  </xsl:template>
+
+ <xsl:template match="shortnames" mode="toc">
+
+
+     <p class="content">
+       <a href="a_short_names{$FILE_EXT}">      
+       <xsl:value-of 
+         select="'Table A.1 Short names of entities'" />
+     </a>
+   </p>
+   
+
+
+ </xsl:template>
+ 
 
  <xsl:template name="toc_schema_section" > 
    <xsl:param name="clause_no" />
@@ -363,7 +379,6 @@ $Id: sect_contents.xsl,v 1.4 2002/11/05 01:03:59 thendrix Exp $
        </A>
      </p>
    </xsl:if>
-
    <!-- only output if there are constants defined and therefore a
         section -->
    <xsl:variable name="constant_clause">

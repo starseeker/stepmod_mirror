@@ -1,365 +1,116 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.4 2002/01/29 15:45:54 robbod Exp $ -->
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description_file="arm_descriptions.xml"
-  rcs.date="$Date: 2002/01/29 15:45:54 $"
-  rcs.revision="$Revision: 1.4 $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.6"
-    source="../data/modules/work_order/arm.exp"/>
-
-  <schema name="work_order_arm">
-    <interface
-      kind="use"
-      schema="Approval_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Contract_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Date_time_assignment_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Person_organization_assignment_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Work_request_arm">
-    </interface>
-
-    <type name="ordered_item_select">
-      <description>
-        This selects between a particular version, view definition, or
-        occurrence of a part.  
-      </description>
-      <select
-        selectitems="Product_version Product_view_definition View_definition_relationship">
-      </select>
-
-    </type>
-    <type name="work_order_organization_or_person_in_organization_item">
-      <description>
-        This select extends the assignments of an organization or a person
-        in an organization to <b>Work_order</b> instances. 
-      </description>
-      <select
-        basedon="organization_or_person_in_organization_item"
-        selectitems="Work_order">
-      </select>
-
-    </type>
-    <type name="work_order_date_or_date_time_item">
-      <description>
-        This select is a extends the assignments of a date or a date and
-        time to Work_order instances.
-      </description>
-      <select
-        basedon="date_or_date_time_item"
-        selectitems="Work_order">
-      </select>
-
-    </type>
-    <type name="work_order_approval_item">
-      <description>
-        This select extends an approval_assignment to apply to Work_order
-        instances. 
-      </description>
-      <select
-        basedon="approval_item"
-        selectitems="Work_order">
-      </select>
-
-    </type>
-    <type name="work_order_contract_item">
-      <description>
-        This select extends an contract_assignment to apply to Work_order
-        instances. 
-      </description>
-      <select
-        basedon="contract_item"
-        selectitems="Work_order">
-      </select>
-    </type>
-
-    <entity
-      name="Activity">
-        <description>
-          an <b>Activity </b>(also 'procedure', 'process' or 'action') is a
-        specified operation usually doing some type of work to produce some
-        identified output. Status information specifying the level of
-        completion of each activity  may be specified.  The items that
-        are affected by a specific Activity, e.g. as input or output, may
-        also be identified.  A description of the adopted
-        solution procedure selected to carry out the action is also 
-        given.
-        </description>
-      <explicit
-        name="name">
-        <description>
-          specifies the word or common name used to refer to the Activity.
-        </description>
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <description>
-          specifies additional information about the Activity.
-        </description>
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="status">
-        <description>
-          a user interpretable designation for the level of completion
-          or state of the Activity.
-        </description>
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="adopted_solution">
-        <description>
-          specifies the particular solution selected for the Activity.
-        </description>
-
-        <typename
-          name="Activity_method"/>
-      </explicit>
-      <explicit
-        name="input_items">
-        <description>
-          items which the Activity requires as input in order to
-          carry out the adopted solution procedure.
-        </description>
-
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-        <typename
-          name="ordered_item_select"/>
-      </explicit>
-      <explicit
-        name="output_items">
-        <description>
-          items which are produced by the Activity as a result
-          of the adopted solution procedure.
-        </description>
-
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-        <typename
-          name="ordered_item_select"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Work_definition"
-      supertypes="Activity">
-        <description>
-          A <b>Work_definition</b> represents the overall work
-         procedure that is defined and controlled by a Work_order (in
-        response to one or more Work_requests).  A Work_definition is
-        a type of 
-        <express_ref linkend="work_order:arm:work_order_arm.Activity">
-          Activity
-        </express_ref>
-        </description>
-
-      <inverse
-        name="associated_order"
-        entity="Work_order"
-        attribute="directed_activity">
-        <description>
-          the Work_order associated with and controlling the
-          Work_definition.
-        </description>
-
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="1"/>
-      </inverse>
-    </entity>
-
-    <entity
-      name="Work_order">
-        <description>
-          A <b>Work_order</b> describes how an official request for work is
-        addressed and incorporated through appropriate activities during
-        the engineering release or change process. The Work_order may or
-        may not ever actually be incorporated, depending upon the level of
-        authorization granted to it. 
-        <p>
-          Every Work_order consists of a work directive in response to a
-          Work_request, and a directed activity that defines the work to be
-          done.  This 
-          <express_ref linkend="work_order:arm:work_order_arm.Work_definition">
-            Work_definition
-          </express_ref>
-          represents the main 
-        <express_ref linkend="work_order:arm:work_order_arm.Activity">
-          Activity
-        </express_ref>
-        that has to be carried out as part of the Work_order.
-        </p>
-        </description>
-
-      <explicit
-        name="name">
-        <description>
-          the identification used to refer to the Work_order, unique in
-          conjunction with the in_response_to Work_requests.
-        </description>
-
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <description>
-          specifies additional information about the Work_order.
-        </description>
-
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="in_response_to">
-        <description>
-          specifies the Work_request(s) that are addressed by
-          the Work_order.
-        </description>
-
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="Work_request"/>
-      </explicit>
-      <explicit
-        name="directed_activity">
-        <description>
-          the Work_definition associated with the Work_order.
-        </description>
-
-        <typename
-          name="Work_definition"/>
-      </explicit>
-      <derived
-        name="adopted_solution"
-        expression="directed_activity.adopted_solution">
-        <description>
-          description of the solution procedure selected by
-          the  Work_order.
-        </description>
-
-        <typename
-          name="Activity_method "/>
-      </derived>
-      <derived
-        name="output_items"
-        expression="directed_activity.output_items">
-        <description>
-          items which are produced by the Work_order as a result
-          of the adopted solution procedure.
-        </description>
-
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-        <typename
-          name="ordered_item_select"/>
-      </derived>
-      <derived
-        name="status"
-        expression="directed_activity.status">
-        <description>
-          a user interpretable designation for the level of completion
-          of the Work_order.
-        </description>
-
-        <builtintype
-          type="STRING"/>
-      </derived>
-      <inverse
-        name="requestor"
-        entity="Organization_or_person_in_organization_assignment"
-        attribute="items">
-        <description>
-          specifies the organization or person that initiated the
-          Work_order.
-        </description>
-
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="order_date"
-        entity="Date_or_date_time_assignment"
-        attribute="items">
-        <description>
-          specifies the date or date_time  when the Work_order
-          was initiated.
-        </description>
-
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="approval"
-        entity="Approval_assignment"
-        attribute="items">
-        <description>
-          specifies the level of auhorization of the Work_order.
-        </description>
-
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-      </inverse>
-      <inverse
-        name="contracts"
-        entity="Contract_assignment"
-        attribute="items">
-        <description>
-          specifies the contracts sponsoring the Work_order.
-        </description>
-
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-      </inverse>
-    </entity>
-
-  </schema>
-
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <?DOCTYPE 
+  express SYSTEM "../../../dtd/express.dtd"?>
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="plcs_arm_ge13v54vis.vsd" />
+<schema name="Work_order_arm">
+<interface kind="use" schema="Activity_arm">
+</interface>
+<interface kind="use" schema="Activity_directive">
+</interface>
+<interface kind="use" schema="Activity_method_arm">
+</interface>
+<interface kind="use" schema="Approval_arm">
+</interface>
+<interface kind="use" schema="Contract_arm">
+</interface>
+<interface kind="use" schema="Date_time_assignment_arm">
+</interface>
+<interface kind="use" schema="Person_organization_assignment_arm">
+</interface>
+<interface kind="use" schema="Work_request_arm">
+</interface>
+<type name="work_order_approval_item">
+<description>
+This select extends an approval_assignment to apply to Work_request instances.
+</description>
+<select basedon="approval_item" selectitems="Work_order" />
+<graphic.element page="52" xcoord="538" ycoord="141" />
+</type>
+<type name="work_order_contract_items">
+<description>
+This select is a extends the assignments of a contract to Work_request instances.
+</description>
+<select basedon="contract_item" selectitems="Work_order" />
+<graphic.element page="52" xcoord="538" ycoord="226" />
+</type>
+<type name="work_order_date_or_date_time_item">
+<description>
+This select is a extends the assignments of a date or a date and time to Work_request instances.
+</description>
+<select basedon="date_or_date_time_item" selectitems="Work_order" />
+<graphic.element page="52" xcoord="510" ycoord="283" />
+</type>
+<type name="work_order_organisation_or_person_in_organisation_item">
+<description>
+This select extends the assignments of an organization or a person  in an organization to <b>Work_request</b> instances.
+</description>
+<select basedon="organization_or_person_in_organization_item" selectitems="Work_order" />
+<graphic.element page="52" xcoord="484" ycoord="396" />
+</type>
+<entity name="Work_order">
+<description>
+A <b>Work_order</b> describes how a request for work is
+addressed and carried out The Work_order may or may not ever
+actually be incorporated, depending upon the level of
+authorization granted to it.  
+<p>
+  Every Work_order consists of a work directive in response to a
+  Work_request, and a directed activity that defines the work to be
+  done.  This 
+  <express_ref linkend="work_order:arm:work_order_arm.Work_definition">
+    Work_definition
+  </express_ref>
+  represents the main 
+  <express_ref linkend="work_order:arm:work_order_arm.Activity">
+    Activity
+  </express_ref>
+  that has to be carried out as part of the Work_order.
+</p>
+</description>
+<explicit name="description" optional="YES">
+<description>
+specifies additional information about the Work_order.
+</description>
+<builtintype type="STRING" />
+</explicit>
+<explicit name="directed_activity">
+<description>
+The activities that are directed by the Work_order.
+</description>
+<typename name="Directed_activity" />
+</explicit>
+<explicit name="in_response_to">
+<description>
+specifies the Work_request(s) that are addressed by  the Work_order.
+</description>
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="Work_request" />
+</explicit>
+<explicit name="name">
+<description>
+the identification used to refer to the Work_order, unique in
+conjunction with the in_response_to Work_requests.
+</description>
+<builtintype type="STRING" />
+</explicit>
+<derived name="choosen_method" expression="Activity_directive_arm.Directed_activity.chosen_method">
+<description>
+description of the method adopted as solutions by the selected by  the  Work_order.
+</description>
+<typename name="Directed_activity" />
+</derived>
+<derived name="status" expression="Directed_activity.status">
+<description>
+a user interpretable designation for the level of completion
+of the Work_order.
+</description>
+<builtintype type="STRING" />
+</derived>
+<graphic.element page="52" xcoord="297" ycoord="269" />
+</entity>
+</schema>
 </express>

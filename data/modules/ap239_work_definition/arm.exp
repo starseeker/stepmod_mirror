@@ -1,11 +1,11 @@
 (*
- $Id: arm.exp,v 1.9 2003/11/06 10:04:36 robbod Exp $
- ISO TC184/SC4/WG3 N1387 - ISO/TS 10303-1307 AP239 work definition - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG3 N1281
+ $Id: arm.exp,v 1.10 2003/11/13 16:50:08 robbod Exp $
+ISO TC184/SC4/WG3 N1559 - ISO/TS 10303-1307 AP239 work definition - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG3 N1387
 *) 
 
 
-SCHEMA Ap239_work_definition_arm; 
+SCHEMA Ap239_work_definition_arm;
 
 USE FROM Activity_arm;    -- ISO/TS 10303-1047
 
@@ -35,11 +35,13 @@ USE FROM Contract_arm;    -- ISO/TS 10303-1062
 
 USE FROM Date_time_assignment_arm;    -- ISO/TS 10303-1014
 
-USE FROM Document_and_version_identification_arm;    -- ISO/TS 10303-1121
+USE FROM Document_and_version_identification_arm;    -- ISO/TS 10303-2956
 
 USE FROM Document_assignment_arm;    -- ISO/TS 10303-1122
 
 USE FROM Document_definition_arm;    -- ISO/TS 10303-1123
+
+USE FROM Document_properties_arm;    -- ISO/TS 10303-1126
 
 USE FROM Effectivity_arm;    -- ISO/TS 10303-1057
 
@@ -50,6 +52,8 @@ USE FROM File_identification_arm;    -- ISO/TS 10303-1127
 USE FROM Functional_breakdown_arm;    -- ISO/TS 10303-1216
 
 USE FROM Identification_assignment_arm;    -- ISO/TS 10303-1021
+
+USE FROM Independent_property_arm;    -- ISO/TS 10303-1036
 
 USE FROM Interface_arm;    -- ISO/TS 10303-1251
 
@@ -65,6 +69,8 @@ USE FROM Management_resource_information_arm;    -- ISO/TS 10303-1288
 
 USE FROM Multi_linguism_arm;    -- ISO/TS 10303-1105
 
+USE FROM Organization_type_arm;    -- ISO/TS 10303-1240
+
 USE FROM Part_view_definition_arm;    -- ISO/TS 10303-1023
 
 USE FROM Person_organization_arm;    -- ISO/TS 10303-1011
@@ -72,6 +78,8 @@ USE FROM Person_organization_arm;    -- ISO/TS 10303-1011
 USE FROM Person_organization_assignment_arm;    -- ISO/TS 10303-1013
 
 USE FROM Physical_breakdown_arm;    -- ISO/TS 10303-1215
+
+USE FROM Process_property_assignment_arm;    -- ISO/TS 10303-1040
 
 USE FROM Product_as_individual_arm;    -- ISO/TS 10303-1164
 
@@ -83,6 +91,8 @@ USE FROM Product_identification_arm;    -- ISO/TS 10303-1017
 
 USE FROM Product_version_arm;    -- ISO/TS 10303-1018
 
+USE FROM Product_version_relationship_arm;    -- ISO/TS 10303-1020
+
 USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
 
 USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
@@ -93,11 +103,15 @@ USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 USE FROM Required_resource_arm;    -- ISO/TS 10303-1267
 
+USE FROM Resource_as_realized_arm;    -- ISO/TS 10303-1269
+
 USE FROM Resource_item_arm;    -- ISO/TS 10303-1268
 
 USE FROM Resource_management_arm;    -- ISO/TS 10303-1266
 
 USE FROM Resource_management_characterized_arm;    -- ISO/TS 10303-1282
+
+USE FROM Resource_property_assignment_arm;    -- ISO/TS 10303-1273
 
 USE FROM Scheme_arm;    -- ISO/TS 10303-1260
 
@@ -110,6 +124,8 @@ USE FROM State_observed_arm;    -- ISO/TS 10303-1256
 USE FROM System_breakdown_arm;    -- ISO/TS 10303-1214
 
 USE FROM Task_specification_arm;    -- ISO/TS 10303-1262
+
+USE FROM Type_of_person_arm;    -- ISO/TS 10303-1245
 
 USE FROM Work_order_arm;    -- ISO/TS 10303-1043
 
@@ -128,24 +144,35 @@ USE FROM Zonal_breakdown_arm;    -- ISO/TS 10303-1217
 
 TYPE wd_activity_item = SELECT BASED_ON activity_item WITH 
    (Activity, 
+    Activity_property, 
     Applied_activity_assignment, 
     Applied_state_assignment, 
+    Assigned_document_property, 
+    Assigned_property, 
     Contract, 
+    Descriptive_document_property, 
     Document, 
     Document_definition, 
     Document_version, 
     Effectivity, 
     Event, 
     File, 
+    Independent_property, 
+    Location_representation, 
+    Numerical_document_property, 
     Organization, 
     Person, 
     Person_in_organization, 
     Product, 
     Product_group, 
     Product_version, 
+    Product_version_relationship, 
     Product_view_definition, 
     Resource_event, 
     Resource_item, 
+    Resource_property, 
+    Scheme, 
+    Scheme_entry, 
     State, 
     State_relationship, 
     Task, 
@@ -276,6 +303,10 @@ TYPE wd_organization_or_person_in_organization_item = SELECT BASED_ON organizati
     Applied_activity_method_assignment);
 END_TYPE; 
 
+TYPE wd_product_breakdown_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON product_item WITH 
+   (Product_group);
+END_TYPE; 
+
 TYPE wd_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WITH 
    (Activity, 
     Activity_method, 
@@ -314,19 +345,24 @@ TYPE wd_scheme_subject_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON scheme
     Document, 
     Document_version, 
     Location, 
+    Managed_resource, 
     Organization, 
+    Organization_type, 
     Person, 
     Person_in_organization, 
     Product, 
+    Product_as_individual, 
+    Product_as_individual_version, 
+    Product_as_individual_view, 
     Product_group, 
     Product_version, 
     Product_view_definition, 
     Project, 
     Required_resource, 
-    Required_resource_assignment, 
+    Resource_as_realized, 
     Resource_item, 
-    Resource_item_assignment, 
-    Scheme_entry);
+    Scheme_entry, 
+    Type_of_person);
 END_TYPE; 
 
 TYPE wd_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH 
@@ -342,6 +378,7 @@ END_TYPE;
 TYPE wd_state_definition_of_item = SELECT BASED_ON state_definition_of_item WITH 
    (Activity, 
     Applied_activity_assignment, 
+    Scheme, 
     Work_order, 
     Work_request);
 END_TYPE; 
@@ -349,6 +386,7 @@ END_TYPE;
 TYPE wd_state_of_item = SELECT BASED_ON state_of_item WITH 
    (Activity, 
     Applied_activity_assignment, 
+    Scheme, 
     Work_order, 
     Work_request);
 END_TYPE; 
@@ -371,3 +409,4 @@ TYPE wd_work_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_item WITH
 END_TYPE; 
 
 END_SCHEMA;  -- Ap239_work_definition_arm
+

@@ -1,11 +1,11 @@
 (*
- $Id: mim.exp,v 1.12 2003/11/13 16:50:09 robbod Exp $
- ISO TC184/SC4/WG3 N1388 - ISO/TS 10303-1307 AP239 work definition - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG3 N1282
-*)
+ $Id: mim.exp,v 1.13 2003/11/14 08:49:32 robbod Exp $
+ISO TC184/SC4/WG3 N1567 - ISO/TS 10303-1307 AP239 work definition - EXPRESS MIM
+Supersedes ISO TC184/SC4/WG3 N1388
+*) 
 
 
-SCHEMA Ap239_work_definition_mim; 
+SCHEMA Ap239_work_definition_mim;
 
 USE FROM action_schema;    -- ISO 10303-41
 
@@ -41,11 +41,13 @@ USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 
 USE FROM date_time_schema;    -- ISO 10303-41
 
-USE FROM Document_and_version_identification_mim;    -- ISO/TS 10303-1121
+USE FROM Document_and_version_identification_mim;    -- ISO/TS 10303-2956
 
 USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
 
 USE FROM Document_definition_mim;    -- ISO/TS 10303-1123
+
+USE FROM Document_properties_mim;    -- ISO/TS 10303-1126
 
 USE FROM Effectivity_mim;    -- ISO/TS 10303-1057
 
@@ -60,6 +62,8 @@ USE FROM Functional_breakdown_mim;    -- ISO/TS 10303-1216
 USE FROM group_schema;    -- ISO 10303-41
 
 USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
+
+USE FROM Independent_property_mim;    -- ISO/TS 10303-1036
 
 USE FROM Interface_lifecycle_mim;    -- ISO/TS 10303-1294
 
@@ -77,6 +81,8 @@ USE FROM Management_resource_information_mim;    -- ISO/TS 10303-1288
 
 USE FROM Multi_linguism_mim;    -- ISO/TS 10303-1105
 
+USE FROM Organization_type_mim;    -- ISO/TS 10303-1240
+
 USE FROM Part_view_definition_mim;    -- ISO/TS 10303-1023
 
 USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
@@ -86,6 +92,8 @@ USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
 USE FROM person_organization_schema;    -- ISO 10303-41
 
 USE FROM Physical_breakdown_mim;    -- ISO/TS 10303-1215
+
+USE FROM Process_property_assignment_mim;    -- ISO/TS 10303-1040
 
 USE FROM process_property_schema;    -- ISO 10303-49
 
@@ -99,9 +107,14 @@ USE FROM Product_group_mim;    -- ISO/TS 10303-1278
 
 USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
 
-USE FROM product_property_definition_schema;    -- ISO 10303-41
+USE FROM product_property_definition_schema   -- ISO 10303-41
+  (characterized_object,
+   general_property,
+   property_definition); 
 
 USE FROM Product_version_mim;    -- ISO/TS 10303-1018
+
+USE FROM Product_version_relationship_mim;    -- ISO/TS 10303-1020
 
 USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
 
@@ -111,13 +124,24 @@ USE FROM Project_mim;    -- ISO/TS 10303-1061
 
 USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
 
+USE FROM qualified_measure_schema   -- ISO 10303-45
+  (descriptive_representation_item,
+   measure_representation_item); 
+
+USE FROM representation_schema   -- ISO 10303-43
+  (representation); 
+
 USE FROM Required_resource_mim;    -- ISO/TS 10303-1267
+
+USE FROM Resource_as_realized_mim;    -- ISO/TS 10303-1269
 
 USE FROM Resource_item_mim;    -- ISO/TS 10303-1268
 
 USE FROM Resource_management_characterized_mim;    -- ISO/TS 10303-1282
 
 USE FROM Resource_management_mim;    -- ISO/TS 10303-1266
+
+USE FROM Resource_property_assignment_mim;    -- ISO/TS 10303-1273
 
 USE FROM Scheme_mim;    -- ISO/TS 10303-1260
 
@@ -134,6 +158,8 @@ USE FROM state_type_schema;    -- ISO 10303-56
 USE FROM System_breakdown_mim;    -- ISO/TS 10303-1214
 
 USE FROM Task_specification_mim;    -- ISO/TS 10303-1262
+
+USE FROM Type_of_person_mim;    -- ISO/TS 10303-1245
 
 USE FROM Work_order_characterized_mim;    -- ISO/TS 10303-1286
 
@@ -153,20 +179,32 @@ USE FROM Zonal_breakdown_mim;    -- ISO/TS 10303-1217
 TYPE wd_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH 
    (action, 
     action_method, 
+    action_method, 
+    action_property, 
     action_resource, 
+    address, 
     applied_action_assignment, 
+    applied_location_representation_assignment, 
     contract, 
+    descriptive_representation_item, 
     document_file, 
     effectivity, 
     event_occurrence, 
+    general_property, 
+    location, 
+    measure_representation_item, 
     organization, 
     person, 
     person_and_organization, 
     product, 
     product_definition, 
     product_definition_formation, 
+    product_definition_formation_relationship, 
     product_definition_relationship, 
     product_group, 
+    property_definition, 
+    representation, 
+    resource_property, 
     state_observed, 
     state_observed_assignment, 
     state_observed_relationship);
@@ -183,10 +221,15 @@ TYPE wd_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_m
     event_occurrence, 
     location, 
     organization, 
+    organization_type, 
     organizational_project, 
     person, 
     person_and_organization, 
+    person_type, 
     product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
     product_definition, 
     product_definition_formation, 
     product_group);
@@ -351,6 +394,7 @@ END_TYPE;
 TYPE wd_state_of_item = SELECT BASED_ON state_observed_of_item WITH 
    (action, 
     action_directive, 
+    action_method, 
     applied_action_assignment, 
     versioned_action_request);
 END_TYPE; 
@@ -358,6 +402,7 @@ END_TYPE;
 TYPE wd_state_type_of_item = SELECT BASED_ON state_type_of_item WITH 
    (action, 
     action_directive, 
+    action_method, 
     applied_action_assignment, 
     versioned_action_request);
 END_TYPE; 
@@ -367,3 +412,4 @@ ENTITY characterized_applied_action_assignment
 END_ENTITY;
 
 END_SCHEMA;  -- Ap239_work_definition_mim
+

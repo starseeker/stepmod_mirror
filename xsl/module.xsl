@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.57 2002/05/30 17:08:06 robbod Exp $
+$Id: module.xsl,v 1.58 2002/05/31 08:36:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -288,7 +288,7 @@ $Id: module.xsl,v 1.57 2002/05/30 17:08:06 robbod Exp $
       </xsl:variable>
       This document has been reviewed using the internal review checklist 
       (see <xsl:value-of select="@checklist.internal_review"/>),
-      <xsl:if test="@checklist.internal_review = 00000">
+      <xsl:if test="not(@checklist.internal_review) or @checklist.internal_review = 00000">
         <!-- the default provided by mkmodule -->
         <xsl:call-template name="error_message">
           <xsl:with-param name="message">
@@ -299,7 +299,7 @@ $Id: module.xsl,v 1.57 2002/05/30 17:08:06 robbod Exp $
 
       the project leader checklist 
       (see <xsl:value-of select="@checklist.project_leader"/>),
-      <xsl:if test="@checklist.project_leader = 00000">
+      <xsl:if test="not(@checklist.project_leader) or @checklist.project_leader = 00000">
         <!-- the default provided by mkmodule -->
         <xsl:call-template name="error_message">
           <xsl:with-param name="message">
@@ -310,7 +310,7 @@ $Id: module.xsl,v 1.57 2002/05/30 17:08:06 robbod Exp $
 
       and the convener checklist
       (see <xsl:value-of select="@checklist.convener"/>),
-      <xsl:if test="@checklist.convener = 00000">
+      <xsl:if test="not(@checklist.convener) or @checklist.convener = 00000">
         <!-- the default provided by mkmodule -->
         <xsl:call-template name="error_message">
           <xsl:with-param name="message">

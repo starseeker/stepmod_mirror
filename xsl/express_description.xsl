@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.5 2002/12/11 08:06:38 robbod Exp $
+     $Id: express_description.xsl,v 1.6 2003/04/24 10:22:49 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -94,6 +94,42 @@
             select="concat('Warning Attr1: The first word of the attribute
                     definition should be lower case. It is: ',$attr_start_char)"/>
         </xsl:call-template>
+      </xsl:if>
+
+    </xsl:if>
+
+      <xsl:variable name="ent_start_char"
+        select="substring(normalize-space($entity),1,1)"/>
+      <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
+    <xsl:if test="contains($schema,$description/@linkend)">
+      <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Schem1: Description is provided for schema','')"/>
+        </xsl:call-template>        
+
+
+    </xsl:if>
+
+    <xsl:if test="contains($UPPER,$ent_start_char) and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
+
+
+      <xsl:if test="not($description/b/text())">
+      <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Ent1: should be at least one bold text in the entity description ', $description/@linkend)"/>
+        </xsl:call-template>        
+      </xsl:if>
+
+      <xsl:if test="not(contains(@link_end,$description/b/text()))">
+      <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Ent2: should be at least one bold text in the entity description that contains the entity name ', $description/@linkend)"/>
+        </xsl:call-template>
+        
       </xsl:if>
     </xsl:if>
 
@@ -270,8 +306,5 @@
 
   </xsl:if>
 </xsl:template>
-
-
-
 
 </xsl:stylesheet>

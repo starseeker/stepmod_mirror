@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
+$Id: sect_5_main.xsl,v 1.6 2003/05/23 15:52:56 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -47,7 +47,7 @@ $Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
     </xsl:call-template>
     <p>
       The application interpreted model for this AP is the module interpreted
-      model (MIM) in Clause 
+      model (MIM) in specified in clause 
       <a href="{$module_clause5}">5</a> of the AP module, 
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>
@@ -78,7 +78,7 @@ $Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
         The MIM EXPRESS
         <a href="index_mim_express{$FILE_EXT}" target="toc">index</a>
         contains a complete list of MIM
-        objects identified in Clause <a href="{$module_clause5}">5.2</a> of the AP module 
+        objects identified in clause <a href="{$module_clause5}">5.2</a> of the AP module 
          (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
       </small>
     </p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.9 2003/06/01 13:56:35 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.10 2003/06/02 14:12:49 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -52,7 +52,7 @@ $Id: sect_6_ccs.xsl,v 1.9 2003/06/01 13:56:35 robbod Exp $
 
     <xsl:variable name="annD" select="concat('./annex_pics',$FILE_EXT)"/>
     <p>
-      The Protocol Implementation Conformance Statement (PICS) proforma
+      The Protocol Implementation Conformance Statement (PICS) form
       lists the options or the combinations of options that may be included
       in the implementation. The PICS proforma is provided in annex
       <a href="{$annD}">D</a>.
@@ -128,7 +128,7 @@ $Id: sect_6_ccs.xsl,v 1.9 2003/06/01 13:56:35 robbod Exp $
           <a name="cc_arm_table">
             Table 
             <xsl:value-of select="$table_number"/>
-            &#8212; Conformance classes per ARM entity
+            &#8212; Conformance class ARM elements
           </a>
         </b>
       </p>
@@ -159,7 +159,7 @@ $Id: sect_6_ccs.xsl,v 1.9 2003/06/01 13:56:35 robbod Exp $
           <a name="cc_mim_table">
             Table 
             <xsl:value-of select="$table_number"/>
-            &#8212; Conformance classes per MIM entity
+            &#8212; Conformance class MIM elements
           </a>
         </b>
       </p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues_file.xsl,v 1.2 2002/10/16 21:59:08 thendrix Exp $
+     $Id: resource_issues_file.xsl,v 1.3 2003/02/10 02:44:45 thendrix Exp $
 
   Author: Tom Hendrix
   Owner:  
@@ -28,12 +28,11 @@
         <!-- Output a Table of contents -->
         <xsl:variable name="resdoc_name" select="@resource"/>
         <xsl:variable name="resdoc_file"
-          select="concat('../../data/resource_docs/',@resource,'/resource.xml')"/>
-        
-        <xsl:variable name="index_file" select="'../../data/resource_docs/resdoc_index.xml'" />
+          select="concat('../../data/resource_docs/',@resource,'/resource.xml')"/>        
+        <xsl:variable name="index_file" select="'../../repository_index.xml'" />
         
         <xsl:variable name="in_repo"
-          select="document($index_file)/resource_docs/resource_doc[@name=$resdoc_name]"/>
+          select="document($index_file)/repository_index/resource_docs/resource_doc[@name=$resdoc_name]"/>
       
         <xsl:choose>
           <!-- the resource doc is present in the STEP mod repository -->
@@ -42,7 +41,6 @@
               select="document($resdoc_file)/resource[@name=$resdoc_name]"/>
             <xsl:apply-templates select="$resdoc_node"
               mode="TOCmultiplePage"/> 
-
           </xsl:when>
           <xsl:otherwise>
             <p>
@@ -53,7 +51,7 @@
                 <xsl:with-param name="message">
                   <xsl:value-of select="concat('Error B1: Resource document ',
                                         $resdoc_name,
-                                        ' does not exist in stepmod/resdoc_index.xml')"/>
+                                        ' does not exist in ', $index_file)"/>
                 </xsl:with-param>
               </xsl:call-template>
             </p>

@@ -189,6 +189,11 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         xsl:extension-element-prefixes="exslt"        
         name="all" depends="{$all_target}" 
         description="Create HTML for everything"/> 
+
+    <xsl:message>
+      Created the ant build file: build.xml
+      Targets are: <xsl:value-of select="$all_target"/> 
+    </xsl:message>
       <xsl:text>
       </xsl:text>
        <target
@@ -303,9 +308,9 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:if test="./ballot_package/module">
         <xsl:apply-templates select="." mode="modules_target"/>
       </xsl:if>
-      <xsl:apply-templates select="." mode="resources_target"/>
-      
+      <xsl:apply-templates select="." mode="resources_target"/>      
     </project>
+
   </xsl:template>
 
   <xsl:template match="module">

@@ -1,254 +1,76 @@
 <?xml version="1.0"?>
-<!-- $Id: mim.xml,v 1.6 2003/04/03 08:56:50 rugarcia Exp $ -->
+<!-- $Id: mim.xml,v 1.1 2003/04/04 11:36:56 rugarcia Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="mim_descriptions.xml"
-  rcs.date="$Date: 2003/04/03 08:56:50 $"
-  rcs.revision="$Revision: 1.6 $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.26"
-    source="../data/modules/catalog_data_information_and_shape_representation/mim.exp"/>
-
-  <schema name="Catalog_data_information_and_shape_representation_mim">
-    <interface
-      kind="use"
-      schema="Advanced_boundary_representation_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Constructive_solid_geometry_3d_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Dimension_tolerance_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Edge_based_wireframe_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Faceted_boundary_representation_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Geometric_tolerance_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Geometric_validation_property_representation_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Geometrically_bounded_surface_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Geometrically_bounded_wireframe_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Manifold_surface_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Shell_based_wireframe_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Surface_conditions_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Wireframe_2d_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Furniture_catalog_and_interior_design_cc1_mim">
-    </interface>
-
-    <constant name="schema_name"
-      expression="'CATALOG_DATA_INFORMATION_AND_SHAPE_REPRESENTATION_MIM'">
-	  <builtintype type="STRING"/>
-    </constant>
-    <type name="attribute_language_item_236cc2">
-      <select
-        extensible="YES"
-        basedon="attribute_language_item_236cc1"
-        selectitems="geometric_tolerance topological_representation_item">
-      </select>
-
-    </type>
-    <type name="multi_language_attribute_item_236cc2">
-      <select
-        extensible="YES"
-        basedon="multi_language_attribute_item_236cc1"
-        selectitems="geometric_tolerance topological_representation_item">
-      </select>
-
-    </type>
-    <rule
-      name="dependent_instantiable_dimensional_size"
-      appliesto="dimensional_size">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( d &lt;* dimensional_size | NOT ( SIZEOF (     USEDIN ( d , '' ) ) &gt;0 ) ) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="dependent_instantiable_tolerance_value"
-      appliesto="tolerance_value">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( t &lt;* tolerance_value | NOT ( SIZEOF (     USEDIN ( t , '' ) ) &gt;0 ) ) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_multi_language_for_geometric_tolerance"
-      appliesto="geometric_tolerance">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( ent &lt;* geometric_tolerance | 	NOT allowed_translations (ent, ['description', 'name']) ))=0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_multi_language_for_topological_representation_item"
-      appliesto="topological_representation_item">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( ent &lt;* topological_representation_item |	NOT allowed_translations (ent, ['name']) ))=0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_representation_item_for_hybrid_geometric_model_3d"
-      appliesto="shape_representation">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( sr &lt;* shape_representation | 	( sr. name ='hybrid 3d shape representation' ) AND 	( SIZEOF ( QUERY ( i &lt;* sr. items | 	NOT ( schema_name + '.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) ) ) &gt;0 )) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_zone_boundary"
-      appliesto="tolerance_zone_definition">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( tzd &lt;* tolerance_zone_definition | 	SIZEOF( tzd. boundaries ) &gt;2 ) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="subtype_exclusiveness_founded_item"
-      appliesto="founded_item">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( fi &lt;* founded_item | NOT (     type_check_function ( fi , 	[schema_name + '.COMPOSITE_CURVE_SEGMENT' , 	schema_name + '.SURFACE_PATCH' , 	schema_name + '.VIEW_VOLUME'] , 3     ) ) ) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="subtype_exclusiveness_representation"
-      appliesto="representation">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( r &lt;* representation | NOT (     type_check_function ( r ,	[schema_name + '.CONSTRUCTIVE_GEOMETRY_REPRESENTATION' ,     schema_name + '.CONTACT_RATIO_REPRESENTATION' ,     schema_name + '.DEFAULT_TOLERANCE_TABLE' ,     schema_name + '.DEFINITIONAL_REPRESENTATION' ,     schema_name + '.HARDNESS_REPRESENTATION' ,     schema_name + '.MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION' ,     schema_name + '.MOMENTS_OF_INERTIA_REPRESENTATION' ,     schema_name + '.PRESENTATION_REPRESENTATION' ,     schema_name + '.SHAPE_REPRESENTATION' ,     schema_name + '.SURFACE_TEXTURE_REPRESENTATION' ,     schema_name + '.SYMBOL_REPRESENTATION' ,     schema_name + '.TACTILE_APPEARANCE_REPRESENTATION' ,     schema_name + '.TEXT_STRING_REPRESENTATION' ,     schema_name + '.VISUAL_APPEARANCE_REPRESENTATION'] , 3 ) ) ) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="subtype_exclusiveness_shape_aspect_relationship"
-      appliesto="shape_aspect_relationship">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( sar &lt;* shape_aspect_relationship | NOT (     type_check_function ( sar , 	[schema_name + '.DIMENSIONAL_LOCATION' , 	schema_name + '.SHAPE_ASPECT_ASSOCIATIVITY' , 	schema_name + '.SHAPE_ASPECT_DERIVING_RELATIONSHIP' ,     schema_name + '.SHAPE_DEFINING_RELATIONSHIP'] , 3 )     ) ) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="subtype_exclusiveness_shape_representation_geometry"
-      appliesto="shape_representation">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( sr &lt;* shape_representation | NOT (     type_check_function ( sr , 	[schema_name + '.ADVANCED_BREP_SHAPE_REPRESENTATION' ,     schema_name + '.CSG_SHAPE_REPRESENTATION' ,     schema_name + '.EDGE_BASED_WIREFRAME_SHAPE_REPRESENTATION' ,     schema_name + '.FACETED_BREP_SHAPE_REPRESENTATION' ,     schema_name + '.GEOMETRICALLY_BOUNDED_2D_WIREFRAME_REPRESENTATION' ,     schema_name + '.GEOMETRICALLY_BOUNDED_SURFACE_SHAPE_REPRESENTATION' ,     schema_name + '.GEOMETRICALLY_BOUNDED_WIREFRAME_SHAPE_REPRESENTATION' ,     schema_name + '.MANIFOLD_SURFACE_SHAPE_REPRESENTATION' ,     schema_name + '.NON_MANIFOLD_SURFACE_SHAPE_REPRESENTATION' ] , 3 ) ) ) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="subtype_mandatory_founded_item"
-      appliesto="founded_item">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( fi &lt;* founded_item | NOT (     type_check_function ( fi , 	[schema_name + '.COMPOSITE_CURVE_SEGMENT' , 	schema_name + '.SURFACE_PATCH' , 	schema_name + '.VIEW_VOLUME'] , 0) ) ) ) =0">
-      </where>
-
-    </rule>
-
-  </schema>
-
+<express language_version="2" description.file="mim_descriptions.xml" rcs.date="$Date: 2003/04/04 11:36:56 $" rcs.revision="$Revision: 1.1 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.26" source="../data/modules/catalog_data_information_and_shape_representation/mim.exp"/>
+	<schema name="Catalog_data_information_and_shape_representation_mim">
+		<interface kind="use" schema="Advanced_boundary_representation_mim"/>
+		<interface kind="use" schema="Constructive_solid_geometry_3d_mim"/>
+		<interface kind="use" schema="Dimension_tolerance_mim"/>
+		<interface kind="use" schema="Edge_based_wireframe_mim"/>
+		<interface kind="use" schema="Faceted_boundary_representation_mim"/>
+		<interface kind="use" schema="Geometric_tolerance_mim"/>
+		<interface kind="use" schema="Geometric_validation_property_representation_mim"/>
+		<interface kind="use" schema="Geometrically_bounded_surface_mim"/>
+		<interface kind="use" schema="Geometrically_bounded_wireframe_mim"/>
+		<interface kind="use" schema="Manifold_surface_mim"/>
+		<interface kind="use" schema="Shell_based_wireframe_mim"/>
+		<interface kind="use" schema="Surface_conditions_mim"/>
+		<interface kind="use" schema="Wireframe_2d_mim"/>
+		<interface kind="use" schema="Catalog_data_information_mim"/>
+		<constant name="schema_name" expression="'CATALOG_DATA_INFORMATION_AND_SHAPE_REPRESENTATION_MIM'">
+			<builtintype type="STRING"/>
+		</constant>
+		<type name="attribute_language_item_236cc2">
+			<select extensible="YES" basedon="attribute_language_item_236cc1" selectitems="geometric_tolerance topological_representation_item"/>
+		</type>
+		<type name="multi_language_attribute_item_236cc2">
+			<select extensible="YES" basedon="multi_language_attribute_item_236cc1" selectitems="geometric_tolerance topological_representation_item"/>
+		</type>
+		<rule name="dependent_instantiable_dimensional_size" appliesto="dimensional_size">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( d &lt;* dimensional_size | NOT ( SIZEOF (     USEDIN ( d , '' ) ) &gt;0 ) ) ) =0"/>
+		</rule>
+		<rule name="dependent_instantiable_tolerance_value" appliesto="tolerance_value">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( t &lt;* tolerance_value | NOT ( SIZEOF (     USEDIN ( t , '' ) ) &gt;0 ) ) ) =0"/>
+		</rule>
+		<rule name="restrict_multi_language_for_geometric_tolerance" appliesto="geometric_tolerance">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( ent &lt;* geometric_tolerance | 	NOT allowed_translations (ent, ['description', 'name']) ))=0"/>
+		</rule>
+		<rule name="restrict_multi_language_for_topological_representation_item" appliesto="topological_representation_item">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( ent &lt;* topological_representation_item |	NOT allowed_translations (ent, ['name']) ))=0"/>
+		</rule>
+		<rule name="restrict_representation_item_for_hybrid_geometric_model_3d" appliesto="shape_representation">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( sr &lt;* shape_representation | 	( sr. name ='hybrid 3d shape representation' ) AND 	( SIZEOF ( QUERY ( i &lt;* sr. items | 	NOT ( schema_name + '.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) ) ) &gt;0 )) ) =0"/>
+		</rule>
+		<rule name="restrict_zone_boundary" appliesto="tolerance_zone_definition">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( tzd &lt;* tolerance_zone_definition | 	SIZEOF( tzd. boundaries ) &gt;2 ) ) =0"/>
+		</rule>
+		<rule name="subtype_exclusiveness_founded_item" appliesto="founded_item">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( fi &lt;* founded_item | NOT (     type_check_function ( fi , 	[schema_name + '.COMPOSITE_CURVE_SEGMENT' , 	schema_name + '.SURFACE_PATCH' , 	schema_name + '.VIEW_VOLUME'] , 3     ) ) ) ) =0"/>
+		</rule>
+		<rule name="subtype_exclusiveness_representation" appliesto="representation">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( r &lt;* representation | NOT (     type_check_function ( r ,	[schema_name + '.CONSTRUCTIVE_GEOMETRY_REPRESENTATION' ,     schema_name + '.CONTACT_RATIO_REPRESENTATION' ,     schema_name + '.DEFAULT_TOLERANCE_TABLE' ,     schema_name + '.DEFINITIONAL_REPRESENTATION' ,     schema_name + '.HARDNESS_REPRESENTATION' ,     schema_name + '.MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION' ,     schema_name + '.MOMENTS_OF_INERTIA_REPRESENTATION' ,     schema_name + '.PRESENTATION_REPRESENTATION' ,     schema_name + '.SHAPE_REPRESENTATION' ,     schema_name + '.SURFACE_TEXTURE_REPRESENTATION' ,     schema_name + '.SYMBOL_REPRESENTATION' ,     schema_name + '.TACTILE_APPEARANCE_REPRESENTATION' ,     schema_name + '.TEXT_STRING_REPRESENTATION' ,     schema_name + '.VISUAL_APPEARANCE_REPRESENTATION'] , 3 ) ) ) ) =0"/>
+		</rule>
+		<rule name="subtype_exclusiveness_shape_aspect_relationship" appliesto="shape_aspect_relationship">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( sar &lt;* shape_aspect_relationship | NOT (     type_check_function ( sar , 	[schema_name + '.DIMENSIONAL_LOCATION' , 	schema_name + '.SHAPE_ASPECT_ASSOCIATIVITY' , 	schema_name + '.SHAPE_ASPECT_DERIVING_RELATIONSHIP' ,     schema_name + '.SHAPE_DEFINING_RELATIONSHIP'] , 3 )     ) ) ) =0"/>
+		</rule>
+		<rule name="subtype_exclusiveness_shape_representation_geometry" appliesto="shape_representation">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( sr &lt;* shape_representation | NOT (     type_check_function ( sr , 	[schema_name + '.ADVANCED_BREP_SHAPE_REPRESENTATION' ,     schema_name + '.CSG_SHAPE_REPRESENTATION' ,     schema_name + '.EDGE_BASED_WIREFRAME_SHAPE_REPRESENTATION' ,     schema_name + '.FACETED_BREP_SHAPE_REPRESENTATION' ,     schema_name + '.GEOMETRICALLY_BOUNDED_2D_WIREFRAME_REPRESENTATION' ,     schema_name + '.GEOMETRICALLY_BOUNDED_SURFACE_SHAPE_REPRESENTATION' ,     schema_name + '.GEOMETRICALLY_BOUNDED_WIREFRAME_SHAPE_REPRESENTATION' ,     schema_name + '.MANIFOLD_SURFACE_SHAPE_REPRESENTATION' ,     schema_name + '.NON_MANIFOLD_SURFACE_SHAPE_REPRESENTATION' ] , 3 ) ) ) ) =0"/>
+		</rule>
+		<rule name="subtype_mandatory_founded_item" appliesto="founded_item">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( fi &lt;* founded_item | NOT (     type_check_function ( fi , 	[schema_name + '.COMPOSITE_CURVE_SEGMENT' , 	schema_name + '.SURFACE_PATCH' , 	schema_name + '.VIEW_VOLUME'] , 0) ) ) ) =0"/>
+		</rule>
+	</schema>
 </express>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.64 2002/06/05 15:37:36 robbod Exp $
+$Id: module.xsl,v 1.65 2002/06/05 16:34:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -847,13 +847,13 @@ o=isocs; s=central<br/>
       Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
       sc4sec@cme.nist.gov.
     </P>
-    <p>
-    <small>
-      NOTE The information provided in computer-interpretable form at the
-      above URLs is informative. The information that is contained in the body of
-      this part of ISO 10303 is normative. 
-    </small>
-  </p>
+    <p class="note">
+      <small>
+        NOTE&#160;&#160;The information provided in computer-interpretable form at the
+        above URLs is informative. The information that is contained in the
+        body of this part of ISO 10303 is normative. 
+      </small>
+    </p>
 </xsl:template>
 
 
@@ -883,21 +883,26 @@ o=isocs; s=central<br/>
     defined using the terminology of the subject area of this application
     module. 
   </p>
-	<p>This clause constitutes the Application Reference Model of the application module.</p>
   <p>
-  <small>
-    NOTE 1 A graphical representation of the information requirements is
-    given in 
-    <a href="{$c_expg}">Annex C</a>.
-  </small>
-</p>
-<p>
-  <small>
-    NOTE 2 The mapping specification is specified in 
-    <a href="{$sect51}#mapping">5.1</a>. It shows how
-    the information requirements are met, using common resources and constructs defined or imported in the MIM schema of this application module.
-  </small>
-</p>
+    This clause constitutes the Application Reference Model of the
+    application module.
+  </p> 
+  <p class="note">
+    <small>
+      NOTE&#160;1&#160;&#160;A graphical representation of the information
+      requirements is given in 
+      <a href="{$c_expg}">Annex C</a>.
+    </small>
+  </p>
+  <p class="note">
+    <small>
+      NOTE&#160;2&#160;&#160;The mapping specification is specified in 
+      <a href="{$sect51}#mapping">5.1</a>. It shows how
+      the information requirements are met, using common resources and
+      constructs defined or imported in the MIM schema of this application
+      module. 
+    </small>
+  </p>
   <xsl:variable name="module_dir">
     <xsl:call-template name="module_directory">
       <xsl:with-param name="module" select="../@name"/>

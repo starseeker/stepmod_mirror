@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.44 2002/06/02 07:12:37 robbod Exp $
+$Id: common.xsl,v 1.45 2002/06/05 14:31:30 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -331,10 +331,10 @@ $Id: common.xsl,v 1.44 2002/06/02 07:12:37 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  <p>
+  <p class="note">
     <small>
       <a name="{$aname}">
-        <xsl:value-of select="concat('NOTE ',./@number,' ')"/></a>&#160;&#160;
+        <xsl:value-of select="concat('NOTE&#160;',./@number)"/></a>&#160;&#160;
         <xsl:apply-templates/>
     </small>
   </p>
@@ -352,13 +352,14 @@ $Id: common.xsl,v 1.44 2002/06/02 07:12:37 robbod Exp $
     </xsl:choose>
   </xsl:variable>
 
-  <p>
+  <p class="example">
     <small>
-    <a name="{$aname}">
-      <xsl:value-of select="concat('EXAMPLE ',@number,' ')"/></a>&#160;&#160;
-    <xsl:apply-templates/>
-  </small>
-</p>
+      <a name="{$aname}">
+        <xsl:value-of 
+          select="concat('EXAMPLE&#160;',@number)"/></a>&#160;&#160;
+        <xsl:apply-templates/>
+      </small>
+    </p>
 </xsl:template>
 
 

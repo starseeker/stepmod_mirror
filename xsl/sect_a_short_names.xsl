@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.7 2002/05/08 06:46:13 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.8 2002/05/30 09:51:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -40,9 +40,10 @@ $Id: sect_a_short_names.xsl,v 1.7 2002/05/08 06:46:13 robbod Exp $
         parts of ISO 10303. Requirements on the use of the short names are
         found in the implementation methods included in ISO 10303.  
       </p>
-      <p>
+      <p class="note">
         <small>
-          NOTE The EXPRESS entity names are available from Internet:<br/> 
+          NOTE&#160;&#160;The EXPRESS entity names are available from
+          Internet:<br/>
         <xsl:variable name="UPPER"
           select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
         <xsl:variable name="LOWER"
@@ -68,10 +69,22 @@ $Id: sect_a_short_names.xsl,v 1.7 2002/05/08 06:46:13 robbod Exp $
 </xsl:template>
 
 <xsl:template match="shortnames">
-  Table A.1 provides the short names for entities defined in the MIM of
-  this part of ISO 10303. Requirements on the use of the short names are
-  found in the implementation methods included in ISO 10303. 
-  
+  <p>
+    Table A.1 provides the short names for entities defined in the MIM of
+    this part of ISO 10303. Requirements on the use of the short names are
+    found in the implementation methods included in ISO 10303. 
+  </p>
+  <p class="note">
+    <small>
+      NOTE&#160;&#160;The EXPRESS entity names are available from
+      Internet:<br/>  
+      <xsl:variable name="names_url"
+        select="'http://www.tc184-sc4.org/Short_Names/'"/>      
+      <a href="{$names_url}">
+        <xsl:value-of select="$names_url"/>
+      </a>
+    </small>
+  </p>
   <p align="center">
     <b>
       Table A.1 - MIM short names of entities 

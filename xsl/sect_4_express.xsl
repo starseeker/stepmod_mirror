@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.41 2002/06/06 06:33:41 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.42 2002/06/06 07:45:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -298,9 +298,9 @@
 <!-- output a note detailing the interface -->
 <xsl:template name="interface_notes">
   <xsl:param name="schema_node"/>
-    <p>
+    <p class="note">
       <small>
-        NOTE&#160;&#160;1&#160;
+        NOTE&#160;1&#160;&#160;
         The schemas referenced above are specified in the following 
         part of ISO 10303:
       </small>
@@ -326,9 +326,9 @@
         </xsl:for-each>
       </table>
   </blockquote>
-    <p>
+    <p class="note">
       <small>
-        NOTE&#160;&#160;2&#160;
+        NOTE&#160;2&#160;&#160;
         <xsl:variable name="module_dir">
           <xsl:call-template name="module_directory">
             <xsl:with-param name="module" select="$schema_node/@name"/>
@@ -2484,7 +2484,7 @@ SELF\<xsl:call-template name="link_object">
           </xsl:call-template>
           to the list of alternate data types.
         </xsl:if>
-        <p>
+        <p class="note">
           <small>
             NOTE:&#160;&#160;The list of entity data types will be
             extended in application modules that use the constructs of
@@ -2540,7 +2540,7 @@ SELF\<xsl:call-template name="link_object">
             mechanism to refer to instances of the data types included in
             the <b><xsl:value-of select="$typename"/></b> type or in its
             extensions.  
-            <p>
+            <p class="note">
               <small>
                 NOTE:&#160;&#160;The list of entity data types will be
                 extended in application modules that use the constructs of
@@ -2562,7 +2562,7 @@ SELF\<xsl:call-template name="link_object">
             extended in application modules that use the constructs of this
             module.
                  -->
-            <p>
+            <p class="note">
               <small>
                 NOTE:&#160;&#160;This empty extensible select requires
                 extension in a further module to ensure that all entities have

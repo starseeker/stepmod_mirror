@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.39 2004/10/11 20:16:57 thendrix Exp $
+$Id: module_toc.xsl,v 1.40 2004/10/11 23:58:54 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -46,12 +46,12 @@ $Id: module_toc.xsl,v 1.39 2004/10/11 20:16:57 thendrix Exp $
         <p class="toc">
           <!-- added to support iso and sc4 cover page -->
           <xsl:choose>
-            <xsl:when test="$PUBLICATION='YES'">
+            <xsl:when test="$publication='YES'">
               <!--              <A HREF="{$module_root}/sys/isocover{$FILE_EXT}">Cover page</A><BR/> 
                    for publication, isocover.htm  is copied to cover.htm -->
               <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
             </xsl:when>
-            <xsl:when test="$BALLOT='YES'">
+            <xsl:when test="$ballot='YES'">
               <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
             </xsl:when>
             <xsl:otherwise>

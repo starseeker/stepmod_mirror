@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.157 2003/08/07 07:50:21 robbod Exp $
+$Id: module.xsl,v 1.158 2003/08/11 16:48:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -494,7 +494,11 @@ o=isocs; s=central<br/>
       and is ready for 
       <xsl:value-of select="normalize-space($ballot_cycle_or_pub)"/>.
 
-
+      <p>
+        The project issues raised against the individual modules are stored on
+        <a href="http://sourceforge.net/">http://sourceforge.net/</a>
+        under the stepmod project. Ballot comments will be maintained using ISO form 13b. 
+      </p>
       <xsl:variable name="dvlp_fldr" select="@development.folder"/>
       <xsl:if test="string-length($dvlp_fldr)>0">
         <xsl:variable name="module_dir">
@@ -3015,18 +3019,10 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
         test="( string($current_module/@status)='TS' or 
                 string($current_module/@status)='IS') and
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
-        <sup>
-          <a href="#derogation">
-            2)
-          </a>
-        </sup>
+        <sup><a href="#derogation">2)</a></sup>
       </xsl:when>
       <xsl:when test="stdref[@published='n']">
-        <sup>
-          <a href="#tobepub">
-            1
-          </a>)
-        </sup>
+        <sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160;
     <i>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_aam.xsl,v 1.5 2003/07/28 12:32:41 robbod Exp $
+$Id: sect_annex_aam.xsl,v 1.6 2003/08/11 15:16:48 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -60,7 +60,7 @@ $Id: sect_annex_aam.xsl,v 1.5 2003/07/28 12:32:41 robbod Exp $
                   The application activity model diagrams are given in
                   Figures F.1 through F.<xsl:value-of select="$no_of_diagrams"/>. 
                   The graphical form of the application activity model is
-                  presented in the IDEF0 activity modelling format.
+                  presented in the IDEF0 activity modelling format [1].
                   Activities and data flows that are out of scope are marked with asterisks.
                 </p>
                 <xsl:for-each select="imgfile">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.14 2003/08/11 15:16:07 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.15 2003/08/13 08:08:33 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -637,11 +637,7 @@ $Id: sect_2_refs.xsl,v 1.14 2003/08/11 15:16:07 robbod Exp $
   <p>
     <xsl:value-of select="$stdnumber"/>
     <xsl:if test="stdref[@published='n']">
-      <sup>
-        <a href="#tobepub">
-          1
-        </a>)
-      </sup>
+      <sup><a href="#tobepub">1</a>)</sup>
     </xsl:if>,&#160;
     <i>
       <xsl:value-of select="stdref/stdtitle"/>

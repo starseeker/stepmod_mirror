@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.28 2003/07/31 08:57:57 robbod Exp $
+$Id: sect_contents.xsl,v 1.29 2003/08/11 15:16:48 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -9,7 +9,7 @@ $Id: sect_contents.xsl,v 1.28 2003/07/31 08:57:57 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="../sect_contents.xsl"/>
   <xsl:import href="application_protocol.xsl"/>
-  <xsl:import href="application_protocol_clause.xsl"/>
+  <xsl:import href="application_protocol_clause_nofooter.xsl"/>
   <xsl:output method="html"/>
 	
   <xsl:template match="application_protocol">
@@ -207,6 +207,8 @@ $Id: sect_contents.xsl,v 1.28 2003/07/31 08:57:57 robbod Exp $
     </xsl:if>
 
     <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
+    <br/>
+    <a href="./frame_index{$FILE_EXT}#biblio" target="index">Index</a>
   </xsl:template>
   
   <xsl:template match="application_protocol" mode="contents_tables_figures">
@@ -372,6 +374,7 @@ $Id: sect_contents.xsl,v 1.28 2003/07/31 08:57:57 robbod Exp $
       </xsl:apply-templates>
     </xsl:if>
 
+    <!--
     <h2><a name="index">Index</a></h2>
     <a href="index_arm_modules{$FILE_EXT}">ARM modules</a><br/>
     <a href="index_mim_modules{$FILE_EXT}">MIM modules</a><br/>
@@ -380,7 +383,7 @@ $Id: sect_contents.xsl,v 1.28 2003/07/31 08:57:57 robbod Exp $
     <a href="index_mim_express{$FILE_EXT}">MIM EXPRESS</a><br/>
     <a href="index_arm_mappings{$FILE_EXT}">ARM Entity Mappings</a><br/>
     <a href="index_arm_express_nav{$FILE_EXT}">ARM EXPRESS Navigation</a><br/>
-
+    -->
   </xsl:template>
 	
 
@@ -478,13 +481,10 @@ $Id: sect_contents.xsl,v 1.28 2003/07/31 08:57:57 robbod Exp $
 
 
 <xsl:template match="application_protocol" mode="copyright">
-  <!-- the copyright is already at the bottom of the page from
-       module_clause.xsl 
   <p>
     &#169;ISO
     <xsl:value-of select="@publication.year"/>
   </p>
-  -->
   <a name="copyright"/>
   <p>
     All rights reserved. Unless otherwise specified, no part of this

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.26 2003/05/15 00:19:17 thendrix Exp $
+$Id: sect_contents.xsl,v 1.27 2003/07/28 07:27:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -18,8 +18,9 @@ $Id: sect_contents.xsl,v 1.26 2003/05/15 00:19:17 thendrix Exp $
 
   <!-- 
        the stylesheet that allows different stylesheets to be applied 
+       with no copyright footer
        -->
-  <xsl:import href="module_clause.xsl"/>
+  <xsl:import href="module_clause_nofooter.xsl"/>
 
 
   <xsl:output method="html"/>
@@ -792,7 +793,7 @@ $Id: sect_contents.xsl,v 1.26 2003/05/15 00:19:17 thendrix Exp $
         Annex F Application module implementation and usage guide
       </A>
     <br/>
-		<xsl:apply-templates 
+    <xsl:apply-templates 
       select="./usage_guide/guide_subclause" mode="contents"/>
   </xsl:if>
   <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A><br/>
@@ -1059,12 +1060,12 @@ $Id: sect_contents.xsl,v 1.26 2003/05/15 00:19:17 thendrix Exp $
 
 <xsl:template match="module" mode="copyright">
   <!-- the copyright is already at the bottom of the page from
-       module_clause.xsl 
+       module_clause.xsl -->
   <p>
     &#169;ISO
     <xsl:value-of select="@publication.year"/>
   </p>
-  -->
+
   <a name="copyright"/>
   <p>
     All rights reserved. Unless otherwise specified, no part of this

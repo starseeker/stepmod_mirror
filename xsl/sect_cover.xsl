@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_cover.xsl,v 1.2 2002/01/15 10:18:15 robbod Exp $
+$Id: sect_cover.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output cover page as a web page
@@ -15,7 +15,8 @@ $Id: sect_cover.xsl,v 1.2 2002/01/15 10:18:15 robbod Exp $
   <!-- 
        the stylesheet that allows different stylesheets to be applied 
        -->
-  <xsl:import href="module_clause.xsl"/>
+  <xsl:import href="module_clause_nofooter.xsl"/>
+
 
 
   <xsl:output method="html"/>

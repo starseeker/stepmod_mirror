@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_cover.xsl,v 1.8 2003/06/16 16:41:27 robbod Exp $
+$Id: sect_cover.xsl,v 1.9 2003/06/24 18:41:21 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -9,7 +9,7 @@ $Id: sect_cover.xsl,v 1.8 2003/06/16 16:41:27 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
   <xsl:import href="application_protocol.xsl"/>
-  <xsl:import href="application_protocol_clause.xsl"/>
+  <xsl:import href="application_protocol_clause_nofooter.xsl"/>
   <xsl:import href="../common.xsl"/>
   
   <xsl:output method="html"/>

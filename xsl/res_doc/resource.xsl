@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.12 2002/12/20 12:35:58 nigelshaw Exp $
+$Id: resource.xsl,v 1.13 2003/01/14 12:59:12 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -717,6 +717,7 @@ o=isocs; s=central<br/>
 <xsl:template match="schema_diag">
   <xsl:apply-templates select="express-g"/>  
 </xsl:template>
+
 <xsl:template match="purpose">
   <h3>
     <a name="introduction">
@@ -787,9 +788,7 @@ o=isocs; s=central<br/>
     <a name="inscope"/>
     The following are within the scope of this part of ISO 10303: 
   </p>
-<!--
-  output any issues
--->
+<!--  output any issues -->
   <xsl:apply-templates select=".." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'inscope'"/>
   </xsl:apply-templates>
@@ -805,12 +804,11 @@ o=isocs; s=central<br/>
     <a name="outscope"/>
     The following are outside the scope of this part of ISO 10303: 
   </p>
-<!--
-  output any issues
-  <xsl:apply-templates select=".." mode="output_clause_issue">
+<!-- output any issues -->
+ <xsl:apply-templates select=".." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'outscope'"/>
   </xsl:apply-templates>
--->
+
   <ul>
     <xsl:apply-templates/>
   </ul>
@@ -1136,17 +1134,18 @@ defined in annex D of ISO 10303-11.
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" 
       select="concat(($schema_no+3),'.1 Introduction')"/>
-    <xsl:with-param name="aname" select="concat('schema','position()')"/>
+    <xsl:with-param name="aname" select="'intro'"/>
   </xsl:call-template>
 
   <xsl:apply-templates select="./introduction"/>
   
-	<a name="#funcon{$schema_no+3}" /> 
+  <!--	<a name="funcon{$schema_no+3}" />  -->
 
 <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" 
       select="concat(($schema_no+3),'.2 Fundamental concepts and assumptions')"/>
-    <xsl:with-param name="aname" select="concat('schema','position()')"/>
+    <!--    <xsl:with-param name="aname" select="concat('schema','position()')"/> -->
+    <xsl:with-param name="aname" select="'funcon'"/>
   </xsl:call-template>
 
   <xsl:apply-templates select="./fund_cons"/>

@@ -321,6 +321,8 @@ ENTITY name_assignment
   assigned_name : label;
 DERIVE
   role : object_role := get_role (SELF);
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1 ;
 END_ENTITY;
 
 ENTITY organization_assignment
@@ -387,7 +389,7 @@ END_ENTITY;
 
 ENTITY person_type_definition_role;
   id : identifier;
-  name : identifier;
+  name : label;
   description : OPTIONAL text;
 END_ENTITY;
 
@@ -478,8 +480,9 @@ ENTITY time_interval_assignment
   role : time_interval_role;
 END_ENTITY;
 
-  FUNCTION acyclic_identification_assignment_relationship (relation : identification_assignment_relationship; relatives : SET [1:?] OF identification_assignment; specific_relation : STRING):BOOLEAN;
-    LOCAL
+FUNCTION acyclic_identification_assignment_relationship
+ (relation : identification_assignment_relationship; relatives : SET OF identification_assignment; specific_relation : STRING) : BOOLEAN; 
+ LOCAL
       x : SET OF identification_assignment_relationship;
     END_LOCAL;
 
@@ -493,8 +496,10 @@ END_ENTITY;
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-  END_FUNCTION;
+
+      			END_FUNCTION; 
 
 END_SCHEMA;  -- management_resources_schema
+
 
 

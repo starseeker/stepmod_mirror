@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.16 2003/05/29 07:10:52 robbod Exp $
+$Id: common.xsl,v 1.17 2003/06/02 10:34:48 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -625,6 +625,14 @@ $Id: common.xsl,v 1.16 2003/05/29 07:10:52 robbod Exp $
     select="string-length(translate(substring-before($annex_list,$annex),concat($UPPER,$LOWER),''))"/>
 
   <xsl:value-of select="substring('GHIJK',$pos,1)"/> 
+</xsl:template>
+
+<xsl:template match="application_protocol" mode="table_count_cc">
+  <xsl:value-of  select="count(//purpose//table)+
+                         count(//inscope//table) +
+                         count(//outscope//table) +
+                         count(//changes/change_summary//table) +
+                         count(//inforeqt//table)"/>
 </xsl:template>
 
 </xsl:stylesheet>

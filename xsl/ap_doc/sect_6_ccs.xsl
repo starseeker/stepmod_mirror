@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.8 2003/05/30 09:42:26 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.9 2003/06/01 13:56:35 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -77,16 +77,24 @@ $Id: sect_6_ccs.xsl,v 1.8 2003/05/30 09:42:26 robbod Exp $
       in that class.
     </p>
 
+    <xsl:variable name="table_count">
+      <xsl:apply-templates select="." mode="table_count_cc"/>
+    </xsl:variable>
+
     <xsl:choose>
       <xsl:when test="$ccs_xml/conformance/mims_in_ccs">
         <p>
           Conformance to a particular class requires that all ARM elements
           defined as part of that class be supported. 
           Table 
-          <a href="#cc_arm_table">1</a>
+          <a href="#cc_arm_table">
+            <xsl:value-of select="$table_count+1"/>
+          </a>
           defines the classes to which each ARM element belongs.
           Table 
-          <a href="#cc_mim_table">2</a>
+          <a href="#cc_mim_table">
+            <xsl:value-of select="$table_count+2"/>
+          </a>
           defines the classes to which each MIM element belongs.
         </p>
       </xsl:when>
@@ -95,23 +103,32 @@ $Id: sect_6_ccs.xsl,v 1.8 2003/05/30 09:42:26 robbod Exp $
           Conformance to a particular class requires that all ARM elements
           defined as part of that class be supported. 
           Table 
-          <a href="#cc_arm_table">1</a>
+          <a href="#cc_arm_table">
+            <xsl:value-of select="$table_count+1"/>
+          </a>
           defines the classes to which each ARM element belongs.
         </p>        
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates select="$ccs_xml/conformance/cc" mode="scope"/>    
-    <xsl:apply-templates select="$ccs_xml/conformance/arms_in_ccs" mode="table"/>
-    <xsl:apply-templates select="$ccs_xml/conformance/mims_in_ccs" mode="table"/>
+    <xsl:apply-templates select="$ccs_xml/conformance/arms_in_ccs" mode="table">
+      <xsl:with-param name="table_number" select="$table_count+1"/>
+    </xsl:apply-templates>
+    <xsl:apply-templates select="$ccs_xml/conformance/mims_in_ccs" mode="table">
+      <xsl:with-param name="table_number" select="$table_count+2"/>
+    </xsl:apply-templates>
   </xsl:template>
 
   <xsl:template match="arms_in_ccs" mode="table">
+    <xsl:param name="table_number" select="0"/>
     <xsl:variable name="no_of_ccs" select="count(/conformance/cc)"/>
     <div align="center">
       <p>
         <b>
           <a name="cc_arm_table">
-            Table 1 &#8212; Conformance classes per ARM entity
+            Table 
+            <xsl:value-of select="$table_number"/>
+            &#8212; Conformance classes per ARM entity
           </a>
         </b>
       </p>
@@ -134,12 +151,15 @@ $Id: sect_6_ccs.xsl,v 1.8 2003/05/30 09:42:26 robbod Exp $
 
 
   <xsl:template match="mims_in_ccs" mode="table">
+    <xsl:param name="table_number" select="0"/>
     <xsl:variable name="no_of_ccs" select="count(/conformance/cc)"/>
     <div align="center">
       <p>
         <b>
           <a name="cc_mim_table">
-            Table 2 &#8212; Conformance classes per MIM entity
+            Table 
+            <xsl:value-of select="$table_number"/>
+            &#8212; Conformance classes per MIM entity
           </a>
         </b>
       </p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.14 2003/05/30 05:58:38 robbod Exp $
+$Id: sect_contents.xsl,v 1.15 2003/05/30 14:28:24 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -14,6 +14,8 @@ $Id: sect_contents.xsl,v 1.14 2003/05/30 05:58:38 robbod Exp $
 	
   <xsl:template match="application_protocol">
     <xsl:apply-templates select="../application_protocol" mode="contents"/>
+    <xsl:apply-templates select="../application_protocol" mode="contents_tables_figures"/>
+    <xsl:apply-templates select="../application_protocol" mode="copyright"/>
   </xsl:template>
 	
   <xsl:template match="application_protocol" mode="contents">
@@ -179,118 +181,206 @@ $Id: sect_contents.xsl,v 1.14 2003/05/30 05:58:38 robbod Exp $
       <br/>
     </xsl:if>
 
-    <a href="./biblio{$FILE_EXT}#biblio"
-      target="{$target}">Bibliography</a>
-    <xsl:apply-templates select="." mode="copyright"/>
+    <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
   </xsl:template>
   
-  <xsl:template match="imgfile" mode="expressg_figure">
-		<xsl:variable name="number">
-                  <xsl:number/>
-                </xsl:variable>
-                <xsl:variable name="fig_no">
-                  <xsl:choose>
-                    <xsl:when test="name(../..)='arm'">
-                      <xsl:choose>
-                        <xsl:when test="$number=1">
-                          <xsl:value-of select="concat('Figure F.',$number, ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                          <xsl:value-of select="concat('Figure F.',$number, ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
-                        </xsl:otherwise>
-                      </xsl:choose>
-                    </xsl:when>
-                    <xsl:when test="name(../..)='mim'">
-                      <xsl:choose>
-                        <xsl:when test="$number=1">
-                          <xsl:value-of select="concat('Figure A.',$number, ' - AIM Schema level EXPRESS-G diagram ',$number)"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                          <xsl:value-of select="concat('Figure A.',$number, ' - AIM Entity level EXPRESS-G diagram ',($number - 1))"/>
-                        </xsl:otherwise>
-                      </xsl:choose>
-                    </xsl:when>
-                  </xsl:choose>
-                </xsl:variable>
-                <xsl:variable name="file">
-                  <xsl:call-template name="set_file_ext">
-                    <xsl:with-param name="filename" select="@file"/>
-                  </xsl:call-template>
-                </xsl:variable>
-                <xsl:variable name="href" select="concat('../',$file)"/>
-                <a href="{$href}"><xsl:value-of select="$fig_no"/></a>
-                <br/>
-	</xsl:template>
+  <xsl:template match="application_protocol" mode="contents_tables_figures">
+    <xsl:param name="target" select="'_self'"/>
+    <xsl:variable name="ap_module_dir">
+      <xsl:call-template name="ap_module_directory">
+        <xsl:with-param name="application_protocol" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
 
-	<xsl:template match="module" mode="contents_tables_figures">
-          <xsl:param name="target" select="'_self'"/>
-		<xsl:variable name="ap_module_dir">
-			<xsl:call-template name="ap_module_directory">
-				<xsl:with-param name="application_protocol" select="@name"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
-		<xsl:variable name="arm_desc_xml" select="document($arm_xml)/express/@description.file"/>
-		<xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
-		<xsl:variable name="aim_desc_xml" select="document($aim_xml)/express/@description.file"/>
-		<h3>Tables</h3>
-		<xsl:apply-templates select="//table" mode="toc"/>
-                <a href="./6_ccs{$FILE_EXT}#table_1" target="{$target}">
-                  Table 1 &#8212; Conformance classes per UOF
-                </a>
-                <br/>
-                <a href="./6_ccs{$FILE_EXT}#table_2" target="{$target}">
-                  Table 2 &#8212; Conformance classes per ARM entity
-                </a>
-                <br/>
-                <a href="./6_ccs{$FILE_EXT}#table_3">
-                  Table 3 &#8212; Conformance classes per MIM entity
-                </a>
-                <br/>
-                <xsl:choose>
-			<xsl:when test="$arm_desc_xml">
-				<xsl:apply-templates select="document($arm_desc_xml)//table" mode="toc"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:apply-templates select="document($arm_xml)//table" mode="toc"/>
-			</xsl:otherwise>
-		</xsl:choose>
-		<xsl:choose>
-			<xsl:when test="$aim_desc_xml">
-				<xsl:apply-templates select="document($aim_desc_xml)//table" mode="toc"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:apply-templates select="document($aim_xml)//table" mode="toc"/>
-			</xsl:otherwise>
-		</xsl:choose>
-		<a href="./g_exp{$FILE_EXT}#table_g1">
-			Table G.1 &#8212; ARM to AIM EXPRESS short and long form listing.
-		</a>
-		<h3>Figures</h3>
-		<xsl:apply-templates select="./purpose//figure" mode="toc"/>
-		<xsl:apply-templates select="./inscope//figure" mode="toc"/>
-		<xsl:apply-templates select="./outscope//figure" mode="toc"/>
-		<xsl:choose>
-			<xsl:when test="$arm_desc_xml">
-				<xsl:apply-templates select="document($arm_desc_xml)//figure" mode="toc"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:apply-templates select="document($arm_xml)//figure" mode="toc"/>
-			</xsl:otherwise>
-		</xsl:choose>
-		<xsl:choose>
-			<xsl:when test="$aim_desc_xml">
-				<xsl:apply-templates select="document($aim_desc_xml)//figure" mode="toc"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:apply-templates select="document($aim_xml)//figure" mode="toc"/>
-			</xsl:otherwise>
-		</xsl:choose>
-		<xsl:apply-templates select="./arm/express-g/imgfile" mode="expressg_figure"/>
-		<xsl:apply-templates select="./mim/express-g/imgfile" mode="expressg_figure"/>
-		<xsl:apply-templates select="./usage_guide//figure" mode="toc"/>
-	</xsl:template>
+    <h2>Tables</h2>
+    <xsl:apply-templates select="//changes/change_summary//table" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+
+    <xsl:apply-templates select="//purpose//table" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+
+    <xsl:apply-templates select="//inscope//table" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+    
+    <xsl:apply-templates select="//outscope//table" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+
+    <xsl:apply-templates select="//inforeqt//table" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+
+    <!-- not yet implemented terminology map -->
+    <xsl:apply-templates select="//terminology_map//table" mode="toc"> 
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+
+    <xsl:variable name="table_count_cc">
+      <xsl:apply-templates select="." mode="table_count_cc"/>
+    </xsl:variable>
+    <xsl:variable name="ccs_path"
+      select="concat('../../data/application_protocols/', @name, '/ccs.xml')"/>
+    <xsl:variable name="ccs_xml" select="document(string($ccs_path))"/>
+    <xsl:apply-templates select="$ccs_xml/conformance/arms_in_ccs" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+      <xsl:with-param name="table_number" select="$table_count_cc+1"/>
+    </xsl:apply-templates>
+    <xsl:apply-templates select="$ccs_xml/conformance/mims_in_ccs" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+      <xsl:with-param name="table_number" select="$table_count_cc+2"/>
+    </xsl:apply-templates>
+
+    <a href="./annex_shortnames{$FILE_EXT}#table_b1">
+      Table B.1 &#8212; ARM to AIM EXPRESS short and long form listing.
+    </a>
+    <br/>
+
+    <xsl:apply-templates select="//usage_guide//table" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+
+    <xsl:apply-templates select="//tech_disc//table" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+
+    <xsl:apply-templates select="//changes/change_detail//table" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
+
+
+    <xsl:if test="count(//figure)!=0">
+      <h2>Figures</h2>
+      <xsl:apply-templates select="//changes/change_summary//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//purpose//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//inscope//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//outscope//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//inforeqt//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//usage_guide//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//tech_disc//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//changes/change_detail//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+    </xsl:if>
+  </xsl:template>
 	
+
+<xsl:template match="table|figure" mode="toc">
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:variable name="number">
+    <xsl:choose>
+      <xsl:when test="@number">
+        <xsl:value-of select="@number"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:number/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="file">
+    <xsl:choose>
+      <xsl:when test="./ancestor::purpose[1]">
+        <xsl:value-of select="concat('introduction',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="./ancestor::change_summary[1]">
+        <xsl:value-of select="concat('introduction',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="./ancestor::inscope[1]|./ancestor::outscope[1]">
+        <xsl:value-of select="concat('1_scope',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="./ancestor::inforeqt[1]">
+        <xsl:value-of select="concat('4_info_reqs',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="./ancestor::usage_guide[1]">
+        <xsl:value-of select="concat('annex_guide',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="./ancestor::tech_disc[1]">
+        <xsl:value-of select="concat('annex_tech_disc',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="./ancestor::change_detail[1]">
+        <xsl:value-of select="concat('annex_changes',$FILE_EXT)"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+  
+  <xsl:variable name="aname">
+    <xsl:call-template name="table_aname"/>
+  </xsl:variable>
+
+  <xsl:variable name="href" select="concat($file,'#',$aname)"/>
+
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+
+  <xsl:variable name="table_or_fig">
+    <xsl:call-template name="first_uppercase">
+      <xsl:with-param name="string" select="name(.)"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <a href="{$href}" target="{$target}">
+    <xsl:value-of 
+      select="concat($table_or_fig,' ',$number, ' &#8212; ', @caption, ./title)"/>
+  </a>
+  <br/>
+</xsl:template>
+
+
+
+
+<xsl:template match="arms_in_ccs" mode="toc">
+  <xsl:param name="table_number" select="0"/>
+  <xsl:param name="target" select="'_self'"/>
+  <a href="./6_ccs{$FILE_EXT}#cc_arm_table" target="{$target}">
+    Table 
+    <xsl:value-of select="$table_number"/>
+    &#8212; Conformance classes per ARM entity
+  </a>
+  <br/>
+</xsl:template>
+
+<xsl:template match="mims_in_ccs" mode="toc">
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:param name="table_number" select="0"/>
+  <a href="./6_ccs{$FILE_EXT}#cc_mim_table" target="{$target}">
+    Table 
+    <xsl:value-of select="$table_number"/> 
+    &#8212; Conformance classes per MIM entity
+  </a>
+  <br/>
+</xsl:template>
+
+
 <xsl:template match="application_protocol" mode="copyright">
   <!-- the copyright is already at the bottom of the page from
        module_clause.xsl 

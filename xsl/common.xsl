@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.32 2002/04/18 13:33:37 robbod Exp $
+$Id: common.xsl,v 1.33 2002/04/19 07:43:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1366,7 +1366,7 @@ $Id: common.xsl,v 1.32 2002/04/18 13:33:37 robbod Exp $
       </xsl:choose>
     </xsl:variable>
 
-  <xsl:variable name="status">
+   <xsl:variable name="status">
     <xsl:choose>
       <xsl:when test="string-length($module/@status)>0">
         <xsl:value-of select="$module/@status"/>
@@ -1400,9 +1400,14 @@ $Id: common.xsl,v 1.32 2002/04/18 13:33:37 robbod Exp $
     </xsl:variable>
 
     <xsl:variable name="orgname" select="'ISO'"/>
-    <xsl:variable name="stdnumber"
+
+<!--
       select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
-    <xsl:value-of select="$stdnumber"/>
+-->
+    <xsl:variable name="stdnumber"
+
+      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
+		<xsl:value-of select="$stdnumber"/>
 </xsl:template>
 
 

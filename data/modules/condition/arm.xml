@@ -3,12 +3,12 @@
   type="text/xsl" 
   href="../../../xsl/express.xsl"
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: 2002/07/17 22:33:14 $" rcs.revision="$Revision: 1.4 $">
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="conditionarmnew.vsd" />
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="conditionarm1.vsd" />
 <schema name="Condition_arm">
 <interface kind="use" schema="Class_arm">
 </interface>
-<interface kind="use" schema="Date_time_assignment_arm">
+<interface kind="use" schema="Date_time_arm">
 </interface>
 <interface kind="use" schema="Document_and_version_identification_arm">
 <interfaced.item name="Document_version" alias="Information_object" />
@@ -20,8 +20,6 @@
 </interface>
 <interface kind="use" schema="Expressions_for_logic_arm">
 </interface>
-<interface kind="use" schema="mathematical_functions_schema">
-</interface>
 <interface kind="use" schema="Product_view_definition_arm">
 </interface>
 <interface kind="use" schema="State_definition_arm">
@@ -30,30 +28,17 @@
 </interface>
 <type name="Context_select">
 <select extensible="YES" />
-<graphic.element page="2" xcoord="510" ycoord="640" />
+<graphic.element page="2" xcoord="510" ycoord="660" />
 </type>
-<type name="Critical_date_time">
-<select extensible="YES" basedon="date_or_date_time_item" selectitems="Date_time_criterion" />
-<graphic.element page="8" xcoord="362" ycoord="496" />
+<type name="criterion_source_select">
+<select extensible="YES" selectitems="Class Event Product_view_definition State_definition Value_with_unit" />
+<graphic.element page="8" xcoord="166" ycoord="446" />
 </type>
-<type name="Critical_event">
-<select extensible="YES" basedon="event_item" selectitems="Event_based_criterion" />
-<graphic.element page="8" xcoord="364" ycoord="425" />
-</type>
-<entity name="Class_membership_criterion" supertypes="Criterion">
-<description>
-        A Class_membership_criterion is a Criterion which specifies a defined Class the object of interest may belong to.
-      </description>
-<explicit name="discriminating_class">
-<typename name="Class" />
-</explicit>
-<graphic.element page="8" xcoord="225" ycoord="361" />
-</entity>
 <entity name="Compound_criteria" abstract.supertype="YES" supertypes="Criterion Multiple_arity_logical_expression">
 <description>
         A Compound_criterioa is an aggregation of multiple crterion instances through a logical operator. The aggregation operations of AND_structure and OR_structure may be nested.
       </description>
-<graphic.element page="2" xcoord="198" ycoord="504" />
+<graphic.element page="2" xcoord="198" ycoord="503" />
 </entity>
 <entity name="Condition" supertypes="Criterion Information_object">
 <description>
@@ -61,59 +46,64 @@
       </description>
 <graphic.element page="2" xcoord="269" ycoord="603" />
 </entity>
-<entity name="Condition_context">
-<explicit name="Condition">
+<entity name="Condition_context" supertypes="Document_assignment">
+<explicit name="condition">
+<description>
+          The condition in consideration.
+        </description>
 <typename name="Condition" />
+<redeclaration entity-ref="Document_assignment" old_name="assigned_document" />
 </explicit>
 <explicit name="contextual_target">
+<description>
+          The subject to which the condition pertains to.
+        </description>
 <typename name="Context_select" />
+<redeclaration entity-ref="Document_assignment" old_name="is_assigned_to" />
 </explicit>
-<explicit name="role">
-<builtintype type="STRING" />
-</explicit>
-<graphic.element page="2" xcoord="382" ycoord="695" />
+<graphic.element page="2" xcoord="345" ycoord="715" />
 </entity>
-<entity name="Criterion" supertypes="Logical_expression" super.expression="ONEOF(Class_membership_criterion, Compound_criteria,  Date_time_criterion, Descritptive_criterion, Event_based_criterion) ANDOR Condition, NOT_assertion Numeric_value_citerion)">
+<entity name="Criterion" abstract.supertype="YES" supertypes="Logical_expression" super.expression="ONEOF(Class_membership_criterion, Compound_criteria,  Date_time_criterion, Descritptive_criterion, Event_based_criterion) ANDOR Condition, NOT_assertion Numeric_value_citerion)">
 <description>
         A criterion is an expression representing the semantics and structure of the parameters encapsulated by the expression.
       </description>
 <graphic.element page="2" xcoord="141" ycoord="603" />
 </entity>
-<entity name="Date_time_criterion" supertypes="Criterion">
-<description>
-        A Date_time_criterion is a Criterion specified by a specific Date, Date_time or Time_interval  element together with the relative relationship to that element.
-      </description>
-<graphic.element page="8" xcoord="226" ycoord="496" />
-</entity>
-<entity name="Declaration">
+<entity name="Criterion_parameter">
 <explicit name="criterion">
-<typename name="Descritptive_criterion" />
+<typename name="Criterion" />
 </explicit>
-<explicit name="langauge">
+<explicit name="date_time_value" optional="YES">
+<description>
+          A date, date-time or time duration value used as a criterion parameter.
+        </description>
+<typename name="date_or_date_time_select" />
+</explicit>
+<explicit name="note" optional="YES">
+<description>
+          A textual annotation.
+        </description>
 <builtintype type="STRING" />
 </explicit>
-<explicit name="statement">
+<explicit name="parameter_name">
+<description>
+          A name lable of the parameter identified in the criterion. This name should be in comliance with the actual property name used by the user entity or community. The name can be retrieved through a query following the path reference of the Parameter_ source_reference.
+        </description>
 <builtintype type="STRING" />
 </explicit>
-<graphic.element page="8" xcoord="467" ycoord="644" />
-</entity>
-<entity name="Descritptive_criterion" supertypes="Criterion">
+<explicit name="parameter_type">
 <description>
-        A Descriptive_criterion is a Criterion specified by a textual descriptive information. A Descriptive_criterion may represent a textual Attribute together with its value.
-      </description>
-<graphic.element page="8" xcoord="226" ycoord="644" />
-</entity>
-<entity name="Event_based_criterion" supertypes="Criterion">
-<description>
-        An Event_based_criterion is a Criterion specified by a planned or unexpected event occuring to the object of interest. The criterion may only specify a situation or elapse time after the event happens. But the evlaution may return a value being TRUE or FALSE indicating whether the event did occur.
-      </description>
-<graphic.element page="8" xcoord="228" ycoord="425" />
-</entity>
-<entity name="Logical_value_criterion" supertypes="Criterion Logical_literal">
-<explicit name="specified_value">
-<builtintype type="LOGICAL" />
+          A type descritor of the parameter.
+        </description>
+<builtintype type="STRING" />
 </explicit>
-<graphic.element page="8" xcoord="226" ycoord="559" />
+<explicit name="parameter_value" optional="YES">
+<description>
+          The actual value of the criterion parameter. The value can be an integer, a real number, a string or a logical literal value. Date , date-time or time duration values shall not be instantiated with this attribute type.
+        </description>
+<builtintype type="GENERIC" />
+</explicit>
+<graphic.element page="8" xcoord="85" ycoord="673" />
 </entity>
 <entity name="NOT_assertion" supertypes="Criterion">
 <description>
@@ -121,35 +111,18 @@
       </description>
 <graphic.element page="2" xcoord="85" ycoord="504" />
 </entity>
-<entity name="Numeric_value_citerion" supertypes="Comparison_expression Criterion value_with_uni">
+<entity name="Parameter_source_reference" supertypes="Criterion_parameter">
 <description>
-        A Numeric_value_criterion specifies a numeric property value together with the appropriate unit of measure. The relationship to the value is indicated by the choice of a proper Comparison_expression subtype instance.
+        A referencing relationship to the actual source instance of a property value, from which the criterion parameter is based. The reference path also facilitates the validation evaluation process in applications.
       </description>
-<explicit name="critical_value">
-<builtintype type="REAL" />
-<redeclaration entity-ref="value_with_unit" old_name="value_component" />
-</explicit>
-<graphic.element page="8" xcoord="227" ycoord="219" />
-</entity>
-<entity name="Product_composition_criterion" supertypes="Criterion Product_view_definition">
+<explicit name="source">
 <description>
-        Defines the required product constituent as a distinguishing criterion.
-      </description>
-<explicit name="critical_product">
-<description>
-          A Product_view_definition identifier used as the distinguishing criterion.
+          A pointer to the actual entity instance from which this parameter value is based.
         </description>
-<builtintype type="STRING" />
-<redeclaration entity-ref="Product_view_definition" old_name="id" />
+<typename name="criterion_source_select" />
 </explicit>
-<graphic.element page="8" xcoord="226" ycoord="751" />
+<graphic.element page="8" xcoord="85" ycoord="588" />
 </entity>
-<entity name="State_defined_criterion" supertypes="Criterion">
-<explicit name="discriminating_state">
-<typename name="State_definition" />
-</explicit>
-<graphic.element page="8" xcoord="226" ycoord="290" />
-</entity>
-<graphic.element page="1" xcoord="283" ycoord="581" />
+<graphic.element page="1" xcoord="269" ycoord="623" />
 </schema>
 </express>

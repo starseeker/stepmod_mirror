@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.4 2002/09/10 09:49:44 nigelshaw Exp $
+$Id: banner.xsl,v 1.5 2002/09/11 08:24:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -24,7 +24,7 @@ $Id: banner.xsl,v 1.4 2002/09/10 09:49:44 nigelshaw Exp $
       <head>
         <link rel="stylesheet" type="text/css" href="./css/nav.css"/>
         <title>
-          ddd
+          Banner
         </title>
         </head>
         <body>

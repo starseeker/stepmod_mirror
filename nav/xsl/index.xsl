@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: index.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
+$Id: index.xsl,v 1.2 2002/09/09 07:27:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up the main frames
@@ -24,23 +24,34 @@ $Id: index.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
     <html>
     <head>
       <link rel="stylesheet" type="text/css" href="../css/stepmod.css"/>
-    <title>
-      STEP modules
-    </title>
-  </head>
+      <title>
+        STEP modules
+      </title>
+      <script language="JavaScript"><![CDATA[
+       function updateTitleFrame(title) {        
+         top.titlebar.document.all.DIVtitletext.innerText=title;
+       }
+      ]]></script>
+    </head>
 
-  <frameset framespacing="1" border="0" rows="13%,*" frameborder="0">
+  <frameset framespacing="1" border="0" rows="13%,*" frameborder="0" >
     <frame name="banner" 
       src="banner{$FILE_EXT}"
       marginwidth="2" marginheight="0" scrolling="auto"/>
       <frameset cols="*,80%">
-        <frame name="index" 
-          target="main"
-          src="modules_alpha{$FILE_EXT}"
-          scrolling="auto"/>
-        <frame name="content" 
-          src="introduction{$FILE_EXT}"
-          scrolling="auto"/>
+          <frame name="index" 
+            src="modules_alpha{$FILE_EXT}"
+            scrolling="auto"/>
+        <frameset framespacing="1" border="0" rows="48,*" frameborder="0" >
+          <frame name="titlebar"
+            src="titlebar{$FILE_EXT}"
+            scrolling="no"/>
+
+          <frame name="content" 
+            onload="updateTitleFrame(top.content.document.title)" 
+            src="introduction{$FILE_EXT}"
+            scrolling="auto"/>
+        </frameset>
       </frameset>
       <noframes>
         <body>

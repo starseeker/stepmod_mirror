@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.27 2002/07/15 08:56:44 goset1 Exp $
+     $Id: express_code.xsl,v 1.28 2002/07/16 07:43:19 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -337,12 +337,36 @@
 
 
 <xsl:template match="enumeration" mode="underlying">
-  ENUMERATION OF 
-  <br/>
-  &#160;&#160; 
-  <xsl:value-of 
-    select="concat('(',translate(normalize-space(@items),' ', ','),')')"/>
+  <xsl:if test="@extensible='YES' or @extensible='yes'">
+    EXTENSIBLE
+  </xsl:if>
+  ENUMERATION
+  <xsl:if test="@basedon">
+    BASED_ON 
+    <xsl:call-template name="link_object">
+      <xsl:with-param name="object_name" select="@basedon"/>
+      <xsl:with-param name="object_used_in_schema_name" 
+        select="../../@name"/>
+      <xsl:with-param name="clause" select="'section'"/>
+    </xsl:call-template>  
+  </xsl:if>
+
+  <xsl:if test="@items and (string-length(@items)!=0)">
+    <xsl:choose>
+      <xsl:when test="@basedon">
+        WITH 
+      </xsl:when>
+      <xsl:otherwise>
+        OF
+      </xsl:otherwise>
+    </xsl:choose>
+    <br/>
+    &#160;&#160; 
+    <xsl:value-of 
+      select="concat('(',translate(normalize-space(@items),' ', ','),')')"/>
+  </xsl:if>
 </xsl:template>
+
 
 
 <xsl:template match="entity" mode="code">

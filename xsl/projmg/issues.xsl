@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.6 2002/10/08 10:20:06 mikeward Exp $
+     $Id: issues.xsl,v 1.7 2002/10/08 16:05:47 mikeward Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -19,20 +19,22 @@
        -->
 <xsl:template match="module" mode="output_clause_issue">
   <xsl:param name="clause"/>
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="module_directory">
-      <xsl:with-param name="module" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="dvlp_fldr" select="@development.folder"/>
-  <xsl:if test="string-length($dvlp_fldr)>0">
-    <xsl:variable name="issue_file" 
-      select="concat('../',$module_dir,'/dvlp/issues.xml')"/>
-    <xsl:apply-templates
-      select="document($issue_file)/issues/issue[@type=$clause]" 
-      mode="inline_issue">
-      <xsl:sort select="@status" order="descending"/>
-    </xsl:apply-templates>
+  <xsl:if test="$output_issues='YES'">
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="dvlp_fldr" select="@development.folder"/>
+    <xsl:if test="string-length($dvlp_fldr)>0">
+      <xsl:variable name="issue_file" 
+        select="concat('../',$module_dir,'/dvlp/issues.xml')"/>
+      <xsl:apply-templates
+        select="document($issue_file)/issues/issue[@type=$clause]" 
+        mode="inline_issue">
+        <xsl:sort select="@status" order="descending"/>
+      </xsl:apply-templates>
+    </xsl:if>
   </xsl:if>
 </xsl:template>
 

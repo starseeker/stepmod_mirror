@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: resdoc_index.xsl,v 1.3 2002/10/16 23:14:43 thendrix Exp $
+     $Id: resdoc_index.xsl,v 1.4 2002/10/17 19:21:56 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -18,6 +18,30 @@
 >
 
 <xsl:import href="../repository_index.xsl"/>
+
+
+<xsl:variable name="warning_gif" select="'./images/warning.gif'" />
+
+<xsl:template match="resource" mode="output">
+  <xsl:variable name="xref" select="concat('./data/resources/',@name,'/',@name,$FILE_EXT)"/>
+
+ <xsl:if test="contains(string(@name),'nut_and_bolt_')" >
+        <IMG
+          SRC="{$warning_gif}" ALT="[warning:]"
+          align="absbottom" border="0"
+          width="20" height="20"/>
+        <font color="#FF0000" size="-1">
+           <i>Demo only! </i>
+         </font>
+       </xsl:if>
+
+  <a href="{$xref}">
+    <font size="-1">
+      <b><xsl:value-of select="@name"/></b>
+    </font>
+  </a>
+  <br/>
+</xsl:template>
 
 <xsl:template match="repository_index" >
   <HTML>
@@ -123,7 +147,7 @@
 
       <h2>
         <a name="alphatop">
-          NB: DEMONSTRATION ONLY<br/>Alphabetical list of Integrated Resources
+          Alphabetical list of Integrated Resources
         </a>
       </h2>
 
@@ -157,17 +181,6 @@
 </xsl:template>
 
 
-
-<xsl:template match="resource_doc" mode="output">
-  <xsl:variable name="xref" select="concat('./data/resource_docs/',@name,'/',@name,$FILE_EXT)"/>
-  <a href="{$xref}">
-    <font size="-1">
-      <b><xsl:value-of select="@name"/></b>
-    </font>
-  </a>
-  <br/>
-</xsl:template>
-
 <xsl:template match="resource_doc" mode="col1">
   <xsl:param name="mid_point"/>
   <xsl:if test="not(position()>$mid_point)">
@@ -190,10 +203,20 @@
       <xsl:with-param name="resdoc_name" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-  <a href="{$xref}">
+ <xsl:if test="string(@name)='nutty_bolts'">
+        <IMG
+          SRC="{$warning_gif}" ALT="[warning:]"
+          align="absbottom" border="0"
+          width="20" height="20"/>
+        <font color="#FF0000" size="-1">
+           <i>Demo only! </i>
+         </font>
+       </xsl:if>
+  
+       <a href="{$xref}">
     <font size="-1">
       <b>
-        <xsl:value-of select="@name"/>
+               <xsl:value-of select="@name"/>
         (
         <xsl:value-of select="$part"/>
         )

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.5 2004/01/27 22:26:31 thendrix Exp $
+     $Id: express_code.xsl,v 1.6 2004/01/28 23:36:55 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -40,9 +40,9 @@
   <code>
     <br/><br/>
     <a name="{$aname}">
-      SCHEMA <b><xsl:value-of select="@name"/></b>;
-  </a>
-  <br/>    <br/>
+      SCHEMA <b><xsl:value-of select="@name"/></b>;</a>
+  <br/><br/>
+</code>
   <xsl:apply-templates select="./interface" mode="code"/>
   <xsl:apply-templates select="./constant" mode="code"/>
   <xsl:apply-templates select="./type" mode="code"/>
@@ -51,6 +51,7 @@
   <xsl:apply-templates select="./rule" mode="code"/>
   <xsl:apply-templates select="./function" mode="code"/>
   <xsl:apply-templates select="./procedure" mode="code"/>
+  <code>
   <br/>
   END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="@name"/>
   <br/>
@@ -61,7 +62,8 @@
 <xsl:template match="interface" mode="code">
   <xsl:variable 
     name="schema_name" 
-    select="../@name"/>      
+    select="../@name"/>
+  <code>      
   <xsl:choose>
     <xsl:when test="@kind='reference'">
       REFERENCE FROM 
@@ -116,6 +118,7 @@
       </xsl:call-template>
     </xsl:otherwise>
   </xsl:choose>
+</code>
 </xsl:template>
 
 <!-- output the trailing comment that shows where the express came from -->
@@ -200,6 +203,7 @@
 
 
 <xsl:template match="constant" mode="code">
+  <code>
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -219,10 +223,12 @@
     END_CONSTANT;
     <br/>
   </xsl:if>
+</code>
 </xsl:template>
 
 
 <xsl:template match="type" mode="code">
+  <code>
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -248,6 +254,7 @@
       </xsl:choose>
     END_TYPE; 
   <br/>
+  <code>
 </xsl:template>
 
 <!-- empty template to prevent the description element being output along
@@ -346,6 +353,7 @@
 
 
 <xsl:template match="entity" mode="code">
+  <code>
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -369,6 +377,7 @@
   <xsl:apply-templates select="./unique" mode="code"/>
   <xsl:call-template name="output_where_formal"/>
   END_ENTITY;<br/>
+</code>
 </xsl:template>
 
 
@@ -594,16 +603,19 @@
       <xsl:with-param name="section2" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-             
+  <code>             
   <br/>
   <A NAME="{$aname}">FUNCTION <b><xsl:value-of select="@name"/></b> </A>
   <br/>
   <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
   <xsl:apply-templates select="./aggregate" mode="code"/>
   <xsl:apply-templates select="./*" mode="underlying"/>;
+</code>
   <xsl:apply-templates select="./algorithm" mode="code"/>
 	<!-- <br/> -->
+        <code>
   END_FUNCTION;
+</code>
   <br/>
 </xsl:template>
 
@@ -656,17 +668,22 @@
   </xsl:variable>
 
   <br/>
+  <code>
   <A NAME="{$aname}">PROCEDURE <b><xsl:value-of select="@name"/></b> </A>
   <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
   <xsl:apply-templates select="./aggregate" mode="code"/>
   <xsl:apply-templates select="./*" mode="underlying"/>;
+</code>
   <xsl:apply-templates select="./algorithm" mode="code"/><br/>
+  <code>
   END_PROCEDURE;
+  </code>
   <br/>
 
 </xsl:template>
 
 <xsl:template match="rule" mode="code">  
+<code>
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -685,13 +702,19 @@
   </b></A><xsl:text> FOR </xsl:text>
   <br/>
   (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);<br/>
+</code>
   <xsl:apply-templates select="./algorithm" mode="code"/>
+  <code>
   <xsl:apply-templates select="./where" mode="code"/>
+</code>
+<code>
   END_RULE;
+</code>
   <br/>
 </xsl:template>
 
 <xsl:template match="subtype.constraint" mode="code">
+  <code>
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -758,7 +781,7 @@
       </xsl:call-template>;<br/>
     </xsl:if>      
   END_SUBTYPE_CONSTRAINT;<br/>
-
+  </code>
 
 
 </xsl:template>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.17 2004/11/22 21:37:32 thendrix Exp $
+<!--  $Id: build.xsl,v 1.18 2004/12/01 09:29:07 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -1465,6 +1465,14 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${PUBSRCSTYLES}/publication_readme.xsl'"/>
         </xsl:attribute>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'date'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DATE}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
 
       <!-- make sure that the CR/LF are windows for the readme -->
@@ -6104,7 +6112,15 @@
 
       <xsl:element name="zip">
         <xsl:attribute name="zipfile">
-          <xsl:value-of select="concat('${PUBDIR}/WG',@sc4.working_group,'N',@wg.number.publication_set,'_${DSTAMP}.zip')"/>
+
+          <xsl:choose>
+          <xsl:when test="contains(@sc4.working_group,'WG')">
+          <xsl:value-of select="concat('${PUBDIR}/',@sc4.working_group,'N',@wg.number.publication_set,'_${DATE}.zip')"/>            
+          </xsl:when>
+          <xsl:otherwise>
+          <xsl:value-of select="concat('${PUBDIR}/WG',@sc4.working_group,'N',@wg.number.publication_set,'_${DATE}.zip')"/>            
+          </xsl:otherwise>
+        </xsl:choose>
         </xsl:attribute>
         <xsl:attribute name="basedir">
           <xsl:value-of select="'${PUBDIR}/'"/>

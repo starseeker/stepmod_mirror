@@ -13,7 +13,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   version="1.0">
   
   <xsl:output method="text"/>
-
+  <xsl:param name="date" select="'&lt;DATE>'" />
   <xsl:template match="publication_index">This directory comprises a set of parts (modules, resource and
 application protocol documents) that have been compiled for publication.
 
@@ -23,8 +23,16 @@ The zip files in the directory zip, are the individual parts that should be
 sent to ISO.
 
 The zip file:
-  <xsl:value-of select="concat('WG',@sc4.working_group,'N',@wg.number.publication_set,'_&lt;DATE&gt;.zip')"/> 
-has been created for sending to the convener for sign off.
+  <xsl:choose>
+    <xsl:when test="contains(@sc4.working_group,'WG')">
+  <xsl:value-of select="concat(@sc4.working_group,'N',@wg.number.publication_set,'_',$date,'.zip')"/> 
+has been created for sending to the convener for sign off.      
+    </xsl:when>
+    <xsl:otherwise>
+  <xsl:value-of select="concat('WG',@sc4.working_group,'N',@wg.number.publication_set,'_',$date,'.zip')"/> 
+has been created for sending to the convener for sign off.      
+    </xsl:otherwise>
+  </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>

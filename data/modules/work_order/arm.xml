@@ -1,0 +1,219 @@
+<?xml version="1.0"?>
+<!-- $Id: $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.2"
+    source="../data/modules/work_order/arm.exp"/>
+
+  <schema name="work_order_arm">
+    <interface
+      kind="use"
+      schema="Approval_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Contract_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Date_time_assignment_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Person_organisation_assignment_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Work_request_arm">
+    </interface>
+
+    <type name="ordered_item_select">
+      <select
+        selectitems="Product_version Product_view_definition View_definition_relationship">
+      </select>
+
+    </type>
+    <type name="work_order_organisation_or_person_in_organisation_item">
+      <select
+        basedon="organisation_or_person_in_organisation_item"
+        selectitems="Work_order">
+      </select>
+
+    </type>
+    <type name="work_order_date_or_date_time_item">
+      <select
+        basedon="date_or_date_time_item"
+        selectitems="Work_order">
+      </select>
+
+    </type>
+    <type name="work_order_approval_item">
+      <select
+        basedon="approval_item"
+        selectitems="Work_order">
+      </select>
+
+    </type>
+    <type name="work_order_contract_item">
+      <select
+        basedon="contract_item"
+        selectitems="Work_order">
+      </select>
+
+    </type>
+    <entity
+      name="Activity">
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="adopted_solution">
+        <typename
+          name="Activity_method"/>
+      </explicit>
+      <explicit
+        name="input_items">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="?"
+          typelabel="ordered_item_select"/>
+      </explicit>
+      <explicit
+        name="output_items">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="?"
+          typelabel="ordered_item_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Work_definition"
+      supertypes="Activity">
+      <inverse
+        name="associated_order"
+        entity="Work_order"
+        attribute="directed_activity">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="1"/>
+      </inverse>
+    </entity>
+
+    <entity
+      name="Work_order">
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="in_response_to">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"
+          typelabel="Work_request"/>
+      </explicit>
+      <explicit
+        name="directed_activity">
+        <typename
+          name="Work_definition"/>
+      </explicit>
+      <derived
+        name="adopted_solution"
+        expression="directed_activity.adopted_solution">
+        <typename
+          name="Activity_method "/>
+      </derived>
+      <derived
+        name="output_items"
+        expression="directed_activity.output_items">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="?"
+          typelabel="ordered_item_select"/>
+      </derived>
+      <derived
+        name="status"
+        expression="directed_activity.status">
+        <builtintype
+          type="STRING"/>
+      </derived>
+      <inverse
+        name="requestor"
+        entity="Organisation_or_person_in_organisation_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <inverse
+        name="order_date"
+        entity="Date_or_date_time_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <inverse
+        name="approval"
+        entity="Approval_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="?"/>
+      </inverse>
+      <inverse
+        name="contracts"
+        entity="Contract_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="?"/>
+      </inverse>
+    </entity>
+
+  </schema>
+
+</express>

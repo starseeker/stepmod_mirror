@@ -10467,71 +10467,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:template>
 
 
-  <!--
-  <xsl:template match="ap_doc" mode="get_mod_node_set">
-    <xsl:variable name="selected_ap" select="@name"/>
-    <xsl:variable name="ap_file" 
-      select="concat('../../data/application_protocols/',$selected_ap,'/application_protocol.xml')"/>	    
-    <xsl:variable name="ap_node" select="document($ap_file)"/>
-    <xsl:variable name="ap_top_module" select="$ap_node/application_protocol/@module_name"/>
-    
-    <xsl:variable name="top_module_file" 
-      select="concat('../../data/modules/',$ap_top_module,'/mim.xml')"/>
-    
-    <xsl:variable name="top_module_node"
-      select="document($top_module_file)/express"/>
-    
-    <xsl:variable name="schema-name"
-      select="$top_module_node//schema/@name"/>
-    
-    <xsl:variable name="mim_schemas">
-      <xsl:call-template name="depends-on-recurse-mim-x">
-        <xsl:with-param name="todo" select="concat(' ',$schema-name,' ')"/>
-        <xsl:with-param name="done" select="' '"/>
-      </xsl:call-template>
-    </xsl:variable>
-    
-    <xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
-    
-      <xsl:for-each select="$schemas-node-set//x">
-        <xsl:sort/>
-        <xsl:choose>
-          <xsl:when test="substring-before(.,'/mim.xml')">
-            <xsl:variable name="module" select="substring-after(substring-before(.,'/mim'),'modules/')"/>
-            <xsl:variable name="module_ok">
-              <xsl:call-template name="check_module_exists">
-                <xsl:with-param name="module" select="$module"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:choose>
-              <xsl:when test="$module_ok='true'">
-                <module>
-                  <xsl:attribute name="name">
-                    <xsl:value-of select="$module"/>
-                  </xsl:attribute>
-                </module>
-              </xsl:when>
-              <xsl:otherwise>
-                <error>
-                  <xsl:value-of select="$module"/>
-                </error>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:variable name="resource" 
-              select="substring-after(substring-before(.,'.xml'),'../../data/resources/')"/>
-            <resource>
-              <xsl:attribute name="name">
-                <xsl:value-of select="$resource"/>
-              </xsl:attribute>
-            </resource>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:for-each>
-  </xsl:template>
--->
-
 <xsl:template name="depends-on-recurse-mim-x">
   <xsl:param name="todo" select="' '"/>
   <xsl:param name="done" />
@@ -10555,32 +10490,77 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:when test="starts-with($this-schema,'aic_')">
             <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="substring-before($this-schema,'_arm')">
             BAD SCHEMA name !!! <xsl:value-of select="$this-schema"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <!-- assume that it is a resource -->
+            <xsl:message>
+              Found <xsl:value-of select="$this-schema"/> assumed a resource.
+            </xsl:message>
+            <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
         </xsl:otherwise>
       </xsl:choose>
-  </xsl:variable>
+    </xsl:variable>
   
-  <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
-    <x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    'abcdefghijklmnopqrstuvwxyz')" /></x>
-  </xsl:if>
+    <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
+      <x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      'abcdefghijklmnopqrstuvwxyz')" /></x>
+    </xsl:if>
+    
+    <xsl:variable name="mim-node" select="document($file_name)/express"/>
   
-  <xsl:variable name="mim-node" select="document($file_name)/express"/>
   
-  
-  <!-- get the list of schemas for this level that have not already been done -->
-
-  <xsl:variable name="my-kids" >
-    <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))" >
-      <xsl:apply-templates select="$mim-node//interface" mode="interface-schemas">
-        <xsl:with-param name="done" select="$done" />
+    <!-- get the list of schemas for this level that have not already been done -->
+    
+    <xsl:variable name="my-kids" >
+      <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))" >
+        <xsl:apply-templates select="$mim-node//interface" mode="interface-schemas">
+          <xsl:with-param name="done" select="$done"/>
         </xsl:apply-templates>
+
+        <!-- only process mims and search for express_refs--> 
+        <xsl:if test="substring-before($this-schema,'_mim')">
+          <xsl:variable name="module_dir" 
+            select="concat('../../data/modules/',translate(substring-before($this-schema,'_mim'),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'/')"/>
+
+          <!-- get the express refs from the mim -->
+          <xsl:apply-templates select="$mim-node//express_ref" mode="schema_name">
+            <xsl:with-param name="done" select="$done"/>
+          </xsl:apply-templates>
+          <xsl:if test="$mim-node/@description.file">
+            <xsl:variable name="mim_descriptions"
+              select="concat($module_dir,$mim-node/@description.file)"/>
+
+            <xsl:apply-templates select="document($mim_descriptions)//express_ref" mode="schema_name">
+              <xsl:with-param name="done" select="$done"/>
+            </xsl:apply-templates>
+          </xsl:if>
+
+          <!-- get the express refs from the arm -->
+          <xsl:variable name="arm-node" select="document(concat($module_dir,'arm.xml'))/express"/>
+          <xsl:apply-templates select="$arm-node//express_ref" mode="schema_name">
+            <xsl:with-param name="done" select="$done"/>
+          </xsl:apply-templates>
+          <xsl:if test="$arm-node/@description.file">
+            <xsl:variable name="arm_descriptions"
+              select="concat($module_dir,$arm-node/@description.file)"/>
+            <xsl:apply-templates select="document($arm_descriptions)//express_ref" mode="schema_name">
+              <xsl:with-param name="done" select="$done"/>
+            </xsl:apply-templates>
+          </xsl:if>
+
+          <!-- get the express refs from the module -->
+          <xsl:variable name="module-node" select="document(concat($module_dir,'module.xml'))"/>
+          <xsl:apply-templates select="$module-node//express_ref" mode="schema_name">
+            <xsl:with-param name="done" select="$done"/>
+          </xsl:apply-templates>
+        </xsl:if>        
       </xsl:if>
     </xsl:variable>
-
+    
     <xsl:variable name="after" select="normalize-space(concat(substring-after($todo, $this-schema),$my-kids))"/>
-                          
+    
     <xsl:if test="$after">
       <xsl:call-template name="depends-on-recurse-mim-x">
         <xsl:with-param name="todo" select="$after"/>
@@ -10594,8 +10574,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
 <xsl:template match="interface" mode="interface-schemas">
   <xsl:param name="done"/>
-  <xsl:if test="not(contains($done,@schema))">
-    <xsl:value-of select="concat(' ',@schema,' ')"/> 
+  <xsl:variable name="schema" select="concat(' ',@schema,' ')"/>
+  <xsl:if test="not(contains($done,$schema))">
+    <xsl:value-of select="$schema"/> 
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="express_ref" mode="schema_name">
+  <xsl:param name="done"/>
+  <xsl:variable name="schema"
+    select="concat(' ',substring-before(substring-after(substring-after(@linkend,':'),':'),'.'),' ')"/> 
+  <xsl:variable name="schema1">
+    <xsl:choose>
+      <xsl:when test="contains($schema,'_arm ')">
+        <xsl:value-of select="concat(substring-before($schema,'_arm '),'_mim ')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$schema"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:if test="not(contains($done,$schema1))">
+    <xsl:value-of select="$schema1"/> 
   </xsl:if>
 </xsl:template>
 
@@ -10634,7 +10634,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:variable>
   
   <xsl:variable name="todo_schema_list" select="concat(string($aps),string($modules))"/>
-
   <xsl:variable name="mim_schemas">
     <xsl:call-template name="depends-on-recurse-mim-x">
       <xsl:with-param name="todo" select="$todo_schema_list"/>
@@ -10643,6 +10642,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:variable>
 
   <xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
+
+  <!--
+  <xsl:variable name="schemas-done">
+    <xsl:for-each select="$schemas-node-set//x">
+      <xsl:value-of 
+        select="concat(' ',substring-before(substring-after(substring-after(.,'../../data/'),'/'),'/'),' ')"/>
+    </xsl:for-each>
+  </xsl:variable> -->
+
+
+  <!-- iterate through all mim schemas extracting the express_ref from the
+       intro, arm, mim and extracting the schema name 
+  <xsl:for-each select="$schemas-node-set//x">
+    <xsl:if test="contains(.,'/mim.xml')">
+      <xsl:variable name="module_dir" select="concat(substring-before(.,'/mim.xml'),'/')"/>
+      <xsl:variable name="mim_xml" select="document(.)"/>
+      <xsl:message>{{<xsl:value-of select="$mim_xml/express/schema/@name"/>}}</xsl:message>
+      <xsl:message> 2{{<xsl:apply-templates select="$mim_xml//express_ref" mode="schema_name"/>}}</xsl:message>
+      <xsl:if test="$mim_xml/express/@description.file">
+        <xsl:variable name="mim_descriptions"
+          select="concat($module_dir,$mim_xml/express/@description.file)"/>
+        <xsl:message>3{{<xsl:apply-templates select="document($mim_descriptions)//express_ref" mode="schema_name"/>}}</xsl:message>
+      </xsl:if>
+    </xsl:if>    
+  </xsl:for-each> -->
 
   <xsl:for-each select="$schemas-node-set//x">
     <xsl:sort/>

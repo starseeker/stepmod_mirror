@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.14 2003/03/28 23:23:50 thendrix Exp $
+//$Id: getExpressMain.js,v 1.15 2003/04/14 03:33:44 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -57,14 +57,16 @@ String.prototype.trim = function()
     return this.replace(/(^\s*)|(\s*$)/g, "");
 }
 
-
 function getDate() {
-    var d, s="";
-    d = new Date();                           //Create Date object.
-    s += d.getYear();                         //Get year.
-    s += d.getMonth() + 1;            //Get month
-    s += d.getDate();                   //Get day
-   return(s);                                //Return date.
+    var a, date, year, month, day;
+    date = new Date();                           //Create Date object.
+    year = ""+date.getYear();                         //Get year.
+    month = ""+(date.getMonth() + 1);            //Get month
+    day = ""+date.getDate();                   //Get day
+    if (day.length == 1) day = "0"+day;
+    if (month.length == 1) month = "0"+month;
+    s = year + month + day;    
+    return(s);                                //Return date.
 }
 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <!--
- $Id: getExpressIr.wsf,v 1.1 2003/01/08 13:14:36 robbod Exp $ 
+ $Id: getExpressIr.wsf,v 1.2 2003/02/11 09:30:53 robbod Exp $ 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: A  script to copy all the express files from the repository to
@@ -88,32 +88,41 @@
 
    // Disable the output of user messages
    outputUsermessage = 0;
-   var initVal = "plcs_bp2";
-
-   var ballotdir = getBallotDir(initVal);
-   if (ballotdir != -1) {
-       var expdir = getExpDir(ballotdir+"\\express");
-       var fso = new ActiveXObject("Scripting.FileSystemObject");
-       var errMsg;
-       var error = 0;
-       
-       if (expdir != -1) {
-	   var modList = getModList(ballotdir+"\\modlist.txt","Modules list file","Enter file listing modules:");
-	   if (!fso.FileExists(modList)) {
-	       errMsg = ("The "+modList+" file does not exist.");
-	       error = 1;
+   if (wscript.arguments.length > 0)
+    {
+	var expdir = wscript.arguments(0);
+	var modList = wscript.arguments(1);
+	var irList = wscript.arguments(2);
+	MainWindowIrList(expdir,modList,irList);
+    }
+    else
+    {
+	var initVal = "plcs_bp2";
+	var ballotdir = getBallotDir(initVal);
+	if (ballotdir != -1) {
+	    var expdir = getExpDir(ballotdir+"\\express");
+	    var fso = new ActiveXObject("Scripting.FileSystemObject");
+	    var errMsg;
+	    var error = 0;
+	    
+	    if (expdir != -1) {
+		var modList = getModList(ballotdir+"\\modlist.txt","Modules list file","Enter file listing modules:");
+		if (!fso.FileExists(modList)) {
+		    errMsg = ("The "+modList+" file does not exist.");
+		    error = 1;
+		}
+		var irList = getModList(ballotdir+"\\irlist.txt","IR list file","Enter file listing IRs:");
+		if (!fso.FileExists(irList)) {
+		    errMsg += ("The "+irList+" file does not exist.");
+		    error = 1;
+		}
+		if (error == 1) {
+		    ErrorMessage(errMsg);
+		} else {
+		    MainWindowIrList(expdir, modList, irList);
+		}
+	    } 
 	}
-	   var irList = getModList(ballotdir+"\\irlist.txt","IR list file","Enter file listing IRs:");
-	   if (!fso.FileExists(irList)) {
-	       errMsg += ("The "+irList+" file does not exist.");
-	       error = 1;
-	}
-	   if (error == 1) {
-	       ErrorMessage(errMsg);
-	   } else {
-	       MainWindowIrList(expdir, modList, irList);
-	   }
-       } 
-   }
+    }
   </script>
 </job>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: imgfile.xsl,v 1.11 2003/05/29 07:10:52 robbod Exp $
+$Id: imgfile.xsl,v 1.12 2003/06/03 13:38:40 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -54,7 +54,7 @@ $Id: imgfile.xsl,v 1.11 2003/05/29 07:10:52 robbod Exp $
             select="$application_doc_xml/application_protocol" mode="title"/>
         </TITLE>
       </HEAD>
-      <body bgcolor="#eeeeee">
+      <body>
         <xsl:variable name="self" select="."/>
         <xsl:choose>
           <xsl:when test="@application_protocol">

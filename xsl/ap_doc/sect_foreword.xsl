@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.13 2003/10/10 12:21:19 robbod Exp $
+$Id: sect_foreword.xsl,v 1.14 2004/05/01 09:05:57 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -386,7 +386,7 @@ $Id: sect_foreword.xsl,v 1.13 2003/10/10 12:21:19 robbod Exp $
     </xsl:if>
     <p>
       Attention is drawn to the possibility that some of the elements of this
-      part of ISO 10303 may be the subject of patent rights. ISO shall not be
+      document may be the subject of patent rights. ISO shall not be
       held responsible for identifying any or all such patent rights.
     </p>
     <p>

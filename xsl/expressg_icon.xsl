@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.4 2003/06/07 01:05:12 thendrix Exp $
+$Id: expressg_icon.xsl,v 1.5 2003/06/11 11:00:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -66,6 +66,38 @@ $Id: expressg_icon.xsl,v 1.4 2003/06/07 01:05:12 thendrix Exp $
   </xsl:template>
 
 
+  <xsl:template name="get_arm_expressg_file">
+    <xsl:param name="object"/>
+    <xsl:choose>
+      <xsl:when test="function-available('msxsl:node-set')">
+        <xsl:variable name="arm_expressg_node_set" select="msxsl:node-set($arm_expressg)"/>
+        <xsl:apply-templates
+          select="$arm_expressg_node_set/expg_nodes/object[@object=$object]" mode="get_file"/>
+      </xsl:when>
+      <xsl:when test="function-available('exslt:node-set')">
+        <xsl:variable name="arm_expressg_node_set" select="exslt:node-set($arm_expressg)"/>
+        <xsl:apply-templates
+          select="$arm_expressg_node_set/expg_nodes/object[@object=$object]" mode="get_file"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="get_mim_expressg_file">
+    <xsl:param name="object"/>
+    <xsl:choose>
+      <xsl:when test="function-available('msxsl:node-set')">
+        <xsl:variable name="mim_expressg_node_set" select="msxsl:node-set($mim_expressg)"/>
+        <xsl:apply-templates
+          select="$mim_expressg_node_set/expg_nodes/object[@object=$object]" mode="get_file"/>
+      </xsl:when>
+      <xsl:when test="function-available('exslt:node-set')">
+        <xsl:variable name="mim_expressg_node_set" select="exslt:node-set($mim_expressg)"/>
+        <xsl:apply-templates
+          select="$mim_expressg_node_set/expg_nodes/object[@object=$object]" mode="get_file"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="get_arm_expressg_href">
     <xsl:param name="object"/>
     <xsl:choose>
@@ -100,8 +132,11 @@ $Id: expressg_icon.xsl,v 1.4 2003/06/07 01:05:12 thendrix Exp $
 
 
   <xsl:template match="object" mode="get_href">
-    <!-- <xsl:message>y:[<xsl:value-of select="@object"/>:<xsl:value-of select="@href"/>]</xsl:message> -->
     <xsl:value-of select="@href"/>
+  </xsl:template>
+
+  <xsl:template match="object" mode="get_file">
+    <xsl:value-of select="@file"/>
   </xsl:template>
 
 

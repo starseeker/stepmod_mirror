@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.145 2003/05/19 14:09:43 robbod Exp $
+$Id: module.xsl,v 1.146 2003/05/27 08:04:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1031,12 +1031,7 @@ o=isocs; s=central<br/>
 
 
 <xsl:template match="module" mode="annexe">
-  <xsl:call-template name="annex_header">
-    <xsl:with-param name="annex_no" select="'E'"/>
-    <xsl:with-param name="heading" 
-      select="'Computer interpretable listings'"/>
-    <xsl:with-param name="aname" select="'annexe'"/>
-  </xsl:call-template>
+  <xsl:param name="annex_no" select="'E'"/>
 
   <xsl:variable name="arm">
     <xsl:choose>
@@ -1108,10 +1103,10 @@ o=isocs; s=central<br/>
       <b>
         <xsl:choose>
           <xsl:when test="./mim_lf or ./arm_lf">
-            Table E.1 &#8212; ARM and MIM EXPRESS short and long form listings
+            Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS short and long form listings
           </xsl:when>
           <xsl:otherwise>
-            Table E.1 &#8212; ARM and MIM EXPRESS listings
+            Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS listings
           </xsl:otherwise>
         </xsl:choose>
       </b>

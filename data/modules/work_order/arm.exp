@@ -1,51 +1,24 @@
 (*
- $Id: arm.exp,v 1.7 2002/06/27 16:04:05 robbod Exp $
+ $Id: arm.exp,v 1.8 2002/07/01 10:05:07 robbod Exp $
  N1153 - ISO/TS - 10303-1043 Work order - EXPRESS ARM 
 *)
 
 
 SCHEMA Work_order_arm;
 
-USE FROM Activity_arm;
+USE FROM Activity_arm;    -- ISO/TS 10303-1047
 
-USE FROM Activity_as_directed_arm;
+USE FROM Work_request_arm;    -- ISO/TS 10303-1042
 
-USE FROM Activity_method_arm;
-
-USE FROM Approval_arm;
-
-USE FROM Contract_arm;
-
-USE FROM Date_time_assignment_arm;
-
-USE FROM Person_organization_assignment_arm;
-
-USE FROM Work_request_arm;
-
-TYPE work_order_approval_item = SELECT BASED_ON approval_item WITH
-  (Work_order);
-END_TYPE;
-
-TYPE work_order_contract_items = SELECT BASED_ON contract_item WITH
-  (Work_order);
-END_TYPE;
-
-TYPE work_order_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH
-  (Work_order);
-END_TYPE;
-
-TYPE work_order_organization_or_person_in_organization_item = SELECT BASED_ON organization_or_person_in_organization_item WITH
-  (Work_order);
-END_TYPE;
+ENTITY Directed_activity
+SUBTYPE OF (Activity);
+  directive : Work_order;
+END_ENTITY;
 
 ENTITY Work_order;
   description : OPTIONAL STRING;
-  directed_activity : Directed_activity;
   in_response_to : SET [0 : ?] OF Work_request;
   name : STRING;
-DERIVE
-  chosen_method : Activity_method := Activity_as_directed_arm.Directed_activity.chosen_method;
-  status : STRING := Directed_activity.status;
 END_ENTITY;
 
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.39 2002/06/02 13:16:09 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.40 2002/06/05 07:46:47 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -680,9 +680,9 @@ select="document($module_file)/module/arm/express-g/imgfile">
     GENERIC_ENTITY
   </xsl:if>
 
-  SELECT
+  
 
-  <xsl:if test="@basedon">
+  SELECT<xsl:if test="@basedon">
     BASED ON 
       <xsl:call-template name="link_object">
         <xsl:with-param name="object_name" select="@basedon"/>
@@ -691,7 +691,12 @@ select="document($module_file)/module/arm/express-g/imgfile">
         <xsl:with-param name="clause" select="'section'"/>
       </xsl:call-template>  
   </xsl:if>
-  <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
+  <!-- need to check for NULL as some XML outputs attribute as null of not
+       known -->
+  <xsl:if test="@selectitems and 
+                (string-length(@selectitems)!=0) and
+                (@selectitems != 'null') and
+                (@selectitems != 'NULL')">
     <xsl:if test="@basedon">
       WITH 
     </xsl:if>

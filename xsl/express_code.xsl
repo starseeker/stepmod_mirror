@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.18 2002/06/02 08:02:17 robbod Exp $
+     $Id: express_code.xsl,v 1.19 2002/06/05 12:47:33 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -289,9 +289,7 @@
     GENERIC_ENTITY
   </xsl:if>
 
-  SELECT
-  
-  <xsl:if test="@basedon">
+  SELECT<xsl:if test="@basedon">
     BASED ON
       <xsl:call-template name="link_object">
         <xsl:with-param name="object_name" select="@basedon"/>
@@ -300,7 +298,10 @@
         <xsl:with-param name="clause" select="'annexe'"/>
       </xsl:call-template>  
   </xsl:if>
-  <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
+  <xsl:if test="@selectitems and 
+                (string-length(@selectitems)!=0) and
+                (@selectitems != 'null') and
+                (@selectitems != 'NULL')">
     <xsl:if test="@basedon">
       WITH 
     </xsl:if>

@@ -25,12 +25,23 @@ The dependent resources which must added to build.xml are:
 ------------------------------------------------------------
 To generate the express
 
-1) run stepmod\utils\getExpress.wsf
+1) run stepmod\utils\getExpressIr.wsf
 
-   pass stepmod/ballots/ballots/plcs_bp1/modlist.txt as argument.
+   pass the list of modules and Integrated Resources whose EXPRESS is to be
+   concatenate as argument:
+   stepmod/ballots/ballots/plcs_bp2/modlist.txt
+   stepmod/ballots/ballots/plcs_bp2/irlist.txt
 
-   This will create a directory of the express files of the modules listed
+
+   This will create a directory of the EXPRESS files of the modules listed
    in modlist.txt
+
+   The concatenated EXPRESS of the module will be:
+     ARM:                    stepmod/ballots/ballots/plcs_bp2/express/arm/arm_xxxx.exp
+     MIM+Resource EXPRESS:   stepmod/ballots/ballots/plcs_bp2/express/arm/mim_resources_xxxx.exp
+
+   where xxxx is the date.
+
 
 ------------------------------------------------------------
 To validate the HTML

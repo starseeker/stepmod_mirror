@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.12 2002/06/06 07:52:56 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  reference="ISO 10303-41"
+  reference="ISO 10303-54"
   rcs.date="$Date: $"
   rcs.revision="$Revision: $">
 
@@ -12,76 +12,34 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.9"
+    version="1.12"
     source="../data/resources/classification_schema/classification_schema.exp"/>
 
   <schema name="classification_schema">
     <interface
       kind="reference"
-      schema="support_resource_schema">
+      schema="management_resources_schema">
       <interfaced.item
-        name="identifier"/>
+        name="classification_assignment"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="group_schema">
       <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
+        name="group"/>
     </interface>
 
     <type name="classified_select">
       <select
-        extensible="YES"
-        selectitems="attribute_reference thing">
+        extensible="YES">
       </select>
 
     </type>
-    <type name="classifier_select">
-      <select
-        extensible="YES"
-        selectitems="class">
-      </select>
-
-    </type>
-    <type name="entity_for_attribute_select">
-      <select
-        extensible="YES"
-        selectitems="">
-      </select>
-
-    </type>
-    <entity
-      name="attribute_reference">
-      <explicit
-        name="id">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="entity_reference">
-        <typename
-          name="entity_for_attribute_select"/>
-      </explicit>
-      <explicit
-        name="attribute_id">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
     <entity
       name="class"
       super.expression="(ONEOF (    class_by_extension,    class_by_intension))"
-      supertypes="thing">
+      supertypes="group">
     </entity>
 
     <entity
@@ -95,88 +53,39 @@
     </entity>
 
     <entity
-      name="classification">
-      <explicit
-        name="id">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
+      name="classification"
+      supertypes="classification_assignment">
       <explicit
         name="classified">
         <typename
           name="classified_select"/>
       </explicit>
-      <explicit
-        name="classifier">
+      <derived
+        name="classifier"
+        expression="SELF\classification_assignment.assigned_classification">
         <typename
-          name="classifier_select"/>
-      </explicit>
+          name="class"/>
+      </derived>
     </entity>
 
     <entity
-      name="complete_membership">
-      <explicit
-        name="id">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="containing_set">
-        <typename
-          name="classifier_select"/>
-      </explicit>
+      name="complete_membership"
+      supertypes="classification_assignment">
       <explicit
         name="members">
         <aggregate
           type="SET"
-          lower="0"
+          lower="1"
           upper="?"/>
         <typename
           name="classified_select"/>
       </explicit>
-    </entity>
-
-    <entity
-      name="thing"
-      abstract.supertype="YES">
-      <explicit
-        name="id">
+      <derived
+        name="containing_set"
+        expression="SELF\classification_assignment.assigned_classification">
         <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
+          name="class"/>
+      </derived>
     </entity>
 
   </schema>

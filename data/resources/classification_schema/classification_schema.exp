@@ -1,38 +1,25 @@
-(* Genenerated from: e:\My Documents\technology\stepparts\set_theory\wg12n984\wg12n957.exp *)
+(* 
+ Extracted from:
+ ISO/WD 10303-5x, Set theory, 2001-11-06
+ WG12 N985
+*)
 
 SCHEMA classification_schema;
 
-  REFERENCE FROM support_resource_schema -- ISO 10303-41
-    (identifier,
-    label,
-    text);
+  REFERENCE FROM management_resources_schema -- ISO 10303-41
+    (classification_assignment);
 
-TYPE classified_select = EXTENSIBLE SELECT (
-  attribute_reference,
-  thing);
+  REFERENCE FROM group_schema -- ISO 10303-41
+    (group);
+
+TYPE classified_select = EXTENSIBLE SELECT ();
 END_TYPE; 
-
-TYPE classifier_select = EXTENSIBLE SELECT (
-  class);
-END_TYPE; 
-
-TYPE entity_for_attribute_select = EXTENSIBLE SELECT (
-  );
-END_TYPE; 
-
-ENTITY attribute_reference;
-  id               : identifier;
-  name             : label;
-  description      : OPTIONAL text;
-  entity_reference : entity_for_attribute_select;
-  attribute_id     : STRING;
-END_ENTITY; 
 
 ENTITY class
   SUPERTYPE OF (ONEOF (
     class_by_extension,
     class_by_intension))
-  SUBTYPE OF (thing);
+  SUBTYPE OF (group);
 END_ENTITY;
 
 ENTITY class_by_extension
@@ -43,28 +30,19 @@ ENTITY class_by_intension
   SUBTYPE OF (class);
 END_ENTITY;
 
-ENTITY classification;
-  id          : identifier;
-  name        : label;
-  description : OPTIONAL text;
+ENTITY classification
+  SUBTYPE OF (classification_assignment);
   classified  : classified_select;
-  classifier  : classifier_select;
+DERIVE
+  classifier  : class := SELF\classification_assignment.assigned_classification;
 END_ENTITY;
 
-ENTITY complete_membership;
-  id             : identifier;
-  name           : label;
-  description    : OPTIONAL text;
-  containing_set : classifier_select;
-  members        : SET[0:?] OF classified_select;
-END_ENTITY;
-
-ENTITY thing
-  ABSTRACT SUPERTYPE;
-  id             : identifier;
-  name           : label;
-  description    : OPTIONAL text;
+ENTITY complete_membership
+  SUBTYPE OF (classification_assignment);
+  members        : SET[1:?] OF classified_select;
+DERIVE
+  containing_set : class :=
+                         SELF\classification_assignment.assigned_classification;
 END_ENTITY;
 
 END_SCHEMA;
-

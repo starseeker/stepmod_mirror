@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.9 2004/11/04 15:01:11 robbod Exp $
+$Id: sect_isocover.xsl,v 1.10 2004/11/15 14:30:01 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -27,7 +27,7 @@ $Id: sect_isocover.xsl,v 1.9 2004/11/04 15:01:11 robbod Exp $
   <!-- 
      This parameter is passed in from ANT build where it is read from publication_index.xml
        -->
-  <xsl:param name="SECRETARIAT"/>
+  <xsl:param name="SECRETARIAT" select="'ANSI'"/>
 
   <!-- 
      This parameter is passed in from ANT build where it is read from publication_index.xml
@@ -341,7 +341,6 @@ $Id: sect_isocover.xsl,v 1.9 2004/11/04 15:01:11 robbod Exp $
           ISO/TC <b>184</b>/SC&#160;<b>4</b><br/>
           Secretariat: 
             <b>
-              <xsl:value-of select="string-length($SECRETARIAT)"/>
               <xsl:value-of select="$SECRETARIAT"/>
             </b>
           </td>

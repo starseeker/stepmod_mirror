@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.121 2003/01/06 17:41:53 robbod Exp $
+$Id: module.xsl,v 1.122 2003/01/08 08:40:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1705,9 +1705,14 @@ o=isocs; s=central<br/>
     name="mim_xml"
     select="concat($module_dir,'/mim.xml')"/>
 
+
+  <xsl:variable 
+    name="mim_nodes" 
+    select="document($mim_xml)"/>
+
   <xsl:variable 
     name="schema_name" 
-    select="document($mim_xml)/express/schema/@name"/>
+    select="$mim_nodes/express/schema/@name"/>
 
   <xsl:variable name="xref">
     <xsl:call-template name="express_a_name">
@@ -1717,7 +1722,7 @@ o=isocs; s=central<br/>
 
   <!-- Just display the description of the schema. -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema" mode="description"/>
+    select="$mim_nodes/express/schema" mode="description"/>
 
   <!-- output any issuess against the schema   -->
   <xsl:call-template name="output_express_issue">
@@ -1729,6 +1734,9 @@ o=isocs; s=central<br/>
     <xsl:with-param name="arm_mim" select="'mim'"/>
     <xsl:with-param name="schema_name" select="$schema_name"/>
   </xsl:call-template>
+
+
+  <xsl:apply-templates select="$mim_nodes/express/schema" mode="check_mim_usefroms"/>
 
   <code>
     <u>EXPRESS specification: </u>
@@ -1744,28 +1752,28 @@ o=isocs; s=central<br/>
        The template is in sect4_express.xsl -->
   <!-- there is only one schema in a module -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema/interface"/>
+    select="$mim_nodes/express/schema/interface"/>
 
   <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema[@name=$schema_name]/constant"/>
+    select="$mim_nodes/express/schema[@name=$schema_name]/constant"/>
   <!-- display any imported Constant constructs that have been described by 
        description.item in the interface -->
   <xsl:call-template name="imported_constructs">
     <xsl:with-param name="desc_item" 
-      select="document($mim_xml)/express/schema/interface/described.item[@kind='CONSTANT']"/>
+      select="$mim_nodes/express/schema/interface/described.item[@kind='CONSTANT']"/>
   </xsl:call-template>
 
 
   <!-- display the EXPRESS for the types in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema/type"/>
+    select="$mim_nodes/express/schema/type"/>
   <!-- display any imported type constructs that have been described by 
        description.item in the interface -->
   <xsl:call-template name="imported_constructs">
     <xsl:with-param name="desc_item" 
-      select="document($mim_xml)/express/schema/interface/described.item[@kind='TYPE']"/>
+      select="$mim_nodes/express/schema/interface/described.item[@kind='TYPE']"/>
   </xsl:call-template>
 
 
@@ -1773,24 +1781,24 @@ o=isocs; s=central<br/>
   <!-- display the EXPRESS for the entities in the MIM.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema/entity"/>
+    select="$mim_nodes/express/schema/entity"/>
 
   <!-- display any imported entity constructs that have been described by 
        description.item in the interface -->
   <xsl:call-template name="imported_constructs">
     <xsl:with-param name="desc_item" 
-      select="document($mim_xml)/express/schema/interface/described.item[@kind='ENTITY']"/>
+      select="$mim_nodes/express/schema/interface/described.item[@kind='ENTITY']"/>
   </xsl:call-template>
 
   <!-- display the EXPRESS for the subtype.contraints in the MIM.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema/subtype.constraint"/>
+    select="$mim_nodes/express/schema/subtype.constraint"/>
   <!-- display any imported function constructs that have been described by 
        description.item in the interface -->
   <xsl:call-template name="imported_constructs">
     <xsl:with-param name="desc_item" 
-      select="document($mim_xml)/express/schema/interface/described.item[@kind='SUBTYPE.CONSTRAINT']"/>
+      select="$mim_nodes/express/schema/interface/described.item[@kind='SUBTYPE.CONSTRAINT']"/>
   </xsl:call-template>
 
 
@@ -1798,41 +1806,41 @@ o=isocs; s=central<br/>
   <!-- display the EXPRESS for the functions in the MIM
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema/function"/>
+    select="$mim_nodes/express/schema/function"/>
   <!-- display any imported function constructs that have been described by 
        description.item in the interface -->
   <xsl:call-template name="imported_constructs">
     <xsl:with-param name="desc_item" 
-      select="document($mim_xml)/express/schema/interface/described.item[@kind='FUNCTION']"/>
+      select="$mim_nodes/express/schema/interface/described.item[@kind='FUNCTION']"/>
   </xsl:call-template>
 
 
   <!-- display the EXPRESS for the entities in the MIM. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema/rule"/>
+    select="$mim_nodes/express/schema/rule"/>
   <!-- display any imported rule constructs that have been described by 
        description.item in the interface -->
   <xsl:call-template name="imported_constructs">
     <xsl:with-param name="desc_item" 
-      select="document($mim_xml)/express/schema/interface/described.item[@kind='RULE']"/>
+      select="$mim_nodes/express/schema/interface/described.item[@kind='RULE']"/>
   </xsl:call-template>
 
   <!-- display the EXPRESS for the procedures in the MIM. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($mim_xml)/express/schema/procedure"/>
+    select="$mim_nodes/express/schema/procedure"/>
   <!-- display any imported procedure constructs that have been described by 
        description.item in the interface -->
   <xsl:call-template name="imported_constructs">
     <xsl:with-param name="desc_item" 
-      select="document($mim_xml)/express/schema/interface/described.item[@kind='PROCEDURE']"/>
+      select="$mim_nodes/express/schema/interface/described.item[@kind='PROCEDURE']"/>
   </xsl:call-template>
 
   <code>
     <br/>    <br/>
     *)<br/>
-    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="document($mim_xml)/express/schema/@name"/>
+    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="$mim_nodes/express/schema/@name"/>
     <br/>(*
   </code>
 
@@ -3822,6 +3830,33 @@ $module_ok,' Check the normatives references')"/>
 <xsl:text>Available from the World Wide Web: </xsl:text>
   <xsl:variable name="href" select="."/>
   <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
+</xsl:template>
+
+
+<!-- check that all of the modules that are used in the ARM are used in the
+     MIM 
+     -->
+<xsl:template match="schema" mode="check_mim_usefroms">
+  <xsl:variable name="mim_interfaces" select="./interface"/>
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <!-- iterate through each used ARM and check if there is a mim -->
+  <xsl:for-each
+    select="document(concat($module_dir,'/arm.xml'))/express/schema/interface">
+    <xsl:variable name="used_mim"
+      select="concat(substring-before(concat(@schema,' '),'_arm'),'_mim')"/>
+    <xsl:if test="not($mim_interfaces[@schema=$used_mim])">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message"
+          select="concat('MIM USE FROM error 14: ', @schema, ' used in ARM so expect ',$used_mim,' to be used in MIM')"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:for-each>
+
 </xsl:template>
 
 </xsl:stylesheet>

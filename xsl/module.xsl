@@ -117,6 +117,7 @@ $Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
   <p>
     This part of ISO 10303 specifies the application module for 
     <xsl:value-of select="../@name"/>.
+    <a name="inscope"/>
     The following are within scope of this part of ISO 10303: 
   </p>
   <ul>
@@ -127,6 +128,7 @@ $Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
 
 <xsl:template match="outscope">
   <p>
+    <a name="outscope"/>
     The following are outside the scope of this part of ISO 10303: 
   </p>
   <ul>
@@ -611,6 +613,40 @@ $Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
 <xsl:template match="usage_guide">
   <xsl:apply-templates/>
 </xsl:template>
-  
+
+<xsl:template match="express-g">
+  <ul>
+    <xsl:apply-templates select="imgfile|img" mode="expressg"/>
+  </ul>
+</xsl:template>
+
+<xsl:template match="imgfile" mode="expressg">
+  <xsl:variable name="number">
+    <xsl:number/>
+  </xsl:variable>
+  <xsl:variable name="fig_no">
+    <xsl:choose>
+      <xsl:when test="name(../..)='arm'">
+        <xsl:value-of 
+          select="concat('Figure C.',$number, 
+                  ' - ARM EXPRESS-G diagram ',$number)"/> 
+      </xsl:when>
+      <xsl:when test="name(../..)='mim'">
+        <xsl:value-of 
+          select="concat('Figure D.',$number, 
+                  ' - MIM EXPRESS-G diagram ',$number)"/> 
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="file">
+    <xsl:call-template name="set_file_ext">
+      <xsl:with-param name="filename" select="@file"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="href" select="concat('../',$file)"/>
+  <li>
+    <a href="{$href}"><xsl:value-of select="$fig_no"/></a>
+  </li>
+</xsl:template>
 
 </xsl:stylesheet>

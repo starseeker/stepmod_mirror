@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
+$Id: sect_c_arm_expg.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -21,7 +21,18 @@ $Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-sect_c_arm_expg.xsl TO BE DONE
+  <xsl:call-template name="annex_header">
+    <xsl:with-param name="annex_no" select="'C'"/>
+    <xsl:with-param name="heading" 
+      select="'ARM EXPRESS-G'"/>
+    <xsl:with-param name="aname" select="'annexc'"/>
+  </xsl:call-template>
+
+The following diagrams correspond to the ARM EXPRESS given in clause 4. The
+diagrams use the EXPRESS-G graphical notation for the EXPRESS
+language. EXPRESS-G is defined in annex D of ISO 10303-11.  
+
+  <xsl:apply-templates select="arm/express-g"/>
 </xsl:template>
   
 </xsl:stylesheet>

@@ -1,9 +1,8 @@
 (*
- $Id: mim.exp,v 1.27 2004/12/08 10:46:34 mikeward Exp $
+ $Id: mim.exp,v 1.28 2004/12/29 12:40:52 robbod Exp $
  ISO TC184/SC4/WG3 N1563 - ISO/TS 10303-1292 AP239 product definition information - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG3 N1391
 *) 
-
 
 SCHEMA Ap239_product_definition_information_mim;
 
@@ -537,7 +536,23 @@ TYPE ap239_prdi_state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON s
     product_in_attachment_slot);
 END_TYPE; 
 
-SUBTYPE_CONSTRAINT restrict_product_definition_relationship_subtypes FOR product_definition_relationship;
+SUBTYPE_CONSTRAINT ap239_prdi_restrict_breakdown_context_subtypes FOR breakdown_context;
+  ONEOF (functional_breakdown_context,
+         hybrid_breakdown_context,
+         physical_breakdown_context,
+         system_breakdown_context,
+         zone_breakdown_context);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT ap239_prdi_restrict_breakdown_element_usage_subtypes FOR breakdown_element_usage;
+  ONEOF (functional_element_usage,
+         hybrid_element_usage,
+         physical_element_usage,
+         system_element_usage,
+         zone_element_usage);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT ap239_prdi_restrict_product_definition_relationship_subtypes FOR product_definition_relationship;
   ONEOF (attachment_slot_on_product,
          breakdown_context,
          breakdown_element_usage,
@@ -546,6 +561,12 @@ SUBTYPE_CONSTRAINT restrict_product_definition_relationship_subtypes FOR product
          interface_definition_for,
          product_in_attachment_slot);
 END_SUBTYPE_CONSTRAINT;
+
+RULE ap239_prdi_restrict_product_category_for_product FOR 
+(product);
+WHERE
+  WR1: SIZEOF(QUERY(p <* product | SIZEOF(QUERY(prpc <* USEDIN(p,'AP239_PRODUCT_DEFINITION_INFORMATION_MIM.' +'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name IN ['attachment slot', 'breakdown', 'breakdown element', 'conceptual product', 'document', 'envelope', 'functional breakdown', 'functionality', 'hybrid breakdown', 'hybrid element', 'interface connector', 'interface specification', 'justification', 'message', 'part', 'physical breakdown', 'physically realized product', 'raw material', 'requirement', 'system breakdown', 'system element', 'tool', 'zone breakdown', 'zone element'])) <> 1)) = 0;
+END_RULE; 
 
 END_SCHEMA;  -- Ap239_product_definition_information_mim
 

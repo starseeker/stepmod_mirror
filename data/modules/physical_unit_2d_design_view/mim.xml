@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-22T14:41:19" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-23T18:05:51" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_mim schema_instance"/>
    <schema name="Physical_unit_2d_design_view_mim">
       <interface kind="use" schema="Layered_2d_shape_mim"/>
@@ -25,8 +25,8 @@
        srr\representation_relationship.name = 
                             'component part planar shape');
  pass: BOOLEAN := TRUE;
- grc1: Geometric_representation_context := NULL;
- grc2: Geometric_representation_context := NULL;
+ grc1: Geometric_representation_context := ?;
+ grc2: Geometric_representation_context := ?;
 END_LOCAL;
 REPEAT i := 1 to SIZEOF(rr) by 1;
   grc1 := rr[i].rep_1.context_of_items;
@@ -48,7 +48,7 @@ END_REPEAT;</algorithm>
   pdr : BAG OF property_definition_representation := USEDIN (cl,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION');
-  pd : property_definition := NULL;
+  pd : property_definition := ?;
 END_LOCAL;
    REPEAT i := 1 TO HIINDEX(pdr) BY 1;
     IF('PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
@@ -71,6 +71,32 @@ END_LOCAL;
     END_IF;
    END_REPEAT;
  RETURN (?);</algorithm>
+      </function>
+      <function name="cto2d_determinant_test">
+         <parameter name="cto2d">
+            <typename name="cartesian_transformation_operator_2d"/>
+         </parameter>
+         <parameter name="expected_value">
+            <builtintype type="REAL"/>
+         </parameter>
+         <parameter name="delta">
+            <builtintype type="REAL"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+  det : REAL := 0.0;
+  DRs : LIST [4:4] OF REAL := [];
+END_LOCAL;
+     DRs[1] := cto2d.u[1].direction_ratios[1];
+     DRs[2] := cto2d.u[1].direction_ratios[2];
+     DRs[3] := cto2d.u[2].direction_ratios[1];
+     DRs[4] := cto2d.u[2].direction_ratios[2];
+     det  :=  (DRs[1] * DRs[4]) - (DRs[2] * DRs[3]);
+IF (Abs(expected_value - det) &lt; Abs(delta) ) THEN
+    RETURN (TRUE);
+ELSE
+    RETURN (FALSE);
+END_IF;</algorithm>
       </function>
       <function name="is_bottom_footprint_occurrence">
          <parameter name="pd">

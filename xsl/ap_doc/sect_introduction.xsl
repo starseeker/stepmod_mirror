@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.14 2003/06/06 12:52:15 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.15 2003/08/01 08:58:23 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -115,7 +115,7 @@
       (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)
       that is referenced in clause 
       <a href="4_info_reqs{$FILE_EXT}#arm">4</a>.
-      Clause <a href="4_info_reqs{$FILE_EXT}#4.1">4.1</a> 
+      Clause <a href="4_info_reqs{$FILE_EXT}#41">4.1</a> 
       presents the business context for the information required for the
       exchange of 
       <xsl:value-of select="$purpose"/>.

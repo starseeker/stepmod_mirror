@@ -1,0 +1,88 @@
+{ iso standard 10303 part (11) version (4) }
+
+(******************************************************************************)
+(*                                                                            *)
+(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* Original model: Information_rights_arm_v001.vsd *)
+(* Title: Information_rights_arm_v001 *)
+(* Author: barker *)
+(* Comments :
+ *)
+
+SCHEMA Information_rights_arm;
+
+USE FROM Contract_arm;
+
+USE FROM Management_resource_information_arm;
+
+TYPE Information_usage_right_item = EXTENSIBLE SELECT ;
+END_TYPE;
+
+TYPE right_approval_item = SELECT BASED_ON mri_approval_item WITH
+  (Applied_information_usage_right,
+   Information_usage_right);
+END_TYPE;
+
+TYPE right_contract_item = SELECT BASED_ON contract_item WITH
+  (Information_usage_right);
+END_TYPE;
+
+TYPE right_date_item = SELECT BASED_ON mri_date_or_date_time_item WITH
+  (Information_usage_right);
+END_TYPE;
+
+TYPE right_person_organization_item = SELECT BASED_ON mri_organization_or_person_in_organization_item WITH
+  (Information_usage_right);
+END_TYPE;
+
+ENTITY Applied_information_usage_right;
+  item : SET [1 : ?] OF Information_usage_right_item;
+  right_applied : Information_usage_right;
+END_ENTITY;
+
+ENTITY Information_right;
+  description : OPTIONAL STRING;
+  id : STRING;
+  name : STRING;
+  restriction : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Information_usage_right;
+  comment : OPTIONAL STRING;
+  grants_right : SET [1 : ?] OF Information_right;
+  id : STRING;
+  is_current : LOGICAL;
+  name : STRING;
+END_ENTITY;
+
+ENTITY Information_usage_right_relationship;
+  related : Information_usage_right;
+  relating : Information_usage_right;
+  role : STRING;
+END_ENTITY;
+
+END_SCHEMA;
+
+SCHEMA Management_resource_information_arm;
+
+TYPE mri_approval_item = EXTENSIBLE SELECT ;
+END_TYPE;
+
+TYPE mri_date_or_date_time_item = EXTENSIBLE SELECT ;
+END_TYPE;
+
+TYPE mri_organization_or_person_in_organization_item = EXTENSIBLE SELECT ;
+END_TYPE;
+
+END_SCHEMA;
+
+SCHEMA Contract_arm;
+
+TYPE contract_item = EXTENSIBLE SELECT ;
+END_TYPE;
+
+END_SCHEMA;
+

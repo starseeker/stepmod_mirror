@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: schema_developer.xsl,v 1.1 2002/09/16 09:25:58 robbod Exp $
+$Id: schema_developer.xsl,v 1.2 2002/09/17 07:39:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -70,7 +70,7 @@ $Id: schema_developer.xsl,v 1.1 2002/09/16 09:25:58 robbod Exp $
 <xsl:template match="entity|type">
   <xsl:variable name="linkend" select="concat(../@name, '.', @name)"/>
   <xsl:variable name="href" 
-    select="translate(concat('../sys/4_info_reqs',$FILE_EXT,'#',$linkend),$UPPER,$LOWER)"/>
+    select="translate(concat(../@name,$FILE_EXT,'#',$linkend),$UPPER,$LOWER)"/>
   <p class="hrefname">
     Entity: <a href="{$href}">
       <xsl:value-of select="@name"/>
@@ -91,7 +91,7 @@ $Id: schema_developer.xsl,v 1.1 2002/09/16 09:25:58 robbod Exp $
   <xsl:variable name="linkend" 
     select="concat(../../@name,'.',../@name,'.',@name)"/>
   <xsl:variable name="href" 
-    select="translate(concat('../sys/4_info_reqs',$FILE_EXT,'#',$linkend),$UPPER,$LOWER)"/>
+    select="translate(concat(../../@name,$FILE_EXT,'#',$linkend),$UPPER,$LOWER)"/>
   <p class="attrname">
         Attribute:
         <a href="{$href}">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.40 2002/05/29 09:56:10 robbod Exp $
+$Id: common.xsl,v 1.41 2002/05/30 08:37:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -114,7 +114,7 @@ $Id: common.xsl,v 1.40 2002/05/29 09:56:10 robbod Exp $
 
   <xsl:variable name="icon_path" select="concat($module_root,'/../../../images/')"/>
 
-  <xsl:if test="$output_rcs">
+  <xsl:if test="$output_rcs='YES'">
     <xsl:variable name="mod_dir">
       <xsl:call-template name="module_directory">
         <xsl:with-param name="module" select="$module"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.176 2004/11/23 21:27:04 robbod Exp $
+$Id: module.xsl,v 1.177 2004/12/08 14:37:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -499,7 +499,14 @@ o=isocs; s=central<br/>
       and is ready for 
       <xsl:value-of select="normalize-space($ballot_cycle_or_pub)"/>.
 
-      <p>
+      <xsl:if test="$confirmatory_ballot='YES'">
+	<p>
+	  This document is being submitted for a confirmatory 
+<xsl:value-of select="$status" /> ballot in accordance with clause 2.5 of the SC4 Handbook (SC4 N1620)
+	</p>
+      </xsl:if>
+      <xsl:apply-templates select="comments_to_reader" />
+	<p>
         The project issues raised against the individual modules are stored on
         <a href="http://sourceforge.net/">http://sourceforge.net/</a>
         under the stepmod project. Ballot comments will be maintained using ISO form 13b. 
@@ -1312,6 +1319,17 @@ o=isocs; s=central<br/>
     <xsl:apply-templates/>
   </ul>
 </xsl:template>
+
+
+<xsl:template match="comments_to_reader">
+  <xsl:apply-templates/>
+</xsl:template>
+<xsl:template match="comment_to_reader">
+  <p>
+    <xsl:apply-templates/>
+  </p>
+</xsl:template>
+
 
 
 <xsl:template match="module" mode="annexe">

@@ -1,36 +1,94 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  description.file="arm_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
-<express language_version="2" rcs.date="2005-01-06T19:54:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="cable_arm schema_instance"/>
-   <schema name="Cable_arm">
-      <interface kind="use" schema="Physical_unit_usage_view_arm"/>
-      <interface kind="use" schema="Functional_assignment_to_part_arm"/>
-      <interface kind="use" schema="Physical_unit_design_view_arm"/>
-      <interface kind="use" schema="Item_definition_structure_arm"/>
-      <interface kind="use" schema="Assembly_module_with_packaged_connector_component_arm"/>
-      <interface kind="use" schema="Component_feature_arm"/>
-      <interface kind="use" schema="Part_occurrence_arm"/>
-      <entity name="Cable_terminal" supertypes="Part_terminal">
-         <explicit name="associated_definition">
-            <typename name="Cable_usage_view"/>
-            <redeclaration entity-ref="Part_feature"/>
-         </explicit>
-         <explicit name="mapped_terminal">
-            <typename name="Packaged_connector_component_interface_terminal"/>
-         </explicit>
-         <explicit name="terminal_connection_zone" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Connection_zone_in_usage_view"/>
-         </explicit>
-         <where label="WR1" expression=" SIZEOF ( mapped_terminal \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts ) &lt;&gt; 0 "/>
-         <where label="WR2" expression=" SELF \ shape_element . containing_shape :=: mapped_terminal \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts [ 1 ] . related_view "/>
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.38"
+    source="../data/modules/cable/arm.exp"/>
+
+  <schema name="Cable_arm">
+
+    <interface
+      kind="use"
+      schema="Physical_unit_usage_view_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Functional_assignment_to_part_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Physical_unit_design_view_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Item_definition_structure_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Assembly_module_with_packaged_connector_component_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Component_feature_arm">
+    </interface>
+    <interface
+      kind="use"
+      schema="Part_occurrence_arm">
+    </interface>
+    <entity
+      name="Cable_terminal"
+      supertypes="Part_terminal">
+      <explicit
+        name="associated_definition">
+        <typename
+          name="Cable_usage_view"/>
+        <redeclaration
+          entity-ref="part_feature"/>
+        </explicit>
+        <explicit
+          name="mapped_terminal">
+          <typename
+            name="Packaged_connector_component_interface_terminal"/>
+        </explicit>
+        <explicit
+          name="terminal_connection_zone"
+          optional="YES">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="Connection_zone_in_usage_view"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="SELF\part_feature.associated_definition :=: mapped_terminal\component_feature.associated_component\definition_based_product_occurrence.occurrence_contexts[1].relating_view">
+        </where>
       </entity>
-      <entity name="Cable_usage_view" supertypes="Part_usage_view Assembly_definition">
-         <inverse name="access_mechanisms" entity="Cable_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
+
+      <entity
+        name="Cable_usage_view"
+        supertypes="Part_usage_view Assembly_definition">
+        <inverse
+          name="access_mechanisms"
+          entity="cable_terminal"
+          attribute="associated_definition">
+          <inverse.aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+        </inverse>
       </entity>
-   </schema>
-</express>
+
+    </schema>
+  </express>

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.2 2004/09/28 20:09:26 joshualubell Exp $ -->
+<!-- $Id: build.xml,v 1.3 2004/10/05 20:38:01 joshualubell Exp $ -->
 
 <!-- ================================================================
 
@@ -14,12 +14,14 @@ For use with the Ant build tool, version 1.6.1 or higher
 
 <project name="spec" default="html" basedir=".">
 
-  <description>$Date: 2004/09/28 20:09:26 $</description>
+  <description>$Date: 2004/10/05 20:38:01 $</description>
 
   <target name="init" description="initialize variables">
     <tstamp/>
     <property name="TRANG" value="..\..\..\..\..\rng\trang.jar" />
     <property name="ROOTELEMENT" value="express" />
+    <property name="OUTPUT" value="index"/>
+    <property name="TEMPDOC" value="schemadoc"/>
   </target>
 
   <target name="antschema" depends="init" 
@@ -32,7 +34,7 @@ description="generate DTD and RELAX NG schema for editing Ant build file">
 
   <target name="clean" depends="init" description="delete generated files">
     <delete>
-      <fileset dir="." includes="*.rng, merged.*, schemadoc.xml"/>
+      <fileset dir="." includes="*.rng, ${OUTPUT}.*, ${TEMPDOC}.xml"/>
     </delete>
   </target>
 
@@ -45,7 +47,7 @@ description="generate DTD and RELAX NG schema for editing Ant build file">
 
   <target name="rng2docbook" depends="rnc2rng" 
 	  description="generate DocBook section from RELAX NG">
-    <xslt extension=".xml" in="express_model.rng" out="schemadoc.xml"
+    <xslt extension=".xml" in="express_model.rng" out="${TEMPDOC}.xml"
 	  style="rngdoc.xsl">
       <param name="root" expression="${ROOTELEMENT}"/>
     </xslt>
@@ -53,14 +55,14 @@ description="generate DTD and RELAX NG schema for editing Ant build file">
 
   <target name="merge" depends="rng2docbook" description=
 	  "merge non-generated DocBook with generated DocBook section">
-    <java classname="nu.xom.samples.XIncludeDriver" output="merged.xml">
+    <java classname="nu.xom.samples.XIncludeDriver" output="${OUTPUT}.xml">
       <arg value="express_model.xml"/>
     </java>
   </target>
 
   <target name="html" depends="merge" 
 	  description="generate HTML from DocBook XML">
-    <xslt extension=".html" in="merged.xml" out="merged.html"
+    <xslt extension=".html" in="${OUTPUT}.xml" out="${OUTPUT}.html"
 	  style="express_model.xsl"/>
   </target>
 

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:22:43" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_requirement_arm schema_instance"/>
+   <schema name="Fabrication_requirement_arm">
+      <interface kind="use" schema="Requirement_decomposition_arm"/>
+      <interface kind="use" schema="Value_with_unit_extension_arm"/>
+      <interface kind="use" schema="Characteristic_arm"/>
+      <interface kind="use" schema="Manufacturing_technology_arm">
+         <interfaced.item name="Stratum_technology"/>
+      </interface>
+      <type name="metal_or_dielectric">
+         <enumeration items="over_finished_conductor over_finished_dielectric"/>
+      </type>
+      <entity name="Fabrication_thickness_requirement_occurrence" supertypes="Inspection_requirement_occurrence">
+         <explicit name="tolerance">
+            <typename name="Tolerance_characteristic"/>
+         </explicit>
+         <explicit name="characterized_class_range">
+            <typename name="Range_characteristic"/>
+         </explicit>
+         <explicit name="characterized_class">
+            <typename name="metal_or_dielectric"/>
+         </explicit>
+      </entity>
+      <entity name="Layout_land_width_tolerance_requirement_occurrence" supertypes="Inspection_requirement_occurrence">
+         <explicit name="maximum_negative_deviation">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="mating_feature_pitch_class">
+            <typename name="Pitch_class"/>
+         </explicit>
+      </entity>
+      <entity name="Pitch_class">
+         <explicit name="class_name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="class_member">
+            <typename name="Range_characteristic"/>
+         </explicit>
+         <where label="wr1" expression=" SIZEOF ( QUERY ( np &lt;* class_member \ characteristic_representation . items | NOT ( 'AP210_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF ( np ) ) ) ) = 0 "/>
+      </entity>
+      <entity name="Layout_line_width_tolerance_requirement_occurrence" supertypes="Inspection_requirement_occurrence">
+         <explicit name="maximum_positive_deviation">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_negative_deviation">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="tolerance_line_width_class">
+            <typename name="Line_width_class"/>
+         </explicit>
+         <explicit name="characterized_stratum_technology">
+            <typename name="Stratum_technology"/>
+         </explicit>
+      </entity>
+      <entity name="Line_width_class">
+         <explicit name="class_name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="class_member">
+            <typename name="Range_characteristic"/>
+         </explicit>
+         <where label="wr1" expression=" SIZEOF ( QUERY ( np &lt;* class_member \ characteristic_representation . items | NOT ( 'AP210_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF ( np ) ) ) ) = 0 "/>
+      </entity>
+      <subtype.constraint name="inspection_requirement_occurrence_subtypes" entity="Inspection_requirement_occurrence" super.expression="ONEOF (Layout_line_width_tolerance_requirement_occurrence, Layout_land_width_tolerance_requirement_occurrence, Fabrication_thickness_requirement_occurrence)"/>
+   </schema>
+</express>

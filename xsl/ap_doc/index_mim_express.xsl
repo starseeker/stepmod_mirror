@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: index_mim_express.xsl,v 1.2 2003/06/06 12:51:27 nigelshaw Exp $
+$Id: index_mim_express.xsl,v 1.3 2004/02/05 17:51:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -28,12 +28,15 @@ $Id: index_mim_express.xsl,v 1.2 2003/06/06 12:51:27 nigelshaw Exp $
           MIM EXPRESS
         </title>
       </head>
-      <frameset rows="40,60">
+      <!--      <frameset rows="40,60"> -->
+      <frameset rows="25,125"> 
         <frame name="toc_top" 
           src="./index_mim_express_top{$FILE_EXT}"
+          frameborder="0"
           marginwidth="2" marginheight="0"/>
         <frame name="toc_inner" 
           src="./index_mim_express_inner{$FILE_EXT}"
+          frameborder="0"
           marginwidth="2" marginheight="0" scrolling="auto"/>
         <noframes>
           <p>This page uses frames, but your browser doesn't support them.</p>

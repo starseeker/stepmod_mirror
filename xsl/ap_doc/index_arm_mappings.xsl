@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: index_arm_mappings.xsl,v 1.1 2003/05/23 08:55:04 nigelshaw Exp $
+$Id: index_arm_mappings.xsl,v 1.2 2004/02/05 17:51:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -26,7 +26,8 @@ $Id: index_arm_mappings.xsl,v 1.1 2003/05/23 08:55:04 nigelshaw Exp $
       <head>
         <title>Mappings</title>
       </head>
-    <frameset rows="25,75">
+      <!--    <frameset rows="25,75"> -->
+      <frameset rows="25,125"> 
       <frame name="toc_top" 
         src="./index_arm_mappings_top{$FILE_EXT}"
         frameborder="0"

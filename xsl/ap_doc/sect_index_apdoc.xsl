@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_apdoc.xsl,v 1.3 2004/10/21 14:48:23 nigelshaw Exp $
+	$Id: sect_index_apdoc.xsl,v 1.4 2004/10/25 06:09:28 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -208,10 +208,7 @@
     <xsl:if test="count(preceding-sibling::*[name() = $element])=0">
       <!-- first one found -->
       <div>
-        <xsl:value-of select="@name"/>        
-      </div>
-      <div>
-        &#160;&#160;&#160;
+        <xsl:value-of select="@name"/>&#160;        
         <xsl:apply-templates select="." mode="output_index_links"/>
         <xsl:apply-templates select="following-sibling::*[name() = $element]" mode="output_index_links"/>
       </div>

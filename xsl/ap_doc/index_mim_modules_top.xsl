@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_modules_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
+$Id: index_mim_modules_top.xsl,v 1.12 2004/10/21 14:48:23 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -57,7 +57,7 @@ $Id: index_mim_modules_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 
     </head>
   <body>
-
+    <small>
 	  <A HREF="frame_index{$FILE_EXT}" TARGET="index" >Back to navigation indices</A>
 	<br/>
 
@@ -127,7 +127,7 @@ $Id: index_mim_modules_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 			</xsl:when>
 
 			</xsl:choose>
-  
+                      </small>
   </body>
 </HTML>
 </xsl:template>
@@ -138,7 +138,8 @@ $Id: index_mim_modules_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
 
-	<h3>Module MIMs</h3>
+          <!--	<h3>Module MIMs</h3> -->
+          <b>Module MIMs</b><br/>
 	
 
 	<xsl:variable name="schema-names">
@@ -153,8 +154,6 @@ $Id: index_mim_modules_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 				<xsl:with-param name="internal-link-root" select="'letter'" />
 			</xsl:call-template>
 			<br/>
-			<hr/>
-
 </xsl:template>
 
 

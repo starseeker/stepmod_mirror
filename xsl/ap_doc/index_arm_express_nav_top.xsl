@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_nav_top.xsl,v 1.7 2004/02/05 17:51:07 robbod Exp $
+$Id: index_arm_express_nav_top.xsl,v 1.8 2004/10/21 14:48:23 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -127,7 +127,6 @@ $Id: index_arm_express_nav_top.xsl,v 1.7 2004/02/05 17:51:07 robbod Exp $
 			</xsl:choose>
  
 	</small> 
-  <HR/>
   </body>
 </HTML>
 </xsl:template>

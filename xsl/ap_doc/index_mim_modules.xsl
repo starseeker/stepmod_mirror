@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: index_mim_modules.xsl,v 1.2 2003/05/24 10:21:55 nigelshaw Exp $
+$Id: index_mim_modules.xsl,v 1.3 2004/02/05 17:51:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -28,7 +28,8 @@ $Id: index_mim_modules.xsl,v 1.2 2003/05/24 10:21:55 nigelshaw Exp $
           MIM Modules
         </title>
       </head>
-    <frameset rows="30,70">
+      <!--    <frameset rows="30,70"> -->
+      <frameset rows="25,125"> 
       <frame name="toc_top" 
         src="./index_mim_modules_top{$FILE_EXT}"
         marginwidth="2" marginheight="0"  frameborder="0"/>

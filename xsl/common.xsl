@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.107 2003/07/29 11:21:11 robbod Exp $
+$Id: common.xsl,v 1.108 2003/07/29 13:00:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -754,7 +754,7 @@ $Id: common.xsl,v 1.107 2003/07/29 11:21:11 robbod Exp $
   </li>
 </xsl:template>
 
-<xsl:template match="example|note" mode="flatten"/>
+<xsl:template match="example|note|b|i|sup|sub" mode="flatten"/>
 <xsl:template match="ul" mode="flatten">
  **
 </xsl:template>

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 	
-	<xsl:variable name="namespace_prefix" select="string('ap239:')"/>
-	<xsl:variable name="schema_name" select="string('Product_life_cycle_support')"/>
-		
+	<!-- xsl:variable name="namespace_prefix" select="string('ap239:')"/ -->
+	<xsl:variable name="module_directory_name" select="//module_clause/@directory"/>
+	<xsl:variable name="ap_namespace_file" select="document(concat('../../data/modules/', $module_directory_name, '/ap_namespace.xml'))"/>
+	<xsl:variable name="schema_name" select="$ap_namespace_file//dummy/@schema_name"/>
+	<xsl:variable name="namespace_prefix" select="concat($ap_namespace_file//dummy/@ns_prefix_name, ':')"/>
+	
+	
 	<xsl:template match="/">
-		<xsl:apply-templates select="express"/>
+				<xsl:apply-templates select="express"/>
 	</xsl:template>
 		
 	<xsl:template match="express">
@@ -16,18 +20,18 @@
 	<xsl:template match="schema">
 		<xsl:text>&#xa;</xsl:text>
 		
-		<xs:schema 
-			targetNamespace="urn:iso10303-28:xs/{$schema_name}"
-  			xmlns:ex="urn:iso10303-28:ex" 
-  			xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  			xmlns:ap239="urn:iso10303-28:xs/{$schema_name}"
-		>
+		<xsl:element name="xs:schema">
+			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:xs/', $schema_name)"/></xsl:attribute>
+			<xsl:copy-of select="document('../../dtd/part28/ex_namespace.xml')/*/namespace::ex"/>
+			<xsl:copy-of select="document(concat('../../data/modules/', $module_directory_name, '/ap_namespace.xml'))/*/namespace::*"/>
 			<xsl:text>&#xa;</xsl:text>
 			
 			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
 			
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
+			
+			
 			
 			<xs:complexType name="uos">
 				<xs:complexContent>
@@ -76,7 +80,8 @@
 			</ex:configuration>
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text -->
-		</xs:schema>
+			</xsl:element>
+		
 	</xsl:template>
 	
 	<!-- xsl:template match="entity" mode="and_ors">

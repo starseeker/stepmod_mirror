@@ -1,0 +1,606 @@
+//$Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $
+//  Author: Rob Bodington, Eurostep Limited
+//  Owner:  Developed by Eurostep and supplied to PDES Inc under contract.
+//  Purpose:  JScript to generate the default XML for the ap document.
+//     cscript mkapdoc_main.js <ap doc> 
+//     e.g.
+//     cscript mkapdoc_main.js person
+//     The script is called from mkapdoc.wsf
+
+
+// ------------------------------------------------------------
+// Global variables
+// -----------------------------------------------------------
+// If you do not run mkapdoc_main from this directory set this
+var stepmodHome = "../..";
+
+var apClauses = new Array("1_scope", "2_refs", "3_defs", "4_info_reqs",
+			  "5_aim", "5_main", "5_mapping", "6_ccs",
+			  "a_exp_aim_lf", "b_imp_meth", "biblio",
+			  "c_pics", "contents", "cover", "d_obj_reg",
+			  "e_aam", "f_arm_expg", "foreword", "g_exp",
+			  "g_exp_aim", "g_exp_aim_lf", "g_exp_arm",
+			  "g_exp_arm_lf", "h_guide", "introduction",
+			  "k_ae_index");
+
+var apFrames = new Array("frame_aptitle", "frame_toc", "frame_contenttitle", "frame_index");
+
+var apIndexes = new Array("index_arm_modules",
+			  "index_mim_modules",
+			  "index_resources",
+			  "index_arm_express",
+			  "index_mim_express");
+
+// If 1 then output user messages
+var outputUsermessage = 1;
+
+
+//------------------------------------------------------------
+function userMessage(msg){
+    if (outputUsermessage == 1)
+	WScript.Echo(msg);
+}
+
+
+function ErrorMessage(msg){
+    var objShell = WScript.CreateObject("WScript.Shell");
+    if (outputUsermessage == 1)
+	WScript.Echo(msg);
+    objShell.Popup(msg);
+}
+
+function CheckStepHome() {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (!fso.FolderExists(stepmodHome)) {
+	ErrorMessage("The variable stepmodHome is incorrectly set in:\n"+
+		     "stepmod/utils/ap_docs/mkapdoc_main.js to:\n\n"+stepmodHome+
+		     "\n\nNote: it is a UNIX rather then WINDOWS path i.e. uses / not \\");
+	return(false);
+    }
+    if (!fso.FolderExists(stepmodHome+"/data/application_protocols")) {
+	ErrorMessage("You must run the script from the directory:\n"+
+		     "stepmod/utils/ap_docs");
+	return(false);
+    }
+    return(true);
+}
+
+
+function NameApDoc(apDoc) {
+
+    // Use a regular expression to replace leading and trailing 
+    // spaces with the empty string
+     var apDocName = apDoc.replace(/(^\s*)|(\s*$)/g, "");
+
+    // name must all be lower case
+     apDocName = apDocName.toLowerCase();
+    // no whitespace replace with  _
+    re = / /g;
+    apDocName = apDocName.replace(re, "_");
+    
+    // no - replace with  _
+    re = /-/g;
+    apDocName = apDocName.replace(re, "_");
+
+    re = /__*/g;
+    apDocName = apDocName.replace(re, "_");
+    return(apDocName);
+}
+
+
+function CheckApDoc(apDoc) {
+    var apDocFldr = GetApDocDir(apDoc);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    
+    // check if the folder exists
+    if (fso.FolderExists(apDocFldr)) 
+	throw("Directory already exists for AP document: "+ apDoc);
+    return(true);
+}
+
+function GetApDocDir(apDoc) {
+    return( stepmodHome+"/data/application_protocols/"+apDoc+"/");
+}
+
+
+// Create the dvlp directory and insert the projmg and issues file
+function MakeDvlpFldr(apDoc, update) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var apDocFldr = GetApDocDir(apDoc);
+    var apDocDvlpFldr = apDocFldr+"dvlp/";
+    var projmgXML = apDocDvlpFldr+"projmg.xml";
+    var issuesXML = apDocDvlpFldr+"issues.xml";
+
+    var objShell = WScript.CreateObject("WScript.Shell");
+    var f,ts;
+    if (!fso.FolderExists(apDocDvlpFldr)) 
+	fso.CreateFolder(apDocDvlpFldr);
+    if (!fso.FileExists(projmgXML)) { 
+	fso.CreateTextFile(projmgXML, true);
+	f = fso.GetFile(projmgXML);
+	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/projmg.xsl\"?>");
+  	ts.WriteLine("<!DOCTYPE management SYSTEM \"../../../../dtd/projmg/projmg.dtd\">");
+	ts.WriteLine("<management ap_doc=\""+apDoc+"\"");
+	ts.WriteLine("  percentage_complete=\"0\"");
+	ts.WriteLine("  issues=\"issues.xml\">");
+	ts.WriteLine("");
+	ts.WriteLine("  <developers>");
+	ts.WriteLine("    <developer ref=\"\"/>");
+	ts.WriteLine("  </developers>");
+	ts.WriteLine("");
+	ts.WriteLine("</management>");
+	ts.Close();
+    }
+    if (!fso.FileExists(issuesXML)) {
+	fso.CreateTextFile(issuesXML, true );
+	f = fso.GetFile(issuesXML);
+	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/issues_file.xsl\"?>");
+  	ts.WriteLine("<!DOCTYPE issues SYSTEM \"../../../../dtd/projmg/issues.dtd\">");
+	ts.WriteLine("<issues ap_doc=\""+apDoc+"\">");
+	ts.WriteLine("");
+	ts.WriteLine("<!--");
+	ts.WriteLine("Description of how the issues files is given in: stepmod\\help\\issues.htm");
+	ts.WriteLine(" id - an identifer of the isssue unique to this file");
+	ts.WriteLine(" type - the primary XML element in apDoc.xml that the issue is against.");
+	ts.WriteLine("        Either: ");
+	ts.WriteLine("            general | keywords | contacts | purpose |");
+	ts.WriteLine("            inscope | outscope | normrefs | definition |");
+	ts.WriteLine("            abbreviations | arm | armexpg | arm_lf |");
+	ts.WriteLine("            armexpg_lf | mapping_table | mim  | mimexpg |");
+	ts.WriteLine("            mim_lf | mimexpg_lf | usage_guide | bibliography");
+	ts.WriteLine(" linkend - the target of the comment ");
+	ts.WriteLine(" category - editorial | minor_technical | major_technical | repository ");
+	ts.WriteLine(" by - person raising the issue");
+	ts.WriteLine(" date - date issue raised yy-mm-dd");
+	ts.WriteLine(" status - status of issue. Either \"open\" or \"closed\"");
+	ts.WriteLine(" seds - if \"yes\" then the issue has been raised as a SEDS.");
+	ts.WriteLine("        The id should be the id of the SEDS in the SC4 database");
+	ts.WriteLine("");
+	ts.WriteLine("Comment - is a comment raised by someone about the issue");
+	ts.WriteLine("");
+	ts.WriteLine("<issue");
+	ts.WriteLine("  id=\"\"");
+	ts.WriteLine("  type=\"\"");
+	ts.WriteLine("  linkend=\"\"");
+	ts.WriteLine("  category=\"\"");
+	ts.WriteLine("  by=\"\"");
+	ts.WriteLine("  date=\"\"");
+	ts.WriteLine("  status=\"open\"");
+	ts.WriteLine("  seds=\"no\">");
+	ts.WriteLine("  <description>");
+    	ts.WriteLine("");
+	ts.WriteLine("  </description>");
+    	ts.WriteLine("");
+    	ts.WriteLine("<comment");
+	ts.WriteLine("   by=\"\" ");
+    	ts.WriteLine("   date=\"\">");
+	ts.WriteLine("<description>");
+    	ts.WriteLine("</description>");
+	ts.WriteLine("</comment>");
+	ts.WriteLine(" </issue>");
+	ts.WriteLine("-->");
+	ts.WriteLine("");
+	ts.WriteLine("<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->");
+	ts.WriteLine("<!-- +++++++++++++++++++   ISSUES                  ++++++++++++++ -->");
+	ts.WriteLine("<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->");
+	ts.WriteLine("");
+	ts.WriteLine("</issues>");
+	ts.Close();
+    }
+}
+
+function MakeApDocFrame(apDoc, frame) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var apDocFldr = GetApDocDir(apDoc);
+    var apDocSysFldr = apDocFldr+"sys/";
+    var frameXML = apDocSysFldr+frame+".xml";
+    var frameXSL = frame+".xsl";
+
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (fso.FolderExists(apDocSysFldr)) {
+	if (!fso.FileExists(frameXML)) { 
+	    //userMessage("Creating "+frameXML);
+	    fso.CreateTextFile( frameXML, true );
+	    var f = fso.GetFile(frameXML);
+	    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);	    
+	    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	    ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+	    ts.WriteLine("<!-- Generated by mkapdoc_main.js, Eurostep Limited, http://www.eurostep.com -->");
+	    ts.WriteLine("<!-- Do not edit -->");
+	    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/ap_doc/" + frameXSL + "\" ?>");
+	    ts.WriteLine("<application_protocol directory=\"" + apDoc + "\"/>");
+	    ts.Close();
+	}
+    }
+}
+
+function MakeApDocHome(apDoc) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var apDocFldr = GetApDocDir(apDoc);
+    var homeXML = apDocFldr+"/home.xml";
+    var homeXSL = "home.xsl";
+
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (fso.FolderExists(apDocFldr)) {
+	if (!fso.FileExists(homeXML)) { 
+	    //userMessage("Creating "+homeXML);
+	    fso.CreateTextFile( homeXML, true );
+	    var f = fso.GetFile(homeXML);
+	    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);	    
+	    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	    ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+	    ts.WriteLine("<!-- Generated by mkapdoc_main.js, Eurostep Limited, http://www.eurostep.com -->");
+	    ts.WriteLine("<!-- Do not edit -->");
+	    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/ap_doc/" + homeXSL + "\" ?>");
+	    ts.WriteLine("<application_protocol directory=\"" + apDoc + "\"/>");
+	    ts.Close();
+	}
+    }
+}
+
+function MakeApDocIndex(apDoc, index) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var apDocFldr = GetApDocDir(apDoc);
+    var apDocSysFldr = apDocFldr+"sys/";
+    var indexXML = apDocSysFldr+index+".xml";
+    var indexXSL = index+".xsl";
+
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (fso.FolderExists(apDocSysFldr)) {
+	if (!fso.FileExists(indexXML)) { 
+	    //userMessage("Creating "+indexXML);
+	    fso.CreateTextFile( indexXML, true );
+	    var f = fso.GetFile(indexXML);
+	    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	    
+	    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	    ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+	    ts.WriteLine("<!-- Generated by mkapdoc_main.js, Eurostep Limited, http://www.eurostep.com -->");
+	    ts.WriteLine("<!-- Do not edit -->");
+	    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/ap_doc/" + indexXSL + "\" ?>");
+	    ts.WriteLine("<application_protocol directory=\"" + apDoc + "\"/>");
+	    ts.Close();
+	}
+    }
+}
+
+
+function MakeApDocClause(apDoc, clause, module_name) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var apDocFldr = GetApDocDir(apDoc);
+    var apDocSysFldr = apDocFldr+"sys/";
+    var clauseXML = apDocSysFldr+clause+".xml";
+    var clauseXSL = "sect_"+clause+".xsl";
+
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (fso.FolderExists(apDocSysFldr)) {
+	if (!fso.FileExists(clauseXML)) { 
+	    //userMessage("Creating "+clauseXML);
+	    fso.CreateTextFile( clauseXML, true );
+	    var f = fso.GetFile(clauseXML);
+	    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	    
+	    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	    ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+	    ts.WriteLine("<!DOCTYPE application_protocol_clause SYSTEM \"../../../../dtd/ap_doc/application_protocol_clause.dtd\">");
+	    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/ap_doc/" + clauseXSL + "\" ?>");
+	    ts.WriteLine("<!-- Generated by mkapdoc_main.js, Eurostep Limited, http://www.eurostep.com -->");
+	    ts.WriteLine("<!-- Do not edit -->");
+	    ts.WriteLine("<application_protocol_clause");
+	    ts.WriteLine("    directory=\"" + apDoc + "\"");
+	    ts.WriteLine("    module_directory=\"" + module_name + "\"/>");	    
+	    ts.Close();
+	}
+    }
+}
+
+
+function MakeApAamXML(apDoc) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var apDocFldr = GetApDocDir(apDoc);
+    var apDocXML = apDocFldr+"aam.xml";
+
+    userMessage("Creating "+apDocXML);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    fso.CreateTextFile( apDocXML, true );
+    var f = fso.GetFile(apDocXML);
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+    
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+    ts.WriteLine("<!DOCTYPE idef0 SYSTEM \"../../../dtd/ap_doc/aam.dtd\">");
+    ts.WriteLine("<!-- Generated by mkapdoc_main.js, Eurostep Limited, http://www.eurostep.com -->");
+    ts.WriteLine("<!-- ");
+    ts.WriteLine("     IDEF0 activity model for "+apDoc);
+    ts.WriteLine("      -->");
+    ts.WriteLine("<idef0>");
+    ts.WriteLine("  <!-- view point of the IDEF0 model -->");
+    ts.WriteLine("  <viewpoint>viewpointXXX</viewpoint>");
+    ts.WriteLine("");
+    ts.WriteLine("  <!-- IDEF0 page -->");
+    ts.WriteLine("  <page number=\"1\" node=\"A-0\" title=\"titleXXX\">");
+    ts.WriteLine("    <!-- activity in the IDEF0 model -->");
+    ts.WriteLine("    <activity identifier=\"A0\" inscope=\"yes\">");
+    ts.WriteLine("      <name>");
+    ts.WriteLine("        nameXXX");
+    ts.WriteLine("      </name>");
+    ts.WriteLine("      <description>");
+    ts.WriteLine("        descriptionXXX");
+    ts.WriteLine("      </description>");
+    ts.WriteLine("    </activity>");
+    ts.WriteLine("  </page>");
+    ts.WriteLine("");
+    ts.WriteLine("  <!-- IDEF0 Arrow definitions (inputs controls outputs mechanism) -->");
+    ts.WriteLine("  <icoms>");
+    ts.WriteLine("");
+    ts.WriteLine("    <!-- IDEF0 Arrow definition (inputs controls outputs mechanism) -->");
+    ts.WriteLine("    <icom identifier=\"icomXXX\" inscope=\"no\">");
+    ts.WriteLine("      <name>");
+    ts.WriteLine("        icomnameXX");
+    ts.WriteLine("      </name>");
+    ts.WriteLine("      <description>");
+    ts.WriteLine("        icomdescriptionXXX");
+    ts.WriteLine("      </description>");
+    ts.WriteLine("    </icom>");
+    ts.WriteLine("  </icoms>");
+    ts.WriteLine("</idef0>");
+    ts.Close();
+}
+
+function MakeApCcXML(apDoc, module_name) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var apDocFldr = GetApDocDir(apDoc);
+    var apDocXML = apDocFldr+"ccs.xml";
+
+    userMessage("Creating "+apDocXML);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    fso.CreateTextFile( apDocXML, true );
+    var f = fso.GetFile(apDocXML);
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+    
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+    ts.WriteLine("<!DOCTYPE conformance SYSTEM \"../../../dtd/ap_doc/ccs.dtd\">");
+    ts.WriteLine("<!-- Generated by mkapdoc_main.js, Eurostep Limited, http://www.eurostep.com -->");
+    ts.WriteLine("<!-- ");
+    ts.WriteLine("     The conformance classes for " +apDoc);
+    ts.WriteLine("     -->");
+    ts.WriteLine("<conformance>");
+    ts.WriteLine("  <!-- The top level conformance class.");
+    ts.WriteLine("       No arm_entities specified so all ARM entities specified in");
+    ts.WriteLine("       "+module_name+" are part of the conformance class.");
+    ts.WriteLine("       -->");
+    ts.WriteLine("  <cc id=\"1\" name=\""+apDoc+"_cc1\" module=\""+module_name+"\">");
+    ts.WriteLine("    <inscope from_module=\"YES\"/>");
+    ts.WriteLine("  </cc>");
+    ts.WriteLine("");
+    ts.WriteLine("  <!-- The second conformance class.");
+    ts.WriteLine("       The arm_entities identify the ARM entities in");
+    ts.WriteLine("       "+module_name+" that are part of the conformance class.");
+    ts.WriteLine("       -->");
+    ts.WriteLine("  <cc id=\"2\" name=\""+apDoc+"_cc2\" module=\""+module_name+"\">");
+    ts.WriteLine("    <inscope from_module=\"NO\">");
+    ts.WriteLine("      <li>");
+    ts.WriteLine("      </li>");
+    ts.WriteLine("    </inscope>");
+    ts.WriteLine("    <arm_entities>");
+    ts.WriteLine("      <arm_entity name=\"xxx\"/>");
+    ts.WriteLine("    </arm_entities>");
+    ts.WriteLine("  </cc>");
+    ts.WriteLine("</conformance>");
+    ts.Close();
+}
+
+function MakeApDocXML(apDoc, title, partNo, module_name, new_edition) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var apDocFldr = GetApDocDir(apDoc);
+    var apDocXML = apDocFldr+"application_protocol.xml";
+
+    userMessage("Creating "+apDocXML);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    fso.CreateTextFile( apDocXML, true );
+    var f = fso.GetFile(apDocXML);
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+    
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!-- $Id: mkapdoc_main.js,v 1.35 2003/04/23 14:36:26 robbod Exp $ -->");
+    ts.WriteLine("<!DOCTYPE application_protocol SYSTEM \"../../../dtd/ap_doc/application_protocol.dtd\">");
+    ts.WriteLine("<!-- Generated by mkapdoc_main.js, Eurostep Limited, http://www.eurostep.com -->");
+    ts.WriteLine("<!-- ");
+    ts.WriteLine("     To view the application document in IExplorer, open: sys/1_scope.xml");
+    ts.WriteLine("      -->");
+    ts.WriteLine("<application_protocol");
+    ts.WriteLine("   name=\"" + apDoc + "\"");
+    ts.WriteLine("   module_name=\"" + module_name + "\"");
+    ts.WriteLine("   title=\""+title+"\"");
+    ts.WriteLine("   part=\""+partNo+"\"");
+    ts.WriteLine("   wg.number=\"00000\"");
+    ts.WriteLine("   version=\"1\"");
+    ts.WriteLine("   status=\"CD\"");
+    ts.WriteLine("   language=\"E\"");
+    ts.WriteLine("   publication.year=\"\"");
+    ts.WriteLine("   published=\"n\"");
+    //ts.WriteLine("   wg.number.ballot_package=\"\"");
+    //ts.WriteLine("   wg.number.ballot_comment=\"\"");
+    ts.WriteLine("   checklist.internal_review=\"\"");
+    ts.WriteLine("   checklist.project_leader=\"\"");
+    ts.WriteLine("   checklist.convener=\"\"");
+    
+    if (new_edition == true) {
+	ts.WriteLine("   wg.number.supersedes=\"\""); 
+	ts.WriteLine("   previous.revision.number=\"\""); 
+	ts.WriteLine("   previous.revision.year=\"\""); 
+	ts.WriteLine("   previous.revision.cancelled=\"NO\"");
+	ts.WriteLine("   revision.complete=\"NO\"");
+	ts.WriteLine("   revision.scope=\"\""); 
+    }
+
+    var rcsdate = "$"+"Date: $";
+    ts.WriteLine("   rcs.date=\""+rcsdate+"\"");
+    var rcsrevision = "$"+"Revision: $";    
+    ts.WriteLine("   rcs.revision=\""+rcsrevision+"\">");
+    ts.WriteLine("");
+    ts.WriteLine(" <keywords>");
+    ts.WriteLine("    Application protocol");
+    ts.WriteLine(" </keywords>");
+    ts.WriteLine("");
+    ts.WriteLine("<!-- the abstract for the application protocol. -->");
+    ts.WriteLine(" <abstract>");
+    ts.WriteLine("    <li>xxxxx</li>");
+    ts.WriteLine(" </abstract>");
+    ts.WriteLine("");
+    if (new_edition == true) {
+	ts.WriteLine("<!-- A new edition of an AP so docuent the changes -->");
+	ts.WriteLine(" <changes>");
+	ts.WriteLine("  <!-- The summary of the changes -->");
+	ts.WriteLine("  <change_summary>");
+	ts.WriteLine("    Text");
+	ts.WriteLine("  </change_summary>");
+	ts.WriteLine("  <!-- The details of the changes -->");
+	ts.WriteLine("  <change_detail>");
+	ts.WriteLine("    Text");
+	ts.WriteLine("   </change_detail>");
+	ts.WriteLine(" </changes>");
+	ts.WriteLine("");
+    }
+
+    ts.WriteLine(" <!-- Reference to contacts detailed in stepmod/data/basic/contacts.xml -->");
+    ts.WriteLine(" <contacts>");
+    ts.WriteLine("   <projlead ref=\"xxx\"/>");
+    ts.WriteLine("   <editor ref=\"xxx\"/>");
+    ts.WriteLine(" </contacts>");
+    ts.WriteLine("");
+
+    ts.WriteLine(" <!-- Introduction -->");
+    ts.WriteLine(" <!-- The introduction should start as shown: -->");
+    ts.WriteLine(" <purpose>");
+    ts.WriteLine("   <p>");
+    ts.WriteLine("   This part of ISO 10303 specifies an application protocol (AP) for"); 
+    ts.WriteLine("   </p>");
+    ts.WriteLine(" </purpose>");
+    ts.WriteLine("");
+    ts.WriteLine(" <!-- Items in scope ");
+    ts.WriteLine("      If from_module is YES then XSL will copy the in scope statement from the module");
+    ts.WriteLine("     -->");
+    ts.WriteLine(" <inscope from_module=\"YES\">");
+    ts.WriteLine("   <li>xxxxx</li>");
+    ts.WriteLine(" </inscope>");
+    ts.WriteLine("");
+    ts.WriteLine(" <!-- Items out of scope");
+    ts.WriteLine("      If from_module is YES then XSL will copy the out scope statement from the module");
+    ts.WriteLine("     -->");
+    ts.WriteLine(" <outscope from_module=\"YES\">");
+    ts.WriteLine("   <li>xxxx</li>");
+    ts.WriteLine(" </outscope>");
+    ts.WriteLine("");
+    ts.WriteLine("<!--");
+    ts.WriteLine(" <normrefs/>");
+    ts.WriteLine("");
+    ts.WriteLine(" <definition/>");
+    ts.WriteLine("");
+    ts.WriteLine(" <abbreviations/>");
+    ts.WriteLine("-->");
+    ts.WriteLine("");
+    ts.WriteLine(" <!-- Clause 4  -->");
+    ts.WriteLine(" <inforeqt>");
+    ts.WriteLine("   <fundamentals>");
+    ts.WriteLine("   </fundamentals>");
+    ts.WriteLine("   <reqtover module=\"xxx\">");
+    ts.WriteLine("    <description>");
+    ts.WriteLine("     Text");
+    ts.WriteLine("    </description>");
+    ts.WriteLine("   </reqtover>");
+    ts.WriteLine(" </inforeqt>");
+    ts.WriteLine("");
+    ts.WriteLine(" <!-- Activity Model -->");
+    ts.WriteLine(" <aam>");
+    ts.WriteLine("   <idef0>");
+    ts.WriteLine("     <imgfile file=\"Text\" title=\"Text\"/>");
+    ts.WriteLine("   </idef0>");
+    ts.WriteLine(" </aam>");
+    ts.WriteLine("");
+
+    ts.WriteLine(" <!--  -->");
+    ts.WriteLine("<imp_meths>");
+    ts.WriteLine("<imp_meth general=\"n\" part=\"21\">");
+    ts.WriteLine("  <description>");
+    ts.WriteLine("   Text");
+    ts.WriteLine("  </description>");
+    ts.WriteLine("</imp_meth>");
+    ts.WriteLine("</imp_meths>");
+
+    ts.WriteLine("");
+    ts.WriteLine(" <usage_guide>");
+    ts.WriteLine("   Text");
+    ts.WriteLine(" </usage_guide>");
+
+    ts.WriteLine("");
+    ts.WriteLine(" <tech_disc>");
+    ts.WriteLine("  Text");
+    ts.WriteLine(" </tech_disc>");
+
+    ts.WriteLine("");
+    ts.WriteLine("<bibliography>");
+    ts.WriteLine("  <bibitem.inc ref=\"Text\"/>");
+    ts.WriteLine("</bibliography>");
+
+    ts.WriteLine("</application_protocol>");
+    ts.Close();
+}
+
+
+function MakeApDoc(apDoc, title, partNo, module_name, new_edition) {
+    // make sure apDoc has a valid name
+    apDoc = NameApDoc(apDoc);
+    module_name = NameApDoc(module_name);
+    var apDocFldr = GetApDocDir(apDoc);
+    var apDocSysFldr = apDocFldr+"sys/";
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+    userMessage("Creating AP document "+apDoc);
+    try {
+	CheckApDoc(apDoc);
+
+	fso.CreateFolder(apDocFldr);
+	fso.CreateFolder(apDocSysFldr);	
+	MakeDvlpFldr(apDoc);
+
+	for (var i=0; i<apClauses.length; i++) {
+	    MakeApDocClause(apDoc, apClauses[i], module_name);
+	}
+	
+	for (var i=0; i<apFrames.length; i++) {
+	    MakeApDocFrame(apDoc, apFrames[i]);
+	}
+
+	for (var i=0; i<apIndexes.length; i++) {
+	    MakeApDocIndex(apDoc, apIndexes[i]);
+	}
+
+	MakeApDocHome(apDoc);
+	MakeApDocXML(apDoc, title, partNo, module_name, new_edition);
+	MakeApAamXML(apDoc);
+	MakeApCcXML(apDoc, module_name);
+	userMessage("Created apDoc:   "+apDoc);
+    }
+    catch(e) {
+	ErrorMessage(e);
+    }    
+}
+
+//MakeApDoc("apDocName", "apDocTitle", "apDocPartNo", "apDocModule", true);

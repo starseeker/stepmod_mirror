@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.15 2002/01/06 21:34:18 robbod Exp $
+$Id: common.xsl,v 1.16 2002/01/07 10:13:27 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -649,10 +649,36 @@ $Id: common.xsl,v 1.15 2002/01/06 21:34:18 robbod Exp $
      <ir>:ir:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
 -->
   <xsl:template match="express_ref">
+    <xsl:variable name="href">
+      <xsl:call-template name="get_href_from_express_ref">
+        <xsl:with-param name="linkend" select="@linkend"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:choose>
+      <xsl:when test="$href=''">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('express_ref linkend', 
+                    @linkend, 
+                    ' is incorrectly specified')"/>
+        </xsl:call-template>
+        <xsl:apply-templates/>
+      </xsl:when>
+      <xsl:otherwise>
+        <a href="{$href}"><xsl:apply-templates/></a>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+   <xsl:template name="get_href_from_express_ref">
+     <xsl:param name="linkend"/>
     <!-- remove all whitespace -->
     <xsl:variable 
       name="nlinkend"
-      select="translate(@linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+      select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
 
     <xsl:variable 
       name="module" 
@@ -721,24 +747,9 @@ $Id: common.xsl,v 1.15 2002/01/06 21:34:18 robbod Exp $
                     '/mim',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
       </xsl:choose>
-    </xsl:variable>      
-    <xsl:choose>
-      <xsl:when test="$href=''">
-        <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('express_ref linkend', 
-                    $nlinkend, 
-                    ' is incorrectly specified')"/>
-        </xsl:call-template>
-        <xsl:apply-templates/>
-      </xsl:when>
-      <xsl:otherwise>
-        <a href="{$href}"><xsl:apply-templates/></a>
-      </xsl:otherwise>
-    </xsl:choose>
+    </xsl:variable> 
+    <xsl:value-of select="$href"/>
   </xsl:template>
-
 
   <!-- A reference to a section of the module.
        The format of the linkend attribute that defines the reference is:

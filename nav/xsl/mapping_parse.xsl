@@ -209,9 +209,29 @@
 					<!-- start of quoted string -->
 
 					<xsl:choose>
+						<xsl:when test='starts-with($path,"&#x27; &#x27;")'>
+						<!-- empty string case '' -->
 
+
+							<xsl:element name="quote" >
+								<xsl:attribute name="match" >GOOD</xsl:attribute>
+								<xsl:attribute name="length" >
+									<xsl:value-of select="0" />
+								</xsl:attribute>
+							</xsl:element>
+	
+						<!-- recurse using remainder of path -->
+
+						<xsl:call-template name="parse-refpath">
+						<xsl:with-param name="path" 
+							select="substring($path,4)" />
+						<xsl:with-param name="previous" select="'quote'" />
+						</xsl:call-template>
+
+
+						</xsl:when>
+						
 						<xsl:when test='contains(substring($path,3)," &#x27;")'>
-
 
 						<xsl:variable name="temp" 
 							select='substring-before(substring($path,3)," &#x27;")' />

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: mapping.xsl,v 1.7 2002/09/02 15:35:29 robbod Exp $
+$Id: mapping.xsl,v 1.8 2003/05/06 21:26:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display a mapping table that is stored in a stand alone file
@@ -18,15 +18,14 @@ $Id: mapping.xsl,v 1.7 2002/09/02 15:35:29 robbod Exp $
     <xsl:element name="body">
       <xsl:if test="$output_background='YES'">
         <xsl:attribute name="background">
-            <xsl:value-of select="concat('../../../../images/',$background_image)"/>
+          <xsl:value-of select="concat('../../../../images/',$background_image)"/>
+        </xsl:attribute>
+        <xsl:attribute name="bgproperties" >
+          <xsl:value-of select="'fixed'" />
           </xsl:attribute>
-          <xsl:attribute name="bgproperties" >
-            <xsl:value-of select="'fixed'" />
-            </xsl:attribute>
-          </xsl:if>
+        </xsl:if>
         <xsl:apply-templates select="//module/mapping_table/ae" mode="specification"/>
       </xsl:element>
-    </xsl:when>
     </html>
   </xsl:template>
 

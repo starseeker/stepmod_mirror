@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: express_toc.xsl,v 1.2 2002/10/08 10:20:08 mikeward Exp $
+	$Id: express_toc.xsl,v 1.3 2003/06/09 10:56:56 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../express_toc.xsl"/>
@@ -105,7 +105,7 @@
 						</A>
 						]
 					</font>
-				</HD23>
+				</H2>
 				<xsl:variable name="typecount" select="(count(./type)+1) div 2"/>
 				<blockquote>
 					<table width="90%" cellspacing="0" cellpadding="4">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.2 2002/10/19 00:44:47 thendrix Exp $
+$Id: resource.xsl,v 1.3 2002/10/23 04:30:02 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1063,9 +1063,8 @@ defined in annex D of ISO 10303-11.
 </xsl:template>
 
 
-
 <xsl:template match="schema">
-
+  <xsl:param name="pos"/>
   <xsl:variable name="schema_display_name">
     <xsl:call-template name="res_display_name">
       <xsl:with-param name="res" select="@name"/>
@@ -1073,12 +1072,12 @@ defined in annex D of ISO 10303-11.
   </xsl:variable>
 
   <xsl:variable name="schema_no"
-    select="position()"  />
+    select="$pos"/>
 
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" 
-      select="concat(($schema_no+3),' ',$schema_display_name)"/>
-    <xsl:with-param name="aname" select="concat('schema','position()')"/>
+      select="concat((number($schema_no)+3),' ',$schema_display_name)"/>
+    <xsl:with-param name="aname" select="concat('schema','$schema_no+3')"/>
   </xsl:call-template>
 
   <xsl:variable name="c_expg"
@@ -1135,7 +1134,7 @@ defined in annex D of ISO 10303-11.
   <!-- output the intro and fundamental contants.! -->
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" 
-      select="concat(($schema_no+3),' ','.1 Introduction')"/>
+      select="concat(($schema_no+3),'.1 Introduction')"/>
     <xsl:with-param name="aname" select="concat('schema','position()')"/>
   </xsl:call-template>
 
@@ -1143,7 +1142,7 @@ defined in annex D of ISO 10303-11.
   
 <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" 
-      select="concat(($schema_no+3),' ','.2 Fundamental concepts and assumptions')"/>
+      select="concat(($schema_no+3),'.2 Fundamental concepts and assumptions')"/>
     <xsl:with-param name="aname" select="concat('schema','position()')"/>
   </xsl:call-template>
 

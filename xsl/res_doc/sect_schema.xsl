@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_4_schema.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_schema.xsl,v 1.1 2002/10/20 07:08:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output section 4 Information model as a web page
@@ -24,7 +24,9 @@ $Id: sect_4_schema.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 <!-- overwrites the template declared in resource.xsl -->
 <xsl:template match="resource">
   <xsl:param name="pos"/>
-  <xsl:apply-templates select="schema[position()=$pos]"/>
+  <xsl:apply-templates select="schema[position()=$pos]">
+    <xsl:with-param name="pos" select="$pos"/>
+  </xsl:apply-templates>
 </xsl:template>
   
 </xsl:stylesheet>

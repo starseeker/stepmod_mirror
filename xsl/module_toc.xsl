@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.22 2002/08/02 15:58:46 robbod Exp $
+$Id: module_toc.xsl,v 1.23 2002/08/07 06:37:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -249,7 +249,7 @@ $Id: module_toc.xsl,v 1.22 2002/08/02 15:58:46 robbod Exp $
           <xsl:if test="$rule_clause !=0">
             <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#rules">
               <xsl:value-of select="concat('&#160; &#160;', $rule_clause,
-                                    'ARM rule definitions')"/>
+                                    ' ARM rule definitions')"/>
             </A><BR/>
           </xsl:if>
           <!-- only output if there are imported rules defined and 

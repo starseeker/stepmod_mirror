@@ -6,7 +6,7 @@
 (*                                                                            *)
 (******************************************************************************)
 
-(* Original model: required_resource_arm.vsd *)
+(* Original model: required_resource_arm 2.0.vsd *)
 (* Title: required_resource ver 5 *)
 (* Author: LEGY *)
 (* Comments :
@@ -20,28 +20,37 @@ USE FROM Resource_item_arm;
 
 USE FROM Value_with_unit_arm;
 
-TYPE required_resource_classified_select = SELECT BASED_ON classified_select WITH
-  (Required_resource,
-   Required_resource_relationship);
+TYPE required_resource_action = EXTENSIBLE SELECT ;
 END_TYPE;
 
-TYPE resource_required_select = EXTENSIBLE SELECT ;
+TYPE required_resource_classified_select = SELECT BASED_ON classified_select WITH
+  (Required_resource,
+   Required_resource_action_relationship,
+   Required_resource_relationship);
 END_TYPE;
 
 TYPE specification_item_select = EXTENSIBLE SELECT ;
 END_TYPE;
 
 ENTITY Required_resource
-ABSTRACT SUPERTYPE OF (ONEOF(Required_resource_item, Required_resource_specification));
-  name : STRING;
+ABSTRACT SUPERTYPE OF (ONEOF(Required_resource_by_resource_item, Required_resource_by_specification));
+  name : OPTIONAL STRING;
   description : OPTIONAL STRING;
-  resource_required_by : resource_required_select;
   required_quantity : OPTIONAL Value_with_unit;
 END_ENTITY;
 
-ENTITY Required_resource_item
+ENTITY Required_resource_action_relationship;
+  relating : Required_resource;
+  related : required_resource_action;
+END_ENTITY;
+
+ENTITY Required_resource_by_resource_item
 SUBTYPE OF (Required_resource);
-  realized_by : Resource_item;
+  resource_item : Resource_item;
+END_ENTITY;
+
+ENTITY Required_resource_by_specification
+SUBTYPE OF (Required_resource);
 END_ENTITY;
 
 ENTITY Required_resource_relationship;
@@ -49,12 +58,8 @@ ENTITY Required_resource_relationship;
   related : Required_resource;
 END_ENTITY;
 
-ENTITY Required_resource_specification
-SUBTYPE OF (Required_resource);
-END_ENTITY;
-
-ENTITY Required_resource_specification_relationship;
-  relating : Required_resource_specification;
+ENTITY Specification_item_relationship;
+  relating : Required_resource_by_specification;
   related : specification_item_select;
 END_ENTITY;
 

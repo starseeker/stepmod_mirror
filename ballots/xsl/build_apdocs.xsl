@@ -413,6 +413,68 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:text>
       </xsl:text>
+
+
+    <target name="validhtml" depends="variables" description="validate html">
+      <property name="HTMLDTDCAT" value="../../../etc/html/dtds/HTML4.cat"/>
+      <property name="HTMLVALID" value="&quot;C:/sp1.3.4/bin/nsgmls.exe&quot;"/>   
+      <property name="HTMLNAME" value="&quot;*.htm&quot;" />
+      <xsl:element name="property">
+        <xsl:attribute name="name">HTMLVALIDERR</xsl:attribute>
+        <xsl:attribute name="value">${BALLOTDIR}/<xsl:value-of select="concat(@name,'-${DSTAMP}')"/>-html-valid-errors.txt</xsl:attribute>
+      </xsl:element>
+
+      <echo>Validating HTML ISODIR ${ISODIR}</echo> 
+      <echo> HTMLVALID ${HTMLVALID}</echo>
+      <echo> HTMLDTDCAT ${HTMLDTDCAT}</echo>
+      <echo> HTMLVALIDERR ${HTMLVALIDERR}</echo>
+
+        <xsl:element name="exec">
+          <xsl:attribute name="executable">c:/cygwin/bin/find</xsl:attribute>
+          <xsl:attribute name="dir">${ISODIR}</xsl:attribute>
+
+          <xsl:attribute name="output">${HTMLVALIDERR}</xsl:attribute>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">.</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">-name</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${HTMLNAME}</xsl:attribute>
+          </xsl:element>
+               <xsl:element name="arg">
+                 <xsl:attribute name="value">-exec</xsl:attribute>
+               </xsl:element> 
+               <xsl:element name="arg">
+                 <xsl:attribute name="value">${HTMLVALID}</xsl:attribute>
+               </xsl:element>
+               <xsl:element name="arg">
+            <xsl:attribute name="value">-c${HTMLDTDCAT}</xsl:attribute>
+          </xsl:element>
+          
+          <xsl:element name="arg">
+            <xsl:attribute name="value">-s</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">&#x7B;&#x7D;</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">&quot;&#x3B;&quot;</xsl:attribute>
+          </xsl:element>
+	</xsl:element>
+
+
+        <xsl:text>
+        </xsl:text>
+
+      </target>
+
+
+      <xsl:text>
+      </xsl:text>
+
+
        <target
         xsl:extension-element-prefixes="exslt"        
         name="isoindex" depends="init" 

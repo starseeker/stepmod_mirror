@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol.xsl,v 1.22 2003/05/23 15:52:56 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.5 2003/05/27 07:34:15 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -23,9 +23,9 @@ $Id: application_protocol.xsl,v 1.22 2003/05/23 15:52:56 robbod Exp $
   <xsl:template name="output_normrefs">
     <xsl:param name="application_protocol_number"/>
     <xsl:param name="current_application_protocol"/>
-    <h3>
+    <h2>
       2 Normative references
-    </h3>
+    </h2>
     <p>
       The following normative documents contain provisions which, through
       reference in this text, constitute provisions of this International

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: imgfile.xsl,v 1.8 2003/05/27 07:34:15 robbod Exp $
+$Id: imgfile.xsl,v 1.9 2003/05/27 08:01:41 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -106,11 +106,7 @@ $Id: imgfile.xsl,v 1.8 2003/05/27 07:34:15 robbod Exp $
               </xsl:with-param>
             </xsl:call-template>
             <xsl:apply-templates select="img"/>
-            <div align="center">
-              <h3>
-                <xsl:value-of select="@title"/>
-              </h3>
-            </div>
+            <div align="center"><br/><br/><b><xsl:value-of select="@title"/></b><br/></div>
           </xsl:otherwise>
         </xsl:choose>
       </body>

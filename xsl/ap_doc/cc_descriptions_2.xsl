@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-	$Id: cc_descriptions_2.xsl,v 1.5 2003/03/06 14:47:58 goset1 Exp $
+	$Id: cc_descriptions_2.xsl,v 1.6 2003/05/27 07:34:15 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">	
 <xsl:import href="../common.xsl"/>		<!-- for text formatting templates -->
@@ -43,16 +43,16 @@ A particular processor may write or read instances of entities that belong to mo
 <p>The Protocol Implementation Conformance Statement (PICS) form lists the options or the combinations of options that may be included in the implementation. 
 The PICS form is provided in annex C.</p>
 <p>
-<h3>6.1&#160;Scope of conformance classes</h3>
+<h2>6.1&#160;Scope of conformance classes</h2>
 		<xsl:for-each select="cc">
-			<h3>6.1.<xsl:value-of select="position()"/>&#160; 
-			<xsl:value-of select="concat('Conformance class for ', ./@name, ' (', ./@id, ')')"/></h3>
+			<h2>6.1.<xsl:value-of select="position()"/>&#160; 
+			<xsl:value-of select="concat('Conformance class for ', ./@name, ' (', ./@id, ')')"/></h2>
 			<xsl:apply-templates/> 
 		</xsl:for-each>
 		
 
 
-<h3>6.2&#160;Conformance classes per Units of Functionality</h3>
+<h2>6.2&#160;Conformance classes per Units of Functionality</h2>
 Table 1 identifies the conformance classes to which each UOF of the modules interfaced in the ARM schema, belongs.
 </p>
   <p align="center">
@@ -122,7 +122,7 @@ Table 1 identifies the conformance classes to which each UOF of the modules inte
 	</div>	
 
 	<!--  Commented out by AP203 editor (inclusion to be re-discussed)
-<h3>6.3&#160;Conformance classes per ARM entity</h3>
+<h2>6.3&#160;Conformance classes per ARM entity</h2>
 <p>
 Table 2 identifies the conformance classes to which each entity of the ARM long-form schema, belongs.
 </p>
@@ -192,7 +192,7 @@ Table 2 identifies the conformance classes to which each entity of the ARM long-
 
 -->
 
-<h3>6.3&#160;Conformance classes per MIM entity</h3>
+<h2>6.3&#160;Conformance classes per MIM entity</h2>
 <p>
 Table 2 identifies the conformance classes to which each entity of the MIM long-form schema, belongs.
 </p>

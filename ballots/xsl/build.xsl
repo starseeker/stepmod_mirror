@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.2 2002/08/12 09:24:43 robbod Exp $
+$Id: build.xsl,v 1.3 2002/08/18 17:32:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To build the initial ANT build package. 
@@ -125,7 +125,7 @@ $Id: build.xsl,v 1.2 2002/08/12 09:24:43 robbod Exp $
           <xsl:attribute name="value">
             <xsl:apply-templates select="ballot_package/module">
               <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/contents.xml'"/>
+              <xsl:with-param name="suffix" select="'/sys/contents.xml'"/>
             </xsl:apply-templates>
           </xsl:attribute>
         </xsl:element>
@@ -296,6 +296,16 @@ $Id: build.xsl,v 1.2 2002/08/12 09:24:43 robbod Exp $
             <xsl:apply-templates select="ballot_package/module">
               <xsl:with-param name="prefix" select="'data/modules/'"/>
               <xsl:with-param name="suffix" select="'/sys/e_exp_arm.xml'"/>
+            </xsl:apply-templates>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">EEXPARMLFXML</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:apply-templates select="ballot_package/module">
+              <xsl:with-param name="prefix" select="'data/modules/'"/>
+              <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
             </xsl:apply-templates>
           </xsl:attribute>
         </xsl:element>
@@ -1286,6 +1296,47 @@ $Id: build.xsl,v 1.2 2002/08/12 09:24:43 robbod Exp $
         </xsl:element>
       </xsl:element>
       
+      <!--
+<style includes="${EEXPARMLFXML}" destdir="${ISODIR}"
+        extension=".htm"
+        style="${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl">
+        <param name="output_type" expression="HTM"/>
+        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+        <param name="menubar_file" expression="${ISOMENU}"/>
+</style> -->
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${EEXPARMLFXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+
       <!--
 <style includes="${EEXPMIMXML}" destdir="${ISODIR}"
         extension=".htm"

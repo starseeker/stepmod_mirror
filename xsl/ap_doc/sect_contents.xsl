@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.16 2003/06/02 14:12:49 robbod Exp $
+$Id: sect_contents.xsl,v 1.17 2003/06/03 13:38:40 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -46,7 +46,7 @@ $Id: sect_contents.xsl,v 1.16 2003/06/02 14:12:49 robbod Exp $
     <xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
     <xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
 
-    <h2>Contents</h2>
+    <h2><a name="contents"></a>Contents</h2>
     <xsl:if test="$complete='yes'">
       <a href="./cover{$FILE_EXT}" target="{$target}">Cover page</a>
       <br/>
@@ -192,7 +192,7 @@ $Id: sect_contents.xsl,v 1.16 2003/06/02 14:12:49 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
 
-    <h2>Tables</h2>
+    <h2><a name="tables">Tables</a></h2>
     <xsl:apply-templates select="//changes/change_summary//table" mode="toc">
       <xsl:with-param name="target" select="$target"/>
     </xsl:apply-templates>
@@ -298,6 +298,15 @@ $Id: sect_contents.xsl,v 1.16 2003/06/02 14:12:49 robbod Exp $
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
     </xsl:if>
+
+    <h2><a name="index">Index</a></h2>
+    <a href="index_arm_modules{$FILE_EXT}">ARM modules</a><br/>
+    <a href="index_mim_modules{$FILE_EXT}">MIM modules</a><br/>
+    <a href="index_resources{$FILE_EXT}">Resource schemas</a><br/>
+    <a href="index_arm_express{$FILE_EXT}">ARM EXPRESS</a><br/>
+    <a href="index_mim_express{$FILE_EXT}">MIM EXPRESS</a><br/>
+    <a href="index_arm_mappings{$FILE_EXT}">ARM Entity Mappings</a><br/>
+
   </xsl:template>
 	
 

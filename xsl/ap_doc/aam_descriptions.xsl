@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.6 2003/05/23 15:52:56 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.7 2003/06/03 18:20:00 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-		xmlns:exslt="http://exslt.org/common"
                 version="1.0">
-
 
   <xsl:output method="html"/>
   
-  <!-- RBN not sure why this is needed
+  <!-- no longer only display AAM
        <xsl:template match="/">
          <html>
            <body bgcolor="#FFFFFF">
              <xsl:apply-templates/>
            </body>
          </html>
-       </xsl:template> 
-       -->
+       </xsl:template> -->
+
 	
   <xsl:template match="idef0">
 
@@ -56,7 +53,7 @@ $Id: aam_descriptions.xsl,v 1.6 2003/05/23 15:52:56 robbod Exp $
       </xsl:variable>
       <xsl:variable name="aname" select="@identifier"/>
       <h2>
-        <a aname="$aname">
+        <a name="{$aname}">
           F.1.<xsl:value-of select="position()"/>
         </a>
         <xsl:value-of select="concat(' ', ./name)"/>

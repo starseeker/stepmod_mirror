@@ -1,20 +1,33 @@
-//$Id: express2xml.js,v 1.29 2003/02/24 05:20:26 thendrix Exp $
+//  $Id:    express2xml.js,v 1.27 2003/02/10 13:57:21 goset1 Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
 //  Other editors:
 //	T. Hendrix (Boeing) 
 //	P. Huau (GOSET) for subtype_constraint and algorithms of global rules
+//      S. Frechette (NIST)
 //
+//  Open issues:
+//	Script does not handle SELF\ construct correctly - deletes it in most cases
+//	Comments are passed through to the xml file - is this correct?
+//
+//	function xmlEnumeration:
+//		Still to do ????
+//			width CDATA #IMPLIED
+//			fix (YES | NO) "NO"
+//			precision CDATA #IMPLIED
+//			typelabel NMTOKEN #IMPLIED
+
 //  Purpose:
 //    JScript to convert an Express file to an XML file
-//    cscript express2xml.js <express.exp>
+//    cscript express2xml.js <express>
 //    cscript express2xml.js <module> arm
 //    cscript express2xml.js <module> mim
 //    cscript express2xml.js <module> mim_lf
 //    cscript express2xml.js <module> module
 //    cscript express2xml.js <resource> resource partnumber
-//    e.g
+//
+//    e.g.,
 //    cscript express2xml.js part_and_version_identification arm
 //    cscript express2xml.js action_schema resource "ISO 10303-41"
 
@@ -22,8 +35,8 @@
 // ------------------------------------------------------------
 // Global variables
 // -----------------------------------------------------------
-
 var ForReading = 1, ForWriting = 2, ForAppending = 8;
+
 var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
 
 // The line number of the file being read.
@@ -34,105 +47,151 @@ var lNumber = 0;
 // Only used in Warnings to user
 var currentExpFile = 0;
 
-
 // The string added to the begining of the xml ouput to indent the output
 var indent = "";
 
 
 // Add a function called trim as a method of the prototype 
 // object of the String constructor.
-String.prototype.trim = function()
-{
-    // Use a regular expression to replace leading and trailing 
-    // spaces with the empty string
-    return this.replace(/(^\s*)|(\s*$)/g, "");
+//String.prototype.trim = function() {
+//    // Use a regular expression to replace leading and trailing 
+//    // spaces with the empty string
+//    return this.replace(/(^\s*)|(\s*$)/g, "");
+//}
+
+
+// ------------------------------------------------------------
+// function: Print debug text to screen
+// ------------------------------------------------------------
+function debug(txt){
+    WScript.Echo("Dbx: "+txt);
 }
 
 
-
-function debug(txt) {
-    WScript.Echo("Dbx: " + txt);
-}
-
+// ------------------------------------------------------------
+// function: Print to command screen
+// ------------------------------------------------------------
 function userMessage(msg){
     WScript.Echo(msg);
 }
 
 
+// ------------------------------------------------------------
+// function: Print error message to command screen
+// ------------------------------------------------------------
 function ErrorMessage(msg){
     var objShell = WScript.CreateObject("WScript.Shell");
-    WScript.Echo(msg);
     objShell.Popup(msg);
 }
 
 
-// Return a statement terminated by ;
+// ------------------------------------------------------------
+// function: Return a statement terminated by ";"
+// ------------------------------------------------------------
 function readStatement(line, ts) {
-    var statement = "";
     var pos;
-    // remove any trailing -- comments
-    pos = line.search("--");
-    if (pos != -1) {
-	line = line.substr(0,pos);
-    }
-    if (ts.AtEndOfStream) 
-	return(line);
+    
+    if (ts.AtEndOfStream) {
+        return(line);
+    }//end if
+    
     else {
-	pos = line.search(";");
-	if (pos == -1) {
-	    var nextLine = readStatement(ts.ReadLine(), ts);	    
+    	//bypass any blank lines
+	while (line.match(/^\s*\n$/)){
+	   line = ts.ReadLine();
+           lNumber  = ts.Line;
+	}	
+	
+        line = " "+trim(line);
+        
+        // remove any  -- comments
+        pos = line.search("--");
+        if (pos != -1) {
+            if (pos >0) {	
+	    line = line.substr(0,pos)+" (* "+line.substr(pos+2)+" *)";
+	    }
+    	    else {
+    	        line = line.replace(/^--\s*/,"");
+    	        line = "(* "+line+" *)";
+    	    }
+        }
+	
+	pos = line.search(";")
+	if (pos == -1){
+	    var nextLine = ts.ReadLine();
+	
 	    var reg = /^[A-Za-z]/;
-	    var ch = nextLine.match(reg);
+	    var ch  = nextLine.match(reg);
 	    if (ch) {
 		// add a white space at the beginning of line
-		statement = line + " " + nextLine;
-	    } else {
-		statement = line + nextLine;
-	    }
-
-	} else {
-	    statement = line.substr(0,pos+1);
+		line = line + " " + readStatement(nextLine, ts);
+	    }//end if
+	    else {
+		line = line + readStatement(nextLine, ts);
+	    }//end else
+	}  
+	else {
+	    return(line);
 	}
-	return(statement);
-    }
-}
+	return(line);
+    }//end else
+}//end function
 
 
-// Separate all , and ( ) with whitespace, remove all tabs etc
+// ------------------------------------------------------------
+// function: Separate all , and ( ) with whitespace, remove all tabs etc
+// ------------------------------------------------------------
 function normaliseStatement(statement) {
-    statement = statement.replace(/,/g," , ");
-    statement = statement.replace(/;/g," ;");
+   
+    //if (statement == null) {
+    //    debug("normalizeStatement: statement variable null");
+    //}
+    
+    statement = statement.replace(/\,/g," , ");
+    statement = statement.replace(/\;/g," ;");
     statement = statement.replace(/\[/g," [ ");
     statement = statement.replace(/\]/g," ] ");
     statement = statement.replace(/\(/g," ( ");
     statement = statement.replace(/\)/g," ) ");
     statement = statement.replace(/\t/g," ");
     statement = statement.replace(/^\s*/g,"");
-//TEH added - to fix case where role:type lacks white space
-    statement = statement.replace(/:/g,": ");
-    statement = statement.replace(/\s+:/g," : ");
-    statement = statement.replace(/:\s*=/g,":=");
-//end TEH added
+    
+    // replace double space with single space
     while (statement.search(/  /) != -1) {
-	statement = statement.replace(/  /g," ");
+        statement = statement.replace(/  /g," ");
     }
+    
+    // debug (statement);
     
     return(statement);
 }
 
+
+// ------------------------------------------------------------
+// function: Get the nth word of a string
+// ------------------------------------------------------------
 function getWord(n, statement) {
     statement = normaliseStatement(statement);
     var arr = statement.split(" ");
+    
+    //get the nth word
     var word = arr[n-1];
-    word = word.replace(/:/,"");
+    
+    //get rid of any :
+    word = word.replace(/\:/,"");
+    
     return(word);
 }
 
-// Return the contents of everything enclosed in ()
+
+// ------------------------------------------------------------
+// function: Return the contents of everything enclosed in ()
+// ------------------------------------------------------------
 function getList(statement) {
     var list = normaliseStatement(statement);
     var reg = /\(.*\)/;    
     list = list.match( reg );
+   
     if (list) {
 	list = list.toString();
 	// remove the ()
@@ -143,53 +202,62 @@ function getList(statement) {
     return (list);
 }
 
-//Given a statement, extract the (list) into an array
+
+// ------------------------------------------------------------
+// function list2array: Given a statement, extract the (list) into an array
+// ------------------------------------------------------------
 function list2array(statement) {
-    var arr;
+    var arr  = -1;
     
     //var list = getList(statement);
 
-    var reg = /\(.*\)/;    
+    var reg  = /\(.*\)/;    
     var list = statement.match( reg );
     if (list) {
 	list = list.toString();
 	// remove the ()
 	list = list.substr(2,list.length-4);
 	list = normaliseStatement(list);
-	arr = list.split(",");
+	arr  = list.split(",");
     }
     return(arr)
 }
 
-//Given a statement, extract the (list) into an array
-function list2arrayOld(statement) {
-    var arr;
-    var list = getList(statement);
-    if (list) {	
-	// remove all the whitespace
-	//list = list.replace(/ /g,"");	
-	arr = list.split(" ");
-    }
-    return(arr)
-}
+// ------------------------------------------------------------
+// deprecated function: list2arrayOld (replaced by list2array())
+// Given a statement, extract the (list) into an array
+// ------------------------------------------------------------
+//function list2arrayOld(statement) {
+//    var arr;
+//    var list = getList(statement);
+//    if (list) {	
+//	// remove all the whitespace
+//	//list = list.replace(/ /g,"");	
+//	arr = list.split(" ");
+//    }
+//    return(arr)
+//}
 
-// Given a string, return and array. 
+
+// ------------------------------------------------------------
+// function: Given a string, return and array. 
 // Array[0] is the nth list in the string where n is the listNo
 // Array[1] is the rest of the strig after the list
-function splitList(str, listNo)
-{
+// ------------------------------------------------------------
+function splitList(str, listNo) {
     var reg = /\(.*\)/;    
     var list = str.match( reg );
     var listArr = new Array(); 
     var parenCnt = 0;
     var listCnt = 0;
     var listStr = "";
+    
     if (list) {
 	list = str.replace(reg);
 	for (var i=0; i<str.length; i++) {
 	    var chr = str.charAt(i);
 	    switch(chr) {
-	    case "(" :
+	      case "(" :
 		listStr = listStr + "(";
 		parenCnt++;
 		if (parenCnt == 1) {
@@ -200,7 +268,8 @@ function splitList(str, listNo)
 		    }
 		}
 		break;
-	    case ")" :
+	
+	      case ")" :
 		parenCnt = parenCnt-1;
 		listStr = listStr + ")";
 		if ((parenCnt == 0) && (listCnt == listNo)) {
@@ -211,11 +280,12 @@ function splitList(str, listNo)
 		    i = str.length;
 		}
 		break;
-	    default :
+	      default :
 		if (parenCnt > 0) listStr = listStr+chr;
 	    }	
 	}
-    } else {
+    }
+    else {
 	listArr[0] = "";
 	listArr[1] = str;
     }
@@ -223,8 +293,10 @@ function splitList(str, listNo)
 }
 
 
-//Return true if an attribute statment is OPTIONAL
-// It will be the first word after the colon.
+// ------------------------------------------------------------
+// function: Return true if an attribute statment is OPTIONAL
+//           It will be the first word after the colon.
+// ------------------------------------------------------------
 function isOptional(statement) {
     statement = getAfterColon(statement);
     var word = getWord(1,statement);
@@ -234,44 +306,55 @@ function isOptional(statement) {
 }
 
 
-//Return true if statement contains SELF
+// ------------------------------------------------------------
+// function: Return true if statment contains "SELF"
+// ------------------------------------------------------------
 function isRedeclared(statement) {
     var result = false;
-//TEH added lowercase
-    var reg = /\bSELF|self\b/;
+    var reg = /\bSELF\b/i;
     var token = statement.match(reg);
     if (token) result = true;
     return (result);
 }
 
 
-// Return everything after the : removing the ;
+// ------------------------------------------------------------
+// function: Return everything after the : removing the ;
+// ------------------------------------------------------------
 function getAfterColon(statement) {
-    var reg = /:/;
-    var pos = statement.search(reg);
+    var expr = "";
+    var reg  = /\:/;
+    var pos  = statement.search(reg);
     if (pos) {
 	expr = statement.substr(pos+1);
 	expr = expr.replace(/^\s/g,"");
-	expr = expr.replace(/;/,"");
+	expr = expr.replace(/\;/,"");
     }
     return(expr);
 }
 
 
-// Return everything after the := removing the ;
+// ------------------------------------------------------------
+// function: Return everything after the := removing the ;
+// ------------------------------------------------------------
 function getAfterEquals(statement) {
-    var reg = /=/;
-    var pos = statement.search(reg);
-    if (pos) {
+    var expr = "";
+    var pos  = -1;
+    var reg  = /\=/;
+    var pos  = statement.search(reg);
+    if (pos != -1) {
 	expr = statement.substr(pos+1);
 	expr = expr.replace(/^\s/g,"");
-	expr = expr.replace(/;/,"");
+	expr = expr.replace(/\;/,"");
     }
     return(expr);
 }
 
-// Return a statement terminated by ;
-// calls recursive function to get the comment
+
+// ------------------------------------------------------------
+// function: Return a statement terminated by ;
+//           calls recursive function to get the comment
+// ------------------------------------------------------------
 function readComment(line, ts) {
     var reg = /^\s*\(\*/;
     var pos = line.search(reg);
@@ -283,17 +366,22 @@ function readComment(line, ts) {
     return(comment);
 }
 
+
+// ------------------------------------------------------------
 // Recursive function called by readComment.
+// ------------------------------------------------------------
 function readCommentRecurse(line, ts) {
     var comment = "";
-    if (ts.AtEndOfStream) 
+    if (ts.AtEndOfStream) {
 	return(line);
+    }	
     else {
 	var reg = /\*\)/;
 	var pos = line.search(reg);
 	if (pos == -1) {
 	    comment = line + "\n" + readCommentRecurse(ts.ReadLine(), ts);
-	} else {
+	}
+	else {
 	    //comment = line.substr(0,pos);
 	    comment = line;
 	}
@@ -301,74 +389,112 @@ function readCommentRecurse(line, ts) {
     }
 }
 
-// Return the first word in the line or (*
+
+// ------------------------------------------------------------
+// function: Return the first word in the line or (*
+// ------------------------------------------------------------
 function readToken(line) {
     // get the first word
     var reg = /^\s*\b\w*\b/i;
     var token = line.match(reg);
+
     if (!token) {
 	// Not a word, so check for comment
 		 reg = /^\s*\(\*/;
 		 token = line.match(reg);
-		 }
+    }
+    if (!token) {
+	// Not a word, so check for comment
+		 reg = /^\s*[--]/;
+		 token = line.match(reg);
+    }
     if (!token) {
 	// Not a word, so check for {} statement
-		 reg = /^\{/i;
-		 token = line.match(reg);	
+	reg = /^\{/i;
+	token = line.match(reg);	
     }
     if (token) {
-		token = token[0].replace(/\s/g,"");
-		token = token.toString();
-		switch (token) {
-		case "USE" :
-	     		var reg = /^\s*USE FROM\b/i;
-	    		token = line.match(reg);
-	    		if (token) {
-					token = token[0].replace(/\s/g,"");
-					token = token.toString();
-	    		} else {
-					token = -1;	
-	    			}
-	    		break;
-		case "REFERENCE" :
-	    		var reg = /^\s*REFERENCE FROM\b/i;
-	    		token = line.match(reg);
-	    		if (token) {
-					token = token[0].replace(/\s/g,"");
-					token = token.toString();
-	    		} else {
-					token = -1;
-	    			}
-	    			break;
-		default :
-	    			break;
-				}
-    } else {
+	token = token[0].replace(/\s/g,"");
+	token = token.toString();
+	
+	switch (token) {
+	    case "USE" :
+	     	var reg = /^\s*USE FROM\b/i;
+	    	token = line.match(reg);
+	    		
+	    	if (token) {
+			token = token[0].replace(/\s/g,"");
+			token = token.toString();
+	    	}
+	    	else {
+			token = -1;	
+	    	}
+	    	break;
+		
+	    case "REFERENCE" :
+	    	var reg = /^\s*REFERENCE FROM\b/i;
+	    	token = line.match(reg);
+	    	if (token) {
+		    token = token[0].replace(/\s/g,"");
+		    token = token.toString();
+	    	}
+	    	else {
+		    token = -1;
+	    	}
+	    	break;
+	    		
+	    default :
+	    	break;
+	}
+	
+    }
+    else {
 	//debug("tt:"+token+":"+line);
-				token = -1;
+	token = -1;
     }
     return(token);
 }
 
+
+// ------------------------------------------------------------
+// function: Write the xml file header
+// ------------------------------------------------------------
 function xmlXMLhdr(outTs) {
-    outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.29 2003/02/24 05:20:26 thendrix Exp $ -->");
+    outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
+    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.0 2003/03/07 12:00:00 NIST Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
 }
 
-// Return the revision of this application
+
+// ------------------------------------------------------------
+// function: Return the revision of this application
+// ------------------------------------------------------------
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.29 $";
+    // SPF: not interacting with CVS
+    var appCVSRevision = "$Revision: 1.27 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
-    appRevision = appRevision.trim();
+    appRevision = trim(appRevision);
+    //appRevision.trim(); // SPF: trim is now a function not a method
     return(appRevision);
 }
 
+
+// ------------------------------------------------------------
+// function: trim() Trim white space from both ends of a string
+// ------------------------------------------------------------
+function trim(s) { 
+    return s.replace(/(^\s+)|(\s+$)/g, "")
+}
+
+
+// ------------------------------------------------------------
+// function: xmlApplication() 
+// ------------------------------------------------------------
 function xmlApplication(outTs) {
     var appRevision = getApplicationRevision();
     xmlOpenElement("<application",outTs);
@@ -382,71 +508,110 @@ function xmlApplication(outTs) {
 }
 
 
-// Open the schema XML element
+// ------------------------------------------------------------
+// function: xmlOpenSchema() Open the schema XML element
+// ------------------------------------------------------------
 function xmlOpenSchema(statement, outTs) {
     var schema = getWord(2,statement);
     xmlOpenElement("<schema name=\""+schema,outTs);
     outTs.WriteLine("\">");
-}
-
-// Close the schema XML element
-function xmlCloseSchema(outTs) {
-    xmlCloseElement("</schema>",outTs);
     outTs.WriteLine("");
 }
 
 
+// ------------------------------------------------------------
+// function: Close the schema XML element
+// ------------------------------------------------------------
+function xmlCloseSchema(outTs) {
+    xmlCloseElement("</schema>",outTs);
+}
+
+
+// ------------------------------------------------------------
+// function: xml Constant
+// ------------------------------------------------------------
 function xmlConstant(statement,expTs,outTs) {
-    var name, expr;
-    // First time called line will start with CONSTANT
-    // so remove    
-    var l = statement.trim();
-    var reg = /^CONSTANT/i;
-    var token = l.match(reg);
-
-    if (token) {
-	name = getWord(2,l);
-    } else {
-	name = getWord(1,l);
-    }
-    expr = getAfterColon(l);    
-
+    var name;
+    var expr;
+    var type;
+    var arr;
+    var line;
+    var reg;
+    var reg2;
+    var reg3;
+    var token;
     
-    xmlOpenElement("<constant name=\""+name+"\"", outTs);	
-    var expression = getAfterEquals(statement);
-    var reg = /^\s*/;
-    expression = expression.replace(reg,"");
-    expression = tidyExpression(expression);
-//debug
-//    userMessage("expression " + expression);
-//    userMessage("statement " + statement);
-    typedef = statement.replace(/:=.*/,"");
-    typedef = getAfterColon(typedef);
-
-//    userMessage("typedef " + typedef);
-
-    xmlAttr("expression", expression, outTs);
+    // First time function called line will start with CONSTANT, so remove
+    line  = trim(statement);
+    
+    // remove CONSTANT word
+    reg   = /^CONSTANT/i;
+    token = line.match(reg);
+    if (token) {
+	line = line.replace(reg,"");
+    }
+    
+    // split the statement into name, type, expression
+    arr   = line.split(":");
+    reg2  = /\;|\=/g;
+    
+    // get name
+    name  = arr[0];
+    name  = trim(name.replace(reg2,""));
+    
+    // get typ
+    type  = arr[1];
+    type  = trim(type.replace(reg2,""));
+    
+    //get expression
+    expr  = arr[2];
+    expr  = trim(expr.replace(reg2,""));
+    expr = tidyExpression(expr);
+    
+    xmlOpenElement("<constant name=\""+name+"\"", outTs);
+    xmlAttr("expression", expr, outTs);
     outTs.WriteLine(">");
-    xmlUnderlyingType(typedef,outTs);
+    
+    // GENERIC_ENTITY
+    reg3 = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+    
+    var aggtype = type.match(reg3); 
+	
+    if (aggtype) {
+    	aggtype = aggtype.toString();
+    	aggtype = aggtype.toUpperCase();
+        xmlOpenElement("<builtintype",outTs);
+	xmlAttr("type",aggtype,outTs);
+	xmlCloseAttr(outTs);
+    }
+    else {
+	xmlOpenElement("<typename",outTs);
+	xmlAttr("name", type, outTs);
+	xmlCloseAttr(outTs);
+    }
+    
     xmlCloseElement("</constant>",outTs);
-
-    l = expTs.ReadLine();
-    lNumber = expTs.Line;
-    var token = readToken(l);
-    statement = readStatement(l,expTs);
+    
+    //get the next line
+    line      = expTs.ReadLine();
+    lNumber   = expTs.Line;
+    var token = readToken(line);
+    statement = readStatement(line,expTs);
 
     switch( token ) {
-    case "END_CONSTANT" :
-
-	break;	
-    default :			
+        case "END_CONSTANT" :
+	    break;	
+        default :			
 	// multiple constants may be defined in one CONSTANT statement
-	xmlConstant(statement,expTs,outTs);
-	break;
+	    xmlConstant(statement,expTs,outTs); // recursive call
+	    break;
     }
 }
 
 
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function getAbstractSuper(statement) {
     statement = normaliseStatement(statement);
     var reg = /.*ABSTRACT SUPERTYPE\b/i;
@@ -454,16 +619,23 @@ function getAbstractSuper(statement) {
     return(token);    
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlAbstract(outTs) {
     xmlAttr("abstract.supertype", "YES", outTs);
 }
 
+
+// ------------------------------------------------------------
+// function: xml super expression
 // Return the supertype expression.
 // Format may be:
 //  SUPERTYPE OF (ONEOF(next_assembly_usage_occurrence,
 //              specified_higher_usage_occurrence,promissory_usage_occurrence))
 //  SUBTYPE OF (product_definition_usage);
-//
+// ------------------------------------------------------------
 function xmlSuperExpression(statement, outTs) {
     var reg = /.*SUPERTYPE OF/i;
     var token = statement.match(reg);
@@ -481,6 +653,9 @@ function xmlSuperExpression(statement, outTs) {
 }
 
 
+// ------------------------------------------------------------
+// function: xml supertypes
+// ------------------------------------------------------------
 function xmlSupertypes(statement, outTs) {
     var reg = /.*SUBTYPE OF\b/i;
     var token = statement.match(reg);
@@ -496,10 +671,13 @@ function xmlSupertypes(statement, outTs) {
 }
 
 
-// Close the entity XML element
+// ------------------------------------------------------------
+// function: Open the entity XML element
+// ------------------------------------------------------------
 function xmlOpenEntity(statement,outTs,expTs) {
     xmlOpenElement("<entity",outTs);
     var entity = getWord(2,statement);
+    entity = entity.toLowerCase();
     xmlAttr("name",entity,outTs);
     if (getAbstractSuper(statement)) xmlAbstract(outTs);
     xmlSuperExpression(statement,outTs);
@@ -509,17 +687,24 @@ function xmlOpenEntity(statement,outTs,expTs) {
 }
 
 
-// Close the entity XML element
+// ------------------------------------------------------------
+// function: Close the entity XML element
+// ------------------------------------------------------------
 function xmlCloseEntity(outTs) {
-    xmlCloseElement("</entity>",outTs);
-    outTs.WriteLine("");	
+    xmlCloseElement("</entity>",outTs);	
 }
 
 
+// ------------------------------------------------------------
+// function xmlEntityStructure()
+// ------------------------------------------------------------
 function xmlEntityStructure(outTs,expTs,mode) {
     var l = expTs.ReadLine();
     lNumber = expTs.Line;
+    
+    //if(mode == "unique") debug("unique: "+l);
     var token = readToken(l)+"";
+    
     switch( token ) {
     case "-1" :
 	// must have read an empty line
@@ -547,58 +732,53 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	var rest = getAfterColon(statement);
 	var reg = /^\s*/;
 	rest = rest.replace(reg,"");
+	
 	switch( mode ) {
 	case "explicit" :	
 	    if (isRedeclared(statement)) {
-		name=getRedeclaredAttribute(statement, outTs);
+		name = getRedeclaredAttribute(statement, outTs);
 	    }
 	    xmlOpenElement("<explicit",outTs);
 	    xmlAttr("name",name,outTs);
+	    
 	    if (isOptional(statement)) {
-		reg = /\bOPTIONAL\b/;
+		reg = /\bOPTIONAL\b/i;
 		rest = rest.replace(reg,"");
 		reg = /^\s*/;
 		rest = rest.replace(reg,"");
 		xmlAttr("optional","YES",outTs);
 	    }
 	    outTs.WriteLine(">");
-//TEH added
+	    
 	    xmlUnderlyingType(rest,outTs);
-//end TEH added
+	    
 	    if (isRedeclared(statement)) {
 		xmlRedeclaredAttribute(statement, outTs);
 	    }
 
-//TEH delete - move before redeclaration
-//	    xmlUnderlyingType(rest,outTs);
-//end TEH delete
-
 	    xmlCloseElement("</explicit>",outTs);
+	    
 	    // process the next attribute
 	    xmlEntityStructure(outTs,expTs,mode);
 	    break;
 
 	case "derive" :
 	    xmlOpenElement("<derived",outTs);
-	    if (isRedeclared(name)) {
-		name=getRedeclaredAttribute(name, outTs);
-	    }
 	    var expression = getAfterEquals(rest);
 	    var reg = /^\s*/;
 	    expression = expression.replace(reg,"");
 	    expression = tidyExpression(expression);
-	    typedef = rest.replace(/:=.*/,"");
+	    var typedef = rest.replace(/:=.*/,"");
 	    xmlAttr("name",name,outTs);
 	    xmlAttr("expression",expression,outTs);
 	    outTs.WriteLine(">");
 	    xmlUnderlyingType(typedef,outTs);
-	    if (isRedeclared(name)) {
-            xmlRedeclaredAttribute(statement, outTs);
-	    }
 	    xmlCloseElement("</derived>",outTs);
+	    
 	    // process the next attribute
 	    xmlEntityStructure(outTs,expTs,mode);
 	    break;
+	
 	case "inverse" : 	    
 	    var entity = getInverseEntity(statement);
 	    var attribute = getInverseAttr(statement);
@@ -610,9 +790,11 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	    xmlAggregate(statement, outTs);
 	    // redeclaration
 	    xmlCloseElement("</inverse>",outTs);
+	    
 	    // process the next attribute
 	    xmlEntityStructure(outTs,expTs,mode);
 	    break;
+	
 	case "where" : 
 	    //var expr = getAfterColon(rest);
 	    var expr = rest;
@@ -624,11 +806,14 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	    xmlAttr("expression",expr,outTs);
 	    outTs.WriteLine(">");
 	    xmlCloseElement("</where>",outTs);
+	    
 	    // process the next attribute
 	    xmlEntityStructure(outTs,expTs,mode);
 	    break;
+	
 	case "unique" :	
 	    xmlUnique(statement, outTs);
+	    
 	    // process the next attribute
 	    xmlEntityStructure(outTs,expTs,mode);
 	    break;
@@ -637,18 +822,25 @@ function xmlEntityStructure(outTs,expTs,mode) {
 }
 
 
+// ------------------------------------------------------------
+// function: getRedeclaredAttribute()
 // SELF\Representation.context_of_items : Geometric_coordinate_space;
 // Return the name of a redeclared attribute 
+// ------------------------------------------------------------
 function getRedeclaredAttribute(statement, outTs) {
-    statement = statement.trim();
+    statement = trim(statement);
     statement = statement.replace(/^.*\./g,"");
     var attr = statement.replace(/\:.*/g,"");
-    attr = attr.trim();
+    attr = trim(attr);
     return(attr);
 }
 
+
+// ------------------------------------------------------------
+// function: xmlRedeclaredAttribute()
 // SELF\Representation.context_of_items : Geometric_coordinate_space;
 // Output a redeclared attribute by matching on SELF\
+// ------------------------------------------------------------
 function xmlRedeclaredAttribute(statement, outTs) {
     statement = statement.replace(/^\s*SELF\\/g,"");
     var entity_ref = statement.replace(/\..*/g,"");
@@ -657,6 +849,10 @@ function xmlRedeclaredAttribute(statement, outTs) {
     outTs.WriteLine("/>");    
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlUnique(statement, outTs) {
     var name = getWord(1,statement);
     xmlOpenElement("<unique",outTs);	
@@ -669,7 +865,12 @@ function xmlUnique(statement, outTs) {
     // remove all the whitespace
     uniqueAttrs = uniqueAttrs.replace(/ /g,"");	
     var arr = uniqueAttrs.split(",");
+    
     for (var i=0; i<arr.length; i++) {
+    	
+    	//is this the correct way to handle SELF\? SPF
+        arr[i] = arr[i].replace(/^SELF\\/,"");
+        
 	xmlOpenElement("<unique.attribute",outTs);
 	xmlAttr("attribute",arr[i],outTs);
 	xmlCloseAttr(outTs);
@@ -678,53 +879,69 @@ function xmlUnique(statement, outTs) {
 
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function getInverseEntity(statement) {
     statement=normaliseStatement(statement);
     var entity;
-    var pos = statement.search(/\bOF\b/);
+    var pos = statement.search(/\bOF\b/i);
     if (pos > 0) {
 	entity = statement.substr(pos+3);
 	entity = getWord(1,entity);
     } else {
-	pos = statement.search(/:/);
+	pos = statement.search(/\:/);
 	entity = statement.substr(pos+1);
 	entity = getWord(1,entity);
     }
     return(entity);
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function getInverseAttr(statement) {
     statement=normaliseStatement(statement);
-    var pos = statement.search(/\bFOR\b/);
+    var pos = statement.search(/\bFOR\b/i);
     var attr = statement.substr(pos+4);
     attr = getWord(1,attr);
     return(attr);
 }
 
-// Output elements for aggregate
+
+// ------------------------------------------------------------
+// function: Output elements for aggregate
+// ------------------------------------------------------------
 function xmlAggregate(statement, outTs) {
-    var reg = /\bSET|BAG|LIST|ARRAY\b/;
+    var reg = /\bSET|BAG|LIST|ARRAY\b/i;
     var agg = statement.match(reg);
     if (agg) {
+    	agg = agg.toString();
+    	agg = agg.toUpperCase();
 	var opos = statement.search(/\[/);
 	var cpos = statement.search(/\]/);
 	var bounds = statement.substr(opos+1, cpos-opos-1);
 	bounds = bounds.replace(/\s/g,"");
-	var lower = bounds.match(/.*:/);
-//debug TEH
-//    userMessage("opos " + opos);
-//    userMessage("cpos " + cpos);
-//    userMessage("bounds " + bounds);
-//    userMessage("bounds.length " + bounds.length);
-//    userMessage("lower " + lower);
+	var lower = bounds.match(/.*\:/);
 
-//if added by TEH to enable else - which deals with implied bounds
-// After experimenting with GE I decide to coerce explicit bounds in all cases
+
+//debug TEH
+//    debug("opos " + opos);
+//    debug("cpos " + cpos);
+//    debug("bounds " + bounds);
+//    debug("bounds.length " + bounds.length);
+//    debug("lower " + lower);
+
+
+// "if" added by TEH to enable else - which deals with implied bounds.
+// After experimenting with GE, I decide to coerce explicit bounds in all cases
 // rather than fix the display in the case where no bounds are in the express
 	if (bounds.length > 0) {
-		lower = lower[0].replace(/:/,"");
-		var upper = bounds.match(/:.*/);
-		upper = upper[0].replace(/:/,"");
+		lower = lower[0].replace(/\:/,"");
+		var upper = bounds.match(/\:.*/);
+		upper = upper[0].replace(/\:/,"");
 		xmlOpenElement("<inverse.aggregate",outTs);
 		xmlAttr("type",agg,outTs);
 		xmlAttr("lower",lower,outTs);
@@ -741,38 +958,51 @@ function xmlAggregate(statement, outTs) {
     }
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlSuperExpression_cst(statement, outTs) {
     var superExpr = statement;
-
-	reg = /;/;
-	superExpr = superExpr.replace(reg,"");
-	xmlAttr("super.expression", superExpr, outTs);
+    var reg = /\;/;
+    superExpr = superExpr.replace(reg,"");
+    xmlAttr("super.expression", superExpr, outTs);
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlSubtype_constraint(statement,outTs,expTs) {
     var constName = getWord(2,statement);
     var entity_ref = getWord(4,statement);
-
     xmlOpenElement("<subtype.constraint name=\""+constName+"\"",outTs);
     xmlAttr("entity",entity_ref,outTs);
     xmlconstraint_structure(outTs, expTs, "supertype_expression");
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlconstraint_structure(outTs,expTs,mode) {
     var l = expTs.ReadLine();
     lNumber = expTs.Line;
-						debug(l);
+    debug(l);
     var token = readToken(l)+"";
-				debug(token);
+    debug(token);
+    
     switch(token) {
     case "-1" :
 	// must have read an empty line
+	// process next statement
 	xmlconstraint_structure(outTs,expTs,mode);
 	break;
 
     case "ABSTRACT SUPERTYPE" :	
 	xmlAbstract(outTs);
-		// next statement
+	
+	// process next statement
 	xmlconstraint_structure(outTs,expTs,mode);
 	break;
 
@@ -780,25 +1010,30 @@ function xmlconstraint_structure(outTs,expTs,mode) {
 	var statement = readStatement(l,expTs);
 	var to_list=getList(statement);
 	xmlAttr("totalover",to_list,outTs);
-								
+	
+	// process next statement							
 	xmlconstraint_structure(outTs,expTs,mode);
         break;
 
     case "END_SUBTYPE_CONSTRAINT" :
 	outTs.WriteLine(">");
     	xmlCloseElement("</subtype.constraint>",outTs);
-    	outTs.WriteLine("");
-	break;
+    	break;
 
     default:
 	var statement = readStatement(l,expTs);
 	xmlSuperExpression_cst(statement,outTs);
-// next statement
+        
+        // process next statement
 	xmlconstraint_structure(outTs,expTs,mode);
  	break;	
     }
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlInterface(statement, outTs) {
     statement = normaliseStatement(statement);
     xmlOpenElement("<interface",outTs);
@@ -808,21 +1043,22 @@ function xmlInterface(statement, outTs) {
     xmlAttr("schema",schema,outTs);
     outTs.WriteLine(">");
     var lArr = list2array(statement);
-    if (lArr) {
+    if (lArr != -1) {
 	for (var i=0; i<lArr.length; i++) {
 	    xmlOpenElement("<interfaced.item",outTs);
-	    var line =  lArr[i].trim();
-	    var reg = /\bAS\b/;
+	    var line =  trim(lArr[i]);
+	    var reg = /\bAS\b/i;
 	    var as = line.match(reg);
 	    var entity, alias;
 	    if (as) {
 		var ifLine = line.split(" "); 
 		entity = ifLine[0];
 		alias = ifLine[2];
-		//userMessage('{'+entity+' = '+alias+'}');	  
+		//debug('{'+entity+' = '+alias+'}');	  
 		xmlAttr("name",entity,outTs);	    
 		xmlAttr("alias",alias,outTs);
-	    } else {
+	    }
+	    else {
 		entity = line;
 		xmlAttr("name",entity,outTs);	    
 	    }
@@ -830,63 +1066,82 @@ function xmlInterface(statement, outTs) {
 	}
     }
     xmlCloseElement("</interface>",outTs);
-    outTs.WriteLine("");
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlUnderlyingType(statement,outTs) {
     statement = normaliseStatement(statement);
 
 // PH: Add aggregate for function parameters
-    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE\b/;
+    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE\b/i;
     var agg = statement.match(reg);
+    
     if (agg) {
-	var opos = statement.search(/\[/);
-	var cpos = statement.search(/\]/);
+    	agg = agg.toString();
+        agg = agg.toUpperCase();
+	var opos   = statement.search(/\[/);
+	var cpos   = statement.search(/\]/);
 	var bounds = null;
+	var lower  = "";
+	var upper  = "";
 	if (opos != -1) {
 	    bounds = statement.substr(opos+1, cpos-opos-1);
 	    bounds = bounds.replace(/\s/g,"");
-	    var lower = bounds.match(/.*:/);
-	    lower = lower[0].replace(/:/,"");
-	    var upper = bounds.match(/:.*/);
-	    upper = upper[0].replace(/:/,"");
+	    lower = bounds.match(/.*\:/);
+	    lower = lower[0].replace(/\:/,"");
+	    upper = bounds.match(/\:.*/);
+	    upper = upper[0].replace(/\:/,"");
 	}
+	
 	var pos = statement.search(/\bOF\b/i);
 	var rest = statement.substr(pos+3);
 	var unique = null;
 	var optional = null;
-	reg = /\bOPTIONAL\b/;
+	reg = /\bOPTIONAL\b/i;
+	
 	if (rest.match(reg)) {
 	    optional="YES";
 	    rest = rest.replace(reg,"");
 	}
-	reg = /\bUNIQUE\b/;
+	
+	reg = /\bUNIQUE\b/i;
+	
 	if (rest.match(reg)) {
 	    unique="YES";
 	    rest = rest.replace(reg,"");
 	}
+	
 	var typename = getWord(1,rest);
 
 	xmlOpenElement("<aggregate",outTs);
 	xmlAttr("type",agg,outTs);
+	
 	if (bounds) {
 	    xmlAttr("lower",lower,outTs);
 	    xmlAttr("upper",upper,outTs);
 	}
 
 	if (optional) xmlAttr("optional",optional,outTs);
+	
 	if (unique) xmlAttr("unique",unique,outTs);
 
 	xmlCloseAttr(outTs); 
 
-// PH: GENERIC_ENTITY
-	reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
-	var aggtype = statement.match(reg); 
+        // PH: GENERIC_ENTITY
+	reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+	var aggtype = statement.match(reg);
+	
 	if (aggtype) {
+	    aggtype = aggtype.toString();
+	    aggtype = aggtype.toUpperCase();
 	    xmlOpenElement("<builtintype",outTs);
 	    xmlAttr("type",aggtype,outTs);
 	    xmlCloseAttr(outTs);
-	} else {
+	}
+	else {
 	    xmlOpenElement("<typename",outTs);
 	    xmlAttr("name",typename,outTs);
 	    xmlCloseAttr(outTs);
@@ -894,35 +1149,63 @@ function xmlUnderlyingType(statement,outTs) {
 	return;
     }
 
-    reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
+    reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
     var type = statement.match(reg);
 
     if (type) {
+    	type = type.toString();
+    	type = type.toUpperCase();
 	xmlOpenElement("<builtintype",outTs);
 	xmlAttr("type",type,outTs);
 	xmlCloseAttr(outTs);
 	return;
     }
-
+    
     xmlOpenElement("<typename",outTs);
-    statement = statement.trim();
+    statement = trim(statement);
     xmlAttr("name",statement,outTs);
     xmlCloseAttr(outTs);
 }
 
-//Replace all <> in the expression
+
+// ----------------------------------------------------------
+// function: tidy express
+// Replace all <> in the expression
+// ------------------------------------------------------------
 function tidyExpression(expr) {
+    expr = trim(expr);
     expr = expr.replace(/>/g,"&gt;");
     expr = expr.replace(/</g,"&lt;");
     expr = expr.replace(/\"/g,"&quot;");
+    
+    // put the comments back, since all < and > were replaced 
+    expr = expr.replace(/--&gt/g,"-->");
+    expr = expr.replace(/&lt;\!--/g,"<!--");
+    
+    // SPF: is this the correct way to handle SELF\?
+    expr = expr.replace(/^SELF\\/,"");
+    
+     // replace double space with single space
+    while (expr.search(/  /) != -1) {
+        expr = expr.replace(/  /g," ");
+    }
+    
+    // remove spaces around parens
+    expr = expr.replace(/\( /g,"(");
+    expr = expr.replace(/ \)/g,")");
+    
     return(expr);
 }
 
-// Return the BASED_ON type
+
+// ------------------------------------------------------------
+// function: Return the BASED_ON type
+// ------------------------------------------------------------
 function getExtensibleBasedOn(extensibleStatement) {
     extensibleStatement = normaliseStatement(extensibleStatement);
     var type = -1;
-    var pos = extensibleStatement.search("BASED_ON");
+    var reg  = /\bBASED_ON\b/i;
+    var pos = extensibleStatement.search(reg);
     if (pos != -1) {
 	// get the word after BASED_ON
 	extensibleStatement = extensibleStatement.substr(pos+9);
@@ -932,42 +1215,57 @@ function getExtensibleBasedOn(extensibleStatement) {
     return(type);
 }
 
-//	genericentity (YES | NO) "NO"
+
+// ------------------------------------------------------------
+// function: xmlSelect()
+// genericentity (YES | NO) "NO"
+// ------------------------------------------------------------
 function xmlSelect(statement,outTs) {    
     xmlOpenElement("<select",outTs);
+    var reg = /\bEXTENSIBLE\b/i;
 
-    var reg = /\bEXTENSIBLE\b/;
     if (statement.match(reg)) {
 	xmlAttr("extensible","YES",outTs);
     }
 
-    var reg = /\bGENERIC_ENTITY\b/;
+    var reg = /\bGENERIC_ENTITY\b/i;
+
     if (statement.match(reg)) {
 	xmlAttr("genericentity","YES",outTs);
     }
 
-
     var based_on = getExtensibleBasedOn(statement);
+
     if (based_on != -1) {
 	xmlAttr("basedon",based_on,outTs);
     }
     
     var selectItems = getList(statement);
+
     if (selectItems) {
+    	selectItems = selectItems.toLowerCase();
 	xmlAttr("selectitems",selectItems,outTs);
     }
+
     outTs.WriteLine(">");
     xmlCloseElement("</select>",outTs);
 }
 
+
+// ------------------------------------------------------------
+// function: xmlSelect()
+// genericentity (YES | NO) "YES"
+// ------------------------------------------------------------
 function xmlEnumeration(statement,outTs) {
     xmlOpenElement("<enumeration",outTs);
-
-    var reg = /\bEXTENSIBLE\b/;
+    var reg = /\bEXTENSIBLE\b/i;
+    
     if (statement.match(reg)) {
 	xmlAttr("extensible","YES",outTs);
     }
+    
     var based_on = getExtensibleBasedOn(statement);
+
     if (based_on != -1) {
 	xmlAttr("basedon",based_on,outTs);
     }
@@ -977,46 +1275,66 @@ function xmlEnumeration(statement,outTs) {
 
     outTs.WriteLine(">");
     xmlCloseElement("</enumeration>",outTs);
-    outTs.WriteLine("");
-}
+    }
 
-// Still to do ????
-//	width CDATA #IMPLIED
-//	fixed (YES | NO) "NO"
-//	precision CDATA #IMPLIED
-//	typelabel NMTOKEN #IMPLIED
+// TEH: Still to do?
+//	  width CDATA #IMPLIED
+//	  fix (YES | NO) "NO"
+//	  precision CDATA #IMPLIED
+//	  typelabel NMTOKEN #IMPLIED
+
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlBuiltInType(typeType,statement,outTs) {
     xmlOpenElement("<builtintype",outTs);
     xmlAttr("type",typeType,outTs);
     outTs.WriteLine(">");
     xmlCloseElement("</builtintype>",outTs);
-    outTs.WriteLine("");
-}
+    }
 
+
+// ------------------------------------------------------------
+// function: Get type
+// ------------------------------------------------------------
 function getType(statement) {
-    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE|SELECT|ENUMERATION|BINARY|BOOLEAN|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
+    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE|SELECT|ENUMERATION|BINARY|BOOLEAN|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
     var type = statement.match(reg);
-    if (type) 
+    //debug("getType1:"+type);
+    
+    if (type) { 
 	type = type.toString();
-    else 
-	{
-	    type = getAfterEquals(statement);
-	    var reg = /^\s*/;
-	    type = type.replace(reg,"");
-	    reg = /;/;
-	    type = type.replace(reg,"");
-	}
+	type = type.toUpperCase();
+	//debug("getType2:"+type);
+    }
+    else {
+    	//debug("no Type found");
+	type = getAfterEquals(statement);
+	var reg = /^\s*/;
+	type = type.replace(reg,"");
+	reg = /\;/;
+	type = type.replace(reg,"");
+	//debug("getType3:"+type);
+    }
     return(type);
 }
 
 
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlType(statement,outTs,expTs) {
     var typeName = getWord(2,statement);
+    typeName = typeName.toLowerCase();
     xmlOpenElement("<type name=\""+typeName,outTs);
     outTs.WriteLine("\">");
     var typeType = getType(statement);
-    //userMessage("S:"+statement);
-    switch( typeType ) {
+    //debug("St:"+statement);
+    //debug("tn:"+typeName);
+    //debug("tt:"+typeType);
+    
+    switch( typeType) {
     case "SELECT" :
 	xmlSelect(statement,outTs);
 	break;
@@ -1063,19 +1381,24 @@ function xmlType(statement,outTs,expTs) {
 	xmlCloseAttr(outTs);
 	break;
     }
-    outTs.WriteLine("");
+    
+    //outTs.WriteLine("");
     xmlTypeStructure(outTs,expTs);
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlTypeStructureOld(xmlTs,expTs) {
     var l = expTs.ReadLine();
-    userMessage("L:"+l);
+    //debug("L:"+l);
     lNumber = expTs.Line;
     var token = readToken(l);
     switch( token ) {
     case "END_TYPE" :	
 	xmlCloseElement("</type>",xmlTs);
-	break;
+		break;
     case "WHERE" :
 	// assumes WHERE is on new line
 	xmlTypeStructure(xmlTs,expTs);
@@ -1084,7 +1407,8 @@ function xmlTypeStructureOld(xmlTs,expTs) {
     default :
 	// only called when in a where definition
 	var statement = readStatement(l,expTs);
-	userMessage("ss:"+statement);
+
+	//debug("ss:"+statement);
 	var name = getWord(1,statement);
 	
 	var expr = getAfterColon(statement);
@@ -1103,15 +1427,18 @@ function xmlTypeStructureOld(xmlTs,expTs) {
 }
 
 
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlTypeStructure(xmlTs,expTs) {
     var l = expTs.ReadLine();
-    //userMessage("L:"+l);
+    //debug("L:"+l);
     lNumber = expTs.Line;
     var token = readToken(l);
     switch( token ) {
     case "END_TYPE" :	
 	xmlCloseElement("</type>",xmlTs);
-	break;
+		break;
 	//case "WHERE" :
 	
 	// assumes WHERE is on new line
@@ -1120,10 +1447,10 @@ function xmlTypeStructure(xmlTs,expTs) {
     default :
 	// only called when in a where definition
 	var statement = readStatement(l,expTs);
-	//userMessage("ss:"+statement);
+	//debug("ss:"+statement);
 	
 	var name = getWord(2,statement);
-	//userMessage("wr:"+name);
+	//debug("wr:"+name);
 	var expr = getAfterColon(statement);
 	var reg = /^\s*/;
 	expr = expr.replace(reg,"");
@@ -1135,12 +1462,13 @@ function xmlTypeStructure(xmlTs,expTs) {
 	xmlCloseElement("</where>",xmlTs);
 	xmlTypeStructure(xmlTs,expTs);
 	break;
-
     }
 }
 
 
-//a function Object
+// ------------------------------------------------------------
+// Object declaration: FunctionObj()
+// ------------------------------------------------------------
 function FunctionObj(name) {
     this.name = name;
     this.paramStr ="";
@@ -1148,18 +1476,23 @@ function FunctionObj(name) {
     this.algorithm = "";
 }
 
-FunctionObj.prototype.loadParamList = function (paramList,expTs,outTs) 
-{
+
+// ------------------------------------------------------------
+// FunctionObj method: loadParamList()
+// ------------------------------------------------------------
+FunctionObj.prototype.loadParamList = function(paramList,expTs,outTs) {
     var closeParen = paramList.search(/\)/);
+
     if (closeParen != -1) {
 	// found the end of the parameter list
-	retStr = paramList.replace(/.*\)/,"");
+	var retStr = paramList.replace(/.*\)/,"");
 	this.loadRtnStr(retStr,expTs,outTs);
 	paramList = paramList.replace(/\).*/,"");
 	paramList = paramList.replace(/.*\(/,"");
 	this.paramStr = paramList;
 	this.loadAlgorithm("",expTs,outTs);
-    } else {
+    }
+    else {
 	var line = expTs.ReadLine();
 	lNumber = expTs.Line;
 	paramList = paramList+line;
@@ -1167,22 +1500,32 @@ FunctionObj.prototype.loadParamList = function (paramList,expTs,outTs)
     }    
 }
 
-FunctionObj.prototype.xmlParamList = function (outTs) 
-{
-    this.paramStr = this.paramStr.trim();
+
+// ------------------------------------------------------------
+// FunctionObj method: get the parameter list
+// ------------------------------------------------------------
+FunctionObj.prototype.xmlParamList = function (outTs) {
+    this.paramStr = trim(this.paramStr);
     var paramArr1 = this.paramStr.split(";");
+
     for (var i=0; i<paramArr1.length; i++) {
   // there may be more than one parameter with the same type definition
-  // FUNCTION first_proj_axis(z_axis,arg : direction) : direction;
+  // e.g., FUNCTION first_proj_axis(z_axis,arg : direction) : direction;
+  // SPF: fine, but this only works for one more parameter
+  
+  // delete everything after the ":" (SPF: why?)
 	var params = paramArr1[i].replace(/:.*/,"");
+	
 	var paramArr2 = params.split(",");	
   //var 
 	var typedef = paramArr1[i].substring(params.length);
-	typedef = typedef.trim();
+	typedef = trim(typedef);
+	
   // remove the :
-	typedef = typedef.substring(1).trim();
+	typedef = typedef.replace(/:/,"");
+
 	for (var j=0; j<paramArr2.length; j++) {
-	    var param = paramArr2[j].trim();
+	    var param = trim(paramArr2[j]);
 	    xmlOpenElement("<parameter",outTs);		
 	    xmlAttr("name",param,outTs);
 	    outTs.WriteLine(">");
@@ -1193,44 +1536,73 @@ FunctionObj.prototype.xmlParamList = function (outTs)
 }
 
 
-FunctionObj.prototype.loadRtnStr = function (retStr,expTs,outTs) 
-{
+// ------------------------------------------------------------
+// FunctionObj method: load return string
+// ------------------------------------------------------------
+FunctionObj.prototype.loadRtnStr = function (retStr,expTs,outTs) {
     this.rtnStr = readStatement(retStr,expTs);
     this.rtnStr = normaliseStatement(this.rtnStr);
-    this.rtnStr = this.rtnStr.trim();
+    this.rtnStr = trim(this.rtnStr);
     this.rtnStr = this.rtnStr.replace(/;/g,"");
-    this.rtnStr = this.rtnStr.replace(/^:/g,"");
-    this.rtnStr = this.rtnStr.trim();
+    this.rtnStr = this.rtnStr.replace(/^\:/g,"");
+    this.rtnStr = trim(this.rtnStr);
 }
 
 
-FunctionObj.prototype.xmlRtnStr = function (outTs)
-{
+// ------------------------------------------------------------
+// FunctionObj method: xml return string
+// ------------------------------------------------------------
+FunctionObj.prototype.xmlRtnStr = function (outTs) {
     xmlUnderlyingType(this.rtnStr,outTs);	    
 }
 
 
-FunctionObj.prototype.loadAlgorithm = function(algoStr,expTs,outTs)
-{
-    var l = expTs.ReadLine();
+// ------------------------------------------------------------
+// FunctionObj method:
+// ------------------------------------------------------------
+FunctionObj.prototype.loadAlgorithm = function(algoStr,expTs,outTs) {
+    var line = expTs.ReadLine();
     lNumber = expTs.Line;
+    
     var reg = /\bEND_FUNCTION|END_PROCEDURE|WHERE/;
-    if (l.match(reg)) {
+    if (line.match(reg)) {
 	this.algorithm = algoStr+"\n";
-    } else {
-	algoStr = algoStr+"\n"+l;
+    }
+    
+    else {
+    	line = trim(line);
+    	
+    	// change -- comments to (* comments
+        var pos = line.search(/--/);
+        if (pos != -1) {
+            if (pos >0) {	
+	    line = line.substr(0,pos)+" (* "+line.substr(pos+2)+" *)";
+	    }
+    	    else {
+    	        line = line.replace(/^--\s*/,"");
+    	        line = "(* "+line+" *)";
+    	    }
+        }
+	algoStr = algoStr+"\n"+line;
 	this.loadAlgorithm(algoStr,expTs,outTs);
     }
 }
 
-FunctionObj.prototype.xmlAlgorithm = function(outTs)
-{
-    xmlOpenElement("<algorithm>",outTs);
+
+// ------------------------------------------------------------
+// FunctionObj method:
+// ------------------------------------------------------------
+FunctionObj.prototype.xmlAlgorithm = function(outTs){
+    xmlOpenElement("<algorithm",outTs);
+    outTs.WriteLine(">");
     outTs.Write(tidyExpression(this.algorithm));
     xmlCloseElement("</algorithm>",outTs);
-    outTs.WriteLine("");
-}
+    }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlFunction(line,expTs,outTs) {
     var name = getWord(2,line);
     var fnObj = new FunctionObj(name);
@@ -1245,9 +1617,12 @@ function xmlFunction(line,expTs,outTs) {
 
     fnObj.xmlAlgorithm(outTs);
     xmlCloseElement("</function>",outTs);
-    outTs.WriteLine("");
-}
+    }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlProcedure(line,expTs,outTs) {
     var name = getWord(2,line);
     var fnObj = new FunctionObj(name);
@@ -1260,19 +1635,42 @@ function xmlProcedure(line,expTs,outTs) {
     fnObj.xmlParamList(outTs);
     fnObj.xmlAlgorithm(outTs);
     xmlCloseElement("</procedure>",outTs);
-    outTs.WriteLine("");
-}
+    }
 
 
-// found WHERE 
-function loadDomainRule(expTs,outTs)
-{
-    var l = expTs.ReadLine();
+// ------------------------------------------------------------
+// function: found WHERE 
+// ------------------------------------------------------------
+function loadDomainRule(expTs,outTs) {
+    var line = expTs.ReadLine();
     lNumber = expTs.Line;
+    //debug(line);
+
+     //check if this is a blank line and blow past it and any more blank lines
+     while (line.match(/^\s*$/)){
+     	 //debug("found a blank line");
+         line = expTs.ReadLine();
+         lNumber = expTs.Line;
+         //debug(line);
+     }
+     
+    line = trim(line);
+    	
+    while (line.match(/^--/)){
+    	line = line.replace(/^--\s*/,"");
+    	line = "<!-- "+line+" -->";
+    	outTs.WriteLine(line);
+    	
+    	line = expTs.ReadLine();
+        lNumber = expTs.Line;
+        //debug(line);
+        line = trim(line);
+    }
+        	
     var reg1 = /\bEND_RULE/;
 
-    if (!l.match(reg1)) {
-	var statement = readStatement(l,expTs);
+    if (!line.match(reg1)) {
+	var statement = readStatement(line,expTs);
 	var name = getWord(1,statement);
 	var expr = getAfterColon(statement);
 	var reg = /^\s*/;
@@ -1288,19 +1686,23 @@ function loadDomainRule(expTs,outTs)
 }
 
 
+// ------------------------------------------------------------
 // Read the file up to WHERE
-function loadRuleAlgorithm(body,expTs)
-{
+// ------------------------------------------------------------
+function loadRuleAlgorithm(body,expTs) {
     var l = expTs.ReadLine();
     lNumber = expTs.Line;
-    var reg = /\bWHERE/;
+    var reg = /\bWHERE/i;
     if (!l.match(reg)) {
-	body = loadRuleAlogrithm(body+"\n"+l, expTs);
+	body = loadRuleAlgorithm(body+"\n"+l, expTs);
     }
     return(body);
 }
 
 
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlRule(line,expTs,outTs) {
     var statement = readStatement(line,expTs);
     var name = getWord(2,line);
@@ -1316,52 +1718,84 @@ function xmlRule(line,expTs,outTs) {
 
     loadDomainRule(expTs,outTs);
 
-    outTs.WriteLine("");
     xmlCloseElement("</rule>",outTs);
-    outTs.WriteLine("");
-}
+    }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlOpenElement(xmlElement, outTs) {
     var txt = indent+xmlElement;
     outTs.Write(txt);
     indent = indent+"  ";
 }
 
+
+// ------------------------------------------------------------
+// function
+// ------------------------------------------------------------
 function xmlCloseElement(xmlElement, outTs) {
     if (indent.length >= 2) {
 	indent = indent.substr(2);
-    } else {
+    }
+    else {
 	indent = indent+"-------";
     }
+    
     var txt = indent+xmlElement;
     outTs.WriteLine(txt);
+    if(xmlElement == "</entity>") {outTs.WriteLine("");}
+    if(xmlElement == "</type>") {outTs.WriteLine("");}
+    if(xmlElement == "</constant>") {outTs.WriteLine("");}
+    if(xmlElement == "</function>") {outTs.WriteLine("");}
+    if(xmlElement == "</rule>") {outTs.WriteLine("");}
 }
 
+
+// ------------------------------------------------------------
+// function: xmlAttr()
 // Output an indented attribute.
+// ------------------------------------------------------------
 function xmlAttr(name, value, outTs) {
+    // SPF: delete "SELF\", but this is not the correct way to process SELF\
+    value = value.replace(/SELF\\/,"");
+    
     var txt = indent+name+'=\"'+value+'\"';
     outTs.WriteLine();
     outTs.Write(txt);
 }
 
+
+// ------------------------------------------------------------
+// function: xml Close Attribute
+// ------------------------------------------------------------
 function xmlCloseAttr(outTs) {
     outTs.WriteLine("/>");    
+    
     if (indent.length >= 2) {
 	indent = indent.substr(2);
-    } else {
+    }
+    else {
 	indent = indent+"-------";
     }
 }
 
+
+// ------------------------------------------------------------
+// function: Output to xml
+// ------------------------------------------------------------
 function Output2xml(expFile, xmlFile, partnumber) {
     userMessage("Reading EXPRESS: " + expFile);
     userMessage("Writing XML: " + xmlFile);
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
-    var expF = fso.GetFile(expFile);
+    
+    var fso   = new ActiveXObject("Scripting.FileSystemObject");
+    var expF  = fso.GetFile(expFile);
     var expTs = expF.OpenAsTextStream(ForReading, TristateUseDefault);
 
-    fso.CreateTextFile(xmlFile,true);
-    var xmlF = fso.GetFile(xmlFile);
+    var xmlF  = fso.CreateTextFile(xmlFile,true);
+    xmlF.Close();
+    xmlF      = fso.GetFile(xmlFile);
     var xmlTs = xmlF.OpenAsTextStream(ForWriting, TristateUseDefault);
 
     xmlXMLhdr(xmlTs);
@@ -1370,23 +1804,29 @@ function Output2xml(expFile, xmlFile, partnumber) {
 
     if (expFile.match(/_schema.exp$/) ) {
 	// An integrated resource
-	    if (partnumber) {
-	    xmlAttr("reference",partnumber,xmlTs);
-	}	
-
-//hacked by TEH. Did not know how to indicate start of  string in a RE
-    } else if (expFile.match(/aic_/)) {
-	// an aic
-	//userMessage("found aic :" + partnumber);
 	if (partnumber) {
-	    //userMessage("found partno: " +  partnumber);
+	    xmlAttr("reference",partnumber,xmlTs);
+	}
+    }	
+    
+    // hacked by TEH: did not know how to indicate start of string in a regular expression
+    // SPF: start of word (string?) is b\
+    else if (expFile.match(/b\aic_/)) {
+	// an aic
+	// debug("found aic :" + partnumber);
+	if (partnumber) {
+	    // debug("found partno: " +  partnumber);
 	    xmlAttr("reference",partnumber,xmlTs);
 	}	
-// End hack by TEH plus or minus a curly bracket.
-
-    } else if (expFile.match(/arm.exp$/)) {
+    }
+    // End hack by TEH - plus or minus a curly bracket.
+    // SPF: Curly brackets OK
+    
+    else if (expFile.match(/arm.exp$/)) {
 	xmlAttr("description.file","arm_descriptions.xml",xmlTs);
-    } else if (expFile.match(/mim.exp$/)) {
+    }
+    
+    else if (expFile.match(/mim.exp$/)) {
 	xmlAttr("description.file","mim_descriptions.xml",xmlTs);	
     }
 
@@ -1397,107 +1837,115 @@ function Output2xml(expFile, xmlFile, partnumber) {
     xmlTs.WriteLine(">");
     xmlTs.WriteLine("");
     xmlApplication(xmlTs);
-    while (!expTs.AtEndOfStream)
-	{
-	    var l = expTs.ReadLine();
-	    lNumber = expTs.Line;
-	    var token = readToken(l);
-	    switch( token ) {
-	    case "{" :
-		// found: { iso standard 10303 part (11) version (4) }
-		// ignore as this is express edition 2 construct
-		break;
-	    case "SCHEMA" :
-		var statement = readStatement(l,expTs);
-		xmlOpenSchema(statement,xmlTs);
-		break;
-	    case "END_SCHEMA" :
-		var statement = readStatement(l,expTs);
-		xmlCloseSchema(xmlTs);
-		break;
-	    case "CONSTANT" :	
-		var statement = readStatement(l,expTs);
-		xmlConstant(statement,expTs,xmlTs);
-		break;
-	    case "ENTITY" :
-		var statement = readStatement(l,expTs);
-		xmlOpenEntity(statement,xmlTs,expTs);
-		break;
-	    case "USEFROM" :
-		var statement = readStatement(l,expTs);
-		xmlInterface(statement,xmlTs);
-		break;
-	    case "REFERENCEFROM" :
+    
+    while (!expTs.AtEndOfStream) {
+	var l = trim(expTs.ReadLine());
+	lNumber = expTs.Line;
+	var token = readToken(l);
+
+	switch( token ) {
+	case "{" :
+	    // found: { iso standard 10303 part (11) version (4) }
+	    // ignore as this is express edition 2 construct
+	    break;
+	case "SCHEMA" :
+	    var statement = readStatement(l,expTs);
+	    xmlOpenSchema(statement,xmlTs);
+	    break;
+	case "END_SCHEMA" :
+	    var statement = readStatement(l,expTs);
+	    xmlCloseSchema(xmlTs);
+	    break;
+	case "CONSTANT" :	
+	    var statement = readStatement(l,expTs);
+	    xmlConstant(statement,expTs,xmlTs);
+	    break;
+	case "ENTITY" :
+	    var statement = readStatement(l,expTs);
+	    xmlOpenEntity(statement,xmlTs,expTs);
+	    break;
+	case "USEFROM" :
 		var statement = readStatement(l,expTs);
 		xmlInterface(statement,xmlTs);
 		break;
-	    case "TYPE" :	
+	case "REFERENCEFROM" :
+		var statement = readStatement(l,expTs);
+		xmlInterface(statement,xmlTs);
+		break;
+	case "TYPE" :	
 		var statement = readStatement(l,expTs);
 		xmlType(statement,xmlTs,expTs);
 		break;
-	    case "FUNCTION" :	
+	case "FUNCTION" :	
 		xmlFunction(l,expTs,xmlTs);
 		break;
-	    case "PROCEDURE" :	
+	case "PROCEDURE" :	
 		xmlProcedure(l,expTs,xmlTs);
 		break;
-	    case "RULE" :	
+	case "RULE" :	
 		xmlRule(l,expTs,xmlTs);
 		break;
-
-// PH
-	    case "SUBTYPE_CONSTRAINT":
+        // PH
+	case "SUBTYPE_CONSTRAINT":
 		var statement = readStatement(l,expTs);
                 xmlSubtype_constraint(statement,xmlTs,expTs);
 		break;
-
-	    case "(*" :
+	case "(*" :
 		var comment = readComment(l, expTs);
 		//userMessage(comment);
 		break;
-	    default :	
-		//debug("default: "+token+"]");
-		//userMessage(l);
+	case "--" :
+		//var comment = readDashComment(l, expTs);
+		//userMessage(comment);
 		break;
-	    }
+	default :	
+	    //debug("default: "+token+"]");
+	    //debug(l);
+	    break;
+	}//end switch
+    }//end while
 
-	}
     xmlCloseElement("</express>",xmlTs);
     expTs.Close();    
     xmlTs.Close();
-    
-}
+}//end function
 
 
-
-// ------------------------------------------------------------
+// --------------------------------------------------------------------
 // Main program for generating the XML for the ARM express of module
-// -----------------------------------------------------------
-function MainArm() {
-    var cArgs = WScript.Arguments;
+// --------------------------------------------------------------------
+function MainArm() {	
+    var cArgs = System.Environment.GetCommandLineArgs();
+    
     if (cArgs.length != 1) {
 	ErrorMessage("Incorrect arguments\ncscript express2xml.js <module>" );	
 	return(false);
     }
+    
     var module = cArgs(0);
     currentExpFile = '../data/modules/'+module+'/arm.exp';
     var xmlFile = '../data/modules/'+module+'/arm.xml';
-    Output2xml(currentExpFile, xmlFile);
+    var partNo = "";
+    Output2xml(currentExpFile, xmlFile, partNo);
 }
+
 
 // ------------------------------------------------------------
 // Main program for generating the XML for the MIM express of module
 // -----------------------------------------------------------
 function MainMim() {
-    var cArgs = WScript.Arguments;
+    var cArgs = System.Environment.GetCommandLineArgs();
+    
     if (cArgs.length != 1) {
 	ErrorMessage("Incorrect arguments\ncscript express2xml.js <module>" );	
 	return(false);
     }
+
     var module = cArgs(0);
     currentExpFile = '../data/modules/'+module+'/mim.exp';
     var xmlFile = '../data/modules/'+module+'/mim.xml';
-    Output2xml(currentExpFile, xmlFile);
+    var partNo = "";
+    Output2xml(currentExpFile, xmlFile, partNo);
 }
 
 
@@ -1506,91 +1954,110 @@ function MainMim() {
 // -----------------------------------------------------------
 function Main() {
     var cArgs = WScript.Arguments;
+    
+    // debug(cArgs.length);
+    
+    // for (var i=0; i<cArgs.length; i++){
+    //    WScript.Echo (cArgs(i));
+    //}
+
     if ( !((cArgs.length == 1) || (cArgs.length == 2) || (cArgs.length == 3)) )  {
 	var msg="Incorrect arguments\n"+
-	    "  cscript express2xml.js <express.exp>\nOr\n"+
-	    "  cscript express2xml.js <module> arm\nOr\n"+
-	    "  cscript express2xml.js <module> mim\nOr\n"+
-	    "  cscript express2xml.js <module> mim_lf\nOr\n"+
-	    "  cscript express2xml.js <module> module\nOr\n"+
-	    "  cscript express2xml.js <resource> resource partnumber\n";
+	    "  express2xml.js <express>\nOr\n"+
+	    "  express2xml.js <module> arm\nOr\n"+
+	    "  express2xml.js <module> mim\nOr\n"+
+	    "  express2xml.js <module> mim_lf\nOr\n"+
+	    "  express2xml.js <module> module\nOr\n"+
+	    "  express2xml.js <resource> resource partnumber\n";
 	ErrorMessage(msg);
 	return(false);
     }
     userMessage("Warning: \n This script does not do any EXPRESS parsing, so if there are\n errors in the EXPRESS, then unexpected output may be produced.\n Furthermore, as the program is a string parser, assumptions have\n been made about the layout of the EXPRESS.\n It is advisable to display the resulting XML and compare with\n the orginal EXPRESS.\n\n");
     var module, expFile, type;
-    if (cArgs.length >= 2) {
-	switch(cArgs(1)) {
+
+    if (cArgs.length > 1) {
+	switch(cArgs(0)) {
 	case "arm" :
 	    var module = cArgs(0);
 	    expFile = '../data/modules/'+module+'/arm.exp';
 	    currentExpFile=expFile;
 	    var xmlFile = expFile.replace("\.exp","\.xml");
-	    Output2xml(expFile, xmlFile);
+	    var partNo = "";
+	    Output2xml(expFile, xmlFile, partNo);
 	    break;
+
 	case "mim" :
 	    var module = cArgs(0);    
 	    expFile = '../data/modules/'+module+'/mim.exp';
 	    currentExpFile=expFile;
 	    var xmlFile = expFile.replace("\.exp","\.xml");
-	    Output2xml(expFile, xmlFile);
+	    var partNo = "";
+	    Output2xml(expFile, xmlFile, partNo);
 	    break;
+
 	case "mim_lf" :
 	    var module = cArgs(0);    
 	    expFile = '../data/modules/'+module+'/mim_lf.exp';
 	    currentExpFile=expFile;
 	    var xmlFile = expFile.replace("\.exp","\.xml");
-	    Output2xml(expFile, xmlFile);
+	    var partNo = "";
+	    Output2xml(expFile, xmlFile, partNo);
 	    break;
+
 	case "resource" :
 	    var resource = cArgs(0);	    
-//TEH modified
-	    expFile = '..\\data\\resources\\'+resource+'\\'+resource+'.exp';
-//end TEH modified
+	    expFile = '../data/resources/'+resource+'/'+resource+'.exp';
 	    currentExpFile=expFile;
 	    var xmlFile = expFile.replace("\.exp","\.xml");
-	    var partno;
+	    
 	    if (cArgs.length>2) {
-		partno = cArgs(2);
-		Output2xml(expFile, xmlFile, partno);
-	    } else {
-		Output2xml(expFile, xmlFile);
+		var partNo = cArgs(2);
+		Output2xml(expFile, xmlFile, partNo);
+	    } 
+	    else {
+		var partNo = "";
+	        Output2xml(expFile, xmlFile, partNo);
 	    }
 	    break;
+
 	case "module" :
 	    var module = cArgs(0);   
 	    var xmlFile;
+	    
 	    // arm
 	    expFile = '../data/modules/'+module+'/arm.exp';
 	    currentExpFile=expFile;
 	    xmlFile = expFile.replace("\.exp","\.xml");
-	    Output2xml(expFile, xmlFile);
+	    var partNo = "";
+	    Output2xml(expFile, xmlFile, partNo);
 
 	    // mim
 	    expFile = '../data/modules/'+module+'/mim.exp';
 	    currentExpFile=expFile;
 	    xmlFile = expFile.replace("\.exp","\.xml");
-	    Output2xml(expFile, xmlFile);
+	    var partNo = "";
+	    Output2xml(expFile, xmlFile, partNo);
 
 	    // mim long form
 	    expFile = '../data/modules/'+module+'/mim_lf.exp';
 	    currentExpFile=expFile;
 	    xmlFile = expFile.replace("\.exp","\.xml");
-	    Output2xml(expFile, xmlFile);
-
+	    var partNo = "";
+	    Output2xml(expFile, xmlFile, partNo);
 	    break;
-	}
-    } else {
+	}//end switch
+    } 
+    else {
 	expFile = cArgs(0)+".exp";
 	currentExpFile=expFile;
 	var xmlFile = expFile.replace("\.exp","\.xml");
-	Output2xml(expFile, xmlFile);
+	var partNo = "";
+	Output2xml(expFile, xmlFile, partNo);
     }
-}
+}//end function
 
 
-// ------------------------------------------------------------
+// ---------------------------------------------------------------
 // Call Main program
-// -----------------------------------------------------------
+// ---------------------------------------------------------------
 Main();
-

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.14 2003/08/01 08:58:23 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.15 2003/08/12 06:37:06 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -490,7 +490,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.14 2003/08/01 08:58:23 robbod Exp $
 	<xsl:if test="string-length($this-item) > 0" >
 <!--
 	VVVV<xsl:value-of select="$test" />VVVV<xsl:value-of select="$this-item" />XXX
-	-->
+-->	
 
 <!-- this may fail if a select type contains another select type -->
 
@@ -502,6 +502,13 @@ $Id: index_arm_mappings_inner.xsl,v 1.14 2003/08/01 08:58:23 robbod Exp $
 
 				<xsl:variable name="this-item-mod" 
 					select="translate($called-schemas//schema[entity/@name=$this-item]/@name,$UPPER,$LOWER)" />
+
+				<xsl:variable name="entity-module" 
+					select="translate(substring-before(
+							$called-schemas//schema[entity/@name=$Uc-this-entity]/@name,
+							'_arm'),
+						$UPPER,$LOWER)" />
+	
 				<xsl:variable name="this-item-dir" 
 					select="concat($STEPMOD_DATA_MODULES,
 					substring-before($this-item-mod,'_arm'))" />
@@ -515,32 +522,32 @@ $Id: index_arm_mappings_inner.xsl,v 1.14 2003/08/01 08:58:23 robbod Exp $
 				<xsl:variable name="the-mod-dir" 
 					select="concat($STEPMOD_DATA_MODULES,$this-module)" />
 				<br/>&#160;&#160;
-				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$lc-this-item}" target="info">map</A>
-				<xsl:text> </xsl:text>
 
-				<!-- check that mapping exists -->
-				<xsl:if 
-				  test="not($called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to=$this-item])">
-<!--				Mapping NOT found select -->
-				<xsl:call-template name="error_message">
-				  <xsl:with-param name="inline" select="'yes'"/>
-				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-			          <xsl:with-param 
-			            name="message" 
-			            select="concat('Error APmapindex3: Unable to locate mapping for select extension to entity ',
-				 	$this-item)"/>
-				</xsl:call-template>    	
-				</xsl:if>
-<!--
-				<xsl:variable name="the-select-mod" 
-					select="substring-before($this-select-mod,'_arm')" />
+				<xsl:choose>
+					<xsl:when test="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to=$this-item]" >
 
-				<xsl:variable name="the-select-mod-dir" 
-					select="concat($STEPMOD_DATA_MODULES, $the-select-mod)" />
-
-				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$this-select-mod}.{$this-select/@name}" 
-					target="info">select</A>
--->
+						<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$lc-this-item}" 
+							target="info">map</A>
+						<xsl:text> </xsl:text>		
+					</xsl:when>
+					<xsl:when test="$called-modules//module[@name=$entity-module]//ae[@entity=$Uc-this-entity]//aa[@attribute=$this-attribute and @assertion_to=$this-item]" >
+						<A HREF="{$STEPMOD_DATA_MODULES}{$entity-module}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$lc-this-item}" 
+							target="info">map</A>
+						<xsl:text> </xsl:text>		
+						
+					</xsl:when>
+					<xsl:otherwise>
+<!--						Mapping NOT found select -->
+						<xsl:call-template name="error_message">
+						  <xsl:with-param name="inline" select="'yes'"/>
+						  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			        		  <xsl:with-param 
+					            name="message" 
+					            select="concat('Error APmapindex3: Unable to locate mapping for select item, entity: ',
+						 	$this-item)"/>
+						</xsl:call-template>    				
+ 					</xsl:otherwise>
+				</xsl:choose>
 
 				<br/>
 			</xsl:when>
@@ -551,12 +558,14 @@ $Id: index_arm_mappings_inner.xsl,v 1.14 2003/08/01 08:58:23 robbod Exp $
 				<xsl:variable name="this-type-item" 
 					select="$called-schemas//schema/type[@name=$this-item]" />
 
+
+
 				<xsl:choose>
 					<xsl:when test="$this-type-item/select" >
 						<!-- select type - so recurse again -->
 						
 		<xsl:call-template name="assertion-links-for-select" >
-			<xsl:with-param name="select-items" select="substring-after(normalize-space($this-type-item/select/selectitems),' ')" />
+			<xsl:with-param name="select-items" select="substring-after(normalize-space($this-type-item/select/@selectitems),' ')" />
 			<xsl:with-param name="this-select" select="$this-select"/>
 <!--			<xsl:with-param name="this-select-mod" select="$this-select-mod" /> -->
 			<xsl:with-param name="this-attribute" select="$this-attribute" />

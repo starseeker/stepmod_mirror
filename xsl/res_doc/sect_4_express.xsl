@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.6 2002/12/17 13:16:36 nigelshaw Exp $
+     $Id: sect_4_express.xsl,v 1.7 2002/12/17 13:26:15 nigelshaw Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -56,16 +56,17 @@
         <xsl:variable name="resdoc_name">
           <xsl:value-of select="/resource_clause/@directory" />
         </xsl:variable>
-        <xsl:message>
-          resdoc_dir  :<xsl:value-of select="$resdoc_dir"/>: --resdoc_dir
-        </xsl:message>
+        <!-- 
+         <xsl:message>
+          resdoc_dir  :<xsl:value-of select="$resdoc_dir"/>: resdoc_dir
+        </xsl:message> -->
         
         <xsl:variable name="resdoc_xml" select="concat($resdoc_dir,'/','resource.xml')"/>
-
+        <!--
         <xsl:message>
           resdoc_xml  :<xsl:value-of select="$resdoc_xml"/>
         count schemas: <xsl:value-of select="count(document($resdoc_xml)/resource/schema)"/> 
-        </xsl:message>
+        </xsl:message> -->
         <xsl:variable name="resdoc_node" select="document($resdoc_xml)"/>
                 
         <!-- <xsl:for-each select="document($resdoc_xml)/resource/schema"> -->
@@ -90,16 +91,18 @@
         <xsl:variable name="resdoc_name">
           <xsl:value-of select="/resource_clause/@directory" />
         </xsl:variable>
-        <xsl:message>
-          resdoc_dir  :<xsl:value-of select="$resdoc_dir"/>: --resdoc_dir
-        </xsl:message>
+        <!--      <xsl:message>
+          resdoc_dir  :<xsl:value-of select="$resdoc_dir"/>: resdoc_dir
+        </xsl:message> -->
         
         <xsl:variable name="resdoc_xml" select="concat($resdoc_dir,'/','resource.xml')"/>
 
-        <xsl:message>
+        <!--        <xsl:message>
           resdoc_xml  :<xsl:value-of select="$resdoc_xml"/>
         count schemas: <xsl:value-of select="count(document($resdoc_xml)/resource/schema)"/> 
-        </xsl:message>
+        </xsl:message> -->
+
+
         <xsl:variable name="resdoc_node" select="document($resdoc_xml)"/>
                 
         <!-- <xsl:for-each select="document($resdoc_xml)/resource/schema"> -->
@@ -1914,23 +1917,28 @@
   <xsl:param name="main_clause" />
   <xsl:param name="clause"/>
   <xsl:param name="schema_name"/>
+  <!--
   <xsl:message >
 main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
   </xsl:message>
-
+-->
   <xsl:variable name="resource_dir">
     <xsl:call-template name="resource_directory">
       <xsl:with-param name="resource" select="$schema_name"/>
     </xsl:call-template>
   </xsl:variable>
+  <!--
   <xsl:message>
     resource_dir :<xsl:value-of select="$resource_dir"/>:  resource_dir 
   </xsl:message>
+-->
   <xsl:variable name="xml_file">
+    <!--
     <xsl:message>
         <xsl:value-of select="concat($resource_dir,'/',$schema_name,'.xml')"/>
     </xsl:message>
-    <xsl:choose>
+--> 
+   <xsl:choose>
       <xsl:when test="contains($schema_name,'_schema')">
         <xsl:value-of select="concat($resource_dir,'/',$schema_name,'.xml')"/>
       </xsl:when>
@@ -2209,9 +2217,9 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
     </xsl:choose>
   </xsl:variable>
   <xsl:value-of select="$clause_present"/>
-  <xsl:message>
+  <!--  <xsl:message>
   clause_present :<xsl:value-of select="$clause_present"/>    
-  </xsl:message>
+  </xsl:message> -->
 </xsl:template>
 
 
@@ -2250,9 +2258,9 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
   <xsl:param name="clause"/>
   <xsl:param name="schema_name"/>
 
-  <xsl:message>
+  <!--  <xsl:message>
     main_clause  in express_cl_num  :<xsl:value-of select="$main_clause"/>
-  </xsl:message>
+  </xsl:message> -->
 
   <xsl:variable name="resource_dir">
     <xsl:call-template name="resource_directory">
@@ -2491,14 +2499,14 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
                               $type_clause + $imported_type_clause +
                               $entity_clause"/>
 
-        <xsl:message>
+        <!--        <xsl:message>
           in clause number
         <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause +
                               $entity_clause"/>
           
-        </xsl:message>
+        </xsl:message>  -->
       </xsl:when>
       <xsl:when test="$clause='imported_entity'">
         <xsl:value-of select="1 + 
@@ -2577,9 +2585,9 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
   <!-- if the schema ends in _arm then it is clause 4
        if it ends in _mim then it is clause 5.2
        -->
-  <xsl:message>
+  <!--  <xsl:message>
     main_clause  :<xsl:value-of select="$main_clause" />   
-  </xsl:message>
+  </xsl:message> -->
   <xsl:value-of select="concat('.',$clause_number+1)"/>
 </xsl:template>
 

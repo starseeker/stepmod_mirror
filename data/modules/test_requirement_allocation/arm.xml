@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:55:48" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="test_requirement_allocation_arm schema_instance"/>
+   <schema name="Test_requirement_allocation_arm">
+      <interface kind="use" schema="Requirement_assignment_arm"/>
+      <interface kind="use" schema="Requirement_decomposition_arm"/>
+      <interface kind="use" schema="Part_terminal_arm"/>
+      <interface kind="use" schema="Network_functional_usage_view_arm">
+         <interfaced.item name="Functional_unit_usage_view_terminal_definition"/>
+      </interface>
+      <entity name="Test_requirement_allocation" supertypes="Requirement_assignment">
+         <explicit name="functional_specification_based_test_access" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Functional_usage_view_to_part_terminal_assignment"/>
+         </explicit>
+         <explicit name="analytical_model_based_test_access" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Analytical_model_port_assignment"/>
+         </explicit>
+         <explicit name="assigned_requirement">
+            <typename name="Test_requirement_occurrence"/>
+            <redeclaration entity-ref="Requirement_assignment" old_name="assigned_requirement"/>
+         </explicit>
+         <explicit name="assigned_to">
+            <typename name="Product_version"/>
+            <redeclaration entity-ref="Requirement_assignment" old_name="assigned_to"/>
+         </explicit>
+         <where label="wr7" expression=" NOT ( EXISTS ( functional_specification_based_test_access ) ) OR ( SIZEOF ( QUERY ( fa &lt;* functional_specification_based_test_access | NOT ( fa . functional_usage_view_terminal \ functional_unit_usage_view_terminal_definition . associated_functional_unit_definition = SELF \ requirement_assignment . assigned_requirement \ Requirement_definition_property . required_functional_specification [ 1 ] . characterizing_functional_unit . definition ) ) ) = 0 ) "/>
+         <where label="wr6" expression=" NOT ( EXISTS ( functional_specification_based_test_access ) ) OR ( EXISTS ( SELF \ requirement_assignment . assigned_requirement \ Requirement_definition_property . required_functional_specification ) ) "/>
+         <where label="wr5" expression=" NOT ( EXISTS ( functional_specification_based_test_access ) ) OR ( SIZEOF ( QUERY ( fa &lt;* functional_specification_based_test_access | NOT ( fa . physical_usage_view_terminal \ shape_element . containing_shape . defined_version = SELF \ requirement_assignment . assigned_to ) ) ) = 0 ) "/>
+         <where label="wr4" expression=" NOT ( EXISTS ( analytical_model_based_test_access ) ) OR ( EXISTS ( SELF \ requirement_assignment . assigned_requirement \ Requirement_definition_property . required_analytical_representation ) ) "/>
+         <where label="wr3" expression=" EXISTS ( analytical_model_based_test_access ) XOR EXISTS ( functional_specification_based_test_access ) "/>
+         <where label="wr2" expression=" NOT ( EXISTS ( analytical_model_based_test_access ) ) OR ( SIZEOF ( QUERY ( ta &lt;* analytical_model_based_test_access | NOT ( ta . target . accessed_analytical_model = SELF \ requirement_assignment . assigned_requirement . required_analytical_representation [ 1 ] . model_representation ) ) ) = 0 ) "/>
+         <where label="wr1" expression=" NOT ( EXISTS ( analytical_model_based_test_access ) ) OR ( SIZEOF ( QUERY ( ta &lt;* analytical_model_based_test_access | NOT ( ta . source . associated_definition . defined_version = SELF \ requirement_assignment . assigned_to ) ) ) = 0 ) "/>
+      </entity>
+   </schema>
+</express>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:30:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_arm schema_instance"/>
+   <schema name="Physical_unit_2d_design_view_arm">
+      <interface kind="use" schema="Physical_unit_design_view_arm"/>
+      <interface kind="use" schema="Layered_2d_shape_representation_relationship_arm"/>
+      <type name="conductive_interconnect_terminal_or_interconnect_component_join_terminal">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <entity name="Assembly_component_2d_shape" supertypes="Planar_projected_shape">
+         <explicit name="shape_characterized_component">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Assembly_component"/>
+         </explicit>
+         <where label="WR1" expression=" ( SIZEOF ( USEDIN ( SELF , 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE' ) ) = 0 ) "/>
+      </entity>
+      <entity name="Component_part_2d_geometric_representation_relationship" supertypes="Geometric_model_relationship">
+         <derived name="component_shape" expression=" SELF \ Geometric_model_relationship . rep_2 ">
+            <typename name="Assembly_component_2d_shape"/>
+         </derived>
+         <derived name="part_shape" expression=" SELF \ Geometric_model_relationship . rep_1 ">
+            <typename name="part_template_or_physical_unit_2d_shape_select"/>
+         </derived>
+      </entity>
+      <entity name="Component_2d_location">
+         <explicit name="component">
+            <typename name="Next_assembly_usage"/>
+         </explicit>
+         <explicit name="assembly_model">
+            <typename name="Physical_unit_planar_shape"/>
+         </explicit>
+         <explicit name="component_model">
+            <typename name="Assembly_component_2d_shape"/>
+         </explicit>
+         <explicit name="transformation">
+            <typename name="Cartesian_transformation_2d"/>
+         </explicit>
+         <explicit name="placement_fixed">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <derived name="the_context" expression=" assembly_model \ geometric_model \ representation . context_of_items ">
+            <typename name="Geometric_coordinate_space"/>
+         </derived>
+         <derived name="substrate_location" expression=" substrate_in_assembly ( SELF ) ">
+            <builtintype type="BOOLEAN"/>
+         </derived>
+         <where label="wr3" expression=" ( transformation . scale - 1.0 ) &lt; 0.001 "/>
+         <where label="wr2" expression=" NOT ( substrate_location ) OR ( transformation . mirror = FALSE ) "/>
+         <where label="wr1" expression=" NOT ( 'AP210_ARM.LAMINATE_COMPONENT' IN TYPEOF ( component . relating_view ) ) OR ( transformation . mirror = FALSE ) "/>
+      </entity>
+      <entity name="Design_view_terminal_component_shape_relationship">
+         <explicit name="associated_usage_placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="associated_terminal_shape_definition">
+            <typename name="Feature_shape_definition"/>
+         </explicit>
+         <explicit name="associated_usage">
+            <typename name="conductive_interconnect_terminal_or_interconnect_component_join_terminal"/>
+         </explicit>
+         <explicit name="associating_component_shape">
+            <typename name="Feature_shape_definition"/>
+         </explicit>
+      </entity>
+      <function name="substrate_in_assembly">
+         <parameter name="c2dl">
+            <typename name="Component_2d_location"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> RETURN ( TRUE ) ; </algorithm>
+      </function>
+   </schema>
+</express>

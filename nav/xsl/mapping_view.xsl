@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.18 2003/08/07 18:32:59 thendrix Exp $
+$Id: mapping_view.xsl,v 1.19 2003/10/14 09:45:50 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -98,6 +98,7 @@ $Id: mapping_view.xsl,v 1.18 2003/08/07 18:32:59 thendrix Exp $
 		</xsl:call-template>    	
 	</xsl:when>
 
+	
 	<xsl:when test="function-available('msxsl:node-set')">
 
         	<xsl:variable name="schemas-node-set" select="msxsl:node-set($schemas)" />
@@ -111,7 +112,6 @@ $Id: mapping_view.xsl,v 1.18 2003/08/07 18:32:59 thendrix Exp $
 		<xsl:variable name="dep-schemas" 
 			  	select="msxsl:node-set($dep-schemas3)" />
 
-	
 		  <xsl:apply-templates select="msxsl:node-set($mappings-result)/module/mapping" mode="output-list">
 			<xsl:with-param name="schemas" select="$dep-schemas" />
 			<xsl:sort select="@entity" />
@@ -205,6 +205,7 @@ $Id: mapping_view.xsl,v 1.18 2003/08/07 18:32:59 thendrix Exp $
 <xsl:template match="mapping" mode="output-list" >
 	<xsl:param name="schemas" />	
 
+	
 	<H3>
 		<xsl:value-of select="@entity" />
 		<xsl:if test="@attribute" >.<xsl:value-of select="@attribute" />
@@ -1016,6 +1017,18 @@ $Id: mapping_view.xsl,v 1.18 2003/08/07 18:32:59 thendrix Exp $
 		<xsl:when test="name(following-sibling::*[1])='quote'" >
 
 			<!-- do nothing - just eliminate the possibility that test is on a quoted string -->
+
+		</xsl:when>
+		<xsl:when test="name(following-sibling::*[1])='equals'" >
+
+					<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+					    select="'Error Map55: Syntax error: Repeated = '"/>
+					</xsl:call-template>    
+
 
 		</xsl:when>
 		<xsl:when test="name(preceding-sibling::*[1])='end-bracket'" >

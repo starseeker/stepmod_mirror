@@ -1,4 +1,4 @@
-//  $Id: express2xml2.js,v 1.5 2003/07/18 20:39:17 thendrix Exp $
+//  $Id: express2xml2.js,v 1.6 2003/07/19 17:47:03 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -139,7 +139,14 @@ function normaliseStatement(statement) {
     statement = statement.replace(/\)/g," ) ");
     statement = statement.replace(/\t/g," ");
     statement = statement.replace(/^\s*/g,"");
-    
+//TEH added     
+    statement = statement.replace(/(\w)=/g,"$1 =");
+    statement = statement.replace(/=(\w)/g,"= $1");
+    statement = statement.replace(/=\'/g,"= \'");
+    statement = statement.replace(/:(\?)/g,": $1");
+    statement = statement.replace(/:(\w)/g,": $1");
+    statement = statement.replace(/(\w):/g,"$1 :");
+//end TEH added
     // replace double space with single space
     while (statement.search(/  /) != -1) {
         statement = statement.replace(/  /g," ");
@@ -498,7 +505,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.5 2003/07/18 20:39:17 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.6 2003/07/19 17:47:03 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -513,7 +520,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.5 $";
+    var appCVSRevision = "$Revision: 1.6 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -614,7 +621,7 @@ function xmlConstant(statement,expTs,outTs) {
     outTs.WriteLine(">");
     
     // GENERIC_ENTITY
-    reg3 = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+    reg3 = /\bBINARY\b|\bBOOLEAN\b|\bGENERIC_ENTITY\b|\bGENERIC\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
     
     var aggtype = type.match(reg3); 
 	
@@ -820,7 +827,6 @@ function xmlEntityStructure(outTs,expTs,mode) {
 		xmlRedeclaredAttribute(name.replace(/^.*\\/,"").replace(/\.$/,""), outTs);
 	    }
 //end TEH added
-
 	    xmlCloseElement("</derived>",outTs);
 	    
 	    // process the next attribute
@@ -1193,7 +1199,7 @@ function xmlUnderlyingType(statement,outTs) {
 	xmlCloseAttr(outTs); 
 
         // PH: GENERIC_ENTITY
-	reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+	reg = /\bBINARY\b|\bBOOLEAN\b|\bGENERIC_ENTITY\b|\bGENERIC\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
 	var aggtype = statement.match(reg);
 	
 	if (aggtype) {
@@ -1211,7 +1217,7 @@ function xmlUnderlyingType(statement,outTs) {
 	return;
     }
 
-    reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+    reg = /\bBINARY\b|\bBOOLEAN\b|\bGENERIC_ENTITY\b|GENERIC\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
     var type = statement.match(reg);
 
     if (type) {
@@ -1302,7 +1308,7 @@ function xmlSelect(statement,outTs) {
     var selectItems = getList(statement);
 
     if (selectItems) {
-    	selectItems = selectItems.toLowerCase();
+//    	selectItems = selectItems.toLowerCase();
 	xmlAttr("selectitems",selectItems,outTs);
     }
 
@@ -1388,7 +1394,7 @@ function getType(statement) {
 // ------------------------------------------------------------
 function xmlType(statement,outTs,expTs) {
     var typeName = getWord(2,statement);
-    typeName = typeName.toLowerCase();
+//    typeName = typeName.toLowerCase();
     xmlOpenElement("<type name=\""+typeName,outTs);
     outTs.WriteLine("\">");
     var typeType = getType(statement);

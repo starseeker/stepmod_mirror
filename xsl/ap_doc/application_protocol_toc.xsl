@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.19 2003/05/23 15:52:56 robbod Exp $
+$Id: application_protocol_toc.xsl,v 1.20 2003/05/23 16:27:58 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -17,6 +17,17 @@ $Id: application_protocol_toc.xsl,v 1.19 2003/05/23 15:52:56 robbod Exp $
     <xsl:if test="@name='nut_and_bolt'">
       <h1>NB THIS AP IS FOR DEMONSTRATION PURPOSES ONLY</h1>
     </xsl:if>		
+
+   <xsl:variable name="annex_list">
+     <xsl:apply-templates select="." mode="annex_list"/>
+   </xsl:variable>
+   
+   <xsl:variable name="module_dir">
+     <xsl:call-template name="ap_module_directory">
+       <xsl:with-param name="application_protocol" select="@module_name"/>
+     </xsl:call-template>
+   </xsl:variable>
+   <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
 
     <xsl:apply-templates select="." mode="TOCbannertitle">
       <xsl:with-param name="module_root" select="$application_protocol_root"/>
@@ -78,27 +89,27 @@ $Id: application_protocol_toc.xsl,v 1.19 2003/05/23 15:52:56 robbod Exp $
 		
           <td valign="TOP">
             <p class="toc">
-              <a href="{$application_protocol_root}/sys/a_exp_lf{$FILE_EXT}">
+              <a href="{$application_protocol_root}/sys/annex_exp_lf{$FILE_EXT}">
                 A EXPRESS expanded listing
               </a>
               <br/>
-              <a href="{$application_protocol_root}/sys/b_shortnames{$FILE_EXT}">
+              <a href="{$application_protocol_root}/sys/annex_shortnames{$FILE_EXT}">
                 B AIM short names
               </a>
               <br/>
-              <a href="{$application_protocol_root}/sys/c_imp_meth{$FILE_EXT}">
+              <a href="{$application_protocol_root}/sys/annex_imp_meth{$FILE_EXT}">
                 C Implementation method specific requirements
               </a>
               <br/>
-              <a href="{$application_protocol_root}/sys/d_pics{$FILE_EXT}">
+              <a href="{$application_protocol_root}/sys/annex_pics{$FILE_EXT}">
                 D Protocol Implementation Conformance Statement (PICS) form
               </a>
               <br/>
-              <a href="{$application_protocol_root}/sys/d_obj_reg{$FILE_EXT}">
+              <a href="{$application_protocol_root}/sys/annex_obj_reg{$FILE_EXT}">
                 E Information object registration
               </a>
               <br/>
-              <a href="{$application_protocol_root}/sys/f_aam{$FILE_EXT}">
+              <a href="{$application_protocol_root}/sys/annex_aam{$FILE_EXT}">
                 F Application activity model
               </a>
               <xsl:call-template name="idef0_icon">
@@ -106,47 +117,80 @@ $Id: application_protocol_toc.xsl,v 1.19 2003/05/23 15:52:56 robbod Exp $
                 <xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
               </xsl:call-template>
               <br/>
-              <a href="{$application_protocol_root}/sys/g_exp{$FILE_EXT}">
-                G Computer interpretable listing
+
+              <xsl:if test="$module_xml/module/arm_lf/express-g">
+                <xsl:variable name="al_armexpressg">
+                  <xsl:call-template name="annex_letter" >
+                    <xsl:with-param name="annex_name" select="'ARMexpressG'"/>
+                    <xsl:with-param name="annex_list" select="$annex_list"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <a href="{$application_protocol_root}/sys/annex_arm_expg{$FILE_EXT}">
+                  <xsl:value-of select="$al_armexpressg"/> ARM EXPRESS-G diagrams
+                </a>
+                <br/>
+              </xsl:if>
+
+              <xsl:variable name="al_com_int">
+                <xsl:call-template name="annex_letter" >
+                  <xsl:with-param name="annex_name" select="'computerinterpretablelisting'"/>
+                  <xsl:with-param name="annex_list" select="$annex_list"/>
+                </xsl:call-template>
+              </xsl:variable>
+              <a href="{$application_protocol_root}/sys/annex_comp_int{$FILE_EXT}">
+                <xsl:value-of select="$al_com_int"/> Computer interpretable listing
               </a>
               <br/>
 
-						<a href="{$application_protocol_root}/sys/f_arm_expg{$FILE_EXT}">
-							F Application reference model
-						</a>
-						<xsl:call-template name="ap_expressg_icon">
-							<xsl:with-param name="schema" select="$arm_schema_name"/>
-							<xsl:with-param name="module_root" select="$application_protocol_root"/>
-							<xsl:with-param name="mod" select="$ap_name"/>
-						</xsl:call-template>
-						<br/>
-						<xsl:if test="./usage_guide">
-							<a href="{$application_protocol_root}/sys/h_guide{$FILE_EXT}">
-								H Application protocol implementation and usage guide
-							</a>
-							<br/>
-						</xsl:if>
-						<xsl:if test="./tech_disc">
-							<a href="{$application_protocol_root}/sys/j_tech_disc{$FILE_EXT}">
-								J Technical discussions
-							</a>
-							<br/>
-						</xsl:if>
-                                                <!--
-						<a href="{$application_protocol_root}/sys/k_ae_index{$FILE_EXT}">
-							K Application object index
-						</a>
-						<br/
-                                                  -->
-						<a href="{$application_protocol_root}/sys/biblio{$FILE_EXT}#biblio">
-							Bibliography
-						</a>
-					</p>
-				</td>
-			</tr>
-		</table>
+              <xsl:if test="./usage_guide">
+                <xsl:variable name="al_uguide">
+                  <xsl:call-template name="annex_letter" >
+                    <xsl:with-param name="annex_name" select="'usageguide'"/>
+                    <xsl:with-param name="annex_list" select="$annex_list"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <a href="{$application_protocol_root}/sys/annex_guide{$FILE_EXT}">
+                  <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide
+                </a>
+                <br/>
+              </xsl:if>
 
+              <xsl:if test="./tech_disc">
+                <xsl:variable name="al_tech_disc">
+                  <xsl:call-template name="annex_letter" >
+                    <xsl:with-param name="annex_name" select="'techdisc'"/>
+                    <xsl:with-param name="annex_list" select="$annex_list"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <a href="{$application_protocol_root}/sys/annex_tech_disc{$FILE_EXT}">
+                  <xsl:value-of select="$al_tech_disc"/> Technical discussions
+                </a>
+                <br/>
+              </xsl:if>
+
+              <xsl:if test="./changes/change_detail">
+                <xsl:variable name="al_changes">
+                  <xsl:call-template name="annex_letter" >
+                    <xsl:with-param name="annex_name" select="'changedetail'"/>
+                    <xsl:with-param name="annex_list" select="$annex_list"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <a href="{$application_protocol_root}/sys/annex_changes{$FILE_EXT}">
+                  <xsl:value-of select="$al_changes"/> Detailed changes
+                </a>
+                <br/>
+              </xsl:if>
+
+              <a href="{$application_protocol_root}/sys/biblio{$FILE_EXT}#biblio">
+                Bibliography
+              </a>
+            </p>
+          </td>
+        </tr>
+      </table>
   </xsl:template>
+
+
 <!--
      Output the Table of contents banner for a module where all clauses are 
      displayed on a single page

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
+<!--
+$Id: sect_c_imp_meth.xsl,v 1.1 2003/05/23 15:50:29 robbod Exp $
+  Author:  Mike Ward, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose:     
+-->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+	<xsl:import href="application_protocol.xsl"/>
+	<xsl:import href="application_protocol_clause.xsl"/>
+	 <xsl:output method="html"/>
+	
+	<xsl:template match="module"/>
+	
+	<xsl:template match="application_protocol">
+		<xsl:call-template name="annex_header">
+    			<xsl:with-param name="annex_no" select="'C'"/>
+    			<xsl:with-param name="heading" select="'Implementation method specific requirements'"/>
+    			<xsl:with-param name="aname" select="'annexc'"/>
+			<xsl:with-param name="informative" select="'normative'"/>
+		</xsl:call-template>
+		<xsl:variable name="schema_name">
+			<xsl:value-of select="@name"/>
+		</xsl:variable>
+		<xsl:variable name="imp_meths_phrase">
+			<xsl:for-each select="imp_meths/imp_meth">
+				<xsl:variable name="part_no" select="./@part"/>
+				<xsl:choose>
+					<xsl:when test="position()=1">
+						<xsl:value-of select="concat('ISO 10303-', $part_no)"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="concat(' or ISO 10303-', $part_no, ',')"/>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>
+		</xsl:variable>					
+		 The implementation method defines what types of exchange behaviour are required with respect to this
+		part of ISO 10303. 
+		
+<!--		<xsl:value-of select="imp_meths/imp_meth/description"/> -->
+	<xsl:for-each select="imp_meths/imp_meth">		
+		<xsl:variable name="sect_no">
+			<xsl:number/>
+		</xsl:variable>
+		
+		<xsl:choose>
+			<xsl:when test="@general='y'">
+			<H3>
+			<xsl:value-of select="concat('B.',$sect_no,' ')"/>
+			General requirements</H3>
+			</xsl:when>
+			<xsl:otherwise>
+			<H3>
+			<xsl:value-of select="concat('B.',$sect_no,' ')"/>
+			Requirements specific to the implementation method defined in 
+			<xsl:value-of select="concat('ISO 10303-', @part)"/>
+			</H3>
+			</xsl:otherwise>
+		</xsl:choose>			
+				<xsl:choose>
+			<xsl:when test="string-length(./description) > 0">
+				<xsl:apply-templates select="description"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="error_message">
+					<xsl:with-param name="message" select="concat('Error 3: No description provided for the implementation method',' ')"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:for-each>
+
+	</xsl:template>
+	
+</xsl:stylesheet>

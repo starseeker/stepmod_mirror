@@ -1,4 +1,4 @@
-//  $Id:    express2xml.js,v 1.31 2003/02/10 13:57:21 goset1 Exp $
+//  $Id: express2xml2.js,v 1.1 2003/03/13 14:20:52 darla Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -495,7 +495,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.0 2003/03/07 12:00:00 NIST Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.1 2003/03/13 14:20:52 darla Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -510,7 +510,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.27 $";
+    var appCVSRevision = "$Revision: 1.1 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -1861,8 +1861,9 @@ function Output2xml(expFile, xmlFile, partnumber) {
     xmlApplication(xmlTs);
     
     while (!expTs.AtEndOfStream) {
+
 	var l = readNextLine(expTs);
-	
+
 	var token = readToken(l);
 
 	switch( token ) {
@@ -1990,6 +1991,7 @@ function Main() {
 	var msg="Incorrect arguments\n"+
 	    "  express2xml.js <express>\nOr\n"+
 	    "  express2xml.js <module> arm\nOr\n"+
+	    "  express2xml.js <module> arm_lf\nOr\n"+
 	    "  express2xml.js <module> mim\nOr\n"+
 	    "  express2xml.js <module> mim_lf\nOr\n"+
 	    "  express2xml.js <module> module\nOr\n"+
@@ -1999,9 +2001,8 @@ function Main() {
     }
     userMessage("Warning: \n This script does not do any EXPRESS parsing, so if there are\n errors in the EXPRESS, then unexpected output may be produced.\n Furthermore, as the program is a string parser, assumptions have\n been made about the layout of the EXPRESS.\n It is advisable to display the resulting XML and compare with\n the orginal EXPRESS.\n\n");
     var module, expFile, type;
-
     if (cArgs.length > 1) {
-	switch(cArgs(0)) {
+	switch(cArgs(1)) {
 	case "arm" :
 	    var module = cArgs(0);
 	    expFile = '../data/modules/'+module+'/arm.exp';
@@ -2023,6 +2024,15 @@ function Main() {
 	case "mim_lf" :
 	    var module = cArgs(0);    
 	    expFile = '../data/modules/'+module+'/mim_lf.exp';
+	    currentExpFile=expFile;
+	    var xmlFile = expFile.replace("\.exp","\.xml");
+	    var partNo = "";
+	    Output2xml(expFile, xmlFile, partNo);
+	    break;
+
+	case "arm_lf" :
+	    var module = cArgs(0);    
+	    expFile = '../data/modules/'+module+'/arm_lf.exp';
 	    currentExpFile=expFile;
 	    var xmlFile = expFile.replace("\.exp","\.xml");
 	    var partNo = "";

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.177 2004/12/08 14:37:36 robbod Exp $
+$Id: module.xsl,v 1.178 2005/02/04 00:09:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -502,7 +502,7 @@ o=isocs; s=central<br/>
       <xsl:if test="$confirmatory_ballot='YES'">
 	<p>
 	  This document is being submitted for a confirmatory 
-<xsl:value-of select="$status" /> ballot in accordance with clause 2.5 of the SC4 Handbook (SC4 N1620)
+<xsl:value-of select="$status" /> ballot in accordance with clause 2.5 of the SC4 Handbook (SC4 N1620).
 	</p>
       </xsl:if>
       <xsl:apply-templates select="comments_to_reader" />

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.21 2004/11/10 01:17:38 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.23 2004/11/10 01:35:16 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -117,7 +117,7 @@
       <xsl:when test="/resource">
         <xsl:variable name="resdoc_dir">
           <xsl:call-template name="resdoc_directory">
-            <xsl:with-param name="resource" select="/resource/@name"/>
+            <xsl:with-param name="resdoc" select="/resource/@name"/>
           </xsl:call-template>
         </xsl:variable>
         <xsl:variable name="resdoc_name">
@@ -273,7 +273,7 @@
       <!-- must be a resource -->
       <xsl:variable name="resource_ok">
         <xsl:call-template name="check_resource_exists">
-          <xsl:with-param name="resource" select="$resource"/>
+          <xsl:with-param name="schema" select="$resource"/>
         </xsl:call-template>
       </xsl:variable>
       <xsl:choose>
@@ -3053,7 +3053,7 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
     select="document(concat($resource_dir,'/resource.xml'))/resource/@part"/>
   <xsl:variable name="resdoc_name">
     <xsl:call-template name="resdoc_name">
-      <xsl:with-param name="resdoc_name" select="../@schema"/>
+      <xsl:with-param name="resdoc" select="../@schema"/>
     </xsl:call-template>
   </xsl:variable>
   <xsl:variable name="resource_href"

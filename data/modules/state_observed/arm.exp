@@ -1,13 +1,11 @@
 (*
-   $Id: arm.exp,v 1.13 2003/02/07 17:07:15 magnevs Exp $
+   $Id: arm.exp,v 1.14 2003/02/13 16:56:26 magnevs Exp $
    N1436 - ISO/CD-TS - 10303-1256 State_observed - EXPRESS ARM
 *)
 
 SCHEMA State_observed_arm; 
 
 USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
-
-USE FROM Condition_evaluation_arm;    -- ISO/CD-TS 10303-1254
 
 USE FROM State_definition_arm;    -- ISO/CD-TS 10303-1255
 
@@ -30,10 +28,12 @@ END_ENTITY;
 ENTITY Composition_of_state
   SUBTYPE OF (State_relationship);
   SELF\State_relationship.relating RENAMED whole : State;
-  SELF\State_relationship.related RENAMED part : SET[2:?] OF State;
+  SELF\State_relationship.related RENAMED part : State;
 END_ENTITY;
 
 ENTITY Defined_state_relationship;
+  name : STRING;
+  description : OPTIONAL STRING;
   definitive_state : State_assertion;
   defined_state : State_assessment;
 END_ENTITY;
@@ -48,25 +48,27 @@ ENTITY State
   SUPERTYPE OF (ONEOF (State_observed,
                        State_predicted));
   name : STRING;
-  description : OPTIONAL STRING;
+  description : STRING;
 END_ENTITY;
 
 ENTITY State_assertion;
+  name : STRING;
+  description : STRING;
   asserted_state : State;
   conformance_state : State_definition;
-  condition_assertion : Condition_assertion;
 END_ENTITY;
 
 ENTITY State_assessment;
+  name : STRING;
+  description : STRING;
   assessed_state : State;
   comparable_state : State_definition;
-  condition_assessment : Condition_assertion;
 END_ENTITY;
 
 ENTITY State_cause_effect
   SUBTYPE OF (State_relationship);
-  SELF\State_relationship.relating RENAMED effect : SET[1:?] OF State;
-  SELF\State_relationship.related RENAMED cause : SET[1:?] OF State;
+  SELF\State_relationship.relating RENAMED effect : State;
+  SELF\State_relationship.related RENAMED cause : State;
 END_ENTITY;
 
 ENTITY State_observed
@@ -85,9 +87,9 @@ END_ENTITY;
 
 ENTITY State_relationship;
   name : STRING;
-  description : STRING;
-  relating : SET[1:?] OF State;
-  related : SET[1:?] OF State;
+  description : OPTIONAL STRING;
+  relating : State;
+  related : State;
 END_ENTITY;
 
 ENTITY State_role;

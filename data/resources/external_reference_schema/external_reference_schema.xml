@@ -1,0 +1,234 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="$Revision: $"
+    source="../data/resources/external_reference_schema/external_reference_schema.exp"/>
+
+  <schema name="external_reference_schema">
+    <interface
+      kind="reference"
+      schema="basic_attribute_schema">
+      <interfaced.item
+        name="description_attribute"/>
+      <interfaced.item
+        name="get_description_value"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="bag_to_set"/>
+    </interface>
+
+    <type name="message">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <type name="source_item">
+      <select
+        selectitems="identifier message">
+      </select>
+
+    </type>
+    <entity
+      name="external_source">
+      <explicit
+        name="source_id">
+        <typename
+          name="source_item"/>
+      </explicit>
+      <derived
+        name="description"
+        expression="get_description_value (SELF)">
+        <typename
+          name="text "/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="external_source_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_source">
+        <typename
+          name="external_source"/>
+      </explicit>
+      <explicit
+        name="related_source">
+        <typename
+          name="external_source"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="externally_defined_item">
+      <explicit
+        name="item_id">
+        <typename
+          name="source_item"/>
+      </explicit>
+      <explicit
+        name="source">
+        <typename
+          name="external_source"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="externally_defined_item_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_item">
+        <typename
+          name="externally_defined_item"/>
+      </explicit>
+      <explicit
+        name="related_item">
+        <typename
+          name="externally_defined_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="pre_defined_item">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+    <function
+      name="acyclic_external_source_relationship">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="relation">
+        <typename
+          name="external_source_relationship"/>
+      </parameter>
+      <parameter
+        name="relatives">
+        <typename
+          name="? ] OF external_source"/>
+      </parameter>
+      <parameter
+        name="specific_relation">
+        <builtintype
+          type="STRING"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    x                : SET OF external_source_relationship;
+  END_LOCAL;
+  IF relation.relating_source IN relatives THEN 
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY (es &lt;* bag_to_set 
+             (USEDIN (relation.relating_source,
+             'EXTERNAL_REFERENCE_SCHEMA.' + 
+             'EXTERNAL_SOURCE_RELATIONSHIP.' +
+             'RELATED_SOURCE')) |
+              specific_relation IN TYPEOF (es));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_external_source_relationship
+      (x[i], 
+       relatives + relation.relating_source, 
+       specific_relation) THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="acyclic_externally_defined_item_relationship">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="relation">
+        <typename
+          name="externally_defined_item_relationship"/>
+      </parameter>
+      <parameter
+        name="relatives">
+        <typename
+          name="? ] OF externally_defined_item"/>
+      </parameter>
+      <parameter
+        name="specific_relation">
+        <builtintype
+          type="STRING"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    x                : SET OF externally_defined_item_relationship;
+  END_LOCAL;
+  IF relation.relating_item IN relatives THEN 
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY (edi &lt;* bag_to_set 
+             (USEDIN (relation.relating_item,
+             'EXTERNAL_REFERENCE_SCHEMA.' + 
+             'EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.' +
+             'RELATED_ITEM')) |
+              specific_relation IN TYPEOF (edi));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_externally_defined_item_relationship
+      (x[i], 
+       relatives + relation.relating_item, 
+       specific_relation) THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

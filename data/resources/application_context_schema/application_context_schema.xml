@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="$Revision: $"
+    source="../data/resources/application_context_schema/application_context_schema.exp"/>
+
+  <schema name="application_context_schema">
+    <interface
+      kind="reference"
+      schema="basic_attribute_schema">
+      <interfaced.item
+        name="description_attribute"/>
+      <interfaced.item
+        name="get_description_value"/>
+      <interfaced.item
+        name="get_id_value"/>
+      <interfaced.item
+        name="id_attribute"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="date_time_schema">
+      <interfaced.item
+        name="year_number"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <entity
+      name="application_context">
+      <explicit
+        name="application">
+        <typename
+          name="label"/>
+      </explicit>
+      <derived
+        name="description"
+        expression="get_description_value (SELF)">
+        <typename
+          name="text "/>
+      </derived>
+      <derived
+        name="id"
+        expression="get_id_value (SELF)">
+        <typename
+          name="identifier "/>
+      </derived>
+      <inverse
+        name="context_elements"
+        entity="application_context_element"
+        attribute="rame_of_reference">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+      </inverse>
+      <where
+        label="WR1"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +               'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +               'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="application_context_element"
+      super.expression="(ONEOF (library_context,                       product_concept_context,                       product_context,                       product_definition_context))">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="frame_of_reference">
+        <typename
+          name="application_context"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="application_context_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_context">
+        <typename
+          name="application_context"/>
+      </explicit>
+      <explicit
+        name="related_context">
+        <typename
+          name="application_context"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="application_protocol_definition">
+      <explicit
+        name="status">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="application_interpreted_model_schema_name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="application_protocol_year">
+        <typename
+          name="year_number"/>
+      </explicit>
+      <explicit
+        name="application">
+        <typename
+          name="application_context"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="library_context"
+      supertypes="application_context_element">
+      <explicit
+        name="library_reference">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="product_concept_context"
+      supertypes="application_context_element">
+      <explicit
+        name="market_segment_type">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="product_context"
+      supertypes="application_context_element">
+      <explicit
+        name="discipline_type">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="product_definition_context"
+      supertypes="application_context_element">
+      <explicit
+        name="life_cycle_stage">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

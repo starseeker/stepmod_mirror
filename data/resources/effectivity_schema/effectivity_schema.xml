@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="$Revision: $"
+    source="../data/resources/effectivity_schema/effectivity_schema.exp"/>
+
+  <schema name="effectivity_schema">
+    <interface
+      kind="reference"
+      schema="basic_attribute_schema">
+      <interfaced.item
+        name="description_attribute"/>
+      <interfaced.item
+        name="get_description_value"/>
+      <interfaced.item
+        name="get_name_value"/>
+      <interfaced.item
+        name="name_attribute"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="date_time_schema">
+      <interfaced.item
+        name="date_time_or_event_occurrence"/>
+      <interfaced.item
+        name="time_interval"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="measure_schema">
+      <interfaced.item
+        name="measure_with_unit"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="bag_to_set"/>
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <entity
+      name="dated_effectivity"
+      supertypes="effectivity">
+      <explicit
+        name="effectivity_end_date"
+        optional="YES">
+        <typename
+          name="date_time_or_event_occurrence"/>
+      </explicit>
+      <explicit
+        name="effectivity_start_date">
+        <typename
+          name="date_time_or_event_occurrence"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="effectivity"
+      super.expression="(ONEOF (serial_numbered_effectivity,                       dated_effectivity,                       lot_effectivity,                       time_interval_based_effectivity))">
+      <explicit
+        name="id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <derived
+        name="name"
+        expression="get_name_value (SELF)">
+        <typename
+          name="label "/>
+      </derived>
+      <derived
+        name="description"
+        expression="get_description_value (SELF)">
+        <typename
+          name="text "/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="effectivity_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="related_effectivity">
+        <typename
+          name="effectivity"/>
+      </explicit>
+      <explicit
+        name="relating_effectivity">
+        <typename
+          name="effectivity"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="lot_effectivity"
+      supertypes="effectivity">
+      <explicit
+        name="effectivity_lot_id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="effectivity_lot_size">
+        <typename
+          name="measure_with_unit"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="serial_numbered_effectivity"
+      supertypes="effectivity">
+      <explicit
+        name="effectivity_start_id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="effectivity_end_id"
+        optional="YES">
+        <typename
+          name="identifier"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="time_interval_based_effectivity"
+      supertypes="effectivity">
+      <explicit
+        name="effectivity_period">
+        <typename
+          name="time_interval"/>
+      </explicit>
+    </entity>
+
+    <function
+      name="acyclic_effectivity_relationship">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="relation">
+        <typename
+          name="effectivity_relationship"/>
+      </parameter>
+      <parameter
+        name="relatives">
+        <typename
+          name="? ] OF effectivity"/>
+      </parameter>
+      <parameter
+        name="specific_relation">
+        <builtintype
+          type="STRING"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    x                : SET OF effectivity_relationship;
+  END_LOCAL;
+  IF relation.relating_effectivity IN relatives THEN 
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY (eff &lt;* bag_to_set 
+             (USEDIN (relation.relating_effectivity,
+             'EFFECTIVITY_SCHEMA.' + 
+             'EFFECTIVITY_RELATIONSHIP.' +
+             'RELATED_EFFECTIVITY')) |
+              specific_relation IN TYPEOF (eff));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_effectivity_relationship
+      (x[i], 
+       relatives + relation.relating_effectivity, 
+       specific_relation) THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

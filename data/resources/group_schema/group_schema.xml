@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="$Revision: $"
+    source="../data/resources/group_schema/group_schema.exp"/>
+
+  <schema name="group_schema">
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="bag_to_set"/>
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="basic_attribute_schema">
+      <interfaced.item
+        name="get_id_value"/>
+      <interfaced.item
+        name="id_attribute"/>
+    </interface>
+
+    <entity
+      name="group">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <derived
+        name="id"
+        expression="get_id_value (SELF)">
+        <typename
+          name="identifier "/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="group_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_group">
+        <typename
+          name="group"/>
+      </explicit>
+      <explicit
+        name="related_group">
+        <typename
+          name="group"/>
+      </explicit>
+    </entity>
+
+    <function
+      name="acyclic_group_relationship">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="relation">
+        <typename
+          name="group_relationship"/>
+      </parameter>
+      <parameter
+        name="relatives">
+        <typename
+          name="? ] OF group"/>
+      </parameter>
+      <parameter
+        name="specific_relation">
+        <builtintype
+          type="STRING"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    x                : SET OF group_relationship;
+  END_LOCAL;
+  IF relation.relating_group IN relatives THEN 
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY (grp &lt;* bag_to_set 
+             (USEDIN (relation.relating_group,
+             'GROUP_SCHEMA.' + 
+             'GROUP_RELATIONSHIP.' +
+             'RELATED_GROUP')) |
+              specific_relation IN TYPEOF (grp));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_group_relationship
+      (x[i], 
+       relatives + relation.relating_group, 
+       specific_relation) THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="$Revision: $"
+    source="../data/resources/contract_schema/contract_schema.exp"/>
+
+  <schema name="contract_schema">
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="bag_to_set"/>
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <entity
+      name="contract">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="purpose">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="kind">
+        <typename
+          name="contract_type"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="contract_relationship">
+      <explicit
+        name="id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_contract">
+        <typename
+          name="contract"/>
+      </explicit>
+      <explicit
+        name="related_contract">
+        <typename
+          name="contract"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="contract_type">
+      <explicit
+        name="description">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+    <function
+      name="acyclic_contract_relationship">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="relation">
+        <typename
+          name="contract_relationship"/>
+      </parameter>
+      <parameter
+        name="relatives">
+        <typename
+          name="? ] OF contract"/>
+      </parameter>
+      <parameter
+        name="specific_relation">
+        <builtintype
+          type="STRING"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    x                : SET OF contract_relationship;
+  END_LOCAL;
+  IF relation.relating_contract IN relatives THEN 
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY (cont &lt;* bag_to_set 
+             (USEDIN (relation.relating_contract,
+             'CONTRACT_SCHEMA.' + 
+             'CONTRACT_RELATIONSHIP.' +
+             'RELATED_CONTRACT')) |
+              specific_relation IN TYPEOF (cont));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_contract_relationship
+      (x[i], 
+       relatives + relation.relating_contract, 
+       specific_relation) THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

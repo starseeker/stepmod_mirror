@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.17 2003/01/07 07:59:04 robbod Exp $
+$Id: modules_list.xsl,v 1.18 2003/02/24 09:37:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -18,7 +18,7 @@ $Id: modules_list.xsl,v 1.17 2003/01/07 07:59:04 robbod Exp $
 
 
   <!-- hack to disable module index while being developed -->
-  <xsl:variable name="index2" select="'NO'"/>
+  <xsl:variable name="index2" select="'YES'"/>
     
 
   <xsl:template match="/" >
@@ -350,6 +350,12 @@ $Id: modules_list.xsl,v 1.17 2003/01/07 07:59:04 robbod Exp $
       <a href="{$mapping_view2}" target="content">Mapping view with test</a>
     </p>
     
+    <p class="menuitem2">
+      <xsl:variable name="select_matrix_view" 
+        select="concat($module_root,'/nav/select_matrix_view',$FILE_EXT)"/>
+      <a href="{$select_matrix_view}" target="content">Select matrix</a>
+    </p>
+
     <p class="menuitem2">
       <xsl:variable name="arm_lf_view" 
         select="concat($module_root,'/nav/arm_long_form',$FILE_EXT)"/>

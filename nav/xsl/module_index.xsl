@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
+$Id: module_index.xsl,v 1.1 2003/02/24 09:25:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -38,8 +38,19 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
       <xsl:with-param name="todo" select="concat(' ',$arm-schema-name,' ')"/>
       <xsl:with-param name="arm_or_mim" select="'_arm'"/>
       <xsl:with-param name="arm_or_mim_file" select="'arm.xml'"/>
+      <xsl:with-param name="with_dir" select="'NO'"/>
     </xsl:call-template>
   </xsl:variable>
+
+  <xsl:variable name="arm_schemasdir">
+    <xsl:call-template name="depends-on-recurse-no-list-x">
+      <xsl:with-param name="todo" select="concat(' ',$arm-schema-name,' ')"/>
+      <xsl:with-param name="arm_or_mim" select="'_arm'"/>
+      <xsl:with-param name="arm_or_mim_file" select="'arm.xml'"/>
+      <xsl:with-param name="with_dir" select="'YES'"/>
+    </xsl:call-template>
+  </xsl:variable>
+
 
   <xsl:variable name="mim-schema-name" select="$mim_nodes//schema/@name"/>
 
@@ -178,10 +189,10 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
               <b>Modules used in ARM</b>
             </p>
           </div>
-
           <xsl:variable name="MimModulesUsedMenu" select="concat('MimModulesUsedMenu',$module_node/@name)"/>
           <xsl:variable name="NoMimModulesUsedMenu" select="concat('NoMimModulesUsedMenu',$module_node/@name)"/>
           <!-- Modules used menu (OPEN) -->
+
           <div id="{$MimModulesUsedMenu}" style="display:none">
             <p class="menulist">
               <a href="javascript:swap({$NoMimModulesUsedMenu}, {$MimModulesUsedMenu});">
@@ -194,7 +205,7 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
               </xsl:call-template>
             </p>
           </div>
-
+	  
           <!-- Modules used menu  (CLOSED) -->
           <div id="{$NoMimModulesUsedMenu}">
             <p class="menulist">
@@ -216,7 +227,9 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
                   border="false" align="middle"/>    
               </a>
               <b>ARM objects</b>
-              <xsl:call-template name="arm_objects"/>
+              <xsl:call-template name="arm_objects">
+                <xsl:with-param name="schemas" select="$arm_schemasdir"/>
+              </xsl:call-template>
             </p>
           </div>
 
@@ -462,7 +475,7 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
       
       <!-- Entity menu (OPEN) -->
       <div id="{$EntityMenu}" style="display:none">
-        <p class="menulist2">
+        <p class="menulist1">
           <a href="javascript:swap({$NoEntityMenu}, {$EntityMenu});">
             <img src="../../../../images/minus.gif" alt="Close menu" 
               border="false" align="middle"/>    
@@ -476,7 +489,7 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
       </div><!-- Entity menu (OPEN) -->
       <!-- Entity menu (CLOSED) -->
       <div id="{$NoEntityMenu}">
-        <p class="menulist2">
+        <p class="menulist1">
           <a href="javascript:swap({$EntityMenu}, {$NoEntityMenu});">
             <img src="../../../../images/plus.gif" alt="Open menu" 
               border="false" align="middle"/> 
@@ -1428,8 +1441,137 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
 </xsl:template>
 
 <xsl:template name="arm_objects">
-  NOT YET IMPLEMENTED
+  <xsl:param name="schemas" />
+
+	      <xsl:choose>
+		<xsl:when test="function-available('msxsl:node-set')">
+
+	        	<xsl:variable name="schemas-node-set" select="msxsl:node-set($schemas)" />
+
+			<xsl:variable name="dep-schemas3">
+				<xsl:for-each select="$schemas-node-set//x" >
+					<xsl:copy-of select="document(.)" />
+				</xsl:for-each>
+			</xsl:variable>
+
+			<xsl:variable name="dep-schemas" 
+			  	select="msxsl:node-set($dep-schemas3)" />
+
+          <xsl:variable name="ARMTypesMenu" select="concat('ARMTypesMenu',$module_node/@name)"/>
+          <xsl:variable name="NoARMTypesMenu" select="concat('NoARMTypesMenu',$module_node/@name)"/>
+          <!-- ARM Types menu (OPEN) -->
+          <div id="{$ARMTypesMenu}" style="display:none">
+            <p class="menulist1">
+              <a href="javascript:swap({$NoARMTypesMenu}, {$ARMTypesMenu});">
+                <img src="../../../../images/minus.gif" alt="Close menu" 
+                  border="false" align="middle"/>    
+              </a>
+              <b>Types</b>
+		<xsl:apply-templates select=" $dep-schemas//type " mode="arm_obj_link">
+			<xsl:sort select="@name" />
+		</xsl:apply-templates>
+            </p>
+          </div>
+
+          <!-- ARM Types menu (CLOSED) -->
+          <div id="{$NoARMTypesMenu}">
+            <p class="menulist1">
+              <a href="javascript:swap({$ARMTypesMenu}, {$NoARMTypesMenu});">
+                <img src="../../../../images/plus.gif" alt="Open menu" 
+                  border="false" align="middle"/> 
+              </a>
+              <b>Types</b>
+            </p>
+          </div>
+
+
+          <xsl:variable name="ARMEntitiesMenu" select="concat('ARMEntitiesMenu',$module_node/@name)"/>
+          <xsl:variable name="NoARMEntitiesMenu" select="concat('NoARMEntitiesMenu',$module_node/@name)"/>
+          <!-- ARM Entities menu (OPEN) -->
+          <div id="{$ARMEntitiesMenu}" style="display:none">
+            <p class="menulist1">
+              <a href="javascript:swap({$NoARMEntitiesMenu}, {$ARMEntitiesMenu});">
+                <img src="../../../../images/minus.gif" alt="Close menu" 
+                  border="false" align="middle"/>    
+              </a>
+              <b>Entities</b>
+		<xsl:apply-templates select=" $dep-schemas//entity " mode="arm_obj_link">
+			<xsl:sort select="@name" />
+		</xsl:apply-templates>
+            </p>
+          </div>
+
+          <!-- ARM Entities menu (CLOSED) -->
+          <div id="{$NoARMEntitiesMenu}">
+            <p class="menulist1">
+              <a href="javascript:swap({$ARMEntitiesMenu}, {$NoARMEntitiesMenu});">
+                <img src="../../../../images/plus.gif" alt="Open menu" 
+                  border="false" align="middle"/> 
+              </a>
+              <b>Entities</b>
+            </p>
+          </div>
+
+			
+
+
+
+		<!--	<xsl:apply-templates select="$arm_nodes//entity | $dep-schemas//entity " mode="arm_obj_link">
+				<xsl:sort select="@name" />
+			</xsl:apply-templates>
+
+			<br/>
+-->
+		</xsl:when>
+
+
+		<xsl:when test="function-available('exslt:node-set')">
+			  <xsl:variable name="schemas-node-set2">
+			      <xsl:choose>
+				<xsl:when test="2 > string-length($schemas)" >
+			        </xsl:when>
+			        <xsl:otherwise>
+			          <xsl:copy-of select="exslt:node-set($schemas)"/>
+			        </xsl:otherwise>
+			      </xsl:choose>
+			    </xsl:variable>
+
+			<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" /> 
+
+				
+			<xsl:apply-templates select="$arm_nodes//type | $dep-schemas//type " mode="arm_obj_link">
+				<xsl:sort select="@name" />
+			</xsl:apply-templates>
+
+			<br/>
+
+			<xsl:apply-templates select="$arm_nodes//entity | $dep-schemas//entity " mode="arm_obj_link">
+				<xsl:sort select="@name" />
+			</xsl:apply-templates>
+
+			<br/>
+
+
+		</xsl:when>
+
+              </xsl:choose>
+
+
+
+
+
 </xsl:template>
+
+<xsl:template match="*" mode="arm_obj_link" >
+	<xsl:variable name="addr" select="concat('../../',
+			translate(substring-before(../@name,'_arm'),$UPPER,$LOWER),'/sys/4_info_reqs.xml#',
+			translate(concat(../@name,'.',@name),$UPPER,$LOWER))" />
+          <p class="menuitem2">
+            <A href="{$addr}" target="content"><xsl:value-of select="@name"	/></A>
+          </p>
+
+</xsl:template>
+
 
 <xsl:template name="mim_objects">
   NOT YET IMPLEMENTED
@@ -1448,6 +1590,7 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
   <xsl:param name="done"/>
   <xsl:param name="arm_or_mim"/>
   <xsl:param name="arm_or_mim_file"/>
+  <xsl:param name="with_dir" select="'NO'"/>
   <!--
        For each interfaced schema:
        Check if not already done
@@ -1478,11 +1621,31 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
         <xsl:value-of select="$this-schema"/>
       </xsl:message>
 
-      <xsl:if test="not(contains($this-schema,'_schema') or starts-with($this-schema,'aic_'))">
+<!--      <xsl:if test="not(contains($this-schema,'_schema') or starts-with($this-schema,'aic_'))"> -->
+
         <x>
-          <xsl:value-of select="$mod"/>
+		<xsl:choose>
+		<xsl:when test="$with_dir != 'NO'" >
+			<xsl:choose>
+				<xsl:when test="contains($this-schema,'_schema')">
+							<xsl:value-of 
+			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
+				</xsl:when>
+				<xsl:when test="starts-with($this-schema,'aic_')">
+							<xsl:value-of 
+			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
+				</xsl:when>
+				<xsl:otherwise>
+							<xsl:value-of select="concat($dir,'data/modules/',$mod,'/arm.xml ')" />
+						</xsl:otherwise>
+					</xsl:choose>
+		</xsl:when>
+		<xsl:otherwise>
+	          <xsl:value-of select="$mod"/>
+		</xsl:otherwise>
+		</xsl:choose>
         </x>
-      </xsl:if>
+<!--      </xsl:if> -->
     </xsl:if>
     
     <!-- open up the relevant schema -->
@@ -1509,6 +1672,7 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
             <xsl:with-param name="done" select="concat($done,' ',$this-schema,' ')"/>
             <xsl:with-param name="arm_or_mim" select="$arm_or_mim"/>
             <xsl:with-param name="arm_or_mim_file" select="$arm_or_mim_file"/>
+            <xsl:with-param name="with_dir" select="$with_dir"/>
           </xsl:call-template>
         </xsl:if>
       </xsl:when>
@@ -1520,6 +1684,7 @@ $Id: introduction.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
             <xsl:with-param name="done" select="concat($done,' ',$this-schema,' ')"/>
             <xsl:with-param name="arm_or_mim" select="$arm_or_mim"/>
             <xsl:with-param name="arm_or_mim_file" select="$arm_or_mim_file"/>
+            <xsl:with-param name="with_dir" select="$with_dir"/>
           </xsl:call-template>
         </xsl:if>
       </xsl:otherwise>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.106 2003/08/05 07:04:25 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.107 2003/08/18 22:43:55 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2601,12 +2601,12 @@
         <xsl:when test="contains($schema_name,'_mim')">
           <xsl:choose>
             <xsl:when test="count(../rule)>1">
-              This subclause specifies the ARM rules for 
+              This subclause specifies the MIM rules for 
               this module. The MIM rules and definitions are
               specified below.
             </xsl:when>
             <xsl:otherwise>
-              This subclause specifies the ARM rule for 
+              This subclause specifies the MIM rule for 
               this module. The MIM rule and definition is
               specified below.
             </xsl:otherwise>

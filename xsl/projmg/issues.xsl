@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.8 2003/01/02 15:59:00 robbod Exp $
+     $Id: issues.xsl,v 1.9 2003/04/16 09:58:53 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -195,13 +195,13 @@
       </b> 
       <br/>
       <i>
-        <xsl:if test="string-length(@seds)>0">
+        <xsl:if test="@seds='yes'">
           Registered in the 
           <a href="http://www.tc184-sc4.org/private/Projects/maindisp.cfm">
             SC4 database
           </a>
           as SEDS: 
-          <xsl:value-of select="@seds"/>
+          <xsl:value-of select="@id"/>
         </xsl:if>
       </i>
       <br/>

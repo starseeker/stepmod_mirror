@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: issues_file.xsl,v 1.11 2003/02/10 02:54:15 thendrix Exp $
+     $Id: issues_file.xsl,v 1.12 2003/04/16 09:58:53 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -333,13 +333,13 @@
       </i>
     <br/>
     <i>
-      <xsl:if test="string-length(@seds)>0">
+      <xsl:if test="@seds='yes'">
         Registered in the 
         <a href="http://www.tc184-sc4.org/private/Projects/maindisp.cfm">
           SC4 database
         </a>
         as SEDS: 
-        <xsl:value-of select="@seds"/>
+        <xsl:value-of select="@id"/>
       </xsl:if>
     </i>
     <br/>

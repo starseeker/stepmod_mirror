@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.30 2003/06/10 12:05:18 mikeward Exp $
+$Id: resource.xsl,v 1.31 2003/09/08 22:11:46 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1067,30 +1067,30 @@ o=isocs; s=central<br/>
           <a href="../../{$express_exp}"><xsl:value-of select="$schema_file"/>.exp</a>
         </td>
 
-    <xsl:if test="$FILE_EXT!='.xml'">
-              <td>
-                <xsl:variable name="test_wg_number">
-                  <xsl:call-template name="test_wg_number">
-                    <xsl:with-param name="wgnumber" select="$wgnumber"/>
-                  </xsl:call-template>
-                </xsl:variable>
-                <xsl:choose>
-                  <xsl:when test="contains($test_wg_number,'Error')">
-                    <xsl:value-of select="$wgnumber"/>
-                  </xsl:when>
-                  <xsl:otherwise>
-                    <a href="../../../../wg12n{$wgnumber}.exp">
-                      <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
-                    </a>
-                  </xsl:otherwise>
-                </xsl:choose>
-                  </td>
-                </xsl:if>  
-              </tr>
-    </xsl:for-each>
-  </table>
-  </div>
-  <p>
+        <xsl:if test="$FILE_EXT!='.xml'">
+          <td>
+            <xsl:variable name="test_wg_number">
+              <xsl:call-template name="test_wg_number">
+                <xsl:with-param name="wgnumber" select="$wgnumber"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:choose>
+              <xsl:when test="contains($test_wg_number,'Error')">
+                <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <a href="../../../../wg12n{$wgnumber}.exp">
+                  <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
+                </a>
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+        </xsl:if>  
+  </tr>
+</xsl:for-each>
+</table>
+</div>
+<p>
     If there is difficulty accessing these sites, contact ISO Central
     Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
     <a href="mailto:sc4sec@tc184-sc4.org">sc4sec@tc184-sc4.org</a>.

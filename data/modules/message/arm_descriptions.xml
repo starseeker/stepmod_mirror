@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="message" schema_file="arm.xml" describe.selects="YES" rcs.date="$Date: 2003/07/07 10:20:24 $" rcs.revision="$Revision: 1.14 $">
+<ext_descriptions module_directory="message" schema_file="arm.xml" describe.selects="YES" rcs.date="$Date: 2003/10/01 15:37:42 $" rcs.revision="$Revision: 1.15 $">
 	<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Message_arm
    <express_ref linkend="message:arm:Message_arm"/>
@@ -37,9 +37,7 @@ The approval has the implication that the contents are suitable for the purpose 
 	<ext_description linkend="Message_arm.message_definer_select">
 The message definer is initially defined as an <express_ref linkend="person_organization:arm:Person_organization_arm.Organization"/> or <express_ref linkend="person_organization:arm:Person_organization_arm.Person_in_organization"/>, but provision is made to extend this in higher level modules.
 <note number="2"> Another possible message definer is a piece of automatic recording equipment, which will need
-the select extending to <express_ref linkend="product_version:arm:Product_version_arm.Product_version"/>
-
-.</note>
+the select extending to <express_ref linkend="product_version:arm:Product_version_arm.Product_version"/>.</note>
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -66,9 +64,20 @@ This enables a security classification to be applied to the message as a whole.
    <express_ref linkend="message:arm:Message_arm.Content_item"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
-	<ext_description linkend="Message_arm.Content_item">
-A <b>Content_item</b> is a reference to any item that can be referenced as part of the message content.
-<note number="1">As well as externally defined items such as drawings, photographs, and so on, a message can refer to any entity represented in the schema it is used in, from products to property values, or actions to task steps.The mechanism used gives no interpretation of how the <b>Content_item.item_identifier</b> is interpreted or how the data is accessed. For example, the identifier could be the number of the entity in a Part 21 file. Interpretation of this entity and its attributes may be defined through reference data.</note>
+   <ext_description linkend="Message_arm.Content_item">
+     A <b>Content_item</b> is a reference to any item that can be referenced as part of the message content.
+   <note number="1">
+     As well as externally defined items such as drawings, photographs, and
+     so on, a message can refer to any entity represented in the schema it is
+     used in, from products to property values, or actions to task steps. The
+     mechanism used gives no interpretation of how the
+     <express_ref linkend="message:arm:Message_arm.Content_item.item_identifier"/>
+     is interpreted or how the data is
+     accessed. For example, the identifier could be the number of the
+     entity in a file that conforms to ISO 10303-21. 
+     Interpretation of this entity and its attributes may be
+     defined through reference data.
+   </note> 
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -76,8 +85,33 @@ A <b>Content_item</b> is a reference to any item that can be referenced as part 
    <express_ref linkend="message:arm:Message_arm.Content_item.access_comment"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
-	<ext_description linkend="Message_arm.Content_item.access_comment">
-the access comment informs the user about how to access the data. This may include or imply a description what associated entities are accessed as part of the message. For example, reference to a <express_ref linkend="product_identification:arm:Product_identification_arm.Product"/> entity may also bring with it any <express_ref linkend="identification_assignment:arm:Identification_assignment_arm.Identification_assignment"/> that applies to it.
+   <ext_description linkend="Message_arm.Content_item.access_comment">
+       the information required to access the data. This may include or imply a
+       description that associated entities are accessed as part of the
+       message. 
+     The value of this attribute need not be specified.
+     <example number="3">
+       The following shows a dummy message for referencing a 
+       <express_ref linkend="part_and_version_identification:arm:Part_and_version_identification_arm.Part"/>
+       which
+       brings with it an 
+       <express_ref linkend="identification_assignment:arm:Identification_assignment_arm.Identification_assignment"/>
+       <screen>
+         #1=<express_ref linkend="message:arm:Message_arm.Message">MESSAGE</express_ref>((#2), $, $, $, $);
+         #2=<express_ref linkend="message:arm:Message_arm.Content_item">CONTENT_ITEM</express_ref>('"3"', '10303-21', '&lt;access source="10303-21"> 
+                                               &lt;use type="<express_ref linkend="identification_assignment:arm:Identification_assignment_arm.Identification_assignment">IDENTIFICATION_ASSIGNMENT</express_ref>"' ref="#4"/>
+                                             &lt;/access>');
+         #3=<express_ref linkend="part_and_version_identification:arm:Part_and_version_identification_arm.Part">PART</express_ref>
+         #4=<express_ref linkend="identification_assignment:arm:Identification_assignment_arm.Identification_assignment">IDENTIFICATION_ASSIGNMENT</express_ref>('123', 'primary-id', $, (#3));
+     </screen>
+       In order to reference
+       <express_ref
+         linkend="product_identification:arm:Product_identification_arm.Product"/>
+       entity may also bring with it any 
+       <express_ref
+         linkend="identification_assignment:arm:Identification_assignment_arm.Identification_assignment"/>
+       that applies to it.
+   </example>
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -86,8 +120,8 @@ the access comment informs the user about how to access the data. This may inclu
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Message_arm.Content_item.item_identifier">
-<b>item_type</b> provides a reference mechanism to any entity or object referenced in the message.
-<note number="2">The <b>item_identifier</b> should provide a unique reference to the item referred to in the <express_ref linkend="message:arm:Message_arm.Message"/>, however there is no useful way of specifying this.</note>
+the mechanism to reference any entity or object in the message.
+<note number="2">The <b>item_identifier</b> should provide a unique reference to the item referred to in the <express_ref linkend="message:arm:Message_arm.Message"/>.</note>
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -95,11 +129,23 @@ the access comment informs the user about how to access the data. This may inclu
    <express_ref linkend="message:arm:Message_arm.Content_item.item_type"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
-	<ext_description linkend="Message_arm.Content_item.item_type">
-t<b>item_type</b> provides the type of the item. The format and value will be given through reference data.
-<example number="1">A <express_ref linkend="product_identification:arm:Product_identification_arm.Product"/> in a part 21 file may be given the type 'part 21 entity'.</example>
-		<example number="2">A log file from built in equipment may be given the type 'equipment log file'.</example>
-	</ext_description>
+   <ext_description linkend="Message_arm.Content_item.item_type">
+     the type of the item.
+     <example number="1">
+       A <express_ref
+       linkend="product_identification:arm:Product_identification_arm.Product"/>
+     in a file that conforms to ISO 10303-21 may be given the type
+     'ISO 10303-21 entity'.
+     The value of the <express_ref
+     linkend="message:arm:Message_arm.Content_item.item_identifier"/>
+     attribute would
+     then be the object identifier in the file.
+   </example>
+   <example number="2">
+     A log file from built-in test equipment may be given the type
+     'equipment log file'.
+   </example>
+   </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Message_arm  Entity: Message  
@@ -122,7 +168,7 @@ other entities such as one of the types of document.
   -->
 	<ext_description linkend="Message_arm.Message.id">
  the identifier of the message.
-<note number="2"> The identifier should be unique, however, given the scope of message, there is no meaningful way of specifying that uniqueness within the standard. </note>
+          <note number="2">The identifier should be unique. </note>
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -131,7 +177,7 @@ other entities such as one of the types of document.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Message_arm.Message.message_type">
-<b>message_type</b> identifies the general purpose of the message, allowing it to be differentiated from other types of message, and so be handled appropriately. The contents of this entity are defined through reference data.
+the general purpose of the message, allowing it to be differentiated from other types of message, and so be handled appropriately. The contents of this entity are defined through reference data.
 <note number="3"> The following gives an example of reference data for <b>message_type</b>:
    <ul>
 				<li>field input	- used to identify data acquired directly from the environment, for example, on a maintenance engineer's palm top;</li>
@@ -148,8 +194,9 @@ other entities such as one of the types of document.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Message_arm.Message.purpose">
-an optional, extended description of the purpose of the message.
-<note number="4">On the e-mail analogy, purpose is equivalent of the text of the message</note>
+the extended description of the purpose of the message.
+          The value of this attribute need not be specified.
+<note number="4">Using an analogy of e-mail, purpose is equivalent of the text of the message.</note>
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -158,7 +205,7 @@ an optional, extended description of the purpose of the message.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Message_arm.Message.contains">
-<b>contains</b> links the <b>Message</b> to its contents.
+          the contents of the <b>Message</b>.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -167,11 +214,12 @@ an optional, extended description of the purpose of the message.
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Message_arm.Message.defined_by">
-<b>defined_by</b> identifies who 
+the identification of who 
 (<express_ref linkend="person_organization:arm:Person_organization_arm.Organization"/>
 or 
 <express_ref linkend="person_organization:arm:Person_organization_arm.Person_in_organization"/>)
 or what defined the message, that is, identified its purpose and contents.
+The value of this attribute need not be specified.
 </ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -190,8 +238,7 @@ A <b>Message_relationship</b> is a link between two related messages. The meanin
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Message_arm.Message_relationship.related">
- the other of the <express_ref linkend="message:arm:Message_arm.Message">Messages</express_ref> participating in the relationship. If one <express_ref linkend="message:arm:Message_arm.Message"/> participating in the relationship is dependent upon the other, this attribute shall be the dependent one.
-<note number="1"> See example above.</note>
+          the other instance of <express_ref linkend="message:arm:Message_arm.Message"/> participating in the relationship. If one <express_ref linkend="message:arm:Message_arm.Message"/> participating in the relationship is dependent upon the other, this attribute shall be the dependent one.
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -200,8 +247,7 @@ A <b>Message_relationship</b> is a link between two related messages. The meanin
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 	<ext_description linkend="Message_arm.Message_relationship.relating">
-one of the <express_ref linkend="message:arm:Message_arm.Message"/> participating in the relationship.
-<note number="2"> See example above.</note>
+one of the instances of <express_ref linkend="message:arm:Message_arm.Message"/> participating in the relationship.
 	</ext_description>
 	<!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -211,6 +257,5 @@ one of the <express_ref linkend="message:arm:Message_arm.Message"/> participatin
   -->
 	<ext_description linkend="Message_arm.Message_relationship.relation_type">
 the role of the message association.
-<note number="3"> See example above.</note>
 	</ext_description>
 </ext_descriptions>

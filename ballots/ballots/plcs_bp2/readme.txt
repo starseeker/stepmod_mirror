@@ -12,6 +12,11 @@ for distribution to SC4 for balloting.
    This will create a directory:
      stepmod/ballots/isohtml/plcs_bp2
 
+3) Run ant on plcs_bp2_dependencies then copy
+
+    cp -rf ../../isohtml/plcs_bp2_dependencies/data/modules/* ../../isohtml/plcs_bp2/data/modules/
+    cp -rf ../../isohtml/plcs_bp2_dependencies/data/resources/* ../../isohtml/plcs_bp2/data/resources/
+
 4) Create a zip file of the ballot package.
     ant zip
 
@@ -45,3 +50,4 @@ To validate the HTML
 1) build plcs_bp2
  This will create isohtml/plcs_bp2
 
+------------------------------------------------------------

@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.4 2001/06/29 18:45:27 lubell Exp $
+$Id: readme.txt,v 1.1.1.1 2001/06/29 19:12:26 joshualubell Exp $
 
 The module repository is organized as follows:
 
@@ -17,14 +17,14 @@ to that of the module web.
 dtd/module.dtd
 The DTD's system idenfifier. The root element is "module".
 
-dtd/arm.ent
+dtd/mapping.ent
 Markup declarations for the units of functionality, application
 objects, and mapping specification.
 
 dtd/common.ent
 Markup declarations used throughout the DTD.
 
-dtd/language.ent
+dtd/express.dtd
 Markup declarations for EXPRESS code.
 
 dtd/refs-and-defs.ent
@@ -38,15 +38,6 @@ etcetera.
 data/basic/
 Contains boilerplate XML document fragments common to all modules.
 
-data/applobj
-Contains application object data
-
-data/appltype
-Contains application types
-
-data/mapping
-Contains application entity mappings
-
 data/[module-name]/
-Contains files specific to the module [module-name] include XML data,
-express-g graphics, etc.
+Contains files specific to the module [module-name] including XML
+data, express-g graphics, etc.

@@ -125,7 +125,7 @@
         </xsl:call-template>        
       </xsl:if>
 
-      <xsl:if test="not(contains(substring-before(normalize-space($description/text()[position()=2]),' '),'is'))">
+      <xsl:if test="not(contains(substring-before(normalize-space($description/text()[position()=2]),' '),'is')) and not(contains(substring-before(normalize-space($description/text()[position()=2]),' '),'represents'))">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 

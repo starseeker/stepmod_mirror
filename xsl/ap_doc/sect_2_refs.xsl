@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.6 2003/05/27 08:08:48 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.7 2003/05/27 13:21:58 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -39,7 +39,6 @@ $Id: sect_2_refs.xsl,v 1.6 2003/05/27 08:08:48 robbod Exp $
     <xsl:apply-templates select="." mode="normrefs_list"/>
   </xsl:variable>
 
-  <xsl:message><xsl:value-of select="$normrefs"/></xsl:message>
   <xsl:variable name="pruned_normrefs">
     <xsl:call-template name="prune_normrefs_list">
       <xsl:with-param name="normrefs_list" select="$normrefs"/>

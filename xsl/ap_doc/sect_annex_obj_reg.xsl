@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_e_obj_reg.xsl,v 1.2 2003/05/27 07:34:15 robbod Exp $
+$Id: sect_annex_obj_reg.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -26,7 +26,7 @@ $Id: sect_e_obj_reg.xsl,v 1.2 2003/05/27 07:34:15 robbod Exp $
 		<xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz-</xsl:variable>
 		<xsl:variable name="ap_module_dir">
 			<xsl:call-template name="ap_module_directory">
-				<xsl:with-param name="application_protocol" select="@name"/>
+				<xsl:with-param name="application_protocol" select="@module_name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="application_protocol_dir">

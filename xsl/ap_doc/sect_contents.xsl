@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
+$Id: sect_contents.xsl,v 1.12 2003/05/23 16:27:59 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -21,6 +21,10 @@ $Id: sect_contents.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
     <!-- if complete is yes then display the introduction foreword etc -->
     <xsl:param name="complete" select="'no'"/>
 
+    <xsl:variable name="annex_list">
+      <xsl:apply-templates select="." mode="annex_list"/>
+    </xsl:variable>
+
     <xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
     <xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>
 	
@@ -32,13 +36,13 @@ $Id: sect_contents.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
 		
     <xsl:variable name="ap_module_dir">
       <xsl:call-template name="ap_module_directory">
-        <xsl:with-param name="application_protocol" select="@name"/>
+        <xsl:with-param name="application_protocol" select="@module_name"/>
       </xsl:call-template>
     </xsl:variable>
-		
+    
+    <xsl:variable name="module_xml" select="document(concat($ap_module_dir,'/module.xml'))"/>		
     <xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
     <xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
-
 
     <h2>Contents</h2>
     <xsl:if test="$complete='yes'">
@@ -86,44 +90,93 @@ $Id: sect_contents.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
     <br/>
     <a href="./sys/6_ccs{$FILE_EXT}" target="{$target}">6 Conformance requirements</a>
     <br/>
-    <a href="./a_exp_lf{$FILE_EXT}" target="{$target}">A EXPRESS expanded listing</a>
+    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">A EXPRESS expanded listing</a>
     <br/>
-    <a href="./b_shortnames{$FILE_EXT}" target="{$target}">
+    <a href="./annex_shortnames{$FILE_EXT}" target="{$target}">
       B AIM short names
     </a>
     <br/>
-    <a href="./c_imp_meth{$FILE_EXT}" target="{$target}">
+    <a href="./annex_imp_meth{$FILE_EXT}" target="{$target}">
       C Implementation method specific requirements
     </a>
     <br/>
-    <a href="./d_pics{$FILE_EXT}" target="{$target}">
+    <a href="./annex_pics{$FILE_EXT}" target="{$target}">
       D Protocol Implementation Conformance Statement (PICS) form
     </a>
     <br/>
-    <a href="./e_obj_reg{$FILE_EXT}" target="{$target}">
+    <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">
       E Information object registration
     </a>
     <br/>
-    <a href="./f_aam{$FILE_EXT}" target="{$target}">
+    <a href="./annex_aam{$FILE_EXT}" target="{$target}">
       F Application activity model
     </a>
     <br/>
-    <a href="./g_exp_aim{$FILE_EXT}" target="{$target}">G Computer interpretable listing</a>
-    <br/>
-    <a href="./f_arm_expg{$FILE_EXT}" target="{$target}">F Application reference model (EXPRESS-G)</a>
-    <br/>
-    <xsl:if test="./usage_guide">
-      <a href="./h_guide{$FILE_EXT}" target="{$target}">H Application protocol implementation and usage guide</a>
+
+    <xsl:if test="$module_xml/module/arm_lf/express-g">
+      <xsl:variable name="al_armexpressg">
+        <xsl:call-template name="annex_letter" >
+          <xsl:with-param name="annex_name" select="'ARMexpressG'"/>
+          <xsl:with-param name="annex_list" select="$annex_list"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <a
+        href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
+        <xsl:value-of select="$al_armexpressg"/> ARM EXPRESS-G diagrams
+      </a>
       <br/>
     </xsl:if>
-    <xsl:if test="./tech_disc">
-      <a href="./j_tech_disc{$FILE_EXT}" target="{$target}">J Technical discussions</a>
+
+    <xsl:variable name="al_com_int">
+      <xsl:call-template name="annex_letter" >
+        <xsl:with-param name="annex_name" select="'computerinterpretablelisting'"/>
+        <xsl:with-param name="annex_list" select="$annex_list"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">
+      <xsl:value-of select="$al_com_int"/> Computer interpretable listing
+    </a>
+    <br/>
+
+    <xsl:if test="$module_xml/module/usage_guide">
+      <xsl:variable name="al_uguide">
+        <xsl:call-template name="annex_letter" >
+          <xsl:with-param name="annex_name" select="'usageguide'"/>
+          <xsl:with-param name="annex_list" select="$annex_list"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <a href="./annex_guide{$FILE_EXT}" target="{$target}">
+        <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide
+      </a>
       <br/>
     </xsl:if>
-    <!--
-    <a href="./k_ae_index{$FILE_EXT}#k_ae_index" target="{$target}">K Application object index</a>
-    <br/>			
-    -->
+
+    <xsl:if test="$module_xml/module/tech_disc">
+      <xsl:variable name="al_tech_disc">
+        <xsl:call-template name="annex_letter" >
+          <xsl:with-param name="annex_name" select="'techdisc'"/>
+          <xsl:with-param name="annex_list" select="$annex_list"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <a href="./annex_tech_disc{$FILE_EXT}" target="{$target}">
+        <xsl:value-of select="$al_tech_disc"/> Technical discussions
+      </a>
+      <br/>
+    </xsl:if>
+    
+    <xsl:if test="$module_xml/module/changes/change_detail">
+      <xsl:variable name="al_changes">
+        <xsl:call-template name="annex_letter" >
+          <xsl:with-param name="annex_name" select="'changedetail'"/>
+          <xsl:with-param name="annex_list" select="$annex_list"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <a href="./annex_changes{$FILE_EXT}" target="{$target}">
+        <xsl:value-of select="$al_changes"/> Detailed changes
+      </a>
+      <br/>
+    </xsl:if>
+
     <a href="./biblio{$FILE_EXT}#biblio"
       target="{$target}">Bibliography</a>
     <xsl:apply-templates select="." mode="copyright"/>

@@ -106,6 +106,10 @@ SCHEMA Interconnect_module_usage_view_arm;
       WR6 : NOT (EXISTS(maximum_thickness_over_metal_requirement)) OR (maximum_thickness_over_metal_requirement\Value_with_unit.value_component > 0.0);
       WR7 : NOT (EXISTS(minimum_thickness_over_dielectric_requirement)) OR (minimum_thickness_over_dielectric_requirement\Value_with_unit.value_component > 0.0);
       WR8 : NOT (EXISTS(maximum_thickness_over_dielectric_requirement)) OR (maximum_thickness_over_dielectric_requirement\Value_with_unit.value_component > 0.0);
+      WR9 : magnitude_of(minimum_thickness_over_metal_requirement) < magnitude_of(maximum_thickness_over_metal_requirement);
+     WR10 : magnitude_of(minimum_thickness_over_dielectric_requirement) < magnitude_of(maximum_thickness_over_dielectric_requirement);
+     WR11 : magnitude_of(minimum_thickness_over_dielectric_requirement) < magnitude_of(minimum_thickness_over_metal_requirement);
+     WR12 : magnitude_of(maximum_thickness_over_dielectric_requirement) < magnitude_of(maximum_thickness_over_metal_requirement);     
   END_ENTITY;
 
   ENTITY Located_interconnect_module_thickness_requirement;
@@ -123,5 +127,12 @@ SCHEMA Interconnect_module_usage_view_arm;
     SUBTYPE OF (Interconnect_module_usage_view);
   END_ENTITY;
 
+  FUNCTION magnitude_of(input : length_data_element) : REAL;
+  --purpose of this function is to return the normalized real number that is the magnitude of the length unit
+  --including conversion of the prefix values to the exponent of the real number.
+  --e.g., 10 u inches --> 1e-5
+  --initial input just return the value component and not the exponent.
+  RETURN(input\Value_with_unit.value_component);
+  END_FUNCTION;
 END_SCHEMA;
 

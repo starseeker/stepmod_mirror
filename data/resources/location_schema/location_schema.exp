@@ -1,5 +1,5 @@
 (*
-  $Id: location_schema.exp,v 1.9 2003/10/27 15:49:13 mikeward Exp $
+  $Id: location_schema.exp,v 1.10 2004/11/10 12:01:26 mikeward Exp $
   ISO TC184/SC4/WG12 N2887 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *) 
 
@@ -26,6 +26,23 @@ ENTITY location_relationship;
   relating_location : location;
   related_location : location;
 END_ENTITY;
+
+  FUNCTION acyclic_location_relationship (relation : location_relationship; relatives : SET OF location; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF location_relationship;
+    END_LOCAL;
+
+    IF relation.relating_location IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(lctn <* bag_to_set(USEDIN(relation.relating_location, 'LOCATION_SCHEMA.' + 'LOCATION_RELATIONSHIP.' + 'RELATED_LOCATION')) | specific_relation IN TYPEOF(lctn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_location_relationship(x[i], relatives + relation.relating_location, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
 
 END_SCHEMA;  -- location_schema
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.4 2004/02/10 23:47:30 thendrix Exp $
+     $Id: parameters.xsl,v 1.5 2004/02/11 22:36:43 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -19,7 +19,6 @@
        Parameters to set the menu bar.
        This may be customized by the user, hence a separate file
        -->
-  <xsl:import href="menubar_params.xsl"/>
   <xsl:import href="../parameters.xsl"/>
 
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.37 2002/06/02 07:12:37 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.38 2002/06/02 08:02:17 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -150,11 +150,13 @@
           <xsl:choose>
             <xsl:when test="./interfaced.item">
               <!-- if interface items then out put source tail comment now -->
+              &#160;&#160;&#160;--&#160;
               <xsl:apply-templates select="." mode="source"/>
               <xsl:apply-templates select="./interfaced.item"/>;
               <br/><br/>          
             </xsl:when>
             <xsl:otherwise>;
+              &#160;&#160;&#160;--&#160;              
               <xsl:apply-templates select="." mode="source"/>
               <br/><br/>
             </xsl:otherwise>
@@ -174,11 +176,13 @@
           <xsl:choose>
             <xsl:when test="./interfaced.item">
               <!-- if interface items then out put source tail comment now -->
+              &#160;&#160;&#160;--&#160;
               <xsl:apply-templates select="." mode="source"/>
               <xsl:apply-templates select="./interfaced.item"/>;
               <br/><br/>          
             </xsl:when>
             <xsl:otherwise>;
+              &#160;&#160;&#160;--&#160;
               <xsl:apply-templates select="." mode="source"/>
               <br/><br/>
             </xsl:otherwise>
@@ -200,6 +204,9 @@
   </p>
   <xsl:if test="position()=last()">
     (*
+    <xsl:call-template name="interface_notes">
+      <xsl:with-param name="schema_node" select=".."/>
+    </xsl:call-template>
   </xsl:if>
 </xsl:template>
 
@@ -230,7 +237,7 @@
             <xsl:value-of
               select="document(concat($mod_dir,'/module.xml'))/module/@status"/>
           </xsl:variable>
-          <xsl:value-of select="concat('&#160;&#160;&#160;-- ISO/'$status,'&#160;10303-',$part)"/>
+          <xsl:value-of select="concat('ISO/'$status,'&#160;10303-',$part)"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">
@@ -262,7 +269,7 @@
 
           <xsl:choose>
             <xsl:when test="string-length($reference)>0">
-              <xsl:value-of select="concat('&#160;&#160;&#160;-- '$reference)"/>
+              <xsl:value-of select="$reference"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:call-template name="error_message">
@@ -286,6 +293,95 @@
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
+
+
+<!-- output a note detailing the interface -->
+<xsl:template name="interface_notes">
+  <xsl:param name="schema_node"/>
+    <p>
+      <small>
+        NOTE&#160;&#160;1&#160;
+        The schemas referenced above are specified in the following 
+        part of ISO 10303:
+      </small>
+    </p>
+    <blockquote>
+        <table>  
+        <xsl:for-each select="$schema_node/interface">
+          <xsl:variable name="schema_name" select="./@schema"/>      
+          <tr>
+            <td width="266">
+              <b>
+                <small>
+                  <xsl:value-of select="$schema_name"/>
+                </small>
+              </b>
+            </td>
+            <td width="127">
+              <small>
+                <xsl:apply-templates select="." mode="source"/>
+              </small>
+            </td>
+          </tr>
+        </xsl:for-each>
+      </table>
+  </blockquote>
+    <p>
+      <small>
+        NOTE&#160;&#160;2&#160;
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="$schema_node/@name"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="module_file"
+          select="concat($module_dir,'/module.xml')"/>
+        <xsl:variable name="penultimate"
+          select="count(document($module_file)/module/arm/express-g/imgfile)-1"/>
+        <xsl:variable name="annex">
+          <xsl:choose>
+            <xsl:when test="contains($schema_node/@name,'_arm')">
+              C
+            </xsl:when>
+            <xsl:otherwise>
+              D
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+
+        See annex <xsl:value-of select="$annex"/>, 
+        <xsl:choose>
+          <xsl:when
+            test="count(document($module_file)/module/arm/express-g/imgfile)=1">
+            figure
+          </xsl:when>
+          <xsl:otherwise>
+            figures
+          </xsl:otherwise>
+        </xsl:choose>
+
+        <xsl:for-each
+select="document($module_file)/module/arm/express-g/imgfile">
+          <xsl:variable name="imgfile" select="concat('../',@file)"/>
+          <a href="{$imgfile}">
+            <xsl:value-of select="concat($annex,'.',position())"/>
+          </a>
+          <xsl:if test="position()!=last()">
+            <xsl:choose>
+              <xsl:when test="position()!=$penultimate">, </xsl:when>
+              <xsl:otherwise>and </xsl:otherwise>
+            </xsl:choose>
+          </xsl:if>
+        </xsl:for-each>
+        for a graphical representation of this schema.
+      </small>
+    </p>
+
+</xsl:template>
+
+
+
+
 
 <xsl:template match="interfaced.item">
   <xsl:choose>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.77 2002/12/12 15:17:22 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.78 2002/12/30 08:31:12 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -91,6 +91,22 @@
   <!-- +++++++++++++++++++
          Templates
        +++++++++++++++++++ -->
+
+<!-- Just display the description of the schema. This is called from
+     module.xsl -->
+<xsl:template match="schema" mode="description">
+  <!-- output description from external file -->
+  <xsl:call-template name="output_external_description">
+    <xsl:with-param name="schema" select="./@name"/>
+  </xsl:call-template> 
+  <!-- output description from express -->
+  <p>
+    <xsl:if test="string-length(./description)>0">
+      <xsl:apply-templates select="./description"/>
+    </xsl:if>
+  </p>
+</xsl:template>
+
 <xsl:template match="interface">
   <xsl:variable name="schema_name" select="../@name"/>      
   <xsl:if test="position()=1">

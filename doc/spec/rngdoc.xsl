@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.6 2004/10/08 13:20:55 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.7 2004/10/08 15:18:18 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -43,16 +43,16 @@
       </para>
       <itemizedlist>
 	<listitem>
-	  <para><literal>?</literal> means <quote>optional.</quote></para>
+	  <para><literal>?</literal> means &#34;optional.&#34;</para>
 	</listitem>
 	<listitem>
-	  <para><literal>*</literal> means <quote>zero or more.</quote></para>
+	  <para><literal>*</literal> means &#34;zero or more.&#34;</para>
 	</listitem>
 	<listitem>
-	  <para><literal>+</literal> means <quote>one or more.</quote></para>
+	  <para><literal>+</literal> means &#34;one or more.&#34;</para>
 	</listitem>
 	<listitem>
-	  <para><literal>|</literal> means <quote>or.</quote></para>
+	  <para><literal>|</literal> means &#34;or.&#34;</para>
 	</listitem>
 	<listitem>
 	  <para>Literals are enclosed in single quotes.</para>
@@ -61,7 +61,7 @@
 	  <para><literal>text</literal> means any character string.</para>
 	</listitem>
 	<listitem>
-	  <para><literal>#PCDATA</literal> denotes <quote>parsed character data</quote>, as defined in XML 1.0, in a content model.</para>
+	  <para><literal>#PCDATA</literal> denotes &#34;parsed character data&#34;, as defined in XML 1.0, in a content model.</para>
 	</listitem>
 	<listitem>
 	  <para><literal>NMTOKEN</literal> denotes a name token, as defined in XML 1.0.</para>

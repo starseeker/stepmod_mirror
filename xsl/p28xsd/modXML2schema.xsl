@@ -621,16 +621,16 @@
 		
 		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
 
+		
 		<xs:element 
 			name="{$corrected_entity_name_param}" 
-			type="{$namespace_prefix}{$corrected_entity_name_param}" 
+			type="{$namespace_prefix}{$corrected_entity_name_param}"
 			block="extension restriction"
 			substitutionGroup="{$ext_base_sub_grp}"
 			nillable="true">
 		</xs:element>
 		<xsl:text>&#xa;</xsl:text>
 		<xsl:text>&#xa;</xsl:text>
-		
 		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
 
 		<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
@@ -667,10 +667,16 @@
 									</xsl:call-template>
 								</xsl:variable>
 								<xsl:variable name="optionality">
-									<xsl:if test="../@optional = 'YES'">
-										<xsl:value-of select="number(0)"/>
-									</xsl:if>
+									<xsl:choose>
+										<xsl:when test="./@optional = 'YES'">
+											<xsl:value-of select="number(0)"/>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="number(1)"/>
+										</xsl:otherwise>
+									</xsl:choose>
 								</xsl:variable>
+								
 								<xsl:choose>
 									<xsl:when test="../builtintype">
 										<xsl:variable name="attribute" select=".."/>
@@ -689,14 +695,14 @@
 										</xsl:variable>
 										<xsl:choose>
 											<xsl:when test="$target = //type[select]/@name">
-												<xs:element name="{$corrected_attribute_name}">
+												<xs:element name="{$corrected_attribute_name}" minOccurs="$optionality">
 												<xs:complexType>
 													<xs:group ref="{$namespace_prefix}{$corrected_target_name}"/>
 												</xs:complexType>
 												</xs:element>
 											</xsl:when>
 											<xsl:otherwise>
-												<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
+												<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}" minOccurs="$optionality"/>
 											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>
@@ -936,7 +942,7 @@
 							<xsl:choose>
 							
 								<xsl:when test="$target = //type[select]/@name">
-									<xs:element name="{$corrected_attribute_name}">
+									<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 									<xs:complexType>
 										<xs:group ref="{$namespace_prefix}{$corrected_target_name}"/>
 									</xs:complexType>
@@ -946,7 +952,7 @@
 								</xsl:when>
 								
 								<xsl:when test="$target = //entity/@name">
-									<xs:element name="{$corrected_attribute_name}">
+									<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 										<xs:complexType>
 											<xs:sequence>
 												<xs:element ref="{$namespace_prefix}{$corrected_target_name}"/>

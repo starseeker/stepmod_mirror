@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.125 2004/02/06 17:31:54 robbod Exp $
+$Id: common.xsl,v 1.126 2004/05/01 09:05:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1281,12 +1281,12 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
   </xsl:template>
 
-	<xsl:template name="protocol_display_name">
+  <xsl:template name="protocol_display_name">
     <xsl:param name="application_protocol"/>
 
     <xsl:variable name="mod_dir">
       <xsl:call-template name="module_name">
-        <xsl:with-param name="application_protocol" select="$application_protocol"/>
+        <xsl:with-param name="module" select="$application_protocol"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.38 2002/06/02 08:02:17 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.39 2002/06/02 13:16:09 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -237,7 +237,7 @@
             <xsl:value-of
               select="document(concat($mod_dir,'/module.xml'))/module/@status"/>
           </xsl:variable>
-          <xsl:value-of select="concat('ISO/'$status,'&#160;10303-',$part)"/>
+          <xsl:value-of select="concat('ISO/',$status,'&#160;10303-',$part)"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">

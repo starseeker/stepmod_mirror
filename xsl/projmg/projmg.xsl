@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.1 2002/03/19 13:21:28 robbod Exp $
+     $Id: projmg.xsl,v 1.1 2002/05/21 12:15:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -114,8 +114,21 @@
         </xsl:choose>
       <br/>
     </small>
+    <xsl:apply-templates select="./status"/>
   </xsl:template>
 
+  <xsl:template match="status">
+    <blockquote>
+      <small>
+      <b>Status update by <xsl:value-of select="concat(string(@by),' on ', string(@date))"/></b>
+    <br/>
+    <i>Status: </i><b><xsl:value-of select="string(@status)" /></b>
+    <br/>
+    <i>Comment: </i>
+    <xsl:apply-templates select="description"/>
+  </small>
+  </blockquote>
+  </xsl:template>
 
 
   <xsl:template match="developers">

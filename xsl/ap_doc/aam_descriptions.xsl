@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.14 2003/09/19 09:08:12 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.15 2003/10/23 06:35:48 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -86,7 +86,7 @@ $Id: aam_descriptions.xsl,v 1.14 2003/09/19 09:08:12 robbod Exp $
            -->
       <xsl:variable name="aname">
         <xsl:choose>
-          <!-- only use thename if no identifier provided -->
+          <!-- only use the name if no identifier provided -->
           <xsl:when test="string-length(normalize-space(@identifier))=0">
             <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
           </xsl:when>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.30 2003/08/15 07:15:03 robbod Exp $
+$Id: sect_contents.xsl,v 1.31 2003/09/16 16:04:46 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -529,7 +529,15 @@ $Id: sect_contents.xsl,v 1.30 2003/08/15 07:15:03 robbod Exp $
     <xsl:for-each select="./page/activity|./icoms/icom">
       <xsl:sort select="normalize-space(./name)"/>
       <xsl:variable name="clause_aname">
-        <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
+        <xsl:choose>
+          <!-- only use the name if no identifier provided -->
+          <xsl:when test="string-length(normalize-space(@identifier))=0">
+            <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="translate(normalize-space(@identifier),' ','_')"/>
+          </xsl:otherwise>
+        </xsl:choose>        
       </xsl:variable>
       &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
       <a href="./annex_aam{$FILE_EXT}#{$clause_aname}" target="{$target}">

@@ -1,5 +1,5 @@
 @echo off
-REM $Id: make_html_all.bat,v 1.3 2002/02/15 12:06:54 robbod Exp $
+REM $Id: make_html_all.bat,v 1.4 2002/02/24 23:18:09 robbod Exp $
 
 REM Generate the html for all the modules.
 
@@ -10,7 +10,8 @@ REM ++ copy the next line for each new module
 rem goto :BP1
 rem goto :BP2
 rem goto :BP3
-goto :START
+rem goto :ALL
+goto :IRS
 
 
 rem Ballot Package 1
@@ -48,7 +49,7 @@ rem Ballot packge 3
 call make_html work_order
 call make_html work_request
 rem goto :END
-goto :START
+
 
 :ALL
 call make_html advanced_boundary_representation
@@ -66,9 +67,6 @@ call make_html date_time_assignment
 call make_html document_and_version_identification
 call make_html document_assignment
 call make_html document_definition
-
-:START
-
 call make_html document_properties
 call make_html document_structure
 call make_html edge_based_wireframe
@@ -123,4 +121,67 @@ call make_html topologically_bounded_surface
 call make_html work_order
 call make_html work_request
 
+:IRS
+call make_html_resource classification_schema
+call make_html_resource set_theory_schema
+call make_html_resource action_schema
+call make_html_resource application_context_schema
+call make_html_resource approval_schema
+call make_html_resource basic_attribute_schema
+call make_html_resource certification_schema
+call make_html_resource configuration_management_schema
+call make_html_resource contract_schema
+call make_html_resource date_time_schema
+call make_html_resource document_schema
+call make_html_resource draughting_dimension_schema
+call make_html_resource draughting_element_schema
+call make_html_resource drawing_definition_schema
+call make_html_resource effectivity_schema
+call make_html_resource external_reference_schema
+call make_html_resource fea_scalar_vector_tensor_schema
+call make_html_resource finite_element_analysis_control_and_result_schema
+call make_html_resource geometric_model_schema
+call make_html_resource geometry_schema
+call make_html_resource group_schema
+call make_html_resource kinematic_analysis_control_and_result_schema
+call make_html_resource kinematic_motion_representation_schema
+call make_html_resource kinematic_structure_schema
+call make_html_resource management_resources_schema
+call make_html_resource material_property_definition_schema
+call make_html_resource material_property_representation_schema
+call make_html_resource mathematical_functions_schema
+call make_html_resource measure_schema
+call make_html_resource method_definition_schema
+call make_html_resource person_organization_schema
+call make_html_resource presentation_appearance_schema
+call make_html_resource presentation_definition_schema
+call make_html_resource presentation_organization_schema
+call make_html_resource presentation_resource_schema
+call make_html_resource process_property_representation_schema
+call make_html_resource process_property_schema
+call make_html_resource product_concept_schema
+call make_html_resource product_definition_schema
+call make_html_resource product_property_definition_schema
+call make_html_resource product_property_representation_schema
+call make_html_resource product_structure_schema
+call make_html_resource qualified_measure_schema
+call make_html_resource representation_schema
+call make_html_resource security_classification_schema
+call make_html_resource shape_aspect_definition_schema
+call make_html_resource shape_dimension_schema
+call make_html_resource shape_tolerance_schema
+call make_html_resource structural_response_definition_schema
+call make_html_resource structural_response_representation_schema
+call make_html_resource support_resource_schema
+call make_html_resource topology_schema
+
+goto :END
+
+:INDEX
+SETLOCAL
+set SAXON=e:\apps\instant-saxon\saxon
+set MODULES_HOME=..
+echo.
+echo .... %MODULES_HOME%\repository_index.xml
+%SAXON% -a -o "%MODULES_HOME%\repository_index.htm" "%MODULES_HOME%\repository_index.xml" output_type="HTM"
 :END

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_top.xsl,v 1.1 2003/05/23 08:55:04 nigelshaw Exp $
+$Id: index_arm_mappings_top.xsl,v 1.2 2003/05/23 09:29:40 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -151,7 +151,7 @@ $Id: index_arm_mappings_top.xsl,v 1.1 2003/05/23 08:55:04 nigelshaw Exp $
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$ent-names" />
-				<xsl:with-param name="file" select="'index_arm_mappings_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_mappings_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'letter'" />
 			</xsl:call-template>
 			<br/>

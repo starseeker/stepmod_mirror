@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_inner.xsl,v 1.3 2003/05/22 22:29:41 nigelshaw Exp $
+$Id: index_arm_express_inner.xsl,v 1.4 2003/05/23 08:57:56 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -58,7 +58,7 @@ $Id: index_arm_express_inner.xsl,v 1.3 2003/05/22 22:29:41 nigelshaw Exp $
 
     </head>
   <body>
-
+	<small>
 
 	<xsl:variable name="top_module_node"
 	    select="document($top_module_file)/express"/>
@@ -124,7 +124,7 @@ $Id: index_arm_express_inner.xsl,v 1.3 2003/05/22 22:29:41 nigelshaw Exp $
 			</xsl:when>
 
 			</xsl:choose>
-  
+ </small> 
   </body>
 </HTML>
 </xsl:template>

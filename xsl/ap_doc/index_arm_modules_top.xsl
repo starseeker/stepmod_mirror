@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_top.xsl,v 1.3 2003/05/23 08:58:25 nigelshaw Exp $
+$Id: index_arm_modules_top.xsl,v 1.4 2003/05/23 09:08:55 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -148,36 +148,12 @@ $Id: index_arm_modules_top.xsl,v 1.3 2003/05/23 08:58:25 nigelshaw Exp $
 
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$schema-names" />
-				<xsl:with-param name="file" select="'index_arm_modules_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_modules_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'letter'" />
 			</xsl:call-template>
 			<br/>
 			<hr/>
-<!--
-	<xsl:for-each select="$called-schemas//schema"  >
-		<xsl:sort select="@name" /> 
-		<xsl:variable name="first-letter" select="substring(@name,1,1)" />
-		<xsl:if test="not($first-letter=substring(preceding::schema[1]/@name,1,1))" >
-			<A HREF="index_arm_modules_inner.xml#letter-{$first-letter}" target="toc_inner" >
-			<xsl:value-of select="$first-letter" /></A>
-			<xsl:text> </xsl:text>
-		</xsl:if>
-	</xsl:for-each>
--->
-<!--			</TD>
-			
-		</TR>
-	</TABLE>
-	-->
-<!--
-	<br/>
-	<IFRAME name="index" src="index_arm_modules_inner.xml" height="400" width="{$iframe-width}"
-             scrolling="auto" frameborder="1">
-	  [Your user agent does not support frames or is currently configured
-	  not to display frames. The index you chose is 
-	  <A href="index_arm_modules_inner.xml">here.</A>]
-	</IFRAME>
--->
+
 </xsl:template>
 
 

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
+$Id: index_arm_express_top.xsl,v 1.2 2003/05/23 08:57:55 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -51,7 +51,8 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 
     </head>
   <body>
-  	<A HREF="frame_index.xml" TARGET="toc" >Back to main index</A>
+<!--  <small> -->
+  	<A HREF="frame_index{$FILE_EXT}" TARGET="toc" >Back to main index</A>
 	<BR/>
 	<B>ARM EXPRESS index</B>
 	<br/>
@@ -124,6 +125,7 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 			</xsl:choose>
   
   <HR/>
+<!--	</small> -->
   </body>
 </HTML>
 </xsl:template>
@@ -134,23 +136,6 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
 
-
-	
-<!--	<TABLE width="{$iframe-width}">
-		<TR >
-			<TD>
--->
-<!--	<xsl:for-each select="$called-schemas//entity"  >
-		<xsl:sort select="@name" /> 
-		<xsl:variable name="first-letter" select="substring(@name,1,1)" />
-		<xsl:if test="not(/@name,1,1))" >
-			<A HREF="toc_inner_arm_express_inner.xml#letter-{$first-letter}" target="index" >
-			<xsl:value-of select="$first-letter" /></A>
-			<xsl:text> </xsl:text>
-		</xsl:if>
-	</xsl:for-each>
--->
-
 		<xsl:variable name="const-names">
 			<xsl:for-each select="$called-schemas//constant" >
 				<xsl:value-of select="concat(' ',@name,' ')" />
@@ -158,11 +143,11 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 		</xsl:variable>
 
 		<xsl:if test="string-length($const-names) > 1" >
-			<A HREF="index_arm_express_inner.xml#constants" TARGET="toc_inner" ><B>Constants:</B></A>
+			<A HREF="index_arm_express_inner{$FILE_EXT}#constants" TARGET="toc_inner" ><B>Constants:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$const-names" />
-				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_express_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'constant-letter'" />
 			</xsl:call-template>
 			<br/>
@@ -176,11 +161,11 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 		</xsl:variable>
 
 		<xsl:if test="string-length($type-names) > 1" >
-			<A HREF="index_arm_express_inner.xml#types" TARGET="toc_inner" ><B>Types:</B></A>
+			<A HREF="index_arm_express_inner{$FILE_EXT}#types" TARGET="toc_inner" ><B>Types:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$type-names" />
-				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_express_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'type-letter'" />
 			</xsl:call-template>
 			<br/>
@@ -193,11 +178,11 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 		</xsl:variable>
 
 		<xsl:if test="string-length($ent-names) > 1" >
-			<A HREF="index_arm_express_inner.xml#entities" TARGET="toc_inner" ><B>Entities:</B></A>
+			<A HREF="index_arm_express_inner{$FILE_EXT}#entities" TARGET="toc_inner" ><B>Entities:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$ent-names" />
-				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_express_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'entity-letter'" />
 			</xsl:call-template>
 			<br/>
@@ -210,11 +195,11 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 		</xsl:variable>
 
 		<xsl:if test="string-length($subc-names) > 1" >
-			<A HREF="index_arm_express_inner.xml#subc" TARGET="toc_inner" ><B>Subtype Constraints:</B></A>
+			<A HREF="index_arm_express_inner{$FILE_EXT}#subc" TARGET="toc_inner" ><B>Subtype Constraints:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$subc-names" />
-				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_express_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'subc-letter'" />
 			</xsl:call-template>
 			<br/>
@@ -227,11 +212,11 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 		</xsl:variable>
 
 		<xsl:if test="string-length($rule-names) > 1" >
-			<A HREF="index_arm_express_inner.xml#rules" TARGET="toc_inner" ><B>Rules:</B></A>
+			<A HREF="index_arm_express_inner{$FILE_EXT}#rules" TARGET="toc_inner" ><B>Rules:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$rule-names" />
-				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_express_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'rule-letter'" />
 			</xsl:call-template>
 			<br/>
@@ -244,11 +229,11 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 		</xsl:variable>
 
 		<xsl:if test="string-length($fun-names) > 1" >
-			<A HREF="index_arm_express_inner.xml#functions" TARGET="toc_inner" ><B>Functions:</B></A>
+			<A HREF="index_arm_express_inner{$FILE_EXT}#functions" TARGET="toc_inner" ><B>Functions:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$fun-names" />
-				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_express_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'function-letter'" />
 			</xsl:call-template>
 			<br/>
@@ -261,30 +246,16 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 		</xsl:variable>
 
 		<xsl:if test="string-length($proc-names) > 1" >
-			<A HREF="index_arm_express_inner.xml#procedures" TARGET="toc_in	ner" ><B>Procedures:</B></A>
+			<A HREF="index_arm_express_inner{$FILE_EXT}#procedures" TARGET="toc_in	ner" ><B>Procedures:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$proc-names" />
-				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="file" select="concat('index_arm_express_inner',$FILE_EXT)" />
 				<xsl:with-param name="internal-link-root" select="'procedures-letter'" />
 			</xsl:call-template>
 			<br/>
 		</xsl:if>
 
-<!--
-		</TD>
-			
-		</TR>
-	</TABLE>
-
-	<br/>
-	<IFRAME name="index" src="index_arm_express_inner.xml" height="340" width="{$iframe-width}"
-             scrolling="auto" frameborder="1">
-	  [Your user agent does not support frames or is currently configured
-	  not to display frames. The index you chose is 
-	  <A href="index_arm_express_inner.xml">here.</A>]
-	</IFRAME>
--->
 </xsl:template>
 
 

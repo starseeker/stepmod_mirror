@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.22 2003/06/11 14:28:05 robbod Exp $
+$Id: sect_contents.xsl,v 1.23 2003/06/15 19:43:18 nigelshaw Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -50,11 +50,11 @@ $Id: sect_contents.xsl,v 1.22 2003/06/11 14:28:05 robbod Exp $
     <xsl:if test="$complete='yes'">
       <a href="./cover{$FILE_EXT}" target="{$target}">Cover page</a>
       <br/>
-      <a href="./foreword{$FILE_EXT}" target="{$target}">Foreword</a>
-      <br/>
       <a href="./contents{$FILE_EXT}" target="{$target}">Table of contents</a>
       <br/>
       <a href="./contents{$FILE_EXT}#copyright" target="{$target}">Copyright</a>
+      <br/>
+      <a href="./foreword{$FILE_EXT}" target="{$target}">Foreword</a>
       <br/>
       <a href="./introduction{$FILE_EXT}" target="{$target}">Introduction</a><br/>      
     </xsl:if>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.43 2004/09/27 04:43:07 thendrix Exp $
+$Id: resource.xsl,v 1.44 2004/11/05 17:27:01 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1149,7 +1149,9 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
                 <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
               </xsl:when>
               <xsl:otherwise>
-                <a href="../../../../wg12n{$wgnumber}.exp">
+
+                <!--  move dcombined express  inside data/resourcd_doc/ <a href="../../../../wg12n{$wgnumber}.exp"> -->
+                <a href="../wg12n{$wgnumber}.exp">
                   <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
                 </a>
               </xsl:otherwise>

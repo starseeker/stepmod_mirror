@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.3 2004/01/13 15:13:01 robbod Exp $
+$Id: publication_summary.xsl,v 1.4 2004/02/07 22:06:48 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -266,7 +266,7 @@ $Id: publication_summary.xsl,v 1.3 2004/01/13 15:13:01 robbod Exp $
                     $module_node/@sc4.working_group,'n',
                     $module_node/@wg.number.arm,
                     'arm.exp')"/>
-          <xsl:variable name="arm_href" select="concat($mod_dir_name,'/express/',$armfile)"/>
+          <xsl:variable name="arm_href" select="concat($mod_dir_name,'express/',$armfile)"/>
           <a href="{$arm_href}">
             <xsl:value-of select="$armfile"/>
           </a>
@@ -284,7 +284,7 @@ $Id: publication_summary.xsl,v 1.3 2004/01/13 15:13:01 robbod Exp $
                         $module_node/@sc4.working_group,'n',
                         $module_node/@wg.number.arm_lf,
                         'arm_lf.exp')"/>
-              <xsl:variable name="arm_lf_href" select="concat($mod_dir_name,'/express/',$arm_lf_file)"/>
+              <xsl:variable name="arm_lf_href" select="concat($mod_dir_name,'express/',$arm_lf_file)"/>
               <a href="{$arm_lf_href}">
                 <xsl:value-of select="$arm_lf_file"/>
               </a>
@@ -307,7 +307,7 @@ $Id: publication_summary.xsl,v 1.3 2004/01/13 15:13:01 robbod Exp $
                     $module_node/@sc4.working_group,'n',
                     $module_node/@wg.number.mim,
                     'mim.exp')"/>
-          <xsl:variable name="mim_href" select="concat($mod_dir_name,'/express/',$mimfile)"/>
+          <xsl:variable name="mim_href" select="concat($mod_dir_name,'express/',$mimfile)"/>
           <a href="{$mim_href}">
             <xsl:value-of select="$mimfile"/>
           </a>
@@ -326,7 +326,7 @@ $Id: publication_summary.xsl,v 1.3 2004/01/13 15:13:01 robbod Exp $
                         $module_node/@wg.number.mim_lf,
                         'mim_lf.exp')"/>
               <xsl:variable name="mim_lf_href" 
-                select="concat($mod_dir_name,'/express/',$mim_lf_file)"/>
+                select="concat($mod_dir_name,'express/',$mim_lf_file)"/>
               <a href="{$mim_lf_href}">
                 <xsl:value-of select="$mim_lf_file"/>
               </a>

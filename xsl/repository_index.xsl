@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: repository_index.xsl,v 1.5 2002/01/12 08:44:51 robbod Exp $
+     $Id: repository_index.xsl,v 1.6 2002/01/28 11:07:56 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -75,7 +75,7 @@
       </blockquote>
       <h2>
         <a name="alphatop">
-          Alphabetical list of Integrated Resource schema
+          Alphabetical list of Integrated Resource schemas
         </a>
       </h2>
       <xsl:variable name="resource_count"

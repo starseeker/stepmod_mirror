@@ -5,7 +5,9 @@
 
 SCHEMA Interconnect_placement_requirements_arm;
 
-USE FROM Layered_interconnect_module_design_arm;
+USE FROM Land_arm;
+
+USE FROM Layered_interconnect_module_3d_shape_arm;
 
 USE FROM Non_feature_shape_element_arm;
 
@@ -17,9 +19,25 @@ USE FROM Assembly_component_placement_requirements_arm;
 
 USE FROM Characteristic_arm;
 
-	TYPE assembly_or_interconnect_design_object_select = 
-		EXTENSIBLE GENERIC_ENTITY SELECT;
+
+	TYPE assembly_or_interconnect_design_object_select = SELECT
+    (assembly_component,
+     component_feature,
+     interconnect_module_design_object_select);
 	END_TYPE;
+
+	TYPE interconnect_module_design_object_select = SELECT 
+    (via,
+     cutout,
+     component_termination_passage,
+     land,
+     conductor,
+     conductive_filled_area,
+     stratum_feature,
+     laminate_component,
+     inter_stratum_feature,
+     non_functional_land);
+  END_TYPE;
 
   TYPE interconnect_module_design_object_category = ENUMERATION OF
     (interconnect_module_via,
@@ -28,10 +46,6 @@ USE FROM Characteristic_arm;
      interconnect_module_fill_area,
      interconnect_module_stratum_feature);
   END_TYPE; -- interconnect_module_design_object_category
-
-	TYPE interconnect_module_design_object_select = 
-		EXTENSIBLE GENERIC_ENTITY SELECT;
-	END_TYPE;
 
   ENTITY Interconnect_module_constraint_region
     SUBTYPE OF (Non_feature_shape_element);

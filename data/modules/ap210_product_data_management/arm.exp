@@ -47,6 +47,8 @@ USE FROM Independent_property_representation_arm;    -- ISO/TS 10303-1038 ??
 
 USE FROM Multi_linguism_arm;    -- ISO/TS 10303-1105
 
+USE FROM Pdm_material_aspects_arm;
+
 USE FROM Person_organization_arm;    -- ISO/TS 10303-1011
 
 USE FROM Person_organization_assignment_arm;    -- ISO/TS 10303-1013
@@ -64,6 +66,8 @@ USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
 USE FROM Project_arm;    -- ISO/TS 10303-1061
 
 USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030 ??
+
+USE FROM Requirement_assignment_arm;
 
 USE FROM Requirement_view_definition_relationship_arm; -- ISO/TS 10303-1142
 
@@ -92,7 +96,8 @@ TYPE pdm_affected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON affect
    (Assigned_property, 
     Product_version, 
     Product_view_definition, 
-    View_definition_relationship);
+    View_definition_relationship,
+    Work_request);
 END_TYPE; 
 
 TYPE pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
@@ -102,8 +107,31 @@ TYPE pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item
     Work_request);
 END_TYPE; 
 
+TYPE pdm_assigned_name_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assigned_name_select WITH 
+   (product,
+   product_view_definition);
+END_TYPE; 
+
+TYPE ap210_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
+   (certification,
+   document_definition,
+   effectivity,
+   independent_property_relationship, --model_parameter_relationship,
+   product_configuration,
+   product_version,
+   product_view_definition,
+   requirement_assignment,
+   security_classification,
+   supplied_part_relationship,
+   work_order,
+   work_request);
+END_TYPE; --ap210_approval_item
+
+
 TYPE pdm_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
-   (Product_version_relationship);
+   (Alternate_product_relationship,
+   Product_version,
+   Product_version_relationship);
 END_TYPE; 
 
 TYPE pdm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
@@ -179,16 +207,32 @@ TYPE pdm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classif
     Work_request_status);
 END_TYPE; 
 
+TYPE pdm_contract_item = EXTENSIBLE SELECT BASED_ON contract_item WITH 
+   (organization_or_person_in_organization_select,
+   product_version,
+   work_order);
+END_TYPE; --ap210_contract_item
+
 TYPE pdm_date_or_date_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_item WITH 
    (Activity, 
     Applied_activity_assignment, 
+    Contract,
+	Document_definition,
+   	Product_view_definition,
+	Security_classification,
+   	Work_order,
     Work_request);
 END_TYPE; 
 
 TYPE pdm_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
    (Activity, 
     Activity_method, 
+    External_item_identification,
+    Material_identification,
+    Product_category,
     Product_version_relationship, 
+    Product_view_definition,
+    Representation_item,
     Shape_element, 
     Shape_element_relationship, 
     Work_request);
@@ -209,16 +253,31 @@ TYPE pdm_external_class_assigned_name_select = EXTENSIBLE GENERIC_ENTITY SELECT 
 END_TYPE; 
 
 TYPE pdm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
-   (Shape_element_relationship);
+   (Material_identification,
+    Organization,   
+    Product,
+    Product_category,
+    Product_configuration,
+    Product_concept,
+    Product_version,
+    Shape_element_relationship);
 END_TYPE; 
 
 TYPE pdm_organization_or_person_in_organization_item = SELECT BASED_ON organization_or_person_in_organization_item WITH 
    (Activity, 
+	Alias_identification,
     Applied_activity_assignment, 
     Approval, 
+    Certification,
     Contract, 
+   	Document_definition,
+   	Product,
     Product_configuration, 
+    Product_version,
+    Product_view_definition,
     Security_classification, 
+   	Supplied_part_relationship,
+   	Work_order,
     Work_request);
 END_TYPE; 
 
@@ -274,9 +333,5 @@ END_TYPE;
       wr1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\definition_based_product_occurrence.derived_from\product_view_definition.defined_version.of_product = part))) = 0;
       wr2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.related_view = assembly))) = 0;
   END_ENTITY; -- assembly_item_number
-
-	TYPE design_object_management_relationship_or_description = 
-		EXTENSIBLE GENERIC_ENTITY SELECT (text_representation_item);
-	END_TYPE;
 
 END_SCHEMA;  -- Product_data_management_arm

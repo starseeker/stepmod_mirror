@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.22 2002/09/15 21:41:52 albert.leyson Exp $
+   $Id: arm.exp,v 1.2 2002/09/27 14:36:48 magnevs Exp $
    N - ISO/CD-TS - 10303- State_definition - EXPRESS ARM
 *)
 
@@ -31,49 +31,43 @@ END_TYPE;
 TYPE state_of_select = EXTENSIBLE SELECT ;
 END_TYPE;
 
-ENTITY And_state_definition_relationship
+ENTITY And_state_cause_effect_definition
 SUBTYPE OF (State_cause_effect_definition);
 END_ENTITY;
 
-(* Applied state definition assignment is an association of a state definition with product data. *)
 ENTITY Applied_state_definition_assignment;
   assigned_to : state_of_select;
   described_state_definition : State_definition;
 END_ENTITY;
 
-(* A composition of state definition composes a state definition. *)
 ENTITY Composition_of_state_definition
 SUBTYPE OF (State_definition_relationship);
   part : State_definition;
   whole : State_definition;
 END_ENTITY;
 
-ENTITY Or_state_definition_relationship
+ENTITY Or_state_cause_effect_definition
 SUBTYPE OF (State_cause_effect_definition);
 END_ENTITY;
 
-(* A proper subset is a relationship that relates an aspect of one state definition to an aspect in a different state definition. *)
 ENTITY Proper_subset
 SUBTYPE OF (State_definition_relationship);
   proper_subset : State_definition;
   proper_superset : State_definition;
 END_ENTITY;
 
-(* A sequence of state definition describes and relates an order of state definitions. *)
 ENTITY Sequence_of_state_definition
 SUBTYPE OF (State_definition_relationship);
   predecessor : State_definition;
   successor : State_definition;
 END_ENTITY;
 
-(* A state cause effect definition describes and relates types of causes and effects from a given state definition. *)
 ENTITY State_cause_effect_definition
 SUBTYPE OF (State_definition_relationship);
-  cause : State_definition;
-  effect : State_definition;
+  cause : SET [1 : ?] OF State_definition;
+  effect : SET [1 : ?] OF State_definition;
 END_ENTITY;
 
-(* A state complement is a relationship that relates types of state definitions to other types of state definitions. *)
 ENTITY State_complement
 SUBTYPE OF (State_definition_relationship);
   set_1 : State_definition;
@@ -81,73 +75,40 @@ SUBTYPE OF (State_definition_relationship);
   universe : State_definition;
 END_ENTITY;
 
-(* A state definition is a type of state. *)
 ENTITY State_definition;
   description : OPTIONAL STRING;
   name : STRING;
 END_ENTITY;
 
-(* A state definition relationship describes a relationship between state definitions.  This can be a diagnostic process. *)
 ENTITY State_definition_relationship;
 END_ENTITY;
 
-(* A state definition relationship relationship describes a relationship between state definition relationships. *)
 ENTITY State_definition_relationship_relationship;
   related : State_definition_relationship;
   relating : State_definition_relationship;
 END_ENTITY;
 
-(* A state transition definition describes and relates a transition from one state definition to another state definition. *)
 ENTITY State_transition_definition
 SUBTYPE OF (State_definition_relationship);
   end_state : State_definition;
   start_state : State_definition;
 END_ENTITY;
 
-(* A subset is a relationship that relates an aspect of one state definition to an aspect in another state definition.  Note, the second state definition may be equal to the first state definition. *)
 ENTITY Subset
 SUBTYPE OF (State_definition_relationship);
   subset : State_definition;
   superset : State_definition;
 END_ENTITY;
 
-(* A symptom definition describes and relates cause and effect of a symptom from a given state definition.  This can be the detection method. *)
 ENTITY Symptom_definition
 SUBTYPE OF (State_definition_relationship);
   symptom_cause : State_definition;
   symptom_effect : State_definition;
 END_ENTITY;
 
-ENTITY Xor_state_definition_relationship
+ENTITY Xor_state_cause_effect_definition
 SUBTYPE OF (State_cause_effect_definition);
 END_ENTITY;
-
-END_SCHEMA;
-
-SCHEMA Identification_assignment_arm;
-
-TYPE identification_item = EXTENSIBLE SELECT ;
-END_TYPE;
-
-ENTITY Identification_assignment;
-END_ENTITY;
-
-END_SCHEMA;
-
-SCHEMA Classification_arm;
-
-TYPE classified_select = EXTENSIBLE SELECT ;
-END_TYPE;
-
-ENTITY Classification;
-END_ENTITY;
-
-END_SCHEMA;
-
-SCHEMA Property_assignment_arm;
-
-TYPE property_assignment_select = EXTENSIBLE SELECT ;
-END_TYPE;
 
 END_SCHEMA;
 

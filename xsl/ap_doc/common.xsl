@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: common.xsl,v 1.6 2002/10/08 10:20:08 mikeward Exp $
+     $Id: common.xsl,v 1.7 2002/10/21 14:05:13 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../common.xsl"/>
@@ -271,6 +271,8 @@
     </xsl:choose>
   </div>
 </xsl:template>
+
+	<xsl:template name="expressg_icon"/>
 
 	<xsl:template name="ap_expressg_icon">
 		<xsl:param name="schema"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: application_protocol.xsl,v 1.8 2002/10/08 10:20:08 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -30,7 +30,7 @@
 	
 	<xsl:template match="module">
 		<!-- xsl:apply-templates select="." mode="coverpage"/ -->
-		<!-- xsl:apply-templates/ -->
+		<xsl:apply-templates/>
 	</xsl:template>
 
 	<xsl:template match="application_protocol" mode="title">
@@ -325,243 +325,252 @@
 		</table>
 	</xsl:template>
 
-<xsl:template match="projlead">
-  <xsl:variable name="ref" select="@ref"/>
-  <xsl:variable name="projlead"
-    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-  <b>Project leader: </b>
-  <xsl:choose>
-    <xsl:when test="$projlead">
-      <xsl:apply-templates select="$projlead"/>      
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message">
-          Error 1: No contact provided for project leader.
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
+	<xsl:template match="projlead">
+		<xsl:variable name="ref" select="@ref"/>
+		<xsl:variable name="projlead" select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+		<b>
+			Project leader: 
+		</b>
+		<xsl:choose>
+			<xsl:when test="$projlead">
+				<xsl:apply-templates select="$projlead"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="error_message">
+					<xsl:with-param name="message">
+						Error 1: No contact provided for project leader.
+					</xsl:with-param>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
 
-<xsl:template match="editor">
-  <xsl:variable name="ref" select="@ref"/>
-  <xsl:variable name="editor"
-    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-  <b>Project editor: </b>
-  <xsl:choose>
-    <xsl:when test="$editor">
-      <xsl:apply-templates select="$editor"/>      
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message">
-          Error 2: No contact provided for project editor.
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-
-<xsl:template match="application_protocol" mode="foreword">
-  <h3>
-    <a name="foreword">
-      Foreword
-    </a>
-  </h3>
-  <p>
-    ISO (the International Organization for Standardization) is a worldwide
-    federation of national standards bodies (ISO member bodies). The work of
-    preparing International Standards is normally carried out through ISO
-    technical committees. Each member body interested in a subject for
-    which a technical committee has been established has the right to be
-    represented on that committee. International organizations,
-    governmental and non-governmental, in liaison with ISO, also take
-    part in the work. ISO collaborates closely with the International
-    Electrotechnical Commission (IEC) on all matters of electrotechnical
-    standardization. 
-  </p>
-  
-  <p>
-    International Standards are drafted in accordance with the rules given in
-    the ISO/IEC Directives, Part 2.
-  </p>
-  
-  <p>
-    The main task of technical committees is to prepare International
-    Standards. Draft International Standards adopted by the technical
-    committees are circulated to the member bodies for voting. Publication as
-    an International Standard requires approval by at least 75% of the member
-    bodies casting a vote.
-  </p>
-  
-  <p>
-    In other circumstances, particularly when there is an urgent market
-    requirement for such documents, a technical committee may decide to
-    publish other types of normative document: 
-  </p>
-  
-  <ul>
-    <li>
-      an ISO Publicly Available Specification (ISO/PAS) represents an
-      agreement between technical experts in an ISO working group and  is
-      accepted for publication if it is approved by more than 50% 
-      of the members of the parent committee casting a vote;
-    </li>  
-  </ul>
-  
-  <ul>
-    <li>
-      an ISO Technical Specification (ISO/TS) represents an agreement between
-      the members of a technical committee and is accepted for
-      publication if it is approved by 2/3 of the members of the committee
-      casting a vote. 
-    </li>
-  </ul>
-  
-  <p>
-    An ISO/PAS or ISO/TS is reviewed every three years with a view to
-    deciding whether it can be transformed into an International Standard.
-  </p>
-  
-  <p>
-    Attention is drawn to the possibility that some of the elements of this
-    part of ISO 10303 may be the subject of patent rights. ISO shall not be
-    held responsible for identifying any or all such patent rights.
-  </p>    
-  
-  <p>
-    <xsl:choose>
-      <xsl:when test="string-length(@part)>0">
-        <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
-      </xsl:when>
-      <xsl:otherwise>
-        ISO/TS 10303-<font color="#FF0000"><b>XXXX</b></font>
-      </xsl:otherwise>
-    </xsl:choose>
-    was prepared by Technical Committee ISO/TC 184, 
-    <i>Industrial automation systems and integration,</i>
-    Subcommittee SC4, <i>Industrial data.</i>
-  </p>
-  <p>
-    This International Standard is organized as a series of parts, each
-    published separately. The structure of this International Standard is
-    described in ISO 10303-1.
-  </p>
-  <p>
-    Each part of this International Standard is a
-    member of one of the following series: description methods, implementation
-    methods, conformance testing methodology and framework, integrated generic
-    resources, integrated application resources, application protocols,
-    abstract test suites, application interpreted constructs, and application
-    modules. This part is a member of the application protocols series. 
-  </p>
-  <p>
-    A complete list of parts of ISO 10303 is available from the Internet: 
-  </p>
-  <blockquote>
-    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf/">
-      &lt;http://www.tc184-sc4.org/titles/STEP_Titles.rtf/&gt;
-    </A>.
-  </blockquote>
-
-
-  <p>
-    Annexes A, B, C and D form an integral part of this part of ISO 10303. Annexe E <i>et seq</i> are for information only.  
-  </p> 
-</xsl:template>
-
-
-<xsl:template match="purpose">
-  <h3>
-    <a name="introduction">
-      Introduction
-    </a>
-  </h3>
-
-  <p>
-    ISO 10303 is an International Standard for the computer-interpretable 
-    representation of product information and for the exchange of product data.
-    The objective is to provide a neutral mechanism capable of describing
-    products throughout their life cycle. This mechanism is suitable not only
-    for neutral file exchange, but also as a basis for implementing and
-    sharing product databases, and as a basis 
-    for archiving.
-  </p>
-  <xsl:apply-templates/>
-<p>
-    Clause <a href="1_scope{$FILE_EXT}">1</a> defines the scope of the
-    application protocol and summarizes the functionality and data covered. 
-
-    Clause <a href="3_defs{$FILE_EXT}">3</a> lists the words defined in
-    this part of ISO 10303 and gives pointers to words defined elsewhere. 
-
-    The information requirements of the application are specified in clause 
-    <a href="4_info_reqs{$FILE_EXT}">4</a> using terminology appropriate to
-    the application. 
-
-    A graphical representation of the information requirements, referred to
-    as the application reference model, is given in annex 
-    <a href="f_arm_expg{$FILE_EXT}">F</a>. 
-
-    Resource constructs are interpreted to meet the information
-    requirements. 
-    This interpretation produces the application interpreted model (AIM). 
-    This interpretation, given in <a href="5_mapping{$FILE_EXT}">5.1</a>,
-    shows the correspondence between the information requirements and the
-    AIM. The short listing of the AIM specifies the interface to the
-    resources and is given in <a href="5_aim{$FILE_EXT}">5.2</a>.  
-  </p>
-  <p>
-    In this International Standard, the same English language words may be
-    used to refer to an object in the real world or concept, and as the
-    name of an EXPRESS data type that represents this object or concept. 
-  </p>
-  <p>
-    The following typographical convention is used to distinguish between
-    these. If a word or phrase occurs in the same typeface as narrative
-    text, the referent is the object or concept. If the word or phrase
-    occurs in a bold typeface or as a hyperlink, the referent is the
-    EXPRESS data type. 
-  </p>
-  <p>
-    The name of an EXPRESS data type may be used to refer to the data type
-    itself, or to an instance of the data type. The distinction between
-    these uses is normally clear from the context. If there is a likelihood
-    of ambiguity, either the phrase "entity data type" or "instance(s) of" is
-    included in the text. 
-  </p>
-  <p>
-    Double quotation marks " " denote quoted text. Single quotation marks ' '
-    denote particular text string values.
-  </p>
-
-</xsl:template>
-
-<xsl:template match="inscope">
-  <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'1 Scope'"/>
-    <xsl:with-param name="aname" select="'scope'"/>
-  </xsl:call-template>
-  <xsl:variable name="application_protocol_name">
-    <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="../@name"/>
-    </xsl:call-template>           
-  </xsl:variable>
-  <p>
-    This part of ISO 10303 specifies the application protocol for 
-    <xsl:value-of select="$application_protocol_name"/>.
-    <a name="inscope"/>
-    The following are within scope of this part of ISO 10303: 
-  </p>
-  <ul>
-    <xsl:apply-templates/>
-  </ul>
-</xsl:template>
-
-
-<xsl:template match="outscope">
+	<xsl:template match="editor">
+		<xsl:variable name="ref" select="@ref"/>
+		<xsl:variable name="editor" select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+		<b>
+			Project editor: 
+		</b>
+		<xsl:choose>
+			<xsl:when test="$editor">
+				<xsl:apply-templates select="$editor"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="error_message">
+					<xsl:with-param name="message">
+						Error 2: No contact provided for project editor.
+					</xsl:with-param>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+	
+	<xsl:template match="application_protocol" mode="foreword">
+		<h3>
+			<a name="foreword">
+				Foreword
+			</a>
+		</h3>
+		<p>
+		    ISO (the International Organization for Standardization) is a worldwide
+		    federation of national standards bodies (ISO member bodies). The work of
+		    preparing International Standards is normally carried out through ISO
+		    technical committees. Each member body interested in a subject for
+		    which a technical committee has been established has the right to be
+		    represented on that committee. International organizations,
+		    governmental and non-governmental, in liaison with ISO, also take
+		    part in the work. ISO collaborates closely with the International
+		    Electrotechnical Commission (IEC) on all matters of electrotechnical
+		    standardization.
+		</p>
+		<p>
+			International Standards are drafted in accordance with the rules given in the ISO/IEC Directives, Part 2.
+		</p>
+		<p>
+			    The main task of technical committees is to prepare International
+			    Standards. Draft International Standards adopted by the technical
+			    committees are circulated to the member bodies for voting. Publication as
+			    an International Standard requires approval by at least 75% of the member
+			    bodies casting a vote.
+		</p>
+		<p>
+			In other circumstances, particularly when there is an urgent market 
+			requirement for such documents, a technical committee may decide to publish 
+			other types of normative document: 
+		</p>
+		<ul>
+			<li>
+				an ISO Publicly Available Specification (ISO/PAS) represents an
+			      agreement between technical experts in an ISO working group and  is
+			      accepted for publication if it is approved by more than 50% 
+			      of the members of the parent committee casting a vote;
+			</li>
+		</ul>
+		<ul>
+			<li>
+				an ISO Technical Specification (ISO/TS) represents an agreement between 
+				the members of a technical committee and is accepted for
+			      publication if it is approved by 2/3 of the members of the committee
+			      casting a vote. 
+			</li>
+		</ul>
+		<p>
+			    An ISO/PAS or ISO/TS is reviewed every three years with a view to
+			    deciding whether it can be transformed into an International Standard.
+		</p>
+		<p>
+			Attention is drawn to the possibility that some of the elements of this
+			    part of ISO 10303 may be the subject of patent rights. ISO shall not be
+			    held responsible for identifying any or all such patent rights.
+		</p>
+		<p>
+			<xsl:choose>
+				<xsl:when test="string-length(@part)>0">
+					<xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+				</xsl:when>
+				<xsl:otherwise>
+					ISO/TS 10303-
+					<font color="#FF0000">
+						<b>
+							XXXX
+						</b>
+					</font>
+				</xsl:otherwise>
+			</xsl:choose>
+			was prepared by Technical Committee ISO/TC 184, 
+			<i>
+				Industrial automation systems and integration,
+			</i>
+			Subcommittee SC4, 
+			<i>
+				Industrial data.
+			</i>
+		</p>
+		<p>
+			    This International Standard is organized as a series of parts, each
+			    published separately. The structure of this International Standard is
+			    described in ISO 10303-1.
+  		</p>
+		<p>
+			    Each part of this International Standard is a
+			    member of one of the following series: description methods, implementation
+			    methods, conformance testing methodology and framework, integrated generic
+			    resources, integrated application resources, application protocols,
+			    abstract test suites, application interpreted constructs, and application
+			    modules. This part is a member of the application protocols series.
+		</p>
+		<p>
+			A complete list of parts of ISO 10303 is available from the Internet: 
+		</p>
+		<blockquote>
+			<a href="http://www.tc184-sc4.org/titles/STEP_Titles.rtf/">
+				&lt;http://www.tc184-sc4.org/titles/STEP_Titles.rtf/&gt;
+			</a>
+			.
+		</blockquote>
+		<p>
+			Annexes A, B, C and D form an integral part of this part of ISO 10303. Annexe E 
+			<i>
+				et seq
+			</i> 
+			are for information only.
+		</p> 
+	</xsl:template>
+	
+	<xsl:template match="purpose">
+		<h3>
+			<a name="introduction">
+				Introduction
+			</a>
+		</h3>
+		<p>
+		    ISO 10303 is an International Standard for the computer-interpretable 
+		    representation of product information and for the exchange of product data.
+		    The objective is to provide a neutral mechanism capable of describing
+		    products throughout their life cycle. This mechanism is suitable not only
+		    for neutral file exchange, but also as a basis for implementing and
+		    sharing product databases, and as a basis 
+		    for archiving.
+		</p>
+		<xsl:apply-templates/>
+		<p>
+			Clause 
+			<a href="1_scope{$FILE_EXT}">
+				1
+			</a> 
+			defines the scope of the application protocol and summarizes the functionality and data covered. Clause 
+			<a href="3_defs{$FILE_EXT}">
+				3
+			</a> 
+			lists the words defined in this part of ISO 10303 and gives pointers to words defined elsewhere. The information 
+			requirements of the application are specified in clause 
+			<a href="4_info_reqs{$FILE_EXT}">
+				4
+			</a> 
+			using terminology appropriate to the application. A graphical representation of the information requirements, referred 
+			to as the application reference model, is given in annex 
+			<a href="f_arm_expg{$FILE_EXT}">
+				F
+			</a>
+			. Resource constructs are interpreted to meet the information requirements. This interpretation produces the application 
+			interpreted model (AIM). This interpretation, given in 
+			<a href="5_mapping{$FILE_EXT}">
+				5.1
+			</a>
+			, shows the correspondence between the information requirements and the AIM. The short listing of the AIM specifies 
+			the interface to the resources and is given in 
+			<a href="5_aim{$FILE_EXT}">
+				5.2
+			</a>
+			.
+			</p>
+			<p>
+				In this International Standard, the same English language words may be
+				    used to refer to an object in the real world or concept, and as the
+				    name of an EXPRESS data type that represents this object or concept.
+			</p>
+			<p>
+				The following typographical convention is used to distinguish between
+				    these. If a word or phrase occurs in the same typeface as narrative
+				    text, the referent is the object or concept. If the word or phrase
+				    occurs in a bold typeface or as a hyperlink, the referent is the
+				    EXPRESS data type.
+			</p>
+			<p>
+				The name of an EXPRESS data type may be used to refer to the data type
+				    itself, or to an instance of the data type. The distinction between
+				    these uses is normally clear from the context. If there is a likelihood
+				    of ambiguity, either the phrase "entity data type" or "instance(s) of" is
+				    included in the text.
+			</p>
+			<p>
+				Double quotation marks " " denote quoted text. Single quotation marks ' ' denote particular text string values.
+			</p>
+		</xsl:template>
+		
+		<xsl:template match="inscope">
+			<xsl:call-template name="clause_header">
+				<xsl:with-param name="heading" select="'1 Scope'"/>
+				<xsl:with-param name="aname" select="'scope'"/>
+			</xsl:call-template>
+			<xsl:variable name="application_protocol_name">
+				<xsl:call-template name="module_display_name">
+					<xsl:with-param name="module" select="../@name"/>
+				</xsl:call-template>
+			</xsl:variable>
+			<p>
+				This part of ISO 10303 specifies the application protocol for 
+				<xsl:value-of select="$application_protocol_name"/>
+				. 
+				<a name="inscope"/> 
+				The following are within scope of this part of ISO 10303: 
+			</p>
+			<ul>
+				<xsl:apply-templates/>
+			</ul>
+		</xsl:template>
+		
+		<!-- xsl:template match="outscope">
   <p>
     <a name="outscope"/>
     The following are outside the scope of this part of ISO 10303: 
@@ -569,7 +578,7 @@
   <ul>
     <xsl:apply-templates/>
   </ul>
-</xsl:template>
+</xsl:template -->
 
 	<xsl:template match="application_protocol" mode="annexg">
 		<xsl:call-template name="annex_header">
@@ -740,232 +749,201 @@
 		<td>
 			<a href="../../../modules/{$ap}/{$file}"><xsl:value-of select="$file_name"/></a>
   		</td>
-  <td>
-    <xsl:variable name="test_wg_number">
-      <xsl:call-template name="test_wg_number">
-        <xsl:with-param name="wgnumber" select="$wgnumber"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:variable name="type">
-      <xsl:choose>
-        <xsl:when test="$file='arm.exp'">
-          arm
-        </xsl:when>
-        <xsl:otherwise>
-          aim
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="contains($test_wg_number,'Error')">
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="message">
-            <xsl:value-of select="concat('(Error in
-                                  application_protocol.xml/application_protocol/@wg.number.',$type,' - ',
+		<td>
+			<xsl:variable name="test_wg_number">
+				<xsl:call-template name="test_wg_number">
+					<xsl:with-param name="wgnumber" select="$wgnumber"/>
+				</xsl:call-template>
+			</xsl:variable>
+			<xsl:variable name="type">
+				<xsl:choose>
+					<xsl:when test="$file='arm.exp'">
+						arm
+					</xsl:when>
+					<xsl:otherwise>
+						aim
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:variable>
+			<xsl:choose>
+				<xsl:when test="contains($test_wg_number,'Error')">
+					<xsl:call-template name="error_message">
+						<xsl:with-param name="message">
+							<xsl:value-of select="concat('(Error in application_protocol.xml/application_protocol/@wg.number.',$type,' - ',
                                   $test_wg_number)"/>
-          </xsl:with-param>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat('WG12 N',$wgnumber)"/>
-      </xsl:otherwise>
-    </xsl:choose>    
-  </td>
-</xsl:template>
+						</xsl:with-param>
+					</xsl:call-template>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="concat('WG12 N',$wgnumber)"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</td>
+	</xsl:template>
 
 	<xsl:template match="arm">
 		<xsl:call-template name="clause_header">
 			<xsl:with-param name="heading" select="'4 Information requirements'"/>
-    <xsl:with-param name="aname" select="'arm'"/>
-  </xsl:call-template>
-  <xsl:variable name="f_expg" select="concat('./c_arm_expg',$FILE_EXT)"/>
-  <xsl:variable name="sect51" select="concat('./5_mim',$FILE_EXT)"/>
+			<xsl:with-param name="aname" select="'arm'"/>
+		</xsl:call-template>
+		<xsl:variable name="f_expg" select="concat('./f_arm_expg',$FILE_EXT)"/>
+		<xsl:variable name="sect51" select="concat('./5_mim',$FILE_EXT)"/>
+		<xsl:variable name="current_application_protocol">
+			<xsl:call-template name="module_display_name">
+				<xsl:with-param name="module" select="../@name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<p>
+			This clause specifies the information requirements for the 
+			<b>
+				<xsl:value-of select="$current_application_protocol"/>
+			</b> 
+			application protocol.
+		</p>
+		<p>
+			The information requirements are specified as a set of units of functionality and application objects. 
+			The information requirements are defined using the terminology of the subject area of this 
+			application protocol.
+		</p>
+		<p>
+			This clause constitutes the Application Reference Model of the application protocol.
+		</p>
+		<p class="note">
+			<small>
+				NOTE&#160;1&#160;&#160;A graphical representation of the information requirements is given in 
+				<a href="{$f_expg}">
+					Annex F
+				</a>.
+			</small>
+		</p>
+		<p class="note">
+			<small>
+				NOTE&#160;2&#160;&#160;The mapping specification is specified in 
+				<a href="{$sect51}#mapping">5.1</a>
+				. It shows how the information requirements are met, using common resources and 
+				constructs imported into the AIM schema of this application protocol.
+			</small>
+		</p>
+		<xsl:variable name="ap_module_dir">
+			<xsl:call-template name="ap_module_directory">
+				<xsl:with-param name="application_protocol" select="../@name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
+		<xsl:variable name="schema_name" select="document($arm_xml)/express/schema/@name"/>
+		<xsl:call-template name="check_schema_name">
+			<xsl:with-param name="arm_mim" select="'arm'"/>
+			<xsl:with-param name="schema_name" select="$schema_name"/>
+		</xsl:call-template>
+		<xsl:variable name="xref">
+			<xsl:call-template name="express_a_name">
+				<xsl:with-param name="section1" select="$schema_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<code>
+			<u>
+				EXPRESS specification: 
+			</u>
+			<br/>
+			<br/>
+			*)
+			<br/>
+			<br/>
+			<a name="{$xref}">
+				SCHEMA 
+				<xsl:value-of select="concat($schema_name,';')"/>
+			</a>
+			<br/>
+			<br/>
+			(*
+		</code>
+		<a name="uof">
+			<h3>
+				4.1 Units of functionality
+			</h3>
+		</a>
+		This subclause specifies the units of functionality (UoF) for this part ISO 10303 as well as any support elements 
+		needed for the application protocol definition. This part of ISO 10303 specifies the following units of 
+		functionality and application objects:
+		<ul>
+			<xsl:apply-templates select="uof" mode="toc"/>
+		</ul>
+		<xsl:choose>
+			<xsl:when test="(./uoflink)">
+				<p>
+					This part of ISO 10303 also includes the following units of functionality: 
+				</p>
+				<ul>
+					<xsl:apply-templates select="./uoflink" mode="toc"/>
+				</ul>
+			</xsl:when>
+			<xsl:otherwise>
+				<p>
+					This part of ISO 10303 also includes the units of functionality defined in the application modules that are 
+					imported with the USE FROM statements specified in clause 4.2.
+				</p>
+			</xsl:otherwise>
+		</xsl:choose>
+		<p>
+			The content of the units of functionality is listed below.
+		</p>
+		<xsl:apply-templates select="uof" mode="uof_toc"/>
+		<xsl:apply-templates select="uoflink" mode="uof_toc"/>
+		<xsl:apply-templates select="document($arm_xml)/express/schema/interface"/>
+		<xsl:apply-templates select="document($arm_xml)/express/schema/constant"/>
+		<xsl:apply-templates select="document($arm_xml)/express/schema/type"/>
+		<xsl:apply-templates select="document($arm_xml)/express/schema/entity"/>
+		<xsl:apply-templates select="document($arm_xml)/express/schema/function"/>
+		<xsl:apply-templates select="document($arm_xml)/express/schema/rule"/>
+		<xsl:apply-templates select="document($arm_xml)/express/schema/procedure"/>
+		<code>
+			<br/>
+			<br/>
+			*)
+			<br/>
+			<br/>
+			END_SCHEMA;
+			<br/>
+			<br/>
+			(*
+			</code>
+		</xsl:template>
+		
+		<!-- xsl:template match="uof" mode="toc">
+			<xsl:variable name="href" select="concat('#uof',@name)"/>
+			<li>
+				<a href="{$href}">
+					<xsl:choose>
+						<xsl:when test="position()!=last()">
+							<xsl:value-of select="concat(@name,';')"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="concat(@name,'.')"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</a>
+			</li>
+		</xsl:template -->
 
-  <xsl:variable name="current_application_protocol">
-    <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="../@name"/>
-    </xsl:call-template>           
-  </xsl:variable>
-  <p>
-    This clause specifies the information requirements for the 
-    <b><xsl:value-of select="$current_application_protocol"/></b>
-    application protocol.
-  </p>
-  <p>
-    The information requirements are specified as a set of units of
-    functionality and application objects. The information requirements are
-    defined using the terminology of the subject area of this application
-    protocol. 
-  </p>
-  <p>
-    This clause constitutes the Application Reference Model of the
-    application protocol.
-  </p> 
-  <p class="note">
-    <small>
-      NOTE&#160;1&#160;&#160;A graphical representation of the information
-      requirements is given in 
-      <a href="{$f_expg}">Annex F</a>.
-    </small>
-  </p>
-  <p class="note">
-    <small>
-      NOTE&#160;2&#160;&#160;The mapping specification is specified in 
-      <a href="{$sect51}#mapping">5.1</a>. It shows how
-      the information requirements are met, using common resources and
-      constructs imported into the AIM schema of this application
-      protocol. 
-    </small>
-  </p>
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="ap_module_directory">
-      <xsl:with-param name="application_protocol" select="../@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
-
-  <!-- there is only one schema in a module -->
-  <xsl:variable name="schema_name" select="document($arm_xml)/express/schema/@name"/>
-
-  <xsl:call-template name="check_schema_name">
-    <xsl:with-param name="arm_mim" select="'arm'"/>
-    <xsl:with-param name="schema_name" select="$schema_name"/>
-  </xsl:call-template>
-
-  <xsl:variable name="xref">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <code>
-    <u>EXPRESS specification: </u>
-    <br/>    <br/>
-    *)
-    <br/>    <br/>
-    <a name="{$xref}">
-      SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
-  </a>
-  <br/>    <br/>
-    (*
-  </code>
-
-  <a name="uof">
-    <h3>4.1 Units of functionality</h3>
-  </a>
-  This subclause specifies the units of functionality (UoF) for this part
-  ISO 10303 as well as any support elements needed for the application protocol
-  definition. This part of ISO 10303 specifies the following units of
-  functionality and application objects:
-  <ul>
-    <xsl:apply-templates select="uof" mode="toc"/>
-  </ul>
-  <!-- output any UoFs in other modules -->
-  <xsl:choose>
-    <xsl:when test="(./uoflink)">
-      <p>
-        This part of ISO 10303 also includes the following units of
-        functionality: 
-      </p>
-      <ul>
-        <xsl:apply-templates select="./uoflink" mode="toc"/>
-      </ul>
-    </xsl:when>
-    <xsl:otherwise>
-      <p>
-        <!--
-        This part of ISO 10303 uses no other units of functionality. 
-             -->
-        This part of ISO 10303 also includes the units of functionality
-        defined in the application modules that are imported with the USE
-        FROM statements specified in clause 4.2  
-      </p>        
-    </xsl:otherwise>
-  </xsl:choose>
-  <p>
-    The content of the units of functionality is listed below.  
-  </p>
-
-  <xsl:apply-templates select="uof" mode="uof_toc"/>
-
-  <xsl:apply-templates select="uoflink" mode="uof_toc"/>
-
-  <!-- output all the EXPRESS specifications -->
-  <!-- display the EXPRESS for the interfaces in the ARM.
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates select="document($arm_xml)/express/schema/interface"/>
-
-  <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
-  <xsl:apply-templates select="document($arm_xml)/express/schema/constant"/>
-
-  <!-- display the EXPRESS for the types in the schema.
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates select="document($arm_xml)/express/schema/type"/>
-  
-  <!-- display the EXPRESS for the entities in the ARM.
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates select="document($arm_xml)/express/schema/entity"/>
-
-  <!-- display the EXPRESS for the functions in the ARM
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates select="document($arm_xml)/express/schema/function"/>
-
-  <!-- display the EXPRESS for the entities in the ARM. 
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates select="document($arm_xml)/express/schema/rule"/>
-
-  <!-- display the EXPRESS for the procedures in the ARM. 
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates select="document($arm_xml)/express/schema/procedure"/>
-
-  
-  <code>
-    <br/>    <br/>
-    *)
-    <br/>    <br/>
-    END_SCHEMA;
-    <br/>    <br/>
-    (*
-  </code>
-
-</xsl:template>
-
-<xsl:template match="uof" mode="toc">
-  <xsl:variable name="href" select="concat('#uof',@name)"/>
-  <li>
-    <a href="{$href}">
-      <xsl:choose>
-        <xsl:when test="position()!=last()">
-          <xsl:value-of select="concat(@name,';')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="concat(@name,'.')"/>        
-        </xsl:otherwise>
-      </xsl:choose>
-    </a>
-  </li>
-</xsl:template>
-
-	<xsl:template match="uoflink" mode="toc">
-		<xsl:variable name="application_protocol" select="@application_protocol"/>
-		<xsl:variable name="uof" select="@uof"/>
-		<xsl:variable name="xref" select="concat('#uof',$uof)"/>
-		<li>
-			<xsl:choose>
-				<xsl:when test="position()!=last()">
-					<a href="{$xref}">
-						<xsl:value-of select="concat($uof,';')"/>
-					</a>
-				</xsl:when>
-				<xsl:otherwise>
-					<a href="{$xref}">
-						<xsl:value-of select="concat($uof,'.')"/>
-					</a>
-				</xsl:otherwise>
-			</xsl:choose>
-		</li>
-	</xsl:template>
+		<!-- xsl:template match="uoflink" mode="toc">
+			<xsl:variable name="application_protocol" select="@module"/>
+			<xsl:variable name="uof" select="@uof"/>
+			<xsl:variable name="xref" select="concat('#uof',$uof)"/>
+			<li>
+				<xsl:choose>
+					<xsl:when test="position()!=last()">
+						<a href="{$xref}">
+							<xsl:value-of select="concat($uof,';')"/>
+						</a>
+					</xsl:when>
+					<xsl:otherwise>
+						<a href="{$xref}">
+							<xsl:value-of select="concat($uof,'.')"/>
+						</a>
+					</xsl:otherwise>
+				</xsl:choose>
+			</li>
+		</xsl:template -->
 	
 	<xsl:template match="uof" mode="uof_toc">
 		<h3>
@@ -1017,10 +995,10 @@
 		application protocol. The following application entities from this UoF are referenced in the 
 		<xsl:value-of select="$current_application_protocol"/>
 		application protocol:
-		<xsl:variable name="application_protocol_dir">
-			<xsl:call-template name="application_protocol_directory">
+		<xsl:variable name="ap_mod_dir">
+			<xsl:call-template name="ap_module_directory">
 				<xsl:with-param name="application_protocol" select="$application_protocol"/>
-    					</xsl:call-template>
+    			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="application_protocol_ok">
 			<xsl:call-template name="check_application_protocol_exists">
@@ -1031,9 +1009,9 @@
 			<xsl:when test="$application_protocol_ok='true'">
 				<!-- check that the UoF is named correctly -->
 				<xsl:choose>
-					<xsl:when test="document(concat($application_protocol_dir,'/application_protocol.xml'))/application_protocol/arm/uof[@name=$uof]">
+					<xsl:when test="document(concat($ap_mod_dir,'/module.xml'))/module/arm/uof[@name=$uof]">
 						<ul>
-							<xsl:apply-templates select="document(concat($application_protocol_dir,'/application_protocol.xml'))/application_protocol/arm/uof[@name=$uof]/uof.ae"/>
+							<xsl:apply-templates select="document(concat($ap_mod_dir,'/module.xml'))/module/arm/uof[@name=$uof]/uof.ae"/>
 						</ul>
 					</xsl:when>
 					<xsl:otherwise>
@@ -1056,43 +1034,53 @@
 	</xsl:template>
 
 
-<xsl:template match="uof.ae">
-	<!-- check that the entity/type referenced exists -->
-	<xsl:variable name="module_dir">
-		<xsl:call-template name="ap_module_directory">
-			<xsl:with-param name="application_protocol" select="/application_protocol/@name"/>
-		</xsl:call-template>
-	</xsl:variable>
-
-  <xsl:variable name="arm" select="concat($module_dir,'/arm.xml')"/>
-  <xsl:variable name="ae" select="@entity"/>
-  <xsl:variable name="schema_name">
-    <xsl:call-template name="schema_name">
-      <xsl:with-param name="application_protocol_name" select="/application_protocol/@name"/>
-      <xsl:with-param name="arm_mim" select="'arm'"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:choose>
-    <xsl:when test="document($arm)/express/schema[entity/@name=$ae or type/@name=$ae]">
-      <li>
-        <xsl:choose>
-          <xsl:when test="position()!=last()">
-            <a href="#{$schema_name}.{$ae}">
-              <xsl:value-of select="$ae"/>
-            </a>;
-          </xsl:when>
-          <xsl:otherwise>
-            <a href="#{$schema_name}.{$ae}">
-              <xsl:value-of select="$ae"/>
-            </a>.
-			</xsl:otherwise>
+	<xsl:template match="uof.ae">
+		<xsl:param name="module"/>
+			
+	  	<xsl:variable name="module_name">
+	    		<xsl:choose>
+	      			<xsl:when test="$module">
+					<xsl:value-of select="$module"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="/module/@name"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="ap_module_dir">
+			<xsl:call-template name="ap_module_directory">
+				<xsl:with-param name="application_protocol" select="/module/@name"/>
+			</xsl:call-template>
+		</xsl:variable>
+	  	<xsl:variable name="arm" select="concat($ap_module_dir,'/arm.xml')"/>
+		<xsl:variable name="ae" select="@entity"/>
+		<xsl:variable name="schema_name">
+			<xsl:call-template name="schema_name">
+				<xsl:with-param name="module_name" select="/module/@name"/>
+	      				<xsl:with-param name="arm_mim" select="'arm'"/>
+	    			</xsl:call-template>
+		</xsl:variable>
+  		<xsl:choose>
+	    		<xsl:when test="document($arm)/express/schema[entity/@name=$ae or type/@name=$ae]">
+	      			<li>
+					<xsl:choose>
+						<xsl:when test="position()!=last()">
+							<a href="#{$schema_name}.{$ae}">
+								<xsl:value-of select="$ae"/>
+							</a>;
+						</xsl:when>
+						<xsl:otherwise>
+							<a href="#{$schema_name}.{$ae}">
+								<xsl:value-of select="$ae"/>
+							</a>.
+						</xsl:otherwise>
 					</xsl:choose>
 				</li>
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:call-template name="error_message">
 					<xsl:with-param name="message">
-						<xsl:value-of select="concat('Error 6: uof.ae error: The application object ',$ae,' cannot be found in module ',/module/@name )"/>
+						<xsl:value-of select="concat('Error 6: uof.ae error: The application object ',$ae,' cannot be found in module ',/module/	@name )"/>
 					</xsl:with-param>
 				</xsl:call-template>
 			</xsl:otherwise>
@@ -1192,17 +1180,18 @@
 		</code>
 	</xsl:template>
 
-<xsl:template match="ae" mode="toc">
-  <xsl:variable name="xref" 
-    select="concat('5_mapping',$FILE_EXT,'#',@entity)"/>
-  <xsl:variable name="sect_no">
-    <xsl:number/>
-  </xsl:variable>
-  <h3>
-    <xsl:value-of select="concat('5.1.',$sect_no,' ')"/>
-    <a href="{$xref}"><xsl:value-of select="@entity"/></a>
-  </h3>
-</xsl:template>
+	<!-- xsl:template match="ae" mode="toc">
+		<xsl:variable name="xref" select="concat('5_mapping',$FILE_EXT,'#',@entity)"/>
+		<xsl:variable name="sect_no">
+			<xsl:number/>
+		</xsl:variable>
+		<h3>
+			<xsl:value-of select="concat('5.1.',$sect_no,' ')"/>
+			<a href="{$xref}">
+				<xsl:value-of select="@entity"/>
+			</a>
+		</h3>
+	</xsl:template -->
 
 
 	<xsl:template name="normrefs_list">
@@ -1715,7 +1704,7 @@
   </p>
 </xsl:template>
 
-<xsl:template match="application_protocol" mode="normref">
+<!-- xsl:template match="application_protocol" mode="normref">
   <p>
     <xsl:variable name="part">
       <xsl:choose>
@@ -1763,7 +1752,7 @@
       <xsl:value-of select="$subtitle"/>
     </i>
   </p>
-</xsl:template>
+</xsl:template -->
 
 <!-- Output the normative reference -->
 <xsl:template match="normref">

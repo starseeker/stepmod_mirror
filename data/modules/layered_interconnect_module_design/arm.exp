@@ -60,6 +60,17 @@ USE FROM Basic_curve_arm;
 		 laminate_component_feature);
 	END_SUBTYPE_CONSTRAINT;
 
+	SUBTYPE_CONSTRAINT component_terminal_subtypes FOR component_terminal;     
+		 ONEOF (physical_component_terminal,
+		 laminate_component_join_terminal);
+	END_SUBTYPE_CONSTRAINT;
+
+	SUBTYPE_CONSTRAINT component_2d_location_subtypes FOR component_2d_location;         
+	    ONEOF (component_2d_edge_location,
+	 component_2d_stacked_location,
+	 component_2d_surface_location);    
+	END_SUBTYPE_CONSTRAINT;
+
  	TYPE bare_die_component_or_packaged_component = EXTENSIBLE GENERIC_ENTITY SELECT;
 	END_TYPE;
 
@@ -230,8 +241,9 @@ USE FROM Basic_curve_arm;
   END_ENTITY; -- component_termination_passage_template_join_terminal
 
   ENTITY Component_termination_passage_template_terminal
-    ABSTRACT SUPERTYPE 
-    SUBTYPE OF (shape_element);
+    ABSTRACT SUPERTYPE OF (ONEOF (component_termination_passage_template_interface_terminal,
+ component_termination_passage_template_join_terminal))
+    SUBTYPE OF (Shape_element);
       associated_definition    : component_termination_passage_template;
       terminal_connection_zone : OPTIONAL SET[1:?] OF connection_zone_in_layout_template;
     INVERSE

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.12 2001/12/28 10:17:58 robbod Exp $
+$Id: common.xsl,v 1.13 2001/12/28 16:03:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -270,7 +270,7 @@ $Id: common.xsl,v 1.12 2001/12/28 10:17:58 robbod Exp $
   <xsl:variable name="aname">
     <xsl:choose>
       <xsl:when test="@id">
-        <xsl:value-of select="@id"/>
+        <xsl:value-of select="concat('note:',@id)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat('note:',$number)"/>
@@ -293,7 +293,7 @@ $Id: common.xsl,v 1.12 2001/12/28 10:17:58 robbod Exp $
   <xsl:variable name="aname">
     <xsl:choose>
       <xsl:when test="@id">
-        <xsl:value-of select="@id"/>
+        <xsl:value-of select="concat('example:',@id)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat('example:',$number)"/>
@@ -317,7 +317,7 @@ $Id: common.xsl,v 1.12 2001/12/28 10:17:58 robbod Exp $
     <xsl:variable name="aname">
       <xsl:choose>
         <xsl:when test="@id">
-          <xsl:value-of select="@id"/>
+          <xsl:value-of select="concat('figure:',@id)"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="concat('figure:',$number)"/>
@@ -754,9 +754,7 @@ $Id: common.xsl,v 1.12 2001/12/28 10:17:58 robbod Exp $
           <xsl:value-of select="$nlinkend"/>
         </xsl:otherwise>
       </xsl:choose>
-
     </xsl:variable>
-
 
     <xsl:variable 
       name="nlinkend1"
@@ -1095,7 +1093,37 @@ $Id: common.xsl,v 1.12 2001/12/28 10:17:58 robbod Exp $
     </xsl:choose>
   </xsl:template>
 
+  <!-- count the number of characters in string -->
+  <xsl:template name="count_substring">
+    <xsl:param name="substring"/>
+    <xsl:param name="string"/>
+    <xsl:param name="cnt" select="0"/>
 
+    <xsl:choose>
+      <xsl:when test="$string">
+        <xsl:variable name="rest" select="substring($string,2)"/>
+        <xsl:variable name="cnt1">
+          <xsl:choose>
+            <xsl:when test="starts-with($string,$substring)">
+              <xsl:value-of select="$cnt+1"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$cnt"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        
+        <xsl:call-template name="count_substring">
+          <xsl:with-param name="substring" select="$substring"/>
+          <xsl:with-param name="string" select="$rest"/>
+          <xsl:with-param name="cnt" select="$cnt1"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$cnt"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
 </xsl:stylesheet>
 

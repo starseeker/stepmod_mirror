@@ -1,10 +1,12 @@
 (*
-   $Id: arm.exp,v 1.6 2002/11/13 18:19:59 magnevs Exp $
+   $Id: arm.exp,v 1.7 2002/12/17 16:15:05 magnevs Exp $
    N1436 - ISO/CD-TS - 10303-1256 State_observed - EXPRESS ARM
 *)
 
 
 SCHEMA State_observed_arm;
+
+USE FROM Classification_assignment_arm;
 
 USE FROM Condition_evaluation_arm;
 
@@ -15,54 +17,64 @@ USE FROM Person_organization_assignment_arm;
 USE FROM State_definition_arm;
 
 TYPE observer = SELECT BASED_ON organization_or_person_in_organization_item WITH
-  (State_assessment);
+(State_assessment);
 END_TYPE;
 
-TYPE state_date_and_time = SELECT BASED_ON date_or_date_and_time_item WITH
-  (Applied_state_assignment);
+TYPE state_classified_select = SELECT BASED_ON classification_item WITH
+(State);
 END_TYPE;
 
-TYPE state_of_select = EXTENSIBLE SELECT ;
+TYPE state_date_and_time = SELECT BASED_ON date_or_date_time_item WITH
+(Applied_state_assignment);
+END_TYPE;
+
+TYPE state_of_item = EXTENSIBLE SELECT ;
 END_TYPE;
 
 ENTITY Applied_state_assignment;
-  assigned_to : state_of_select;
-  described_state : State;
+assigned_to : state_of_item;
+described_state : State;
 END_ENTITY;
 
 ENTITY Composition_of_state
 SUBTYPE OF (State_relationship);
-  part : State;
-  whole : State;
+part : State;
+whole : State;
 END_ENTITY;
 
 ENTITY Defined_state_relationship;
-  defined : Verified_state;
-  evaluated : State_assessment;
+defined_state : State_assessment;
+definitive_state : State_assertion;
 END_ENTITY;
 
 ENTITY Sequence_of_state
 SUBTYPE OF (State_relationship);
-  predecessor : State;
-  successor : State;
+predecessor : State;
+successor : State;
 END_ENTITY;
 
 ENTITY State
 SUPERTYPE OF (ONEOF(State_observed, State_predicted));
-  name : STRING;
-  description : OPTIONAL STRING;
+name : STRING;
+description : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY State_assessment;
-  assert_to : State_definition;
-  evaluation : Condition_assessment;
-  subject_state : State;
+ENTITY State_assertion
+SUBTYPE OF (Condition_assertion);
+asserted_state : State;
+conformance_state : State_definition;
+END_ENTITY;
+
+ENTITY State_assessment
+SUBTYPE OF (Condition_assertion);
+assessed_state : State;
+comparable_state : State_definition;
 END_ENTITY;
 
 ENTITY State_cause_effect
 SUBTYPE OF (State_relationship);
-  cause : State;
-  effect : State;
+cause : State;
+effect : State;
 END_ENTITY;
 
 ENTITY State_observed
@@ -74,28 +86,23 @@ SUBTYPE OF (State);
 END_ENTITY;
 
 ENTITY State_relationship;
-  name : STRING;
-  description : STRING;
+name : STRING;
+description : STRING;
+related : State;
+relating : State;
 END_ENTITY;
 
 ENTITY State_relationship_relationship;
-  name : STRING;
-  description : STRING;
-  related : State_relationship;
-  relating : State_relationship;
+name : STRING;
+description : STRING;
+related : State_relationship;
+relating : State_relationship;
 END_ENTITY;
 
 ENTITY State_transition
 SUBTYPE OF (State_relationship);
-  end_state : State;
-  start_state : State;
-END_ENTITY;
-
-ENTITY Verified_state;
-  asserted_state : State;
-  condition_conformance : Condition_assessment;
-  state_conformance : State_definition;
+end_state : State;
+start_state : State;
 END_ENTITY;
 
 END_SCHEMA;
-

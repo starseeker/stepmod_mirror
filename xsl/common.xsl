@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.129 2004/07/09 11:52:55 robbod Exp $
+$Id: common.xsl,v 1.130 2004/09/14 06:12:38 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -706,7 +706,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
        If the img has been defined in the module documentation, then the
        XSL has been invoked from a file in the sys directory, hence the
        path needs to go up to the module directory -->
-
+  
   <xsl:variable name="src">
     <xsl:choose>
       <xsl:when test="name(..)='imgfile.content'">
@@ -729,20 +729,33 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     </xsl:choose>
   </xsl:variable>
   
-  <div align="center">
-    <xsl:choose>
-      <xsl:when test="img.area">
-        <IMG src="{$src}" border="0" usemap="#map" alt="{$alt1}">
-          <MAP NAME="map">
-            <xsl:apply-templates select="img.area"/>
-          </MAP>
-        </IMG>        
-      </xsl:when>
-      <xsl:otherwise>
-        <IMG src="{$src}" border="0" alt="{$alt1}"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </div>
+  <xsl:choose>
+    <xsl:when test="starts-with(@src,'../')">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error IMG: All images must be stored in the same folder as the module.#
+                  Copy the image to the module folder and remove the ../ from#
+                  &lt;img src=&quot;',@src,'&quot;/&gt;')"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <div align="center">
+        <xsl:choose>
+          <xsl:when test="img.area">
+            <IMG src="{$src}" border="0" usemap="#map" alt="{$alt1}">
+              <MAP NAME="map">
+                <xsl:apply-templates select="img.area"/>
+              </MAP>
+            </IMG>        
+          </xsl:when>
+          <xsl:otherwise>
+            <IMG src="{$src}" border="0" alt="{$alt1}"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </div>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="img.area">

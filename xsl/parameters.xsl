@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.10 2002/06/20 13:05:26 robbod Exp $
+     $Id: parameters.xsl,v 1.11 2002/06/23 07:52:10 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -65,5 +65,13 @@
   <!-- when YES issues will be read from the issues.xml file stored in the
        module directory -->
   <xsl:param name="output_issues" select="'YES'"/>
+
+
+  <!-- when YES modules will have a background image  -->
+  <xsl:param name="output_background" select="'NO'"/>
+
+  <!-- file containing background image  -->
+  <xsl:param name="background_image" select="'refonly.gif'"/>
+
 
 </xsl:stylesheet>

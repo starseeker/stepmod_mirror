@@ -40,6 +40,15 @@
 		<xsl:choose>
 			<xsl:when test="./select">
 				<xsl:variable name="list_of_items" select="./select/@selectitems"/>
+				<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment><xsl:text>&#xa;</xsl:text>
+
+				<xs:complexType name="{$corrected_type_name}">
+					<xs:group ref="ap239:{$corrected_type_name}"/>
+				</xs:complexType>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+
+				<xsl:comment>EXPRESS SELECT DATATYPE GROUP DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment><xsl:text>&#xa;</xsl:text>
 				<xs:group name="{$corrected_type_name}">
 					<xs:choice>
 						<xsl:call-template name="recurse_through_select_items">
@@ -47,6 +56,9 @@
 						</xsl:call-template>
 					</xs:choice>
 				</xs:group>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+
 			</xsl:when>
 			
 			<xsl:when test="./aggregate">
@@ -105,6 +117,7 @@
 					<xsl:choose>
 						<xsl:when test="position()=1 and position()=last()">
 							<xsl:comment>EXPRESS AGGREGATE DATATYPE: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+
 							<xs:complexType name="{$corrected_type_name}">
 								<xs:sequence>
 									<xs:element 
@@ -113,11 +126,10 @@
 										maxOccurs="{$upper_bound}"
 									/>
 								</xs:sequence>
-								<xs:attribute name="ref" type="xs:IDREF" use="{$optionality}"/>
 								<xs:attribute ref="ex:itemType" fixed="ap239:{$base_datatype}"/>
 								<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-								<xs:attribute ref="ex:arraySize" use="optional"/>
-							</xs:complexType>
+								<xs:attribute ref="ex:arraySize" use="{$optionality}"/>						
+							</xs:complexType>							
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
@@ -131,18 +143,17 @@
 										maxOccurs="{$upper_bound}"
 									/>
 								</xs:sequence>
-								<xs:attribute name="ref" type="xs:IDREF" use="{$optionality}"/>
 								<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
 								<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-								<xs:attribute ref="ex:arraySize" use="optional"/>
+								<xs:attribute ref="ex:arraySize" use="{$optionality}"/>
 							</xs:complexType>
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
 						<xsl:when test="position()!=1 and position()!=last()">
 							<xsl:comment>EXPRESS AGGREGATE DATATYPE: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
-							<xs:element name="ap239:{$seq_prefix}{$base_datatype}" nillable="true">
-								<xs:complexType>
+							
+								<xs:complexType name="{$seq_prefix}{$base_datatype}">
 									<xs:sequence>
 										<xs:element 
 											ref="ap239:{$seq_prefix}{$base_datatype}" 
@@ -150,19 +161,18 @@
 											maxOccurs="{$upper_bound}"
 										/>
 									</xs:sequence>
-									<xs:attribute name="ref" type="xs:IDREF" use="{$optionality}"/>
 									<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
 									<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-									<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
-								</xs:complexType>
-							</xs:element>
+									<xs:attribute ref="ex:arraySize" use="{$optionality}"/>													</xs:complexType>
+						
+							
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
 						<xsl:when test="position()=last()">
 							<xsl:comment>EXPRESS AGGREGATE DATATYPE: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
-							<xs:element name="ap239:{$seq_prefix}{$base_datatype}" nillable="true">
-								<xs:complexType>
+							
+								<xs:complexType name="{$seq_prefix}{$base_datatype}">
 									<xs:sequence>
 										<xs:element 
 											ref="ap239:{$seq_prefix}{$base_datatype}" 
@@ -170,12 +180,11 @@
 											maxOccurs="{$upper_bound}"
 										/>
 									</xs:sequence>
-									<xs:attribute name="ref" type="xs:IDREF" use="{$optionality}"/>
 									<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
 									<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-									<xs:attribute ref="ex:arraySize" use="optional"/>
+									<xs:attribute ref="ex:arraySize" use="{$optionality}"/>
 								</xs:complexType>
-							</xs:element>
+			
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
@@ -191,8 +200,25 @@
 				<xs:complexType name = "{$corrected_type_name}">
 					<xs:group ref="ap239:{$corrected_underlying_select_type_name}"/>
 				</xs:complexType>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
 			</xsl:when>
 			<xsl:otherwise>
+				<xsl:comment>SIMPLE DEFINED TYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+				<xsl:text>&#xa;</xsl:text>
+				<xs:element name="{$corrected_type_name}" nillable="true">
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="ap239:{$corrected_type_name}">
+								<xs:attributeGroup ref="ex:instanceAttributes"/>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:comment>SIMPLE DEFINED TYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+				<xsl:text>&#xa;</xsl:text>
 				<xs:simpleType name = "{$corrected_type_name}">
 					<xsl:call-template name="generate_restriction">
 						<xsl:with-param name="type" select="."/>
@@ -295,16 +321,14 @@
 			</xsl:when>
 			<xsl:when test="$base_type_of_optional_array_param='false'">
 				<xsl:comment>EXPRESS ENTITY DATATYPE WITH MULTIPLE INHERITANCE: xsd element declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
-				<!-- xs:element 
+				<xs:element
 					name="{$corrected_entity_name_param}" 
 					type="ap239:{$corrected_entity_name_param}" 
-					block="extension restriction" 
-					substitutionGroup="{$ext_base_sub_grp}"
 					nillable="true">
 				</xs:element>
 				<xsl:text>&#xa;</xsl:text>
-				<xsl:text>&#xa;</xsl:text -->
-
+				<xsl:text>&#xa;</xsl:text>
+				
 				<xsl:comment>EXPRESS ENTITY DATATYPE WITH MULTIPLE INHERITANCE: xsd complexType declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
 				<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
 			<xs:complexContent>
@@ -372,7 +396,6 @@
 		<xs:element 
 			name="{$corrected_entity_name_param}" 
 			type="ap239:{$corrected_entity_name_param}" 
-			block="extension restriction" 
 			substitutionGroup="{$ext_base_sub_grp}"
 			nillable="true">
 		</xs:element>
@@ -427,7 +450,23 @@
 									</xsl:when>
 									<xsl:when test="../typename">
 										<xsl:variable name="target" select="../typename/@name"/>
-										<xs:element name="{$corrected_attribute_name}" type="ap239:{$target}"/>
+										<xsl:variable name="corrected_target_name">
+											<xsl:call-template name="put_into_lower_case">
+												<xsl:with-param name="raw_item_name_param" select="$target"/>
+											</xsl:call-template>
+										</xsl:variable>
+										<xsl:choose>
+											<xsl:when test="$target = //type[select]/@name">
+												<xs:element name="{$corrected_attribute_name}">
+												<xs:complexType>
+													<xs:group ref="ap239:{$corrected_target_name}"/>
+												</xs:complexType>
+												</xs:element>
+											</xsl:when>
+											<xsl:otherwise>
+												<xs:element name="{$corrected_attribute_name}" type="ap239:{$target}"/>
+											</xsl:otherwise>
+										</xsl:choose>
 									</xsl:when>
 								</xsl:choose>
 							</xsl:for-each>
@@ -489,8 +528,8 @@
 			<xsl:choose>
 				<xsl:when test="position()!=last()">
 					<xsl:comment>EXPRESS AGGREGATE attribute component: xsd element declaration for <xsl:value-of select="concat($seq_prefix, $base_datatype)"/></xsl:comment>
-					<xs:element name="ap239:{$seq_prefix}{$base_datatype}" nillable="true">
-						<xs:complexType>
+					
+						<xs:complexType name="{$seq_prefix}{$base_datatype}">
 							<xs:sequence>
 								<xs:element 
 									ref="ap239:{$seq_prefix}{$base_datatype}" 
@@ -498,19 +537,17 @@
 									maxOccurs="{$upper_bound}"
 								/>
 							</xs:sequence>
-							<xs:attribute name="ref" type="xs:IDREF" use="{$aggregate_optionality}"/>
 							<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
 							<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-							<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
+							<xs:attribute ref="ex:arraySize" use="{$aggregate_optionality}"/>
 						</xs:complexType>
-					</xs:element>
 					<xsl:text>&#xa;</xsl:text>
 					<xsl:text>&#xa;</xsl:text>
 				</xsl:when>
 				<xsl:when test="position()=last()">
 					<xsl:comment>EXPRESS AGGREGATE attribute component: xsd element declaration for <xsl:value-of select="concat($seq_prefix, $base_datatype)"/></xsl:comment>
-					<xs:element name="ap239:{$seq_prefix}{$base_datatype}" nillable="true">
-						<xs:complexType>
+					
+						<xs:complexType name="{$seq_prefix}{$base_datatype}">
 							<xs:sequence>
 								<xs:element 
 									ref="ap239:{$seq_prefix}{$base_datatype}" 
@@ -518,12 +555,11 @@
 									maxOccurs="{$upper_bound}"
 								/>
 							</xs:sequence>
-							<xs:attribute name="ref" type="xs:IDREF" use="{$aggregate_optionality}"/>
 							<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
 							<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-							<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
+							<xs:attribute ref="ex:arraySize" use="{$aggregate_optionality}"/>
 						</xs:complexType>
-					</xs:element>
+					
 					<xsl:text>&#xa;</xsl:text>
 					<xsl:text>&#xa;</xsl:text>
 
@@ -613,16 +649,13 @@
 								<xs:element name="{$corrected_attribute_name}"	>
 									<xs:complexType>
 										<xs:sequence>
-											<xs:element ref="{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+											<xs:element ref="ap239:{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
 										</xs:sequence>
-										<xs:attribute name="ref" type="xs:IDREF" use="{$aggregate_optionality}"/>
-										<xs:attribute ref="ex:itemType" fixed="{$base_datatype}"/>
-										<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
+										<xs:attribute ref="ex:itemType" fixed="ap239:{$base_datatype}"/>
 										<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-									</xs:complexType>
+										<xs:attribute ref="ex:arraySize" use="{$aggregate_optionality}"/>
+									</xs:complexType>	
 								</xs:element>
-							
-								
 								<xsl:text>&#xa;</xsl:text>
 								<xsl:text>&#xa;</xsl:text>
 
@@ -635,11 +668,9 @@
 										<xs:sequence>
 											<xs:element ref="ap239:{$seq_prefix}{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
 										</xs:sequence>
-										<xs:attribute name="ref" type="xs:IDREF" use="{$aggregate_optionality}"/>
 										<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-										<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
 										<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-									</xs:complexType>
+										<xs:attribute ref="ex:arraySize" use="{$aggregate_optionality}"/>															</xs:complexType>
 								</xs:element>
 								
 							</xsl:when>
@@ -648,19 +679,25 @@
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:choose>
-						<xsl:when test="./typename">
-							<xsl:variable name="raw_type_name" select="./typename/@name"/>
-							<xsl:variable name="corrected_type_name">
+						<xsl:when test="../typename">
+							<xsl:variable name="target" select="../typename/@name"/>
+							<xsl:variable name="corrected_target_name">
 								<xsl:call-template name="put_into_lower_case">
-									<xsl:with-param name="raw_item_name_param" select="$raw_type_name"/>
+									<xsl:with-param name="raw_item_name_param" select="$target"/>
 								</xsl:call-template>
 							</xsl:variable>
-							<xsl:comment>EXPRESS attribute: xsd element declaration for <xsl:value-of select="$corrected_attribute_name"/></xsl:comment>
-
-							<xs:element name="{$corrected_attribute_name}" type="ap239:{$corrected_type_name}" minOccurs="{$optionality}"/>
-							<xsl:text>&#xa;</xsl:text>
-								<xsl:text>&#xa;</xsl:text>
-
+							<xsl:choose>
+								<xsl:when test="$target = //type[select]/@name">
+									<xs:element name="{$corrected_attribute_name}">
+									<xs:complexType>
+										<xs:group ref="ap239:{$corrected_target_name}"/>
+									</xs:complexType>
+									</xs:element>
+								</xsl:when>
+								<xsl:otherwise>
+									<xs:element name="{$corrected_attribute_name}" type="ap239:{$target}"/>
+								</xsl:otherwise>
+							</xsl:choose>
 						</xsl:when>
 						<xsl:when test="./builtintype">
 							<xsl:comment>EXPRESS attribute: xsd element declaration for <xsl:value-of select="$corrected_attribute_name"/></xsl:comment>
@@ -670,8 +707,7 @@
 								<xsl:with-param name="attribute_name_param" select="$corrected_attribute_name"/>
 							</xsl:call-template>
 							<xsl:text>&#xa;</xsl:text>
-								<xsl:text>&#xa;</xsl:text>
-
+							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
 					</xsl:choose>
 				</xsl:otherwise>
@@ -702,7 +738,7 @@
 		</xsl:choose>
 		
 		<!-- xsl:if test="contains($result_of_looking_up, 'YES') or contains($result_of_looking_down, 'YES')">
-			<xsl:comment>THIS ENTITY IS PART OF A TYPE GRAPH CONTAIINING MULTIPLE INHERITANCE AND MUST BE DEALT WITH USING INHERITANCE-FREE MAPPING (UNDER CONSTRUCTION)</xsl:comment>
+			<xsl:comment>THIS ENTITY IS PART OF A TYPE GRAPH CONTAIINING MULTIPLE INHERITANCE AND IS DEALT WITH USING INHERITANCE-FREE MAPPING (UNDER CONSTRUCTION)</xsl:comment>
 		</xsl:if -->
 	</xsl:template>
 	
@@ -898,7 +934,7 @@
 					<xsl:when test="$type_param/builtintype[@type='STRING' and @fixed='YES']">
 						<xs:element name="{$attribute_name_param}" minOccurs="{$optionality_param}">
 					       	<xs:simpleType>
-					        		<xs:restriction base="normalizedString">
+					        		<xs:restriction base="xs:normalizedString">
 									<xs:maxLength value="{$express_length}"/>
 					                  		<xs:minLength value="{$express_length}"/>
 								</xs:restriction>
@@ -908,7 +944,7 @@
 					<xsl:when test="$type_param/builtintype[@type='STRING' and not(@fixed='YES')]">
 						<xs:element name="{$attribute_name_param}" minOccurs="{$optionality_param}">
 					            <xs:simpleType>
-					        		<xs:restriction base="normalizedString">
+					        		<xs:restriction base="xs:normalizedString">
 									<xs:maxLength value="{$express_length}"/>
 								</xs:restriction>
 							</xs:simpleType>
@@ -1212,6 +1248,7 @@
 			<xsl:otherwise></xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
+
 
 	<xsl:template name="recurse_through_select_items">
 		<xsl:param name="list_of_items_param"/>

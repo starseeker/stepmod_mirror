@@ -45,6 +45,18 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+          <xsl:attribute name="name">OUTPUT_BACKGROUND</xsl:attribute>
+          <xsl:choose>
+            <xsl:when test="./@output_background='YES'">
+              <xsl:attribute name="value">YES</xsl:attribute>
+            </xsl:when>            
+          <xsl:otherwise>
+          <xsl:attribute name="value">NO</xsl:attribute>            
+          </xsl:otherwise>
+          </xsl:choose>
+        </xsl:element>
+
+        <xsl:element name="property">
           <xsl:attribute name="name">STEPMODSTYLES</xsl:attribute>
           <xsl:attribute name="value">xsl</xsl:attribute>
         </xsl:element>
@@ -1157,6 +1169,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1195,6 +1225,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -1245,6 +1293,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1291,6 +1357,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -1341,6 +1425,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1387,6 +1489,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -1437,6 +1557,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1483,6 +1621,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -1614,6 +1770,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1660,6 +1834,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -1710,6 +1902,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1756,6 +1966,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -1806,6 +2034,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1852,6 +2098,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -1902,6 +2166,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1948,6 +2230,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2047,6 +2347,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2093,6 +2411,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2143,6 +2479,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2189,6 +2543,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2239,6 +2611,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2285,6 +2675,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2337,6 +2745,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2382,6 +2808,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>

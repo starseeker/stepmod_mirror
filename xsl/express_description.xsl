@@ -11,14 +11,17 @@
      in clause 4 and 5 of a module.
 -->
 
+
 <xsl:stylesheet 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	version="1.0"
 >
 
+
   <xsl:output method="html"/>
 
   
+
 <xsl:template name="output_external_description">
   <!--
        The name of the express schema 
@@ -234,9 +237,9 @@ and  string is more than the schema name ( hence not the  schema )
 <xsl:template match="text()" mode="chktxt" >
   <xsl:if test="contains(.,'_')">
     <xsl:call-template name="error_message">
-      <xsl:with-param 
-        name="message" 
-        select="concat('Warning Ent6: ',' check for express identifier not bold nor linked ')"/>
+      <xsl:with-param name="message" >       
+      <xsl:value-of     select="concat('Warning Ent6: ',' check for express identifier not bold nor linked ')"/>
+      </xsl:with-param>
     </xsl:call-template>
   </xsl:if>
 </xsl:template>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.15 2004/11/22 20:31:31 thendrix Exp $
+<!--  $Id: build.xsl,v 1.16 2004/11/22 21:10:27 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -1275,7 +1275,7 @@
     <xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
     
     <xsl:element name="property">
-      <xsl:attribute name="name">RESDOCRESOURCESSCHEMADIAGXML</xsl:attribute>
+      <xsl:attribute name="name">RESDOCRESOURCESSCHEMAEXPGXMLS</xsl:attribute>
       <xsl:attribute name="value">
       <xsl:apply-templates select="$resdoc_xml//schema" mode="list">
         <xsl:with-param name="prefix" select="'data/resources/'"/>
@@ -1285,7 +1285,7 @@
     </xsl:element>
 
     <xsl:element name="property">
-      <xsl:attribute name="name">RESDOCRESOURCESSCHEMADIAGGIFS</xsl:attribute>
+      <xsl:attribute name="name">RESDOCRESOURCESSCHEMAEXPGGIFS</xsl:attribute>
       <xsl:attribute name="value">
       <xsl:apply-templates select="$resdoc_xml//schema" mode="list">
         <xsl:with-param name="prefix" select="'data/resources/'"/>
@@ -4249,17 +4249,7 @@
         </xsl:attribute>
         <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPGXMLS}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
-      </xsl:element>
-      
+            
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCTECHDISCUSSIONXML}'"/>
@@ -4376,7 +4366,7 @@
 
      <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCRESOURCESSCHEMADIAGXML}'"/>
+          <xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPGXMLS}'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>

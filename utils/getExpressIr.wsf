@@ -1,0 +1,104 @@
+<?xml version="1.0" standalone="yes"?>
+<!--
+ $Id: getExpress.wsf,v 1.2 2002/05/28 05:42:17 robbod Exp $ 
+  Author: Rob Bodington, Eurostep Limited
+  Owner:  Developed by Eurostep and supplied to NIST under contract.
+  Purpose: A  script to copy all the express files from the repository to
+           a directory. 
+-->
+
+<job>
+  <!-- a VB script to pop up a text input -->
+  <script language="VBScript">
+    <![CDATA[
+      Function ShowInputBox(str, title, default)
+          ShowInputBox = InputBox(str, title, default)
+      End Function
+      ]]>
+  </script>
+
+  <!-- the main JScript that creates the module -->
+  <script language="JScript" src="getExpressMain.js">
+
+    function getBallotDir(initVal) {
+	var retVal = 0;
+	var sMsg;
+	sMsg = "Enter name of ballot:";
+	var expDir = ShowInputBox(sMsg, "Ballot name",initVal);
+	expDir = "..\\ballots\\ballots\\"+expDir;
+	if (typeof(expDir) != 'undefined') {
+	    retVal = expDir;
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+	    if (!fso.FolderExists(expDir)) {
+		ErrorMessage("Ballot does not exist:\n"+expDir);
+		retVal = -1;
+	    }
+	} else {
+	    retVal = -1;
+	}
+	return(retVal);
+    }
+
+    function getExpDir(initVal) {
+	var retVal = 0;
+	var sMsg;
+	sMsg = "Enter directory where Express to be stored:";
+	var expDir = ShowInputBox(sMsg, "Express directory",initVal);
+	if (typeof(expDir) != 'undefined') {
+	    retVal = expDir;
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+	    if (fso.FolderExists(expDir)) {
+		ErrorMessage("Directory exists:\n"+expDir);
+		retVal = -1;
+	    }
+	} else {
+	    retVal = -1;
+	}
+	return(retVal);
+    }
+
+
+    function getModList(initVal, title, msg) {
+	var retVal = 0;
+	var modListFile = ShowInputBox(msg, title,initVal);
+	if (typeof(modListFile) != 'undefined') {
+	    retVal = modListFile;
+            var fso = new ActiveXObject("Scripting.FileSystemObject");
+	} else {
+	    retVal = -1;
+	}
+	return(retVal);
+    }
+
+
+   // Disable the output of user messages
+   outputUsermessage = 0;
+   var initVal = "plcs_bp2";
+
+   var ballotdir = getBallotDir(initVal);
+   if (ballotdir != -1) {
+       var expdir = getExpDir(ballotdir+"\\express");
+       var fso = new ActiveXObject("Scripting.FileSystemObject");
+       var errMsg;
+       var error = 0;
+       
+       if (expdir != -1) {
+	   var modList = getModList(ballotdir+"\\modlist.txt","Modules list file","Enter file listing modules:");
+	   if (!fso.FileExists(modList)) {
+	       errMsg = ("The "+modList+" file does not exist.");
+	       error = 1;
+	}
+	   var irList = getModList(ballotdir+"\\irlist.txt","IR list file","Enter file listing IRs:");
+	   if (!fso.FileExists(irList)) {
+	       errMsg += ("The "+irList+" file does not exist.");
+	       error = 1;
+	}
+	   if (error == 1) {
+	       ErrorMessage(errMsg);
+	   } else {
+	       MainWindowIrList(expdir, modList, irList);
+	   }
+       } 
+   }
+  </script>
+</job>

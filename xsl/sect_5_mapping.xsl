@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.55 2002/11/26 15:19:17 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.56 2002/11/27 13:31:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -840,18 +840,18 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
               <xsl:when test="name(..)='alt_map'">
                 <!-- the refpath in the original module must be in the same
                      alternative -->
-                <xsl:variable name="assertion_to" select="./@assertion_to"/>
+                <xsl:variable name="extended_select" select="./@extended_select"/>
                 <xsl:variable name="attribute" select="../../@attribute"/>
                 <xsl:variable name="alt_id" select="../@alt_map.inc"/>
                 <xsl:value-of
-                  select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$assertion_to]/alt_map[@alt_map.inc=$alt_id]/refpath"/>
+                  select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$extended_select]/alt_map[@alt_map.inc=$alt_id]/refpath"/>
               </xsl:when>
 
               <xsl:otherwise>
-                <xsl:variable name="assertion_to" select="./@assertion_to"/>
+                <xsl:variable name="extended_select" select="./@extended_select"/>
                 <xsl:variable name="attribute" select="../@attribute"/>
                 <xsl:value-of 
-                  select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$assertion_to]/refpath"/>
+                  select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$extended_select]/refpath"/>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:variable>
@@ -863,7 +863,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
                 <xsl:variable name="msg">
                   <xsl:choose>
                     <xsl:when test="name(..)='alt_map'">
-                      <xsl:variable name="assertion_to" select="./@assertion_to"/>
+                      <xsl:variable name="extended_select" select="./@extended_select"/>
                       <xsl:variable name="attribute" select="../../@attribute"/>
                       <xsl:variable name="alt_id" select="../@alt_map.inc"/>
                       <xsl:value-of 
@@ -871,17 +871,17 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
                                 extended can not be found in the module: ',
                                 $orig_mod,'. Check that the entity ',$ae,' exists in ',$orig_mod,' and has
                                 an attribute ',$attribute,', that there is
-                                an assertion to ',$assertion_to,' and that
+                                an assertion to ',$extended_select,' and that
                                 the there is an alt_map alt_map.inc=',$alt_id)"/>
                     </xsl:when>
                     <xsl:otherwise>
-                      <xsl:variable name="assertion_to" select="./@assertion_to"/>
+                      <xsl:variable name="extended_select" select="./@extended_select"/>
                       <xsl:variable name="attribute" select="../@attribute"/>
                       <xsl:value-of 
                         select="concat('Error refpath_ext4: The refath to be
                                 extended can not be found in the module: ',
                                 $orig_mod,'. Check that the entity ',$ae,' exists in ',$orig_mod,' and has
-                                an attribute ',$attribute,' and there is an assertion to ',$assertion_to)"/>
+                                an attribute ',$attribute,' and there is an assertion to ',$extended_select)"/>
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:variable>
@@ -926,7 +926,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
               <td>Reference path:&#160;&#160;</td>
 
               <!--
-         R          <xsl:apply-templates select="$refpath" mode="check_ref_path"/>
+                   <xsl:apply-templates select="$refpath" mode="check_ref_path"/>
                    -->
 
               <xsl:apply-templates select="." mode="check_ref_path"/>

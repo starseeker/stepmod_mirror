@@ -156,8 +156,10 @@
 
 	<refpath>
 
-		<xsl:attribute name="extension">TRUE</xsl:attribute>		
-		<xsl:attribute name="assertion_to"><xsl:value-of select="@assertion_to" /></xsl:attribute>		
+		<xsl:attribute name="extension">TRUE</xsl:attribute>
+
+                <!-- RBN - changed assertion_to to extended_select --> 
+		<xsl:attribute name="assertion_to"><xsl:value-of select="@extended_select" /></xsl:attribute>		
 	
 		<xsl:variable name="this-path" >
 			<xsl:call-template name="space-out-path" >

@@ -1,5 +1,5 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml2.js,v 1.3 2003/05/02 07:56:57 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -9,75 +9,69 @@
   rcs.revision="$Revision: $">
 
   <application
-    name="express2xml.js"
+    name="express2xml2.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.26"
+    version="1.3"
     source="../data/modules/specification_based_configuration/arm.exp"/>
 
   <schema name="Specification_based_configuration_arm">
+
     <interface
       kind="use"
       schema="Effectivity_application_arm">
     </interface>
-
     <interface
       kind="use"
       schema="Product_occurrence_arm">
     </interface>
-
     <interface
       kind="use"
       schema="Product_class_arm">
     </interface>
-
     <interface
       kind="use"
       schema="Functional_breakdown_arm">
     </interface>
-
     <interface
       kind="use"
       schema="Physical_breakdown_arm">
     </interface>
-
     <type name="configured_item_select">
       <select
         extensible="YES"
         genericentity="YES"
-        selectitems="part_occurrence_select Functional_element_definition Physical_element_definition">
+        selectitems="part_occurrence_select functional_element_definition physical_element_definition">
       </select>
-
     </type>
+
     <type name="configuration_kind">
       <enumeration
         items="usage design">
       </enumeration>
-
-
     </type>
+
     <type name="configuration_inheritance_types">
       <enumeration
         items="exception_case full_inheritance no_inheritance">
       </enumeration>
-
-
     </type>
+
     <type name="configured_specification_select">
       <select
-        selectitems="Class_condition_association Class_specification_association">
+        selectitems="class_condition_association class_specification_association">
       </select>
-
     </type>
+
     <type name="effectivity_for_configuration">
       <select
         basedon="effectivity_item"
-        selectitems="Configuration">
+        selectitems="configuration">
       </select>
-
     </type>
+
     <entity
-      name="Configuration">
+      name="configuration">
       <explicit
         name="configured_element">
         <typename
@@ -109,17 +103,15 @@
       appliesto="Effectivity_assignment">
       <algorithm>
 LOCAL
-  ndea_set : SET OF Effectivity_assignment := [];
+ndea_set : SET OF Effectivity_assignment := [];
 END_LOCAL;
-  ndea_set := QUERY(ea &lt;* Effectivity_assignment | 
-	NOT ('SPECIFICATION_BASED_CONFIGURATION_ARM.DATED_EFFECTIVITY' IN TYPEOF(ea.assigned_effectivity)));
+ndea_set := QUERY(ea &lt;* Effectivity_assignment |
+NOT ('SPECIFICATION_BASED_CONFIGURATION_ARM.DATED_EFFECTIVITY' IN TYPEOF(ea.assigned_effectivity)));
       </algorithm>
-
       <where
         label="WR1"
-        expression="SIZEOF(QUERY(ea &lt;* ndea_set | 		(SIZEOF(['SPECIFICATION_BASED_CONFIGURATION_ARM.CONFIGURATION']*type_of_set(ea.items))&gt;0) )) =0">
+        expression="SIZEOF(QUERY(ea &lt;* ndea_set |(SIZEOF(['SPECIFICATION_BASED_CONFIGURATION_ARM.CONFIGURATION']*type_of_set(ea.items))&gt;0))) =0">
       </where>
-
     </rule>
 
     <function
@@ -129,7 +121,7 @@ END_LOCAL;
         <aggregate
           type="SET"/>
         <builtintype
-          type="GENERIC"/>
+          type="GENERIC_ENTITY"/>
       </parameter>
       <aggregate
         type="SET"/>
@@ -137,15 +129,13 @@ END_LOCAL;
         type="STRING"/>
       <algorithm>
 LOCAL
-  result: SET OF STRING:= [];
+result: SET OF STRING:= [];
 END_LOCAL;
-
 REPEAT i:=1 TO HIINDEX(items);
-  result := result + TYPEOF(items[i]);
+result := result + TYPEOF(items[i]);
 END_REPEAT;
 RETURN(result);
       </algorithm>
-
     </function>
 
     <function
@@ -159,26 +149,22 @@ RETURN(result);
         type="BOOLEAN"/>
       <algorithm>
 IF ('SPECIFICATION_BASED_CONFIGURATION_ARM.CLASS_CONDITION_ASSOCIATION' IN TYPEOF(config.is_solution_for)) THEN
-  IF config.configuration_type = configuration_kind.usage THEN
-    RETURN(is_solution_for\Class_condition_association.condition_type ='part usage');
-  ELSE
-    RETURN(is_solution_for\Class_condition_association.condition_type ='design case');
-  END_IF;
+IF config.configuration_type = configuration_kind.usage THEN
+RETURN(config.is_solution_for\Class_condition_association.condition_type ='part usage');
+ELSE
+RETURN(config.is_solution_for\Class_condition_association.condition_type ='design case');
 END_IF;
-
+END_IF;
 IF ('SPECIFICATION_BASED_CONFIGURATION_ARM.CLASS_SPECIFICATION_ASSOCIATION' IN TYPEOF(config.is_solution_for)) THEN
-  IF config.configuration_type = configuration_kind.usage THEN
-    RETURN(is_solution_for\Class_specification_association.association_type ='part usage');
-  ELSE 
-    RETURN(is_solution_for\Class_specification_association.association_type ='design case');
-  END_IF;
+IF config.configuration_type = configuration_kind.usage THEN
+RETURN(config.is_solution_for\Class_specification_association.association_type ='part usage');
+ELSE
+RETURN(config.is_solution_for\Class_specification_association.association_type ='design case');
 END_IF;
-
+END_IF;
 RETURN(FALSE);
       </algorithm>
-
     </function>
 
   </schema>
-
 </express>

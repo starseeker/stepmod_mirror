@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2003/01/30 14:12:28 darla Exp $
+   $Id: arm.exp,v 1.3 2003/02/15 17:30:43 goset1 Exp $
     WG12N1667 - ISO/CD-TS 10303-1133 Single_part_representation - EXPRESS ARM*)
 
 
@@ -15,9 +15,6 @@ USE FROM Product_categorization_arm ;
 USE FROM Property_assignment_arm;
 USE FROM Shape_property_assignment_arm;
 
-CONSTANT 
-  schema_name : STRING := 'SINGLE_PART_REPRESENTATION_ARM';
-END_CONSTANT;
 
 TYPE spr_documented_element_select  = SELECT BASED_ON documented_element_select WITH
       (Part_view_definition, Part, Part_version);
@@ -39,13 +36,13 @@ END_TYPE;
 RULE part_requires_version FOR (Part);
 WHERE
 WR1 : SIZEOF(QUERY(prod <* Part | 
-	(SIZEOF(USEDIN(prod, schema_name + '.PART_VERSION.OF_PRODUCT')) = 0))) = 0;
+	(SIZEOF(USEDIN(prod, 'SINGLE_PART_REPRESENTATION_ARM' + '.PART_VERSION.OF_PRODUCT')) = 0))) = 0;
  END_RULE;
 
 RULE part_requires_id_owner FOR (Part); 
 WHERE 
 WR1: SIZEOF ( QUERY ( prod <* Part | 
-  SIZEOF( QUERY (apoa <* USEDIN ( prod, schema_name + '.ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 
+  SIZEOF( QUERY (apoa <* USEDIN ( prod, 'SINGLE_PART_REPRESENTATION_ARM' + '.ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 
    apoa\Organization_or_person_in_organization_assignment.role = 'id owner' )) <>  1 )) = 0; 
 END_RULE; 
 

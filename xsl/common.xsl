@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.101 2003/07/11 12:48:40 robbod Exp $
+$Id: common.xsl,v 1.102 2003/07/28 07:28:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -708,8 +708,22 @@ $Id: common.xsl,v 1.101 2003/07/11 12:48:40 robbod Exp $
 <!--
      A list item
      -->
-<xsl:template match="li" >
+<xsl:template match="li">
+  <xsl:variable name="item" select="normalize-space(.)"/>
+  <xsl:variable name="terminator">
+    <xsl:choose>
+      <xsl:when test="position()=last()">.</xsl:when>
+      <xsl:otherwise>;</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>  
   <li>
+    <xsl:if test="substring($item,string-length($item))!=$terminator">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error b1: Item in list should end with',$terminator)"/>
+      </xsl:call-template>
+    </xsl:if>
     <xsl:apply-templates/>
   </li>
 </xsl:template>
@@ -3656,6 +3670,19 @@ is case sensitive.')"/>
       <x><xsl:value-of select="$nstring"/></x>
     </xsl:otherwise>
   </xsl:choose>  
+</xsl:template>
+
+<!-- Flag a warning if the description is not a phrase.
+     A phrase should NOT end in a period -->
+<xsl:template match="description" mode="check_phrase">
+  <xsl:variable name="defn" select="normalize-space(.)"/>
+  <xsl:if test="substring($defn,string-length($defn))='.'">
+    <xsl:call-template name="error_message">
+      <xsl:with-param 
+        name="message" 
+        select="'Error aam1: definition should be a phrase and so should not end in a period.'"/>
+    </xsl:call-template>
+  </xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>

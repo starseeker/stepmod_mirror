@@ -1,4 +1,4 @@
-//$Id: modImgMap2xml.js,v 1.1 2002/01/29 16:49:37 robbod Exp $
+//$Id: modImgMap2xml.js,v 1.2 2002/03/04 07:55:11 robbod Exp $
 
 // Convert a ballot module expressG HTML file containing a single image map 
 // into an XML file
@@ -27,9 +27,9 @@ appltypeDict.add("boolean_operand_3d","../constructive_solid_geometry_3d/sys/4_i
 appltypeDict.add("boolean_operator","../constructive_solid_geometry/sys/4_info_reqs.xml#constructive_solid_geometry_arm.boolean_operator");
 appltypeDict.add("certification_approval_item","../certification/sys/4_info_reqs.xml#certification_arm.certification_approval_item");
 appltypeDict.add("certification_item","../certification/sys/4_info_reqs.xml#certification_arm.certification_item");
-appltypeDict.add("configuration_item_alias_identification_item","../end_item_identification/sys/4_info_reqs.xml#end_item_identification_arm.configuration_item_alias_identification_item");
-appltypeDict.add("configuration_item_approval_item","../end_item_identification/sys/4_info_reqs.xml#end_item_identification_arm.configuration_item_approval_item");
-appltypeDict.add("configuration_item_organisation_or_person_in_organisation_item","../end_item_identification/sys/4_info_reqs.xml#end_item_identification_arm.configuration_item_organisation_or_person_in_organisation_item");
+appltypeDict.add("configuration_item_alias_identification_item","../Configuration_item/sys/4_info_reqs.xml#Configuration_item_arm.configuration_item_alias_identification_item");
+appltypeDict.add("configuration_item_approval_item","../Configuration_item/sys/4_info_reqs.xml#Configuration_item_arm.configuration_item_approval_item");
+appltypeDict.add("configuration_item_organisation_or_person_in_organisation_item","../Configuration_item/sys/4_info_reqs.xml#Configuration_item_arm.configuration_item_organisation_or_person_in_organisation_item");
 appltypeDict.add("contract_approval_item","../contract/sys/4_info_reqs.xml#contract_arm.contract_approval_item");
 appltypeDict.add("contract_date_or_date_time_item","../contract/sys/4_info_reqs.xml#contract_arm.contract_date_or_date_time_item");
 appltypeDict.add("contract_item","../contract/sys/4_info_reqs.xml#contract_arm.contract_item");
@@ -126,7 +126,7 @@ applobjDict.add("class_by_extension","../class/sys/4_info_reqs.xml#class_arm.cla
 applobjDict.add("class_by_intension","../class/sys/4_info_reqs.xml#class_arm.class_by_intension");
 applobjDict.add("complement","../set_theory/sys/4_info_reqs.xml#set_theory_arm.complement");
 applobjDict.add("configuration_effectivity","../configuration_effectivity/sys/4_info_reqs.xml#configuration_effectivity_arm.configuration_effectivity");
-applobjDict.add("configuration_item","../end_item_identification/sys/4_info_reqs.xml#end_item_identification_arm.configuration_item");
+applobjDict.add("configuration_item","../Configuration_item/sys/4_info_reqs.xml#Configuration_item_arm.configuration_item");
 applobjDict.add("contract","../contract/sys/4_info_reqs.xml#contract_arm.contract");
 applobjDict.add("contract_assignment","../contract/sys/4_info_reqs.xml#contract_arm.contract_assignment");
 applobjDict.add("convex_hexahedron","../constructive_solid_geometry_3d/sys/4_info_reqs.xml#constructive_solid_geometry_3d_arm.convex_hexahedron");
@@ -291,7 +291,7 @@ function ErrorMessage(msg){
 
 function xmlXMLhdr(xmlTs) {
     xmlTs.Writeline("<?xml version=\"1.0\"?>");
-    xmlTs.Writeline("<!-- $Id: modImgMap2xml.js,v 1.1 2002/01/29 16:49:37 robbod Exp $ -->");
+    xmlTs.Writeline("<!-- $Id: modImgMap2xml.js,v 1.2 2002/03/04 07:55:11 robbod Exp $ -->");
     xmlTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/imgfile.xsl\"?>");
     xmlTs.Writeline("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
 }
@@ -661,7 +661,7 @@ function convertAllModulesArm() {
     htmFile = htmbase+'/'+module+'/armdiag.html';
     Output2xml(htmFile, xmlFile, module, title);
 
-    module = 'end_item_identification';
+    module = 'Configuration_item';
     userMessage(module+'\n');
     xmlFile = xmlbase+module+'/armexpg1.xml';
     htmFile = htmbase+'/'+module+'/armdiag.html';
@@ -1101,7 +1101,7 @@ function convertAllModulesMim() {
     htmFile = htmbase+'/'+module+'/mimdiag.html';
     Output2xml(htmFile, xmlFile, module, title);
 
-    module = 'end_item_identification';
+    module = 'Configuration_item';
     userMessage(module+'\n');
     xmlFile = xmlbase+module+'/mimexpg1.xml';
     htmFile = htmbase+'/'+module+'/mimdiag.html';

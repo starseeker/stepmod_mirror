@@ -1,5 +1,5 @@
 @echo off
-REM $Id: make_html_all.bat,v 1.4 2002/02/24 23:18:09 robbod Exp $
+REM $Id: make_html_all.bat,v 1.5 2002/02/25 17:13:57 robbod Exp $
 
 REM Generate the html for all the modules.
 
@@ -74,7 +74,7 @@ call make_html effectivity
 call make_html effectivity_application
 call make_html elemental_geometric_shape
 call make_html elemental_topology
-call make_html end_item_identification
+call make_html configuration_item
 call make_html event
 call make_html external_item_identification_assignment
 call make_html faceted_boundary_representation

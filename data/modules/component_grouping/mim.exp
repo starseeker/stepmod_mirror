@@ -1,6 +1,215 @@
 (*
-   $Id: mim.exp,v 1.1 2004/11/17 16:13:10 budreckytej Exp $
+   $Id: mim.exp,v 1.2 2004/11/19 09:25:05 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Component grouping - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Component_grouping_mim;
+
+ENTITY array_placement_group_component_shape_aspect
+  SUPERTYPE OF (ONEOF(linear_array_placement_group_component_shape_aspect,
+                      rectangular_array_placement_group_component_shape_aspect))
+  SUBTYPE OF (assembly_group_component_shape_aspect);
+END_ENTITY; -- array_placement_group_component_shape_aspect
+
+ENTITY assembly_group_component_definition
+  SUBTYPE OF (component_definition);
+WHERE
+  WR1: (SIZEOF (QUERY (gc <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'group component') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (gc.related_product_definition)))) >= 1)  OR
+       (SIZEOF (QUERY(agcsa <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_GROUP_COMPONENT_SHAPE_ASPECT' IN TYPEOF (agcsa)))) = 0);
+  WR2: (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj)))) = 0) OR
+       (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_JOINT' IN TYPEOF (aj)) AND
+       (SIZEOF (QUERY( acu <* USEDIN (aj\shape_aspect_relationship.relating_shape_aspect,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF (acu))
+       AND (acu\product_definition_relationship.relating_product_definition = SELF)
+       )) >= 1))) >= 1);
+  WR3: (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj)))) = 0) OR
+       (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj))AND
+       (SIZEOF (QUERY( acu <* USEDIN (aj\
+        shape_aspect_relationship.related_shape_aspect,
+        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF (acu))
+        AND (acu\product_definition_relationship.relating_product_definition = SELF)
+        )) = 0))) = 0);
+  WR4: (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj)))) = 0) OR
+       (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj)) AND
+       (SIZEOF (QUERY( cl <* USEDIN (aj\
+        shape_aspect_relationship.related_shape_aspect.of_shape.definition,
+        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'REPRESENTATION.ITEMS') |
+        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'COMPONENT_LOCATION' IN TYPEOF (cl))
+        AND (aj IN cl\representation.items))) = 0))) = 0);
+END_ENTITY; -- assembly_group_component_definition
+
+ENTITY assembly_group_component_definition_placement_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition);
+  WR3: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||
+       SELF\product_definition_relationship ||
+       SELF\assembly_group_component_definition_placement_link)) = 0;
+  WR5: SELF\product_definition.name = '';
+  WR6: SELF\product_definition_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) = 1;
+END_ENTITY; -- assembly_group_component_definition_placement_link 
+
+ENTITY assembly_group_component_shape_aspect
+  SUBTYPE OF (component_shape_aspect);
+WHERE
+  WR1: (SIZEOF (QUERY (gc <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'group component') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (gc.related_shape_aspect))))
+       >= 1);
+END_ENTITY; -- assembly_group_component_shape_aspect
+
+ENTITY assembly_group_component_shape_aspect_placement_link
+  SUBTYPE OF (shape_aspect,shape_aspect_relationship);
+WHERE
+  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
+       SELF\shape_aspect_relationship.relating_shape_aspect;
+  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
+  WR3: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\assembly_group_component_shape_aspect_placement_link)) = 0;
+  WR5: SELF\shape_aspect.name = '';
+  WR6: SELF\shape_aspect_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+             'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) = 1;
+END_ENTITY; -- assembly_group_component_shape_aspect_placement_link 
+
+
+ENTITY array_placement_group_component_definition
+  SUPERTYPE OF (ONEOF(linear_array_placement_group_component_definition,
+                      rectangular_array_placement_group_component_definition))
+  SUBTYPE OF (assembly_group_component_definition);
+END_ENTITY; -- array_placement_group_component_definition
+
+ENTITY interfaced_group_component_definition
+  SUBTYPE OF (assembly_group_component_definition);
+WHERE
+  WR1: (SIZEOF (QUERY (gc <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'group component') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERFACE_COMPONENT_DEFINITION' IN 
+       TYPEOF (gc.related_product_definition))))
+       >= 1);
+END_ENTITY; -- interfaced_group_component_definition
+
+ENTITY linear_array_component_definition_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition);
+  WR3: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||
+       SELF\product_definition_relationship ||
+       SELF\linear_array_component_definition_link)) = 0;
+  WR5: SELF\product_definition.name = '';
+  WR6: SELF\product_definition_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) = 1;
+END_ENTITY; -- linear_array_component_definition_link 
+
+ENTITY linear_array_component_shape_aspect_link
+  SUBTYPE OF (shape_aspect,shape_aspect_relationship);
+WHERE
+  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
+       SELF\shape_aspect_relationship.relating_shape_aspect;
+  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
+  WR3: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\linear_array_component_shape_aspect_link)) = 0;
+  WR5: SELF\shape_aspect.name = '';
+  WR6: SELF\shape_aspect_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+             'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) = 1;
+END_ENTITY; -- linear_array_component_shape_aspect_link 
+
+ENTITY linear_array_placement_group_component_shape_aspect
+  SUBTYPE OF (array_placement_group_component_shape_aspect);
+END_ENTITY; -- linear_array_placement_group_component_shape_aspect
+
+ENTITY linear_array_placement_group_component_definition
+  SUBTYPE OF (array_placement_group_component_definition);
+END_ENTITY; -- linear_array_placement_group_component_definition
+
+ENTITY rectangular_array_placement_group_component_definition
+  SUBTYPE OF (array_placement_group_component_definition);
+END_ENTITY; -- rectangular_array_placement_group_component_definition
+
+ENTITY rectangular_array_placement_group_component_shape_aspect
+  SUBTYPE OF (array_placement_group_component_shape_aspect);
+END_ENTITY; -- rectangular_array_placement_group_component_shape_aspect
+
 END_SCHEMA;

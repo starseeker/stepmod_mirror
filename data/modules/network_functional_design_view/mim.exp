@@ -1,6 +1,187 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/15 16:26:56 budreckytej Exp $
+   $Id: mim.exp,v 1.2 2004/11/19 10:07:40 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Network functional design view - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Network_functional_design_view_mim;
+
+ENTITY bus_element_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+UNIQUE
+  UR1: SELF\product_definition_relationship.related_product_definition,
+       SELF\product_definition_relationship.relating_product_definition;
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BUS_STRUCTURAL_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition)) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'NETWORK_NODE_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition));
+  WR3: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BUS_STRUCTURAL_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition)) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'NETWORK_NODE_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition));
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||
+       SELF\product_definition_relationship ||
+       SELF\bus_element_link)) = 0;
+  WR5: NOT EXISTS(SELF\product_definition.name) OR 
+        (SELF\product_definition.name = '');
+  WR6: SELF\product_definition_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) >= 1;
+END_ENTITY; -- bus_element_link 
+
+ENTITY bus_structural_definition
+ SUBTYPE OF (product_definition);
+WHERE
+  WR1: SIZEOF (QUERY (bce <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'bus composition') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BUS_ELEMENT_LINK' IN
+       TYPEOF (bce.related_product_definition))) >= 1;
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (pdr <* USEDIN (pd, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 
+       'functional unit network terminal definition bus assignment')) 
+       <= 1)) <= 1;
+  WR3: consistent_bus_structural_definition(bag_to_set(QUERY( pdr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BUS_ELEMENT_LINK' IN TYPEOF(pdr.related_product_definition))));
+END_ENTITY; -- bus_structural_definition
+
+ENTITY component_functional_terminal
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FUNCTIONAL_UNIT' IN
+       TYPEOF (SELF.of_shape.definition);
+  WR2: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated terminal') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION'
+       IN TYPEOF (it.relating_shape_aspect))) = 1;
+  WR3: SIZEOF (QUERY (futba <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'functional unit terminal bus assignment') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BUS_STRUCTURAL_DEFINITION' IN 
+       TYPEOF (futba.relating_property_definition.definition))) <= 1;
+  WR4: SIZEOF (QUERY (futna <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'functional unit terminal node assignment') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'NETWORK_NODE_DEFINITION' IN 
+       TYPEOF (futna.relating_property_definition.definition))) <= 1;
+END_ENTITY; -- component_functional_terminal
+
+ENTITY component_functional_unit
+  SUBTYPE OF (product_definition);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'functional occurrence';
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FUNCTIONAL_TERMINAL' IN
+       TYPEOF (sa))) >= 1)) >= 1;
+  WR3: SIZEOF (QUERY (ifu <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated functional unit') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (ifu.relating_product_definition))) = 1;
+  WR4: SIZEOF (QUERY (nc <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'network composition') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (nc.relating_product_definition)) AND
+       (nc.relating_product_definition.frame_of_reference.name =
+       'functional network design'))) = 1;
+END_ENTITY; -- component_functional_unit
+
+ENTITY network_node_definition
+  SUBTYPE OF (product_definition);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'functional network design';
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (funtdna <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name =
+       'functional unit network terminal definition node assignment') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_SHAPE' IN 
+       TYPEOF (funtdna.related_property_definition)) AND
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' IN 
+       TYPEOF 
+       (funtdna.related_property_definition.definition)))) <= 1)) <= 1;
+  WR3: SIZEOF (QUERY (funn <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (funn.relating_product_definition)) AND
+       (funn.relating_product_definition.frame_of_reference.name =
+       'functional network design'))) = 1;
+END_ENTITY; -- network_node_definition
+
+RULE functional_unit_network_terminal_definition_bus_assignment_constraint
+FOR ( property_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdr <* property_definition_relationship |
+  (pdr\property_definition_relationship.name = 'functional unit network terminal definition bus assignment')
+       AND NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BUS_STRUCTURAL_DEFINITION' IN
+       TYPEOF(pdr.relating_property_definition.definition))
+       )) = 0;
+  WR2: SIZEOF(QUERY(pdr <* property_definition_relationship |
+  (pdr\property_definition_relationship.name = 'functional unit network terminal definition bus assignment')
+       AND NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_SHAPE' IN
+       TYPEOF(pdr.related_property_definition.definition))
+       AND (SIZEOF(QUERY(futd <* 
+                       USEDIN(pdr.related_property_definition.definition,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION.OF_SHAPE' IN TYPEOF(futd))
+       )) > 0)))) = 0;
+END_RULE; -- functional_unit_network_terminal_definition_bus_assignment_constraint
+
+RULE functional_unit_terminal_bus_assignment_constraint FOR
+( property_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdr <* property_definition_relationship |
+       (pdr\property_definition_relationship.name = 'functional unit terminal bus assignment')
+       AND NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'BUS_STRUCTURAL_DEFINITION'
+       IN TYPEOF(pdr.relating_property_definition.definition))
+       )) = 0;
+END_RULE; -- functional_unit_terminal_bus_assignment_constraint
+
 END_SCHEMA;

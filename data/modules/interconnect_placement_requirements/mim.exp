@@ -11,5 +11,78 @@ SCHEMA Interconnect_placement_requirements_mim;
 	USE FROM Non_feature_shape_element_mim;
 	USE FROM Part_template_extension_mim;
 	USE FROM Requirement_decomposition_mim;
+	
+ENTITY interconnect_module_design_object_category
+  SUBTYPE OF (characterized_object);
+WHERE
+  WR1: SELF\characterized_object.description IN 
+       ['cutout category', 
+       'fill area category', 
+       'inter stratum feature category', 
+       'stratum feature category', 
+       'via category'];
+END_ENTITY; -- interconnect_module_design_object_category
+
+RULE interconnect_module_constraint_region_constraint FOR
+  ( group_shape_aspect );
+WHERE
+
+  WR1: SIZEOF(QUERY(gsa <* group_shape_aspect |
+       NOT(gsa\shape_aspect.description =
+       'interconnect module constraint region')
+       OR NOT (SIZEOF (QUERY (pd <* USEDIN (gsa,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)) AND
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CSG_2D_SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)) OR
+       (pdr.used_representation.context_of_items\geometric_representation_context.coordinate_space_dimension = 3))
+       )) = 1))) = 0)
+       )) = 0;
+END_RULE; -- interconnect_module_constraint_region_constraint
+
+RULE layout_spacing_requirement_non_conforming_design_object_constraint FOR
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'layout spacing requirement violation')
+       AND (SIZEOF(['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_SHAPE_ASPECT',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_TERMINAL',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_INTERFACE_TERMINAL',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'STRATUM_FEATURE'] * TYPEOF(sar.related_shape_aspect)
+       ) = 0))) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'layout spacing requirement violation')
+       AND (SIZEOF(['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_SHAPE_ASPECT',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_TERMINAL',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_INTERFACE_TERMINAL',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'STRATUM_FEATURE'] * TYPEOF(sar.relating_shape_aspect)
+       ) = 0))) = 0;
+  WR3: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'layout spacing requirement violation')
+       AND NOT(SIZEOF(QUERY(grp <* USEDIN(sar,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION.DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'GROUP' IN TYPEOF(grp))
+       AND (grp\group.name = 'layout spacing requirements property')
+       )) = 1))) = 0;
+END_RULE; -- layout_spacing_requirement_non_conforming_design_-
+          -- object_constraint
+	
 END_SCHEMA;
 

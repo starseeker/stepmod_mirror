@@ -7,5 +7,56 @@
 SCHEMA Signal_mim;
 	USE FROM Extended_measure_representation_mim;
 	USE FROM External_item_identification_assignment_mim;
+	
+ENTITY composite_signal_property_relationship
+  SUBTYPE OF (property_definition, property_definition_relationship);
+WHERE
+  WR1: SELF\property_definition_relationship.related_property_definition.definition :<>:
+       SELF\property_definition_relationship.relating_property_definition.definition;
+  WR2: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\property_definition_relationship ||
+       SELF\composite_signal_property_relationship || SELF\property_definition)) = 0;
+  WR3: SELF\property_definition_relationship.related_property_definition.name =
+       'signal property';
+  WR4: SELF\property_definition_relationship.relating_property_definition.name =
+       'composite signal property';
+  WR5: SELF\property_definition.name = '';
+  WR6: SELF\property_definition.description = '';
+  WR7: SELF\property_definition_relationship.name = '';
+  WR8: SELF\property_definition_relationship.description = '';
+  WR9: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CHARACTERIZED_OBJECT' IN TYPEOF(SELF\property_definition.definition)) AND
+       (SELF\property_definition.definition.description = 'aggregate operation');
+ WR10: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNAL_DEFINITION' IN TYPEOF(SELF\property_definition.definition);
+END_ENTITY; -- composite_signal_property_relationship
+
+ENTITY signal
+  SUBTYPE OF (characterized_object);
+WHERE
+  WR1: SIZEOF (QUERY (aca <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'APPLIED_CLASSIFICATION_ASSIGNMENT.ITEMS') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SIGNAL_CATEGORY' IN
+       TYPEOF (aca.assigned_group))) >= 1;
+  WR2: (SIZEOF (QUERY (ada <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       SIZEOF (QUERY (duc <* USEDIN (ada.assigned_document,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |
+       duc\document_usage_constraint.subject_element = 'signal category')) = 1)) = 1);
+  WR3: SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1;
+END_ENTITY; -- signal
+
+ENTITY signal_category
+  SUBTYPE OF (group, externally_defined_item);
+WHERE
+  WR1: SELF\group.description IN ['signal characteristic category', 
+       'signal property category'];
+END_ENTITY; -- signal_category
+	
 END_SCHEMA;
 

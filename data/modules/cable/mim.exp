@@ -1,6 +1,38 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: mim.exp,v 1.2 2004/11/19 08:57:17 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Cable - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Cable_mim;
+
+USE FROM Physical_unit_usage_view_mim;
+USE FROM Part_terminal_mim;
+USE FROM Physical_unit_design_view_mim;
+USE FROM Item_definition_structure_mim;
+USE FROM Assembly_module_with_packaged_connector_component_mim;
+USE FROM Component_feature_mim;
+USE FROM Part_occurrence_mim;
+
+ENTITY cable_terminal
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CABLE_USAGE_VIEW' IN 
+       TYPEOF (SELF.of_shape.definition);
+END_ENTITY; -- cable_terminal
+
+ENTITY cable_usage_view
+ SUBTYPE OF (physical_unit);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CABLE_TERMINAL' IN 
+       TYPEOF (sa))) >= 1))) = 0;
+  WR2: SELF.frame_of_reference.name IN ['physical design usage'];
+END_ENTITY; -- cable_usage_view
+
 END_SCHEMA;

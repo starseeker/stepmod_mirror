@@ -64,5 +64,36 @@ SCHEMA AP210_product_data_management_mim;
 	USE FROM Single_part_representation_mim;
 	USE FROM Work_order_mim;
 	USE FROM Work_request_mim;
+
+ENTITY applied_person_assignment
+ SUBTYPE OF (person_assignment);
+     items : SET [1:?] OF person_assigned_item;
+END_ENTITY; -- applied_person_assignment
+
+ENTITY applied_promissory_usage_in_product_model_assignment
+ SUBTYPE OF (group_assignment);
+     items : SET [1:?] OF promissory_usage_in_product_model_assigned_item;
+WHERE
+ WR1: SIZEOF(QUERY(pm <* items |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_CONCEPT' IN TYPEOF(pm)
+        )) = 1;
+ WR2: SIZEOF(QUERY(pd <* items |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION' IN TYPEOF(pd)
+        )) = 1;
+ WR3: SIZEOF(items) = 2;
+ WR4: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROMISSORY_USAGE_IN_PRODUCT_MODEL' IN TYPEOF(SELF\group_assignment.assigned_group);
+ WR5: SIZEOF(USEDIN(SELF,
+      'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) <= 1;
+END_ENTITY; -- applied_promissory_usage_in_product_model_assignment
+	
+ENTITY owner_assignment 
+ SUBTYPE OF (person_and_organization_assignment); 
+ items : SET [1:?] OF owner_assigned_item; 
+END_ENTITY; -- owner_assignment
+	
 END_SCHEMA;
 

@@ -1,6 +1,209 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: mim.exp,v 1.1 2004/11/19 14:34:47 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly technology - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Assembly_technology_mim;
+
+ENTITY assembly_bond_definition
+  SUBTYPE OF (shape_aspect);
+UNIQUE
+  UR1: SELF\shape_aspect.name;
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1;
+  WR2: SIZEOF (QUERY (aga <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BOND_CATEGORY' IN
+       TYPEOF (aga.assigned_group))) = 1;
+  WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1;
+  WR4: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name  = 'bonded feature 2' ))  = 1;
+  WR5: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PRODUCT_DEFINITION' IN
+        TYPEOF (SELF.of_shape.definition))
+       AND
+       (SIZEOF (QUERY (prpc <* USEDIN (SELF.of_shape.definition.formation.of_product,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +
+       'PRODUCTS') |
+       prpc\product_category.name = 'technology specific model')) >= 1));
+  WR6: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'EXTERNALLY_DEFINED_PRODUCT_DEFINITION' IN TYPEOF (SELF.of_shape.definition)) AND
+        (SELF.of_shape.definition\product_definition.name='assembly bond model');
+END_ENTITY; -- assembly_bond_definition
+
+ENTITY assembly_joint
+  SUBTYPE OF (shape_aspect_relationship, shape_aspect);
+WHERE
+  WR1: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (SELF.relating_shape_aspect)) AND
+       (SELF.relating_shape_aspect\shape_aspect.description IN 
+       ['assembly module component terminal', 
+       'bare die component terminal',
+       'interconnect component join terminal', 
+       'interconnect module component terminal',  
+       'package terminal occurrence', 
+       'packaged component join terminal'])) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE' IN
+       TYPEOF (SELF.relating_shape_aspect)) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_INTERFACE_TERMINAL' IN
+       TYPEOF (SELF.relating_shape_aspect)) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_MOUNTING_FEATURE' IN
+       TYPEOF (SELF.relating_shape_aspect));
+  WR2: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (SELF.related_shape_aspect)) AND
+       (SELF.related_shape_aspect\shape_aspect.description IN 
+       ['assembly module component terminal', 
+       'bare die component terminal', 
+       'interconnect component join terminal', 
+       'interconnect module component terminal',  
+       'package terminal occurrence', 
+       'packaged component join terminal'])) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE' IN
+       TYPEOF (SELF.relating_shape_aspect)) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_INTERFACE_TERMINAL' IN
+       TYPEOF (SELF.related_shape_aspect)) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_MOUNTING_FEATURE' IN
+       TYPEOF (SELF.relating_shape_aspect));
+  WR3: (NOT (SELF\shape_aspect_relationship.name = 
+       'assembled with bonding')) OR
+       (SIZEOF (QUERY (ddu <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'default definition usage') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_BOND_DEFINITION' IN
+       TYPEOF (ddu.relating_shape_aspect))) = 1);
+  WR4: (NOT (SELF\shape_aspect_relationship.name = 
+       'assembled with bonding')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       (pdr.used_representation\representation.name = 'bond assembly position') AND
+       (SIZEOF (QUERY (it <* pdr.used_representation.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MAPPED_ITEM' IN TYPEOF (it)) AND
+       (it\representation_item.name = 'assembly position'))) = 1))) = 1)) <= 1);
+  WR5: (NOT (SELF\shape_aspect_relationship.name = 
+       'assembled with fasteners')) OR
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN
+       TYPEOF (SELF.of_shape.definition));
+  WR6: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN
+       TYPEOF (SELF.of_shape.definition)) OR
+       is_assembly_module_design(SELF.of_shape.definition); 
+  WR7: (NOT (SELF\shape_aspect_relationship.name =
+       'assembled with bonding')) OR
+       (SIZEOF (QUERY (ddu <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'default definition usage') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_BOND_DEFINITION' IN
+       TYPEOF (ddu.relating_shape_aspect)) AND
+       (SIZEOF (QUERY (sar <* USEDIN (ddu.relating_shape_aspect,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1)
+       AND (SIZEOF (QUERY (sar <* USEDIN (ddu.relating_shape_aspect,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1)
+       )) = 1);
+  WR8: acyclic_shape_aspect_relationship(SELF,
+       [SELF\shape_aspect_relationship.related_shape_aspect],
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'+
+       'ASSEMBLY_JOINT');
+END_ENTITY; -- assembly_joint
+
+ENTITY component_mating_constraint_condition
+  SUBTYPE OF (shape_aspect);
+UNIQUE
+  UR1: SELF\shape_aspect.name, SELF\shape_aspect.of_shape;
+END_ENTITY; -- component_mating_constraint_condition
+
+RULE default_assembly_bond_shape_constraint FOR ( shape_representation );
+WHERE
+  WR1: SIZEOF(QUERY(sr <* shape_representation |
+       (sr\representation.name = 'default assembly bond shape')
+       AND NOT(SIZEOF(QUERY(pdr <* USEDIN(sr,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT'
+       IN TYPEOF(pdr.definition.definition)))) = 1))) = 0;
+END_RULE; -- default_assembly_bond_shape_constraint
+
+ENTITY connection_zone_based_assembly_joint
+  SUBTYPE OF (assembly_joint);
+WHERE
+  WR1: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'zone 1')) = 1;
+  WR2: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'zone 2')) = 1;
+  WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar.relating_shape_aspect\shape_aspect.description = 'connection zone')) = 2;
+
+END_ENTITY; -- connection_zone_based_assembly_joint
+
+ENTITY reference_packaged_part_assembly_implementation
+ SUBTYPE OF (physical_unit);
+WHERE
+  WR1: (SIZEOF (QUERY (prpc <* 
+       USEDIN (SELF.formation.of_product,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
+       prpc\product_category.name = 'template model')) >= 1) AND
+       (SELF\product_definition.name = 'assembly module');
+  WR2: (NOT (SELF.frame_of_reference.name = 'physical design')) OR
+       (SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'design usage') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_DEFINITION', 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_ASSEMBLY_DEFINITION', 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_ASSEMBLY_DEFINITION'] *
+       TYPEOF (du.relating_product_definition)) = 1) AND
+       (du.relating_product_definition.frame_of_reference.name = 
+       'physical design usage') AND
+       (du.relating_product_definition\product_definition.name =
+       'assembly module') AND
+       (SIZEOF (QUERY (prpc <*
+       USEDIN (du.relating_product_definition.formation.of_product,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
+       prpc\product_category.name = 'template model')) >= 1)
+       )) = 1);
+END_ENTITY; -- reference_packaged_part_assembly_implementation
+
 END_SCHEMA;

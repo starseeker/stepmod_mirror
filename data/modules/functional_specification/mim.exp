@@ -9,5 +9,55 @@ SCHEMA Functional_specification_mim;
 	USE FROM Network_functional_design_view_mim;
 	USE FROM Signal_mim;
 	USE FROM Specification_document_mim;
+	
+ENTITY functional_specification
+  SUBTYPE OF (representation);
+WHERE
+  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') |
+       (rr\representation_relationship.name = 'functional characteristic category') AND
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNAL_DEFINITION' IN
+       TYPEOF (rr.rep_1.items[1])))) = 1;
+  WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |
+       (rr\representation_relationship.name = 'characterizing signal' +
+       'for functional specification')
+       )) = 1;
+  WR3: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |
+       (rr\representation_relationship.name = 'reference signal for' +
+        'functional specification') 
+       )) = 1;
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\functional_specification)) = 0;
+  WR5: SELF\representation.name = '';
+  WR6: SIZEOF(QUERY( pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'COMPONENT_FUNCTIONAL_UNIT' IN TYPEOF (pdr.definition.definition)) 
+        )) = 0;
+END_ENTITY; -- functional_specification
+	
+ENTITY functional_specification_definition
+  SUBTYPE OF (functional_unit);
+WHERE
+  WR1: SELF.frame_of_reference\application_context_element.name =
+             'functional network design';
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_SPECIFICATION' IN TYPEOF (pdr.used_representation))
+       )) > 0))) > 0;
+END_ENTITY; -- functional_specification_definition
+	
 END_SCHEMA;
 

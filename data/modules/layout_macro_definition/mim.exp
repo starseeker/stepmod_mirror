@@ -9,5 +9,122 @@ SCHEMA Layout_macro_definition_mim;
 	USE FROM Layered_interconnect_module_with_printed_component_design_mim;
 	USE FROM Physical_unit_design_view_mim;
 	USE FROM Printed_physical_layout_template_mim;
+	
+ENTITY layout_macro_component
+  SUBTYPE OF (printed_component);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pt_occ <* QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       sa\shape_aspect.description = 'layout macro component shape aspect') |
+       SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (pt_occ,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN
+       TYPEOF (it.relating_shape_aspect))
+       )) = 1)) = 1))) = 0;
+  WR2: SIZEOF (QUERY (ip <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'design definition') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYOUT_MACRO_DEFINITION'] *
+       TYPEOF (ip.relating_product_definition)) = 1)
+       )) = 1;
+  WR3: SELF\product_definition.description <> 'printed connector component';
+END_ENTITY; -- layout_macro_component
+
+ENTITY layout_macro_definition
+ SUBTYPE OF (interconnect_definition);
+WHERE
+  WR1: EXISTS(SELF\product_definition.name);
+  WR2: SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'design usage') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERCONNECT_DEFINITION', 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_INTERCONNECT_DEFINITION', 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_INTERCONNECT_DEFINITION'] *
+       TYPEOF (du.relating_product_definition)) = 1) AND
+       (du.relating_product_definition.frame_of_reference.name = 
+       'physical design usage') AND
+       (du.relating_product_definition\product_definition.name = 'interconnect module')
+       )) = 0;
+ WR3: SELF.frame_of_reference\application_context_element.name = 'physical design';
+ WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pt_occ <* QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       sa\shape_aspect.description = 'layout macro definition shape aspect') |
+       SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (pt_occ,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'floor layout view') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN
+       TYPEOF (it.relating_shape_aspect))
+       )) = 1)) = 1))) = 0;
+END_ENTITY; -- layout_macro_definition
+
+ENTITY layout_macro_definition_terminal_to_usage_terminal_assignment
+  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+UNIQUE
+  UR1: SELF\shape_aspect_relationship.name;
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect_relationship ||
+       SELF\layout_macro_definition_terminal_to_usage_terminal_assignment ||
+       SELF\shape_aspect)) = 0;
+  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRINTED_PART_TEMPLATE_TERMINAL' IN 
+       TYPEOF(SELF\shape_aspect_relationship.relating_shape_aspect);
+  WR3: SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description
+       IN ['component termination passage join terminal',
+           'conductive interconnect element terminal',
+           'land join terminal',
+           'non functional land join terminal',
+           'printed component join terminal',
+           'via terminal'];
+  WR4: SIZEOF(USEDIN(SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT')) <= 1;
+
+END_ENTITY; -- layout_macro_definition_terminal_to_usage_terminal_assignment
+
+ENTITY layout_macro_floor_plan_template
+  SUBTYPE OF (part_template_definition);
+WHERE
+  WR1: NOT(SELF\shape_aspect.description IN
+      ['component termination passage template',
+       'component termination passage template',
+       'default trace template',
+       'inter stratum feature template',
+       'printed connector template',
+       'printed part cross section template',
+       'printed part template',
+       'trace template',
+       'unsupported passage template',
+       'via template',
+       'non conductive cross section template']);
+  WR2: SIZEOF(QUERY( sar <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       ((sar\shape_aspect_relationship.name = 'access maps') AND
+      ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYOUT_MACRO_DEFINITION_TERMINAL_TO_USAGE_TERMINAL_ASSIGNMENT' IN
+       TYPEOF (sar.relating_shape_aspect)))
+       )) >=1;
+END_ENTITY; -- layout_macro_floor_plan_template
+	
 END_SCHEMA;
 

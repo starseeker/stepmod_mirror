@@ -1,6 +1,97 @@
 (*
-   $Id: mim.exp,v 1.1 2004/11/17 16:48:47 budreckytej Exp $
+   $Id: mim.exp,v 1.2 2004/11/19 08:59:53 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Characteristic - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Characteristic_mim;
+
+ENTITY characteristic_type
+  SUBTYPE OF (group);
+WHERE
+  WR1: SELF\group.name IN [
+       'string property',
+       'logical property',
+       'boolean property',
+       'numeric property',
+       'physical property',
+       'externally defined property',
+       'polar complex numeric property',
+       'compound characteristic'
+        ];
+
+END_ENTITY; -- characteristic_type
+
+ENTITY coordinated_representation_item
+  SUBTYPE OF (representation, representation_item);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       SIZEOF (USEDIN (pdr, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DATA_ENVIRONMENT.ELEMENTS')) <= 1)) <= 1;
+  WR2: SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1;
+  WR3: (NOT (SELF\representation_item.name = 'tolerance')) OR
+       (SIZEOF (QUERY (it <* SELF.items |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it))) >= 1); 
+  WR4: (NOT (SELF\representation_item.name = 'plus minus tolerance')) OR
+       (SIZEOF (QUERY (it <* SELF.items |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it))) = 3); 
+  WR5: (NOT (SELF\representation_item.name = 'symmetrical tolerance')) OR
+       (SIZEOF (QUERY (it <* SELF.items |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it))) = 2); 
+  WR6: (NOT (SELF\representation_item.name = 'plus minus tolerance'))
+       OR
+       (
+        (SIZEOF (QUERY (it <* SELF.items
+         | ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+            'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) 
+           AND 
+            (it\representation_item.name = 'basic value'))
+        ) = 1)
+       AND
+        (SIZEOF (QUERY (it <* SELF.items
+         | ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+            'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) 
+           AND 
+            (it\representation_item.name = 'plus value'))
+        ) = 1)
+       AND
+        (SIZEOF (QUERY (it <* SELF.items 
+         | ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+            'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) 
+           AND 
+            (it\representation_item.name = 'minus value'))
+        ) = 1)
+       );
+
+  WR7: (NOT (SELF\representation_item.name = 'symmetrical tolerance')) OR
+       ((SIZEOF (QUERY (it <* SELF.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it)) AND (it\representation_item.name = 'basic value'))
+                        ) = 1)
+       AND
+       (SIZEOF (QUERY (it <* SELF.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it)) AND ( it\representation_item.name = 'deviation value'))
+                        ) = 1)
+       ); 
+END_ENTITY; -- coordinated_representation_item
+
+ENTITY parameter_type
+  SUBTYPE OF (group);
+WHERE
+  WR1: SELF\group.name IN ['string property type','logical property type',
+       'physical property type','boolean property type'];
+END_ENTITY; -- parameter_type
+
 END_SCHEMA;

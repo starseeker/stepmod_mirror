@@ -7,5 +7,193 @@
 SCHEMA Land_mim;
 	USE FROM Layered_interconnect_module_design_mim;
 	USE FROM Manufacturing_technology_mim;
+	
+ENTITY land
+ SUBTYPE OF (component_shape_aspect);
+WHERE
+  WR1: SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (i_f.relating_shape_aspect))) = 1;
+  WR2: SIZEOF (QUERY (aud <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'alternate usage definition') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (aud.relating_shape_aspect))) <= 1;
+  WR3: SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'stratum feature implementation') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM_FEATURE' IN
+       TYPEOF (sfi.relating_shape_aspect))) = 1;
+(*
+  WR4: (NOT (SELF\shape_aspect.description IN
+       ['via and contact size dependent land',
+    'component termination passage and contact size dependent land'])) OR
+       (SIZEOF (QUERY (at <* associated_terminals(SELF) |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (at)) AND
+       (at\shape_aspect.description =
+       'land interface terminal')))) >= 0);
+  WR5: (NOT (SELF\shape_aspect.description IN
+       ['functional land', 'via dependent land',
+       'via and contact size dependent land',
+       'component termination passage dependent land',
+       'contact size dependent land',
+   'component termination passage and contact size dependent land'])) OR
+       (SIZEOF (QUERY (at <* associated_terminals(SELF) |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (at)) AND
+       (at\shape_aspect.description =
+       'land join terminal')))) >= 1);
+  WR6: (NOT (SELF\shape_aspect.description IN
+       ['via and contact size dependent non functional land',
+       'component termination passage and contact size '])) OR
+       (SIZEOF (QUERY (at <* associated_terminals(SELF) |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (at)) AND
+       (at\shape_aspect.description =
+       'non functional land interface terminal')))) = 1);
+  WR7: (NOT (SELF\shape_aspect.description IN
+       ['non functional land', 'via dependent non functional land',
+       'via and contact size dependent non functional land',
+       'component termination passage dependent non functional land',
+       'contact size dependent non functional land',
+       'component termination passage and contact size ' + 
+       'dependent non functional land',
+       'unsupported passage dependent non functional land'])) OR
+       (SIZEOF (QUERY (at <* associated_terminals(SELF)|
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (at)) AND
+       (at\shape_aspect.description =
+       'non functional land join terminal')))) >= 1);
+*)
+  WR8: (NOT (SELF\shape_aspect.description IN
+       ['component termination passage and contact size dependent land',
+       'component termination passage and contact size dependent' + 
+       'non functional land',
+       'component termination passage dependent land',
+       'component termination passage dependent non functional land'])) OR
+       (SIZEOF (QUERY (rp <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'reference passage') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PLATED_PASSAGE' IN
+       TYPEOF (rp.relating_shape_aspect)) AND
+       (rp.relating_shape_aspect\shape_aspect.description =
+       'component termination passage')))) = 1);
+ WR9: (NOT (SELF\shape_aspect.description IN
+       ['via and contact size dependent land',
+       'via and contact size dependent non functional land',
+       'via dependent land', 'via dependent non functional land'])) OR
+       (SIZEOF (QUERY (rv <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'reference via') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PLATED_PASSAGE' IN
+       TYPEOF (rv.relating_shape_aspect)) AND
+       (rv.relating_shape_aspect\shape_aspect.description IN
+       ['buried via', 'interfacial connection', 
+       'bonded conductive base blind via', 'non conductive base blind via',
+       'plated conductive base blind via'])))) = 1);
+ WR10: (NOT (SELF\shape_aspect.description = 
+       'unsupported passage dependent non functional land')) OR
+       (SIZEOF (QUERY (rp <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'reference passage') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTER_STRATUM_FEATURE' IN
+       TYPEOF (rp.relating_shape_aspect)) AND
+       (rp.relating_shape_aspect\shape_aspect.description =
+       'unsupported passage'))) = 1);
+ WR11: (NOT (SELF\shape_aspect.description IN
+       ['component termination passage dependent land',
+       'component termination passage dependent non functional land'])) OR
+       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description =
+       'default component termination passage based')))) = 1);
+ WR12: (NOT (SELF\shape_aspect.description IN
+       ['component termination passage and contact size dependent land',
+       'component termination passage and contact size dependent ' +
+       'non functional land'])) OR
+       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description =
+       'default attachment size and component termination ' +
+       'passage based')))) = 1);
+ WR13: (NOT (SELF\shape_aspect.description IN
+       ['contact size dependent land',
+       'contact size dependent non functional land'])) OR
+       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description =
+       'default attachment size based')))) = 1);
+ WR14: (NOT (SELF\shape_aspect.description IN
+       ['via and contact size dependent land',
+       'via and contact size dependent non functional land'])) OR
+       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description =
+       'default attachment size and via based')))) = 1);
+ WR15: (NOT (SELF\shape_aspect.description IN
+       ['via dependent land',
+       'via dependent non functional land'])) OR
+       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description =
+       'default via based')))) = 1);
+ WR16: (NOT (SELF\shape_aspect.description = 
+       'unsupported passage dependent ' +
+       'non functional land')) OR
+       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description =
+       'default unsupported passage based'))) = 1);
+END_ENTITY; -- land	
+	
 END_SCHEMA;
 

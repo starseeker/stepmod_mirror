@@ -14,5 +14,159 @@ SCHEMA Extended_geometric_tolerance_mim;
 	USE FROM Shape_parameters_mim;
 	USE FROM Shape_property_assignment_mim;
 	USE FROM Value_with_unit_extension_mim;
+	
+ENTITY auxiliary_characteristic_dimension_representation
+ SUBTYPE OF (dimensional_characteristic_representation);
+END_ENTITY; -- auxiliary_characteristic_dimension_representation
+
+ENTITY curve_dimension
+  SUBTYPE OF (dimensional_size);
+WHERE
+  WR1: SELF\dimensional_size.name <> 'angular' ;
+END_ENTITY; -- curve_dimension
+
+ENTITY datum_difference
+  SUBTYPE OF (shape_aspect,shape_aspect_relationship);
+WHERE
+  WR1: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT_DATUM' IN TYPEOF
+       (SELF\shape_aspect_relationship.relating_shape_aspect)) AND
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT_DATUM' IN TYPEOF
+       (SELF\shape_aspect_relationship.related_shape_aspect));
+  WR2: SELF\shape_aspect.name = SELF\shape_aspect_relationship.name;
+  WR3: SELF\shape_aspect.description = SELF\shape_aspect_relationship.
+       description;
+  WR4: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
+       SELF\shape_aspect_relationship.related_shape_aspect;
+  WR5: SIZEOF (TYPEOF(SELF) - (TYPEOF(SELF\shape_aspect || 
+       SELF\shape_aspect_relationship || SELF\datum_difference))) = 0;
+END_ENTITY; -- datum_difference
+
+ENTITY datum_difference_based_characteristic
+  SUBTYPE OF (representation_item);
+WHERE
+  WR1: SIZEOF(QUERY ( r <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'REPRESENTATION.ITEMS') | (SIZEOF(QUERY (prd2 <*
+        QUERY ( prd <* USEDIN(r,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') | 
+       ((('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' 
+       + 'PROPERTY_DEFINITION_REPRESENTATION') IN TYPEOF(prd)) AND 
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'PROPERTY_DEFINITION') IN TYPEOF(prd\
+       property_definition_representation.definition))) ) |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DATUM_DIFFERENCE' IN
+      TYPEOF(prd2\property_definition_representation.definition\
+                               property_definition.definition))))
+            = 1) )) 
+               = 1;
+END_ENTITY; -- datum_difference_based_characteristic
+
+(** Questionable entity - nothing directly mapps to it from ARM *)
+ENTITY dimensional_size_property
+  SUBTYPE OF (dimensional_size, property_definition);
+END_ENTITY; -- dimensional_size_property
+
+ENTITY edge_segment_vertex
+  SUBTYPE OF (physical_unit_datum);
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\physical_unit_datum ||
+       SELF\edge_segment_vertex)) = 0;
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+        pd\property_definition.description = 'shape element characterization'
+       )) = 1;
+  WR3: SELF\shape_aspect.of_shape\property_definition.definition.
+       frame_of_reference\application_context_element.name
+       IN ['physical design occurrence', 'physical design usage'];
+  WR4: SELF\shape_aspect.name = 'single datum';
+END_ENTITY; -- edge_segment_vertex
+
+ENTITY geometric_tolerance_group
+  SUBTYPE OF (property_definition);
+WHERE
+    WR1: SELF\property_definition.description
+         IN ['separate requirement', 'simultaneous requirement'];
+    WR2: (NOT (SELF\property_definition.description = 
+          'separate requirement'))
+         OR (SIZEOF (QUERY(pdr <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+         ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'GEOMETRIC_TOLERANCE_WITH_SPECIFIED_DATUM_SYSTEM' 
+         IN TYPEOF(pdr.related_property_definition)) AND
+         (pdr\property_definition_relationship.name = 'group geometric tolerance')
+         )) >=1);
+    WR3: (NOT (SELF\property_definition.description = 
+        'simultaneous requirement')) 
+         OR (SIZEOF (QUERY(pdr <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+         (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'PHYSICAL_UNIT_GEOMETRIC_TOLERANCE' 
+         IN TYPEOF(pdr.related_property_definition)) AND
+         (pdr\property_definition_relationship.name = 'group geometric tolerance'))
+         )) >=2);
+    WR4: (NOT (SELF\property_definition.description = 
+         'separate requirement')) 
+         OR (SIZEOF (QUERY(pdr <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+         (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'LINEAR_PROFILE_TOLERANCE' IN 
+          TYPEOF(pdr.related_property_definition)) AND
+         (pdr.related_property_definition\property_definition.name = 
+         'linear profile refinement') AND
+         (pdr\property_definition_relationship.name = 'group geometric tolerance') )
+         )) =0);
+    WR5: (NOT (SELF\property_definition.description = 
+         'separate requirement')) 
+         OR (SIZEOF (QUERY(pdr <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+         (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'SURFACE_PROFILE_TOLERANCE' IN 
+         TYPEOF(pdr.related_property_definition)) AND
+         (pdr.related_property_definition\property_definition.name = 
+         'surface profile refinement') AND
+         (pdr\property_definition_relationship.name = 'group geometric tolerance') )
+         )) =0);
+    WR6: (NOT (SELF\property_definition.description = 
+         'separate requirement')) 
+         OR (SIZEOF (QUERY(pdr <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+         (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'POSITION_TOLERANCE' IN 
+         TYPEOF(pdr.related_property_definition)) AND
+         (pdr.related_property_definition\property_definition.name = 
+         'feature relating position') AND
+         (pdr\property_definition_relationship.name = 'group geometric tolerance') )
+         )) =0);
+    WR7: (NOT (SELF\property_definition.description = 
+         'separate requirement')) 
+         OR (SIZEOF (QUERY(pdr <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+         (pdr\property_definition_relationship.name = 'group geometric tolerance') AND
+      (SIZEOF(['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'LINEAR_PROFILE_TOLERANCE',
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'SURFACE_PROFILE_TOLERANCE',
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+     'POSITION_TOLERANCE'] * TYPEOF(pdr.related_property_definition)) > 0)
+         )) =0);
+END_ENTITY; -- geometric_tolerance_group
+
+ENTITY opposing_boundary_dimensional_size
+  SUBTYPE OF (dimensional_size);
+WHERE
+    wr1: SELF\dimensional_size.name  IN ['angular', 'linear'];
+END_ENTITY; -- opposing_boundary_dimensional_size
+	
 END_SCHEMA;
 

@@ -6,5 +6,40 @@
 
 SCHEMA Shape_composition_mim;
 	USE FROM Shape_property_assignment_mim;
+	
+ENTITY composite_group_shape_aspect
+  SUBTYPE OF (composite_shape_aspect);
+END_ENTITY; -- composite_group_shape_aspect
+
+ENTITY composite_unit_shape_aspect
+  SUBTYPE OF (composite_shape_aspect);
+END_ENTITY; -- composite_unit_shape_aspect
+
+RULE composite_shape_element_constraint FOR
+  (composite_shape_aspect);
+WHERE
+  WR1: SIZEOF(QUERY(csa <* composite_shape_aspect |
+        SIZEOF(QUERY(sar <* USEDIN(csa,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+        + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+        (sar\shape_aspect_relationship.name = 'composing')
+        )) < 2)) = 0;
+  WR2: SIZEOF(QUERY(csa <* composite_shape_aspect |
+        NOT ((SIZEOF(TYPEOF(csa)) > 2) OR 
+        (csa\shape_aspect.description <> '') OR 
+        (csa\shape_aspect.name <> ''))
+        )) = 0;
+END_RULE; -- composite_shape_element_constraint
+
+RULE shape_element_composing_relationship_constraint FOR
+  (shape_aspect_relationship);
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'composing') AND
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPOSITE_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       )) = 0;
+END_RULE; -- shape_element_composing_relationship_constraint
+	
 END_SCHEMA;
 

@@ -12,5 +12,232 @@ SCHEMA Interconnect_module_usage_view_mim;
 	USE FROM Physical_unit_usage_view_mim;
 	USE FROM Shape_composition_mim;
 	USE FROM Value_with_unit_extension_mim;
+	
+ENTITY library_defined_interconnect_definition
+ SUBTYPE OF (library_defined_physical_unit);
+WHERE
+  WR1: EXISTS(SELF\product_definition.name);
+  WR2: SELF\product_definition.name = 'interconnect module';
+END_ENTITY; -- library_defined_interconnect_definition
+
+ENTITY interconnect_definition
+ SUBTYPE OF (physical_unit);
+WHERE
+  WR1: EXISTS(SELF\product_definition.name);
+  WR2: NOT EXISTS(SELF\product_definition.name) OR
+       (SELF\product_definition.name = 'interconnect module');
+  WR3: (NOT (SELF.frame_of_reference.name = 'physical design')) OR
+       (SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'design usage') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERCONNECT_DEFINITION', 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_INTERCONNECT_DEFINITION', 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_INTERCONNECT_DEFINITION'] *
+       TYPEOF (du.relating_product_definition)) = 1) AND
+       (du.relating_product_definition.frame_of_reference.name = 
+       'physical design usage') AND
+       (du.relating_product_definition\product_definition.name = 
+       'interconnect module')
+)) = 1);
+END_ENTITY; -- interconnect_definition
+
+ENTITY interconnect_module_cutout_segment_surface
+  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+WHERE
+  wr1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EDGE_SEGMENT_VERTEX' IN
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
+  wr2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EDGE_SEGMENT_VERTEX' IN
+       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
+  wr3: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
+       SELF\shape_aspect_relationship.related_shape_aspect;
+  WR4: SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'composed surface') |
+       ('interconnect module cutout surface' = 
+       ce.relating_shape_aspect\shape_aspect.description) )) = 1;
+  WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\interconnect_module_cutout_segment_surface)) = 0;
+END_ENTITY; -- interconnect_module_cutout_segment_surface
+
+ENTITY interconnect_module_edge_segment_surface
+  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+WHERE
+  wr1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EDGE_SEGMENT_VERTEX' IN
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
+  wr2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EDGE_SEGMENT_VERTEX' IN
+       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
+  wr3: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
+       SELF\shape_aspect_relationship.related_shape_aspect;
+  WR4: SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'composed surface') |
+       ('interconnect module edge surface' = 
+       ce.relating_shape_aspect\shape_aspect.description) )) = 1;
+  WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\interconnect_module_edge_segment_surface)) = 0;
+END_ENTITY; -- interconnect_module_edge_segment_surface
+
+ENTITY interconnect_module_interface_terminal
+  SUBTYPE OF (interconnect_module_terminal);
+END_ENTITY; -- interconnect_module_interface_terminal
+
+ENTITY interconnect_module_terminal
+  SUPERTYPE OF (ONEOF(interconnect_module_interface_terminal,
+                      interconnect_module_join_terminal))
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: EXISTS(SELF.of_shape.definition\product_definition.name);
+  WR2: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT' IN
+       TYPEOF (SELF.of_shape.definition)) AND
+       (SELF.of_shape.definition\product_definition.
+       frame_of_reference.name = 
+       'physical design usage') AND
+       (SELF.of_shape.definition\product_definition.name = 
+       'interconnect module');
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_REPRESENTATION' IN
+       TYPEOF (pdr.used_representation))) >= 1)) >= 1; 
+  WR4: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'member connected terminal') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PART_CONNECTED_TERMINALS_DEFINITION'
+       IN TYPEOF (mct.relating_shape_aspect))) <= 1;
+  WR5: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar.related_shape_aspect\shape_aspect.description = 
+       'connection zone')) <= 1;
+END_ENTITY; -- interconnect_module_terminal
+
+RULE interconnect_module_surface_feature_constraint FOR
+ (shape_aspect);
+WHERE
+  WR1: SIZEOF(QUERY(sa <* shape_aspect |
+      ((sa\shape_aspect.description = 'interconnect module edge segment surface') OR
+      (sa\shape_aspect.description = 'interconnect module cavity surface') OR
+      (sa\shape_aspect.description = 'interconnect module cutout surface') OR
+      (sa\shape_aspect.description = 'interconnect module edge surface') OR
+      (sa\shape_aspect.description = 'interconnect module primary surface') OR
+      (sa\shape_aspect.description = 'interconnect module secondary surface') OR
+      (sa\shape_aspect.description = 'interconnect module surface feature'))
+       AND NOT (
+       (sa.of_shape.definition\product_definition.name = 'interconnect module')
+       AND (sa.of_shape.definition.frame_of_reference.name = 
+       'physical design usage')
+       AND(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT' IN TYPEOF(sa.of_shape.definition))
+       OR ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PHYSICAL_UNIT' IN TYPEOF(sa.of_shape.definition))
+       OR ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PHYSICAL_UNIT' IN TYPEOF(sa.of_shape.definition)))
+       ))) = 0;
+END_RULE; -- interconnect_module_surface_feature_constraint
+
+FUNCTION is_interconnect_module_usage ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pass : BOOLEAN := FALSE;
+END_LOCAL;
+IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
+IF ((pd\product_definition.name = 'interconnect module') AND
+   (pd.frame_of_reference\application_context_element.name = 'physical design usage'))
+THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+RULE located_interconnect_module_thickness_requirement_unique_constraint FOR
+ ( property_definition_representation );
+LOCAL
+  limrt : BAG OF property_definition_representation := 
+QUERY( pdr <* property_definition_representation
+| (pdr.definition\property_definition.name = 
+ 'located interconnect module thickness') AND
+  ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'SHAPE_ASPECT' IN TYPEOF(pdr.definition.definition)));
+  pu_bag : BAG OF physical_unit := [];
+  pdr_bag : BAG OF property_definition_representation;
+  rr_bag : BAG OF representation_relationship;
+  pass : BOOLEAN := TRUE;
+  ri_bag : BAG OF representation_item;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(limrt) by 1;
+  IF EXISTS( limrt[i].definition.definition.of_shape.definition ) THEN
+    IF (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PHYSICAL_UNIT' IN
+         TYPEOF(limrt[i].definition.definition.of_shape.definition)))
+        THEN
+      IF ( NOT ( limrt[i].definition.definition.of_shape.definition IN 
+                 pu_bag )) THEN
+        pu_bag := pu_bag + 
+                  limrt[i].definition.definition.of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pu_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  ri_bag := [];
+  pdr_bag := QUERY( pdr <* limrt | 
+          (pdr.definition.definition.of_shape.definition :=: 
+           pu_bag[i]) );
+  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    rr_bag := QUERY( rr <* USEDIN( pdr_bag[j].used_representation,
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'REPRESENTATION_RELATIONSHIP.REP_2' ) | 
+(rr\representation_relationship.name = 'reference location') );
+    REPEAT k := 1 to SIZEOF(rr_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      REPEAT l := 1 to SIZEOF(rr_bag[k].rep_1.items) by 1;
+        IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'AXIS2_PLACEMENT_2D' IN TYPEOF(rr_bag[k].rep_1.items[l])) OR (
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'AXIS2_PLACEMENT_3D' IN TYPEOF(rr_bag[k].rep_1.items[l])) ) THEN
+          IF EXISTS( rr_bag[k].rep_1.items[l] ) THEN
+            IF ( rr_bag[k].rep_1.items[l] IN ri_bag ) THEN
+              pass := FALSE;
+              ESCAPE;
+            ELSE
+              ri_bag := ri_bag + rr_bag[k].rep_1.items[l];
+            END_IF;
+          END_IF;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- located_interconnect_module_thickness_requirement_-
+          -- unique_constraint
+	
 END_SCHEMA;
 

@@ -6,5 +6,77 @@
 
 SCHEMA Packaged_connector_model_mim;
 	USE FROM Packaged_part_black_box_model_mim;
+	
+ENTITY externally_defined_packaged_connector
+ SUBTYPE OF (externally_defined_packaged_part);
+END_ENTITY; -- externally_defined_packaged_connector
+
+ENTITY library_defined_packaged_connector
+ SUBTYPE OF (library_defined_packaged_part);
+END_ENTITY; -- library_defined_packaged_connector
+
+ENTITY packaged_connector
+  SUBTYPE OF (packaged_part);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' IN
+       TYPEOF (sa)))) = 1))) >= 1;
+
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       (SIZEOF (QUERY ( sar <* USEDIN(sa,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        sar\shape_aspect_relationship.name = 'interface plane')) = 1)
+       )) = 1)
+       )
+       ) <= 1;
+
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SEATING_PLANE' IN
+       TYPEOF (sa)))) = 1))) <= 1;
+END_ENTITY; -- packaged_connector
+
+ENTITY packaged_connector_terminal_relationship
+ SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+WHERE
+  WR1: (SIZEOF (TYPEOF (SELF.of_shape.definition) *
+       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PACKAGED_PART']) 
+       = 1) AND
+       (SELF.of_shape.definition\product_definition.description =
+       'packaged connector');
+  WR2: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART_TERMINAL' IN 
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect)) AND
+       (SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description 
+        = 'interface terminal'));
+  WR3: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART_TERMINAL' IN 
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect)) AND
+       (SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description 
+        = 'join terminal'));
+END_ENTITY; -- packaged_connector_terminal_relationship
+	
 END_SCHEMA;
 

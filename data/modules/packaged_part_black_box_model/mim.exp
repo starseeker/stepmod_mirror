@@ -1,6 +1,252 @@
 (*
-   $Id: mim.exp,v 1.2 2004/11/18 09:19:29 budreckytej Exp $
+   $Id: mim.exp,v 1.3 2004/11/19 12:11:58 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Packaged part black box model - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Packaged_part_black_box_model_mim;
+
+USE FROM Part_external_reference_mim;
+USE FROM Pdm_material_aspects_mim;
+USE FROM Physical_unit_usage_view_mim;
+USE FROM Part_terminal_mim;
+USE FROM Package_mim;
+USE FROM Network_functional_usage_view_mim;
+
+ENTITY externally_defined_packaged_part
+ SUPERTYPE OF (externally_defined_packaged_connector)
+ SUBTYPE OF (externally_defined_physical_unit);
+WHERE
+  WR1: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART_TERMINAL' IN 
+       TYPEOF (sa))) >= 2))) = 0);
+  WR2: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1);
+  WR3: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (QUERY (ifu <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'implemented function') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN
+       TYPEOF (ifu.relating_product_definition)) AND
+       (ifu.relating_product_definition.frame_of_reference.name =
+       'functional design usage'))) = 1);
+  WR4: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (QUERY (upkg <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'used package') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE' IN
+       TYPEOF (upkg.related_product_definition))) = 1);
+  WR5: (NOT (SELF\product_definition.description = 
+       'altered packaged part')) OR
+       (SIZEOF (QUERY (bpp <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'base packaged part') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PACKAGED_PART'] * 
+       TYPEOF (bpp.relating_product_definition)) = 1) AND
+       (bpp.relating_product_definition.frame_of_reference.name =
+       'physical design usage'))) >= 1);
+  WR6: (NOT (SELF\product_definition.description = 
+       'altered packaged part')) OR
+       (SIZEOF (QUERY (upkg <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'used package') |
+       SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PACKAGED_PART'] * 
+       TYPEOF (upkg.relating_product_definition)) = 1)) >= 1);
+END_ENTITY; -- externally_defined_packaged_part
+
+ENTITY library_defined_packaged_part
+ SUBTYPE OF (library_defined_physical_unit);
+WHERE
+  WR1: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART_TERMINAL' IN 
+       TYPEOF (sa))) >= 2))) = 0);
+  WR2: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1);
+  WR3: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (QUERY (ifu <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'implemented function') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN
+       TYPEOF (ifu.relating_product_definition)) AND
+       (ifu.relating_product_definition.frame_of_reference.name =
+       'functional design usage'))) = 1);
+  WR4: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (QUERY (upkg <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'used package') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE' IN
+       TYPEOF (upkg.related_product_definition))) = 1);
+  WR5: (NOT (SELF\product_definition.description = 'altered packaged part')) OR
+       (SIZEOF (QUERY (bpp <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'base packaged part') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PACKAGED_PART'] * 
+       TYPEOF (bpp.relating_product_definition)) = 1) AND
+       (bpp.relating_product_definition.frame_of_reference.name =
+       'physical design usage'))) >= 1);
+  WR6: (NOT (SELF\product_definition.description = 'altered packaged part')) OR
+       (SIZEOF (QUERY (upkg <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'used package') |
+       SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PACKAGED_PART'] * 
+       TYPEOF (upkg.relating_product_definition)) = 1)) >= 1);
+END_ENTITY; -- library_defined_packaged_part
+
+ENTITY packaged_part
+ SUBTYPE OF (physical_unit);
+WHERE 
+  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART_TERMINAL' IN 
+       TYPEOF (sa))) >= 0))) = 0;
+  WR2: SIZEOF (USEDIN (SELF, 
+        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) <= 1;
+  WR3: SIZEOF (QUERY (ifu <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'implemented function') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN
+       TYPEOF (ifu.relating_product_definition)) AND
+       (ifu.relating_product_definition.frame_of_reference.name =
+       'functional design usage'))) <= 1;
+  WR4: NOT(EXISTS(SELF\product_definition.description)) OR
+       ((NOT (SELF\product_definition.description = 'altered packaged part')) OR
+       (SIZEOF (QUERY (bpp <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'base packaged part') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PACKAGED_PART'] * 
+       TYPEOF (bpp.relating_product_definition)) = 1) AND
+       (bpp.relating_product_definition.frame_of_reference.name =
+       'physical design usage'))) >= 1));
+  WR5: SIZEOF (QUERY (upkg <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'used package') |
+       SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PACKAGE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PACKAGE'] * 
+       TYPEOF (upkg.relating_product_definition)) = 1)) >= 1;
+  WR6: SELF.frame_of_reference.name = 'physical design usage';
+END_ENTITY; -- packaged_part
+
+ENTITY packaged_part_terminal
+ SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SELF\shape_aspect.description IN ['interface terminal', 
+       'join terminal'];
+  WR2: (SIZEOF (TYPEOF (SELF.of_shape.definition) *
+       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_PACKAGED_PART']) 
+       = 1) AND
+  (SELF.of_shape.definition\product_definition.frame_of_reference.name = 
+       'physical design usage');
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_REPRESENTATION' IN
+       TYPEOF (pdr.used_representation))) >= 1))) = 0;
+  WR4: SIZEOF (QUERY (top <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'terminal of package') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_TERMINAL' IN
+       TYPEOF (top.related_shape_aspect))) >= 1;
+  WR5: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'member connected terminal') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PART_CONNECTED_TERMINALS_DEFINITION'
+       IN TYPEOF (mct.relating_shape_aspect))) <= 1;
+  WR6: (NOT(SELF\shape_aspect.description = 'interface terminal')) OR
+       (SIZEOF(QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' IN TYPEOF(sar))
+       AND (sar.relating_shape_aspect\shape_aspect.description = 
+       'join terminal'))) >= 1);
+  WR7: (NOT(SELF\shape_aspect.description = 'join terminal')) OR
+       (SIZEOF(QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' IN TYPEOF(sar))
+       AND (sar.relating_shape_aspect\shape_aspect.description = 
+        'interface terminal'))) <= 1);
+END_ENTITY; -- packaged_part_terminal
+
 END_SCHEMA;

@@ -7,5 +7,62 @@
 SCHEMA Part_feature_function_mim;
 	USE FROM Geometric_tolerance_mim;
 	USE FROM Physical_unit_usage_view_mim;
+
+ENTITY fiducial_part_feature
+ SUBTYPE OF (part_tooling_feature);
+END_ENTITY; -- fiducial_part_feature
+
+ENTITY part_interface_access_feature
+ SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       (sar\shape_aspect_relationship.name  = 'interface_access area') AND
+       (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) = 1;
+END_ENTITY; -- part_interface_access_feature
+
+ENTITY part_mating_feature
+ SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       (sar\shape_aspect_relationship.name  = 'mating area') AND
+       (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) = 1;
+END_ENTITY; -- part_mating_feature
+
+ENTITY part_mounting_feature
+ SUPERTYPE OF (bare_die_surface)
+ SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       (sar\shape_aspect_relationship.name  = 'mounting area') AND
+       (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) = 1;
+END_ENTITY; -- part_mounting_feature
+
+ENTITY part_tooling_feature
+ SUPERTYPE OF (ONEOF(fiducial_part_feature,
+               tool_registration_mark) ANDOR 
+               test_point_part_feature)
+ SUBTYPE OF (shape_aspect);
+WHERE
+ WR1: SELF\shape_aspect.product_definitional = true;
+END_ENTITY; -- part_tooling_feature
+
+ENTITY test_point_part_feature
+ SUBTYPE OF (part_tooling_feature);
+END_ENTITY; -- test_point_part_feature
+
+ENTITY thermal_feature
+ SUBTYPE OF (shape_aspect);
+END_ENTITY; -- thermal_feature
+
+ENTITY tool_registration_mark
+ SUBTYPE OF (part_tooling_feature);
+END_ENTITY; -- tool_registration_mark
+
 END_SCHEMA;
 

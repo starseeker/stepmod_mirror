@@ -1,6 +1,233 @@
 (*
-   $Id: mim.exp,v 1.1 2004/11/17 15:46:27 budreckytej Exp $
+   $Id: mim.exp,v 1.2 2004/11/19 07:48:19 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly component placement requirements - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Assembly_component_placement_requirements_mim;
+
+	USE FROM Physical_unit_design_view_mim;
+	USE FROM Requirement_decomposition_mim;
+	USE FROM Extended_geometric_tolerance_mim;
+	USE FROM Non_feature_shape_element_mim;
+	USE FROM Assembly_module_design_mim;
+	USE FROM Assembly_module_with_interconnect_component_mim;
+
+ENTITY group_product_definition
+  SUBTYPE OF (component_definition);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'design requirement';
+  WR2: (NOT (SELF\product_definition.description = 
+                                      'placement group')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REQUIREMENTS_PROPERTY' IN
+       TYPEOF (pd))) >= 1);
+END_ENTITY; -- group_product_definition
+
+RULE component_placement_restriction_assignment_constraint FOR
+( representation );
+LOCAL
+  cpra : SET OF representation := QUERY( cpra <* representation |
+          cpra.name = 'component placement restriction assignment');
+     i : INTEGER ;
+  pass1 : BOOLEAN := TRUE;
+  pass2 : BOOLEAN := TRUE;
+  mra : BOOLEAN := FALSE;
+  mrv : BOOLEAN := FALSE;
+END_LOCAL;
+ REPEAT i := 1 to SIZEOF (cpra);
+  IF NOT(pass1) THEN ESCAPE; END_IF;
+
+  IF NOT((SIZEOF(QUERY(rr <* USEDIN(cpra[i],
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name =
+    'component placement restriction assignment area') AND
+    (SIZEOF(QUERY(pdr <* USEDIN(rr.rep_2,
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'MOUNTING_RESTRICTION_AREA' IN TYPEOF(pdr.definition.definition)))
+    ) = 1 ) 
+     )) <=1 ) OR
+(SIZEOF(QUERY(rr <* USEDIN(cpra[i],
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name =
+    'component placement restriction assignment volume') AND
+    (SIZEOF(QUERY(pdr <* USEDIN(rr.rep_2,
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'MOUNTING_RESTRICTION_VOLUME' IN TYPEOF(pdr.definition.definition)))
+    ) = 1 )
+     )) <=1 )
+        ) THEN pass1 := FALSE;
+  END_IF;      
+  mra := (SIZEOF(QUERY(rr <* USEDIN(cpra[i],
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name =
+    'component placement restriction assignment area') AND
+    (SIZEOF(QUERY(pdr <* USEDIN(rr.rep_2,
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'MOUNTING_RESTRICTION_AREA' IN TYPEOF(pdr.definition.definition)))
+    ) = 1 )
+     )) =1 );
+  mrv := (SIZEOF(QUERY(rr <* USEDIN(cpra[i],
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name =
+    'component placement restriction assignment volume') AND
+    (SIZEOF(QUERY(pdr <* USEDIN(rr.rep_2,
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'MOUNTING_RESTRICTION_VOLUME' IN TYPEOF(pdr.definition.definition)))
+    ) = 1 )
+     )) =1 );
+  IF NOT(mra OR mrv) THEN pass1 := FALSE; END_IF;
+ END_REPEAT;
+ REPEAT i := 1 to SIZEOF (cpra);
+  IF NOT(pass1) THEN ESCAPE; END_IF;
+  IF NOT(pass2) THEN ESCAPE; END_IF;
+
+  IF NOT(SIZEOF(QUERY(pdr <* USEDIN(cpra[i],
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') | 
+    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'GROUPED_REQUIREMENTS_PROPERTY' IN TYPEOF(pdr.definition))
+    AND
+    (pdr.definition\group.name =
+    'item restricted requirements property')
+     )
+    ) = 1 ) THEN pass2 := FALSE;
+  END_IF;
+ END_REPEAT;
+WHERE
+  WR1: pass1;
+  WR2: pass2; 
+END_RULE; -- component_placement_restriction_assignment_constraint
+
+ENTITY mounting_restriction_area
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: EXISTS(SELF.of_shape.definition\product_definition.name);
+  WR2: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT' IN TYPEOF (SELF.of_shape.definition));
+
+  WR3: SELF.of_shape.definition.frame_of_reference.name IN ['physical design'];
+
+  WR4: SELF.of_shape.definition\product_definition.name = 'assembly module';
+
+  WR5: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)) AND
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CSG_2D_SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)))) = 1))) = 0;
+  WR6: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       ((sar\shape_aspect_relationship.name = 'mounting surface') AND 
+       (sar.related_shape_aspect\shape_aspect.description =
+       'interconnect module component surface feature')))) = 1;
+  WR7: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\shape_aspect ||
+       SELF\mounting_restriction_area))) = 0;
+
+END_ENTITY; -- mounting_restriction_area
+
+ENTITY mounting_restriction_volume
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT' IN TYPEOF (SELF.of_shape.definition));
+
+  WR2: SELF.of_shape.definition.frame_of_reference.name IN ['physical design'];
+
+  WR3: SELF.of_shape.definition.name = 'assembly module';
+
+  WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)) AND
+        (pdr.used_representation\representation.context_of_items\
+       geometric_representation_context.coordinate_space_dimension = 3)
+       )) = 1))) = 0;
+
+  WR5: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (sar.related_shape_aspect)) AND
+       (sar\shape_aspect_relationship.name = 'mounting surface') AND 
+       (sar.related_shape_aspect\shape_aspect.description =
+       'interconnect module component surface feature'))) = 1;
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\shape_aspect ||
+       SELF\mounting_restriction_volume))) = 0;
+END_ENTITY; -- mounting_restriction_volume
+
+RULE placement_group_area_assignment_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'area impacted group') AND NOT
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'MOUNTING_RESTRICTION_AREA' IN TYPEOF(sar.related_shape_aspect))
+       )) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'area impacted group') AND NOT
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'GROUP_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       OR (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'GROUP_PRODUCT_DEFINITION'
+       IN TYPEOF(sar.relating_shape_aspect.of_shape.definition))
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PRODUCT_DEFINITION_CONTEXT'
+IN TYPEOF(sar.relating_shape_aspect.of_shape.definition.frame_of_reference))
+   AND 
+     (sar.relating_shape_aspect.of_shape.definition.frame_of_reference.name
+       = 'design requirement') 
+       )))) = 0;
+END_RULE; -- placement_group_area_assignment_constraint
+
+RULE placement_group_volume_assignment_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'volume impacted group') AND NOT
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'MOUNTING_RESTRICTION_VOLUME' IN TYPEOF(sar.related_shape_aspect))
+       )) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'volume impacted group') AND NOT
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'GROUP_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       OR (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'GROUP_PRODUCT_DEFINITION'
+       IN TYPEOF(sar.relating_shape_aspect.of_shape.definition))
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PRODUCT_DEFINITION_CONTEXT'
+IN TYPEOF(sar.relating_shape_aspect.of_shape.definition.frame_of_reference))
+   AND 
+     (sar.relating_shape_aspect.of_shape.definition.frame_of_reference.name
+       = 'design requirement') 
+       )))) = 0;
+END_RULE; -- placement_group_volume_assignment_constraint
+
 END_SCHEMA;

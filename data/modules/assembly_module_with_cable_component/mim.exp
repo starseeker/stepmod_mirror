@@ -1,6 +1,22 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: mim.exp,v 1.1 2004/11/19 13:34:00 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module with cable component - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Assembly_module_with_cable_component_mim;
+
+ENTITY cable_component
+  SUBTYPE OF (component_definition);
+WHERE
+  WR1: SIZEOF (QUERY (ip <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated part') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT'] *
+       TYPEOF (ip.relating_product_definition)) = 1) AND
+       (ip.relating_product_definition.frame_of_reference.name =
+       'physical design usage'))) = 1;
+  WR2: SELF\product_definition.description :<>: 'laminate component';
+END_ENTITY; -- cable_component
+
 END_SCHEMA;

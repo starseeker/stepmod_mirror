@@ -11,5 +11,34 @@ SCHEMA Packaged_part_white_box_model_mim;
 	USE FROM Packaged_part_black_box_model_mim;
 	USE FROM Physical_unit_2d_shape_mim;
 	USE FROM Physical_unit_3d_shape_mim;
+	
+ENTITY device_terminal_map
+ SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+UNIQUE
+  UR1: SELF\shape_aspect_relationship.related_shape_aspect,
+       SELF\shape_aspect_relationship.relating_shape_aspect;
+WHERE
+  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_PART_TERMINAL'
+       IN TYPEOF (SELF.relating_shape_aspect);
+END_ENTITY; -- device_terminal_map
+
+RULE device_terminal_map_relationship_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+   WR1: SIZEOF (QUERY (sar <* shape_aspect_relationship |
+               (sar\shape_aspect_relationship.name = 'device terminal map relationship')
+               AND
+      (NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      'DEVICE_TERMINAL_MAP' IN TYPEOF (sar.relating_shape_aspect)))
+               )) = 0;
+   WR2: SIZEOF (QUERY (sar <* shape_aspect_relationship |
+               (sar\shape_aspect_relationship.name = 'device terminal map relationship')
+               AND
+    (NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DEVICE_TERMINAL_MAP' IN TYPEOF (sar.related_shape_aspect)))
+               )) = 0;
+END_RULE; -- device_terminal_map_relationship_constraint
+	
 END_SCHEMA;
 

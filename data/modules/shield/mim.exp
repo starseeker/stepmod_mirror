@@ -6,5 +6,32 @@
 
 SCHEMA Shield_mim;
 	USE FROM Physical_unit_design_view_mim;
+
+ENTITY discrete_shield
+  SUBTYPE OF (component_definition);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'physical occurrence';
+  WR2: SIZEOF (QUERY (si <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'shielded item') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (si.relating_product_definition))) >= 1;
+END_ENTITY; -- discrete_shield
+
+ENTITY integral_shield
+  SUBTYPE OF (component_shape_aspect);
+WHERE
+  WR1: SIZEOF (QUERY(pdr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_DEFINITION' IN TYPEOF(pdr.relating_property_definition))
+       OR ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    'COMPONENT_SHAPE_ASPECT' IN TYPEOF(pdr.relating_property_definition)))
+       AND (pdr\property_definition_relationship.name = 'shielded item'))) >=1;
+END_ENTITY; -- integral_shield
+	
 END_SCHEMA;
 

@@ -1,6 +1,243 @@
 (*
-   $Id: mim.exp,v 1.1 2004/11/16 16:14:57 budreckytej Exp $
+   $Id: mim.exp,v 1.2 2004/11/19 08:54:13 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Bare die - EXPRESS MIM
 (* UNDER DEVELOPMENT *)
 SCHEMA Bare_die_mim;
+
+ENTITY bare_die
+ SUBTYPE OF (physical_unit);
+WHERE
+  WR1: SIZEOF (QUERY (ifdu <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\property_definition_relationship.name = 'implemented function') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (ifdu.relating_product_definition)) AND
+       (ifdu.relating_product_definition.frame_of_reference.name = 
+       'functional design usage'))) = 1;
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (dut <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'device unit technology') |
+       dut.relating_property_definition\property_definition.name = 
+       'unit technology')) = 1)) = 1;
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE_TERMINAL' IN 
+       TYPEOF (sa))) >= 2))) = 0;
+END_ENTITY; -- bare_die
+
+ENTITY bare_die_bottom_surface
+ SUBTYPE OF (bare_die_surface);
+WHERE
+  WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
+       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_BARE_DIE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_BARE_DIE']) = 1;
+  WR2: SELF\shape_aspect.product_definitional;
+  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\bare_die_bottom_surface ||
+       SELF\part_mounting_feature ||
+       SELF\bare_die_surface)) = 0;
+END_ENTITY; -- bare_die_bottom_surface
+
+ENTITY bare_die_edge_segment_surface
+  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+WHERE
+  wr1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EDGE_SEGMENT_VERTEX' IN
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
+  wr2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EDGE_SEGMENT_VERTEX' IN
+       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
+  wr3: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
+       SELF\shape_aspect_relationship.related_shape_aspect;
+  WR4: SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'composed surface') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE_EDGE_SURFACE' IN TYPEOF
+       (ce.relating_shape_aspect) ))) = 1;
+  WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\bare_die_edge_segment_surface)) = 0;
+END_ENTITY; -- bare_die_edge_segment_surface
+
+ENTITY bare_die_edge_surface
+ SUBTYPE OF (bare_die_surface);
+WHERE
+  WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
+       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_BARE_DIE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_BARE_DIE']) = 1;
+  WR2: SELF\shape_aspect.product_definitional;
+  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\part_mounting_feature ||
+       SELF\bare_die_edge_surface ||
+       SELF\bare_die_surface)) = 0;
+END_ENTITY; -- bare_die_edge_surface
+
+ENTITY bare_die_surface
+ ABSTRACT SUPERTYPE OF (ONEOF( bare_die_bottom_surface, 
+                         bare_die_top_surface, 
+                        bare_die_edge_surface))
+ SUBTYPE OF (part_mounting_feature);
+WHERE
+  WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
+       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_BARE_DIE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_BARE_DIE']) = 1;
+  WR2: SELF\shape_aspect.product_definitional;
+END_ENTITY; -- bare_die_surface
+
+ENTITY bare_die_terminal
+  SUBTYPE OF (minimally_defined_bare_die_terminal);
+WHERE
+  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE' IN 
+       TYPEOF (SELF.of_shape.definition);
+  WR2: SIZEOF (QUERY (eca <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'external connection area') |
+       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1;
+  WR4: SIZEOF (QUERY (eca <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'seating plane zone') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CONNECTION_ZONE_INTERFACE_PLANE_RELATIONSHIP' IN 
+       TYPEOF (eca.related_shape_aspect))) <= 1;
+END_ENTITY; -- bare_die_terminal
+
+ENTITY bare_die_top_surface
+ SUBTYPE OF (bare_die_surface);
+WHERE
+  WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
+       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_BARE_DIE',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LIBRARY_DEFINED_BARE_DIE']) = 1;
+  WR2: SELF\shape_aspect.product_definitional;
+  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\part_mounting_feature ||
+       SELF\bare_die_top_surface ||
+       SELF\bare_die_surface)) = 0;
+END_ENTITY; -- bare_die_top_surface
+
+ENTITY externally_defined_bare_die
+  SUBTYPE OF (externally_defined_physical_unit);
+WHERE
+  WR1: SIZEOF (QUERY (ifdu <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'implemented function') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (ifdu.relating_product_definition)) AND
+       (ifdu.relating_product_definition.frame_of_reference.name = 
+       'functional design usage'))) = 1;
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (dut <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'device unit technology') |
+       dut.relating_property_definition\property_definition.name = 
+       'unit technology')) = 1)) = 1;
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE_TERMINAL' IN 
+       TYPEOF (sa))) >= 2))) = 0;
+END_ENTITY; -- externally_defined_bare_die
+
+ENTITY library_defined_bare_die
+ SUBTYPE OF (library_defined_physical_unit);
+WHERE
+  WR1: SIZEOF (QUERY (ifdu <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'implemented function') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (ifdu.relating_product_definition)) AND
+       (ifdu.relating_product_definition.frame_of_reference.name = 
+       'functional design usage'))) = 1;
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (dut <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'device unit technology') |
+       dut.relating_property_definition\property_definition.name = 
+       'unit technology')) = 1)) = 1;
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE_TERMINAL' IN 
+       TYPEOF (sa))) >= 2))) = 0;
+END_ENTITY; -- library_defined_bare_die
+
+ENTITY minimally_defined_bare_die_terminal
+  SUPERTYPE OF (bare_die_terminal)
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'BARE_DIE' IN 
+       TYPEOF (SELF.of_shape.definition);
+  WR2: SIZEOF (QUERY (eca <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'external connection area') |
+       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) <= 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) <= 1;
+  WR4: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'member connected terminal') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PART_CONNECTED_TERMINALS_DEFINITION'
+       IN TYPEOF (mct.relating_shape_aspect))) <= 1;
+END_ENTITY; -- minimally_defined_bare_die_terminal
+
 END_SCHEMA;

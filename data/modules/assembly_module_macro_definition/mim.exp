@@ -7,5 +7,41 @@
 SCHEMA Assembly_module_macro_definition_mim;
 	USE FROM Assembly_module_design_mim;
 	USE FROM Interconnect_module_with_macros_mim;
+
+ENTITY assembly_module_join_terminal
+  SUBTYPE OF (assembly_module_terminal);
+END_ENTITY; -- assembly_module_join_terminal
+
+RULE 
+component_terminal_to_assembly_module_join_terminal_assignment_unique_constraint
+FOR
+ ( shape_aspect_relationship );
+LOCAL
+  cttamta : BAG OF shape_aspect_relationship := QUERY( sar <*
+shape_aspect_relationship | (sar\shape_aspect_relationship.name = 
+              'component feature to physical usage view assignment') );
+  pass : BOOLEAN := TRUE;
+  amt_bag : BAG OF assembly_module_join_terminal := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(cttamta) by 1;
+  IF EXISTS( cttamta[i].relating_shape_aspect ) THEN
+    IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'ASSEMBLY_MODULE_JOIN_TERMINAL' IN TYPEOF(cttamta[i].relating_shape_aspect) ) 
+    THEN
+      IF ( cttamta[i].relating_shape_aspect IN amt_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        amt_bag := amt_bag + cttamta[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- component_terminal_to_assembly_module_join_terminal_assignment_-
+          -- unique_constraint
+	
 END_SCHEMA;
 

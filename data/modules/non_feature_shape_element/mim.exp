@@ -9,5 +9,142 @@ SCHEMA Non_feature_shape_element_mim;
 	USE FROM Layered_2d_shape_mim;
 	REFERENCE FROM Part_feature_location_mim;
 	USE FROM Shape_property_assignment_mim;
+	
+ENTITY group_shape_aspect
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION' IN
+       TYPEOF (SELF\shape_aspect.of_shape.definition);
+  WR2: NOT(SELF\shape_aspect.description IN 
+       ['interconnect module constraint region']) OR
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT' IN
+       TYPEOF (SELF\shape_aspect.of_shape.definition)) AND
+       (EXISTS(SELF\shape_aspect.of_shape.definition\product_definition.name)) AND
+       (NOT EXISTS(SELF\shape_aspect.of_shape.definition\product_definition.name) OR 
+       (SELF\shape_aspect.of_shape.definition\product_definition.name = 'interconnect module')));
+ WR3: ((NOT(SELF\shape_aspect.description IN 
+       ['interconnect module constraint region'])) OR
+               (SIZEOF( QUERY ( pd <* USEDIN(SELF,
+            'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                         'PROPERTY_DEFINITION.DEFINITION')
+                     | (SIZEOF( QUERY ( pdr <* USEDIN(pd,
+           'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION')
+                            | ((pdr\property_definition_relationship.name = 'constrained object')
+     AND (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                    'INTERCONNECT_MODULE_DESIGN_OBJECT_CATEGORY') IN
+                  TYPEOF(pdr.related_property_definition.definition)))
+                        )) = 1)
+                )) = 1));
+ WR4: (NOT(SELF\shape_aspect.description IN 
+       ['interconnect module constraint region'])) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM' IN
+       TYPEOF (it)) AND
+       (it\representation_item.name = 'design specific purpose'))) = 1)) = 1))) = 0);
+  WR5: (NOT(SELF\shape_aspect.description IN 
+       ['interconnect module constraint region'])) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM' IN
+       TYPEOF (it)) AND
+       (it\representation_item.name = 'keepout') AND
+       (it\descriptive_representation_item.description IN ['true', 'false']))) = 1)) = 1))) = 0);
+  WR6: (NOT(SELF\shape_aspect.description IN 
+       ['interconnect module constraint region'])) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_REPRESENTATION' IN
+       TYPEOF (pdr.used_representation))) = 1)) = 1);
+  WR7: (NOT(SELF\shape_aspect.description IN
+       ['interconnect module constraint region'])) OR
+               (SIZEOF( QUERY ( pd <* USEDIN(SELF,
+            'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                         'PROPERTY_DEFINITION.DEFINITION')
+                     | (SIZEOF( QUERY ( pdr <* USEDIN(pd,
+           'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION')
+                            | ((pdr\property_definition_relationship.name = 'requirement')
+     AND (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                    'REQUIREMENTS_PROPERTY') IN
+                  TYPEOF(pdr.relating_property_definition)))
+                        )) = 1)
+                )) = 1);
+  WR8: (NOT(SELF\shape_aspect.description = 
+       'termination constraint')) OR
+       (SIZEOF (QUERY (ctm <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'constrained termination member') |
+       ctm.related_shape_aspect\shape_aspect.description = 
+       'mating connector termination')) >= 2);
+  WR9: EXISTS(SELF\shape_aspect.description);
+  WR10: (NOT(SELF\shape_aspect.description IN
+       ['placement group'])) OR
+               (SIZEOF( QUERY ( pd <* USEDIN(SELF,
+            'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                         'PROPERTY_DEFINITION.DEFINITION')
+                     | (SIZEOF( QUERY ( pdr <* USEDIN(pd,
+           'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION')
+                            | ((pdr\property_definition_relationship.name = 'requirement')
+     AND (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                    'REQUIREMENTS_PROPERTY') IN
+                  TYPEOF(pdr.relating_property_definition))
+               AND
+           (pdr.relating_property_definition\property_definition.name = 'requirement')))
+                   ) = 1)
+                )) = 1);
+  WR11: (NOT(SELF\shape_aspect.description IN
+       ['termination constraint'])) OR
+               (SIZEOF( QUERY ( pd <* USEDIN(SELF,
+            'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                         'PROPERTY_DEFINITION.DEFINITION')
+                     | (SIZEOF( QUERY ( pdr <* USEDIN(pd,
+           'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION')
+                            | ((pdr\property_definition_relationship.name = 'termination usage constraint')
+     AND (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                    'REQUIREMENTS_PROPERTY') IN
+                  TYPEOF(pdr.relating_property_definition))
+                           AND
+    (pdr.relating_property_definition\property_definition.name = 'termination usage constraint')))
+                        ) = 1) 
+                )) = 1);
+END_ENTITY; -- group_shape_aspect
+
+ENTITY reference_graphic_registration_mark
+ SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SELF\shape_aspect.product_definitional = false;
+END_ENTITY; -- reference_graphic_registration_mark
+
+ENTITY seating_plane
+  SUBTYPE OF (shape_aspect);
+WHERE
+    WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+         SELF\seating_plane)) = 0;
+END_ENTITY; -- seating_plane
+	
 END_SCHEMA;
 

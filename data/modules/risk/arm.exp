@@ -1,0 +1,218 @@
+(*
+   $Id: arm.exp,v 1.1 2002/08/15 06:49:04 magnevs Exp $
+   ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-1264 Risk - EXPRESS ARM
+*) 
+
+
+SCHEMA Risk_arm; 
+
+USE FROM Activity_method_assignment_arm;    -- ISO/CD-TS 10303-1249
+
+USE FROM Approval_arm;    -- ISO/TS 10303-1012
+
+USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
+
+USE FROM Date_time_assignment_arm;    -- ISO/TS 10303-1014
+
+USE FROM Event_arm;    -- ISO/TS 10303-1064
+
+USE FROM Justification_arm;    -- ISO/CD-TS 10303-1263
+
+USE FROM Person_organization_assignment_arm;    -- ISO/TS 10303-1013
+
+USE FROM Probability_arm;    -- ISO/CD-TS 10303-1252
+
+USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
+
+
+TYPE impacted_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+TYPE mitigation_select = SELECT
+   (Applied_risk_consequence, 
+    Applied_risk_probability, 
+    Impact, 
+    Risk);
+END_TYPE; 
+
+TYPE risk_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
+   (Risk_treatment);
+END_TYPE; 
+
+TYPE risk_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
+   (Risk_reduction, 
+    Risk_treatment);
+END_TYPE; 
+
+TYPE risk_classified = SELECT BASED_ON classification_item WITH 
+   (Impact, 
+    Risk, 
+    Risk_consequence, 
+    Risk_perception, 
+    Risk_probability, 
+    Risk_reduction, 
+    Risk_relationship);
+END_TYPE; 
+
+TYPE risk_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH 
+   (Risk, 
+    Risk_reduction);
+END_TYPE; 
+
+TYPE risk_item = EXTENSIBLE GENERIC_ENTITY SELECT
+   (event_item);
+END_TYPE; 
+
+TYPE risk_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_item WITH 
+   (Risk_reduction);
+END_TYPE; 
+
+TYPE risk_organization_or_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_or_person_in_organization_item WITH 
+   (Risk, 
+    Risk_reduction);
+END_TYPE; 
+
+TYPE risk_property_assignment = SELECT BASED_ON property_assignment_select WITH 
+   (Risk, 
+    Risk_relationship);
+END_TYPE; 
+
+TYPE risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+ENTITY Applied_impact_assignment;
+  described_impact : Impact;
+  items : SET[1:?] OF impacted_item;
+  role : STRING;
+END_ENTITY;
+
+ENTITY Applied_risk_consequence;
+  name : STRING;
+  description : STRING;
+  effect : SET[1:?] OF Impact;
+  related : Risk_consequence;
+END_ENTITY;
+
+ENTITY Applied_risk_probability;
+  name : STRING;
+  description : STRING;
+  probability_of_occurrence : Risk_probability;
+  items : SET[1:?] OF risk_item;
+END_ENTITY;
+
+ENTITY Applied_risk_source_assignment;
+  assigned_to : risk_source_item;
+  described_risk : Risk;
+  role : STRING;
+END_ENTITY;
+
+ENTITY Defined_risk_consequence;
+  name : STRING;
+  description : STRING;
+  relating_consequence : Risk_consequence;
+  related_risk : Risk;
+END_ENTITY;
+
+ENTITY Defined_risk_probability;
+  name : STRING;
+  description : STRING;
+  relating_probability : Risk_probability;
+  related_risk : Risk;
+END_ENTITY;
+
+ENTITY Impact;
+  name : STRING;
+  description : STRING;
+END_ENTITY;
+
+ENTITY Residual_risk;
+  name : STRING;
+  description : STRING;
+  protective_measure : Risk_reduction;
+  remaining_risk : Risk;
+END_ENTITY;
+
+ENTITY Risk;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  context : Risk_context;
+  negation : LOGICAL;
+END_ENTITY;
+
+ENTITY Risk_acceptance
+  SUBTYPE OF (Risk_treatment);
+END_ENTITY;
+
+ENTITY Risk_avoidance
+  SUBTYPE OF (Risk_treatment);
+END_ENTITY;
+
+ENTITY Risk_consequence;
+  name : STRING;
+  description : STRING;
+END_ENTITY;
+
+ENTITY Risk_context;
+  name : STRING;
+  description : STRING;
+END_ENTITY;
+
+ENTITY Risk_optimization
+  SUBTYPE OF (Risk_treatment);
+END_ENTITY;
+
+ENTITY Risk_perception;
+  name : STRING;
+  description : STRING;
+  perceived_consequence : Applied_risk_consequence;
+  perceived_probability : Applied_risk_probability;
+  perceived_risk : Risk;
+END_ENTITY;
+
+ENTITY Risk_probability
+  SUBTYPE OF (Probability);
+END_ENTITY;
+
+ENTITY Risk_reduction;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  approach : Risk_treatment;
+  resolves : SET[1:?] OF mitigation_select;
+  assumptions : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Risk_relationship;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  relating : Risk;
+  related : Risk;
+  role : STRING;
+END_ENTITY;
+
+ENTITY Risk_retention
+  SUBTYPE OF (Risk_treatment);
+END_ENTITY;
+
+ENTITY Risk_status;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  status : Risk;
+END_ENTITY;
+
+ENTITY Risk_transfer
+  SUBTYPE OF (Risk_treatment);
+END_ENTITY;
+
+ENTITY Risk_treatment;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  rationale : OPTIONAL STRING;
+END_ENTITY;
+
+END_SCHEMA;  -- Risk_arm
+

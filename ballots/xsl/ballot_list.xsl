@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
+$Id: ballot_list.xsl,v 1.5 2002/08/16 14:05:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -12,6 +12,7 @@ $Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
 
 
   <xsl:import href="./common.xsl"/>
+  <xsl:import href="../../xsl/res_doc/common.xsl"/>
   <xsl:import href="../../xsl/common.xsl"/>
 
 
@@ -80,8 +81,6 @@ $Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
     </xsl:if>        
 </xsl:template>
 
-
-
 <xsl:template match="ballot_package">
   <xsl:variable name="bpaname" select="concat(@id,'-',@name)"/>
   <h3>
@@ -103,11 +102,13 @@ $Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
   <blockquote>
     <table width="90%" cellspacing="0" cellpadding="4">
       <tr>
-        <td align="left" valign="top">
-          <xsl:apply-templates select="./module" mode="col1">
-            <xsl:with-param name="mid_point" select="$module_mid_point"/>
-            <xsl:sort select="@name"/>
-          </xsl:apply-templates>
+        <xsl:choose>
+          <xsl:when test="./module">
+            <td align="left" valign="top">
+              <xsl:apply-templates select="./module" mode="col1">
+                <xsl:with-param name="mid_point" select="$module_mid_point"/>
+                <xsl:sort select="@name"/>
+              </xsl:apply-templates>
         </td>
         <td align="left" valign="top">
           <xsl:apply-templates select="./module" mode="col2">
@@ -115,6 +116,22 @@ $Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
             <xsl:sort select="@name"/>
           </xsl:apply-templates>
         </td>
+            </xsl:when> 
+            <xsl:when test="./resource">
+            <td align="left" valign="top">
+          <xsl:apply-templates select="./resource" mode="col1">
+            <xsl:with-param name="mid_point" select="$module_mid_point"/>
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
+        </td>
+        <td align="left" valign="top">
+          <xsl:apply-templates select="./resource" mode="col2">
+            <xsl:with-param name="mid_point" select="$module_mid_point"/>
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
+        </td>
+      </xsl:when>
+    </xsl:choose>
       </tr>
     </table>
   </blockquote>
@@ -185,4 +202,73 @@ $Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
   </xsl:choose>
 </xsl:template>
 
+
+<xsl:template match="resource" mode="col1">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="not(position()>$mid_point)">
+    <xsl:apply-templates select="." mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="resource" mode="col2">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="position()>$mid_point">
+    <xsl:apply-templates select="."  mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+
+<xsl:template match="resource" mode="output">
+  <xsl:variable name="xref"
+    select="concat('../../../data/resource_docs/',@name,'/sys/introduction',$FILE_EXT)"/>
+  <a href="{$xref}">
+    <small>
+      <b>
+        <xsl:value-of select="@name"/>&#160;
+        <xsl:call-template name="get_resdoc_part">
+          <xsl:with-param name="resdoc_name" select="@name"/>
+        </xsl:call-template>
+      </b>
+    </small>
+  </a>
+  <br/>
+</xsl:template>
+
+
+<xsl:template name="get_resdoc_part">
+  <xsl:variable name="resdoc_name" select="@name"/>
+  <xsl:variable name="resdoc_file"
+    select="concat('../../data/resource_docs/',@name,'/resource.xml')"/>
+
+  <xsl:variable name="in_repo"
+    select="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc_name]"/>
+  <xsl:choose>
+    <!-- the module is present in the STEP mod repository -->
+    <xsl:when test="$in_repo">
+      <xsl:variable name="resdoc_node"
+        select="document($resdoc_file)/resource[@name=$resdoc_name]"/>
+      <xsl:variable name="part" select="$resdoc_node/@part"/>
+      (<xsl:value-of select="$part"/>)
+    </xsl:when>
+
+    <xsl:otherwise>
+      <p>
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="warning_gif"
+            select="'../../../images/warning.gif'"/>
+          
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error B1: Resource part ',
+                                  $resdoc_name,
+                                  ' does not exist in stepmod/repository_index.xml')"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </p>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
 </xsl:stylesheet>
+
+

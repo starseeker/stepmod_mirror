@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
+$Id: ballot_shortnames.xsl,v 1.1 2002/08/29 07:03:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -12,7 +12,9 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
                 version="1.0">
 
   <xsl:import href="./common.xsl"/>
+  <xsl:import href="../../xsl/res_doc/common.xsl"/>
   <xsl:import href="../../xsl/common.xsl"/>
+
 
 
   <xsl:output 
@@ -62,9 +64,18 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
           <td><b>Entity</b></td>
           <td><b>Shortname</b></td>
         </tr>
-        <xsl:apply-templates select="./*/module">
-          <xsl:sort select="@name"/>
-        </xsl:apply-templates>
+        <xsl:choose>
+          <xsl:when test="./*/module">
+            <xsl:apply-templates select="./*/module">
+              <xsl:sort select="@name"/>
+            </xsl:apply-templates>        
+          </xsl:when>
+          <xsl:when test="./*/resource">
+            <xsl:apply-templates select="./*/resource">
+              <xsl:sort select="@name"/>
+            </xsl:apply-templates>        
+          </xsl:when>        
+        </xsl:choose>
       </table>
     </body>
   </HTML>
@@ -99,6 +110,44 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
               <xsl:value-of select="concat('Error ballot1: ', $module_ok)"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+      </tr>      
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="resource">
+  <xsl:variable name="resdoc_ok">
+    <xsl:call-template name="check_resdoc_exists">
+      <xsl:with-param name="resdoc" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="$resdoc_ok='true'">
+      <xsl:variable name="resdoc_file"
+        select="concat('../../data/resource_docs/',@name,'/resource.xml')"/>
+      <xsl:apply-templates 
+        select="document($resdoc_file)/resource/shortnames/shortname">
+        <xsl:sort select="@entity"/>
+      </xsl:apply-templates>
+    </xsl:when>
+
+    <!-- resource does not exist in repository index -->
+    <xsl:otherwise>
+      <tr>
+        <td>
+          <xsl:value-of select="../@name"/>
+        </td>
+        <td>
+          <xsl:value-of select="@name"/>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error ballot1: ', $resdoc_ok)"/>
             </xsl:with-param>
           </xsl:call-template>
         </td>

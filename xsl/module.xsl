@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.63 2002/06/05 10:17:36 robbod Exp $
+$Id: module.xsl,v 1.64 2002/06/05 15:37:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -52,6 +52,40 @@ $Id: module.xsl,v 1.63 2002/06/05 10:17:36 robbod Exp $
   <xsl:apply-templates/>
 </xsl:template>
 
+
+<!-- test the WG number. 
+     return a tring containing Error if incorrect
+     
+     -->
+<xsl:template name="test_wg_number">
+  <xsl:param name="wgnumber"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+  <xsl:variable name="ERR" select="'**************************'"/>
+
+  <xsl:variable name="wgnumber_check"
+    select="translate(translate($wgnumber,$LOWER,$UPPER),$UPPER,$ERR)"/>
+
+  <xsl:choose>
+    <xsl:when test="not($wgnumber)">
+      Error WG-1: No WG number provided.
+    </xsl:when>
+
+    <xsl:when test="$wgnumber = 00000">
+      <!-- the default provided by mkmodule -->
+      Error WG-2: No WG number provided (0 is invalid).
+    </xsl:when>
+   
+    <xsl:when test="contains($wgnumber_check,'*')">
+      Error WG-3: WG number must be an integer.
+    </xsl:when>
+    <xsl:otherwise>
+      'OK'
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
 <!-- Outputs the cover page -->
 <xsl:template match="module" mode="coverpage">
   <xsl:variable name="n_number"
@@ -66,30 +100,27 @@ $Id: module.xsl,v 1.63 2002/06/05 10:17:36 robbod Exp $
       <td><h2><xsl:value-of select="$n_number"/></h2></td>
       <td>&#x20;</td>
       <td valign="top"><b>Date:&#x20;</b><xsl:value-of select="$date"/></td>
-    </tr>
-    <xsl:if test="not(@wg.number)">
+    </tr>    
+
+    <xsl:variable name="test_wg_number">
+      <xsl:call-template name="test_wg_number">
+        <xsl:with-param name="wgnumber" select="./@wg.number"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:if test="contains($test_wg_number,'Error')">
       <tr>
         <td>
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
-              Error 14: No WG number provided.
+              <xsl:value-of select="concat('Error in
+                              module.xml/module/@wg.number - ',
+                              $test_wg_number)"/>
             </xsl:with-param>
-          </xsl:call-template>  
+          </xsl:call-template>
         </td>
       </tr>
     </xsl:if>
-    <xsl:if test="@wg.number = 00000">
-      <!-- the default provided by mkmodule -->
-      <tr>
-        <td>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              Error 15: No WG number provided.
-            </xsl:with-param>
-          </xsl:call-template>  
-        </td>
-      </tr>
-    </xsl:if>
+
 
     <xsl:if test="@wg.number.supersedes">      
       <tr>
@@ -106,10 +137,32 @@ $Id: module.xsl,v 1.63 2002/06/05 10:17:36 robbod Exp $
               </xsl:otherwise>
             </xsl:choose>
           </h3>
+
+          <xsl:variable name="test_wg_number_supersedes">
+            <xsl:call-template name="test_wg_number">
+              <xsl:with-param name="wgnumber" select="./@wg.number.supersedes"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="contains($test_wg_number_supersedes,'Error')">
+            <tr>
+              <td>
+                <xsl:call-template name="error_message">
+                  <xsl:with-param name="message">
+                    <xsl:value-of 
+                      select="concat('Error in
+                              module.xml/module/@wg.number.supersedes - ',
+                              $test_wg_number_supersedes)"/>
+                  </xsl:with-param>
+                </xsl:call-template>
+              </td>
+            </tr>
+          </xsl:if>
+
           <xsl:if test="@wg.number.supersedes = @wg.number">
             <xsl:call-template name="error_message">
               <xsl:with-param name="message">
-                Error 16: New WG number is the same as superseded WG number.
+                Error in module.xml/module/@wg.number.supersedes - 
+                Error WG-16: New WG number is the same as superseded WG number.
               </xsl:with-param>
             </xsl:call-template>            
           </xsl:if>
@@ -298,37 +351,72 @@ o=isocs; s=central<br/>
           </xsl:when>
         </xsl:choose>
       </xsl:variable>
+  
       This document has been reviewed using the internal review checklist 
       (see <xsl:value-of select="concat('WG12&#160;N',@checklist.internal_review)"/>),
-      <xsl:if test="not(@checklist.internal_review) or @checklist.internal_review = 00000">
-        <!-- the default provided by mkmodule -->
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="message">
-            Error 16: No WG number provided for internal review checklist
-          </xsl:with-param>
-        </xsl:call-template>     
+      <!-- test the checklist WG number for checklist.internal_review -->
+      <xsl:variable name="test_cl_internal_review">
+        <xsl:call-template name="test_wg_number">
+          <xsl:with-param name="wgnumber" select="./@checklist.internal_review"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:if test="contains($test_cl_internal_review,'Error')">
+        <p>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of 
+                select="concat('Error in
+                        module.xml/module/@checklist.internal_review - ', 
+                        $test_cl_internal_review)"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </p>
       </xsl:if>
 
+
       the project leader checklist 
-      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.project_leader)"/>),
-      <xsl:if test="not(@checklist.project_leader) or @checklist.project_leader = 00000">
-        <!-- the default provided by mkmodule -->
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="message">
-            Error 17: No WG number provided for project leader checklist
-          </xsl:with-param>
-        </xsl:call-template>     
+      (see <xsl:value-of
+      select="concat('WG12&#160;N',@checklist.project_leader)"/>),
+
+      <!-- test the checklist WG number for checklist.project_leader -->
+      <xsl:variable name="test_cl_project_leader">
+        <xsl:call-template name="test_wg_number">
+          <xsl:with-param name="wgnumber" select="./@checklist.project_leader"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:if test="contains($test_cl_project_leader,'Error')">
+        <p>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of 
+                select="concat('Error in
+                        module.xml/module/@checklist.project_leader - ', 
+                        $test_cl_project_leader)"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </p>
       </xsl:if>
 
       and the convener checklist
       (see <xsl:value-of select="concat('WG12&#160;N',@checklist.convener)"/>),
-      <xsl:if test="not(@checklist.convener) or @checklist.convener = 00000">
-        <!-- the default provided by mkmodule -->
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="message">
-            Error 19: No WG number provided for convener checklist
-          </xsl:with-param>
-        </xsl:call-template>     
+
+      <!-- test the checklist WG number for checklist.convener -->
+      <xsl:variable name="test_cl_convener">
+        <xsl:call-template name="test_wg_number">
+          <xsl:with-param name="wgnumber" select="./@checklist.convener"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:if test="contains($test_cl_convener,'Error')">
+        <p>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of 
+                select="concat('Error in
+                        module.xml/module/@checklist.convener - ', 
+                        $test_cl_convener)"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </p>
       </xsl:if>
       and has been determined to be ready for 
        <xsl:value-of select="$ballot_cycle_or_pub"/>.

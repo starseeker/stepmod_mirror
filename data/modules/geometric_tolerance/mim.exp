@@ -76,7 +76,8 @@ REPEAT i := 1 TO HIINDEX(pd_set);
 pdr_set := pdr_set + (QUERY(pdr <* USEDIN(pd_set[i], 'GEOMETRIC_TOLERANCE_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.' + 'DEFINITION') |
 'GEOMETRIC_TOLERANCE_MIM.SHAPE_DEFINITION_REPRESENTATION' IN TYPEOF(pdr)));
 END_REPEAT;
-RETURN (pdr_set);      END_FUNCTION; 
+RETURN (pdr_set);      
+END_FUNCTION; 
 
 FUNCTION valid_datum_target_parameters
  (pdf : placed_datum_target_feature) : BOOLEAN; 
@@ -88,57 +89,49 @@ parameter_representations := QUERY(pdr <* pdf.representation_associations |
 ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN
 TYPEOF(pdr.used_representation)));
 
-IF (SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(QUERY(i <* pdr.used_representation.items |
-(i.name='orientation') AND
-('GEOMETRIC_TOLERANCE_MIM.PLACEMENT' IN TYPEOF(i)))) = 1))) <> 1) THEN
-RETURN(FALSE);
+IF (SIZEOF( QUERY( srwp <* parameter_representations |
+          (SIZEOF( QUERY( i <* srwp.items |
+          (i.name='orientation') AND
+          ('GEOMETRIC_TOLERANCE_MIM.PLACEMENT' IN TYPEOF(i)))) = 1))) <> 1) THEN
+   RETURN(FALSE);
 END_IF;
 
 CASE pdf\shape_aspect.description OF
-'point': RETURN(SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(pdr.used_representation.items) = 1))) = 1);
+'point': RETURN(SIZEOF(QUERY( srwp <* parameter_representations |
+              (SIZEOF(srwp.items) = 1))) = 1);
 
-'circle': RETURN((SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(pdr.used_representation.items) = 2))) = 1) AND
-(SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(QUERY(i <* pdr.used_representation.items |
-(i.name='target diameter') AND
-(SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
-'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
-) = 2))) = 1))) = 1));
+'circle': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
+              (SIZEOF(srwp.items) = 2))) = 1) AND
+             (SIZEOF( QUERY( srwp <* parameter_representations |
+              (SIZEOF( QUERY( i <* srwp.items |
+                (i.name='target diameter') AND
+                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
+		   'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2) )) = 1))) = 1));
 
-'circular line': RETURN((SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(pdr.used_representation.items) = 2))) = 1) AND
-(SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(QUERY(i <* pdr.used_representation.items |
-(i.name='target diameter') AND
-(SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
-'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
-) = 2))) = 1))) = 1));
+'line': RETURN(SIZEOF( QUERY( srwp <* parameter_representations |
+              (SIZEOF( QUERY( i <* srwp.items |
+                (i.name='target length') AND
+                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
+		'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2) )) = 1))) = 1);
 
-'line': RETURN(SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(QUERY(i <* pdr.used_representation.items |
-(i.name='target length') AND
-(SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
-'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
-) = 2))) = 1))) = 1);
-
-'rectangle': RETURN((SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(pdr.used_representation.items)= 3))) = 1) AND
-(SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(QUERY(i <* pdr.used_representation.items |
-(i.name='target length') AND
-(SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
-'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
-) = 2))) = 1))) = 1) AND
-(SIZEOF(QUERY(srwp <* parameter_representations |
-(SIZEOF(QUERY(i <* pdr.used_representation.items |
-(i.name='target width') AND
-(SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
-'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
-) = 2))) = 1))) = 1));
+'rectangle': RETURN((SIZEOF( QUERY( srwp <* parameter_representations |
+              (SIZEOF(srwp.items)= 3))) = 1) AND
+             (SIZEOF( QUERY( srwp <* parameter_representations |
+              (SIZEOF( QUERY( i <* srwp.items |
+                (i.name='target length') AND
+                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
+		'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2))) = 1))) = 1) AND
+              (SIZEOF( QUERY( srwp <* parameter_representations |
+               (SIZEOF( QUERY( i <* srwp.items |
+                 (i.name='target width') AND
+                 (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
+ 		'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                  ) = 2))) = 1) )) = 1));
 OTHERWISE : RETURN(FALSE);
-END_CASE;      END_FUNCTION; 
+END_CASE;
+   END_FUNCTION; 
 
 END_SCHEMA;  -- Geometric_tolerance_mim

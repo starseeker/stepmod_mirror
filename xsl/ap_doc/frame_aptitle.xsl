@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_aptitle.xsl,v 1.3 2003/05/22 16:02:38 robbod Exp $
+$Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -37,14 +37,15 @@ $Id: frame_aptitle.xsl,v 1.3 2003/05/22 16:02:38 robbod Exp $
               mode="title"/>
           </td>
           <td align="right">
-            <a href="1_scope{$FILE_EXT}" target="content">AP scope</a>
-            &#160;|&#160;
-            <a href="frame_toc{$FILE_EXT}" target="toc">AP contents</a>
-            &#160;|&#160;
-            <a href="frame_index{$FILE_EXT}" target="toc">AP index</a>
-            &#160;|&#160;
-            <a href="../../../modules/{$application_protocol_xml_file/application_protocol/@module_name}/sys/cover{$FILE_EXT}" target="content">AP module</a>
-
+            <small>
+              <a href="1_scope{$FILE_EXT}" target="content">AP scope</a>
+              &#160;|&#160;
+              <a href="../../../modules/{$application_protocol_xml_file/application_protocol/@module_name}/sys/cover{$FILE_EXT}" target="content">AP module</a>
+              &#160;|&#160;
+              <a href="frame_toc{$FILE_EXT}" target="toc">AP contents</a>
+              &#160;|&#160;
+              <a href="frame_index{$FILE_EXT}" target="toc">AP index</a>
+            </small>
           </td>
         </tr>
         </table>

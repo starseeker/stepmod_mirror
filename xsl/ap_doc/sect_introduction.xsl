@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.4 2003/03/03 17:14:57 goset1 Exp $
+     $Id: sect_introduction.xsl,v 1.5 2003/05/23 15:52:57 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -49,6 +49,14 @@
         </xsl:call-template>    
   </xsl:if>
 	
+  <xsl:if test="./data_plan">
+    <p>
+      The data planning model in
+      <xsl:apply-templates select="./data_plan/imgfile" mode="data_plan_figures"/>
+      provides an overview of the information requirements of this domain.  
+    </p>
+  </xsl:if>
+
   <!-- display content of purpose element-->
   <xsl:apply-templates/>
 		

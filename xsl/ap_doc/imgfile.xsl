@@ -1,85 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: imgfile.xsl,v 1.5 2002/10/08 10:20:07 mikeward Exp $
+$Id: application_protocol_clause.xsl,v 1.12 2003/05/23 15:52:56 robbod Exp $
+  Author:  Mike Ward, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose:     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-	<xsl:import href="../imgfile.xsl"/>
-	<xsl:import href="sect_4_express.xsl"/>
-	<xsl:import href="application_protocol_toc.xsl"/>
-	<xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
+  <xsl:import href="../imgfile.xsl"/>
+  <xsl:import href="sect_4_express.xsl"/>
+  <xsl:import href="application_protocol_toc.xsl"/>
+  <xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
 
-	<xsl:template match="ap.imgfile.content">
-		<HTML>
-			<HEAD>
-				<TITLE>
-					<xsl:value-of select="concat(@application_protocol,' : ',@title)"/>
-				</TITLE>
-			</HEAD>
-			<body>
-				<xsl:variable name="application_protocol" select="@application_protocol"/>
-				<xsl:variable name="self" select="."/>
-				<xsl:choose>
-					<xsl:when test="@application_protocol">
-					
-						<xsl:variable name="application_protocol_dir">
-            						<xsl:call-template name="application_protocol_directory">
-								<xsl:with-param name="application_protocol" select="@application_protocol"/>
-							</xsl:call-template>
-						</xsl:variable>
-						<xsl:variable name="application_protocol_file" select="concat($application_protocol_dir,'/application_protocol.xml')"/>
-						<xsl:apply-templates select="document($application_protocol_file)/application_protocol" mode="TOCmultiplePage">
-							<xsl:with-param name="application_protocol_root" select="'.'"/>
-						</xsl:apply-templates>
-						<xsl:choose>
-							<xsl:when test="./@file">
-								<h1><xsl:apply-templates select="document($application_protocol_file)/application_protocol/aam/idef0/imgfile" mode="nav_arrows">
-									<xsl:with-param name="file" select="@file"/>
-								</xsl:apply-templates></h1>
-							</xsl:when>
-							<xsl:otherwise>
-								To enable navigation, add file parameter to expressg file
-							</xsl:otherwise>
-						</xsl:choose>
-						<xsl:apply-templates select="img"/>
-						<xsl:choose>
-							<xsl:when test="./@file">
-								<div align="center">
-									<h3>
-										<xsl:apply-templates select="document($application_protocol_file)/application_protocol/aam/idef0/imgfile" mode="title">
-											<xsl:with-param name="file" select="@file"/>
-										</xsl:apply-templates>
-									</h3>
-								</div>
-							</xsl:when>
-							<xsl:otherwise>
-								<div align="center">
-									<h3>
-										<xsl:value-of select="@title"/>
-									</h3>
-								</div>
-							</xsl:otherwise>
-						</xsl:choose>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:call-template name="error_message">
-							<xsl:with-param name="message">
-								<xsl:value-of select="'Error IM1: Error in image file - application_protocol not specified'"/>
-							</xsl:with-param>
-						</xsl:call-template>
-						<xsl:apply-templates select="img"/>
-						<div align="center">
-							<h3>
-								<xsl:value-of select="@title"/>
-							</h3>
-						</div>
-					</xsl:otherwise>
-				</xsl:choose>
-			</body>
-		</HTML>
-	</xsl:template>
-	
-	<xsl:template match="imgfile.content">
+  <xsl:template match="ap.imgfile.content">
+    <xsl:variable name="application_protocol" select="@application_protocol"/>
+    <xsl:variable name="application_protocol_dir">
+      <xsl:call-template name="application_protocol_directory">
+        <xsl:with-param name="application_protocol" select="@application_protocol"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="application_protocol_file" select="concat($application_protocol_dir,'/application_protocol.xml')"/>
+    <HTML>
+      <HEAD>
+        <xsl:if test="@application_protocol">
+          <xsl:apply-templates select="document($application_protocol_file)/application_protocol" mode="meta_data"/>
+        </xsl:if>        
+        <TITLE>
+          <xsl:value-of select="concat(@application_protocol,' : ',@title)"/>
+        </TITLE>
+      </HEAD>
+      <body bgcolor="#eeeeee">
+        <xsl:variable name="self" select="."/>
+        <xsl:choose>
+          <xsl:when test="@application_protocol">
+            <xsl:apply-templates select="document($application_protocol_file)/application_protocol" mode="TOCmultiplePage">
+              <xsl:with-param name="application_protocol_root" select="'.'"/>
+            </xsl:apply-templates>
+
+            <xsl:choose>
+              <xsl:when test="./@file">
+                <h1>
+                  <xsl:apply-templates
+                    select="document($application_protocol_file)/application_protocol//imgfile" 
+                    mode="nav_arrows">
+                    <xsl:with-param name="file" select="@file"/>
+                  </xsl:apply-templates>
+                </h1>
+              </xsl:when>
+              <xsl:otherwise>
+                To enable navigation, add file parameter to expressg file
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:apply-templates select="img"/>
+            <xsl:choose>
+            <xsl:when test="./@file">
+              <div align="center">
+                <h3>
+                  <xsl:apply-templates select="document($application_protocol_file)/application_protocol/aam/idef0/imgfile" mode="title">
+                    <xsl:with-param name="file" select="@file"/>
+                  </xsl:apply-templates>
+                </h3>
+              </div>
+            </xsl:when>
+            <xsl:otherwise>
+              <div align="center">
+                <h3>
+                  <xsl:value-of select="@title"/>
+                </h3>
+              </div>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="'Error IM1: Error in image file - application_protocol not specified'"/>
+            </xsl:with-param>
+          </xsl:call-template>
+          <xsl:apply-templates select="img"/>
+          <div align="center">
+            <h3>
+              <xsl:value-of select="@title"/>
+            </h3>
+          </div>
+        </xsl:otherwise>
+      </xsl:choose>
+    </body>
+  </HTML>
+</xsl:template>
+
+<xsl:template match="imgfile.content">
 		<xsl:variable name="ap_module_dir">
 			<xsl:call-template name="ap_module_directory">
 				<xsl:with-param name="application_protocol" select="@module"/>
@@ -230,36 +240,41 @@
 		</xsl:if>
 	</xsl:template>
 	
-	<xsl:template match="imgfile" mode="nav_arrows">
-		<xsl:param name="file"/>
-		<xsl:if test="$file=@file">
-			<xsl:if test="name(../..)='arm' or name(../..)='mim'">
-				<xsl:variable name="maphref" select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
-				<a href="{$maphref}">
-					<img align="middle" border="0" alt="Mapping table" src="../../../images/mapping.gif"/>
-				</a>
-			</xsl:if>
-			<xsl:variable name="home">
-				<xsl:choose>
-					<xsl:when test="name(../..)='arm'">
-						<xsl:call-template name="set_file_ext">
-							<xsl:with-param name="filename" select="'./sys/c_arm_expg.xml'"/>
-						</xsl:call-template>
-					</xsl:when>
-					<xsl:when test="name(../..)='mim'">
-						<xsl:call-template name="set_file_ext">
-							<xsl:with-param name="filename" select="'./sys/d_mim_expg.xml'"/>
-						</xsl:call-template>
-					</xsl:when>
-					<xsl:when test="name(../..)='aam'">
-						<xsl:call-template name="set_file_ext">
-							<xsl:with-param name="filename" select="'./sys/e_aam.xml'"/>
-						</xsl:call-template>
-					</xsl:when>
+  <xsl:template match="imgfile" mode="nav_arrows">
+    <xsl:param name="file"/>
+    <xsl:if test="$file=@file">
+      <xsl:if test="name(../..)='arm' or name(../..)='mim'">
+        <xsl:variable name="maphref" select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
+        <a href="{$maphref}">
+          <img align="middle" border="0" alt="Mapping table" src="../../../images/mapping.gif"/>
+        </a>
+      </xsl:if>
+      <xsl:variable name="home">
+        <xsl:choose>
+          <xsl:when test="name(../..)='arm'">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="'./sys/c_arm_expg.xml'"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="name(../..)='mim'">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="'./sys/d_mim_expg.xml'"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="name(../..)='aam'">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="'./sys/e_aam.xml'"/>
+            </xsl:call-template>
+          </xsl:when>          
+          <xsl:when test="name(../..)='fundamentals'">
+            <xsl:call-template name="set_file_ext">
+              <xsl:with-param name="filename" select="'./sys/e_aam.xml'"/>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:variable>
 
-				</xsl:choose>
-			</xsl:variable>
-			<a href="./{$home}">
+      <a href="./{$home}">
 				<xsl:choose>
 					<xsl:when test="name(../..)='arm' or name(../..)='mim'">
 						<img align="middle" border="0" alt="Index of Express-G pages" src="../../../images/home.gif"/>

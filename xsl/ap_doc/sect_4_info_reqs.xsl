@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.6 2003/05/23 15:52:56 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -136,15 +136,17 @@ $Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
 
      <xsl:choose>
        <xsl:when test="./data_plan">
-         <p> XSL INCOMPLETE
-           The data planning model in Figure ??? provides
-           an overview of the information requirements of this domain.  
+         <p>
+           The data planning model in
+           <xsl:apply-templates select="./data_plan/imgfile" mode="data_plan_figures"/>
+           provides an overview of the information requirements of this domain.  
          </p>
        </xsl:when>
        <xsl:when test="/application_protocol/purpose/data_plan">
-         <p> XSL INCOMPLETE
-           The data planning model in Figure ??? provides
-           an overview of the information requirements of this domain.  
+         <p> 
+           The data planning model in
+           <xsl:apply-templates select="/application_protocol/purpose/data_plan/imgfile" mode="data_plan_figures"/>
+           provides an overview of the information requirements of this domain.  
          </p>
        </xsl:when>
      </xsl:choose>

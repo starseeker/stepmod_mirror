@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.37 2004/01/07 07:51:23 robbod Exp $
+$Id: express_description.xsl,v 1.38 2004/01/07 08:09:22 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -251,14 +251,14 @@ and
         
         <xsl:if test="string-length($attribute)>0">
           <xsl:choose>
-            <xsl:when test="$attribute='identifier'">
+            <xsl:when test="$attribute='id'">
               <xsl:if test="not(contains($phrase,'identifier'))">
                 <xsl:call-template name="error_message">
                   <xsl:with-param 
                     name="message" 
                     select="concat('Warning Attr1 ' ,
                             $description/@linkend,
-                            '. Name attribute description should be a phrase.#
+                            '. Id attribute description should be a phrase.#
                             is:',$phrase,'#
                             Usually will start with &quot;the identifier for xxx&quot;.')"/>
                 </xsl:call-template>
@@ -285,7 +285,7 @@ and
                     name="message" 
                     select="concat('Warning Attr1 ' ,
                             $description/@linkend,
-                            '. Name attribute description should be a phrase.#
+                            '. Description attribute description should be a phrase.#
                             is: &quot;',$phrase,'&quot;#
                             Usually will start with &quot;the text that provides further information about the&quot;.')"/>
                 </xsl:call-template>
@@ -298,7 +298,7 @@ and
                     name="message" 
                     select="concat('Warning Attr1 ' ,
                             $description/@linkend,
-                            '. Name attribute description should be a phrase.#
+                            '. Purpose attribute description should be a phrase.#
                             is: &quot;',$phrase,'&quot;#
                             Usually will start with &quot;the purpose of&quot;.')"/>
                 </xsl:call-template>

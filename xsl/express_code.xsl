@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.24 2002/06/24 07:55:24 robbod Exp $
+     $Id: express_code.xsl,v 1.25 2002/07/05 17:00:46 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -513,8 +513,7 @@ SELF\<xsl:call-template name="link_object">
   </xsl:variable>
 
   <xsl:if test="position()=1">
-    &#160;&#160; 
-    UNIQUE<br/>
+    &#160;&#160;UNIQUE<br/>
   </xsl:if>
   &#160;&#160;&#160;
   <A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ')"/></A>

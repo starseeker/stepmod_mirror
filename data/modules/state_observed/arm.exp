@@ -1,124 +1,104 @@
 (*
-   $Id: arm.exp,v 1.10 2003/01/22 20:15:35 magnevs Exp $
+   $Id: arm.exp,v 1.11 2003/02/05 23:00:52 magnevs Exp $
    N1436 - ISO/CD-TS - 10303-1256 State_observed - EXPRESS ARM
 *)
 
-SCHEMA State_definition_arm;
+SCHEMA State_observed_arm; 
 
-USE FROM Classification_assignment_arm;
+USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
 
-USE FROM Condition_assignment_arm;
+USE FROM Condition_evaluation_arm;    -- ISO/CD-TS 10303-1254
 
-USE FROM Identification_assignment_arm;
+USE FROM State_definition_arm;    -- ISO/CD-TS 10303-1255
 
-USE FROM Property_assignment_arm;
 
-TYPE state_definition_classified_select = SELECT BASED_ON classification_item WITH
-(Applied_state_definition_assignment,
- State_definition,
- State_definition_relationship);
-END_TYPE;
+TYPE state_classified_item = SELECT BASED_ON classification_item WITH 
+   (Applied_state_assignment, 
+    State, 
+    State_relationship);
+END_TYPE; 
 
-TYPE state_definition_condition = SELECT BASED_ON host_item WITH
-(State_definition,
- State_definition_relationship);
-END_TYPE;
+TYPE state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
 
-TYPE state_definition_identification_item = SELECT BASED_ON identification_item WITH
-(State_definition,
- State_definition_relationship);
-END_TYPE;
-
-TYPE state_definition_of_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
-END_TYPE;
-
-TYPE state_definition_property_assignment = SELECT BASED_ON property_assignment_select WITH
-(State_definition,
- State_definition_relationship);
-END_TYPE;
-
-ENTITY And_state_cause_effect_definition
-SUBTYPE OF (State_cause_effect_definition);
+ENTITY Applied_state_assignment;
+  described_state : State;
+  assigned_to : state_of_item;
+  role : State_role;
 END_ENTITY;
 
-ENTITY Applied_state_definition_assignment;
-described_state_definition : State_definition;
-assigned_to : state_definition_of_item;
-role : State_definition_role;
+ENTITY Composition_of_state
+  SUBTYPE OF (State_relationship);
+  SELF\State_relationship.relating RENAMED whole : State;
+  SELF\State_relationship.related RENAMED part : SET[2:?] OF State;
 END_ENTITY;
 
-ENTITY Composition_of_state_definition
-SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED whole : State_definition;
-SELF\State_definition_relationship.related RENAMED part : SET [2 : ?] OF State_definition;
+ENTITY Defined_state_relationship;
+  definitive_state : State_assertion;
+  defined_state : State_assessment;
 END_ENTITY;
 
-ENTITY Or_state_cause_effect_definition
-SUBTYPE OF (State_cause_effect_definition);
+ENTITY Sequence_of_state
+  SUBTYPE OF (State_relationship);
+  SELF\State_relationship.relating RENAMED successor : State;
+  SELF\State_relationship.related RENAMED predecessor : State;
 END_ENTITY;
 
-ENTITY Sequence_of_state_definition
-SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED successor : State_definition;
-SELF\State_definition_relationship.related RENAMED predecessor : State_definition;
+ENTITY State
+  SUPERTYPE OF (ONEOF (State_observed,
+                       State_predicted));
+  name : STRING;
+  description : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY State_cause_effect_definition
-SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED effect : SET [1 : ?] OF State_definition;
-SELF\State_definition_relationship.related RENAMED cause : SET [1 : ?] OF State_definition;
+ENTITY State_assertion
+  SUBTYPE OF (Condition_assertion);
+  asserted_state : State;
+  conformance_state : State_definition;
 END_ENTITY;
 
-ENTITY State_complement_definition
-SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED universe : State_definition;
-SELF\State_definition_relationship.related RENAMED set_1 : State_definition;
-set_2 : State_definition;
+ENTITY State_assessment
+  SUBTYPE OF (Condition_assertion);
+  assessed_state : State;
+  comparable_state : State_definition;
 END_ENTITY;
 
-ENTITY State_definition;
-name : STRING;
-description : OPTIONAL STRING;
+ENTITY State_cause_effect
+  SUBTYPE OF (State_relationship);
+  SELF\State_relationship.relating RENAMED effect : SET[1:?] OF State;
+  SELF\State_relationship.related RENAMED cause : SET[1:?] OF State;
 END_ENTITY;
 
-ENTITY State_definition_relationship;
-name : STRING;
-description : STRING;
-relating : SET [1 : ?] OF State_definition;
-related : SET [1 : ?] OF State_definition;
+ENTITY State_observed
+  SUBTYPE OF (State);
 END_ENTITY;
 
-ENTITY State_definition_role;
-name : STRING;
-description : STRING;
+ENTITY State_predicted
+  SUBTYPE OF (State);
 END_ENTITY;
 
-ENTITY State_proper_subset_definition
-SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED proper_superset : State_definition;
-SELF\State_definition_relationship.related RENAMED proper_subset : State_definition;
+ENTITY State_predicted_to_observed
+  SUBTYPE OF (State_relationship);
+  SELF\State_relationship.relating RENAMED observed_state : State_observed;
+  SELF\State_relationship.related RENAMED predicted_state : State_predicted;
 END_ENTITY;
 
-ENTITY State_subset_definition
-SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED superset : State_definition;
-SELF\State_definition_relationship.related RENAMED subset : State_definition;
+ENTITY State_relationship;
+  name : STRING;
+  description : STRING;
+  relating : SET[1:?] OF State;
+  related : SET[1:?] OF State;
 END_ENTITY;
 
-ENTITY State_symptom_definition
-SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED symptom_effect : SET [1 : ?] OF State_definition;
-SELF\State_definition_relationship.related RENAMED symptom_cause : SET [1 : ?] OF State_definition;
+ENTITY State_role;
+  name : STRING;
+  description : STRING;
 END_ENTITY;
 
-ENTITY State_transition_definition
-SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED end_state : State_definition;
-SELF\State_definition_relationship.related RENAMED start_state : State_definition;
+ENTITY State_transition
+  SUBTYPE OF (State_relationship);
+  SELF\State_relationship.relating RENAMED end_state : State;
+  SELF\State_relationship.related RENAMED start_state : State;
 END_ENTITY;
 
-ENTITY Xor_state_cause_effect_definition
-SUBTYPE OF (State_cause_effect_definition);
-END_ENTITY;
-
-END_SCHEMA;
+END_SCHEMA;  -- State_observed_arm

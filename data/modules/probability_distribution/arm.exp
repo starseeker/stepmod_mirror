@@ -1,6 +1,62 @@
 (*
-   $Id: mkmodule.js,v 1.25 2002/10/10 11:56:54 nigelshaw Exp $
-   N - ISO/CD-TS - 10303- probability_distribution - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
-SCHEMA Probability_distribution_arm;
-END_SCHEMA;
+   $Id: arm.exp,v 1.1 2002/11/12 11:36:08 seanbarker Exp $
+ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Probability distribution - EXPRESS ARM
+*) 
+
+
+SCHEMA Probability_distribution_arm; 
+
+USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
+
+USE FROM Measure_representation_arm;    -- ISO/TS 10303-1118
+
+USE FROM Probability_arm;    -- ISO/CD-TS 10303-1252
+
+USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
+
+
+TYPE probability_distribution_classification = GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+   (Probability_distribution);
+END_TYPE; 
+
+TYPE probability_distribution_property = SELECT BASED_ON property_assigment_select WITH 
+   (Probability_distribution);
+END_TYPE; 
+
+ENTITY Distribution_by_value
+  SUBTYPE OF (Probability_distribution);
+  distribution_function : STRING;
+  has_values : LIST[0:?] OF Value_element;
+END_ENTITY;
+
+ENTITY Parameterized_distribution
+  SUBTYPE OF (Probability_distribution);
+  has_parameters : LIST[0:?] OF Probability_distribution_parameter;
+  parameterization_name : STRING;
+END_ENTITY;
+
+ENTITY Probability_distribution
+  ABSTRACT SUPERTYPE 
+  SUBTYPE OF (Probability_generator);
+  description : OPTIONAL STRING;
+  distribution_name : OPTIONAL STRING;
+  id : STRING;
+  is_continuous : STRING;
+  mean : REAL;
+  name : STRING;
+  variance : REAL;
+END_ENTITY;
+
+ENTITY Probability_distribution_parameter
+  SUBTYPE OF (Numerical_item_with_global_unit);
+  name : STRING;
+  parameter_value : NUMBER;
+END_ENTITY;
+
+ENTITY Value_element;
+  actual_value : NUMBER;
+  index : NUMBER;
+END_ENTITY;
+
+END_SCHEMA;  -- Probability_distribution_arm
+

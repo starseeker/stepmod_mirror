@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.28 2003/08/15 07:14:24 robbod Exp $
+$Id: sect_contents.xsl,v 1.29 2004/05/01 09:05:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -73,7 +73,9 @@ $Id: sect_contents.xsl,v 1.28 2003/08/15 07:14:24 robbod Exp $
     <xsl:otherwise>
       <!-- use #defns to link direct -->
          <A HREF="./3_defs{$FILE_EXT}">
-          3 Terms and abbreviations
+           <!-- every module references Terms defined in other standards,
+                and abbreviations hence as per ISO -->
+           3 Terms, definitions and abbreviations
         </A>
         <br/>
     </xsl:otherwise>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_3_defs.xsl,v 1.7 2002/08/09 08:18:06 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.8 2003/03/13 19:17:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -24,6 +24,21 @@ $Id: sect_3_defs.xsl,v 1.7 2002/08/09 08:18:06 robbod Exp $
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
   <!-- Output the terms identified in the normative references -->
+  <!--
+       ISO requested:
+       - If clause 3 only contains terms and definitions, the title of the
+         clause shall be "Terms and definitions". 
+
+       - If clause 3 only contains terms, definitions, and abbreviations,
+         the title of the clause shall be "Terms, definitions, and abbreviations". 
+
+       - If clause 3 only contains terms, definitions, and symbols, the
+          title of the clause shall be "Terms, definitions, and symbols". 
+
+       - If clause 3 contains terms, definitions, abbreviations, and
+         symbols, the title of the clause shall be "Terms, definitions,
+         abbreviations, and symbols".  
+       -->
   <h2>
     <a name="defns">
       <xsl:choose>
@@ -31,7 +46,9 @@ $Id: sect_3_defs.xsl,v 1.7 2002/08/09 08:18:06 robbod Exp $
           3 Terms, definitions and abbreviations
         </xsl:when>
         <xsl:otherwise>
-          3 Terms and abbreviations
+          <!-- every module references Terms defined in other standards,
+               and abbreviations hence as per ISO -->
+          3 Terms, definitions and abbreviations
         </xsl:otherwise>
       </xsl:choose>
     </a>

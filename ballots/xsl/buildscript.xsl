@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: buildscript.xsl,v 1.12 2005/02/17 22:26:45 thendrix Exp $
+$Id: buildscript.xsl,v 1.13 2005/02/17 23:31:47 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -93,7 +93,10 @@ $Id: buildscript.xsl,v 1.12 2005/02/17 22:26:45 thendrix Exp $
         </xsl:element>
 
         <property name="EXPRESSCOMP" value="C:/apps/eep/Eep.exe"/>
-        <property name="EXPRESSARGS" value="-2 -i -w"/>
+        <property name="EXPRESSARG1" value="-2"/>
+        <property name="EXPRESSARG2" value="-i"/>
+        <property name="EXPRESSARG3" value="-w"/>
+        <property name="EXPRESSARG4" value=""/>
 
         <xsl:element name="property">
           <xsl:attribute name="name">EXPRESSDIR</xsl:attribute>
@@ -338,7 +341,6 @@ $Id: buildscript.xsl,v 1.12 2005/02/17 22:26:45 thendrix Exp $
 
   </xsl:template>
 
-
   <xsl:template match="module" mode="compileexpress">
         <echo>Compiling EXPRESS: ${ARMEXPRESS}</echo>
         <xsl:element name="exec">
@@ -346,27 +348,27 @@ $Id: buildscript.xsl,v 1.12 2005/02/17 22:26:45 thendrix Exp $
           <xsl:attribute name="dir">${EXPRESSDIR}</xsl:attribute>
           <xsl:attribute name="output">${ARMERR}</xsl:attribute>
           <xsl:element name="arg">
-            <xsl:attribute name="value">${EXPRESSARGS}</xsl:attribute>
+            <xsl:attribute name="value">${EXPRESSARG1}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARG2}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARG3}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARG4}</xsl:attribute>
           </xsl:element>
           <xsl:element name="arg">
             <xsl:attribute name="value">${ARMEXPRESS}</xsl:attribute>
           </xsl:element>
         </xsl:element>
-
-        <xsl:element name="copy">
-          <xsl:attribute name="verbose">true</xsl:attribute>
-          <xsl:attribute name="overwrite">true</xsl:attribute>
-          <xsl:attribute name="file">${EXPRESSDIR}/errors.em</xsl:attribute>  
-          <xsl:attribute name="tofile">${CHECKDIR}/${ARMERRFILE}</xsl:attribute>
-        </xsl:element>
-
         <xsl:element name="copy">
           <xsl:attribute name="verbose">true</xsl:attribute>
           <xsl:attribute name="overwrite">true</xsl:attribute>
           <xsl:attribute name="file">${ARMEXPRESS}</xsl:attribute>  
           <xsl:attribute name="todir">${CHECKDIR}</xsl:attribute>
         </xsl:element>
-
         <xsl:text>
         </xsl:text>        
         <echo>Compiling EXPRESS: ${MIMEXPRESS}</echo>
@@ -375,18 +377,20 @@ $Id: buildscript.xsl,v 1.12 2005/02/17 22:26:45 thendrix Exp $
           <xsl:attribute name="dir">${EXPRESSDIR}</xsl:attribute>
           <xsl:attribute name="output">${MIMERR}</xsl:attribute>
           <xsl:element name="arg">
-            <xsl:attribute name="value">${EXPRESSARGS}</xsl:attribute>
+            <xsl:attribute name="value">${EXPRESSARG1}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARG2}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARG3}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARG4}</xsl:attribute>
           </xsl:element>
           <xsl:element name="arg">
             <xsl:attribute name="value">${MIMEXPRESS}</xsl:attribute>
           </xsl:element>
-        </xsl:element>
-
-        <xsl:element name="copy">
-          <xsl:attribute name="verbose">true</xsl:attribute>
-          <xsl:attribute name="overwrite">true</xsl:attribute>
-          <xsl:attribute name="file">${EXPRESSDIR}/errors.em</xsl:attribute>  
-          <xsl:attribute name="tofile">${CHECKDIR}/${MIMERRFILE}</xsl:attribute>
         </xsl:element>
 
         <xsl:element name="copy">
@@ -626,31 +630,32 @@ $Id: buildscript.xsl,v 1.12 2005/02/17 22:26:45 thendrix Exp $
     <xsl:value-of select="$schema"/> 
   </xsl:if>
 </xsl:template>
-  <xsl:template match="resource|module|application_protocol|res_doc" mode="list">
-    <xsl:param name="prefix"/>
-    <xsl:param name="suffix"/>
-    <xsl:param name="terminate" select="'YES'"/>
-    <!-- the name of the resource directory should be in lower case -->
-    <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
-    <!-- workaround - only output first occurrence of a module -->
-    <xsl:if test="not(./preceding-sibling::*[@name = $lname])">
-    <xsl:choose>
-      <xsl:when test="$terminate='YES'">
-        <xsl:choose>
-          <xsl:when test="position()=last()">
-            <xsl:value-of select="concat($prefix,$lname,$suffix)"/><xsl:text/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
-      </xsl:otherwise>
-    </xsl:choose>
-    </xsl:if>
-  </xsl:template>
+
+<xsl:template match="resource|module|application_protocol|res_doc" mode="list">
+  <xsl:param name="prefix"/>
+  <xsl:param name="suffix"/>
+  <xsl:param name="terminate" select="'YES'"/>
+  <!-- the name of the resource directory should be in lower case -->
+  <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
+  <!-- workaround - only output first occurrence of a module -->
+  <xsl:if test="not(./preceding-sibling::*[@name = $lname])">
+	<xsl:choose>
+	  <xsl:when test="$terminate='YES'">
+		<xsl:choose>
+		  <xsl:when test="position()=last()">
+			<xsl:value-of select="concat($prefix,$lname,$suffix)"/><xsl:text/>
+		  </xsl:when>
+		  <xsl:otherwise>
+			<xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
+		  </xsl:otherwise>
+		</xsl:choose>
+	  </xsl:when>
+	  <xsl:otherwise>
+		<xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
+	  </xsl:otherwise>
+	</xsl:choose>
+  </xsl:if>
+</xsl:template>
 
 
 

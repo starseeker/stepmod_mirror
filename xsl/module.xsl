@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.74 2002/06/19 16:07:45 robbod Exp $
+$Id: module.xsl,v 1.75 2002/06/30 06:10:16 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1104,7 +1104,8 @@ o=isocs; s=central<br/>
   <xsl:choose>
     <xsl:when test="(./uoflink)">
       <p>
-        This part of ISO 10303 uses the following units of functionality:
+        This part of ISO 10303 also includes the following units of
+        functionality: 
       </p>
       <ul>
         <xsl:apply-templates select="./uoflink" mode="toc"/>
@@ -1115,9 +1116,9 @@ o=isocs; s=central<br/>
         <!--
         This part of ISO 10303 uses no other units of functionality. 
              -->
-        This part of ISO 10303 uses the units of functionality defined in
-        the application modules that are imported with the USE FROM statements
-        specified in clause 4.2  
+        This part of ISO 10303 also includes the units of functionality
+        defined in the application modules that are imported with the USE
+        FROM statements specified in clause 4.2  
       </p>        
     </xsl:otherwise>
   </xsl:choose>
@@ -1924,6 +1925,15 @@ o=isocs; s=central<br/>
               <xsl:value-of select="$normref"/>
             </xsl:if>
           </xsl:when>
+          <xsl:when test="contains($first,'resource:')">
+            <!-- 
+                 NO PRUNING TAKING PLACE - JUST MAKING SURE THAT THE
+                 RESOURCE STAY IN THE LIST -->
+            <xsl:variable 
+              name="resource" 
+              select="substring-after($first,'resource:')"/>
+            <xsl:value-of select="$resource"/>
+          </xsl:when>
           <xsl:otherwise/>
         
         </xsl:choose>
@@ -2022,6 +2032,7 @@ o=isocs; s=central<br/>
   <xsl:call-template name="output_normrefs_rec">
     <xsl:with-param name="normrefs" select="$pruned_normrefs"/>
   </xsl:call-template>  
+
 
   <!-- output a footnote to say that the normative reference has not been
        published -->
@@ -2228,13 +2239,29 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 
 <xsl:template name="output_resource_normref">
   <xsl:param name="resource_schema"/>
+  <xsl:variable name="ir_ok">
+    <xsl:call-template name="check_resource_exists">
+      <xsl:with-param name="schema" select="$resource_schema"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="ir_ref">
+    <xsl:if test="$ir_ok='true'">
+      <xsl:value-of 
+        select="document(concat('../data/resources/',
+                $resource_schema,'/',$resource_schema,'.xml'))/express/@reference"/>
+    </xsl:if>
+  </xsl:variable>
+
   <p>
     <xsl:call-template name="error_message">
       <xsl:with-param name="message">
-        <xsl:value-of select="concat('Error 8: MIM uses schema', 
-                              $resource_schema, 
-                              'Need to include Integrated resource that
-defines it. Use: normref.inc')"/>
+        <xsl:value-of 
+          select="concat('Warning 8: MIM uses schema ', 
+                  $resource_schema, 
+                  'Make sure you include Integrated resource (',
+                  $ir_ref,
+                  ') that defines it as a normative reference. ',
+                  'Use: normref.inc')"/>
       </xsl:with-param>
       <xsl:with-param name="inline" select="'no'"/>
     </xsl:call-template>

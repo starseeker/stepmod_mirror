@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.56 2004/07/14 23:48:41 thendrix Exp $
+     $Id: express_code.xsl,v 1.57 2004/08/12 18:03:07 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -195,7 +195,9 @@
                 <xsl:with-param name="message">
                   <xsl:value-of 
                     select="concat('Error IF-3: The reference parameter for ',
-                            $module,' has not been specified ')"/>
+                            $module,' has not been specified. Add
+                            @reference (e.g. ISO 10303-***) to
+data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
                 </xsl:with-param>
               </xsl:call-template>
             </xsl:otherwise>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.116 2004/08/31 11:04:30 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.117 2004/08/31 11:43:39 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -315,7 +315,9 @@
                 <xsl:with-param name="message">
                   <xsl:value-of 
                     select="concat('Error IF-3: The reference parameter for ',
-                            $module,' has not been specified ')"/>
+                            $module,' has not been specified. Add
+                            @reference (e.g. ISO 10303-***) to
+                            data/resources/',$module,'/',$module,'.xml.')"/>
                 </xsl:with-param>
               </xsl:call-template>
             </xsl:otherwise>

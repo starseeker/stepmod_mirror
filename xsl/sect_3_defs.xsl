@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_3_defs.xsl,v 1.3 2002/01/03 09:29:28 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -24,10 +24,18 @@ $Id: sect_3_defs.xsl,v 1.3 2002/01/03 09:29:28 robbod Exp $
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
   <!-- Output the terms identified in the normative references -->
-  <h3>3 Terms, definitions and abbreviations</h3>
-  <xsl:variable name="next_section">
-
-  </xsl:variable>
+  <a name="defns">
+    <h3>
+      <xsl:choose>
+        <xsl:when test="./definition/term">
+          3 Terms, definitions and abbreviations
+        </xsl:when>
+        <xsl:otherwise>
+          3 Terms and abbreviations
+        </xsl:otherwise>
+      </xsl:choose>
+    </h3>
+  </a>
   <xsl:call-template name="output_terms"/>      
 </xsl:template>
   

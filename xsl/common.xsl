@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.16 2002/01/07 10:13:27 robbod Exp $
+$Id: common.xsl,v 1.17 2002/01/12 08:44:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -211,12 +211,12 @@ $Id: common.xsl,v 1.16 2002/01/07 10:13:27 robbod Exp $
           <xsl:when test="string-length(@part)>0">
             <b>
               <xsl:value-of 
-                select="concat('ISO/',@status,'10303-',@part,':2001(E)')"/>
+                select="concat('ISO/',@status,' 10303-',@part,':2001(E)')"/>
             </b>
           </xsl:when>
           <xsl:otherwise>
             <b>
-              <xsl:value-of select="concat('ISO/',@status,'10303-')"/><font color="#FF0000">XXXX</font>:2001(E)</b>
+              <xsl:value-of select="concat('ISO/',@status,' 10303-')"/><font color="#FF0000">XXXX</font>:2001(E)</b>
       </xsl:otherwise>
     </xsl:choose>
 
@@ -244,13 +244,14 @@ $Id: common.xsl,v 1.16 2002/01/07 10:13:27 robbod Exp $
   <xsl:param name="annex_no"/>
   <xsl:param name="title"/>
   <xsl:param name="aname"/>
+  <xsl:param name="informative" select="'informative'"/>
   <center>
     <h3>
       <A NAME="{$aname}">
         <xsl:value-of select="concat('Annex ', $annex_no)"/>
       </A>
     </h3>
-    (informative)
+    (<xsl:value-of select="$informative"/>)
     <h3><xsl:value-of select="$heading"/></h3>
   </center>
 </xsl:template>
@@ -456,6 +457,19 @@ $Id: common.xsl,v 1.16 2002/01/07 10:13:27 robbod Exp $
     </xsl:otherwise>
   </xsl:choose>  
 </xsl:template>
+
+<xsl:template match="b">
+  <b>
+    <xsl:apply-templates/>
+  </b>
+</xsl:template>
+
+<xsl:template match="i">
+  <i>
+    <xsl:apply-templates/>
+  </i>
+</xsl:template>
+
 
 <!-- subscript -->
 <xsl:template match="sub" >

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_a_short_names.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.2 2001/12/21 09:39:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -25,6 +25,7 @@ $Id: sect_a_short_names.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
     <xsl:with-param name="annex_no" select="'A'"/>
     <xsl:with-param name="heading" select="'MIM short names'"/>
     <xsl:with-param name="aname" select="'annexa'"/>
+    <xsl:with-param name="informative" select="'normative'"/>
   </xsl:call-template>
 
   Entity names in this part of ISO 10303 have been defined in other parts of

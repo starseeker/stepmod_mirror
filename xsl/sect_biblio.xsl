@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_biblio.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
+$Id: sect_biblio.xsl,v 1.2 2002/01/03 12:22:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -26,8 +26,17 @@ $Id: sect_biblio.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
       <A NAME="bibliography">Bibliography</A>
     </h3>
   </center>
-
-  <xsl:apply-templates select="./bibliography"/>
+  
+  <xsl:choose>
+    <xsl:when test="./bibliography">
+      <xsl:apply-templates select="./bibliography"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <!-- output the defaults -->
+      <xsl:apply-templates 
+        select="document('../data/basic/bibliography_default.xml')/bibliography/bibitem.inc"/>      
+    </xsl:otherwise>
+  </xsl:choose>
 
 </xsl:template>
   

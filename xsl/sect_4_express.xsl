@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.4 2001/11/21 15:37:28 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.5 2001/12/21 09:39:59 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -241,7 +241,7 @@
   </xsl:if>
 
   <xsl:if test="position()=1">
-    <p><u>EXPRESS specification</u></p>
+    <p><u>EXPRESS specification:</u></p>
     *)
     <blockquote>
       <code>
@@ -280,7 +280,7 @@
     </p>
 
     <!-- output EXPRESS -->
-    <p><u>EXPRESS specification</u></p>
+    <p><u>EXPRESS specification:</u></p>
     *)
     <blockquote>
       <code>
@@ -378,7 +378,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
-  <p><u>EXPRESS specification</u></p>
+  <p><u>EXPRESS specification:</u></p>
   *)
   <blockquote>
     <code>
@@ -525,7 +525,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
-  <p><u>EXPRESS specification</u></p>
+  <p><u>EXPRESS specification:</u></p>
   *)
   <blockquote>
     <code>
@@ -682,7 +682,7 @@
 
 <xsl:template match="explicit" mode="description">
   <xsl:if test="position()=1">
-    <p><u>Attributes definitions</u></p>
+    <p><u>Attribute definitions:</u></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -719,7 +719,7 @@
        there are no explicit attribute - if there were then Attribute
        definitions" would have already been output -->
   <xsl:if test="position()=1 and not(../explicit)">
-    <p><u>Attributes definitions</u></p>
+    <p><u>Attribute definitions:</u></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -754,7 +754,7 @@
 <xsl:template match="inverse" mode="description">
 
   <xsl:if test="position()=1 and not(../explicit | ../derived)">
-    <p><u>Attributes definitions</u></p>
+    <p><u>Attribute definitions:</u></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -928,7 +928,7 @@
     </xsl:choose>
 
   <!-- output the EXPRESS -->
-  <p><u>EXPRESS specification</u></p>
+  <p><u>EXPRESS specification:</u></p>
   *)
   <blockquote>
     <code>
@@ -1015,7 +1015,7 @@
     </xsl:choose>
 
   <!-- output the EXPRESS -->
-  <p><u>EXPRESS specification</u></p>
+  <p><u>EXPRESS specification:</u></p>
   *)
   <blockquote>
     <code>
@@ -1129,7 +1129,7 @@
     </xsl:choose>
 
   <!-- output the EXPRESS -->
-  <p><u>EXPRESS specification</u></p>
+  <p><u>EXPRESS specification:</u></p>
   *)
   <blockquote>
     <code>

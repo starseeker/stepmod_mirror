@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.19 2002/01/06 08:46:40 robbod Exp $
+$Id: module.xsl,v 1.20 2002/01/12 08:45:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1153,6 +1153,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
                               'Need to include Integrated resource that
 defines it. Use: normref.inc')"/>
       </xsl:with-param>
+      <xsl:with-param name="inline" select="'no'"/>
     </xsl:call-template>
   </p>
 </xsl:template>
@@ -1391,14 +1392,15 @@ defines it. Use: normref.inc')"/>
             select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$ref]"/>
 
           <!-- get the number of the standard -->      
-          <xsl:variable name="stdnumber" select="$normref/stdref/stdnumber"/>
-          
+          <xsl:variable name="stdnumber" 
+            select="concat($normref/stdref/orgname, ' ',$normref/stdref/stdnumber)"/>
+
           <!-- output the section header for the normative reference that is
                defining terms -->
           
           <h3>
             <xsl:value-of select="concat('3.',$section_no,
-                                  ' Terms defined in ', $stdnumber)"/>
+                                  ' Terms defined in ',$stdnumber)"/>
           </h3>
           For the purposes of this part of ISO 10303, 
           the following terms defined in 
@@ -1656,7 +1658,7 @@ defines it. Use: normref.inc')"/>
 
     <xsl:variable name="orgname" select="'ISO'"/>
     <xsl:variable name="stdnumber"
-      select="concat('10303-',$part,':',$pub_year,'(',$language,') ')"/>
+      select="concat($orgname,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
     <xsl:value-of select="$stdnumber"/>
 </xsl:template>
 
@@ -1697,7 +1699,14 @@ defines it. Use: normref.inc')"/>
 
     <xsl:choose>
       <xsl:when test="$term">
-        <li><xsl:apply-templates select="$term"/></li>
+        <xsl:choose>
+          <xsl:when test="position()=last()">
+            <li><xsl:apply-templates select="$term"/>.</li>
+          </xsl:when>
+          <xsl:otherwise>
+            <li><xsl:apply-templates select="$term"/>.</li>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <li>
@@ -1721,7 +1730,14 @@ defines it. Use: normref.inc')"/>
       select="document('../data/basic/normrefs.xml')/normref.list/normref/term[@id=$ref]"/>
     <xsl:choose>
       <xsl:when test="$term">
-        <li><xsl:apply-templates select="$term"/></li>
+        <xsl:choose>
+          <xsl:when test="position()=last()">
+            <li><xsl:apply-templates select="$term"/>.</li>
+          </xsl:when>
+          <xsl:otherwise>
+            <li><xsl:apply-templates select="$term"/>;</li>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <li>

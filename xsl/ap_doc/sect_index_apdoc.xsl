@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_apdoc.xsl,v 1.2 2003/10/17 15:09:41 robbod Exp $
+	$Id: sect_index_apdoc.xsl,v 1.3 2004/10/21 14:48:23 nigelshaw Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -69,9 +69,10 @@
     <h2>
       <A NAME="index">Index</A>
     </h2>
-
     <p>
-	    Additional <A href="frame_index{$FILE_EXT}" target="index">navigation indices</A> are also provided for this application protocol. The index provided here presents the terms defined in this part of ISO 10303 and the application activity model.
+      The index provided here is for this part of ISO 10303. Additional 
+      <A href="frame_index{$FILE_EXT}" target="index">navigation indices</A>
+      are also provided for the components that are used in this Application protocol.
     </p>
     
     <xsl:choose>

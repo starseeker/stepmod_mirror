@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.60 2002/08/14 06:45:28 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.61 2002/08/14 14:08:55 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -459,7 +459,7 @@
           <xsl:value-of select="concat($clause_number, ' ARM constant definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS constants')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM constant defnitions')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -588,7 +588,7 @@
         <xsl:value-of select="concat($clause_number, ' ARM type definitions')"/>
       </xsl:when>
       <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS types')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM type definitions')"/>
       </xsl:when>
     </xsl:choose>      
   </xsl:variable>
@@ -808,7 +808,7 @@
           <xsl:value-of select="concat($clause_number, ' ARM entity definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS entities')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM entity definitions')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1406,7 +1406,7 @@
           <xsl:value-of select="concat($clause_number, ' ARM subtype constraint definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS subtype constraints')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM subtype constraints')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1507,7 +1507,7 @@
           <xsl:value-of select="concat($clause_number, ' ARM function definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS functions')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM function defnitions')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1606,7 +1606,7 @@
           <xsl:value-of select="concat($clause_number, ' ARM procedure definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS procedures')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM procedure definitions')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1790,7 +1790,7 @@
           <xsl:value-of select="concat($clause_number, ' ARM rule definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS rules')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM rule definitions')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>

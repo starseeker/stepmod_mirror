@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.8 2002/08/09 08:55:52 robbod Exp $
+$Id: sect_contents.xsl,v 1.9 2002/08/12 11:57:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -11,7 +11,10 @@ $Id: sect_contents.xsl,v 1.8 2002/08/09 08:55:52 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-  <xsl:import href="module.xsl"/>
+  <!-- just imported for 
+    <xsl:apply-templates select="." mode="map_attr_aname"/>  
+    -->
+  <xsl:import href="sect_5_mapping.xsl"/>
 
   <!-- 
        the stylesheet that allows different stylesheets to be applied 
@@ -818,13 +821,19 @@ $Id: sect_contents.xsl,v 1.8 2002/08/09 08:55:52 robbod Exp $
 
 <xsl:template match="ae" mode="toc">
   <xsl:variable name="ae_aname" select="@entity"/>
+
+  <xsl:variable name="ae_map_aname">
+    <xsl:apply-templates select="." mode="map_attr_aname"/>  
+  </xsl:variable>
+
   <xsl:variable 
     name="ae_xref"
-    select="concat('./5_mapping',$FILE_EXT,'#',$ae_aname)"/>
+    select="concat('./5_mapping',$FILE_EXT,'#',$ae_map_aname)"/>
 
   <xsl:variable name="sect_no">
     <xsl:number/>
   </xsl:variable>
+
   <p class="content">
     &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
     <a href="{$ae_xref}">

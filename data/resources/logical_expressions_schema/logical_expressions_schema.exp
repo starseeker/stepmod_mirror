@@ -1,0 +1,135 @@
+SCHEMA logical_expressions_schema; 
+
+REFERENCE FROM iso13584_expressions_schema   -- ISO 13584
+  (defined_fucntion,
+   expression_X); 
+
+REFERENCE FROM iso13584_generic_expressions_schema   -- ISO 13584
+  (binary_generic_expression,
+   generic_expression,
+   generic_literal,
+   generic_variable,
+   simple_generic_expression,
+   unary_generic_expression); 
+
+REFERENCE FROM iso13584_iec61360_dictionary_schema   -- ISO 13584-42
+  (entity_instance_type); 
+
+
+ENTITY binary_logical_expression
+  SUPERTYPE OF (ONEOF (instance_equal,
+                       logical_xor))
+  SUBTYPE OF (binary_generic_expression, logical_expression);
+END_ENTITY;
+
+ENTITY default_boolean_literal
+  SUBTYPE OF (logical_literal);
+  SELF\logical_literal.the_value : BOOLEAN;
+END_ENTITY;
+
+ENTITY default_boolean_variable
+  SUBTYPE OF (logical_variable);
+END_ENTITY;
+
+ENTITY instance_equal
+  SUBTYPE OF (binary_logical_expression);
+END_ENTITY;
+
+ENTITY logical_and
+  SUBTYPE OF (multiple_arity_logical_expression);
+END_ENTITY;
+
+ENTITY logical_comparison
+  SUPERTYPE OF (ONEOF (logical_comparison_equal,
+                       logical_greater,
+                       logical_greater_equal,
+                       logical_less,
+                       logical_less_equal,
+                       logical_like,
+                       logical_not_equal,
+                       user_defined_logical_comparison))
+  SUBTYPE OF (binary_generic_expression, logical_expression);
+  SELF\generic_literal.operands_2 RENAMED specified_value : generic_literal;
+  SELF\.operands RENAMED the_parameter : generic_variable;
+END_ENTITY;
+
+ENTITY logical_comparison_equal
+  SUBTYPE OF (logical_comparison);
+END_ENTITY;
+
+ENTITY logical_expression
+  SUPERTYPE OF (ONEOF (binary_logical_expression,
+                       logical_comparison,
+                       multiple_arity_logical_expression,
+                       simple_logical_expression,
+                       unanry_logical_expression))
+  SUBTYPE OF (expression_X);
+END_ENTITY;
+
+ENTITY logical_greater
+  SUBTYPE OF (logical_comparison);
+END_ENTITY;
+
+ENTITY logical_greater_equal
+  SUBTYPE OF (logical_comparison);
+END_ENTITY;
+
+ENTITY logical_less
+  SUBTYPE OF (logical_comparison);
+END_ENTITY;
+
+ENTITY logical_less_equal
+  SUBTYPE OF (logical_comparison);
+END_ENTITY;
+
+ENTITY logical_like
+  SUBTYPE OF (logical_comparison);
+END_ENTITY;
+
+ENTITY logical_literal
+  SUBTYPE OF (generic_literal, simple_logical_expression);
+  the_value : LOGICAL;
+END_ENTITY;
+
+ENTITY logical_not
+  SUBTYPE OF (unanry_logical_expression);
+END_ENTITY;
+
+ENTITY logical_not_equal
+  SUBTYPE OF (logical_comparison);
+END_ENTITY;
+
+ENTITY logical_or
+  SUBTYPE OF (multiple_arity_logical_expression);
+END_ENTITY;
+
+ENTITY logical_variable
+  SUBTYPE OF (generic_variable, simple_logical_expression);
+END_ENTITY;
+
+ENTITY logical_xor
+  SUBTYPE OF (binary_logical_expression);
+END_ENTITY;
+
+ENTITY multiple_arity_logical_expression
+  SUPERTYPE OF (ONEOF (logical_and,
+                       logical_or))
+  SUBTYPE OF (logical_expression, multiple_arity_generic_expression);
+END_ENTITY;
+
+ENTITY simple_logical_expression
+  SUBTYPE OF (logical_expression, simple_generic_expression);
+END_ENTITY;
+
+ENTITY unanry_logical_expression
+  SUBTYPE OF (logical_expression, unary_generic_expression);
+END_ENTITY;
+
+ENTITY user_defined_logical_comparison
+  SUBTYPE OF (logical_comparison);
+  declaration : STRING;
+  description : STRING;
+  language : OPTIONAL STRING;
+END_ENTITY;
+
+END_SCHEMA;  -- logical_expressions_schema

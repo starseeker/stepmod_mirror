@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-23T09:41:36" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-24T15:06:27" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="package_arm schema_instance"/>
    <schema name="Package_arm">
       <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
@@ -12,9 +12,6 @@
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
       <interface kind="use" schema="Part_feature_function_arm"/>
       <interface kind="use" schema="Part_feature_location_arm"/>
-      <type name="lead_form_type">
-         <select selectitems="predefined_lead_form External_item_identification"/>
-      </type>
       <type name="mounting_technology_type">
          <enumeration items="surface_mount through_hole"/>
       </type>
@@ -67,7 +64,7 @@
             <typename name="Length_data_element"/>
          </explicit>
          <explicit name="surface_mount_lead_form" optional="YES">
-            <typename name="lead_form_type"/>
+            <typename name="predefined_lead_form"/>
          </explicit>
          <explicit name="nominal_mounting_lead_pitch" optional="YES">
             <typename name="Length_data_element"/>
@@ -111,6 +108,9 @@
          <inverse name="body" entity="Package_body" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
+         <inverse name="external_surface_mount_lead_form" entity="External_source_identification" attribute="item">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <inverse name="package_seating_plane" entity="Non_feature_shape_element" attribute="scope"/>
          <inverse name="interface_plane" entity="Non_feature_shape_element" attribute="scope">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
@@ -144,6 +144,7 @@
          <where label="WR12" expression=" NOT ( SIZEOF ( interface_plane ) &gt; 0 ) OR ( SIZEOF ( QUERY ( ip &lt;* interface_plane | NOT ( package_seating_plane &lt;&gt; ip ) ) ) = 0 ) "/>
          <where label="WR13" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ product_view_definition . defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . name = 'package' ) ) ) &gt; 0 "/>
          <where label="WR15" expression=" SIZEOF ( QUERY ( pa &lt;* package_accesses | 'AP210_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF ( pa ) ) ) = 1 "/>
+         <where label="WR16" expression=" ( EXISTS ( surface_mount_lead_form ) ) OR ( ( SIZEOF ( external_surface_mount_lead_form ) ) = 1 ) "/>
       </entity>
       <entity name="Package_body" supertypes="Part_feature">
          <explicit name="associated_definition">

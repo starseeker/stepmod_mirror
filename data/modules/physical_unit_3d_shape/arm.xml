@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-23T09:41:37" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-24T15:06:27" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_3d_shape_arm schema_instance"/>
    <schema name="Physical_unit_3d_shape_arm">
       <interface kind="use" schema="Physical_unit_shape_with_parameters_arm"/>
@@ -18,21 +18,22 @@
       <type name="shape_class">
          <enumeration items="extrusion manhattan_block other is_unknown"/>
       </type>
-      <type name="three_d_purpose">
-         <select selectitems="predefined_3d_purpose External_item_identification"/>
-      </type>
       <entity name="Physical_unit_3d_keepout_shape" supertypes="View_level_non_feature_shape_definition Physical_unit_keepout_shape">
          <explicit name="shape_classification">
             <typename name="shape_class"/>
          </explicit>
       </entity>
       <entity name="Physical_unit_3d_shape" supertypes="Feature_shape_definition Physical_unit_shape">
-         <explicit name="shape_purpose">
-            <typename name="three_d_purpose"/>
+         <explicit name="shape_purpose" optional="YES">
+            <typename name="predefined_3d_purpose"/>
          </explicit>
          <explicit name="shape_classification">
             <typename name="shape_class"/>
          </explicit>
+         <inverse name="external_shape_purpose" entity="External_source_identification" attribute="item">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <where label="WR1" expression=" ( EXISTS ( shape_purpose ) ) XOR ( ( SIZEOF ( external_shape_purpose ) ) = 1 ) "/>
       </entity>
    </schema>
 </express>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.35 2002/05/03 08:04:30 robbod Exp $
+$Id: common.xsl,v 1.36 2002/05/15 09:06:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -108,6 +108,7 @@ $Id: common.xsl,v 1.35 2002/05/03 08:04:30 robbod Exp $
   <!-- output RCS version control information -->
 <xsl:template name="rcs_output">
   <xsl:param name="module" select="@name"/>
+  <xsl:param name="fldr_icon" select="'../../../../images/folder.gif'"/>
   <xsl:if test="$output_rcs">
     <xsl:variable name="mod_dir">
       <xsl:call-template name="module_directory">
@@ -123,15 +124,16 @@ $Id: common.xsl,v 1.35 2002/05/03 08:04:30 robbod Exp $
         name="module_date"
         select="translate(document($module_file)/module/@rcs.date,'$','')"/>
       <xsl:variable
-      name="module_rev"
+        name="module_rev"
         select="translate(document($module_file)/module/@rcs.revision,'$','')"/>
       <tr>
         <td>
+
           <a href="..">
             <img alt="module folder" 
               border="0"
               align="middle"
-              src="../../../../images/folder.gif"/>
+              src="{$fldr_icon}"/>
           </a>&#160;&#160;
         </td>
         <td>
@@ -202,9 +204,15 @@ $Id: common.xsl,v 1.35 2002/05/03 08:04:30 robbod Exp $
   <!-- the entry that has been selected -->
   <xsl:param name="selected"/>
 
+  <!-- the path of the fldr icon - needed for files not in sys directory 
+       e.g. armexpg1.xml
+       -->
+  <xsl:param name="fldr_icon" select="'../../../../images/folder.gif'"/>
+
   <!-- output RCS version control information -->
   <xsl:call-template name="rcs_output">
     <xsl:with-param name="module" select="@name"/>
+    <xsl:with-param name="fldr_icon" select="$fldr_icon"/>
   </xsl:call-template>
   
   <TABLE cellspacing="0" border="0" width="100%">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.7 2002/05/13 17:01:35 robbod Exp $
+$Id: imgfile.xsl,v 1.8 2002/05/14 07:51:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -50,14 +50,22 @@ $Id: imgfile.xsl,v 1.7 2002/05/13 17:01:35 robbod Exp $
         </xsl:choose>
       </xsl:variable>
 
-
-      <h3>
-        <a href="{$href}">
-          application module: <xsl:value-of select="@module"/>
-        </a>
-      </h3>
       <xsl:choose>
         <xsl:when test="@module">
+          <xsl:variable name="module_dir">
+            <xsl:call-template name="module_directory">
+              <xsl:with-param name="module" select="@module"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:variable name="module_file"
+            select="concat($module_dir,'/module.xml')"/>
+
+        <xsl:apply-templates 
+          select="document($module_file)/module"
+          mode="TOCbannertitle">
+          <xsl:with-param name="fldr_icon" select="'../../../images/folder.gif'"/>
+        </xsl:apply-templates>
+
           <!-- only proceed if a module is specified -->
           <small>
             <A HREF="../../../repository_index{$FILE_EXT}">
@@ -87,6 +95,13 @@ $Id: imgfile.xsl,v 1.7 2002/05/13 17:01:35 robbod Exp $
           </small>
           <br/>
         </xsl:when>
+        <xsl:otherwise>
+          <h3>
+            <a href="{$href}">
+              application module: <xsl:value-of select="@module"/>
+          </a>
+        </h3>
+        </xsl:otherwise>
       </xsl:choose>      
       <xsl:apply-templates select="img"/>
       <center><h3><xsl:value-of select="@title"/></h3></center>

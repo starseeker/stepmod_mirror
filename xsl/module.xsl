@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.173 2004/11/08 09:22:13 robbod Exp $
+$Id: module.xsl,v 1.174 2004/11/09 12:06:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3227,12 +3227,26 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       </xsl:choose>
     </xsl:variable>
 
-    <xsl:variable name="stdnumber">
-      <xsl:call-template name="get_module_stdnumber">
-        <xsl:with-param name="module" select="."/>
-      </xsl:call-template>
+
+    <!-- 
+         Note, if the standard has a status of CD or CD-TS it has not been
+         published - so overide what ever is the @publication.year 
+         -->
+    <xsl:variable name="pub_year">
+      <xsl:choose>
+        <xsl:when test="@status='CD' or @status='CD-TS'">&#8212;</xsl:when>
+        <xsl:when test="@published='n'">&#8212;</xsl:when>
+        <xsl:when test="string-length(@publication.year)">
+          <xsl:value-of select="@publication.year"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;publication.year&gt;
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
 
+    <xsl:variable name="isonumber"
+      select="concat('ISO/',@status,' 10303-',@part,':',$pub_year)"/>
     
     <xsl:variable name="stdtitle"
       select="concat('Industrial automation systems and integration ',
@@ -3247,8 +3261,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
     <xsl:variable name="subtitle"
       select="concat('&#8212; Part ',$part,': Application module: ', $module_name,'.')"/>
     
-
-    <xsl:value-of select="$stdnumber"/>
+    <xsl:value-of select="$isonumber"/>
 
     <xsl:choose>
       <!-- if the module is a TS or IS module and is referring to a 

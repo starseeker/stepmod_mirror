@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.17 2002/04/21 15:05:18 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.18 2002/05/15 09:10:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -192,10 +192,24 @@ NOT USED
       <small>
         <xsl:choose>
           <xsl:when test="@assertion_to">
-            <xsl:value-of select="../@entity"/> 
+
+            <xsl:variable name="ae_aname">
+              <xsl:call-template name="express_a_name">
+                <xsl:with-param name="section1" select="$schema_name"/>
+                <xsl:with-param name="section2" select="../@entity"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="ae_xref"
+              select="concat('./4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
+            <a href="{$ae_xref}">
+              <xsl:value-of select="../@entity"/>
+            </a>
             to 
             <xsl:value-of select="@assertion_to"/><br/>
-            (as <xsl:value-of select="@attribute"/>)
+            (as             
+            <a href="{$aa_xref}">
+              <xsl:value-of select="@attribute"/>
+            </a>)
           </xsl:when>
           <xsl:otherwise>
             <a href="{$aa_xref}">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.22 2003/03/16 01:26:38 thendrix Exp $
+$Id: resource.xsl,v 1.23 2003/03/27 01:53:18 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -523,12 +523,12 @@ o=isocs; s=central<br/>
 <xsl:template match="abstract">
   <xsl:variable name="resdoc_name">
     <xsl:call-template name="res_display_name">
-      <xsl:with-param name="resource" select="/resource/@name"/>
+      <xsl:with-param name="res" select="/resource/@name"/>
     </xsl:call-template>           
   </xsl:variable>
 
   <P>
-    This part of ISO 10303 specifies the application module for 
+    This part of ISO 10303 specifies the generic resource for 
     <xsl:value-of select="$resdoc_name"/>.
   </P>
   <P>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.7 2004/11/10 00:52:58 thendrix Exp $
+     $Id: express_code.xsl,v 1.8 2004/11/10 00:57:31 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -47,7 +47,9 @@
   <xsl:apply-templates select="./constant" mode="code"/>
   <xsl:apply-templates select="./type" mode="code"/>
   <xsl:apply-templates select="./entity" mode="code"/>
-  <xsl:apply-templates select="./subtype.constraint" mode="code"/>
+  <xsl:apply-templates select="./subtype.constraint" mode="code">
+    <xsl:sort select="@name"/>
+  </xsl:apply-templates>
   <xsl:apply-templates select="./rule" mode="code"/>
   <xsl:apply-templates select="./function" mode="code"/>
   <xsl:apply-templates select="./procedure" mode="code"/>
@@ -150,6 +152,19 @@
 
           <xsl:choose>
             <xsl:when test="string-length($reference)>0">
+              <xsl:if test="not(starts-with($reference,'ISO 10303-')) and
+                            not(starts-with($reference,'ISO 13584-')) and
+                            not(starts-with($reference,'ISO 15926-'))">
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="message">
+                  <xsl:value-of select="concat('Error IF-3a: The reference parameter for ',
+                            $resource,' is incorrectly specified. It should
+                    be of the form ISO 10303-*** (or ISO 13584-*** or ISO 15926-***) . Change @reference in
+                            data/resources/',$resource,'/',$resource,'.xml.')"/>
+                  </xsl:with-param>
+                </xsl:call-template>
+              </xsl:if>
+
               <xsl:value-of select="concat('&#160;&#160;&#160;-- ',$reference)"/>
             </xsl:when>
             <xsl:otherwise>
@@ -157,7 +172,9 @@
                 <xsl:with-param name="message">
                   <xsl:value-of 
                     select="concat('Error IF-3: The reference parameter for ',
-                            $resource,' has not been specified ')"/>
+                            $resource,' has not been specified ','Add
+                            @reference (e.g. ISO 10303-***) to
+data/resources/',$resource,'/',$resource,'.xml.')"/>
                 </xsl:with-param>
               </xsl:call-template>
             </xsl:otherwise>
@@ -274,7 +291,11 @@
 
 
 <xsl:template match="builtintype" mode="underlying">
-  <xsl:value-of select="@type" />
+  	<xsl:value-of select="@type" />
+	<xsl:variable name="type_label" select="@typelabel"/>
+	<xsl:if test="$type_label">
+		<xsl:value-of select="concat( ' : ', $type_label)"/>
+	</xsl:if>
 </xsl:template>
 
 
@@ -375,7 +396,8 @@
   <xsl:apply-templates select="./derived" mode="code"/>
   <xsl:apply-templates select="./inverse" mode="code"/>
   <xsl:apply-templates select="./unique" mode="code"/>
-  <xsl:call-template name="output_where_formal"/>
+  <xsl:apply-templates select="./where[@expression]" mode="code"/>
+  <!--   <xsl:call-template name="output_where_formal"/> -->
   END_ENTITY;<br/>
 </code>
 </xsl:template>
@@ -519,9 +541,6 @@
 
 <xsl:template match="inverse.aggregate" mode="code">
   <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
-  <xsl:if test="@unique='YES'">
-    UNIQUE
-  </xsl:if>
 </xsl:template>
 
 <xsl:template match="unique" mode="code">
@@ -542,9 +561,24 @@
 
 
 <xsl:template match="unique.attribute" mode="code">
+  <xsl:variable name="suffix">
+    <xsl:choose>
+      <xsl:when test="position()!=last()">
+        <xsl:value-of select="', '"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="';'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
   <xsl:choose>
-    <xsl:when test="position()!=last()">
-      <xsl:value-of select="concat(@attribute,', ')"/>
+    <xsl:when test="@entity-ref">
+      SELF\<xsl:call-template name="link_object">
+      <xsl:with-param name="object_name" select="@entity-ref"/>
+      <xsl:with-param name="object_used_in_schema_name" 
+        select="../../@name"/>
+      <xsl:with-param name="clause" select="'annexe'"/>
+    </xsl:call-template><xsl:value-of select="concat('.',@attribute,$suffix)"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:value-of select="concat(@attribute,';')"/>

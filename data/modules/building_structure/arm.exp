@@ -1,12 +1,18 @@
 (*
-   $Id: arm.exp,v 1.2 2002/11/29 13:18:34 whaas Exp $
+   $Id: arm.exp,v 1.3 2002/12/16 14:30:26 whaas Exp $
    N - ISO/CD-TS - 10303- building_structure - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Building_structure_arm;
 
+USE FROM Approval_arm;
+
 USE FROM Building_item_arm;
 
+USE FROM Person_organization_assignment_arm;
+
 USE FROM Product_view_definition_arm;
+
+USE FROM Product_view_definition_relationship_arm;
 
 TYPE assembly_functional_type = ENUMERATION OF
 	(roof,
@@ -27,6 +33,10 @@ END_TYPE;
 TYPE assembly_type_name = STRING;
 END_TYPE;
 
+TYPE building_organization_or_person_in_organization_item = SELECT BASED_ON organization_or_person_in_organization_item WITH
+(Building);
+END_TYPE;
+
 TYPE relationship_functional_type = ENUMERATION OF
 	(space_to_element,
 	 penetration,
@@ -43,9 +53,7 @@ END_TYPE;
 
 ENTITY Building
 	SUBTYPE OF (Product_view_definition);
-	address : OPTIONAL STRING;
-	owner : STRING;
-	status : STRING;
+	status : Approval_status;
 END_ENTITY;
 
 ENTITY Building_level
@@ -53,14 +61,20 @@ ENTITY Building_level
 	SUBTYPE OF (Product_view_definition);
 END_ENTITY;
 
-ENTITY Building_level_assignment;
-	assigned_level : Building_level;
-	assigned_items : SET [1:?] OF Building_item;
+ENTITY Building_level_assignment
+	SUBTYPE OF (View_definition_relationship);
+	SELF\View_definition_relationship.related_view RENAMED assigned_item : Building_item;
+	SELF\View_definition_relationship.relating_view RENAMED assigned_level : Building_level;
+END_ENTITY;
+
+ENTITY Building_organization_or_person_in_organization_assignment
+	SUBTYPE OF (organization_or_person_in_organization_assignment);
+	SELF\organization_or_person_in_organization_assignment.items : building_organization_or_person_in_organization_item;
 END_ENTITY;
 
 ENTITY Building_section
 	SUBTYPE OF (Product_view_definition);
-	status : STRING;
+	status : Approval_status;
 END_ENTITY;
 
 ENTITY Item_assembly
@@ -69,10 +83,11 @@ ENTITY Item_assembly
 	components : SET [1:?] OF assembly_item;
 END_ENTITY;
 
-ENTITY Item_proximity_relationship;
-	items_in_proximity : SET [1:?] OF Building_item;
-	item : Building_item;
-	relationship_type : relationship_type;
+ENTITY Item_proximity_relationship
+	SUBTYPE OF (View_definition_relationship);
+	SELF\View_definition_relationship.related_view RENAMED item : Building_item;
+	SELF\View_definition_relationship.relating_view RENAMED item_in_proximity : Building_item;
+	SELF\View_definition_relationship.relation_type RENAMED relationship_type : relationship_type;
 END_ENTITY;
 
 ENTITY Sublevel

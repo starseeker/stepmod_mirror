@@ -1,6 +1,43 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
-   N - ISO/CD-TS - 10303- extended_elemental_geometric_shape - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
+   $Id: mim.exp,v 1.1 2005/01/06 09:21:37 budreckytej Exp $
+   ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Extended elemental geometric shape - EXPRESS MIM
+*)
+
+
 SCHEMA Extended_elemental_geometric_shape_mim;
+	USE FROM Basic_geometry_mim;
+	
+	USE FROM Representation_schema(
+		mapped_item,
+		representation_item_relationship,
+		representation_map,
+		representation_relationship_with_transformation,
+		transformation);
+		
+	USE FROM Geometry_schema(
+		vector);	
+	
+ENTITY shape_item_relationship
+  SUBTYPE OF (representation_item, representation_item_relationship);
+UNIQUE
+  UR1: SELF\representation_item_relationship.relating_representation_item, 
+       SELF\representation_item_relationship.related_representation_item;
+WHERE
+  WR1: SELF\representation_item_relationship.relating_representation_item :<>: 
+       SELF\representation_item_relationship.related_representation_item;
+  WR2: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation_item ||
+       SELF\representation_item_relationship || 
+       SELF\shape_item_relationship))) = 0;
+END_ENTITY; 
+
+RULE feature_shape_definition_constraint FOR (
+         shape_representation);
+WHERE
+  WR1: SIZEOF(QUERY(sr <* shape_representation |
+       (sr\representation.name = 'zone shape')
+       AND (sr.context_of_items.coordinate_space_dimension = 3)
+       AND NOT('EXTENDED_ELEMENTAL_GEOMETRIC_SHAPE_MIM.'
+       + 'MANIFOLD_SUBSURFACE_SHAPE_REPRESENTATION' IN TYPEOF(sr)))) = 0;
+END_RULE;
+	
 END_SCHEMA;

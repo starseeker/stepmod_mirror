@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.30 2002/06/25 10:19:16 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.31 2002/06/28 10:19:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -499,11 +499,11 @@ $Id: sect_5_mapping.xsl,v 1.30 2002/06/25 10:19:16 robbod Exp $
 
   <!--  check that the attribut exists in the arm -->
   <xsl:if
-    test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit[@name=$arm_attr] or document($arm_xml)/express/schema/entity[@name=$arm_entity]/derived[@name=$arm_attr])">
+    test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit[@name=$arm_attr])">
     <xsl:call-template name="error_message">
       <xsl:with-param name="message"
         select="concat('Error m1: The attribute ', ../@entity,'.',@attribute 
-                ' does not exist in the arm')"/>
+                ' does not exist in the arm as an expilcit attribute')"/>
     </xsl:call-template>
   </xsl:if>
 

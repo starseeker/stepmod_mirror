@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.3 2002/06/24 15:47:56 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.4 2002/06/28 10:19:56 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -40,7 +40,7 @@ $Id: sect_5_mapping_check.xsl,v 1.3 2002/06/24 15:47:56 robbod Exp $
       </xsl:when>
     <xsl:otherwise>
       <!-- check that all the attributes have been mapped -->      
-      <xsl:for-each select="./explicit|derived">
+      <xsl:for-each select="./explicit">
         <xsl:variable name="arm_attr" select="@name"/>
         <xsl:if test="not($aa_nodes[@attribute=$arm_attr])">
           <xsl:call-template name="error_message">

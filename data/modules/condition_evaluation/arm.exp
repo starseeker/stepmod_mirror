@@ -1,41 +1,51 @@
 (*
-$Id: arm.exp,v 1.2 2003/01/10 08:23:13 robbod Exp $
+$Id: arm.exp,v 1.3 2003/01/14 22:56:00 leifgyllstrom Exp $
 ISO TC184/SC4/WG12 N1430 - ISO/CD-TS 10303-1254 Condition evaluation - EXPRESS ARM
 *) 
 
+SCHEMA Condition_evaluation_arm;
 
-SCHEMA Condition_evaluation_arm; 
+USE FROM Classification_assignment_arm;
 
-USE FROM Condition_arm;    -- ISO/CD-TS 10303-1253
+USE FROM Condition_arm;
 
-USE FROM Condition_criteria_arm;    -- ISO/CD-TS 10303-1296
+TYPE condition_assignment_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+(Condition_evaluation,
+ Condition_evaluation_assignment);
+END_TYPE;
 
-USE FROM Expression_applications_arm;    -- ISO/CD-TS 10303-1273
+TYPE condition_evaluation_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
 
+TYPE evaluation_parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
 
-ENTITY Condition_assertion
-  SUBTYPE OF (Evaluation_record);
-  SELF\Value_record.value_recorded RENAMED assertion : Logical_assertion;
-  SELF\Value_record.expression_evaluated RENAMED condition : Condition;
-  SELF\Value_record.value_context RENAMED object_evaluated : OPTIONAL Entity_instance_reference;
+ENTITY Condition_evaluation;
+name : STRING;
+description : OPTIONAL STRING;
+condition : Condition;
+evaluation_parameter : OPTIONAL evaluation_parameter_item;
+result : LOGICAL;
 END_ENTITY;
 
-ENTITY Criterion_evaluation_result
-  SUBTYPE OF (Evaluation_record);
-  SELF\Value_record.expression_evaluated RENAMED criterion : Criterion;
-  SELF\Value_record.value_recorded RENAMED evaluation_result : Logical_assertion;
+ENTITY Condition_evaluation_assignment;
+assigned_condition_evaluation : Condition_evaluation;
+item : condition_evaluation_item;
 END_ENTITY;
 
-ENTITY Evaluation_record
-  SUPERTYPE OF (ONEOF (Condition_assertion,
-                       Criterion_evaluation_result,
-                       Parameter_value))
-  SUBTYPE OF (Value_record);
+END_SCHEMA;
+
+SCHEMA Condition_arm;
+
+ENTITY Condition;
 END_ENTITY;
 
-ENTITY Parameter_value
-  SUBTYPE OF (Evaluation_record);
-  SELF\Value_record.expression_evaluated RENAMED parameter : Criterion;
-END_ENTITY;
+END_SCHEMA;
 
-END_SCHEMA;  -- Condition_evaluation_arm
+SCHEMA Classification_assignment_arm;
+
+TYPE classification_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
+
+END_SCHEMA;
+

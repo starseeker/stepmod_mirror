@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.27 2002/06/20 13:49:18 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.28 2002/06/21 09:35:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -510,39 +510,47 @@ $Id: sect_5_mapping.xsl,v 1.27 2002/06/20 13:49:18 robbod Exp $
 
 
 <xsl:template match="source" mode="specification">
-  <tr valign="top">
-    <td>Source:</td>
-    <td>
-      <xsl:call-template name="output_string_with_linebreaks">
-        <xsl:with-param name="string" select="string(.)"/>
-      </xsl:call-template>
-    </td>
-  </tr>
+  <xsl:variable name="str" select="string(.)"/>
+  <xsl:if test="string-length($str)>0">
+    <tr valign="top">
+      <td>Source:</td>
+      <td>
+        <xsl:call-template name="output_string_with_linebreaks">
+          <xsl:with-param name="string" select="$str"/>
+        </xsl:call-template>
+      </td>
+    </tr>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template match="rules" mode="specification">
-  <tr valign="top">
-    <td>Rules:</td>
-    <td>
-      <xsl:call-template name="output_string_with_linebreaks">
-        <xsl:with-param name="string" select="string(.)"/>
-      </xsl:call-template>
-    </td>
-  </tr>
+  <xsl:variable name="str" select="string(.)"/>
+  <xsl:if test="string-length($str)>0">
+    <tr valign="top">
+      <td>Rules:</td>
+      <td>
+        <xsl:call-template name="output_string_with_linebreaks">
+          <xsl:with-param name="string" select="$str"/>
+        </xsl:call-template>
+      </td>
+    </tr>
+  </xsl:if>
 </xsl:template>
 
 
 <xsl:template match="refpath" mode="specification">
-  <tr valign="top">
-    <td>Reference path:</td>
-    <xsl:apply-templates select="." mode="check_ref_path"/>
-    <td>
-      <xsl:call-template name="output_string_with_linebreaks">
-        <xsl:with-param name="string" select="string(.)"/>
-      </xsl:call-template>
-    </td>
-  </tr>
-
+  <xsl:variable name="str" select="string(.)"/>
+  <xsl:if test="string-length($str)>0">
+    <tr valign="top">
+      <td>Reference path:</td>
+      <xsl:apply-templates select="." mode="check_ref_path"/>
+      <td>
+        <xsl:call-template name="output_string_with_linebreaks">
+          <xsl:with-param name="string" select="$str"/>
+        </xsl:call-template>
+      </td>
+    </tr>
+  </xsl:if>
 </xsl:template>
 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.3 2002/09/27 07:57:06 robbod Exp $
+$Id: developer.xsl,v 1.4 2002/09/28 07:32:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -11,8 +11,7 @@ $Id: developer.xsl,v 1.3 2002/09/27 07:57:06 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-  <xsl:import href="../../xsl/common.xsl"/>
-
+  <xsl:import href="../../xsl/module.xsl"/>
 
   <xsl:output method="html"/>
 
@@ -56,6 +55,19 @@ $Id: developer.xsl,v 1.3 2002/09/27 07:57:06 robbod Exp $
       name="module_xml_file"
       select="concat('../../data/modules/',@directory,'/module.xml')"/>
 
+    <xsl:variable 
+      name="module_nodes"
+      select="document($module_xml_file)"/>
+
+    <div class="toc">
+      <!-- output the Table of contents banner -->
+      <xsl:apply-templates 
+        select="$module_nodes/module"
+        mode="TOCmultiplePage">
+        <xsl:with-param name="module_root" select="'..'"/>
+      </xsl:apply-templates>
+    </div>
+
     <xsl:call-template name="get_bib_entries">
       <xsl:with-param name="module" select="@directory"/>
     </xsl:call-template>
@@ -66,7 +78,7 @@ $Id: developer.xsl,v 1.3 2002/09/27 07:57:06 robbod Exp $
     The following XML constructs can be used to reference sections of the
     module.
     <xsl:apply-templates 
-      select="document($module_xml_file)/module" mode="linkend">
+      select="$module_nodes/module" mode="linkend">
       <xsl:with-param name="section" select="'Introduction'"/>
       <xsl:with-param name="link_section" select="'introduction'"/>
       <xsl:with-param name="href" 

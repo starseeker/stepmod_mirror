@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.8 2002/09/12 14:38:21 nigelshaw Exp $
+$Id: banner.xsl,v 1.9 2002/09/13 12:06:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -54,27 +54,23 @@ $Id: banner.xsl,v 1.8 2002/09/12 14:38:21 nigelshaw Exp $
                 <p class="bannermenu">Modules</p>
                 <p class="bannermenuitem">
                   <a href="modules_alpha{$FILE_EXT}" target="index">
-                    Alphabetical list
+                    Alphabetical
                   </a>
-                </p>
-                <p class="bannermenuitem">
                   <a href="modules_project{$FILE_EXT}" target="index">
-                    Project list
+                    Project
                   </a>
                 </p>
                 <p class="bannermenuitem">
                   <a href="modules_numbers{$FILE_EXT}" target="index">
-                    Part number list
+                    Parts
                   </a>
-                </p>
-                <p class="bannermenuitem">
                   <a href="modules_project_lead{$FILE_EXT}" target="index">
-                    Project leader list
+                    Leader
                   </a>
                 </p>
                 <p class="bannermenuitem">
                   <a href="repository_dependencies{$FILE_EXT}" target="content">
-                    Module dependencies
+                    Dependencies
                   </a>
                 </p>
               </td>

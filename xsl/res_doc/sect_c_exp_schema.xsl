@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_exp_1.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_c_exp_schema.xsl,v 1.1 2002/10/20 07:08:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM short form express 
@@ -56,16 +56,17 @@ $Id: sect_c_exp_1.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         <xsl:variable name="resdoc_name">
           <xsl:value-of select="/resource_clause/@directory" />
         </xsl:variable>
+        <!--
         <xsl:message>
-          resdoc_dir  :<xsl:value-of select="$resdoc_dir"/>: --resdoc_dir
+          resdoc_dir  :<xsl:value-of select="$resdoc_dir"/>: resdoc_dir
         </xsl:message>
-        
+-->
         <xsl:variable name="resdoc_xml" select="concat($resdoc_dir,'/','resource.xml')"/>
-
-        <xsl:message>
+        <!-- <xsl:message>
           resdoc_xml  :<xsl:value-of select="$resdoc_xml"/>
-        count schemas: <xsl:value-of select="count(document($resdoc_xml)/resource/schema)"/> 
-        </xsl:message>
+        count schemas: <xsl:value-of select="count(document($resdoc_xml)/resource/schema)"/> : sdfasd
+        </xsl:message> -->
+
         <xsl:variable name="resdoc_node" select="document($resdoc_xml)"/>
                 
         <!-- <xsl:for-each select="document($resdoc_xml)/resource/schema"> -->
@@ -90,16 +91,18 @@ $Id: sect_c_exp_1.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         <xsl:variable name="resdoc_name">
           <xsl:value-of select="/resource_clause/@directory" />
         </xsl:variable>
+        <!--
         <xsl:message>
-          resdoc_dir  :<xsl:value-of select="$resdoc_dir"/>: --resdoc_dir
+          resdoc_dir  :<xsl:value-of select="$resdoc_dir"/>: resdoc_dir
         </xsl:message>
-        
+        -->
         <xsl:variable name="resdoc_xml" select="concat($resdoc_dir,'/','resource.xml')"/>
-
+        <!--
         <xsl:message>
           resdoc_xml  :<xsl:value-of select="$resdoc_xml"/>
         count schemas: <xsl:value-of select="count(document($resdoc_xml)/resource/schema)"/> 
         </xsl:message>
+-->
         <xsl:variable name="resdoc_node" select="document($resdoc_xml)"/>
                 
         <!-- <xsl:for-each select="document($resdoc_xml)/resource/schema"> -->
@@ -171,14 +174,14 @@ $Id: sect_c_exp_1.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   <!-- output all the EXPRESS specifications -->
   <xsl:variable name="schema_name" select="./schema[number($pos)]/@name"/>
     <!--  <xsl:variable name="schema_name" select="./schema[2]/@name" /> -->
-  
-  <xsl:message>
+
+    <!--    <xsl:message>
     schema_name :<xsl:value-of select="$schema_name" />: schema_name
   </xsl:message>
   <xsl:message>
     pos :<xsl:value-of select="$pos" />: pos
   </xsl:message>
-
+-->
 <xsl:variable name="resource_dir">
     <xsl:call-template name="resource_directory">
       <xsl:with-param name="resource" select="$schema_name"/>
@@ -190,9 +193,11 @@ $Id: sect_c_exp_1.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   <!-- get the express and display using the express_code.xsl stylesheet that
        has been imported.
        -->
+  <!--
   <xsl:message>
     express_xml :<xsl:value-of select="$express_xml" />: express_xml
   </xsl:message>
+-->
   <xsl:apply-templates select="document($express_xml)/express/schema" mode="code"/>
 
 </xsl:template>

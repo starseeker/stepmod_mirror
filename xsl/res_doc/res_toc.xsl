@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.8 2002/12/20 12:35:58 nigelshaw Exp $
+$Id: res_toc.xsl,v 1.9 2003/01/24 00:40:55 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -27,6 +27,7 @@ $Id: res_toc.xsl,v 1.8 2002/12/20 12:35:58 nigelshaw Exp $
     </xsl:call-template>
   </xsl:variable>
 
+  <!--
   <xsl:message>
     schema_section template
     resource_name :<xsl:value-of select="$resource_name"/>
@@ -35,7 +36,7 @@ $Id: res_toc.xsl,v 1.8 2002/12/20 12:35:58 nigelshaw Exp $
   <xsl:message>
     resource_display_name :<xsl:value-of select="$resource_display_name"/>
   </xsl:message>
-
+-->
   <xsl:variable name="schema_name" select="@name"/>
 
   <xsl:variable name="clauseno" select="3+position()"/>
@@ -139,10 +140,11 @@ NEED TO FIX up the hrefs -->
                                     $resource_display_name,' entity definitions')"/>
             </A><BR/>
           </xsl:if>
+          <!--
           <xsl:message>
             entity_clause :<xsl:value-of select="$entity_clause"/>:
           </xsl:message>
-
+-->
          
           <!-- only output if there are imported entitys defined and 
                therefore a section -->

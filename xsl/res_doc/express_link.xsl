@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.2 2003/01/23 13:30:13 robbod Exp $
+     $Id: express_link.xsl,v 1.3 2003/01/24 21:00:28 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -352,11 +352,11 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
       <xsl:with-param name="token" select="'|'"/>
     </xsl:call-template>
   </xsl:variable>
-
+  <!--
   <xsl:message>
     schema:{<xsl:value-of select="$schema"/>}
   </xsl:message>
-
+-->
 
   <xsl:variable name="aname">
     <xsl:call-template name="express_a_name">

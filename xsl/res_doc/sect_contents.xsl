@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.11 2002/12/23 20:52:45 thendrix Exp $
+$Id: sect_contents.xsl,v 1.12 2003/01/24 00:40:54 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -56,11 +56,11 @@ $Id: sect_contents.xsl,v 1.11 2002/12/23 20:52:45 thendrix Exp $
      <xsl:apply-templates select="." mode="annex_list" />
    </xsl:variable>
 
-
+   <!--
    <xsl:message >
      resdoc_dir :<xsl:value-of select="$resdoc_dir"/>
    </xsl:message>
-
+-->
    <h3>Contents</h3>
      <!-- Don't think these are required
    <p class="content"><A HREF="./cover{$FILE_EXT}">Cover page</A></p>
@@ -194,11 +194,11 @@ $Id: sect_contents.xsl,v 1.11 2002/12/23 20:52:45 thendrix Exp $
    <xsl:param name="clause_no"/>
    <xsl:variable name="node_type" select="name(.)"/>
    <xsl:variable name="schema_name" select="../@name"/>
-
+   <!--
    <xsl:message>
      schema_name :<xsl:value-of select="$schema_name"/>
    </xsl:message>
-
+-->
    <xsl:variable name="clause_number">
      <xsl:call-template name="express_clause_number">
        <xsl:with-param name="clause" select="$node_type"/>
@@ -281,9 +281,11 @@ $Id: sect_contents.xsl,v 1.11 2002/12/23 20:52:45 thendrix Exp $
                  <xsl:with-param name="resource" select="$schname"/>
                </xsl:call-template>
              </xsl:variable>
+             <!--
              <xsl:message>
                resource_dir in sect_cont :<xsl:value-of select="$resource_dir"/>
              </xsl:message>
+-->
              <xsl:variable name="expg_path" select="concat('../../',$resource_dir,'/',$schname,'expg',$diagno)"/>
 
              <xsl:variable name="schema_url">
@@ -431,10 +433,11 @@ $Id: sect_contents.xsl,v 1.11 2002/12/23 20:52:45 thendrix Exp $
 
    <!--   <xsl:variable name="clause_no" select="$clause_no"/> -->
    <xsl:variable name="schema_name" select="@name"/>
+   <!--
    <xsl:message >  
      schema_name :<xsl:value-of select="$schema_name" />
  clause_no :<xsl:value-of select="$clause_no" />
-     </xsl:message>
+     </xsl:message> -->
    <p class="content">
      <A HREF="./{$clause_no}_schema{$FILE_EXT}"> 
      <xsl:value-of select="concat($clause_no,' ',$resource_display_name)"/></A>

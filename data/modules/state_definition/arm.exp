@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2002/12/17 16:07:57 magnevs Exp $
+   $Id: arm.exp,v 1.8 2002/12/18 19:47:35 magnevs Exp $
    N1433 - ISO/CD-TS - 10303-1255 State_definition - EXPRESS ARM
 *)
 
@@ -7,7 +7,7 @@ SCHEMA State_definition_arm;
 
 USE FROM Classification_assignment_arm;
 
-USE FROM Condition_evaluation_arm;
+USE FROM Condition_assignment_arm;
 
 USE FROM Identification_assignment_arm;
 
@@ -17,6 +17,10 @@ TYPE state_definition_classified_select = SELECT BASED_ON classification_item WI
 (Applied_state_definition_assignment,
  State_definition,
  State_definition_relationship);
+END_TYPE;
+
+TYPE state_definition_condition = SELECT BASED_ON item_in_scope WITH
+(State_definition);
 END_TYPE;
 
 TYPE state_definition_identification_item = SELECT BASED_ON identification_item WITH
@@ -43,7 +47,7 @@ END_ENTITY;
 
 ENTITY Composition_of_state_definition
 SUBTYPE OF (State_definition_relationship);
-part : State_definition;
+SELF\State_definition_relationship.related RENAMED part : State_definition;
 SELF\State_definition_relationship.relating RENAMED whole : State_definition;
 END_ENTITY;
 
@@ -71,9 +75,9 @@ END_ENTITY;
 
 ENTITY State_complement
 SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.relating RENAMED set_1 : State_definition;
-SELF\State_definition_relationship.relating RENAMED set_2 : State_definition;
-SELF\State_definition_relationship.related RENAMED universe : State_definition;
+SELF\State_definition_relationship.relating RENAMED universe : State_definition;
+SELF\State_definition_relationship.related RENAMED set_1 : State_definition;
+SELF\State_definition_relationship.related RENAMED set_2 : State_definition;
 END_ENTITY;
 
 ENTITY State_definition;
@@ -81,23 +85,11 @@ name : STRING;
 description : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY State_definition_condition
-SUBTYPE OF (Condition_assertion);
-condition : OPTIONAL State_definition;
-END_ENTITY;
-
 ENTITY State_definition_relationship;
 name : STRING;
 description : STRING;
-related : State_definition;
 relating : State_definition;
-END_ENTITY;
-
-ENTITY State_definition_relationship_relationship;
-name : STRING;
-description : STRING;
-related : State_definition_relationship;
-relating : State_definition_relationship;
+related : State_definition;
 END_ENTITY;
 
 ENTITY State_transition_definition

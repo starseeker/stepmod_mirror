@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_exp_lf.xsl,v 1.4 2003/08/11 16:48:03 robbod Exp $
+$Id: sect_annex_exp_lf.xsl,v 1.5 2004/09/21 07:47:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -69,10 +69,17 @@ $Id: sect_annex_exp_lf.xsl,v 1.4 2003/08/11 16:48:03 robbod Exp $
     <xsl:variable name="arm_lf_href" 
       select="concat('../../../modules/',$module,'/sys/e_exp_arm_lf',$FILE_EXT)"/>
 
+    <xsl:variable name="annex_e_href" 
+      select="concat('../../../modules/',$module,'/sys/e_exp',$FILE_EXT)"/>
+
     <p>
-      The ARM EXPRESS expanded listing for this part of ISO 10303 is
+      The 
+      <a href="{$arm_lf_href}">
+        ARM EXPRESS 
+      </a>
+      expanded listing for this part of ISO 10303 is
       provided in Annex
-      <a href="{$arm_lf_href}">E</a>
+      <a href="{$annex_e_href}">E</a>
       of the AP module, 
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>
@@ -85,9 +92,13 @@ $Id: sect_annex_exp_lf.xsl,v 1.4 2003/08/11 16:48:03 robbod Exp $
       select="concat('../../../modules/',$module,'/sys/e_exp_mim_lf',$FILE_EXT)"/>
 
     <p>
-      The MIM EXPRESS expanded listing for this part of ISO 10303 is
+      The 
+      <a href="{$mim_lf_href}">
+        MIM EXPRESS 
+      </a>
+      expanded listing for this part of ISO 10303 is
       provided in Annex
-      <a href="{$mim_lf_href}">E</a>
+      <a href="{$annex_e_href}">E</a>
       of the AP module, 
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>

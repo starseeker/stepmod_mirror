@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2004/12/01 11:45:27 kovaliovas Exp $
+   $Id: arm.exp,v 1.6 2004/12/05 13:09:46 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Analytical model - EXPRESS ARM
 *)
 
@@ -62,7 +62,7 @@ USE FROM Document_structure_arm;
   ENTITY Analytical_model_application
     SUBTYPE OF (representation);  
       model_parameter_assignment     : SET[1:?] OF parameter_assignment;
-      model_representation           : analytical_representation;
+      model_representation           : analytical_model_definition;
       analytical_model_application_name : STRING; --ee_name;
     UNIQUE
       ur1 : analytical_model_application_name;
@@ -75,9 +75,14 @@ USE FROM Document_structure_arm;
 
   ENTITY Analytical_model_definition
     SUBTYPE OF (software_definition);
-    SELF\product_view_definition.defined_version : Analytical_model_version;
+      name											: STRING;
+      SELF\product_view_definition.defined_version 	: Analytical_model_version;
+      representation_language 						: language_reference_manual;
+      reference_document      						: document_definition;
+      source_code             						: software_definition;
     INVERSE
-      associated_model_occurrence : analytical_representation FOR associated_definition;
+      access_mechanism : SET[1:?] OF analytical_model_port FOR accessed_analytical_model;
+      parameter        : SET[1:?] OF analytical_model_parameter FOR accessed_analytical_model;
   END_ENTITY; -- analytical_model_definition
 
   ENTITY Analytical_model_make_from_relationship
@@ -93,7 +98,7 @@ USE FROM Document_structure_arm;
 
   ENTITY Analytical_model_parameter
     SUBTYPE OF (Model_parameter);
-      accessed_analytical_model : analytical_representation;
+      accessed_analytical_model : analytical_model_definition;
     UNIQUE
       ur1 : SELF\independent_property.id,
  accessed_analytical_model;
@@ -103,7 +108,7 @@ USE FROM Document_structure_arm;
     SUPERTYPE OF (analytical_model_vector_port ANDOR
  (ONEOF (analog_analytical_model_port,
  digital_analytical_model_port)));
-      accessed_analytical_model : analytical_representation;
+      accessed_analytical_model : analytical_model_definition;
       port_name                 : STRING; --ee_name;
     UNIQUE
       ur1 : port_name,
@@ -143,20 +148,6 @@ USE FROM Document_structure_arm;
   	SUBTYPE OF (software_version);
   		SELF\product_version.of_product : analytical_model;
   END_ENTITY; 
-
-  ENTITY Analytical_representation;
-      name                    : STRING; --ee_name;
-      representation_language : language_reference_manual;
-      reference_document      : document_definition;
-      source_code             : software_definition;
-      associated_definition   : analytical_model_definition;
-    INVERSE
-      access_mechanism : SET[1:?] OF analytical_model_port FOR accessed_analytical_model;
-      parameter        : SET[1:?] OF analytical_model_parameter FOR accessed_analytical_model;
-    UNIQUE
-      ur1 : associated_definition;
-  END_ENTITY; -- analytical_representation
-
 
   ENTITY Digital_analytical_model_port
     SUBTYPE OF (Analytical_model_port);

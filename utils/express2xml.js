@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.14 2002/06/18 07:54:58 robbod Exp $
+//$Id: express2xml.js,v 1.15 2002/06/18 11:51:06 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -213,10 +213,20 @@ function splitList(str, listNo)
 }
 
 
-//Rteurn true if statment contains OPTIONAL
+//Return true if statment contains OPTIONAL
 function isOptional(statement) {
     var result = false;
     var reg = /\bOPTIONAL\b/;
+    var token = statement.match(reg);
+    if (token) result = true;
+    return (result);
+}
+
+
+//Return true if statment contains OPTIONAL
+function isRedeclared(statement) {
+    var result = false;
+    var reg = /\bSELF\b/;
     var token = statement.match(reg);
     if (token) result = true;
     return (result);
@@ -330,7 +340,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.14 2002/06/18 07:54:58 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.15 2002/06/18 11:51:06 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -340,7 +350,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.14 $";
+    var appCVSRevision = "$Revision: 1.15 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -511,6 +521,9 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	rest = rest.replace(reg,"");
 	switch( mode ) {
 	case "explicit" :	
+	    if (isRedeclared(statement)) {
+		name=getRedeclaredAttribute(statement, outTs);
+	    }
 	    xmlOpenElement("<explicit",outTs);
 	    xmlAttr("name",name,outTs);
 	    if (isOptional(statement)) {
@@ -521,6 +534,10 @@ function xmlEntityStructure(outTs,expTs,mode) {
 		xmlAttr("optional","YES",outTs);
 	    }
 	    outTs.WriteLine(">");
+	    if (isRedeclared(statement)) {
+		xmlRedeclaredAttribute(statement, outTs);
+	    }
+
 	    xmlUnderlyingType(rest,outTs);
 	    xmlCloseElement("</explicit>",outTs);
 	    // process the next attribute
@@ -578,6 +595,27 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	}
     }
     
+}
+
+
+// SELF\Representation.context_of_items : Geometric_coordinate_space;
+// Return the name of a redeclared attribute 
+function getRedeclaredAttribute(statement, outTs) {
+    statement = statement.trim();
+    statement = statement.replace(/^.*\./g,"");
+    var attr = statement.replace(/\:.*/g,"");
+    attr = attr.trim();
+    return(attr);
+}
+
+// SELF\Representation.context_of_items : Geometric_coordinate_space;
+// Output a redeclared attribute by matching on SELF\
+function xmlRedeclaredAttribute(statement, outTs) {
+    statement = statement.replace(/^\s*SELF\\/g,"");
+    var entity_ref = statement.replace(/\..*/g,"");
+    xmlOpenElement("<redeclaration",outTs);	
+    xmlAttr("entity-ref",entity_ref,outTs);
+    outTs.WriteLine("/>");    
 }
 
 function xmlUnique(statement, outTs) {

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.112 2004/07/14 16:57:32 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.113 2004/07/14 23:48:41 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -448,7 +448,7 @@
 
 </xsl:template>
 
-<!-- output a note for deprecated types, if any -->
+<!-- output a list of  deprecated types, if any -->
 <xsl:template name="deprecated_types_note">
   <xsl:param name="schema_node"/>
     <p class="note">
@@ -486,10 +486,60 @@
         </xsl:for-each>
       </table>
     </blockquote>
-    
+  </xsl:template>
+<!-- output a note for a deprecated type  -->
+<xsl:template name="deprecated_type_note">
+  <xsl:param name="type"/>
+  <xsl:variable name="deprecated_expressions">
+    <xsl:for-each select="$type/../constant[contains(@name,'deprecated_constructed')]">
+      :<xsl:value-of select="@expression"/>:
+    </xsl:for-each>
+  </xsl:variable>
+<!-- THX this is the only way I could get it to accept an apostrophe as a match char -->
+<xsl:variable name="apostrophe">'</xsl:variable>
+<xsl:variable name="special" select="concat($apostrophe,'&#x2C;&#x5B;&#x5D; ')"/>
+<xsl:variable name="separator" select="':::::'"/>
+<xsl:variable name="deprecated"
+  select="translate($deprecated_expressions,$special,$separator)"/>
+<xsl:if test="contains($deprecated,concat(':',$type/@name,':'))">
+  <xsl:variable name="item_name" select="$type/@name"/>      
+  <p class="note">
+    <small>
+      NOTE&#160;&#160;
+      The <b><xsl:value-of select="$item_name" /></b>  select type is kept in this edition in order to ensure upward compatability.  Its usage is deprecated.
+    </small>
+  </p>    
+</xsl:if>
 </xsl:template>
 
-<!-- output a note for deprecated entity, if any -->
+<!-- output a note for a deprecated entity  -->
+<xsl:template name="deprecated_entity_note">
+  <xsl:param name="type"/>
+  <xsl:variable name="deprecated_expressions">
+    <xsl:for-each select="$type/../constant[contains(@name,'deprecated_entity')]">
+      :<xsl:value-of select="@expression"/>:
+    </xsl:for-each>
+  </xsl:variable>
+<!-- THX this is the only way I could get it to accept an apostrophe as a match char -->
+<xsl:variable name="apostrophe">'</xsl:variable>
+<xsl:variable name="special" select="concat($apostrophe,'&#x2C;&#x5B;&#x5D; ')"/>
+<xsl:variable name="separator" select="':::::'"/>
+<xsl:variable name="deprecated"
+  select="translate($deprecated_expressions,$special,$separator)"/>
+<xsl:if test="contains($deprecated,concat(':',$type/@name,':'))">
+  <xsl:variable name="item_name" select="$type/@name"/>      
+  <p class="note">
+    <small>
+      NOTE&#160;&#160;
+      The <b><xsl:value-of select="$item_name" /></b>  entiy data type is kept in this edition in order to ensure upward compatability.  Its usage is deprecated.
+    </small>
+  </p>    
+</xsl:if>
+</xsl:template>
+
+
+
+<!-- output a list of all  deprecated entities, if any -->
 <xsl:template name="deprecated_entities_note">
   <xsl:param name="schema_node"/>
     <p class="note">
@@ -1342,7 +1392,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 
     <p><xsl:value-of select="$clause_intro"/></p>
       <xsl:if test="..//constant[contains(@name,'deprecated_entity')]">
-        <xsl:call-template name="deprecated_types_note">
+        <xsl:call-template name="deprecated_entities_note">
           <xsl:with-param name="schema_node" select=".."/>
         </xsl:call-template>
       </xsl:if>
@@ -1434,6 +1484,9 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
       </xsl:otherwise>
     </xsl:choose>
   </p>
+    <xsl:call-template name="deprecated_entity_note">     
+    <xsl:with-param name="type" select="."/>
+    </xsl:call-template>
 
   <!-- output any issue against entity   -->
   <xsl:call-template name="output_express_issue">
@@ -4025,10 +4078,11 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
-      
-    </xsl:choose>    
+    </xsl:choose>
+
+    <xsl:call-template name="deprecated_type_note">     
+    <xsl:with-param name="type" select=".."/>
+    </xsl:call-template>
   </xsl:if>
 </xsl:template>
-
-
 </xsl:stylesheet>

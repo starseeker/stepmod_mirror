@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.127 2003/03/02 07:46:14 robbod Exp $
+$Id: module.xsl,v 1.128 2003/03/06 08:16:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -102,9 +102,7 @@ $Id: module.xsl,v 1.127 2003/03/02 07:46:14 robbod Exp $
   </xsl:apply-templates>
 
   <xsl:variable name="wg_group">
-    <xsl:call-template name="get_module_wg_group">
-      <xsl:with-param name="module" select="."/>
-    </xsl:call-template>
+    <xsl:call-template name="get_module_wg_group"/>
   </xsl:variable>
 
   <xsl:call-template name="test_module_wg_group">
@@ -1128,6 +1126,7 @@ o=isocs; s=central<br/>
         </xsl:call-template>        
       </tr>
       <xsl:apply-templates select="mim_lf" mode="annexe"/>
+
     </table>
   </div>
   <p>
@@ -1153,7 +1152,7 @@ o=isocs; s=central<br/>
   <td>
     <a href="../{$file}"><xsl:value-of select="$file"/></a>
   </td>
-  <td>
+  <td align="left">
     <xsl:variable name="test_wg_number">
       <xsl:call-template name="test_wg_number">
         <xsl:with-param name="wgnumber" select="$wgnumber"/>
@@ -1181,9 +1180,7 @@ o=isocs; s=central<br/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="wg_group">
-          <xsl:call-template name="get_module_wg_group">
-            <xsl:with-param name="module" select="."/>
-          </xsl:call-template>
+          <xsl:call-template name="get_module_wg_group"/>
         </xsl:variable>
         <xsl:value-of select="concat('ISO TC184/SC4/WG',$wg_group,' N',$wgnumber)"/>
       </xsl:otherwise>
@@ -1210,10 +1207,11 @@ o=isocs; s=central<br/>
         <xsl:value-of select="concat('arm_lf',$FILE_EXT)"/>
       </a>
     </td>
-    <td>
-      <a href="../arm_lf.exp">arm_lf.exp</a>
-    </td>
-    <td align="center">&#8212;</td>
+    <xsl:call-template name="output_express_links">
+      <xsl:with-param name="wgnumber" 
+        select="../@wg.number.arm_lf"/>
+      <xsl:with-param name="file" select="'arm_lf.exp'"/>
+    </xsl:call-template>        
   </tr>
 </xsl:template>
 
@@ -1235,10 +1233,11 @@ o=isocs; s=central<br/>
         <xsl:value-of select="concat('mim_lf',$FILE_EXT)"/>
       </a>
     </td>
-    <td>
-      <a href="../mim_lf.exp">mim_lf.exp</a>
-    </td>
-    <td align="center">&#8212;</td>
+    <xsl:call-template name="output_express_links">
+      <xsl:with-param name="wgnumber" 
+        select="../@wg.number.mim_lf"/>
+      <xsl:with-param name="file" select="'mim_lf.exp'"/>
+    </xsl:call-template>        
   </tr>
 </xsl:template>
 

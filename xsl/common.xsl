@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.82 2002/12/24 09:56:35 robbod Exp $
+$Id: common.xsl,v 1.83 2003/02/06 22:29:52 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -97,7 +97,7 @@ $Id: common.xsl,v 1.82 2002/12/24 09:56:35 robbod Exp $
         name="rev"
         select="translate(@rcs.revision,'$','')"/>
       <xsl:value-of
-        select="concat($lpart,' :- ',@name,'  (',$date,' ',$rev,')')"/>
+        select="concat(@status,' ',$lpart,' :- ',@name,'  (',$date,' ',$rev,')')"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:value-of
@@ -2198,10 +2198,9 @@ $Id: common.xsl,v 1.82 2002/12/24 09:56:35 robbod Exp $
 
 
 <xsl:template name="get_module_wg_group">
-  <xsl:param name="module"/>
   <xsl:choose>
-    <xsl:when test="string-length($module/@sc4.working_group)>0">
-      <xsl:value-of select="normalize-space($module/@sc4.working_group)"/>
+    <xsl:when test="string-length(/module/@sc4.working_group)>0">
+      <xsl:value-of select="normalize-space(/module/@sc4.working_group)"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:value-of select="string('12')"/>
@@ -2212,9 +2211,7 @@ $Id: common.xsl,v 1.82 2002/12/24 09:56:35 robbod Exp $
 <xsl:template name="test_module_wg_group">
   <xsl:param name="module"/>
   <xsl:variable name="wg_group">
-    <xsl:call-template name="get_module_wg_group">
-      <xsl:with-param name="module" select="$module"/>
-    </xsl:call-template>
+    <xsl:call-template name="get_module_wg_group"/>
   </xsl:variable>
   
   <xsl:if test="not($wg_group = '12' or $wg_group = '3')">

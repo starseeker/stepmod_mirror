@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_arm.xsl,v 1.4 2002/08/02 15:58:46 robbod Exp $
+$Id: sect_e_exp_arm.xsl,v 1.5 2002/12/24 09:56:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM short form express 
@@ -112,9 +112,7 @@ $Id: sect_e_exp_arm.xsl,v 1.4 2002/08/02 15:58:46 robbod Exp $
   </xsl:variable>
 
   <xsl:variable name="wg_group">
-    <xsl:call-template name="get_module_wg_group">
-      <xsl:with-param name="module" select="."/>
-    </xsl:call-template>
+    <xsl:call-template name="get_module_wg_group"/>
   </xsl:variable>
 
   <xsl:call-template name="test_module_wg_group">

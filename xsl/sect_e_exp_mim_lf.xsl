@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_mim_lf.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_e_exp_mim_lf.xsl,v 1.4 2003/02/24 18:09:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the MIM long form express 
@@ -99,6 +99,10 @@ $Id: sect_e_exp_mim_lf.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
+  <xsl:variable name="wg_group">
+    <xsl:call-template name="get_module_wg_group"/>
+  </xsl:variable>
+
   <xsl:call-template name="test_module_wg_group">
     <xsl:with-param name="module" select="."/>
   </xsl:call-template>
@@ -106,10 +110,12 @@ $Id: sect_e_exp_mim_lf.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
   <code>
   (*<br/>
     <xsl:value-of 
-      select="concat($stdnumber,' ', $module_name, ' - EXPRESS MIM')"/>
+      select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.arm_lf, ' - ',
+              $stdnumber,' ', $module_name, ' - EXPRESS MIM Long form')"/>
     <br/>*)
   </code>
   <br/>
+
 
   <!-- output all the EXPRESS specifications -->
   <xsl:variable name="module_dir">

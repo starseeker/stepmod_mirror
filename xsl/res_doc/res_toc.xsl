@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.11 2003/03/16 01:26:38 thendrix Exp $
+$Id: res_toc.xsl,v 1.12 2003/03/19 00:36:23 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -69,8 +69,8 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>
           <xsl:if test="$constant_clause != 0">
             &#160; &#160;&#160;&#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#constants">
-              <xsl:value-of select="concat($clauseno, ' ',$constant_clause,
-                                    $resource_display_name, ' constant definitions')"/>
+              <xsl:value-of select="concat($clauseno, $constant_clause,
+' ',                                    $resource_display_name, ' constant definitions')"/>
             </A><BR/>
           </xsl:if>
 
@@ -85,7 +85,7 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>
           <xsl:if test="$imported_constant_clause != 0">
             &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#imported_constant">
-              <xsl:value-of select="concat($clauseno, ' ', $imported_constant_clause,
+              <xsl:value-of select="concat($clauseno, $imported_constant_clause, ' ',
                                     $resource_display_name,' imported constant modifications')"/>
             </A><BR/>
           </xsl:if>
@@ -158,7 +158,7 @@ NEED TO FIX up the hrefs -->
           <xsl:if test="$imported_entity_clause != 0">
             &#160; &#160;
             <A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#imported_entity">
-              <xsl:value-of select="concat($clauseno, ' ',$imported_entity_clause,
+              <xsl:value-of select="concat($clauseno, $imported_entity_clause, ' ',
                                    $resource_display_name, ' imported entity modifications')"/>
             </A><BR/>
           </xsl:if>
@@ -175,7 +175,7 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>          
           <xsl:if test="$subtype_constraint_clause != 0">
             &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#subtype_constraints">
-              <xsl:value-of select="concat($clauseno, ' ', $subtype_constraint_clause,
+              <xsl:value-of select="concat($clauseno, $subtype_constraint_clause, ' ',
                                    $resource_display_name, ' subtype constraint definitions')"/>
             </A><BR/>
           </xsl:if>
@@ -190,7 +190,7 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>
           <xsl:if test="$function_clause !=0">
             &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#functions">
-              <xsl:value-of select="concat($clauseno, ' ', $function_clause,
+              <xsl:value-of select="concat($clauseno, $function_clause, ' ',
                                    $resource_display_name, ' function definitions')"/>
             </A><BR/>
           </xsl:if>
@@ -204,7 +204,7 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>
           <xsl:if test="$imported_function_clause != 0">
             &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#imported_function">
-              <xsl:value-of select="concat($clauseno, ' ',$imported_function_clause,
+              <xsl:value-of select="concat($clauseno, $imported_function_clause, ' ',
                                    $resource_display_name, ' imported function modifications')"/>
             </A><BR/>
           </xsl:if>
@@ -219,7 +219,7 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>
           <xsl:if test="$rule_clause !=0">
             &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#rules">
-              <xsl:value-of select="concat($clauseno, ' ', $rule_clause,
+              <xsl:value-of select="concat($clauseno,  $rule_clause, ' ',
                                    $resource_display_name, ' rule definitions')"/>
             </A><BR/>
           </xsl:if>
@@ -248,7 +248,7 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>
           <xsl:if test="$procedure_clause != 0">
             &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#procedures">
-              <xsl:value-of select="concat($clauseno, ' ',$procedure_clause,
+              <xsl:value-of select="concat($clauseno, $procedure_clause, ' ',
                                    $resource_display_name, ' procedure definitions')"/>
             </A><BR/>
           </xsl:if>
@@ -262,7 +262,7 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>
           <xsl:if test="$imported_procedure_clause != 0">
             &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#imported_procedure">
-              <xsl:value-of select="concat($clauseno, ' ',$imported_procedure_clause,
+              <xsl:value-of select="concat($clauseno, $imported_procedure_clause, ' ',
                                    $resource_display_name, ' imported procedure modifications')"/>
             </A><BR/>
           </xsl:if>

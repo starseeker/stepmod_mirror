@@ -23,19 +23,6 @@ USE FROM Functional_specification_arm;
 
 USE FROM Pdm_material_aspects_arm;
 
-	SUBTYPE_CONSTRAINT Requirement_definition_property_subtypes FOR Requirement_definition_property;     
-	    ((ONEOF (thermal_requirement_occurrence,
-	 electromagnetic_requirement_occurrence,
-	 electrical_requirement_occurrence,
-	 mechanical_requirement_occurrence) ANDOR
-	 ONEOF (design_requirement_occurrence,
-	 inspection_requirement_occurrence,
-	 test_requirement_occurrence,
-	 purpose_occurrence,
-	 constraint_occurrence,
-	 design_characteristic_occurrence)));
-	END_SUBTYPE_CONSTRAINT;
-
  
   TYPE material_conductivity_classification = ENUMERATION OF
     (conductive,
@@ -49,10 +36,6 @@ USE FROM Pdm_material_aspects_arm;
      derived_from,
      or_operation);
   END_TYPE; -- relationship_operation
-
-  ENTITY Inspection_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
-  END_ENTITY; -- inspection_requirement_occurrence
 
   ENTITY Constraint_occurrence
     SUPERTYPE OF (ee_product_definition_based_constraint_occurrence)
@@ -76,20 +59,6 @@ USE FROM Pdm_material_aspects_arm;
       constraining_part : product_view_definition;
   END_ENTITY; -- ee_product_definition_based_constraint_occurrence
 
-  ENTITY Requirement_definition_property;
-      associated_definition               : requirement_view_definition;
-      required_analytical_representation  : OPTIONAL SET[1:?] OF analytical_model_application;
-      required_functional_specification   : OPTIONAL SET[1:?] OF functional_specification;
-      required_part                       : OPTIONAL SET[1:?] OF product;
-      required_coordinated_characteristic : OPTIONAL SET[1:?] OF coordinated_characteristic;
-      requirement_specification           : SET[1:?] OF specification_definition;
-      required_characteristic             : OPTIONAL SET[1:?] OF characteristic;
-      required_material                   : OPTIONAL material_identification;
-      reference_clause                    : OPTIONAL structured_text_id_in_document;
-    UNIQUE
-      ur1 : associated_definition;
-  END_ENTITY; -- Requirement_definition_property
-
   ENTITY Electrical_requirement_occurrence
     SUPERTYPE OF (material_electrical_conductivity_requirement_occurrence)
     SUBTYPE OF (Requirement_definition_property);
@@ -98,6 +67,10 @@ USE FROM Pdm_material_aspects_arm;
   ENTITY Electromagnetic_requirement_occurrence
     SUBTYPE OF (Requirement_definition_property);
   END_ENTITY; -- electromagnetic_requirement_occurrence
+
+  ENTITY Inspection_requirement_occurrence
+    SUBTYPE OF (Requirement_definition_property);
+  END_ENTITY; -- inspection_requirement_occurrence
 
   ENTITY Material_electrical_conductivity_requirement_occurrence
     SUBTYPE OF (Electrical_requirement_occurrence);
@@ -119,6 +92,20 @@ USE FROM Pdm_material_aspects_arm;
   ENTITY Purpose_occurrence
     SUBTYPE OF (Requirement_definition_property);
   END_ENTITY; -- purpose_occurrence
+
+  ENTITY Requirement_definition_property;
+      associated_definition               : requirement_view_definition;
+      required_analytical_representation  : OPTIONAL SET[1:?] OF analytical_model_application;
+      required_functional_specification   : OPTIONAL SET[1:?] OF functional_specification;
+      required_part                       : OPTIONAL SET[1:?] OF product;
+      required_coordinated_characteristic : OPTIONAL SET[1:?] OF coordinated_characteristic;
+      requirement_specification           : SET[1:?] OF specification_definition;
+      required_characteristic             : OPTIONAL SET[1:?] OF characteristic;
+      required_material                   : OPTIONAL material_identification;
+      reference_clause                    : OPTIONAL structured_text_id_in_document;
+    UNIQUE
+      ur1 : associated_definition;
+  END_ENTITY; -- Requirement_definition_property
 
   ENTITY Shape_and_ee_product_definition_based_constraint_occurrence
     SUBTYPE OF (Ee_product_definition_based_constraint_occurrence);
@@ -146,6 +133,19 @@ USE FROM Pdm_material_aspects_arm;
   ENTITY Thermal_requirement_occurrence
     SUBTYPE OF (Requirement_definition_property);
   END_ENTITY; -- thermal_requirement_occurrence
+
+	SUBTYPE_CONSTRAINT Requirement_definition_property_subtypes FOR Requirement_definition_property;     
+	    ((ONEOF (thermal_requirement_occurrence,
+	 electromagnetic_requirement_occurrence,
+	 electrical_requirement_occurrence,
+	 mechanical_requirement_occurrence) ANDOR
+	 ONEOF (design_requirement_occurrence,
+	 inspection_requirement_occurrence,
+	 test_requirement_occurrence,
+	 purpose_occurrence,
+	 constraint_occurrence,
+	 design_characteristic_occurrence)));
+	END_SUBTYPE_CONSTRAINT;
 
   FUNCTION valid_constraining_shape(
     sd   : SET OF geometric_model ;

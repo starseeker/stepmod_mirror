@@ -11,33 +11,13 @@ USE FROM Person_organization_arm;
 
 USE FROM Characteristic_arm;
 
+ 	TYPE sd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Structured_text);
+	END_TYPE;
+
 	TYPE specification_product_object_select = 
 		EXTENSIBLE GENERIC_ENTITY SELECT;
 	END_TYPE;
-
-  ENTITY Specification_allocation;
-      allocated_specification      : specification_definition;
-      target_product_object        : SET[1:?] OF specification_product_object_select;
-      purpose                      : STRING; --ee_name;
-      identifier_in_target_context : OPTIONAL STRING; --ee_name;
-    DERIVE
-      the_context : specification_product_object_select := target_product_object[1];
-    UNIQUE
-      UR1 : identifier_in_target_context,
- the_context;
-    WHERE
-      WR1 : NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1);
-  END_ENTITY; -- specification_allocation
-
-  ENTITY Specification_definition
-  	SUPERTYPE OF(ONEOF (design_specification,
-	 process_specification,
-	 material_specification,
-	 test_specification,
-	 language_reference_manual))
-    SUBTYPE OF (Document_definition);
-      source : organization_or_person_in_organization_select;
-  END_ENTITY; -- specification_definition
 
   ENTITY Design_specification
     SUPERTYPE OF (interface_specification)
@@ -64,9 +44,29 @@ USE FROM Characteristic_arm;
     SUBTYPE OF (specification_definition);
   END_ENTITY; -- process_specification
 
- 	TYPE sd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Structured_text);
-	END_TYPE;
+  ENTITY Specification_allocation;
+      allocated_specification      : specification_definition;
+      target_product_object        : SET[1:?] OF specification_product_object_select;
+      purpose                      : STRING; --ee_name;
+      identifier_in_target_context : OPTIONAL STRING; --ee_name;
+    DERIVE
+      the_context : specification_product_object_select := target_product_object[1];
+    UNIQUE
+      UR1 : identifier_in_target_context,
+ the_context;
+    WHERE
+      WR1 : NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1);
+  END_ENTITY; -- specification_allocation
+
+  ENTITY Specification_definition
+  	SUPERTYPE OF(ONEOF (design_specification,
+	 process_specification,
+	 material_specification,
+	 test_specification,
+	 language_reference_manual))
+    SUBTYPE OF (Document_definition);
+      source : organization_or_person_in_organization_select;
+  END_ENTITY; -- specification_definition
 
   ENTITY Structured_text
   	SUBTYPE OF (Document_definition);

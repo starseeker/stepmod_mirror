@@ -10,18 +10,25 @@
    USE FROM Physical_unit_usage_view_arm;
    
    USE FROM Value_with_unit_extension_arm;
-   
-  ENTITY Part_group_feature
-    SUPERTYPE OF (part_array_feature)
-    SUBTYPE OF (part_feature,
- composite_shape_element);
-  END_ENTITY; -- part_group_feature
 
   ENTITY Part_array_feature
     ABSTRACT SUPERTYPE OF (ONEOF (part_linear_array_feature,
  part_rectangular_array_feature))
     SUBTYPE OF (part_group_feature);
   END_ENTITY; -- part_array_feature
+
+  ENTITY Part_feature_placement_link;
+      precedent_element  : part_feature;
+      subsequent_element : part_feature;
+    INVERSE
+      referenced_by : part_linear_array_feature FOR element;
+  END_ENTITY; -- part_feature_placement_link
+   
+  ENTITY Part_group_feature
+    SUPERTYPE OF (part_array_feature)
+    SUBTYPE OF (part_feature,
+ composite_shape_element);
+  END_ENTITY; -- part_group_feature
 
   ENTITY Part_linear_array_feature
     SUBTYPE OF (part_array_feature);
@@ -31,6 +38,13 @@
       location_uncertainty                  : length_data_element;
   END_ENTITY; -- part_linear_array_feature
 
+  ENTITY Part_linear_array_feature_link;
+      precedent_element  : part_linear_array_feature;
+      subsequent_element : part_linear_array_feature;
+    INVERSE
+      referenced_by : part_rectangular_array_feature FOR element;
+  END_ENTITY; -- part_linear_array_feature_link
+
   ENTITY Part_rectangular_array_feature
     SUBTYPE OF (part_array_feature);
       element                              : SET[1:?] OF part_linear_array_feature_link;
@@ -38,19 +52,5 @@
       terminus_row_positive_y_displacement : length_data_element;
       location_uncertainty                 : length_data_element;
   END_ENTITY; -- part_rectangular_array_feature
-
-  ENTITY Part_feature_placement_link;
-      precedent_element  : part_feature;
-      subsequent_element : part_feature;
-    INVERSE
-      referenced_by : part_linear_array_feature FOR element;
-  END_ENTITY; -- part_feature_placement_link
-
-  ENTITY Part_linear_array_feature_link;
-      precedent_element  : part_linear_array_feature;
-      subsequent_element : part_linear_array_feature;
-    INVERSE
-      referenced_by : part_rectangular_array_feature FOR element;
-  END_ENTITY; -- part_linear_array_feature_link
 
 END_SCHEMA;

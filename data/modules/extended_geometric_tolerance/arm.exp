@@ -23,6 +23,10 @@ USE FROM Dimension_tolerance_arm;
 
 USE FROM Shape_parameters_arm;
 
+	TYPE Physical_feature_or_part_template = 
+		EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
   TYPE angle_relator = ENUMERATION OF
     (equal,
      large,
@@ -41,6 +45,11 @@ USE FROM Shape_parameters_arm;
      conical_tolerance_zone_boundary_diametrical_size_characteristic);
   END_TYPE; -- constraining_element_definitions
 
+  TYPE descriptive_or_geometric_orientation = SELECT
+    (measure_orientation,
+     direction);
+  END_TYPE; -- descriptive_or_geometric_orientation
+
   TYPE dimension_qualifiers = ENUMERATION OF
     (free_state,
      average);
@@ -50,6 +59,10 @@ USE FROM Shape_parameters_arm;
     (size_dimension,
      location_dimension);
   END_TYPE; -- dimensional_location_or_dimensional_size
+
+ 	TYPE egt_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Externally_defined_dimension_representation);
+	END_TYPE;
 
   TYPE geometric_or_dimension_select = SELECT
     (geometric_tolerance,
@@ -77,6 +90,11 @@ USE FROM Shape_parameters_arm;
      composite_surface_profile_refinement_tolerance);
   END_TYPE; -- locating_or_refinement_surface_profile_tolerance
 
+  TYPE measure_orientation = ENUMERATION OF
+    (reversed,
+     normal);
+  END_TYPE; -- measure_orientation
+
 -- Need a confirmation from Tom to remove it
 --  TYPE locating_or_relating_position_tolerance = SELECT
 --    (composite_feature_locating_position_tolerance,
@@ -95,10 +113,6 @@ USE FROM Shape_parameters_arm;
      datum_based_vector_orientation);
   END_TYPE; -- orientation_select
 
-	TYPE Physical_feature_or_part_template = 
-		EXTENSIBLE GENERIC_ENTITY SELECT;
-	END_TYPE;
-
   TYPE restrained_item_select = SELECT
     (single_datum,
      physical_feature_or_part_template);
@@ -110,42 +124,6 @@ USE FROM Shape_parameters_arm;
   ENTITY Apex
     SUBTYPE OF (Derived_shape_element);
   END_ENTITY; -- apex
-
-  TYPE descriptive_or_geometric_orientation = SELECT
-    (measure_orientation,
-     direction);
-  END_TYPE; -- descriptive_or_geometric_orientation
-
-  TYPE measure_orientation = ENUMERATION OF
-    (reversed,
-     normal);
-  END_TYPE; -- measure_orientation
-
-  ENTITY Datum_based_length_measure;
-      measure             : length_data_element;
-      measure_orientation : descriptive_or_geometric_orientation;
-      of_datum            : datum_plane;
-  END_ENTITY; -- datum_based_length_measure
-
--- Need a confirmation from Tom to remove it
---  ENTITY Boundary_based_position_tolerance
---    SUBTYPE OF (position_tolerance_with_referenced_datum_system,
--- geometric_tolerance_with_applied_material_condition_property);
---      profile_control : OPTIONAL surface_profile_tolerance;
---  END_ENTITY; -- boundary_based_position_tolerance
-
-  ENTITY Datum_difference
-    SUBTYPE OF (shape_element_relationship);
-      SELF\shape_element_relationship.relation_type : STRING; --label;
-    DERIVE
-      precedent_datum  : datum := SELF\shape_element_relationship.relating;
-      subsequent_datum : datum := SELF\shape_element_relationship.related;
-  END_ENTITY; -- datum_difference
-
-  ENTITY Datum_difference_based_characteristic
-    SUBTYPE OF (Measure_item); --characteristic);
-      of_datum_difference : datum_difference;
-  END_ENTITY; -- datum_difference_based_characteristic
 
   ENTITY Boundary_size_characteristic
     ABSTRACT SUPERTYPE OF (ONEOF (diametrical_boundary_size_characteristic,
@@ -243,9 +221,35 @@ USE FROM Shape_parameters_arm;
       positive_direction_vector       : BOOLEAN;
   END_ENTITY; -- datum_based_direction_vector
 
+  ENTITY Datum_based_length_measure;
+      measure             : length_data_element;
+      measure_orientation : descriptive_or_geometric_orientation;
+      of_datum            : datum_plane;
+  END_ENTITY; -- datum_based_length_measure
+
   ENTITY Datum_based_vector_orientation;
       direction_components : SET[2:2] OF direction_element;
   END_ENTITY; -- datum_based_vector_orientation
+
+-- Need a confirmation from Tom to remove it
+--  ENTITY Boundary_based_position_tolerance
+--    SUBTYPE OF (position_tolerance_with_referenced_datum_system,
+-- geometric_tolerance_with_applied_material_condition_property);
+--      profile_control : OPTIONAL surface_profile_tolerance;
+--  END_ENTITY; -- boundary_based_position_tolerance
+
+  ENTITY Datum_difference
+    SUBTYPE OF (shape_element_relationship);
+      SELF\shape_element_relationship.relation_type : STRING; --label;
+    DERIVE
+      precedent_datum  : datum := SELF\shape_element_relationship.relating;
+      subsequent_datum : datum := SELF\shape_element_relationship.related;
+  END_ENTITY; -- datum_difference
+
+  ENTITY Datum_difference_based_characteristic
+    SUBTYPE OF (Measure_item); --characteristic);
+      of_datum_difference : datum_difference;
+  END_ENTITY; -- datum_difference_based_characteristic
 
   ENTITY Datum_feature
     SUPERTYPE OF (datum_target_set)
@@ -323,14 +327,6 @@ USE FROM Shape_parameters_arm;
       deriving_relationships : SET[1:?] OF shape_element_deriving_relationship FOR relating;
   END_ENTITY; -- derived_shape_element
 
-  ENTITY Shape_element_deriving_relationship
-    SUBTYPE OF (shape_element_relationship);
-      SELF\shape_element_relationship.relating : derived_shape_element;
-    UNIQUE
-      ur1 : SELF\shape_element_relationship.related, 
- SELF\shape_element_relationship.relating;
-  END_ENTITY; -- shape_element_deriving_relationship
-
   ENTITY Diametrical_boundary_size_characteristic
     SUBTYPE OF (Boundary_size_characteristic);
       sized_boundary : tolerance_zone_circular_or_cylindrical_or_spherical_boundary;
@@ -401,10 +397,6 @@ USE FROM Shape_parameters_arm;
     UNIQUE
       ur1 : SELF\single_datum.datum_name;
   END_ENTITY; -- edge_segment_vertex
-
- 	TYPE egt_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Externally_defined_dimension_representation);
-	END_TYPE;
 
   ENTITY Externally_defined_dimension_representation
     SUBTYPE OF (shape_dimension_representation);
@@ -623,6 +615,14 @@ USE FROM Shape_parameters_arm;
  ));
   END_ENTITY; -- shape_dimension_representation
 
+  ENTITY Shape_element_deriving_relationship
+    SUBTYPE OF (shape_element_relationship);
+      SELF\shape_element_relationship.relating : derived_shape_element;
+    UNIQUE
+      ur1 : SELF\shape_element_relationship.related, 
+ SELF\shape_element_relationship.relating;
+  END_ENTITY; -- shape_element_deriving_relationship
+
   ENTITY Simultaneous_geometric_tolerance_requirement;
       grouped_geometric_tolerances : SET[2:?] OF geometric_tolerance;
   END_ENTITY; -- simultaneous_geometric_tolerance_requirement
@@ -772,16 +772,16 @@ USE FROM Shape_parameters_arm;
       viewing_plane_specification : viewing_plane_definition FOR defined_viewing_plane;
   END_ENTITY; -- viewing_plane
 
+  ENTITY Viewing_plane_based_orientation;
+      orienting_relationship      : tolerance_zone_and_viewing_plane_orienting_relationship;
+      viewing_plane_specification : viewing_plane_definition;
+  END_ENTITY; -- viewing_plane_based_orientation
+
   ENTITY Viewing_plane_definition;
       defined_viewing_plane        : viewing_plane;
       viewing_plane_representation : axis_placement;
     INVERSE
       zone_orientation : viewing_plane_based_orientation FOR viewing_plane_specification;
   END_ENTITY; -- viewing_plane_definition
-
-  ENTITY Viewing_plane_based_orientation;
-      orienting_relationship      : tolerance_zone_and_viewing_plane_orienting_relationship;
-      viewing_plane_specification : viewing_plane_definition;
-  END_ENTITY; -- viewing_plane_based_orientation
 
 END_SCHEMA; -- Extended_geometric_tolerance_arm

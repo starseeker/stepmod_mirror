@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/19 14:44:14 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/30 10:08:18 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Component feature - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
 
@@ -12,14 +12,6 @@ SCHEMA Component_feature_arm;
 	TYPE part_feature_or_template_feature = EXTENSIBLE GENERIC_ENTITY SELECT;
 	END_TYPE;
 
-  ENTITY Component_feature_to_physical_usage_view_assignment;
-      defined_part_feature   : part_feature;
-      assigned_design_object : component_feature;
-    UNIQUE 
-    	u1 : assigned_design_object;
-    	u2 : defined_part_feature;
-  END_ENTITY; -- component_feature_to_physical_usage_view_assignment
-
   ENTITY Component_feature
     ABSTRACT SUBTYPE OF (shape_element);
       definition           : OPTIONAL part_feature_or_template_feature;
@@ -29,11 +21,25 @@ SCHEMA Component_feature_arm;
  associated_component;
   END_ENTITY; -- component_feature
 
+  ENTITY Component_feature_make_from_relationship
+		SUBTYPE OF (Shape_element_relationship);
+      SELF\Shape_element_relationship.relating RENAMED reusable_feature	: component_feature;
+      SELF\Shape_element_relationship.related RENAMED resultant_feature	: component_feature;
+  END_ENTITY; -- component_feature_make_from_relationship
+
   ENTITY Component_feature_relationship
   	SUBTYPE OF (Shape_element_relationship);
       SELF\Shape_element_relationship.related  : component_feature;
       SELF\Shape_element_relationship.relating : component_feature;
   END_ENTITY; -- component_feature_relationship
+
+  ENTITY Component_feature_to_physical_usage_view_assignment;
+      defined_part_feature   : part_feature;
+      assigned_design_object : component_feature;
+    UNIQUE 
+    	u1 : assigned_design_object;
+    	u2 : defined_part_feature;
+  END_ENTITY; -- component_feature_to_physical_usage_view_assignment
 
   ENTITY Component_terminal
     SUBTYPE OF (Component_feature);
@@ -41,11 +47,5 @@ SCHEMA Component_feature_arm;
       global_swappable : OPTIONAL BOOLEAN;
       swap_code        : OPTIONAL STRING;
   END_ENTITY; -- component_terminal
-
-  ENTITY Component_feature_make_from_relationship
-		SUBTYPE OF (Shape_element_relationship);
-      SELF\Shape_element_relationship.relating RENAMED reusable_feature	: component_feature;
-      SELF\Shape_element_relationship.related RENAMED resultant_feature	: component_feature;
-  END_ENTITY; -- component_feature_make_from_relationship
 
 END_SCHEMA;

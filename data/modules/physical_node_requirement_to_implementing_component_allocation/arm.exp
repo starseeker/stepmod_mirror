@@ -38,30 +38,6 @@ USE FROM Assembly_technology_arm;
       WR3 : SIZEOF(QUERY(pct <* physical_node_requirement.associated_terminals | pct\component_feature.associated_component = implementation_component)) = 0;
   END_ENTITY; -- physical_node_requirement_to_implementing_component_allocation
 
-  FUNCTION get_pctr(
-    ac   : assembly_component ;
-    imjb : SET OF interface_mounted_join
-  ) : SET OF packaged_connector_terminal_relationship;
-
-    LOCAL
-      cf   : component_feature;
-      pctr : SET OF packaged_connector_terminal_relationship := [];
-    END_LOCAL;
-
-    cf := imjb[1].connection_to_interconnect_module_component;
-    IF ac :=: cf.associated_component THEN
-      IF ('AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(cf.definition)) THEN
-        pctr := cf.definition.external_connector_function;
-        RETURN(pctr);
-      ELSE
-        RETURN(pctr);
-      END_IF;
-    ELSE
-      RETURN(pctr);
-    END_IF;
-    RETURN(?);
-  END_FUNCTION; -- get_pctr
-
   FUNCTION get_cit(
     ac  : assembly_component ;
     ajb : SET OF assembly_joint
@@ -114,5 +90,29 @@ USE FROM Assembly_technology_arm;
     END_REPEAT;
     RETURN(?);
   END_FUNCTION; -- get_pctd
+
+  FUNCTION get_pctr(
+    ac   : assembly_component ;
+    imjb : SET OF interface_mounted_join
+  ) : SET OF packaged_connector_terminal_relationship;
+
+    LOCAL
+      cf   : component_feature;
+      pctr : SET OF packaged_connector_terminal_relationship := [];
+    END_LOCAL;
+
+    cf := imjb[1].connection_to_interconnect_module_component;
+    IF ac :=: cf.associated_component THEN
+      IF ('AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(cf.definition)) THEN
+        pctr := cf.definition.external_connector_function;
+        RETURN(pctr);
+      ELSE
+        RETURN(pctr);
+      END_IF;
+    ELSE
+      RETURN(pctr);
+    END_IF;
+    RETURN(?);
+  END_FUNCTION; -- get_pctr
 
 END_SCHEMA;  

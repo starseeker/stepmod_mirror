@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2004/11/19 08:24:48 budreckytej Exp $
+   $Id: arm.exp,v 1.3 2004/11/30 09:39:28 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module with interconnect component - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
 
@@ -16,11 +16,13 @@ USE FROM Physical_unit_design_view_arm;
 
 USE FROM Interface_component_arm;
 
-  ENTITY Interconnect_module_component
---    SUPERTYPE OF (interconnect_module_macro_component)
-    SUBTYPE OF (physical_component);
-      SELF\definition_based_product_occurrence.derived_from : interconnect_module_usage_view;
-  END_ENTITY; -- interconnect_module_component
+  ENTITY Interconnect_component_interface_terminal
+    SUBTYPE OF (Component_interface_terminal);
+      connection : OPTIONAL connection_zone_in_design_view;
+    UNIQUE
+      ur1 : SELF\shape_element.element_name,
+ SELF\component_feature.associated_component;
+  END_ENTITY; -- interconnect_component_interface_terminal
 
   ENTITY Interconnect_component_join_terminal
     SUBTYPE OF (physical_component_terminal);
@@ -31,13 +33,16 @@ USE FROM Interface_component_arm;
  SELF\component_feature.associated_component;
   END_ENTITY; -- interconnect_component_join_terminal
 
-  ENTITY Interconnect_component_interface_terminal
-    SUBTYPE OF (Component_interface_terminal);
-      connection : OPTIONAL connection_zone_in_design_view;
-    UNIQUE
-      ur1 : SELF\shape_element.element_name,
- SELF\component_feature.associated_component;
-  END_ENTITY; -- interconnect_component_interface_terminal
+  ENTITY Interconnect_module_component
+--    SUPERTYPE OF (interconnect_module_macro_component)
+    SUBTYPE OF (physical_component);
+      SELF\definition_based_product_occurrence.derived_from : interconnect_module_usage_view;
+  END_ENTITY; -- interconnect_module_component
+
+  ENTITY Interconnect_module_component_surface_feature
+    SUBTYPE OF (physical_component_feature);
+      SELF\component_feature.definition : interconnect_module_surface_feature;
+  END_ENTITY; -- interconnect_module_component_surface_feature
 
   ENTITY Interconnect_module_component_terminal
 --    SUPERTYPE OF ((interconnect_module_component_stratum_based_terminal) ANDOR
@@ -46,10 +51,5 @@ USE FROM Interface_component_arm;
       SELF\component_feature.definition           : interconnect_module_terminal;
       SELF\component_feature.associated_component : interconnect_module_component;
   END_ENTITY; -- interconnect_module_component_terminal
-
-  ENTITY Interconnect_module_component_surface_feature
-    SUBTYPE OF (physical_component_feature);
-      SELF\component_feature.definition : interconnect_module_surface_feature;
-  END_ENTITY; -- interconnect_module_component_surface_feature
 
 END_SCHEMA;

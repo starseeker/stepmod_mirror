@@ -35,6 +35,14 @@ USE FROM Product_view_definition_arm;
       evaluation_result             : evaluation_result_value;
   END_ENTITY; -- evaluated_characteristic
 
+  ENTITY Evaluation_ee_product_definition
+    SUBTYPE OF (product_view_definition);
+      evaluated_product_definition : product_view_definition;
+      evaluation_data              : SET[1:?] OF evaluated_characteristic;
+    WHERE
+      WR1 : TYPEOF(SELF) <> TYPEOF(evaluated_product_definition);
+  END_ENTITY; -- evaluation_ee_product_definition
+
   ENTITY Planned_characteristic;
       reference_requirement              : requirement_allocation_select;
       planned_coordinated_characteristic : coordinated_characteristic;
@@ -44,13 +52,5 @@ USE FROM Product_view_definition_arm;
     SUBTYPE OF (Evaluated_characteristic);
       evaluating_rule : rule_definition;
   END_ENTITY; -- rule_based_evaluated_characteristic
-
-  ENTITY Evaluation_ee_product_definition
-    SUBTYPE OF (product_view_definition);
-      evaluated_product_definition : product_view_definition;
-      evaluation_data              : SET[1:?] OF evaluated_characteristic;
-    WHERE
-      WR1 : TYPEOF(SELF) <> TYPEOF(evaluated_product_definition);
-  END_ENTITY; -- evaluation_ee_product_definition
 
 END_SCHEMA; -- Planned_characteristic_arm

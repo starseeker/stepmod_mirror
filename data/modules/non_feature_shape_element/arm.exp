@@ -18,16 +18,22 @@ REFERENCE FROM Part_feature_location_arm;
 	
   TYPE view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
+  
+  ENTITY Non_feature_shape_composition_relationship
+    SUBTYPE OF (Geometric_model_relationship);
+      related_feature_shape_placement : OPTIONAL axis_placement_or_cto2d;
+    DERIVE
+      related_feature_shape   : non_feature_shape_definition := SELF\Geometric_model_relationship.rep_1;
+      resultant_feature_shape : non_feature_shape_definition := SELF\Geometric_model_relationship.rep_2;
+    WHERE
+      WR1 : EXISTS(related_feature_shape_placement) OR (related_feature_shape\representation.context_of_items :=: resultant_feature_shape\representation.context_of_items);
+  END_ENTITY; -- non_feature_shape_composition_relationship
 
-(**     Removed
-  WR1 : SIZEOF(['AP210_ARM.BARE_DIE', 'AP210_ARM.PACKAGE'] * TYPEOF(SELF\non_feature_shape_element.scope)) = 1;
-  Need to rewrite it as global rule later
-*)  
-  ENTITY Seating_plane
-    SUBTYPE OF (Non_feature_shape_element);
---    WHERE
---      WR1 : SIZEOF(['AP210_ARM.BARE_DIE', 'AP210_ARM.PACKAGE'] * TYPEOF(SELF\non_feature_shape_element.scope)) = 1;
-  END_ENTITY; -- seating_plane
+  ENTITY Non_feature_shape_definition
+    SUBTYPE OF (Geometric_model);
+      associated_element : non_feature_shape_element;
+      model_shape        : OPTIONAL feature_shape_definition;
+  END_ENTITY; -- non_feature_shape_definition
 
   ENTITY Non_feature_shape_element
     SUBTYPE OF (shape_element);
@@ -51,25 +57,19 @@ REFERENCE FROM Part_feature_location_arm;
  SELF\shape_element_relationship.relating;
   END_ENTITY; -- non_feature_shape_element_relationship
 
-  ENTITY Non_feature_shape_definition
-    SUBTYPE OF (Geometric_model);
-      associated_element : non_feature_shape_element;
-      model_shape        : OPTIONAL feature_shape_definition;
-  END_ENTITY; -- non_feature_shape_definition
-
    ENTITY Reference_graphic_registration_mark
     SUBTYPE OF (Non_feature_shape_element);
   END_ENTITY; -- reference_graphic_registration_mark
-  
-  ENTITY Non_feature_shape_composition_relationship
-    SUBTYPE OF (Geometric_model_relationship);
-      related_feature_shape_placement : OPTIONAL axis_placement_or_cto2d;
-    DERIVE
-      related_feature_shape   : non_feature_shape_definition := SELF\Geometric_model_relationship.rep_1;
-      resultant_feature_shape : non_feature_shape_definition := SELF\Geometric_model_relationship.rep_2;
-    WHERE
-      WR1 : EXISTS(related_feature_shape_placement) OR (related_feature_shape\representation.context_of_items :=: resultant_feature_shape\representation.context_of_items);
-  END_ENTITY; -- non_feature_shape_composition_relationship
+
+(**     Removed
+  WR1 : SIZEOF(['AP210_ARM.BARE_DIE', 'AP210_ARM.PACKAGE'] * TYPEOF(SELF\non_feature_shape_element.scope)) = 1;
+  Need to rewrite it as global rule later
+*)  
+  ENTITY Seating_plane
+    SUBTYPE OF (Non_feature_shape_element);
+--    WHERE
+--      WR1 : SIZEOF(['AP210_ARM.BARE_DIE', 'AP210_ARM.PACKAGE'] * TYPEOF(SELF\non_feature_shape_element.scope)) = 1;
+  END_ENTITY; -- seating_plane
 
   ENTITY View_level_non_feature_shape_definition
     SUBTYPE OF (Non_feature_shape_definition);

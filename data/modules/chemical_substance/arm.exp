@@ -146,20 +146,13 @@ CONSTANT
       'DARMSTADTIUM', -- 110
       'ROENTGENIUM']; -- 111
   END_CONSTANT; 
-   
-  ENTITY Substance
-    SUPERTYPE OF (ONEOF(Chemical_element, Chemical_compound, Physical_particle))
-    SUBTYPE OF (Product);    
-  WHERE 
-     wr1: SIZEOF([ 'substance' ] * types_of_product(SELF))= 1 ; 
-  END_ENTITY; 
-   
-  ENTITY Chemical_element 
-    SUBTYPE OF (Substance); 
-  WHERE 
-     wr1: SIZEOF([ 'chemical element' ] * types_of_product(SELF))= 1 ; 
-     wr2: SELF/product.name in chemical_elements; 
-  END_ENTITY; 
+
+  TYPE substance_composition_basis = EXTENSIBLE ENUMERATION OF ( 
+       VOLUME, 
+       WEIGHT, 
+       MOLES, 
+       ATOMS);      
+  END_TYPE; 
  
 (** 
 A chemical compound is a substance formed from two or more chemical elements, with a fixed ratio determining the composition.  
@@ -185,6 +178,13 @@ Example 2: The CAS number of water is "7732-18-5".
      WR2: SIZEOF(QUERY(t <* SELF\organization_or_person_in_organization_assignment. items | t.role = 'id owner') = 1); 
   END_ENTITY; 
    
+  ENTITY Chemical_element 
+    SUBTYPE OF (Substance); 
+  WHERE 
+     wr1: SIZEOF([ 'chemical element' ] * types_of_product(SELF))= 1 ; 
+     wr2: SELF/product.name in chemical_elements; 
+  END_ENTITY; 
+   
  
 (** A Physical_particle is a kind of substance from physics covering
  radiation and all kinds of subatomic and elementary particles.
@@ -202,24 +202,13 @@ Example 2: The CAS number of water is "7732-18-5".
      		SELF\View_definition_relationship.related_view RENAMED application : Part_view_definition;
      		SELF\View_definition_relationship.relating_view RENAMED definition : Substance_view_definition;  
    END_ENTITY;
-
-  ENTITY Substance_version 
-    SUBTYPE OF (Product_version); 
-    SELF\Product_version.of_product : Substance; 
+   
+  ENTITY Substance
+    SUPERTYPE OF (ONEOF(Chemical_element, Chemical_compound, Physical_particle))
+    SUBTYPE OF (Product);    
+  WHERE 
+     wr1: SIZEOF([ 'substance' ] * types_of_product(SELF))= 1 ; 
   END_ENTITY; 
- 
-  
-  ENTITY Substance_view_definition 
-    SUBTYPE OF (Product_view_definition); 
-    SELF\Product_view_definition.defined_version : Substance_version; 
-  END_ENTITY; 
-
-  TYPE substance_composition_basis = EXTENSIBLE ENUMERATION OF ( 
-       VOLUME, 
-       WEIGHT, 
-       MOLES, 
-       ATOMS);      
-  END_TYPE; 
    
   ENTITY Substance_composition_relationship 
     SUBTYPE OF (view_definition_relationship);
@@ -231,6 +220,17 @@ Example 2: The CAS number of water is "7732-18-5".
       (** unit shall be ratio, representing the fraction of 
   WHERE 
        WR1: ; --  unit shall be ratio *)
+  END_ENTITY; 
+
+  ENTITY Substance_version 
+    SUBTYPE OF (Product_version); 
+    SELF\Product_version.of_product : Substance; 
+  END_ENTITY; 
+ 
+  
+  ENTITY Substance_view_definition 
+    SUBTYPE OF (Product_view_definition); 
+    SELF\Product_view_definition.defined_version : Substance_version; 
   END_ENTITY; 
  
 END_SCHEMA; 

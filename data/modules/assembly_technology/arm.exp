@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/19 14:34:47 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/30 11:51:56 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly technology - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
 
@@ -19,6 +19,10 @@ USE FROM External_item_identification_assignment_arm;
 
 USE FROM Product_identification_extension_arm (externally_defined_ee_product_definition);
 
+ 	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Assembly_bond_definition);
+	END_TYPE;
+
   TYPE degree_of_freedom = ENUMERATION OF
     (x,
      y,
@@ -28,27 +32,18 @@ USE FROM Product_identification_extension_arm (externally_defined_ee_product_def
      w);
   END_TYPE; -- degree_of_freedom
 
-  ENTITY Connection_zone_based_assembly_joint
+  ENTITY Assembled_with_bonding
     SUBTYPE OF (Assembly_joint);
-      zone_1 : connection_zone_in_design_view;
-      zone_2 : connection_zone_in_design_view;
+      default_bond_definition : assembly_bond_definition;
     WHERE
-      WR1 : zone_1 :<>: zone_2;
-  END_ENTITY; -- connection_zone_based_assembly_joint
+      WR1 : SELF\assembly_joint.assembly_features_1.definition :=: default_bond_definition.bonded_feature_1;
+      WR2 : SELF\assembly_joint.assembly_features_2.definition :=: default_bond_definition.bonded_feature_2;
+  END_ENTITY; -- assembled_with_bonding
 
-  ENTITY Component_mating_constraint_condition;
-      constraining_joint            : SET[1:3] OF assembly_joint;
-      constrained_degree_of_freedom : SET[1:5] OF degree_of_freedom;
-      of_context                    : part_design_view;
-      name                          : STRING; --ee_name;
-    UNIQUE
-      UR1 : name,
- of_context;
-  END_ENTITY; -- component_mating_constraint_condition
-
- 	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Assembly_bond_definition);
-	END_TYPE;
+  ENTITY Assembled_with_fasteners
+    SUBTYPE OF (Assembly_joint);
+      SELF\assembly_joint.associated_assembly : assembly_group_component;
+  END_ENTITY; -- assembled_with_fasteners
 
   ENTITY Assembly_bond_definition;
       analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF analytical_model_application;
@@ -65,19 +60,6 @@ USE FROM Product_identification_extension_arm (externally_defined_ee_product_def
     WHERE
       wr1 : bonded_feature_1 <> bonded_feature_2;
   END_ENTITY; -- assembly_bond_definition
-
-  ENTITY Assembled_with_bonding
-    SUBTYPE OF (Assembly_joint);
-      default_bond_definition : assembly_bond_definition;
-    WHERE
-      WR1 : SELF\assembly_joint.assembly_features_1.definition :=: default_bond_definition.bonded_feature_1;
-      WR2 : SELF\assembly_joint.assembly_features_2.definition :=: default_bond_definition.bonded_feature_2;
-  END_ENTITY; -- assembled_with_bonding
-
-  ENTITY Assembled_with_fasteners
-    SUBTYPE OF (Assembly_joint);
-      SELF\assembly_joint.associated_assembly : assembly_group_component;
-  END_ENTITY; -- assembled_with_fasteners
 
   ENTITY Assembly_joint
     SUPERTYPE OF (assembled_with_fasteners ANDOR
@@ -99,6 +81,24 @@ USE FROM Product_identification_extension_arm (externally_defined_ee_product_def
   ENTITY Assembly_technology_specification
     SUBTYPE OF (process_specification);
   END_ENTITY; -- assembly_technology_specification
+
+  ENTITY Component_mating_constraint_condition;
+      constraining_joint            : SET[1:3] OF assembly_joint;
+      constrained_degree_of_freedom : SET[1:5] OF degree_of_freedom;
+      of_context                    : part_design_view;
+      name                          : STRING; --ee_name;
+    UNIQUE
+      UR1 : name,
+ of_context;
+  END_ENTITY; -- component_mating_constraint_condition
+
+  ENTITY Connection_zone_based_assembly_joint
+    SUBTYPE OF (Assembly_joint);
+      zone_1 : connection_zone_in_design_view;
+      zone_2 : connection_zone_in_design_view;
+    WHERE
+      WR1 : zone_1 :<>: zone_2;
+  END_ENTITY; -- connection_zone_based_assembly_joint
 
   ENTITY Default_assembly_bond_shape
     SUBTYPE OF (Feature_shape_definition);

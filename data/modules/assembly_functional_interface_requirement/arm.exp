@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2004/11/19 07:39:08 budreckytej Exp $
+   $Id: arm.exp,v 1.3 2004/11/30 11:44:44 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly functional interface requirement - EXPRESS ARM
 (* UNDER DEVELOPMENT *)
 
@@ -27,6 +27,30 @@ USE FROM Assembly_physical_interface_requirement_arm;
       reference_protocol                : OPTIONAL protocol_physical_layer_definition;
   END_ENTITY; -- interface_requirement_occurrence
 
+  ENTITY Mating_connector_termination;
+      definition         : mating_connector_definition_select;
+      accessed_connector : mating_connector_component;
+      name               : STRING; --ee_name;
+(** Need a WR to capture cardinality      
+      signal_definition  : OPTIONAL Requirement_definition_property;
+*)      
+    UNIQUE
+      ur1 : definition,
+ accessed_connector;
+  END_ENTITY; -- mating_connector_termination
+
+  ENTITY Minimally_defined_connector
+    SUBTYPE OF (packaged_part);
+    	SELF\packaged_part.used_package	: SET[1:?] OF package_external_reference;
+    INVERSE
+      terminal 												: SET[1:?] OF Shape_element FOR containing_shape;
+    WHERE
+      WR1 : SIZEOF(QUERY(t <* SELF\packaged_part.access_mechanisms | ('AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(t)))) >= 0;
+      WR2 : NOT EXISTS(SELF\packaged_part.implemented_function);
+      WR3 : NOT EXISTS(SELF\packaged_part.potting_compound);
+      WR4 : NOT ('AP210_ARM.ALTERED_PACKAGED_PART' IN TYPEOF(SELF));
+  END_ENTITY; -- minimally_defined_connector
+
   ENTITY Protocol_physical_layer_definition
     SUBTYPE OF (product_view_definition);
       host_connector                       : OPTIONAL minimally_defined_connector;
@@ -53,30 +77,6 @@ USE FROM Assembly_physical_interface_requirement_arm;
       WR1 : EXISTS(SELF\requirement_assignment.assigned_requirement.reference_protocol);
       WR2 : protocol_signal IN SELF\requirement_assignment.assigned_requirement.reference_protocol.host_functional_definition\functional_unit_usage_view.access_mechanism;
   END_ENTITY; -- protocol_requirement_allocation_to_part_terminal
-
-  ENTITY Mating_connector_termination;
-      definition         : mating_connector_definition_select;
-      accessed_connector : mating_connector_component;
-      name               : STRING; --ee_name;
-(** Need a WR to capture cardinality      
-      signal_definition  : OPTIONAL Requirement_definition_property;
-*)      
-    UNIQUE
-      ur1 : definition,
- accessed_connector;
-  END_ENTITY; -- mating_connector_termination
-
-  ENTITY Minimally_defined_connector
-    SUBTYPE OF (packaged_part);
-    	SELF\packaged_part.used_package	: SET[1:?] OF package_external_reference;
-    INVERSE
-      terminal 												: SET[1:?] OF Shape_element FOR containing_shape;
-    WHERE
-      WR1 : SIZEOF(QUERY(t <* SELF\packaged_part.access_mechanisms | ('AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(t)))) >= 0;
-      WR2 : NOT EXISTS(SELF\packaged_part.implemented_function);
-      WR3 : NOT EXISTS(SELF\packaged_part.potting_compound);
-      WR4 : NOT ('AP210_ARM.ALTERED_PACKAGED_PART' IN TYPEOF(SELF));
-  END_ENTITY; -- minimally_defined_connector
 
   ENTITY Termination_constraint;
       constrained_termination      : SET[2:?] OF mating_connector_termination;

@@ -23,15 +23,15 @@ USE FROM Part_feature_function_arm;
 
 USE FROM Part_feature_location_arm;
 
-  TYPE mounting_technology_type = ENUMERATION OF
-    (surface_mount,
-     through_hole);
-  END_TYPE; -- mounting_technology_type
-
   TYPE lead_form_type = SELECT
     (predefined_lead_form,
      external_item_identification);
   END_TYPE; -- lead_form_type
+
+  TYPE mounting_technology_type = ENUMERATION OF
+    (surface_mount,
+     through_hole);
+  END_TYPE; -- mounting_technology_type
 
   TYPE predefined_lead_form = ENUMERATION OF
     (gull_wing,
@@ -61,6 +61,12 @@ USE FROM Part_feature_location_arm;
     WHERE
       wr1 : derived_zone_shape_class IN ['area','edge'];
   END_ENTITY;
+
+  ENTITY Functional_orientation_feature
+    SUBTYPE OF (part_feature);
+      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
+      associated_terminal             : primary_reference_terminal;
+  END_ENTITY; -- functional_orientation_feature
 
   ENTITY Guided_wave_terminal
     SUBTYPE OF (package_terminal);
@@ -193,18 +199,6 @@ USE FROM Part_feature_location_arm;
       SELF\shape_element_relationship.related  : package_terminal;
   END_ENTITY; -- package_terminal_surface_constituent_relationship
 
-  ENTITY Primary_reference_terminal
-    SUBTYPE OF (package_terminal);
-    WHERE
-      WR1 : NOT (EXISTS(SELF\part_feature.precedent_feature));
-  END_ENTITY; -- primary_reference_terminal
-
-  ENTITY Functional_orientation_feature
-    SUBTYPE OF (part_feature);
-      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
-      associated_terminal             : primary_reference_terminal;
-  END_ENTITY; -- functional_orientation_feature
-
   ENTITY Polarity_indication_feature
     SUBTYPE OF (part_feature);
       associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
@@ -216,6 +210,12 @@ USE FROM Part_feature_location_arm;
  datum_feature);
       associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
   END_ENTITY; -- primary_orientation_feature
+
+  ENTITY Primary_reference_terminal
+    SUBTYPE OF (package_terminal);
+    WHERE
+      WR1 : NOT (EXISTS(SELF\part_feature.precedent_feature));
+  END_ENTITY; -- primary_reference_terminal
 
   ENTITY Secondary_orientation_feature
     SUBTYPE OF (part_feature,

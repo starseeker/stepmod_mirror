@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2004/11/19 07:57:38 budreckytej Exp $
+   $Id: arm.exp,v 1.3 2004/11/30 11:48:05 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module design - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
 
@@ -26,18 +26,20 @@ USE FROM Physical_unit_design_view_arm;
 		EXTENSIBLE GENERIC_ENTITY SELECT (assembly_module);
 	END_TYPE;
 
-  ENTITY Routed_interconnect_component
-    SUBTYPE OF (physical_component);
-      routed_centreline_shape : curve;
-  END_ENTITY; -- routed_interconnect_component
+  ENTITY Assembly_module
+    SUBTYPE OF (part_design_view);
+  END_ENTITY; -- assembly_module
 
-  ENTITY Component_feature_external_reference;
-      associated_component : component_external_reference;
-      name                 : STRING;
-    UNIQUE
-      ur1 : associated_component,
- name;
-  END_ENTITY; -- component_feature_external_reference
+  ENTITY Bare_die_component
+    SUBTYPE OF (physical_component);
+      SELF\definition_based_product_occurrence.derived_from : bare_die;
+  END_ENTITY; -- bare_die_component
+
+  ENTITY Bare_die_component_terminal
+    SUBTYPE OF (physical_component_terminal);
+      SELF\component_feature.definition           : bare_die_terminal;
+      SELF\component_feature.associated_component : bare_die_component;
+  END_ENTITY; -- bare_die_component_terminal
 
   ENTITY Component_external_reference;
       design_owner          : STRING;
@@ -47,33 +49,13 @@ USE FROM Physical_unit_design_view_arm;
       reference_designation : STRING;
   END_ENTITY; -- component_external_reference
 
-  ENTITY Bare_die_component
-    SUBTYPE OF (physical_component);
-      SELF\definition_based_product_occurrence.derived_from : bare_die;
-  END_ENTITY; -- bare_die_component
-
-  ENTITY Packaged_component
-    SUBTYPE OF (physical_component);
-      SELF\definition_based_product_occurrence.derived_from : packaged_part;
-      selected_package_alternate               : OPTIONAL altered_package;
-    INVERSE
-      access_mechanism : SET[1:?] OF packaged_component_join_terminal FOR associated_component;
-  END_ENTITY; -- packaged_component
-
-  ENTITY Bare_die_component_terminal
-    SUBTYPE OF (physical_component_terminal);
-      SELF\component_feature.definition           : bare_die_terminal;
-      SELF\component_feature.associated_component : bare_die_component;
-  END_ENTITY; -- bare_die_component_terminal
-
-  ENTITY Minimally_defined_component_terminal
-    SUBTYPE OF (physical_component_terminal);
-      SELF\component_feature.definition : part_terminal_external_reference;
-  END_ENTITY; -- minimally_defined_component_terminal
-
-  ENTITY Assembly_module
-    SUBTYPE OF (part_design_view);
-  END_ENTITY; -- assembly_module
+  ENTITY Component_feature_external_reference;
+      associated_component : component_external_reference;
+      name                 : STRING;
+    UNIQUE
+      ur1 : associated_component,
+ name;
+  END_ENTITY; -- component_feature_external_reference
 
   ENTITY Component_mounting_clearance_relationship;
       feature_relationship       : component_feature_relationship;
@@ -93,6 +75,11 @@ USE FROM Physical_unit_design_view_arm;
       maximum_added_clearance     : OPTIONAL length_data_element;
   END_ENTITY; -- component_overlap_relationship
 
+  ENTITY Minimally_defined_component_terminal
+    SUBTYPE OF (physical_component_terminal);
+      SELF\component_feature.definition : part_terminal_external_reference;
+  END_ENTITY; -- minimally_defined_component_terminal
+
   ENTITY Movable_packaged_component_join_terminal
     SUBTYPE OF (packaged_component_join_terminal);
       maximum_wire_terminal_length : length_data_element;
@@ -106,6 +93,14 @@ USE FROM Physical_unit_design_view_arm;
       associated_component : packaged_component;
   END_ENTITY; -- package_terminal_occurrence
 
+  ENTITY Packaged_component
+    SUBTYPE OF (physical_component);
+      SELF\definition_based_product_occurrence.derived_from : packaged_part;
+      selected_package_alternate               : OPTIONAL altered_package;
+    INVERSE
+      access_mechanism : SET[1:?] OF packaged_component_join_terminal FOR associated_component;
+  END_ENTITY; -- packaged_component
+
   ENTITY Packaged_component_join_terminal
     SUBTYPE OF (physical_component_terminal);
       SELF\component_feature.definition           : packaged_part_join_terminal;
@@ -116,6 +111,11 @@ USE FROM Physical_unit_design_view_arm;
     SUBTYPE OF (Assembly_module);
       SELF\part_design_view.usage_view : pca_usage_view;
   END_ENTITY; -- pca
+
+  ENTITY Routed_interconnect_component
+    SUBTYPE OF (physical_component);
+      routed_centreline_shape : curve;
+  END_ENTITY; -- routed_interconnect_component
 
   ENTITY Routed_physical_component
     SUBTYPE OF (physical_component);

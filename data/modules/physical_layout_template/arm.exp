@@ -30,17 +30,6 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
      characteristic);
   END_TYPE; -- correlated_or_independent
 
-  ENTITY Reference_functional_unit_assignment_to_template;
-      functional_design_definition_path : reference_composition_path;
-      implementation                    : layout_template_definition;
-      of_property                       : OPTIONAL SET[1:?] OF coordinated_characteristic;
-      path_alias                        : STRING; --ee_name;
-      swap_code                         : OPTIONAL STRING;
-    UNIQUE
-      ur1 : implementation,
- path_alias;
-  END_ENTITY; 
-
   ENTITY Connection_zone_in_layout_template
   	SUBTYPE OF (Connection_zone);
   	SELF\shape_element.containing_shape : shape_element;
@@ -58,6 +47,17 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
       WR2 : SELF\shape_element.element_name = 'NULL';
   END_ENTITY; -- layout_template_definition
 
+  ENTITY Reference_functional_unit_assignment_to_template;
+      functional_design_definition_path : reference_composition_path;
+      implementation                    : layout_template_definition;
+      of_property                       : OPTIONAL SET[1:?] OF coordinated_characteristic;
+      path_alias                        : STRING; --ee_name;
+      swap_code                         : OPTIONAL STRING;
+    UNIQUE
+      ur1 : implementation,
+ path_alias;
+  END_ENTITY; 
+
 	ENTITY Reference_part_template_for_analytical_model ;
 		template 									: Layout_template_definition;
 		analytical_representation : Analytical_representation;
@@ -65,18 +65,18 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
 			ur1 : template;
 	END_ENTITY;
 
+  ENTITY Template
+  	SUBTYPE OF (Product);
+  	WHERE 
+  		wr1 : SIZEOF([ 'template model' ] * types_of_product(SELF))= 1 ;
+  END_ENTITY; -- template
+
   ENTITY Template_definition
     SUBTYPE OF (item_shape, product_view_definition);
     	SELF\product_view_definition.defined_version 	: template_version;
     DERIVE	
     	SELF\item_shape.described_element     				: template_definition := SELF;      
   END_ENTITY; -- layout_template_definition
-
-  ENTITY Template
-  	SUBTYPE OF (Product);
-  	WHERE 
-  		wr1 : SIZEOF([ 'template model' ] * types_of_product(SELF))= 1 ;
-  END_ENTITY; -- template
   
   ENTITY Template_version
   	SUBTYPE OF (Product_version);

@@ -9,6 +9,30 @@ USE FROM Layered_interconnect_module_design_arm;
 
 USE FROM Part_template_3d_shape_arm;
 
+  ENTITY Cutout
+    SUPERTYPE OF (ONEOF (physical_connectivity_interrupting_cutout,
+ plated_cutout,
+ partially_plated_cutout))
+    SUBTYPE OF (Inter_stratum_feature);
+  END_ENTITY; -- cutout
+
+  ENTITY Cutout_edge_segment
+    SUPERTYPE OF (plated_cutout_edge_segment)
+    SUBTYPE OF (Inter_stratum_feature);
+      composed_cutout                             : cutout;
+      start_vertex                                : edge_segment_vertex;
+      end_vertex                                  : edge_segment_vertex;
+      SELF\inter_stratum_feature.derived_from : inter_stratum_feature_edge_segment_template;
+    WHERE
+      wr1 : start_vertex :<>: end_vertex;
+  END_ENTITY; -- cutout_edge_segment
+
+  ENTITY Dielectric_material_passage
+    SUBTYPE OF (Inter_stratum_feature);
+      feature_material  : OPTIONAL material_or_specification;
+      precedent_passage : cutout;
+  END_ENTITY; -- dielectric_material_passage
+
   ENTITY Edge_segment_cross_section
     SUBTYPE OF (shape_definition_3d_intersection);
     DERIVE
@@ -46,53 +70,6 @@ USE FROM Part_template_3d_shape_arm;
       edges : SET[2:?] OF inter_stratum_feature_edge_segment_template FOR composed_edge;
   END_ENTITY; -- inter_stratum_feature_edge_template
 
-  ENTITY Cutout
-    SUPERTYPE OF (ONEOF (physical_connectivity_interrupting_cutout,
- plated_cutout,
- partially_plated_cutout))
-    SUBTYPE OF (Inter_stratum_feature);
-  END_ENTITY; -- cutout
-
-  ENTITY Cutout_edge_segment
-    SUPERTYPE OF (plated_cutout_edge_segment)
-    SUBTYPE OF (Inter_stratum_feature);
-      composed_cutout                             : cutout;
-      start_vertex                                : edge_segment_vertex;
-      end_vertex                                  : edge_segment_vertex;
-      SELF\inter_stratum_feature.derived_from : inter_stratum_feature_edge_segment_template;
-    WHERE
-      wr1 : start_vertex :<>: end_vertex;
-  END_ENTITY; -- cutout_edge_segment
-
-  ENTITY Partially_plated_cutout
-    SUBTYPE OF (Cutout);
-    INVERSE
-      plated_segment   : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
-      unplated_segment : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
-  END_ENTITY; -- partially_plated_cutout
-
-  ENTITY Plated_cutout_edge_segment
-    SUBTYPE OF (Cutout_edge_segment,
- plated_inter_stratum_feature);
-      SELF\cutout_edge_segment.composed_cutout : partially_plated_cutout;
-  END_ENTITY; -- plated_cutout_edge_segment
-
-  ENTITY Physical_connectivity_interrupting_cutout
-    SUBTYPE OF (Cutout);
-      interrupted_connectivity_element : SET[1:?] OF conductive_interconnect_element;
-  END_ENTITY; -- physical_connectivity_interrupting_cutout
-
-  ENTITY Plated_cutout
-    SUBTYPE OF (Cutout,
- plated_inter_stratum_feature);
-  END_ENTITY; -- plated_cutout
-
-  ENTITY Dielectric_material_passage
-    SUBTYPE OF (Inter_stratum_feature);
-      feature_material  : OPTIONAL material_or_specification;
-      precedent_passage : cutout;
-  END_ENTITY; -- dielectric_material_passage
-
   ENTITY Interconnect_module_edge
     SUPERTYPE OF (ONEOF (partially_plated_interconnect_module_edge,
  plated_interconnect_module_edge))
@@ -109,6 +86,13 @@ USE FROM Part_template_3d_shape_arm;
     WHERE
       wr1 : start_vertex :<>: end_vertex;
   END_ENTITY; -- interconnect_module_edge_segment
+
+  ENTITY Partially_plated_cutout
+    SUBTYPE OF (Cutout);
+    INVERSE
+      plated_segment   : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
+      unplated_segment : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
+  END_ENTITY; -- partially_plated_cutout
   
   ENTITY Partially_plated_interconnect_module_edge
     SUBTYPE OF (Interconnect_module_edge);
@@ -116,6 +100,22 @@ USE FROM Part_template_3d_shape_arm;
       plated_segment   : SET[1:?] OF interconnect_module_edge_segment FOR composed_edge;
       unplated_segment : SET[1:?] OF interconnect_module_edge_segment FOR composed_edge;
   END_ENTITY; -- partially_plated_interconnect_module_edge
+
+  ENTITY Physical_connectivity_interrupting_cutout
+    SUBTYPE OF (Cutout);
+      interrupted_connectivity_element : SET[1:?] OF conductive_interconnect_element;
+  END_ENTITY; -- physical_connectivity_interrupting_cutout
+
+  ENTITY Plated_cutout
+    SUBTYPE OF (Cutout,
+ plated_inter_stratum_feature);
+  END_ENTITY; -- plated_cutout
+
+  ENTITY Plated_cutout_edge_segment
+    SUBTYPE OF (Cutout_edge_segment,
+ plated_inter_stratum_feature);
+      SELF\cutout_edge_segment.composed_cutout : partially_plated_cutout;
+  END_ENTITY; -- plated_cutout_edge_segment
 
   ENTITY Plated_interconnect_module_edge
     SUBTYPE OF (Interconnect_module_edge,

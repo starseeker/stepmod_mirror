@@ -7,43 +7,6 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
 
 USE FROM Layered_interconnect_module_design_arm;
 
-  FUNCTION consistent_stack_definition(
-    input1 : printed_part_template ;
-    input2 : SET OF printed_component_link
-  ) : BOOLEAN;
-
-    LOCAL
-      pass : BOOLEAN := FALSE;
-    END_LOCAL;
-
-    REPEAT i := 1 TO SIZEOF(input2) BY 1;
-      pass := input2[i].definition.associated_printed_part_template :=: input1;
-    END_REPEAT;
-    RETURN(pass);
-  END_FUNCTION; -- consistent_stack_definition
-
-  FUNCTION printed_component_access_mechanisms(
-    input : SET OF printed_component_link
-  ) : SET OF printed_component_join_terminal;
-
-    LOCAL
-      pcjt : SET OF printed_component_join_terminal := [];
-    END_LOCAL;
-
-    REPEAT i := 1 TO SIZEOF(input) BY 1;
-      pcjt := input[i].precedent_printed_component.raw_access_mechanism + pcjt;
-      pcjt := input[i].subsequent_printed_component.raw_access_mechanism + pcjt;
-    END_REPEAT;
-    RETURN(pcjt);
-  END_FUNCTION; -- printed_component_access_mechanisms
-
-  ENTITY Routed_printed_component
-    SUBTYPE OF (printed_component);
-      routed_centreline_shape                  : curve;
-      SELF\definition_based_product_occurrence.derived_from : printed_part_cross_section_template;
-      component_extent                         : inter_stratum_extent;
-  END_ENTITY; -- routed_printed_component
-
  	TYPE limwpcd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
 		(Printed_component);
 	END_TYPE;
@@ -112,5 +75,42 @@ USE FROM Layered_interconnect_module_design_arm;
     WHERE
       WR1 : NOT EXISTS(SELF\component_feature.associated_component\printed_component.stratum_feature_implementation) OR (SIZEOF(QUERY(temp <* SELF\component_feature.associated_component\printed_component.stratum_feature_implementation | temp :=: stratum_concept_implementation.stratum_feature_implementation)) = 1);
   END_ENTITY; -- printed_connector_component_interface_terminal
+
+  ENTITY Routed_printed_component
+    SUBTYPE OF (printed_component);
+      routed_centreline_shape                  : curve;
+      SELF\definition_based_product_occurrence.derived_from : printed_part_cross_section_template;
+      component_extent                         : inter_stratum_extent;
+  END_ENTITY; -- routed_printed_component
+
+  FUNCTION consistent_stack_definition(
+    input1 : printed_part_template ;
+    input2 : SET OF printed_component_link
+  ) : BOOLEAN;
+
+    LOCAL
+      pass : BOOLEAN := FALSE;
+    END_LOCAL;
+
+    REPEAT i := 1 TO SIZEOF(input2) BY 1;
+      pass := input2[i].definition.associated_printed_part_template :=: input1;
+    END_REPEAT;
+    RETURN(pass);
+  END_FUNCTION; -- consistent_stack_definition
+
+  FUNCTION printed_component_access_mechanisms(
+    input : SET OF printed_component_link
+  ) : SET OF printed_component_join_terminal;
+
+    LOCAL
+      pcjt : SET OF printed_component_join_terminal := [];
+    END_LOCAL;
+
+    REPEAT i := 1 TO SIZEOF(input) BY 1;
+      pcjt := input[i].precedent_printed_component.raw_access_mechanism + pcjt;
+      pcjt := input[i].subsequent_printed_component.raw_access_mechanism + pcjt;
+    END_REPEAT;
+    RETURN(pcjt);
+  END_FUNCTION; -- printed_component_access_mechanisms
 
 END_SCHEMA; 

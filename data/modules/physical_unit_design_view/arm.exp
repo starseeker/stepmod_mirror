@@ -16,28 +16,6 @@ USE FROM Feature_and_connection_zone_arm;
 -- For assembly_component
 USE FROM Part_occurrence_arm;
 
-  ENTITY Component_to_physical_usage_view_assignment
-  	SUBTYPE OF (View_definition_relationship);
-      SELF\View_definition_relationship.related_view RENAMED usage_view_component  	: assembly_component;
-      SELF\View_definition_relationship.relating_view RENAMED design_view_component : assembly_component;
-    WHERE
-      WR1 : design_view_component <> usage_view_component;
-  END_ENTITY; -- component_to_physical_usage_view_assignment
-
-  ENTITY Connection_zone_in_design_view
-  	SUBTYPE OF (Connection_zone);
-  	SELF\part_feature.associated_definition : part_design_view;
-  END_ENTITY; 
-
-  ENTITY Part_design_view
-    SUBTYPE OF (Assembly_definition, Item_shape, Part_view_definition);
-      usage_view : OPTIONAL part_usage_view;
-    DERIVE
-    	SELF\item_shape.described_element : shapeable_item := SELF;
-    WHERE
-      WR1 : ('AP210_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view);
-  END_ENTITY; -- part_design_view
-
 	TYPE physical_unit_or_part_template_or_fp_or_pd = 
 		EXTENSIBLE GENERIC_ENTITY SELECT (part_view_definition);
 	END_TYPE;
@@ -65,6 +43,28 @@ USE FROM Part_occurrence_arm;
     WHERE
       WR1 : resultant_component <> reusable_component;
   END_ENTITY; -- component_make_from_relationship
+
+  ENTITY Component_to_physical_usage_view_assignment
+  	SUBTYPE OF (View_definition_relationship);
+      SELF\View_definition_relationship.related_view RENAMED usage_view_component  	: assembly_component;
+      SELF\View_definition_relationship.relating_view RENAMED design_view_component : assembly_component;
+    WHERE
+      WR1 : design_view_component <> usage_view_component;
+  END_ENTITY; -- component_to_physical_usage_view_assignment
+
+  ENTITY Connection_zone_in_design_view
+  	SUBTYPE OF (Connection_zone);
+  	SELF\part_feature.associated_definition : part_design_view;
+  END_ENTITY; 
+
+  ENTITY Part_design_view
+    SUBTYPE OF (Assembly_definition, Item_shape, Part_view_definition);
+      usage_view : OPTIONAL part_usage_view;
+    DERIVE
+    	SELF\item_shape.described_element : shapeable_item := SELF;
+    WHERE
+      WR1 : ('AP210_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view);
+  END_ENTITY; -- part_design_view
 
   ENTITY Physical_component
     SUBTYPE OF (Assembly_component, Definition_based_part_occurrence);

@@ -13,12 +13,6 @@ USE FROM Characteristic_arm;
 
 USE FROM Manufacturing_technology_arm (Stratum_technology);
 
-	SUBTYPE_CONSTRAINT inspection_requirement_occurrence_subtypes FOR inspection_requirement_occurrence;     
-	    (ONEOF (layout_line_width_tolerance_requirement_occurrence,
-	 layout_land_width_tolerance_requirement_occurrence,
-	 fabrication_thickness_requirement_occurrence));
-	END_SUBTYPE_CONSTRAINT;    
-
   TYPE metal_or_dielectric = ENUMERATION OF
     (over_finished_conductor,
      over_finished_dielectric);
@@ -37,13 +31,6 @@ USE FROM Manufacturing_technology_arm (Stratum_technology);
       maximum_negative_deviation : length_data_element;
   END_ENTITY; -- layout_land_width_tolerance_requirement_occurrence
 
-  ENTITY Pitch_class;
-      class_member : range_characteristic;
-      class_name   : STRING; --ee_name;
-    WHERE
-      wr1 : SIZEOF(QUERY(np <* class_member\characteristic_representation.items | NOT ('AP210_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(np)))) = 0;
-  END_ENTITY; -- pitch_class
-
   ENTITY Layout_line_width_tolerance_requirement_occurrence
     SUBTYPE OF (Inspection_requirement_occurrence);
       characterized_stratum_technology : stratum_technology;
@@ -58,5 +45,18 @@ USE FROM Manufacturing_technology_arm (Stratum_technology);
     WHERE
       wr1 : SIZEOF(QUERY(np <* class_member\characteristic_representation.items | NOT ('AP210_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(np)))) = 0;
   END_ENTITY; -- line_width_class
+
+  ENTITY Pitch_class;
+      class_member : range_characteristic;
+      class_name   : STRING; --ee_name;
+    WHERE
+      wr1 : SIZEOF(QUERY(np <* class_member\characteristic_representation.items | NOT ('AP210_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(np)))) = 0;
+  END_ENTITY; -- pitch_class
+
+	SUBTYPE_CONSTRAINT inspection_requirement_occurrence_subtypes FOR inspection_requirement_occurrence;     
+	    (ONEOF (layout_line_width_tolerance_requirement_occurrence,
+	 layout_land_width_tolerance_requirement_occurrence,
+	 fabrication_thickness_requirement_occurrence));
+	END_SUBTYPE_CONSTRAINT;    
 
 END_SCHEMA;

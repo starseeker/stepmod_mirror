@@ -13,12 +13,6 @@ USE FROM Layered_interconnect_module_with_printed_component_design_arm;
 
 USE FROM Physical_unit_design_view_arm;
 
-SUBTYPE_CONSTRAINT printed_component_subtypes FOR printed_component;  
-(ONEOF (layout_macro_component,
- printed_connector_component,
- routed_printed_component));
-END_SUBTYPE_CONSTRAINT;  
-
   ENTITY Layout_macro_component
     SUBTYPE OF (printed_component);
       design_definition                       	: layout_macro_definition;
@@ -27,6 +21,16 @@ END_SUBTYPE_CONSTRAINT;
       WR1 : NOT (EXISTS(SELF\printed_component.stratum_feature_implementation)) AND NOT (EXISTS(SELF\printed_component.printed_component_stack)) AND NOT (EXISTS(SELF\printed_component.associated_precedent_link)) AND NOT (EXISTS(SELF\printed_component.associated_subsequent_link)) AND NOT (EXISTS(SELF\printed_component.required_material_stack));
       WR2 : NOT (EXISTS(SELF\printed_component.footprint_implementation));
   END_ENTITY; -- layout_macro_component
+
+  ENTITY Layout_macro_definition
+    SUBTYPE OF (pcb);
+      floor_layout_view : layout_macro_floor_plan_template;
+    WHERE
+      WR1 : NOT (EXISTS(SELF\part_design_view.usage_view));
+      WR2 : NOT (EXISTS(SELF\interconnect_module.assembly_design_requirement));
+      WR3 : SIZEOF(USEDIN(SELF,
+ 'AP210_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE.DERIVED_FROM')) = 0;
+  END_ENTITY; -- layout_macro_definition
 
   ENTITY Layout_macro_definition_terminal_to_usage_terminal_assignment;
       defined_template_feature : printed_part_template_terminal;
@@ -45,14 +49,10 @@ END_SUBTYPE_CONSTRAINT;
       WR1 : NOT (EXISTS(SELF\printed_part_template.of_stratum_technology)) AND NOT (EXISTS(SELF\printed_part_template.material_stack)) AND NOT (EXISTS(SELF\printed_part_template.printed_part_template_stack));
   END_ENTITY; -- layout_macro_floor_plan_template
 
-  ENTITY Layout_macro_definition
-    SUBTYPE OF (pcb);
-      floor_layout_view : layout_macro_floor_plan_template;
-    WHERE
-      WR1 : NOT (EXISTS(SELF\part_design_view.usage_view));
-      WR2 : NOT (EXISTS(SELF\interconnect_module.assembly_design_requirement));
-      WR3 : SIZEOF(USEDIN(SELF,
- 'AP210_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE.DERIVED_FROM')) = 0;
-  END_ENTITY; -- layout_macro_definition
+SUBTYPE_CONSTRAINT printed_component_subtypes FOR printed_component;  
+(ONEOF (layout_macro_component,
+ printed_connector_component,
+ routed_printed_component));
+END_SUBTYPE_CONSTRAINT;  
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.12 2004/12/22 12:25:25 liutkus Exp $
+   $Id: arm.exp,v 1.13 2004/12/31 12:39:43 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Analytical model - EXPRESS ARM
 *)
 
@@ -228,5 +228,17 @@ amsp, amvp.
       WR1 : not_applicable <> nominal_signal_flow_direction;
       WR2 : bidirectional <> nominal_signal_flow_direction;
   END_ENTITY; -- transform_port_variable
+
+RULE analytical_model_version_constraint FOR 
+(Product_version);
+WHERE
+  WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pv) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
+END_RULE; 
+
+RULE analytical_model_definition_constraint FOR 
+(Product_view_definition);
+WHERE
+  WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
+END_RULE; 
 
 END_SCHEMA; -- Analytical_model_arm

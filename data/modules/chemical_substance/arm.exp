@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.10 2004/12/23 07:52:17 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Chemical substance - EXPRESS ARM
 *)
 
@@ -233,5 +233,18 @@ Example 2: The CAS number of water is "7732-18-5".
     SUBTYPE OF (Product_view_definition); 
     SELF\Product_view_definition.defined_version : Substance_version; 
   END_ENTITY; 
+
+RULE substance_version_constraint FOR 
+(Product_version);
+WHERE
+  WR1: SIZEOF ( QUERY ( pv <* Substance_version | ( NOT ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
+END_RULE; 
+
+RULE substance_view_definition_constraint FOR 
+(Product_view_definition);
+WHERE
+  WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
+END_RULE; 
+
  
 END_SCHEMA; 

@@ -31,4 +31,16 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
     SELF\product_version.of_product : software;
   END_ENTITY; -- Software_version
 
+RULE software_version_constraint FOR 
+(Product_version);
+WHERE
+  WR1: SIZEOF ( QUERY ( pv <* Software_version | ( NOT ( 'SOFTWARE_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'SOFTWARE_ARM.' + 'SOFTWARE' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
+END_RULE; 
+
+RULE software_definition_constraint FOR 
+(Product_view_definition);
+WHERE
+  WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'SOFTWARE_ARM.' + 'SOFTWARE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'SOFTWARE_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
+END_RULE; 
+
 END_SCHEMA;

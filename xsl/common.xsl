@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.147 2004/12/23 22:23:51 thendrix Exp $
+$Id: common.xsl,v 1.148 2004/12/29 13:13:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3005,6 +3005,8 @@ is case sensitive.')"/>
             test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]
                   or 
                   $express_nodes/express/schema[@name=$schema]/type[@name=$entity_type]
+                  or
+                  $express_nodes/express/schema[@name=$schema]/subtype.constraint[@name=$entity_type]
                   or
                   $express_nodes/express/schema[@name=$schema]/rule[@name=$entity_type]
                   or 

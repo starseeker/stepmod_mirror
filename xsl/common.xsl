@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.47 2002/06/06 12:11:22 robbod Exp $
+$Id: common.xsl,v 1.48 2002/06/17 15:48:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1857,7 +1857,7 @@ $Id: common.xsl,v 1.47 2002/06/06 12:11:22 robbod Exp $
        rest are lower case -->
   <xsl:template name="check_upper_lower_case">
     <xsl:param name="str"/>
-    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"/>
     <xsl:choose>
       <xsl:when test="contains($UPPER,substring($str,1,1))">
         <xsl:call-template name="check_all_lower_case">
@@ -1933,7 +1933,7 @@ $Id: common.xsl,v 1.47 2002/06/06 12:11:22 robbod Exp $
   <!-- return 1 if all the letters in string are lower case -->
   <xsl:template name="check_all_lower_case">
     <xsl:param name="str"/>
-    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_0123456789'"/>
     <xsl:variable name="first" select="substring($str,1,1)"/>
     <xsl:variable name="rest" select="substring($str,2)"/>
     <xsl:choose>

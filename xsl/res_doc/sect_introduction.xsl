@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_introduction.xsl,v 1.2 2003/01/31 07:40:27 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -55,7 +55,6 @@ $Id: sect_introduction.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
       <ul>
         <xsl:for-each select="../schema"> 
         <li>
-          <b>
       <xsl:choose>
         <xsl:when test="position()!=last()">
           <xsl:value-of select="concat(@name,';')"/>
@@ -64,7 +63,6 @@ $Id: sect_introduction.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
           <xsl:value-of select="concat(@name,'.')"/>        
         </xsl:otherwise>
       </xsl:choose>
-          </b>
         </li>
     </xsl:for-each>
 

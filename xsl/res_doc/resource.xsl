@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.17 2003/01/30 22:00:22 thendrix Exp $
+$Id: resource.xsl,v 1.18 2003/01/31 07:40:27 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -206,25 +206,25 @@ $Id: resource.xsl,v 1.17 2003/01/30 22:00:22 thendrix Exp $
   <xsl:variable name="status" select="string(@status)"/>
   <xsl:variable name="status_words">
     <xsl:choose>
-      <xsl:when test="@status='CD'">
+      <xsl:when test="$status='CD'">
         Committee Draft
       </xsl:when>
-      <xsl:when test="@status='FDIS'">
+      <xsl:when test="$status='FDIS'">
         Final Draft International Standard
       </xsl:when>
-      <xsl:when test="@status='DIS'">
+      <xsl:when test="$status='DIS'">
         Draft International Standard
       </xsl:when>
-      <xsl:when test="@status='IS'">
+      <xsl:when test="$status='IS'">
         International Standard
       </xsl:when>
-      <xsl:when test="@status='CD-TS'">
+      <xsl:when test="$status='CD-TS'">
         draft technical specification 
       </xsl:when>
-      <xsl:when test="@status='TS'">
+      <xsl:when test="$status='TS'">
         technical specification 
       </xsl:when>
-      <xsl:when test="@status='WD'">
+      <xsl:when test="$status='WD'">
         working draft 
       </xsl:when>
       <xsl:otherwise>
@@ -284,7 +284,6 @@ $Id: resource.xsl,v 1.17 2003/01/30 22:00:22 thendrix Exp $
           <xsl:when test="$status='IS'">
             International Standard
           </xsl:when>
-
           <xsl:when test="$status='CD-TS'">
             <p>
               This ISO document is a Committee Draft Technical
@@ -319,7 +318,6 @@ $Id: resource.xsl,v 1.17 2003/01/30 22:00:22 thendrix Exp $
               Violators may be prosecuted.
             </p>
           </xsl:when>
-
 
           <xsl:when test="$status='TS'">
             <p>
@@ -498,18 +496,25 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <xsl:template match="keywords">
+  <xsl:if test="not(contains(.,'STEP'))">
+    STEP, 
+  </xsl:if>
+  <xsl:if test="not(contains(.,'10303'))">
+    ISO 10303,  
+  </xsl:if>
   <xsl:value-of select="."/>
 </xsl:template>
 
 <!-- Outputs the foreword -->
+<xsl:variable name="status" select="string(@status)"/>
 <xsl:template match="resource" mode="foreword">
     <xsl:variable name="part_no">
       <xsl:choose>
         <xsl:when test="string-length(@part)>0">
-          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+          <xsl:value-of select="concat('ISO/',$status,' 10303-',@part)"/>
         </xsl:when>
         <xsl:otherwise>
-          ISO/TS 10303-XXXX
+          <xsl:value-of select="concat('ISO/',$status,' 10303-','XXXX')"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -544,7 +549,10 @@ o=isocs; s=central<br/>
     an International Standard requires approval by at least 75% of the member
     bodies casting a vote.
   </p>
-  
+  <xsl:choose>
+    
+
+  <xsl:when test="contains($status,'TS') or contains($status,'PAS')">
   <p>
     In other circumstances, particularly when there is an urgent market
     requirement for such documents, a technical committee may decide to
@@ -574,19 +582,21 @@ o=isocs; s=central<br/>
     deciding whether it can be transformed into an International Standard.
   </p>
   
+</xsl:when>
+</xsl:choose>
+
   <p>
     Attention is drawn to the possibility that some of the elements of this
     part of ISO 10303 may be the subject of patent rights. ISO shall not be
     held responsible for identifying any or all such patent rights.
   </p>    
-  
+
   <p>  
     <xsl:value-of select="$part_no"/>
     was prepared by Technical Committee ISO/TC 184, 
     <i>Industrial automation systems and integration,</i>
     Subcommittee SC4, <i>Industrial data.</i>
   </p>
-
   <xsl:if test="@version!='1'">
     <xsl:variable name="this_edition">
       <xsl:choose>
@@ -718,9 +728,6 @@ o=isocs; s=central<br/>
     </xsl:choose>
   </xsl:if>
 
-
-
-
   <p>
     This International Standard is organized as a series of parts, each
     published separately. The structure of this International Standard is
@@ -797,7 +804,6 @@ o=isocs; s=central<br/>
       <ul>
         <xsl:for-each select="../schema"> 
         <li>
-          <b>
       <xsl:choose>
         <xsl:when test="position()!=last()">
           <xsl:value-of select="concat(@name,';')"/>
@@ -806,10 +812,8 @@ o=isocs; s=central<br/>
           <xsl:value-of select="concat(@name,'.')"/>        
         </xsl:otherwise>
       </xsl:choose>
-          </b>
         </li>
     </xsl:for-each>
-
   </ul>
  </p>
 
@@ -944,7 +948,6 @@ o=isocs; s=central<br/>
   <div align="center">
     <table border="1" cellspacing="1">
       <tr>
-        <td><b>Description</b></td>
         <xsl:choose>
           <xsl:when test="$FILE_EXT='.xml'">
             <td><b>XML file</b></td>
@@ -953,11 +956,14 @@ o=isocs; s=central<br/>
             <td><b>HTML file</b></td>
           </xsl:otherwise>
         </xsl:choose>
-
         <td><b>ASCII file</b></td>
-        <td><b>Identifier</b></td>
+        <xsl:choose>
+          <xsl:when test="$FILE_EXT='.xml'"/>
+          <xsl:otherwise>
+        <td><b>Combined ASCII file</b></td>
+          </xsl:otherwise>
+        </xsl:choose>
       </tr>
-
 
       <xsl:variable name="wgnumber" select="./@wg.number.express"/>
 
@@ -986,37 +992,36 @@ o=isocs; s=central<br/>
         </xsl:variable>
 
        <tr>
-         <td>EXPRESS</td>
         <td>
           <a href="{$schema_url}">
             <xsl:value-of select="concat($schema_file,$FILE_EXT)"/>
           </a>
         </td>
-
-        <xsl:call-template name="output_express_links">
-          <!-- I am told an IR does not require a WG number for each schema --> 
-         <!--          <xsl:with-param name="wgnumber" select="./@wg.number.arm"/> -->
-          <xsl:with-param name="wgnumber" select="'None'"/>
-          <xsl:with-param name="file" select="concat($schema_file,'.exp')"/>
-          <xsl:with-param name="express_exp" select="$express_exp" />
-        </xsl:call-template>        
-      </tr>
-      <!--      <xsl:apply-templates select="arm_lf" mode="annexe"/> -->
-
-    </xsl:for-each>
-    <xsl:if test="$FILE_EXT!='.xml'">
-       <tr>
-         <td>COMBINED EXPRESS</td>
-         <td>Not provided</td>
         <td>
-          <a href="../../../../wg12n{$wgnumber}.exp">
-            <xsl:value-of select="concat('wg12n',$wgnumber,'.exp')"/>
-          </a>
+          <a href="../../{$express_exp}"><xsl:value-of select="$schema_file"/>.exp</a>
         </td>
-        <td>
-        <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/></td>
-      </tr>
-    </xsl:if>  
+
+    <xsl:if test="$FILE_EXT!='.xml'">
+              <td>
+                <xsl:variable name="test_wg_number">
+                  <xsl:call-template name="test_wg_number">
+                    <xsl:with-param name="wgnumber" select="$wgnumber"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <xsl:choose>
+                  <xsl:when test="contains($test_wg_number,'Error')">
+                    <xsl:value-of select="$wgnumber"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <a href="../../../../wg12n{$wgnumber}.exp">
+                      <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
+                    </a>
+                  </xsl:otherwise>
+                </xsl:choose>
+                  </td>
+                </xsl:if>  
+              </tr>
+    </xsl:for-each>
   </table>
   </div>
   <p>
@@ -1081,19 +1086,8 @@ The diagrams in this annex correspond to the EXPRESS schemas specified in this p
 The diagrams use the EXPRESS-G graphical notation for the EXPRESS language. EXPRESS-G is
 defined in annex D of ISO 10303-11.
   </p>
-  <div align="center">
-    <a name="table_d1">
-      <b>
-            Table D.1 &#8212; EXPRESS listings
-      </b>
-    </a>
-  </div>
 
-  <br/>
-
-  <div align="center">
-    <table border="1" cellspacing="1">
-
+  <ul>
       <xsl:for-each select="./schema/express-g/imgfile" >
         <xsl:variable name="schema">
           <xsl:value-of 
@@ -1129,17 +1123,14 @@ defined in annex D of ISO 10303-11.
           </xsl:choose>
         </xsl:variable>
 
-       <tr>
-        <td>
+       <li>
           <a href="{$schema_url}">
             <xsl:value-of select="concat('Figure D.',$clauseno,' Entity level diagram of ', $schema)"/>
           </a>
-        </td>
-      </tr>
+      </li>
     </xsl:for-each>
+    </ul>
 
-    </table>
-  </div>
 </xsl:template>
 
 
@@ -3093,8 +3084,8 @@ $resource_ok,' Check the normatives references')"/>
       </xsl:when>
       <xsl:otherwise >
             <xsl:value-of 
-              select="concat('Figure 1.',$number, 
-                      ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture')" />
+              select="concat('Figure ',$number, 
+                      ' &#8212; The relationship of schemas of this part to the ISO 10303 integration architecture')" />
        
       </xsl:otherwise>
     </xsl:choose>

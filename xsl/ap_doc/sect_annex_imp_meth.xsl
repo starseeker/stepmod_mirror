@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_imp_meth.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
+$Id: sect_annex_imp_meth.xsl,v 1.2 2003/06/11 08:26:54 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -47,7 +47,7 @@ $Id: sect_annex_imp_meth.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
     language mapping defined in 
     <xsl:value-of select="$imp_meths_phrase"/>
     and in the MIM referenced in 
-    <a href="annex-exp_lf{$FILE_EXT}">A.2</a>
+    <a href="annex_exp_lf{$FILE_EXT}">A.2</a>
     of this part of ISO 10303.
 
 		

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $ -->
+<!-- $Id: arm.xml,v 1.3 2002/01/16 14:24:56 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2002/01/16 14:24:56 $"
+  rcs.revision="$Revision: 1.3 $">
 
   <application
     name="express2xml.js"
@@ -33,10 +33,11 @@
     <entity
       name="Part_occurrence"
       supertypes="Assembly_component">
+       <description>A <b>Part_occurrence</b> specifies that one <b>Product_view_definition</b> uses or may use another <b>Product_view_definition</b> as a component at a particular location in its assembly.</description>
       <inverse
         name="location"
-        entity="template_instance"
-        attribute="ation">
+        entity="template_instance">
+       <description>the optional position of the occurrence.</description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -45,24 +46,29 @@
       <where
         label="WR1"
         expression="EXISTS(SELF\Assembly_component.location_indicator) OR EXISTS(location)">
+       <description>Either the <b>location</b> or <b>location_indicator</b> shall exist.</description>
       </where>
     </entity>
 
     <entity
       name="Part_instance"
       supertypes="Assembly_component">
+       <description>A <b>Part_instance</b> is the occurrence of a part within a subassembly of an assembly.</description>
       <explicit
         name="assembly">
+       <description>an <b>Assembly_component</b> that is the same instance of the attribute <b>view1</b> as this <b>Part_instance</b> and the same instance of the attribute <b>view2</b> as the <b>view1</b> of the <b>next_assembly_usage</b> referenced by the attribute <b>sub_assembly</b>.</description>
         <typename
           name="Assembly_component"/>
       </explicit>
       <explicit
         name="sub_assembly">
+       <description>a <b>Next_assembly_usage</b> that is the same instance of the attribute <b>view2</b> as this <b>Part_instance</b> and the same instance of the <b>product_view_definition</b> referenced by the attribute <b>view1</b> as the <b>product_view_definition</b> referenced by the attribute <b>view2</b> of the attribute <b>assembly</b>.</description>
         <typename
           name="Next_assembly_usage"/>
       </explicit>
       <unique
         label="UR1">
+       <description>The combination of the <b>assembly</b> and <b>sub_assembly</b> attributes shall be unique.</description>
         <unique.attribute
           attribute="assembly"/>
         <unique.attribute
@@ -71,18 +77,22 @@
       <where
         label="WR1"
         expression="SELF :&lt;&gt;: assembly">
+       <description>The instance of <b>Part_instance</b> shall not be the same as the instance of <b>assembly</b>.</description>
       </where>
       <where
         label="WR2"
         expression="SELF\view_definition_relationship.view1 :=:       assembly.view1">
+       <description>The <b>view1</b> attribute of the <b>Part_instance</b> shall reference the same instance of <b>product_view_definition</b> as the <b>view1</b> for the <b>assembly</b>.</description>
       </where>
       <where
         label="WR3"
         expression="SELF\view_definition_relationship.view2 :=:       sub_assembly.view2">
+       <description>The <b>view2</b> of the <b>Part_instance</b> shall reference the same instance of <b>product_view_definition</b> as the <b>view2</b> for the sub_assembly.</description>
       </where>
       <where
         label="WR4"
         expression="assembly.view2 :=:       sub_assembly.view1">
+       <description>The <b>view2</b> for the <b>assembly</b> shall reference, or be related to, the same instance of <b>product_view_definition</b> as the <b>view1</b> for the <b>sub_assembly</b>.</description>
       </where>
     </entity>
 

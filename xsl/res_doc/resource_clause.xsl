@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: resource_clause.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: resource_clause.xsl,v 1.2 2002/10/20 06:45:17 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -24,8 +24,8 @@ $Id: resource_clause.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
     
  
     <xsl:variable 
-      name="resource_xml_file"
-      select="concat('../../data/resource_docs/',@directory,'/resource.xml')"/>
+      name="resource_xml"
+      select="document(concat('../../data/resource_docs/',@directory,'/resource.xml'))"/>
 
     <HTML>
       <HEAD>
@@ -39,7 +39,7 @@ $Id: resource_clause.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         <TITLE>
           <!-- output the resource page title -->
           <xsl:apply-templates 
-            select="document($resource_xml_file)/resource"
+            select="$resource_xml/resource"
             mode="title"/>
         </TITLE>
       </HEAD>
@@ -47,18 +47,18 @@ $Id: resource_clause.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         <!-- debug <xsl:message><xsl:value-of select="$global_xref_list"/></xsl:message> -->
         <!-- output the Table of contents banner -->
         <xsl:apply-templates 
-          select="document($resource_xml_file)/resource"
+          select="$resource_xml/resource"
           mode="TOCmultiplePage"/>
 
         <xsl:choose>
           <xsl:when test="@pos">
             <!--           <xsl:value-of select="@pos"/> -->
-            <xsl:apply-templates select="document($resource_xml_file)/resource">
+            <xsl:apply-templates select="$resource_xml/resource">
              <xsl:with-param name="pos" select="string(@pos)"/>
            </xsl:apply-templates>
          </xsl:when>
          <xsl:otherwise>
-           <xsl:apply-templates select="document($resource_xml_file)/resource"/>
+           <xsl:apply-templates select="$resource_xml/resource"/>
          </xsl:otherwise>
        </xsl:choose>
 </BODY>

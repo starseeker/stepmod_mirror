@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.13 2003/01/14 12:59:12 mikeward Exp $
+$Id: resource.xsl,v 1.14 2003/01/24 00:49:30 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1254,11 +1254,11 @@ defined in annex D of ISO 10303-11.
     </xsl:call-template>    
   </xsl:variable>
 
-
+  <!--
   <xsl:message>
     l1:<xsl:value-of select="$normref_list1"/>:l1
   </xsl:message>
-
+-->
 
 
   <!-- get all normrefs explicitly included in the resource by normref.inc -->
@@ -1272,10 +1272,11 @@ defined in annex D of ISO 10303-11.
         select="$normref_list1"/>
     </xsl:call-template>    
   </xsl:variable>
-
+  <!--
   <xsl:message>
     l2:<xsl:value-of select="$normref_list2"/>:l2
   </xsl:message>
+-->
   <!-- get all normrefs that define terms for which abbreviations are
        provided.
        Get the abbreviation.inc from abbreviations_default.xml, 
@@ -1292,10 +1293,11 @@ defined in annex D of ISO 10303-11.
         select="$normref_list2"/>
     </xsl:call-template>    
   </xsl:variable>
-
+  <!--
   <xsl:message>
     l3:<xsl:value-of select="$normref_list3"/>:l3
   </xsl:message>
+-->
 
   <!-- get all resources referenced by a USE FROM 
    - need to get this working -->
@@ -1323,10 +1325,11 @@ defined in annex D of ISO 10303-11.
 
     <xsl:variable name="normref_list4" 
       select="$normref_list3"/>
-
+    <!--
   <xsl:message>
     l4:<xsl:value-of select="$normref_list4"/>:l4
   </xsl:message>
+-->
     <xsl:value-of select="$normref_list4"/>
 </xsl:template>
 
@@ -1704,11 +1707,11 @@ defined in annex D of ISO 10303-11.
   <xsl:variable name="normrefs">
     <xsl:call-template name="normrefs_list"/>
   </xsl:variable>
-
+  <!--
   <xsl:message>
     normrefs:<xsl:value-of select="$normrefs"/>:normrefs
   </xsl:message> 
-
+-->
 
   <xsl:variable name="pruned_normrefs">
     <xsl:call-template name="prune_normrefs_list">
@@ -1716,11 +1719,11 @@ defined in annex D of ISO 10303-11.
     </xsl:call-template>  
   </xsl:variable>
 
-
+  <!--
   <xsl:message>
     pruned_normrefs:<xsl:value-of select="$pruned_normrefs"/>:pruned_normrefs
   </xsl:message>
-
+-->
 
   <xsl:call-template name="output_normrefs_rec">
     <xsl:with-param name="normrefs" select="$pruned_normrefs"/>

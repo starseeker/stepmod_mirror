@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+     $Id: express_link.xsl,v 1.2 2003/01/23 13:30:13 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -75,9 +75,10 @@
       <xsl:with-param name="xref_list" select="$l1_xref_list"/>
     </xsl:call-template>
   </xsl:variable>
+
   <!-- debug 
   <xsl:message>l2{<xsl:value-of select="$l2_xref_list"/>}</xsl:message>      
-  -->
+ -->
 
   <xsl:value-of select="$l2_xref_list"/>
 </xsl:template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.5 2002/12/23 20:57:30 thendrix Exp $
+$Id: common.xsl,v 1.6 2003/01/21 15:24:05 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -212,11 +212,11 @@ $Id: common.xsl,v 1.5 2002/12/23 20:57:30 thendrix Exp $
   <!-- the entry that has been selected -->
   <xsl:param name="selected"/>
   <xsl:param name="resdoc_root" select="'..'"/>
-
+  <!--
   <xsl:message>
     resdoc_root  :<xsl:value-of select="$resdoc_root"/>
   </xsl:message>
-
+  -->
   <!-- output RCS version control information -->
   <xsl:call-template name="rcs_output">
     <xsl:with-param name="resdoc" select="@name"/>
@@ -796,10 +796,11 @@ $Id: common.xsl,v 1.5 2002/12/23 20:57:30 thendrix Exp $
     <xsl:param name="inline" select="'yes'"/>
     <xsl:param name="warning_gif"
       select="'../../../../images/warning.gif'"/>
-
+    <!--
     <xsl:message>
       <xsl:value-of select="translate($message,'#','&#010;')"/>
     </xsl:message>
+    -->
     <xsl:if test="contains($INLINE_ERRORS,'yes')">
       <xsl:if test="contains($inline,'yes')">
         <br/>

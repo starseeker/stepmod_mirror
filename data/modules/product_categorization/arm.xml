@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!-- $Id: arm.xml,v 1.6 2002/04/22 12:44:23 buchanan Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: 2002/04/22 12:44:23 $"
+  rcs.revision="$Revision: 1.6 $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.6"
+    source="../data/modules/product_categorization/arm.exp"/>
+
+  <schema name="Product_categorization_arm">
+    <interface
+      kind="use"
+      schema="Person_organization_assignment_arm">
+    </interface>
+
+    <type name="product_categorization_organization_or_person_in_organization_item">
+      <description></description>
+      <select
+        basedon="organization_or_person_in_organization_item"
+        selectitems="Product_category">
+      </select>
+
+    </type>
+    <entity
+      name="Product_category">
+      <description><p>A <b>Product_category</b> is a classification for a product identified by the category name. A <b>Product_category</b> may be assigned directly to a product as the specific product type. <b>Product_category</b> instances may be structured into classification hierarchies of categories and subcategories.</p></description>
+      <explicit
+        name="name">
+        <description>the identification of the product_category</description>
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <description>optional description of the category name</description>
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <inverse
+        name="owner"
+        entity="Organization_or_person_in_organization_assignment"
+        attribute="items">
+        <description>the optional organization or person in organization that defines or owns the category.</description>
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <where
+        label="WR1"
+        expression="SELF.owner.role = 'category owner'">
+        <description>The <b>owner</b> role shall be 'category owner'.</description>
+      </where>
+    </entity>
+
+    <entity
+      name="Product_category_hierarchy">
+      <description><p>A <b>Product_category_hierarchy</b> object supports structured hierarchies of categories and subcategories.</p></description>
+      <explicit
+        name="super_category">
+        <description>the parent <b>Product_category</b> in the classification hierarchy</description>
+        <typename
+          name="Product_category"/>
+      </explicit>
+      <explicit
+        name="sub_category">
+        <description>the child <b>Product_category</b> in the classification hierarchy</description>
+        <typename
+          name="Product_category"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

@@ -1,14 +1,30 @@
 (*
-   $Id: arm.exp,v 1.17 2005/02/24 16:28:52 liutkus Exp $
+   $Id: arm.exp,v 1.1 2005/03/23 10:19:04 giedrius Exp $
    ISO TC184/SC4/WG12 N3525 - ISO/CD-TS 10303-1718 Part template extension - EXPRESS ARM
 *)
 
 SCHEMA Part_template_extension_arm;
 
 	USE FROM Fabrication_technology_arm;	-- ISO/TS 10303-1670
-	USE FROM Styled_curve_arm;	-- ISO/TS 10303-1749
 	USE FROM Styled_text_arm;	-- ISO/TS 10303-1750
 	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+
+  TYPE extend_or_chord_2_extend_or_truncate_or_round = ENUMERATION OF
+    (truncate,
+     chord_2_extend,
+     round,
+     extend);
+  END_TYPE;
+
+  TYPE extend_or_truncate = ENUMERATION OF
+    (truncate,
+     extend);
+  END_TYPE;
+
+  TYPE square_or_round = ENUMERATION OF
+    (square,
+     round);
+  END_TYPE;
 
 	SUBTYPE_CONSTRAINT material_addition_feature_template_subtypes FOR Material_addition_feature_template; 
 		(ONEOF (Snowball_template,
@@ -86,6 +102,17 @@ SCHEMA Part_template_extension_arm;
     SUPERTYPE OF (Default_trace_template)
     SUBTYPE OF (Template_definition);
       trace_style : Curve_style_parameters;
+  END_ENTITY;
+
+  ENTITY Curve_style_parameters;
+      name              : STRING;
+      corner_style      : extend_or_chord_2_extend_or_truncate_or_round;
+      curve_width       : Length_data_element;
+      end_extension     : extend_or_truncate;
+      end_style         : square_or_round;
+      width_uncertainty : Length_data_element;
+    UNIQUE
+      UR1 : name;
   END_ENTITY;
 
 END_SCHEMA;

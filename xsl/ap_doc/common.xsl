@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: common.xsl,v 1.3 2002/09/13 09:32:58 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../common.xsl"/>
 	<xsl:import href="file_ext.xsl"/>
-	<xsl:import href="parameters.xsl"/>
+	<!-- xsl:import href="parameters.xsl"/ -->
 	
 	<xsl:template name="ap_module_directory">
 		<xsl:param name="application_protocol"/>

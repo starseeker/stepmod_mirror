@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-<!-- last edited mwd 2002-08-23 -->
+<!--
+     $Id: $
+-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../sect_4_express.xsl"/>
 	<xsl:import href="express_link.xsl"/> 
   	<xsl:import href="express_description.xsl"/>
-
 	<xsl:template name="interface_notes">
 		<xsl:param name="schema_node"/>
 		<p class="note">

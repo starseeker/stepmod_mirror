@@ -626,173 +626,160 @@
   </ul>
 </xsl:template>
 
-
-<xsl:template match="application_protocol" mode="annexe">
-  <xsl:call-template name="annex_header">
-    <xsl:with-param name="annex_no" select="'E'"/>
-    <xsl:with-param name="heading" 
-      select="'Computer interpretable listings'"/>
-    <xsl:with-param name="aname" select="'annexe'"/>
-  </xsl:call-template>
-
-  <xsl:variable name="arm">
-    <xsl:choose>
-      <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_arm.xml'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'e_exp_arm.htm'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <xsl:variable name="aim">
-    <xsl:choose>
-      <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_mim.xml'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'e_exp_mim.htm'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <xsl:variable name="aim_lf">
-    <xsl:choose>
-      <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_mim_lf.xml'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'e_exp_mim_lf.htm'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <xsl:variable name="UPPER"
-    select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-  <xsl:variable name="LOWER"
-    select="'abcdefghijklmnopqrstuvwxyz'"/>
-  <xsl:variable name="aim_schema"
-    select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
-    
-  <!--
-       It has been decided to point to the index instead
-  <xsl:variable name="names_url"
-      select="concat('http://www.steptools.com/cgi-bin/getnames.cgi?schema=',
-              $mim_schema)"/>
-  
-  <xsl:variable name="parts_url"
-  select="concat('http://www.steptools.com/sc4/archive/~checkout~/modules/10303-',@part,'-arm.exp?rev=1.1&amp;content-type=text/plain')"/>
-  -->
-  <xsl:variable name="names_url"
-    select="'http://www.tc184-sc4.org/Short_Names/'"/>
-  
-  <xsl:variable name="parts_url"
-    select="'http://www.tc184-sc4.org/EXPRESS/'"/>
-
-  <p>
-    This annex references a listing of the EXPRESS entity names and
-    corresponding short names as specified or referenced in this part of ISO
-    10303. It also provides a listing of each EXPRESS schema specified in this
-    part of ISO 10303 without comments nor other explanatory text. These
-    listings are available in computer-interpretable form in Table E.1 and can
-    be found at the following URLs:
-  </p>
-  <blockquote>
-    Short names:
-    &lt;<a href="{$names_url}">
-      <xsl:value-of select="$names_url"/>
-    </a>&gt;
-
-    <br/>
-    EXPRESS: 
-    &lt;<a href="{$parts_url}">
-      <xsl:value-of select="$parts_url"/>
-    </a>&gt;
-  </blockquote>
-  
-  <b>
-    <p align="center">
-      <a name="table_e1">
-        Table E.1 &#8212; ARM to AIM EXPRESS short and long form listing.
-      </a>
-    </p>
-  </b>
-  <br/>
-
-  <div align="center">
-    <table border="1" cellspacing="1">
-      <tr>
-        <td><b>Description</b></td>
-        <td><b>File</b> </td>
-        <td><b>File</b></td>
-        <td><b>Identifier</b></td>
-      </tr>
-      
-      <!-- ARM HTML row -->
-      <tr>
-        <xsl:choose>
-          <xsl:when test="$FILE_EXT='.xml'">
-            <td>ARM short form EXPRESS</td>
-          </xsl:when>
-          <xsl:otherwise>
-            <td>ARM short form EXPRESS</td>
-          </xsl:otherwise>
-        </xsl:choose>
-        <td>
-          <a href="{$arm}">
-            <xsl:value-of select="concat('arm',$FILE_EXT)"/>
-          </a>
-        </td>
-
-        <xsl:call-template name="output_express_links">
-          <xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
-          <xsl:with-param name="file" select="'arm.exp'"/>
-        </xsl:call-template>        
-      </tr>
-      <tr>
-        <xsl:apply-templates select="arm_lf" mode="annexe"/>
-      </tr>
-
-      <!-- MIM HTML row -->
-      <tr>
-        <xsl:choose>
-          <xsl:when test="$FILE_EXT='.xml'">
-            <td>AIM short form EXPRESS</td>
-          </xsl:when>
-          <xsl:otherwise>
-            <td>AIM short form EXPRESS</td>
-          </xsl:otherwise>
-        </xsl:choose>
-        <td>
-          <a href="{$aim}">
-            <xsl:value-of select="concat('aim',$FILE_EXT)"/>
-          </a>
-        </td>
-        <xsl:call-template name="output_express_links">
-          <xsl:with-param name="wgnumber" select="./@wg.number.aim"/>
-          <xsl:with-param name="file" select="'aim.exp'"/>
-        </xsl:call-template>        
-      </tr>
-      <tr>
-        <xsl:apply-templates select="aim_lf" mode="annexe"/>
-      </tr>
-    </table>
-  </div>
-  <p>
-    If there is difficulty accessing these sites, contact ISO Central
-    Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
-    <a href="mailto:sc4sec@tc184-sc4.org">sc4sec@tc184-sc4.org</a>.
-  </p>
-  <p class="note">
-    <small>
-      NOTE&#160;&#160;The information provided in computer-interpretable
-      form at the 
-      above URLs is informative. The information that is contained in the
-      body of this part of ISO 10303 is normative. 
-    </small>
-  </p>
-</xsl:template>
+	<xsl:template match="module" mode="annexg">
+		<xsl:call-template name="annex_header">
+			<xsl:with-param name="annex_no" select="'G'"/>
+			<xsl:with-param name="heading" select="'Computer interpretable listings'"/>
+			<xsl:with-param name="aname" select="'annexg'"/>
+		</xsl:call-template>
+		<xsl:variable name="arm">
+			<xsl:choose>
+				<xsl:when test="$FILE_EXT='.xml'">
+					<xsl:value-of select="'g_exp_arm.xml'"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'g_exp_arm.htm'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="aim">
+			<xsl:choose>
+				<xsl:when test="$FILE_EXT='.xml'">
+					<xsl:value-of select="'g_exp_aim.xml'"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'g_exp_aim.htm'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="aim_lf">
+			<xsl:choose>
+				<xsl:when test="$FILE_EXT='.xml'">
+					<xsl:value-of select="'g_exp_aim_lf.xml'"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'g_exp_aim_lf.htm'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		
+		<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+		<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+		<xsl:variable name="aim_schema" select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
+		<xsl:variable name="names_url" select="'http://www.tc184-sc4.org/Short_Names/'"/>
+		<xsl:variable name="parts_url" select="'http://www.tc184-sc4.org/EXPRESS/'"/>
+		<p>
+			This annex references a listing of the EXPRESS entity names and corresponding short names as specified or referenced in this part of ISO
+    10303. It also provides a listing of each EXPRESS schema specified in this part of ISO 10303 without comments nor other explanatory text. These
+    listings are available in computer-interpretable form in Table G.1 and can be found at the following URLs:
+		</p>
+		<blockquote>
+			Short names:&lt;
+			<a href="{$names_url}">
+				<xsl:value-of select="$names_url"/>
+			</a>
+			&gt;<br/>
+			EXPRESS:&lt;
+			<a href="{$parts_url}">
+				<xsl:value-of select="$parts_url"/>
+			</a>&gt;
+		</blockquote>
+		<b>
+			<p align="center">
+				<a name="table_g1">
+					Table G.1 &#8212; ARM to AIM EXPRESS short and long form listing.
+				</a>
+			</p>
+			</b>
+			<br/>
+			<div align="center">
+				<table border="1" cellspacing="1">
+					<tr>
+						<td>
+							<b>
+								Description
+							</b>
+						</td>
+						<td>
+							<b>
+								File
+							</b>
+						</td>
+						<td>
+							<b>
+								File
+							</b>
+						</td>
+						<td>
+							<b>
+								Identifier
+							</b>
+						</td>
+					</tr>
+					<tr>
+						<xsl:choose>
+							<xsl:when test="$FILE_EXT='.xml'">
+								<td>ARM short form EXPRESS</td>
+							</xsl:when>
+							<xsl:otherwise>
+								<td>
+									ARM short form EXPRESS
+								</td>
+							</xsl:otherwise>
+						</xsl:choose>
+						<td>
+							<a href="{$arm}">
+								<xsl:value-of select="concat('arm',$FILE_EXT)"/>
+							</a>
+						</td>
+						<xsl:call-template name="output_express_links">
+							<xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
+							<xsl:with-param name="file" select="'arm.exp'"/>
+						</xsl:call-template>
+					</tr>
+					<tr>
+						<xsl:apply-templates select="arm_lf" mode="annexg"/>
+					</tr>
+					<tr>
+						<xsl:choose>
+							<xsl:when test="$FILE_EXT='.xml'">
+								<td>
+									AIM short form EXPRESS
+								</td>
+							</xsl:when>
+							<xsl:otherwise>
+								<td>
+									AIM short form EXPRESS
+								</td>
+							</xsl:otherwise>
+						</xsl:choose>
+						<td>
+						<a href="{$aim}">
+							<xsl:value-of select="concat('aim',$FILE_EXT)"/>
+						</a>
+					</td>
+					<xsl:call-template name="output_express_links">
+						<xsl:with-param name="wgnumber" select="./@wg.number.mim"/>
+						<xsl:with-param name="file" select="'aim.exp'"/>
+					</xsl:call-template>
+				</tr>
+				<tr>
+					<xsl:apply-templates select="aim_lf" mode="annexg"/>
+				</tr>
+			</table>
+		</div>
+		<p>
+			If there is difficulty accessing these sites, contact ISO Central Secretariat or contact the ISO TC184/SC4 Secretariat directly at: 
+			<a href="mailto:sc4sec@tc184-sc4.org">
+				sc4sec@tc184-sc4.org
+			</a>.
+		</p>
+		<p class="note">
+			<small>
+				NOTE&#160;&#160;The information provided in computer-interpretable form at the above URLs is informative. The information that is contained in the body of this part of ISO 10303 is normative.
+			</small>
+		</p>
+	</xsl:template>
 
 
 <xsl:template name="output_express_links">
@@ -2543,26 +2530,4 @@
   </xsl:choose>
   <xsl:apply-templates />
 </xsl:template>
-
-
-	<xsl:template name="idef0_icon">
-		<xsl:param name="schema"/>
-		<xsl:param name="application_protocol_root" select="'..'"/>
-		
-		<xsl:variable name="application_protocol_dir">
-			<xsl:call-template name="application_protocol_directory">
-				<xsl:with-param name="application_protocol" select="$schema"/>
-			</xsl:call-template>
-		</xsl:variable>
-		
-		<xsl:variable name="href_aam">
-			<xsl:value-of select="concat($application_protocol_root,'/aamidef01',$FILE_EXT)"/>
-		</xsl:variable>
-		&#160;&#160;
-		<a href="{$href_aam}">
-			<img align="middle" border="0" alt="AAM" src="{$application_protocol_root}/../../../images/ap_doc/aam.gif"/>
-		</a>
-	</xsl:template>
-
-
 </xsl:stylesheet>

@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-<!-- last edited by mwd 2002-08-14 -->
+<!--
+     $Id: $
+-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-	
 	<xsl:template match="/" >
 		<xsl:apply-templates select="./application_protocol_clause"/>
 	</xsl:template>
-	
 	<xsl:template match="application_protocol_clause">
     		<xsl:variable name="application_protocol_xml_file" select="concat('../../data/application_protocols/',@directory,'/application_protocol.xml')"/>
 		<xsl:variable name="module_xml_file" select="concat('../../data/modules/',@directory,'/module.xml')"/>
-
     		<HTML>
       			<HEAD>
         			<TITLE>
@@ -24,5 +23,4 @@
       			</BODY>
     		</HTML>
 	</xsl:template>
-	
 </xsl:stylesheet>

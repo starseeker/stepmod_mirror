@@ -4,16 +4,9 @@
      $Id: $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-
 	<xsl:import href="application_protocol.xsl"/>
-	
-	<!-- the stylesheet that allows different stylesheets to be applied -->
-	
 	<xsl:import href="application_protocol_clause.xsl"/>
-	
 	<xsl:output method="html"/>
-	
-	<!-- overwrites the template declared in module.xsl -->
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="annex_header">
 			<xsl:with-param name="annex_no" select="'D'"/>
@@ -21,28 +14,20 @@
 			<xsl:with-param name="aname" select="'annexd'"/>
 			<xsl:with-param name="informative" select="'normative'"/>
 		</xsl:call-template>
-		
 		<xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ_</xsl:variable>
 		<xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz-</xsl:variable>
-		
 		<xsl:variable name="ap_module_dir">
 			<xsl:call-template name="ap_module_directory">
 				<xsl:with-param name="application_protocol" select="@name"/>
 			</xsl:call-template>
 		</xsl:variable>
-		
 		<xsl:variable name="application_protocol_dir">
 			<xsl:call-template name="application_protocol_directory">
 				<xsl:with-param name="application_protocol" select="@name"/>
 			</xsl:call-template>
 		</xsl:variable>
-				
 		<xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
-		
 		<xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
-		
-		<!-- there is only one schema in a module -->
-		
 		<xsl:variable name="schema_name" select="document($arm_xml)/express/schema/@name"/>
 		<xsl:variable name="object_reg" select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
 		<h3>B.1 Document Identification </h3>
@@ -50,16 +35,12 @@
 		<p align="center">
 			<xsl:value-of select="concat($object_reg,' }' )"/>
 		</p>
-		
 		is assigned to this part of ISO 10303. The meaning of this value is defined in ISO/IEC 8824-1, and is described in ISO 10303-1.
-		
 		<h3>B.2 Schema identification</h3>
 		<!-- get the name of the ARM schema from the express -->
 		<xsl:variable name="arm_schema" select="document($arm_xml)/express/schema/@name"/>
 		<xsl:variable name="arm_schema_reg" select="translate($arm_schema,$UPPER, $LOWER)"/>
-		
 		<h3>B.2.1 <xsl:value-of select="$arm_schema"/> schema identification</h3>
-		
 		<p>
 			To provide for unambiguous identification of the schema specifications given in this application module in an open information system, the object identifiers are assigned as follows:
 		</p>
@@ -69,15 +50,11 @@
 		<p>
 			is assigned to the <xsl:value-of select="$arm_schema"/> schema. The meaning of this value is defined in ISO 8824-1, and is described in ISO 10303-1.
 		</p>
-		
-		<!-- get the name of the AIM schema from the express -->
 		<xsl:variable name="aim_schema" select="document($aim_xml)/express/schema/@name"/>
 		<xsl:variable name="aim_schema_reg" select="translate($aim_schema,$UPPER, $LOWER)"/>
 		<h3>B.2.2 <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_aim schema identification</h3>
-		
 		<p>
-			To provide for unambiguous identification of the schema specifications given in this application module in an open information system, the object
-    identifiers are assigned as follows:
+			To provide for unambiguous identification of the schema specifications given in this application module in an open information system, the object identifiers are assigned as follows:
 		</p>
 		<p align="center">
 			<xsl:value-of select="concat($object_reg,' schema(1) ', $aim_schema_reg,'(2) }' )"/>
@@ -86,7 +63,5 @@
 			is assigned to the <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_aim schema. The meaning of this value is defined in ISO 8824-1, and is described in
     ISO 10303-1.
 		</p>
-	
 	</xsl:template>
-  
 </xsl:stylesheet>

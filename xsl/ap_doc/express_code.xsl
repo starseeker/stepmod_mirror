@@ -3,33 +3,11 @@
 <!-- last edited mwd 2002-08-19 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-
+	<xsl:import href="../express_code.xsl"/>
 	<xsl:import href="common.xsl"/>
 	<xsl:import href="express_application.xsl"/>
 	<xsl:import href="express_link.xsl"/>
-	
 	<xsl:output method="html"/>
-	
-	<xsl:template match="schema" mode="code">
-		<code>
-			<br/>
-			<br/>
-			SCHEMA <b><xsl:value-of select="@name"/></b>;
-			<br/>
-			<br/>
-			<xsl:apply-templates select="./interface" mode="code"/>
-			<xsl:apply-templates select="./constant" mode="code"/>
-			<xsl:apply-templates select="./type" mode="code"/>
-			<xsl:apply-templates select="./entity" mode="code"/>
-			<xsl:apply-templates select="./rule" mode="code"/>
-			<xsl:apply-templates select="./function" mode="code"/>
-			<xsl:apply-templates select="./procedure" mode="code"/>
-			<br/>
-			END_SCHEMA;
-			<br/>
-		</code>
-	</xsl:template>
-	
 	<xsl:template match="interface" mode="code">
 		<xsl:variable name="schema_name" select="../@name"/>
 		<xsl:choose>
@@ -37,7 +15,7 @@
 				REFERENCE FROM
 				<xsl:call-template name="link_schema">
 					<xsl:with-param name="schema_name" select="@schema"/>
-					<xsl:with-param name="clause" select="'annexe'"/>
+					<xsl:with-param name="clause" select="'annexg'"/>
 				</xsl:call-template>
 				<xsl:choose>
 					<xsl:when test="./interfaced.item">
@@ -57,7 +35,7 @@
 				USE FROM
 				<xsl:call-template name="link_schema">
 					<xsl:with-param name="schema_name" select="@schema"/>
-					<xsl:with-param name="clause" select="'annexe'"/>
+					<xsl:with-param name="clause" select="'annexg'"/>
 				</xsl:call-template>
 				<xsl:choose>
 					<xsl:when test="./interfaced.item">
@@ -82,95 +60,74 @@
 	</xsl:template>
 
 	<xsl:template match="interface" mode="source">
-	<xsl:variable name="module" select="string(@schema)"/> 
-  <xsl:choose>
-    <xsl:when 
-      test="contains($module,'_arm') or contains($module,'_mim')">
-      <!-- must be a module -->
-      <xsl:variable name="module_ok">
-        <xsl:call-template name="check_module_exists">
-          <xsl:with-param name="module" select="$module"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:choose>
-        <xsl:when test="$module_ok='true'">
-          <xsl:variable name="mod_dir">
-            <xsl:call-template name="module_directory">
-              <xsl:with-param name="module" select="$module"/>
-            </xsl:call-template>
-          </xsl:variable>
-          <xsl:variable name="part">
-            <xsl:value-of
-              select="document(concat($mod_dir,'/module.xml'))/module/@part"/>
-          </xsl:variable>
-              <xsl:variable name="status">
-            <xsl:value-of
-              select="document(concat($mod_dir,'/module.xml'))/module/@status"/>
-          </xsl:variable>
-          <xsl:value-of select="concat('&#160;&#160;&#160;-- ISO/',$status,'&#160;10303-',$part)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of 
-                select="concat('Error IF-1: The module ',
-                        $module,' cannot be found in repository_index.xml ')"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:when>
-
-    <xsl:otherwise>
-      <!-- must be an integrated resource -->
-      <xsl:variable name="resource_ok">
-        <xsl:call-template name="check_resource_exists">
-          <xsl:with-param name="schema" select="$module"/>
-        </xsl:call-template>
-      </xsl:variable>
-
-      <xsl:choose>
-        <xsl:when test="$resource_ok='true'">
-
-          <!-- the IR directory must be all lower case - the schema itself
-               sometimes is mixed case -->
-          <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-          <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-          <xsl:variable name="lmodule" 
-            select="translate($module,$UPPER,$LOWER)"/>
-
-          <!-- found integrated resource schema, so get IR title -->
-          <xsl:variable name="reference">
-            <xsl:value-of
-              select="document(concat('../data/resources/',$lmodule,'/',$lmodule,'.xml'))/express/@reference"/>
-          </xsl:variable>
-
-          <xsl:choose>
-            <xsl:when test="string-length($reference)>0">
-              <xsl:value-of select="concat('&#160;&#160;&#160;-- ',$reference)"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:call-template name="error_message">
-                <xsl:with-param name="message">
-                  <xsl:value-of 
-                    select="concat('Error IF-3: The reference parameter for ',
-                            $module,' has not been specified ')"/>
-                </xsl:with-param>
-              </xsl:call-template>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message" 
-              select="concat('Error IF-2: ',$resource_ok)"/>
-          </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
-
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
+		<xsl:variable name="module" select="string(@schema)"/>
+		<xsl:choose>
+			<xsl:when test="contains($module,'_arm') or contains($module,'_mim')">
+				<xsl:variable name="module_ok">
+					<xsl:call-template name="check_module_exists">
+						<xsl:with-param name="module" select="$module"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:choose>
+					<xsl:when test="$module_ok='true'">
+						<xsl:variable name="ap_mod_dir">
+	            					<xsl:call-template name="ap_module_directory">
+	              					<xsl:with-param name="application_protocol" select="$module"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xsl:variable name="part">
+							<xsl:value-of select="document(concat($ap_mod_dir,'/module.xml'))/module/@part"/>
+						</xsl:variable>
+						<xsl:variable name="status">
+							<xsl:value-of select="document(concat($ap_mod_dir,'/module.xml'))/module/@status"/>
+						</xsl:variable>
+						<xsl:value-of select="concat('&#160;&#160;&#160;-- ISO/',$status,'&#160;10303-',$part)"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="error_message">
+							<xsl:with-param name="message">
+								<xsl:value-of select="concat('Error IF-1: The module ', $module,' cannot be found in repository_index.xml ')"/>
+							</xsl:with-param>
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:variable name="resource_ok">
+					<xsl:call-template name="check_resource_exists">
+						<xsl:with-param name="schema" select="$module"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:choose>
+					<xsl:when test="$resource_ok='true'">
+						<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+						<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+						<xsl:variable name="lmodule" select="translate($module,$UPPER,$LOWER)"/>
+						<xsl:variable name="reference">
+							<xsl:value-of select="document(concat('../data/resources/',$lmodule,'/',$lmodule,'.xml'))/express/@reference"/>
+						</xsl:variable>
+						<xsl:choose>
+							<xsl:when test="string-length($reference)>0">
+								<xsl:value-of select="concat('&#160;&#160;&#160;-- ',$reference)"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:call-template name="error_message">
+									<xsl:with-param name="message">
+										<xsl:value-of select="concat('Error IF-3: The reference parameter for ', $module,' has not been specified ')"/>
+									</xsl:with-param>
+								</xsl:call-template>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="error_message">
+							<xsl:with-param name="message" select="concat('Error IF-2: ',$resource_ok)"/>
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
 
 
 <xsl:template match="interfaced.item" mode="code">
@@ -187,7 +144,7 @@
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../@name"/>
-    <xsl:with-param name="clause" select="'annexe'"/>
+    <xsl:with-param name="clause" select="'annexg'"/>
   </xsl:call-template>
 
   <xsl:if test="@alias">
@@ -262,7 +219,7 @@
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../../@name"/>
-    <xsl:with-param name="clause" select="'annexe'"/>
+    <xsl:with-param name="clause" select="'annexg'"/>
   </xsl:call-template>
 </xsl:template>
 
@@ -288,7 +245,7 @@
         <xsl:with-param name="object_name" select="@basedon"/>
         <xsl:with-param name="object_used_in_schema_name" 
           select="../../@name"/>
-        <xsl:with-param name="clause" select="'annexe'"/>
+        <xsl:with-param name="clause" select="'annexg'"/>
       </xsl:call-template>  
   </xsl:if>
   <!-- need to check for NULL as some XML outputs attribute as null of not
@@ -303,7 +260,7 @@
     <xsl:with-param name="list" select="@selectitems"/>
     <xsl:with-param name="object_used_in_schema_name"
       select="../../@name"/>
-    <xsl:with-param name="clause" select="'annexe'"/>
+    <xsl:with-param name="clause" select="'annexg'"/>
   </xsl:call-template>)</xsl:if></xsl:template>
 
 
@@ -386,7 +343,7 @@
       <xsl:with-param name="list" select="@supertypes"/>
         <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
-      <xsl:with-param name="clause" select="'annexe'"/>
+      <xsl:with-param name="clause" select="'annexg'"/>
     </xsl:call-template>)
   </xsl:if>
 </xsl:template>
@@ -414,7 +371,7 @@ SELF\<xsl:call-template name="link_object">
       <xsl:with-param name="object_name" select="@entity-ref"/>
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
-      <xsl:with-param name="clause" select="'annexe'"/>
+      <xsl:with-param name="clause" select="'annexg'"/>
     </xsl:call-template>
     <xsl:choose>
       <xsl:when test="@old_name">
@@ -467,7 +424,7 @@ SELF\<xsl:call-template name="link_object">
     <xsl:with-param name="object_name" select="@entity"/>
     <xsl:with-param name="object_used_in_schema_name" 
       select="../../@name"/>
-    <xsl:with-param name="clause" select="'annexe'"/>
+    <xsl:with-param name="clause" select="'annexg'"/>
   </xsl:call-template>  
   <xsl:value-of select="concat(' FOR ', @attribute)"/>;<br/>
 </xsl:template>

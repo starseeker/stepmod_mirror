@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.16 2002/04/18 13:33:38 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.17 2002/04/21 15:05:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -80,6 +80,11 @@ NOT USED
     </table>
   </center>
   </blockquote>
+  <center>
+    <h3>
+      <a href="../../../basic/mapping.htm">Mapping Table Syntax</a>
+    </h3>
+  </center>
   <hr/>
 </xsl:template>
 
@@ -127,9 +132,6 @@ NOT USED
   </table>
   <h3>
       <xsl:value-of select="concat('Table ',position(),' - Mapping table for ', @entity)"/>
-  </h3>
-  <h3>
-    <a href="../../../basic/mapping.htm">Mapping specification</a>
   </h3>
 </center>
 </xsl:template>

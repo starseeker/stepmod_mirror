@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.8 2003/09/22 16:08:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -57,7 +57,7 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
           <td><b>Ballot package</b></td>
           <td><b>Module</b></td>
           <td><b>WG group</b></td>
-          <td><b>URL</b></td>
+          <!-- URL <td><b>URL</b></td> -->
           <td><b>Part</b></td>
           <td><b>Version</b></td>
           <td><b>Status</b></td>
@@ -65,10 +65,19 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
           <td><b>Published</b></td>
           <td><b>Doc WGn</b></td>
           <td><b>Superseded Doc WGn</b></td>
+
           <td><b>ARM WGn</b></td>
+          <td><b>Superseded ARM WGn</b></td>
+
           <td><b>ARM LF WGn</b></td>
+          <td><b>Superseded ARM LF WGn</b></td>
+
           <td><b>MIM WGn</b></td>
+          <td><b>Superseded MIM WGn</b></td>
+
           <td><b>MIM LF WGn</b></td>
+          <td><b>Superseded MIM LF WGn</b></td>
+
           <td><b>Internal checklist WGn</b></td>
           <td><b>Project leader checklist WGn</b></td>
           <td><b>Convener leader checklist WGn</b></td>
@@ -89,7 +98,11 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
           <td><small><i>&#160;</i></small></td>
           <td align="right"><small>file:</small></td>
           <td><small><i>module.xml</i></small></td>
-          <td>&#160;</td>
+          <!-- URL <td>&#160;</td> -->
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
@@ -142,11 +155,10 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
           <td><small><i>&#160;</i></small></td>
           <td><small><i>&#160;</i></small></td>
           <td align="right"><small>attribute:</small></td>
-          <td>&#160;</td>
-          <td><small><i>
-          /module/@part
-        </i></small></td>
-        <td><small><i>/module/@sc4.working_group</i></small></td>
+          <td><small><i>/module/@sc4.working_group</i></small></td>
+          <!-- URL <td>&#160;</td> -->
+          <td><small><i>/module/@part</i></small></td>
+
 
         <!-- Version -->
         <td><small><i>
@@ -183,19 +195,37 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
           /module/@wg.number.arm
         </i></small></td>
 
+        <!-- Superseded ARM WGn -->
+        <td><small><i>
+          /module/@wg.number.arm.supersedes
+        </i></small></td>
+
         <!-- ARM LF WGn -->
         <td><small><i>
           /module/@wg.number.arm_lf
+        </i></small></td>
+        <!-- Superseded ARM LF WGn -->
+        <td><small><i>
+          /module/@wg.number.arm_lf.supersedes
         </i></small></td>
 
         <!-- MIM WGn -->
         <td><small><i>
           /module/@wg.number.mim
         </i></small></td>
+        <!-- Superseded MIM WGn -->
+        <td><small><i>
+          /module/@wg.number.mim.supersedes
+        </i></small></td>
 
         <!-- MIM LF WGn -->
         <td><small><i>
           /module/@wg.number.mim_lf
+        </i></small></td>
+
+        <!-- Superseded MIM LF WGn -->
+        <td><small><i>
+          /module/@wg.number.mim_lf.supersedes
         </i></small></td>
 
         <!-- Internal checklist WGn -->
@@ -210,7 +240,7 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
 
         <!-- Convener leader checklist WGn -->
         <td><small><i>
-          module/@checklist.convener"/>
+          module/@checklist.convener
         </i></small></td>
         
         <!-- Project leader -->
@@ -249,6 +279,7 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
         </tr>
         <xsl:apply-templates select="./*/module"/>
       </table>
+      <br/>
     </body>
   </HTML>
 </xsl:template>
@@ -299,7 +330,7 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
           <xsl:value-of select="$wg_group"/>
         </td>
 
-        <!-- URL -->
+        <!-- URL 
         <xsl:variable name="mod_xref"
           select="concat('../../../data/modules/',@name,'/sys/1_scope',$FILE_EXT)"/>
         <td>
@@ -307,7 +338,7 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
             <img align="middle" border="0" 
               alt="URL" src="../../../images/url.gif"/>
           </a>
-        </td>
+        </td> -->
 
         <!-- Part -->
         <td>
@@ -427,12 +458,38 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
           </xsl:choose>
         </td>
 
+        <!-- Supersedes ARM WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($module_node/@wg.number.arm.supersedes))>0">
+              <xsl:value-of select="$module_node/@wg.number.arm.supersedes"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
         <!-- ARM LFWGn -->
         <td>
           <xsl:choose>
             <xsl:when 
               test="string-length(normalize-space($module_node/@wg.number.arm_lf))>0">
               <xsl:value-of select="$module_node/@wg.number.arm_lf"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Supersedes ARM LFWGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($module_node/@wg.number.arm_lf.supersedes))>0">
+              <xsl:value-of select="$module_node/@wg.number.arm_lf.supersedes"/>
             </xsl:when>
             <xsl:otherwise>
               -
@@ -453,12 +510,40 @@ $Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
           </xsl:choose>
         </td>
 
+        <!-- Supersedes MIM WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($module_node/@wg.number.mim.supersedes))>0">
+              <xsl:value-of select="$module_node/@wg.number.mim.supersedes"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+
+
         <!-- MIM LF WGn -->
         <td>
           <xsl:choose>
             <xsl:when 
               test="string-length(normalize-space($module_node/@wg.number.mim_lf))>0">
               <xsl:value-of select="$module_node/@wg.number.mim_lf"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Supersedes  MIM LF WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($module_node/@wg.number.mim_lf.supersedes))>0">
+              <xsl:value-of select="$module_node/@wg.number.mim_lf.supersedes"/>
             </xsl:when>
             <xsl:otherwise>
               -

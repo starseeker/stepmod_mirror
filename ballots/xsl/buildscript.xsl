@@ -75,17 +75,61 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:attribute name="append">
           <xsl:value-of select="'true'"/>
         </xsl:attribute>
-        <!--       <xsl:element name="arg">
+        <xsl:element name="arg">
           <xsl:attribute name="value">            
-          <xsl:value-of select="'-n'"/>
+          <xsl:value-of select="'ant'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-emacs'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-q'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <!--        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-v'"/>
+          </xsl:attribute>
+        </xsl:element> -->
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-buildfile'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="concat('${UTILSDIR}','build.xml')"/>
           </xsl:attribute>
         </xsl:element>
        <xsl:element name="arg">
           <xsl:attribute name="value">            
-          <xsl:value-of select="'-x'"/>
+          <xsl:value-of select="concat('-DMODULES=','${MODULESDIR}',@name)"/>
           </xsl:attribute>
         </xsl:element>
--->
+       <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'clean_module'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="exec">
+        <xsl:attribute name="executable">
+          <xsl:value-of select="'bash'"/>
+        </xsl:attribute>
+        <xsl:attribute name="failifexecutionfails">
+          <xsl:value-of select="'false'"/>
+        </xsl:attribute>
+        <xsl:attribute name="output">
+          <xsl:value-of select="concat($cycle,'_ant_checks.txt')"/>
+        </xsl:attribute>
+        <xsl:attribute name="append">
+          <xsl:value-of select="'true'"/>
+        </xsl:attribute>
         <xsl:element name="arg">
           <xsl:attribute name="value">            
           <xsl:value-of select="'ant'"/>
@@ -124,6 +168,116 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
        <xsl:element name="arg">
           <xsl:attribute name="value">            
           <xsl:value-of select="'modules'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="exec">
+        <xsl:attribute name="executable">
+          <xsl:value-of select="'bash'"/>
+        </xsl:attribute>
+        <xsl:attribute name="failifexecutionfails">
+          <xsl:value-of select="'false'"/>
+        </xsl:attribute>
+        <xsl:attribute name="output">
+          <xsl:value-of select="concat($cycle,'_ant_checks.txt')"/>
+        </xsl:attribute>
+        <xsl:attribute name="append">
+          <xsl:value-of select="'true'"/>
+        </xsl:attribute>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'ant'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-emacs'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-q'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <!--        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-v'"/>
+          </xsl:attribute>
+        </xsl:element> -->
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-buildfile'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="concat('${UTILSDIR}','build.xml')"/>
+          </xsl:attribute>
+        </xsl:element>
+       <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="concat('-DMODULES=','${MODULESDIR}',@name)"/>
+          </xsl:attribute>
+        </xsl:element>
+       <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'mapping'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="exec">
+        <xsl:attribute name="executable">
+          <xsl:value-of select="'bash'"/>
+        </xsl:attribute>
+        <xsl:attribute name="failifexecutionfails">
+          <xsl:value-of select="'false'"/>
+        </xsl:attribute>
+        <xsl:attribute name="output">
+          <xsl:value-of select="concat($cycle,'_ant_checks.txt')"/>
+        </xsl:attribute>
+        <xsl:attribute name="append">
+          <xsl:value-of select="'true'"/>
+        </xsl:attribute>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'ant'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-emacs'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-q'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <!--        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-v'"/>
+          </xsl:attribute>
+        </xsl:element> -->
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'-buildfile'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="concat('${UTILSDIR}','build.xml')"/>
+          </xsl:attribute>
+        </xsl:element>
+       <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="concat('-DMODULESDIR=','${MODULESDIR}',@name)"/>
+          </xsl:attribute>
+        </xsl:element>
+       <xsl:element name="arg">
+          <xsl:attribute name="value">            
+          <xsl:value-of select="'valid_modules'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.108 2002/10/29 09:21:19 robbod Exp $
+$Id: module.xsl,v 1.109 2002/10/30 15:07:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2255,7 +2255,7 @@ o=isocs; s=central<br/>
   </xsl:apply-templates>
 
   <!-- output the normative reference explicitly defined in the module -->
-  <xsl:apply-templates select="/modules/normrefs/normref">
+  <xsl:apply-templates select="/module/normrefs/normref">
     <xsl:with-param name="current_module" select="$current_module"/>
   </xsl:apply-templates>
 

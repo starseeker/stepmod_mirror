@@ -9,6 +9,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 <xsl:stylesheet
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:exslt="http://exslt.org/common"
+  exclude-result-prefixes="exslt"
   version="1.0">
   
   <xsl:import href="../../xsl/common.xsl"/>
@@ -5921,9 +5922,95 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     </target>
   </xsl:template>
 
+  <!-- called from template match="ballot_index" mode="modules_target" -->
+  <xsl:template match="ballot_index"
+    mode="modules_target_style_attributes">
+    <xsl:param name="menu"/>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="concat('${',$menu,'}')"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'background_image'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+  </xsl:template>
+  
+
+
   <xsl:template match="ballot_index" mode="modules_target">
     <xsl:param name="menu"/>
-
     <xsl:text>
     </xsl:text>    
      <target
@@ -5980,1474 +6067,197 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
       </dependset>
-      
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${CONTENTSXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_contents.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        </xsl:attribute>        
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${SCOPEXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_1_scope.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${REFSXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_2_refs.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DEFSXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_3_defs.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INFOREQSXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_4_info_reqs.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MAINXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_main.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MAPPINGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mapping.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MIMXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mim.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INDEXXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/index.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ABSTRACTXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_abstract.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ASHORTNAMESXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_a_short_names.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${BOBJREGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_b_obj_reg.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${BIBLIOXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_biblio.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MODINDEXXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_modindex.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${CARMEXPGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_c_arm_expg.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${COVERXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_cover.xsl'"/>
         </xsl:attribute>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'coverpage_date'"/>
@@ -7456,1317 +6266,150 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${DATE}'"/>
           </xsl:attribute>
         </xsl:element>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMIMEXPGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_d_mim_expg.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-       <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPARMXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPARMLFXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPMIMXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPMIMLFXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${FGUIDEXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_f_guide.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${FOREWORDXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_foreword.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INTRODUCTIONXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_introduction.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ARMEXPXML}, ${MIMEXPXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ARMEXPGXML},${MIMEXPGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/imgfile.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="copy">
@@ -8798,6 +6441,91 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       </xsl:element>
     </target>
   </xsl:template>
+
+  <!-- called from template match="ballot_index" mode="dependent_modules_target" -->
+  <xsl:template match="ballot_index" mode="dependent_modules_target_style_attributes">
+    <xsl:param name="menu"/>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="concat('${',$menu,'}')"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'background_image'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+  </xsl:template>
+
 
   <xsl:template match="ballot_index" mode="dependent_modules_target">
     <xsl:param name="menu"/>
@@ -8862,1381 +6590,192 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODCONTENTSXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_contents.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODSCOPEXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_1_scope.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODREFSXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_2_refs.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODDEFSXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_3_defs.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODINFOREQSXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_4_info_reqs.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+              <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+                <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODMAINXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_main.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODMAPPINGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mapping.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODMIMXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mim.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODINDEXXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/index.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-             </xsl:element>
+              <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
+      </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODABSTRACTXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_abstract.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-             </xsl:element>
+        </xsl:attribute>        
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
+      </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODASHORTNAMESXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_a_short_names.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+              <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODBOBJREGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_b_obj_reg.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODBIBLIOXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_biblio.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODMODINDEXXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_modindex.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODCARMEXPGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_c_arm_expg.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODCOVERXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_cover.xsl'"/>
         </xsl:attribute>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'coverpage_date'"/>
@@ -10245,1271 +6784,150 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${DATE}'"/>
           </xsl:attribute>
         </xsl:element>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODDMIMEXPGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_d_mim_expg.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-       <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODEEXPXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODEEXPARMXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-             </xsl:element>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
+      </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODEEXPMIMXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODFGUIDEXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_f_guide.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODFOREWORDXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_foreword.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODINTRODUCTIONXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_introduction.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODARMEXPXML}, ${DMODMIMEXPXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODARMEXPGXML},${DMODMIMEXPGXML}'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/imgfile.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
         </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
         </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'INLINE_ERRORS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_background'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="concat('${',$menu,'}')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:choose>
-          <xsl:when test="./@background.image.dependent.modules">
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:element name="param">
-              <xsl:attribute name="name">
-                <xsl:value-of select="'background_image'"/>
-              </xsl:attribute>
-              <xsl:attribute name="expression">
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
       </xsl:element>
 
       <xsl:element name="copy">

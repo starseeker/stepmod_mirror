@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.6 2001/11/21 15:35:19 robbod Exp $
+$Id: express.xsl,v 1.7 2002/03/04 07:54:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -109,9 +109,5 @@ $Id: express.xsl,v 1.6 2001/11/21 15:35:19 robbod Exp $
     </BODY>
   </HTML>
 </xsl:template>
-
-
-
-
   
 </xsl:stylesheet>

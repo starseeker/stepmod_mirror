@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.25 2002/07/05 17:00:46 robbod Exp $
+     $Id: express_code.xsl,v 1.26 2002/07/11 06:02:17 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -42,6 +42,7 @@
   <xsl:apply-templates select="./rule" mode="code"/>
   <xsl:apply-templates select="./function" mode="code"/>
   <xsl:apply-templates select="./procedure" mode="code"/>
+	<xsl:apply-templates select="./subtype.constraint" mode="code"/>
   <br/>
   END_SCHEMA; <br/>
   </code>
@@ -639,7 +640,6 @@ SELF\<xsl:call-template name="link_object">
 
 </xsl:template>
 
-
 <xsl:template match="rule" mode="code">  
   <xsl:variable 
     name="schema_name" 
@@ -663,7 +663,33 @@ SELF\<xsl:call-template name="link_object">
   <xsl:apply-templates select="./where" mode="code"/>
   END_RULE;
   <br/>
-
 </xsl:template>
 
+<xsl:template match="subtype.constraint" mode="code">
+  <xsl:variable 
+    name="schema_name" 
+    select="../@name"/>      
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <br/>
+  <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
+	<xsl:value-of select="@name"/></b></A>
+  <xsl:text> FOR </xsl:text>
+	<xsl:value-of select="@entity_ref"/>
+  ;<br/>
+
+    <xsl:if test="@abstract.supertype='YES' or @abstract.supertype='yes'">
+      &#160; ABSTRACT SUPERTYPE;<br/>
+      </xsl:if>
+   <xsl:if test="@super.expression">
+        &#160; <xsl:value-of select="@super.expression"/>;<br/>
+    </xsl:if>      
+  END_SUBTYPE_CONSTRAINT;<br/>
+</xsl:template>
 </xsl:stylesheet>

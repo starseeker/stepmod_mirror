@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.6 2002/03/04 07:54:07 robbod Exp $
+     $Id: express_link.xsl,v 1.7 2002/05/19 07:55:13 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -62,7 +62,8 @@
   <xsl:variable name="l1_xref_list">
     <xsl:call-template name="get_objects_in_schema">
       <xsl:with-param name="xref_list" select="$xref_list"/>
-      <xsl:with-param name="object_nodes" select="$schema_node/entity|$schema_node/type|$schema_node/function|$schema_node/rule|$schema_node/procedure|$schema_node/constant"/>
+      <xsl:with-param name="object_nodes" 
+			select="$schema_node/entity|$schema_node/type|$schema_node/subtype.constraint|$schema_node/function|$schema_node/rule|$schema_node/procedure|$schema_node/constant"/>
     </xsl:call-template>        
   </xsl:variable>
   <!-- debug 
@@ -151,7 +152,7 @@
             <xsl:variable name="l2_xref_list">
               <xsl:call-template name="get_objects_in_schema">
                 <xsl:with-param name="xref_list" select="$xref_list"/>
-                <xsl:with-param name="object_nodes" select="$l_schema_node/entity|$l_schema_node/type|$l_schema_node/function|$l_schema_node/rule|$l_schema_node/procedure|$l_schema_node/constant"/>
+                <xsl:with-param name="object_nodes" select="$l_schema_node/entity|$l_schema_node/type|$l_schema_node/subtype.constraint|$l_schema_node/function|$l_schema_node/rule|$l_schema_node/procedure|$l_schema_node/constant"/>
               </xsl:call-template> 
             </xsl:variable>
 
@@ -931,7 +932,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
     select="concat('../data/resources/',
             $first_resource/@name,'/',$first_resource/@name,'.xml')"/>
   <xsl:variable name="object_nodes"
-    select="document($express_file)/express/schema/entity|/express/schema/type|/express/schema/function|/express/schema/procedure|/express/schema/rule|/express/schema/constant"/>
+    select="document($express_file)/express/schema/entity|/express/schema/type|/express/schema/subtype.constraint|/express/schema/function|/express/schema/procedure|/express/schema/rule|/express/schema/constant"/>
   <xsl:choose>
     <xsl:when test="$remaining_resources">
       <xsl:variable name="l_xref_list">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.49 2002/07/05 17:00:46 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.50 2002/07/11 06:02:17 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1309,6 +1309,107 @@ SELF\<xsl:call-template name="link_object">
   </p>
 </xsl:template>
 
+<!-- P. Huau - addition processing of SUBTYPE_CONSTRAINT -->
+<xsl:template match="subtype.constraint">
+  <xsl:variable 
+    name="schema_name" 
+    select="../@name"/>      
+  <xsl:variable name="clause_number">
+    <xsl:call-template name="express_clause_number">
+      <xsl:with-param name="clause" select="'subtype.constraint'"/>
+      <xsl:with-param name="schema_name" select="$schema_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:if test="position()=1">
+    <!-- first entity so output the intro -->
+    <xsl:variable name="clause_header">
+      <xsl:choose>
+        <xsl:when test="contains($schema_name,'_arm')">
+          <xsl:value-of select="concat($clause_number, ' ARM subtype constraint definitions')"/>
+        </xsl:when>
+        <xsl:when test="contains($schema_name,'_mim')">
+          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS subtype constraints')"/>
+        </xsl:when>
+      </xsl:choose>      
+    </xsl:variable>
+
+    <xsl:variable name="clause_intro">
+      <xsl:choose>
+        <xsl:when test="contains($schema_name,'_arm')">
+        </xsl:when>
+        <xsl:when test="contains($schema_name,'_mim')">
+          <!-- no intro for the MIM -->
+        </xsl:when>
+      </xsl:choose>      
+    </xsl:variable>
+
+    <h3>
+      <a name="subtype_constraints">
+        <xsl:value-of select="$clause_header"/>
+      </a>
+    </h3>
+    <xsl:value-of select="$clause_intro"/>
+  </xsl:if>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+             
+  <h3>
+    <A NAME="{$aname}">
+      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+    </A>
+  </h3>
+  <!-- output description from external file -->
+  <xsl:call-template name="output_external_description">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="@name"/>
+  </xsl:call-template>
+  <!-- output description from express -->
+  <xsl:choose>
+    <xsl:when test="string-length(./description)>0">
+      <xsl:apply-templates select="./description"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:variable name="external_description">
+        <xsl:call-template name="check_external_description">
+          <xsl:with-param name="schema" select="../@name"/>
+          <xsl:with-param name="entity" select="@name"/>
+        </xsl:call-template>        
+      </xsl:variable>
+      <xsl:if test="$external_description='false'">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error e10: No description provided for ',$aname)"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:otherwise>
+  </xsl:choose>
+
+  <!-- output the EXPRESS -->
+  <p><u>EXPRESS specification:</u></p>
+  *)
+  <p>
+    <code>
+  <br/>
+  <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
+	<xsl:value-of select="@name"/></b></A>
+  <xsl:text> FOR </xsl:text>
+	<xsl:value-of select="@entity_ref"/>
+  ;<br/>
+    <xsl:if test="@abstract.supertype='YES' or @abstract.supertype='yes'">
+      &#160; ABSTRACT SUPERTYPE;<br/>
+      </xsl:if>
+   <xsl:if test="@super.expression">
+        &#160; <xsl:value-of select="@super.expression"/>;<br/>
+    </xsl:if>      
+  END_SUBTYPE_CONSTRAINT;<br/>
+	    </code></p>
+</xsl:template>
 
 <xsl:template match="function">
   <xsl:variable 
@@ -1608,7 +1709,7 @@ SELF\<xsl:call-template name="link_object">
           <xsl:value-of select="concat($clause_number, ' ARM rule definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM rule definitions')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS rules')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1748,6 +1849,7 @@ SELF\<xsl:call-template name="link_object">
      Imported Types
      Entities
      Imported Entities
+		 Subtype_constraints
      Functions
      Imported Functions
      Rules
@@ -1856,6 +1958,24 @@ SELF\<xsl:call-template name="link_object">
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+
+      <xsl:when test="$clause='subtype.constraint'">
+        <xsl:choose>
+          <!-- There seems to be a bug in MXSL3. 
+               Should not need to convert $xml_file to a string -->
+          <xsl:when
+            test="document(string($xml_file))/express/schema/subtype.constraint">
+            <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="clause" select="'subtype.constraint'"/>
+              <xsl:with-param name="schema_name" select="$schema_name"/>
+            </xsl:call-template>              
+          </xsl:when>
+          <xsl:otherwise>
+            0
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
 
       <xsl:when test="$clause='function'">
         <xsl:choose>
@@ -2029,6 +2149,7 @@ SELF\<xsl:call-template name="link_object">
      Imported Types
      Entities
      Imported Entities
+		 Subtype_constraints
      Functions
      Imported Functions
      Rules
@@ -2173,6 +2294,17 @@ SELF\<xsl:call-template name="link_object">
     </xsl:choose>
   </xsl:variable>
 
+  <xsl:variable name="subtype_constraint_clause">
+    <xsl:choose>
+      <xsl:when
+        test="document(string($xml_file))/express/schema/subtype.constraint">
+        1
+      </xsl:when>
+      <xsl:otherwise>
+        0
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
 
   <xsl:variable name="function_clause">
     <xsl:choose>
@@ -2287,11 +2419,20 @@ SELF\<xsl:call-template name="link_object">
                               $entity_clause + $imported_entity_clause"/>
       </xsl:when>
 
-      <xsl:when test="$clause='function'">
+      <xsl:when test="$clause='subtype.constraint'">
         <xsl:value-of select="$interface_clause + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
+                              $subtype_constraint_clause"/>
+      </xsl:when>
+
+      <xsl:when test="$clause='function'">
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause + 
+                              $entity_clause + $imported_entity_clause +
+															$subtype_constraint_clause + 
                               $function_clause"/>
       </xsl:when>
       <xsl:when test="$clause='imported_function'">
@@ -2299,6 +2440,7 @@ SELF\<xsl:call-template name="link_object">
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
+															$subtype_constraint_clause + 
                               $function_clause + $imported_function_clause"/>
       </xsl:when>
 
@@ -2307,6 +2449,7 @@ SELF\<xsl:call-template name="link_object">
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
+															$subtype_constraint_clause + 
                               $function_clause + $imported_function_clause +
                               $rule_clause"/>
       </xsl:when>
@@ -2315,6 +2458,7 @@ SELF\<xsl:call-template name="link_object">
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
+															$subtype_constraint_clause + 
                               $function_clause + $imported_function_clause +
                               $rule_clause + $imported_rule_clause"/>
       </xsl:when>
@@ -2324,6 +2468,7 @@ SELF\<xsl:call-template name="link_object">
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause +
                               $entity_clause + $imported_entity_clause + 
+															$subtype_constraint_clause + 
                               $function_clause + $imported_function_clause +
                               $rule_clause + $imported_rule_clause +
                               $procedure_clause"/>
@@ -2333,6 +2478,7 @@ SELF\<xsl:call-template name="link_object">
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
+															$subtype_constraint_clause + 
                               $function_clause + $imported_function_clause +
                               $rule_clause + $imported_rule_clause +
                               $procedure_clause + $imported_procedure_clause"/>
@@ -2605,7 +2751,7 @@ SELF\<xsl:call-template name="link_object">
             <p class="note">
               <small>
                 NOTE&#160;&#160;This empty extensible select requires
-                extension in a further module to ensure that all entities have
+                extension in a further module to ensure that entities that refer to it have
                 at least one valid instantiation.
               </small>
             </p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.55 2002/06/26 15:11:36 robbod Exp $
+$Id: common.xsl,v 1.56 2002/07/13 22:57:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1061,6 +1061,7 @@ $Id: common.xsl,v 1.55 2002/06/26 15:11:36 robbod Exp $
          4_constants
          4_types
          4_entities
+				 4_subtype_constraints
          4_rules
          4_functions
          4_procedures
@@ -1129,6 +1130,7 @@ $Id: common.xsl,v 1.55 2002/06/26 15:11:36 robbod Exp $
                         or $section_tmp='4_constants'
                         or $section_tmp='4_types'
                         or $section_tmp='4_entities'
+												or $section_tmp='4_subtype_constraints'
                         or $section_tmp='4_rules'
                         or $section_tmp='4_functions'
                         or $section_tmp='4_procedures'
@@ -1138,6 +1140,7 @@ $Id: common.xsl,v 1.55 2002/06/26 15:11:36 robbod Exp $
                         or $section_tmp='5_constants'
                         or $section_tmp='5_types'
                         or $section_tmp='5_entities'
+                        or $section_tmp='5_subtype_constraints'
                         or $section_tmp='5_rules'
                         or $section_tmp='5_functions'
                         or $section_tmp='5_procedures'
@@ -1330,6 +1333,13 @@ $Id: common.xsl,v 1.55 2002/06/26 15:11:36 robbod Exp $
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#entities')"/>
         </xsl:when>
+				
+        <xsl:when test="$section='4_subtype_constraints'">
+          <xsl:value-of
+            select="concat('../../../modules/',$module,
+                    '/sys/4_info_reqs',$FILE_EXT,'#subtype_constraints')"/>
+        </xsl:when>
+ 
         <xsl:when test="$section='4_rules'">
           <xsl:value-of
             select="concat('../../../modules/',$module,
@@ -1375,6 +1385,13 @@ $Id: common.xsl,v 1.55 2002/06/26 15:11:36 robbod Exp $
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#entities')"/>
         </xsl:when>
+
+        <xsl:when test="$section='5_subtype_constraints'">
+          <xsl:value-of
+            select="concat('../../../modules/',$module,
+                    '/sys/5_mim',$FILE_EXT,'#subtype_constraints')"/>
+        </xsl:when>
+
         <xsl:when test="$section='5_rules'">
           <xsl:value-of
             select="concat('../../../modules/',$module,

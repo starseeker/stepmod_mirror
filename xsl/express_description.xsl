@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.2 2002/03/27 09:38:09 robbod Exp $
+     $Id: express_description.xsl,v 1.3 2002/05/10 13:47:23 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -171,8 +171,6 @@
   </xsl:variable> <!-- found_description -->
   <xsl:value-of select="$found_description"/>
 </xsl:template>
-
-
 
 <xsl:template match="ext_description">
   <xsl:apply-templates />

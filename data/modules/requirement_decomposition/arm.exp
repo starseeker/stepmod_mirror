@@ -176,5 +176,26 @@ END_FUNCTION;
     RETURN(TRUE);
   END_FUNCTION;
 
+FUNCTION get_rvd(
+	input : requirement_assignment_item;
+	id : STRING
+) : SET OF Requirement_view_definition; 
+
+LOCAL
+	rvd : SET[0:?] OF Requirement_view_definition;  --this gives us access to the information base
+	ra : SET[0:?] OF Requirement_assinment;
+END_LOCAL;
+	ra := bag_to_set(QUERY(rai <* USEDIN (input, 'REQUIREMENT_ASSIGNMENT_ARM.'+
+	'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') | (rai.id = id)));
+
+	-- iterate over ra
+	REPEAT i := 1 to SIZEOF(ra) by 1;
+		rvd := rvd + ra[i].assigned_requirement;
+	END_REPEAT;
+
+	RETURN(rvd);
+END_FUNCTION;
+
+
 END_SCHEMA;
 

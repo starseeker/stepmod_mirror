@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_summary.xsl,v 1.2 2004/09/21 15:08:37 robbod Exp $
+$Id: ballot_issues_summary.xsl,v 1.3 2004/09/22 07:47:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -1071,7 +1071,9 @@ $Id: ballot_issues_summary.xsl,v 1.2 2004/09/21 15:08:37 robbod Exp $
   </td>
 </xsl:template>
 
-<xsl:template match="p">
+<!-- ignores carriage returns so that only get one row when pasting into
+     EXCEL -->
+<xsl:template match="p|screen">
   <xsl:apply-templates/>
 </xsl:template>
 

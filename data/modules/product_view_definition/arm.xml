@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.4 2002/02/13 09:45:50 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 09:45:50 $"
-  rcs.revision="$Revision: 1.4 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $"
+  description.file="arm_descriptions.xml">>
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.9"
     source="../data/modules/product_view_definition/arm.exp"/>
 
   <schema name="Product_view_definition_arm">
@@ -20,153 +21,72 @@
       schema="Product_version_arm">
     </interface>
 
-    <interface
-      kind="use"
-      schema="Approval_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Person_organization_assignment_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Date_time_assignment_arm">
-    </interface>
-
-    <type name="product_view_definition_organization_or_person_in_organization_item">
-        <description>This select extends the assignments of an organization or a person in an organization to <b>Product_view_definition</b> instances.</description>
-      <select
-        basedon="organization_or_person_in_organization_item"
-        selectitems="Product_view_definition">
-      </select>
-
-    </type>
-    <type name="product_view_definition_date_or_date_time_item">
-        <description>This select is a extends the assignments of a date or a date and time to <b>Product_view_definition</b> instances.</description>
-      <select
-        basedon="date_or_date_time_item"
-        selectitems="Product_view_definition">
-      </select>
-
-    </type>
-    <type name="product_view_definition_approval_item">
-        <description>This select extends an approval_assignment to apply to <b>Product_view_definition</b> instances.
-
-</description>
-      <select
-        basedon="approval_item"
-        selectitems="Product_view_definition">
-      </select>
-
-    </type>
     <entity
       name="Product_view_definition">
-        <description>A <b>Product_view_definition</b> is a view of a product version relevant for the requirements of one or more life cycle stages and application domains. This view collects product data for a specific task.</description>
-
       <explicit
         name="id">
-        <description>the identification of the product_view_definition assigned by the organization</description>
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="name"
+        optional="YES">
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description"
         optional="YES">
-        <description>the words used to describe the product_view_definition</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
-        name="defining_context">
-        <description>the context in which the product_view_definition is defined</description>
+        name="initial_context">
         <typename
           name="View_definition_context"/>
       </explicit>
       <explicit
-        name="using_contexts"
-        optional="YES">
-        <description>the context in which the product_view_definition is used</description>
+        name="additional_contexts">
         <aggregate
           type="SET"
-          lower="1"
+          lower="0"
           upper="?"/>
         <typename
           name="View_definition_context"/>
       </explicit>
       <explicit
-        name="definition_for">
-        <description>the identification of the product_view_definition of which this is a definition</description>
+        name="defined_version">
         <typename
           name="Product_version"/>
       </explicit>
-      <inverse
-        name="creator"
-        entity="Organization_or_person_in_organization_assignment"
-        attribute="items">
-        <description></description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="creation_date"
-        entity="Date_or_date_time_assignment"
-        attribute="items">
-        <description></description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="approval"
-        entity="Approval_assignment"
-        attribute="items">
-        <description></description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-      </inverse>
-      <where
-        label="WR1"
-        expression="SELF.creator.role = 'creator' OR NOT EXISTS(creator)">
-        <description>The <b>creator</b> role shall be 'creator' or the <b>creator</b> may not exist.</description>
-      </where>
-      <where
-        label="WR2"
-        expression="SELF.creation_date.role = 'creation date' OR NOT EXISTS(creation_date)">
-        <description>The <b>creation_date</b> role shall be 'creation_date' or the <b>creation_date</b> may not exist.</description>
-      </where>
+			<where
+			label="IP1">
+			</where>
     </entity>
 
     <entity
       name="View_definition_context">
-<description><p>A View_definition_context specifies the name and product life cycle stage in which the related view or views is applicable.</p></description>
-
-
       <explicit
-        name="view_name">
-        <description>the name/ type of the view specified by this context</description>
+        name="application_domain">
         <builtintype
           type="STRING"/>
       </explicit>
+
       <explicit
         name="life_cycle_stage">
-        <description>the life cycle stage of the product in which the view was defined</description>
         <builtintype
           type="STRING"/>
       </explicit>
+
       <explicit
-        name="relevant_role"
+        name="description"
         optional="YES">
-        <description>the role of the view within the life cycle st</description>
         <builtintype
           type="STRING"/>
       </explicit>
+			<where
+			label="IP1">
+			</where>
     </entity>
 
   </schema>

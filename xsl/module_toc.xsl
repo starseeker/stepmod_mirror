@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.19 2002/06/07 15:32:01 robbod Exp $
+$Id: module_toc.xsl,v 1.20 2002/06/17 15:48:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -31,6 +31,8 @@ $Id: module_toc.xsl,v 1.19 2002/06/07 15:32:01 robbod Exp $
   <xsl:apply-templates select="." mode="TOCbannertitle">
     <xsl:with-param name="module_root" select="$module_root"/>
   </xsl:apply-templates>
+
+  <xsl:apply-templates select="." mode="test_module_name"/>
 
   <!-- 
        PLCS specific menu bar - this should not used in the ISO documents
@@ -589,6 +591,25 @@ listings</A><BR/>
     </TR>
   </TABLE>
 </xsl:template>
+
+
+<xsl:template match="module" mode="test_module_name">
+  <xsl:variable name="test">
+    <xsl:call-template name="check_all_lower_case">
+      <xsl:with-param name="str" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:if test="$test = -1">
+    <xsl:call-template name="error_message">
+      <xsl:with-param 
+        name="message" 
+        select="concat('Error m1: the module name ',@name,' is incorrectly
+                named in module.xml &lt;module name=&quot;',@name,'&quot;. Should be all lower case')"/>
+    </xsl:call-template>    
+  </xsl:if>
+</xsl:template>
+
+
 
 <xsl:template match="imgfile" mode="page_number">
   <xsl:param name="module_root" select="'..'"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: pub_isocover.xsl,v 1.4 2004/09/14 06:13:00 robbod Exp $
+$Id: pub_isocover.xsl,v 1.5 2004/09/25 11:12:04 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -241,7 +241,7 @@ $Id: pub_isocover.xsl,v 1.4 2004/09/14 06:13:00 robbod Exp $
                    previous edition -->
               <xsl:if test="@status='DIS' and @version!='1'">
                 
-                <br/><xsl:value-of select="concat('[Revision of ',$previous_edition, 'edition (ISO 10303-',@part,':',@previous.revision.year')')"/>
+                <br/><xsl:value-of select="concat('[Revision of ',$previous_edition, 'edition (ISO 10303-',@part,':',@previous.revision.year,')')"/>
               </xsl:if>
             </span>
           </div>

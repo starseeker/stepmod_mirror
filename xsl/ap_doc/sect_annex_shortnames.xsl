@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -35,7 +35,7 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
 
     <xsl:call-template name="annex_header">
       <xsl:with-param name="annex_no" select="'B'"/>
-      <xsl:with-param name="heading" select="'AIM short names'"/>
+      <xsl:with-param name="heading" select="'MIM short names'"/>
       <xsl:with-param name="aname" select="'annexb'"/>
       <xsl:with-param name="informative" select="'normative'"/>
     </xsl:call-template>
@@ -49,6 +49,22 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
     <xsl:variable name="schema-name"
       select="$top_module_node//schema/@name"/>
 
+    <xsl:variable name="mim_lf_file"
+      select="concat('../../data/modules/',$ap_top_module,'/mim_lf.xml')"/>
+
+    <xsl:variable name="mim_lf" select="document($mim_lf_file)"/>
+    <xsl:variable name="mim_entity_names">
+      <xsl:for-each select="$mim_lf/express/schema/entity">
+        <xsl:element name="entity">
+          <xsl:attribute name="name">
+            <xsl:value-of 
+              select="translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:for-each>
+    </xsl:variable>
+
+
     <xsl:variable name="mim_schemas">
       <xsl:call-template name="depends-on-recurse-mim-x">
         <xsl:with-param name="todo" select="concat(' ',$schema-name,' ')"/>
@@ -58,6 +74,7 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
    <xsl:choose>
      <xsl:when test="function-available('msxsl:node-set')">
        <xsl:variable name="schemas-node-set" select="msxsl:node-set($mim_schemas)"/>
+       <xsl:variable name="mim_entity_nodes" select="msxsl:node-set($mim_entity_names)"/>
 
         <xsl:variable name="short-names3">
           <xsl:for-each select="$schemas-node-set//x">
@@ -77,16 +94,42 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
 
             <mod>
               <xsl:choose>
-                <xsl:when test="$module_ok='true'">
-                  <xsl:apply-templates select="document($module_path)/module/mim/shortnames/shortname"
-                    mode="copy_shortnames">
-                    <xsl:with-param name="module" select="$module"/>
-                  </xsl:apply-templates>
+                <xsl:when test="$module">
+                  <xsl:choose>
+                    <xsl:when test="$module_ok='true'">
+                      <xsl:apply-templates select="document($module_path)/module/mim/shortnames/shortname"
+                        mode="copy_shortnames">
+                        <xsl:with-param name="module" select="$module"/>
+                      </xsl:apply-templates>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <error>
+                        <xsl:value-of select="$module"/>
+                      </error>
+                    </xsl:otherwise>
+                  </xsl:choose>
                 </xsl:when>
                 <xsl:otherwise>
-                  <error>
-                    <xsl:value-of select="$module"/>
-                  </error>
+                  <xsl:variable name="resource"
+                    select="substring-before(substring-after(.,'resources/') ,'/')"/>
+                  <xsl:variable name="resource_ok">
+                    <xsl:call-template name="check_resource_exists">
+                      <xsl:with-param name="schema" select="$resource"/>
+                    </xsl:call-template>
+                  </xsl:variable>
+                  <xsl:choose>
+                    <xsl:when test="$resource_ok='true'">
+                      <xsl:call-template name="get_resource_shortnames">
+                        <xsl:with-param name="resource" select="$resource"/>
+                        <xsl:with-param name="mim_entity_nodes" select="$mim_entity_names"/>
+                      </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <error>
+                        <xsl:value-of select="$resource"/>
+                      </error>
+                    </xsl:otherwise>
+                  </xsl:choose>
                 </xsl:otherwise>
               </xsl:choose>
             </mod>
@@ -103,14 +146,10 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
     
     <xsl:when test="function-available('exslt:node-set')">
        <xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
-
+       <xsl:variable name="mim_entity_nodes" select="exslt:node-set($mim_entity_names)"/>
         <xsl:variable name="short-names3">
           <xsl:for-each select="$schemas-node-set//x">
             <xsl:sort/>
-            <xsl:message>
-              x<xsl:value-of select="."/>x
-            </xsl:message>
-
             <xsl:variable name="module" 
               select="substring-after(substring-before(.,'/mim'),'modules/')"/>
             <xsl:variable name="module_path"
@@ -124,16 +163,42 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
 
             <mod>
               <xsl:choose>
-                <xsl:when test="$module_ok='true'">
-                  <xsl:apply-templates select="document($module_path)/module/mim/shortnames/shortname"
-                    mode="copy_shortnames">
-                    <xsl:with-param name="module" select="$module"/>
-                  </xsl:apply-templates>
+                <xsl:when test="$module">
+                  <xsl:choose>
+                    <xsl:when test="$module_ok='true'">
+                      <xsl:apply-templates select="document($module_path)/module/mim/shortnames/shortname"
+                        mode="copy_shortnames">
+                        <xsl:with-param name="module" select="$module"/>
+                      </xsl:apply-templates>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <error>
+                        <xsl:value-of select="$module"/>
+                      </error>
+                    </xsl:otherwise>
+                  </xsl:choose>                  
                 </xsl:when>
                 <xsl:otherwise>
-                  <error>
-                    <xsl:value-of select="$module"/>
-                  </error>
+                  <xsl:variable name="resource"
+                    select="substring-before(substring-after(.,'resources/') ,'/')"/>
+                  <xsl:variable name="resource_ok">
+                    <xsl:call-template name="check_resource_exists">
+                      <xsl:with-param name="schema" select="$resource"/>
+                    </xsl:call-template>
+                  </xsl:variable>
+                  <xsl:choose>
+                    <xsl:when test="$resource_ok='true'">
+                      <xsl:call-template name="get_resource_shortnames">
+                        <xsl:with-param name="resource" select="$resource"/>
+                        <xsl:with-param name="mim_entity_nodes" select="$mim_entity_nodes"/>
+                      </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <error>
+                        <xsl:value-of select="$resource"/>
+                      </error>
+                    </xsl:otherwise>
+                  </xsl:choose>
                 </xsl:otherwise>
               </xsl:choose>
             </mod>
@@ -165,7 +230,7 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
       <xsl:value-of select="$module"/>
     </xsl:attribute>
     <xsl:attribute name="module_part_no" >
-      <xsl:value-of select="concat('ISO/',/module/@status,'&#160;10303-',/module/@part,':- ',$module)"/>
+      <xsl:value-of select="concat('ISO/',/module/@status,'&#160;10303-',/module/@part)"/>
     </xsl:attribute>
 
   </xsl:element>
@@ -184,9 +249,9 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
   <xsl:variable name="module" select="@module_name"/>
   <tr>
     <td align="left">
-      <a href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}">
-        <xsl:value-of select="@name"/>
-      </a>
+      <!--  <a
+href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
+      <xsl:value-of select="@name"/>
     </td>
     <td align="left"><xsl:value-of select="@entity"/></td>
     <td align="left"><xsl:value-of select="@module_part_no"/></td>
@@ -202,10 +267,16 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
         <p>
+          <!--
           Table B.1 provides the short names of entities defined in the MIMs of
           modules used in this part of ISO 10303. 
           Requirements on the use of the short names are found in the
           implementation methods included in ISO 10303.
+               -->
+          Table B.1 provides the short names of entities use in the MIM
+          EXPRESS expanded listing for in this part of ISO 10303. 
+          Requirements on the use of the short names are found in the
+          implementation methods included in ISO 10303.          
         </p>
         <p class="note">
           <small>
@@ -230,7 +301,7 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
           </b>
         </p>
         <div align="center">
-          <table border="1" cellspacing="0" cellpadding="7" width="537">
+          <table border="1" cellspacing="0" cellpadding="7" width="90%">
             <tr>
               <td>
                 <b>Short name</b>
@@ -239,7 +310,7 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
                 <b>Entity data types name</b>
               </td>
               <td>
-                <b>Module</b>
+                <b>Module/Resource</b>
               </td>
             </tr>
             <xsl:apply-templates select="$short-names//mod/shortname"
@@ -340,5 +411,46 @@ $Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
     <xsl:value-of select="concat(' ',@schema,' ')"/> 
   </xsl:if>
 </xsl:template>
+
+
+<xsl:template name="get_resource_shortnames">
+  <xsl:param name="resource"/>
+  <xsl:param name="mim_entity_nodes"/>
+  <xsl:variable name="resource_file" 
+    select="concat('../../data/resources/',$resource,'/',$resource,'.xml')"/>
+  <xsl:variable name="resource_entities" select="document($resource_file)//entity"/>
+  <xsl:variable name="resource_reference" select="document($resource_file)/express/@reference"/>
+
+  <xsl:variable name="resource_shortname_file" select="'../../data/basic/ap_doc/shortnames.xml'"/>
+
+  <xsl:variable name="resource_shortnames" 
+    select="document($resource_shortname_file)/shortnames"/>
+
+  <xsl:for-each select="$resource_entities">
+
+    <xsl:variable name="resource_entity" 
+      select="translate(@name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
+
+    <xsl:variable name="resource_shortname" 
+      select="$resource_shortnames/shortname[translate(@entity,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')=$resource_entity]"/>
+      <xsl:if test="$mim_entity_nodes/entity[@name=$resource_entity]">
+        <!-- the resource entity is used in the mim lf -->
+        <xsl:if test="$resource_shortname">
+          <!-- the resource entity has a shortname -->
+          <shortname>
+            <xsl:attribute name="name">
+              <xsl:value-of select="$resource_shortname/@shortname"/>
+            </xsl:attribute>
+            <xsl:attribute name="entity" >
+              <xsl:value-of select="@name"/>
+            </xsl:attribute>
+            <xsl:attribute name="module_part_no" >
+              <xsl:value-of select="$resource_reference"/>
+            </xsl:attribute>
+          </shortname>
+        </xsl:if>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
 
 </xsl:stylesheet>

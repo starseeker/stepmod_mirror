@@ -1,0 +1,86 @@
+<!-- $Id: build.xml,v 1.6 2002/06/05 12:53:20 robbod Exp $ -->
+<!-- ================================================= -->
+<!-- build.xml for the ballot packages of              -->
+<!-- STEP modules repository                           -->
+<!--  Generates HTML from XML source files             -->
+<!--                                                   -->
+<!-- written by Rob Bodington, Eurostep                -->
+<!-- rob.bodington@eurostep.com                        -->
+<!--                                                   -->
+<!-- For use with the Ant build tool                   -->
+<!-- (http://jakarta.apache.org/ant)                   -->
+<!--                                                   -->
+<!-- Requires a TrAX-compliant XSLT processor (such    -->
+<!-- as Saxon or Xalan) and the Sun Java JDK           -->
+<!-- ================================================= -->
+
+<!--
+
+Usage:
+
+"ant" or "ant all"
+
+     
+-->
+
+<project name="ballothtml" default="all" basedir=".">
+
+  <target name="init" description="initialize variables">
+    <tstamp/>
+    <property name="STYLES" value="../../xsl"/>
+    <property name="STEPMODSTYLES" value="../../../xsl"/>
+    <property name="DTDDIR" value="../../dtd"/>
+    <property name="BALLOTMENU" 
+      value="./ballots/ballots/pdm_ballot_072002/menubar_ballot.xml"/>
+    <property name="ARCHIVE" value="pdm_ballot_072002-${DSTAMP}"/>
+  </target>
+
+
+  <target name="all" depends="init" 
+          description="generate ballot indices">
+    <dependset>
+      <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="**/*.htm*"/>
+    </dependset>
+
+
+    <style includes="start.xml" 
+      destdir="." extension=".htm"
+      style="${STYLES}/ballot_start.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="menubar_file" expression="${BALLOTMENU}"/>
+    </style>
+
+
+    <style includes="ballot_summary.xml" 
+      destdir="." extension=".htm"
+      style="${STYLES}/ballot_summary.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="menubar_file" expression="${BALLOTMENU}"/>
+    </style>
+
+    <style includes="ballot_list.xml" 
+      destdir="." extension=".htm"
+      style="${STYLES}/ballot_list.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="menubar_file" expression="${BALLOTMENU}"/>
+    </style>
+ 
+  </target>
+
+  <target name="clean" depends="init" description="delete generated files">
+    <delete>
+      <fileset dir="." includes="**/*.htm*"/>
+    </delete>
+  </target>
+
+  <target name="zip" depends="all" description="create .zip file">
+    <zip zipfile="../ballots.zip" basedir="../.."
+      includes="ballots/pdm_ballot_072002/*.htm"
+      excludes="ballots/pdm_ballot_072002/*.xml"
+      />
+  </target>
+
+</project>

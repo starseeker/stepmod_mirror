@@ -1,0 +1,387 @@
+<?xml version="1.0"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="task_spec_arm v4.vsd" />
+<schema name="Task_specification_arm">
+<type name="condition_select">
+<description>
+        A condition or test that when evaluated shall return a logical value (where logical is as defined by the EXPRESS logical type).
+      </description>
+<select extensible="YES" genericentity="YES" />
+<graphic.element page="2" xcoord="479" ycoord="102" />
+</type>
+<type name="returned_value">
+<select extensible="YES" genericentity="YES" />
+<graphic.element page="2" xcoord="532" ycoord="496" />
+</type>
+<entity name="Advisory_task_step" supertypes="Task_step">
+<description>
+        A task_method whose purpose is to convey information. <note>Such task_methods do not require any action to be undertaken.</note><eg> "Beware of hot exhausts", "do not use tool X this way" and similar messages.</eg>
+<note> When combined with a task_step_with_result this should allow an acknowledgement of the advice to be returned.</note>
+<note>A subset of task_method_class will apply to the classification of advisory_task_step. </note>
+</description>
+<graphic.element page="2" xcoord="85" ycoord="212" />
+</entity>
+<entity name="Concurrent_methods" supertypes="Structured_task_method">
+<description>
+        A task_method that comprises a set of actions to be performed during the time required for the longest task. No specific order is required.
+      </description>
+<explicit name="methods">
+<description>
+          The task_methods to be performed.
+        </description>
+<aggregate type="SET" lower="2" upper="?" />
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="350" ycoord="307" />
+</entity>
+<entity name="Decision_point" supertypes="Structured_task_method">
+<description>
+        A task_method requiring a decision that determines which further task_method is to be followed. <note>The condition on which the decision is based optionally allows a further task_method to be invoked to provide the basis for the decision.</note>
+</description>
+<explicit name="condition">
+<description>
+          The condition to be tested in order to make a decision.
+        </description>
+<typename name="condition_select" />
+</explicit>
+<explicit name="true_case_method" optional="YES">
+<description>
+          The task_method to be performed if the test condition is satisfied.
+        </description>
+<typename name="Task_method" />
+</explicit>
+<explicit name="false_case_method" optional="YES">
+<description>
+          The task_method to be performed if the test condition is not satisfied.
+        </description>
+<typename name="Task_method" />
+</explicit>
+<explicit name="unknown_case_method" optional="YES">
+<description>
+          The task_method to be performed if the test condition can not be evaluated or returns unknown.
+        </description>
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="439" ycoord="439" />
+</entity>
+<entity name="End_task" supertypes="Task_method">
+<description>
+        A task_method that signifies a point at which to end the task.
+      </description>
+<graphic.element page="2" xcoord="90" ycoord="161" />
+</entity>
+<entity name="Exit_loop" supertypes="Task_method">
+<description>
+        A task_method that signifies a point at which to exit from a loop. 
+      </description>
+<graphic.element page="2" xcoord="260" ycoord="216" />
+</entity>
+<entity name="Looping_method" supertypes="Structured_task_method">
+<description>
+        A task_method that invokes a specified number of repetitions of a further task_method.
+
+      </description>
+<explicit name="repeated_method">
+<description>
+          The task_method to be repeated in the looping method.
+        </description>
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="439" ycoord="307" />
+</entity>
+<entity name="Method_constraint" supertypes="Task_method_relationship">
+<description>
+        A task_method_relationship that signifies a dependency or time constraint between task_methods.
+
+      </description>
+<explicit name="applies_in" optional="YES">
+<description>
+          The task_method within which the constraint applies.<eg>Within a specific method, use of test equipment must be preceded by callibration. Or a 30 minute wait is required between stages of a method.</eg>
+</description>
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="320" ycoord="545" />
+</entity>
+<entity name="Repeat_count" supertypes="Looping_method">
+<description>
+        A task_method that invokes a specified number of repetitions of the repeated_method task_method inherited from the looping_method supertype.
+      </description>
+<explicit name="count">
+<description>
+          The number of time the repeated_method is to be executed.
+<note> If the repeat_count entity is combined with the other subtypes of looping_method, this becomes the maximum number of repetitions.</note>
+</description>
+<builtintype type="INTEGER" />
+</explicit>
+<graphic.element page="2" xcoord="513" ycoord="262" />
+</entity>
+<entity name="Repeat_until" supertypes="Looping_method">
+<description>
+        A task_method that invokes repetitions of a further task_method and is repeated until the specified condition is satisfied.  The method being repeated shall be executed at least once and the condition tested after the first execution.
+      </description>
+<explicit name="condition">
+<description>
+          The condition to be tested in order to determine that the looping method shall be exited.
+        </description>
+<typename name="condition_select" />
+</explicit>
+<graphic.element page="2" xcoord="368" ycoord="172" />
+</entity>
+<entity name="Repeat_while" supertypes="Looping_method">
+<description>
+        A task_method that invokes repetitions of a further task_method and is repeated while the specified condition is satisfied.  The test_condition shall be evaluated prior to invoking the method and may result in the repeated_method not being executed at all.
+      </description>
+<explicit name="condition">
+<description>
+          The condition to be tested in order to determine that the looping method shall be continued.
+        </description>
+<typename name="condition_select" />
+</explicit>
+<graphic.element page="2" xcoord="507" ycoord="172" />
+</entity>
+<entity name="Simultaneous_methods" supertypes="Concurrent_methods">
+<description>
+        Two or more actions to be performed together.
+      </description>
+<graphic.element page="2" xcoord="350" ycoord="231" />
+</entity>
+<entity name="Structured_task_method" abstract.supertype="YES" supertypes="Task_method">
+<description>
+        A task_method that is made up of other task_methods.
+      </description>
+<graphic.element page="2" xcoord="327" ycoord="398" />
+</entity>
+<entity name="Task">
+<description>
+        A specification of work. <note>The task may be implemented using people, machines or a combination.</note>
+</description>
+<explicit name="name">
+<description>
+          A name for the task.<note> Identifiers can be assigned to the task</note>
+</description>
+<builtintype type="STRING" />
+</explicit>
+<explicit name="description">
+<description>
+          A description of the task.
+        </description>
+<builtintype type="STRING" />
+</explicit>
+<explicit name="objective">
+<description>
+          The intended result or results of the task. 
+        </description>
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="Task_result" />
+</explicit>
+<explicit name="method" optional="YES">
+<description>
+          The way in which the task is to be carried out.
+        </description>
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="93" ycoord="595" />
+</entity>
+<entity name="Task_invocation" supertypes="Task_method">
+<description>
+        A task_method that is a call to another task. <eg> a task_method to be a call to a pre-defined task such as calibration.</eg>
+</description>
+<explicit name="task">
+<description>
+          The task to be invoked.
+        </description>
+<typename name="Task" />
+</explicit>
+<graphic.element page="2" xcoord="85" ycoord="403" />
+</entity>
+<entity name="Task_method" abstract.supertype="YES">
+<description>
+        All or part of how to undertake a task.
+      </description>
+<explicit name="name">
+<description>
+          A name for the task method.<note> Identifiers can be assigned to the task method.</note>
+</description>
+<builtintype type="STRING" />
+</explicit>
+<explicit name="description">
+<description>
+          A description of the task_method.
+        </description>
+<builtintype type="STRING" />
+</explicit>
+<explicit name="notes" optional="YES">
+<description>
+          Additional advisory task steps associated to a task_method as a whole. <note> These are ordered by means of a list.</note>
+</description>
+<aggregate type="LIST" lower="1" upper="?" />
+<typename name="Advisory_task_step" />
+</explicit>
+<graphic.element page="2" xcoord="212" ycoord="446" />
+</entity>
+<entity name="Task_method_levels" supertypes="Task_method">
+<description>
+        A task_method that provides two or more different descriptions in place of a single method.  The actual work will be the same whichever alternative task_method is followed.<note>This can be used to provide defferent levels of description of a task for people with varying levels of experience or expertise.</note>
+</description>
+<explicit name="alternatives">
+<description>
+          Task_methods describing two or more ways in which the same work may be undertaken.
+        </description>
+<aggregate type="SET" lower="2" upper="?" />
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="85" ycoord="340" />
+</entity>
+<entity name="Task_method_relationship">
+<description>
+        Relationship between two task_methods. <eg>Can be used to capture a time dependency that cuts across the structure of the method.</eg>
+</description>
+<explicit name="relating">
+<description>
+          The task_method that is the target of the relationship.
+        </description>
+<typename name="Task_method" />
+</explicit>
+<explicit name="related">
+<description>
+          The task_method being related.
+        </description>
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="212" ycoord="545" />
+</entity>
+<entity name="Task_method_sequence" supertypes="Structured_task_method">
+<description>
+        A task_method that comprises a sequence of steps to be followed in a specified order.
+      </description>
+<explicit name="methods">
+<description>
+          The task_methods to be followed in the order specified in the list.
+        </description>
+<aggregate type="LIST" lower="2" upper="?" />
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="255" ycoord="307" />
+</entity>
+<entity name="Task_method_state_relationship">
+<description>
+        Links a state and a task_method. The meaning of the entity is determined by classification. Candidate meanings include<ul><li> Assumed starting state.</li><li>Required starting state</li></ul>
+</description>
+<explicit name="state">
+<description>
+          The state being related.
+        </description>
+<typename name="State" />
+</explicit>
+<explicit name="task_method">
+<description>
+          The task_method being related.
+        </description>
+<typename name="Task_method" />
+</explicit>
+<graphic.element page="2" xcoord="377" ycoord="715" />
+</entity>
+<entity name="Task_method_with_result" supertypes="Task_method">
+<description>
+        A task_method that returns one of more values.
+      </description>
+<explicit name="returns">
+<description>
+          The values to be returned by the task step.
+        </description>
+<aggregate type="BAG" lower="1" upper="?" />
+<typename name="returned_value" />
+</explicit>
+<graphic.element page="2" xcoord="385" ycoord="490" />
+</entity>
+<entity name="Task_relationship">
+<description>
+        A relationship between two tasks. <note> The nature of the relationship is determined from its classification.</note>
+</description>
+<explicit name="relating">
+<description>
+          The task that is the target of the relationship.
+        </description>
+<typename name="Task" />
+</explicit>
+<explicit name="related">
+<description>
+          The task being related.
+        </description>
+<typename name="Task" />
+</explicit>
+<graphic.element page="2" xcoord="232" ycoord="595" />
+</entity>
+<entity name="Task_result">
+<description>
+        A result or objective that is reached by undertaking a task. <note>There may be many tasks defined for a given result, i.e. there can be several ways to do something.</note>
+</description>
+<explicit name="name">
+<description>
+          A name for the task result.
+        </description>
+<builtintype type="STRING" />
+</explicit>
+<explicit name="description">
+<description>
+          A description of the task result.
+        </description>
+<builtintype type="STRING" />
+</explicit>
+<graphic.element page="2" xcoord="235" ycoord="651" />
+</entity>
+<entity name="Task_result_state_relationship">
+<description>
+        Relationship between a state and a task_result. <note>The meaning of the entity is determined by classification. Candidate meanings include<ul><li> Intended finishing state.</li><li>Alternative finishing state</li></ul></note>
+</description>
+<explicit name="state">
+<description>
+          The state being related.
+        </description>
+<typename name="State" />
+</explicit>
+<explicit name="task_result">
+<description>
+          The task_result being related.
+        </description>
+<typename name="Task_result" />
+</explicit>
+<graphic.element page="2" xcoord="235" ycoord="715" />
+</entity>
+<entity name="Task_state_relationship">
+<description>
+        Relationship between a state and a task. <note>The meaning of the entity is determined by classification. Candidate meanings include<ul><li> Assumed starting state.</li><li>Required starting state</li></ul></note>
+</description>
+<explicit name="state">
+<description>
+          The state being related.
+        </description>
+<typename name="State" />
+</explicit>
+<explicit name="task">
+<description>
+          The task being related.
+        </description>
+<typename name="Task" />
+</explicit>
+<graphic.element page="2" xcoord="107" ycoord="715" />
+</entity>
+<entity name="Task_step" supertypes="Task_method">
+<description>
+        A task_method that is not further sub-divided.
+      </description>
+<explicit name="step_text">
+<description>
+          Text describing what is to be done to accomplish the task_step
+        </description>
+<builtintype type="STRING" />
+</explicit>
+<graphic.element page="2" xcoord="85" ycoord="276" />
+</entity>
+<graphic.element page="1" xcoord="269" ycoord="602" />
+</schema>
+</express>

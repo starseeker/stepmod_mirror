@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.186 2005/03/03 05:35:54 robbod Exp $
+$Id: module.xsl,v 1.187 2005/03/03 09:53:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -632,11 +632,11 @@ o=isocs; s=central<br/>
             </xsl:otherwise>
           </xsl:choose>
           <ul>
-            <xsl:apply-templates select="./abstract"/>
+            <xsl:apply-templates select="./abstract/*"/>
           </ul>          
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="./abstract"/>
+          <xsl:apply-templates select="./abstract/*"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:when>

@@ -595,7 +595,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:attribute name="value">${APDIR}/sys/index_mim_express.xml</xsl:attribute>
     </xsl:element>
 
-    <!--    
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXMIMEXPRESSINNERXML</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/index_mim_express_inner.xml</xsl:attribute>
@@ -605,7 +604,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:attribute name="name">APDOCINDEXMIMEXPRESSTOP</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/index_mim_express_top.xml</xsl:attribute>
     </xsl:element>
-    -->
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXMIMMODULES</xsl:attribute>
@@ -2932,8 +2930,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
 
-      <!-- RBN NOT USED ???
-           <xsl:element name="style">
+      <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMEXPRESSINNERXML}'"/>
         </xsl:attribute>
@@ -3014,7 +3011,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
          </xsl:element>
--->
+
         <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXMIMMODULES}'"/>

@@ -1,6 +1,6 @@
 (*
-   $Id: mim.exp,v 1.2 2002/09/13 12:24:31 goset1 Exp $
-   N - ISO/CD-TS - 10303-1115 part_collection - EXPRESS MIM
+   $Id: mim.exp,v 1.3 2002/09/30 09:22:18 goset1 Exp $
+   N - ISO/CD-TS 10303-1115 part_collection - EXPRESS MIM
 *)
 
 SCHEMA Part_collection_mim;
@@ -8,5 +8,18 @@ SCHEMA Part_collection_mim;
 USE FROM Product_occurrence_mim;
 
 USE FROM Part_view_definition_mim;
+
+RULE restrict_collection_category FOR (product_definition);
+LOCAL
+  collection_definitions: SET OF product_definition: := [];
+END_LOCAL;
+  collection_definitions :=  QUERY( pd <* product_definition | 
+  SIZEOF( QUERY( pdca <* USEDIN( pd, 'PART_COLLECTION_MIM.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
+  pdca.frame_of_reference.name= 'collection_definition')) > 0 );
+WHERE
+WR1: SIZEOF( QUERY( pd <* collection_definitions | 
+(SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PART_COLLECTION_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+  prpc.name = 'collection' )) = 0 ) )) = 0;
+END_RULE;
 
 END_SCHEMA;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.6 2002/12/24 16:56:36 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.7 2003/07/10 18:15:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -56,6 +56,7 @@ $Id: ballot_checklist.xsl,v 1.6 2002/12/24 16:56:36 robbod Exp $
           <td><b>Ballot cycle</b></td>
           <td><b>Ballot package</b></td>
           <td><b>Module</b></td>
+          <td><b>WG group</b></td>
           <td><b>URL</b></td>
           <td><b>Part</b></td>
           <td><b>Version</b></td>
@@ -87,6 +88,7 @@ $Id: ballot_checklist.xsl,v 1.6 2002/12/24 16:56:36 robbod Exp $
           <td><small><i>&#160;</i></small></td>
           <td><small><i>&#160;</i></small></td>
           <td align="right"><small>file:</small></td>
+          <td><small><i>module.xml</i></small></td>
           <td>&#160;</td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
@@ -144,6 +146,8 @@ $Id: ballot_checklist.xsl,v 1.6 2002/12/24 16:56:36 robbod Exp $
           <td><small><i>
           /module/@part
         </i></small></td>
+        <td><small><i>/module/@sc4.working_group</i></small></td>
+
         <!-- Version -->
         <td><small><i>
           /module/@version
@@ -278,6 +282,21 @@ $Id: ballot_checklist.xsl,v 1.6 2002/12/24 16:56:36 robbod Exp $
         <!-- Module -->
         <td>
           <xsl:value-of select="@name"/>
+        </td>
+
+        <!-- WG group -->
+        <xsl:variable name="wg_group">
+            <xsl:choose>
+              <xsl:when test="string-length($module_node/@sc4.working_group)>0">
+                <xsl:value-of select="concat('WG',normalize-space($module_node/@sc4.working_group))"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="string('WG12')"/>
+              </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <td>
+          <xsl:value-of select="$wg_group"/>
         </td>
 
         <!-- URL -->

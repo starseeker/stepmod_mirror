@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.3 2003/04/11 23:34:37 thendrix Exp $
+$Id: sect_a_short_names.xsl,v 1.4 2004/02/10 23:46:13 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -76,7 +76,7 @@ $Id: sect_a_short_names.xsl,v 1.3 2003/04/11 23:34:37 thendrix Exp $
       <p class="note">
         <small>
           NOTE&#160;&#160;The EXPRESS entity names are available from
-          Internet:<br/>
+          the following URL:<br/>
         <xsl:variable name="UPPER"
           select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
         <xsl:variable name="LOWER"
@@ -107,7 +107,7 @@ $Id: sect_a_short_names.xsl,v 1.3 2003/04/11 23:34:37 thendrix Exp $
   <p class="note">
     <small>
       NOTE&#160;&#160;The EXPRESS entity names are available from
-      Internet:
+      the following URL:
     </small>
   </p>    
   <p align="center">

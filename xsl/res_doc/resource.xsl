@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.49 2004/11/23 16:12:36 thendrix Exp $
+$Id: resource.xsl,v 1.50 2004/12/07 01:02:42 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -917,15 +917,15 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
     resources series. The integrated generic resources and the integrated application resources specify a single conceptual product data model. 
   </p>
   <p>
-    A complete list of parts of ISO 10303 is available from the Internet: 
+    A complete list of parts of ISO 10303 is available from the following URL: 
   </p>
+<div align="center">
   <blockquote>
     <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.htm"   target="_blank">
       http://www.tc184-sc4.org/titles/STEP_Titles.htm
     </A>
   </blockquote>
-
-
+</div>
     <p>
       <a name="future">
        <sup>1)</sup>A future edition of ISO 10303-1 will describe the application modules series. 
@@ -1075,12 +1075,12 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
     <tr>
       <td>&#160;&#160;</td>
       <td>Short names:</td>
-      <td>&lt;<a href="{$names_url}"   target="_blank"><xsl:value-of select="$names_url"/></a>&gt;</td>
+      <td><a href="{$names_url}"   target="_blank"><xsl:value-of select="$names_url"/></a></td>
   </tr>
   <tr>
     <td>&#160;&#160;</td>
     <td>EXPRESS:</td>
-     <td>&lt;<a href="{$parts_url}"   target="_blank"><xsl:value-of select="$parts_url"/></a>&gt;</td>
+     <td><a href="{$parts_url}"   target="_blank"><xsl:value-of select="$parts_url"/></a></td>
    </tr>
   </table>
   <p/>

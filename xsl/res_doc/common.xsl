@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.23 2004/12/07 00:59:11 thendrix Exp $
+$Id: common.xsl,v 1.24 2004/12/07 01:00:29 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -137,6 +137,14 @@ $Id: common.xsl,v 1.23 2004/12/07 00:59:11 thendrix Exp $
     <xsl:with-param name="content" select="$dc.dates"/>
   </xsl:call-template>
 
+  <xsl:variable name="published"
+    select="@publication.date"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Published'"/>
+    <xsl:with-param name="content" select="$published"/>
+  </xsl:call-template>
+
+
   <xsl:variable name="editor_ref" select="./contacts/editor/@ref"/>
   <xsl:variable name="editor_contact"
     select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$editor_ref]"/>
@@ -186,6 +194,37 @@ $Id: common.xsl,v 1.23 2004/12/07 00:59:11 thendrix Exp $
     <xsl:with-param name="name" select="'DC.Identifier'"/>
     <xsl:with-param name="content" select="$id"/>
   </xsl:call-template>
+
+  <xsl:variable name="supersedes"
+    select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@wg.number.supersedes)"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Replaces'"/>
+    <xsl:with-param name="content" select="$supersedes"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'SC4.version'"/>
+    <xsl:with-param name="content" select="./@version"/>
+  </xsl:call-template>
+
+  <xsl:variable name="checklist.internal_review" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.internal_review)"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'SC4.checklist.internal_review'"/>
+    <xsl:with-param name="content" select="$checklist.internal_review"/>
+  </xsl:call-template>
+
+  <xsl:variable name="checklist.project_leader" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.project_leader)"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'SC4.checklist.project_leader'"/>
+    <xsl:with-param name="content" select="$checklist.project_leader"/>
+  </xsl:call-template>
+
+  <xsl:variable name="checklist.convener" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.convener)"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'SC4.checklist.convener'"/>
+    <xsl:with-param name="content" select="$checklist.convener"/>
+  </xsl:call-template>
+
 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.resource.rcs.date'"/>
@@ -3354,6 +3393,14 @@ ZZZZZZZZZ should not get here.
     <xsl:value-of select="."/>
   </a>
   <br/>
+</xsl:template>
+
+<xsl:template name="no_node_set">
+        Currently configured to support  SAXON, IE 6.0  or later,  and MSXSL XSLT parsers.	Your parser is from <xsl:element name="a">
+<xsl:attribute name="href"><xsl:value-of select="system-property('xsl:vendor-url')"/></xsl:attribute>
+<xsl:value-of select="system-property('xsl:vendor')"/> 
+</xsl:element> and supports xslt version &#x22;<xsl:value-of select="system-property('xsl:version')"/>&#x22; 
+
 </xsl:template>
 
 

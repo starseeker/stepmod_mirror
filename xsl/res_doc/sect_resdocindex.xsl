@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_resdocindex.xsl,v 1.4 2004/11/12 17:06:14 robbod Exp $
+$Id: sect_resdocindex.xsl,v 1.5 2004/11/16 00:42:53 thendrix Exp $
   Author:  Tom Hendrix, Boeing
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -93,10 +93,8 @@ $Id: sect_resdocindex.xsl,v 1.4 2004/11/12 17:06:14 robbod Exp $
     </xsl:when>
 
     <xsl:otherwise>
-      <xsl:message>
-        Only support SAXON and MXSL XSL parsers.
-      </xsl:message>
-    </xsl:otherwise>    
+      <xsl:call-template name="no_node_set"/>
+</xsl:otherwise>    
   </xsl:choose>
 </xsl:template>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_1_scope.xsl,v 1.8 2003/05/21 13:18:32 robbod Exp $
+$Id: sect_1_scope.xsl,v 1.9 2003/05/21 14:37:17 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -33,9 +33,26 @@ $Id: sect_1_scope.xsl,v 1.8 2003/05/21 13:18:32 robbod Exp $
 				</xsl:call-template>
 			</xsl:variable>
 			<p>
-This part of ISO 10303 specifies an application protocol for the exchange of information between the applications that support 
-				<xsl:value-of select="$application_protocol_name"/>.
+                          This part of ISO 10303 specifies the use of the
+                          integrated resources necessary for the scope and information 
+                          requirements for 
+                          <xsl:value-of select="normalize-space(./inscope/@context)"/>
 			</p>	
+    <!-- TODO - need to check whether there are any notes in the inscope
+         statements, if so the note will need to be numbered -->
+    <xsl:variable name="note_number" select="''"/>
+    <p class="note">
+      <small>
+        NOTE&#160;
+        <xsl:value-of select="$note_number"/>
+        &#160;&#160;
+        The scope of this part of ISO 10303 is further refined in the
+        application activity model in 
+        Annex <a href="e_aam{$FILE_EXT}">E</a>.
+      </small>
+    </p>
+
+
           <xsl:apply-templates select="./inscope"/> 
           <xsl:apply-templates select="./outscope"/>             
         </xsl:template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.19 2003/05/21 13:18:32 robbod Exp $
+     $Id: application_protocol.xsl,v 1.20 2003/05/21 14:37:13 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -93,7 +93,7 @@
         <xsl:otherwise>
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
-              <xsl:value-of select="concat('Error AP1: The module',$module,' does not exist.'
+              <xsl:value-of select="concat('Error AP1: The module ',$module,' does not exist.',
                                     '  Correct application_protocol module_name in application_protocol.xml')"/>
             </xsl:with-param>
           </xsl:call-template>
@@ -105,6 +105,7 @@
     <xsl:if test="./li">
       <xsl:apply-templates select="li"/>
     </xsl:if>
+    
   </xsl:template>
 		
   <xsl:template match="outscope">
@@ -134,7 +135,7 @@
         <xsl:otherwise>
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
-              <xsl:value-of select="concat('Error AP1: The module',$module,' does not exist.'
+              <xsl:value-of select="concat('Error AP1: The module',$module,' does not exist.',
                                     '  Correct application_protocol module_name in application_protocol.xml')"/>
             </xsl:with-param>
           </xsl:call-template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
+$Id: home.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -43,7 +43,7 @@ $Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
        }
       ]]></script>
       </head>
-    <frameset framespacing="1" border="0" rows="52,*" frameborder="0">
+    <frameset framespacing="1" border="0" rows="40,*" frameborder="0">
       <frame name="aptitle" 
         src="./sys/frame_aptitle{$FILE_EXT}"
         marginwidth="2" marginheight="0" scrolling="no"/>

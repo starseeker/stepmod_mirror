@@ -71,8 +71,43 @@
 			</xs:element>
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
+			<!-- ex:configuration id="{$namespace_prefix}{$schema_name}" xmlns:ex="urn:iso10303-28:ex">
+				<xsl:apply-templates select="entity" mode="and_ors"/>
+			</ex:configuration>
+			<xsl:text>&#xa;</xsl:text>
+			<xsl:text>&#xa;</xsl:text -->
 		</xs:schema>
 	</xsl:template>
+	
+	<!-- xsl:template match="entity" mode="and_ors">
+	
+		<xsl:variable name="raw_entity_name" select="./@name"/>
+		
+		<xsl:variable name="corrected_entity_name">
+			<xsl:call-template name="put_into_lower_case">
+				<xsl:with-param name="raw_item_name_param" select="$raw_entity_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="subtypes_list">
+			<xsl:for-each select="//entity/@supertypes">
+				<xsl:if test="contains(concat(' ', normalize-space(.), ' '), concat(' ', $raw_entity_name, ' '))">
+					<xsl:variable name="raw_subtype_name" select="../@name"/>
+					<xsl:variable name="corrected_subtype_name">
+						<xsl:call-template name="put_into_lower_case">
+							<xsl:with-param name="raw_item_name_param" select="$raw_subtype_name"/>
+						</xsl:call-template>
+					</xsl:variable>
+					<ex:entity select="{$corrected_entity_name} {$corrected_subtype_name}" name="{$corrected_entity_name}-{$corrected_subtype_name}"/>
+				</xsl:if>
+			</xsl:for-each>
+		</xsl:variable>
+		
+		<xsl:if test="string-length($subtypes_list)!=0">
+			<ex:entity select="{$corrected_entity_name} External_class" name="{$corrected_entity_name}-External_class"/>
+		</xsl:if>
+		
+	</xsl:template -->
 	
 	<xsl:template match="explicit" mode="keys">
 		<xsl:variable name="raw_entity_name" select="../@name"/>
@@ -101,6 +136,7 @@
 
 		<xsl:choose>
 			<xsl:when test="contains($subtypes_of_target_exist, 'YES')">
+				<xsl:comment>EXPRESS ENTITY VALUED ATTRIBUTE WHERE TARGET HAS SUBTYPES KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/></xsl:comment>
 				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___Product_category-keysub">
 					<xs:selector xpath=".//{$namespace_prefix}{$corrected_target_name}/{$corrected_attribute_name}"/>
 					<xs:field xpath="@ref"/>
@@ -109,7 +145,9 @@
 				<xsl:text>&#xa;</xsl:text>
 			</xsl:when>
 			<xsl:otherwise>
-				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref"  refer="{$namespace_prefix}{$schema_name}___	{$corrected_target_name}-key">
+				<xsl:comment>EXPRESS ENTITY VALUED ATTRIBUTE WHERE TARGET HAS NO SUBTYPES KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/></xsl:comment>
+		<xsl:text>&#xa;</xsl:text>
+				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref"  refer="{$namespace_prefix}{$schema_name}___{$corrected_target_name}-key">
 					<xs:selector xpath=".//{$namespace_prefix}{$corrected_target_name}/{$corrected_attribute_name}"/>
 					<xs:field xpath="@ref" />
 				</xs:keyref>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.27 2003/09/16 16:04:46 robbod Exp $
+$Id: application_protocol_toc.xsl,v 1.28 2004/08/03 12:19:52 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -105,7 +105,7 @@ $Id: application_protocol_toc.xsl,v 1.27 2003/09/16 16:04:46 robbod Exp $
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_pics{$FILE_EXT}">
-                D Protocol Implementation Conformance Statement (PICS) form
+                D Protocol Implementation Conformance Statement (PICS) proforma
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_obj_reg{$FILE_EXT}">
@@ -236,7 +236,7 @@ $Id: application_protocol_toc.xsl,v 1.27 2003/09/16 16:04:46 robbod Exp $
 	 <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#ccs">6 Conformance classes</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexa">A MIM EXPRESS expanded listing</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexb">B Implementation method specific requirements</a><br/>
-        <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexc">C Protocol Implementation Conformance Statement (PICS) form.</a><br/>
+        <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexc">C Protocol Implementation Conformance Statement (PICS) proforma.</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexd">D Information object registration</a>
       </td>
       <td valign="TOP">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.18 2003/12/22 07:37:47 panetto Exp $
+$Id: sect_6_ccs.xsl,v 1.19 2004/02/05 17:51:07 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -63,9 +63,9 @@ $Id: sect_6_ccs.xsl,v 1.18 2003/12/22 07:37:47 panetto Exp $
 
     <xsl:variable name="annD" select="concat('./annex_pics',$FILE_EXT)"/>
     <p>
-      The Protocol Implementation Conformance Statement (PICS) form
+      The Protocol Implementation Conformance Statement (PICS) proforma
       lists the options or the combinations of options that may be included
-      in the implementation. The PICS form is provided in Annex
+      in the implementation. The PICS proforma is provided in Annex
       <a href="{$annD}">D</a>.
     </p>
 

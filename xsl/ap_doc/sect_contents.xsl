@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.39 2004/11/03 11:23:04 robbod Exp $
+$Id: sect_contents.xsl,v 1.40 2004/11/04 16:48:24 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -151,7 +151,7 @@ $Id: sect_contents.xsl,v 1.39 2004/11/03 11:23:04 robbod Exp $
     </xsl:for-each>
 
     <a href="./annex_pics{$FILE_EXT}" target="{$target}">
-      Annex D Protocol Implementation Conformance Statement (PICS) form
+      Annex D Protocol Implementation Conformance Statement (PICS) proforma
     </a>
     <br/>
     &#160;&#160;&#160;&#160;&#160;

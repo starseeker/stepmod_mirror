@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_pics.xsl,v 1.4 2003/07/28 12:32:41 robbod Exp $
+$Id: sect_annex_pics.xsl,v 1.5 2004/11/02 16:04:15 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -18,7 +18,7 @@ $Id: sect_annex_pics.xsl,v 1.4 2003/07/28 12:32:41 robbod Exp $
 		<xsl:call-template name="annex_header">
     			<xsl:with-param name="annex_no" select="'D'"/>
     			<xsl:with-param name="heading" 
-                          select="'Protocol Implementation Conformance Statement (PICS) form'"/>
+                          select="'Protocol Implementation Conformance Statement (PICS) proforma'"/>
     			<xsl:with-param name="aname" select="'annexd'"/>
 			<xsl:with-param name="informative" select="'normative'"/>
 		</xsl:call-template>
@@ -30,7 +30,7 @@ $Id: sect_annex_pics.xsl,v 1.4 2003/07/28 12:32:41 robbod Exp $
 		</p>
 		<p>
 			This annex is in the form of a questionnaire. 
-			This  questionnaire is intended to be filled out by an implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS form is referred to as a "PICS".
+			This  questionnaire is intended to be filled out by an implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS proforma is referred to as a "PICS".
 		</p>
 		<h2>
                   <a name="d1">
@@ -73,7 +73,7 @@ $Id: sect_annex_pics.xsl,v 1.4 2003/07/28 12:32:41 robbod Exp $
 			Indicate the chosen implementation method and supported directions of translation.
 		</p>
 		<p>
-			If more than one implementation method is supported, a separate PICS form is to be filled in for each of them.
+			If more than one implementation method is supported, a separate PICS proforma is to be filled in for each of them.
 		</p>
 		<table border="1">
 			<tr>

@@ -26,7 +26,7 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
   <xsl:variable name="application_protocol_nodes">
     <xsl:element name="application_protocols">
       <xsl:apply-templates select="./application_protocol" mode="copy">
-        <xsl:sort select="@name"/>
+	<xsl:sort select="@part"/>
       </xsl:apply-templates>
     </xsl:element>
   </xsl:variable>
@@ -37,6 +37,7 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
         name="application_protocols-node-set" 
         select="msxsl:node-set($application_protocol_nodes)"/>
       <xsl:for-each select="$application_protocols-node-set/application_protocols/application_protocol">
+	<xsl:sort select="@part" />
         <xsl:variable name="letter" 
           select="translate(substring(@name,1,1), $lower, $upper)"/>
         
@@ -49,7 +50,9 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
             </A>
           </p>
         </xsl:if>
-        <xsl:apply-templates select="."/>
+        <xsl:apply-templates select=".">
+	  <xsl:with-param name="part_no" select="'yes'"/>
+	</xsl:apply-templates>
       </xsl:for-each>
     </xsl:when>
 
@@ -58,6 +61,7 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
         name="application_protocols-node-set" 
         select="saxon:node-set($application_protocol_nodes)"/>
       <xsl:for-each select="$application_protocols-node-set/application_protocols/application_protocol">
+	<xsl:sort select="@part"/>
         <xsl:variable name="letter" 
           select="translate(substring(@name,1,1), $lower, $upper)"/>
         
@@ -70,7 +74,9 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
             </A>
           </p>
         </xsl:if>
-        <xsl:apply-templates select="."/>
+        <xsl:apply-templates select=".">
+	  <xsl:with-param name="part_no" select="'yes'"/>
+	</xsl:apply-templates>
       </xsl:for-each>
     </xsl:when>
 
@@ -79,6 +85,7 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
         name="application_protocols-node-set" 
         select="exslt:node-set($application_protocol_nodes)"/>
       <xsl:for-each select="$application_protocols-node-set/application_protocols/application_protocol">
+	<xsl:sort select="@part"/>
         <xsl:variable name="letter" 
           select="translate(substring(@name,1,1), $lower, $upper)"/>
         
@@ -91,7 +98,9 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
             </A>
           </p>
         </xsl:if>
-        <xsl:apply-templates select="."/>
+        <xsl:apply-templates select=".">
+	  <xsl:with-param name="part_no" select="'yes'"/>
+	</xsl:apply-templates>
       </xsl:for-each>
     </xsl:when>
 
@@ -105,6 +114,9 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
 
 <xsl:template match="application_protocol" mode="copy">
   <xsl:element name="application_protocol">
+    <xsl:attribute name="part">
+      <xsl:value-of select="@part"/>
+    </xsl:attribute>
     <xsl:attribute name="name">
       <xsl:value-of select="@name"/>
     </xsl:attribute>
@@ -123,8 +135,9 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
       </A>
     </p>
   </xsl:if>
-
-  <xsl:apply-templates select="."/>
+  <xsl:apply-templates select=".">
+	  <xsl:with-param name="part_no" select="'yes'"/>
+  </xsl:apply-templates>
 </xsl:template>
 
 </xsl:stylesheet>

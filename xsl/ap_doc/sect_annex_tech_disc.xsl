@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_g_exp.xsl,v 1.8 2003/05/27 07:34:15 robbod Exp $
+$Id: sect_annex_tech_disc.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -15,21 +15,29 @@ $Id: sect_g_exp.xsl,v 1.8 2003/05/27 07:34:15 robbod Exp $
     <xsl:variable name="annex_list">
       <xsl:apply-templates select="." mode="annex_list"/>
     </xsl:variable>
-    
+
     <xsl:variable name="annex_letter">
       <xsl:call-template name="annex_letter" >
-        <xsl:with-param name="annex_name" select="'tech_disc'"/>
+        <xsl:with-param name="annex_name" select="'techdisc'"/>
         <xsl:with-param name="annex_list" select="$annex_list"/>
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:call-template name="annex_letter" >
+    <xsl:call-template name="annex_header" >
       <xsl:with-param name="annex_no" select="$annex_letter"/>
       <xsl:with-param name="heading" select="'Technical discussion'"/>
       <xsl:with-param name="aname" select="'annexj'"/>
     </xsl:call-template>
 
     <xsl:apply-templates select="tech_disc"/>
+  </xsl:template>
+
+  <xsl:template match="tech_disc">
+    <xsl:apply-templates/>
+    <!-- output any issues -->
+    <xsl:apply-templates select=".." mode="output_clause_issue">
+      <xsl:with-param name="clause" select="'usage_guide'"/>
+    </xsl:apply-templates>
   </xsl:template>
 	
 </xsl:stylesheet>

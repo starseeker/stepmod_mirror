@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.2 2001/11/21 15:38:19 robbod Exp $
+//$Id: express2xml.js,v 1.3 2001/11/21 17:13:49 robbod Exp $
 // JScript to convert an Express file to an XML file
 // cscript express2xml.js <express.exp>
 // cscript express2xml.js <module> arm
@@ -71,7 +71,18 @@ function readStatement(line, ts) {
     else {
 	pos = line.search(";");
 	if (pos == -1) {
-	    statement = line + readStatement(ts.ReadLine(), ts);
+	    var nextLine = readStatement(ts.ReadLine(), ts);	    
+
+	    debug("["+nextLine.charAt(0)+"]"+nextLine);
+	    var reg = /^[A-Za-z]/;
+	    var ch = nextLine.match(reg);
+	    if (ch) {
+		// add a white space at the beginning of line
+		statement = line + " " + nextLine;
+	    } else {
+		statement = line + nextLine;
+	    }
+
 	} else {
 	    statement = line.substr(0,pos+1);
 	}
@@ -299,7 +310,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.2 2001/11/21 15:38:19 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.3 2001/11/21 17:13:49 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -309,7 +320,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.2 $";
+    var appCVSRevision = "$Revision: 1.3 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();

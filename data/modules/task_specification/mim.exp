@@ -1,11 +1,11 @@
 (*
- $Id: $
+ $Id: mim.exp,v 1.11 2003/10/14 15:24:41 robbod Exp $
  ISO TC184/SC4/WG12 N2448 - ISO/TS 10303-1262 Task specification - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG12 N1452
+Supersedes ISO TC184/SC4/WG12 N1452
 *) 
 
 
-SCHEMA Task_specification_mim; 
+SCHEMA Task_specification_mim;
 
 USE FROM action_schema   -- ISO 10303-41
   (action_method,
@@ -59,68 +59,76 @@ TYPE task_state_items = EXTENSIBLE SELECT BASED_ON action_method_items WITH
     state_type);
 END_TYPE; 
 
-ENTITY advisory_task_method
-  SUBTYPE OF (task_method);
+ENTITY advisory_task_element
+  SUBTYPE OF (task_element);
 END_ENTITY;
 
-ENTITY concurrent_task_method
-  SUBTYPE OF (task_method);
+ENTITY concurrent_task_element
+  SUBTYPE OF (task_element);
 END_ENTITY;
 
 ENTITY end_task
-  SUBTYPE OF (task_method);
+  SUBTYPE OF (task_element);
 END_ENTITY;
 
 ENTITY exit_loop
-  SUBTYPE OF (task_method);
+  SUBTYPE OF (task_element);
 END_ENTITY;
 
-ENTITY looping_method
-  SUBTYPE OF (task_method);
+ENTITY looping_element
+  SUBTYPE OF (task_element);
 END_ENTITY;
 
-ENTITY simultaneous_task_method
-  SUBTYPE OF (concurrent_task_method);
+ENTITY simultaneous_task_element
+  SUBTYPE OF (concurrent_task_element);
 END_ENTITY;
 
-ENTITY task
+ENTITY task_element
   SUBTYPE OF (action_method);
 END_ENTITY;
 
+ENTITY task_element_relationship
+  SUBTYPE OF (action_method_relationship);
+END_ENTITY;
+
+ENTITY task_element_sequence
+  SUBTYPE OF (task_element);
+END_ENTITY;
+
 ENTITY task_invocation
-  SUBTYPE OF (task_method);
+  SUBTYPE OF (task_element);
 END_ENTITY;
 
 ENTITY task_method
   SUBTYPE OF (action_method);
 END_ENTITY;
 
-ENTITY task_method_sequence
-  SUBTYPE OF (task_method);
+ENTITY task_method_relationship
+  SUBTYPE OF (action_method_relationship);
 END_ENTITY;
 
-ENTITY task_result
+ENTITY task_objective
   SUBTYPE OF (action_method);
 END_ENTITY;
 
 ENTITY task_step
-  SUBTYPE OF (task_method);
+  SUBTYPE OF (task_element);
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT restrict_task_action_method_subtypes FOR action_method;
-  ONEOF (task,
+  ONEOF (task_element,
          task_method,
-         task_result);
+         task_objective);
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT restrict_task_method_subtypes FOR task_method;
-  ONEOF (advisory_task_method,
-         concurrent_task_method,
+SUBTYPE_CONSTRAINT restrict_task_method_subtypes FOR task_element;
+  ONEOF (advisory_task_element,
+         concurrent_task_element,
          end_task,
          exit_loop,
-         looping_method,
+         looping_element,
+         task_element_sequence,
          task_invocation,
-         task_method_sequence,
          task_step);
 END_SUBTYPE_CONSTRAINT;
 

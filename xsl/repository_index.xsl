@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.15 2002/07/30 14:43:17 robbod Exp $
+     $Id: repository_index.xsl,v 1.16 2002/07/30 16:37:10 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -50,6 +50,13 @@
             <h2>
               <a href="help/index.htm">
                 Help
+              </a>
+            </h2>
+          </td>
+          <td>
+            <h2>
+              <a href="ballots/index{$FILE_EXT}">
+                Ballots
               </a>
             </h2>
           </td>

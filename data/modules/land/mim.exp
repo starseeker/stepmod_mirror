@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.8 2005/02/02 14:43:51 budreckytej Exp $
+   $Id: mim.exp,v 1.9 2005/02/04 15:41:54 budreckytej Exp $
    ISO TC184/SC4/WG12 N3466 - ISO/CD-TS 10303-1692 Land - EXPRESS MIM
 *)
 
@@ -9,35 +9,35 @@ SCHEMA Land_mim;
 	USE FROM Layered_interconnect_module_design_mim;	-- ISO/TS 10303-1698
 
 
-SUBTYPE_CONSTRAINT component_shape_aspect_subtypes FOR component_shape_aspect;         
+SUBTYPE_CONSTRAINT assembly_component_subtypes FOR assembly_component;         
 (ONEOF (land, connected_area_component, inter_stratum_feature)
-                ANDOR (thermal_component_shape_aspect));
+                ANDOR (thermal_component));
 END_SUBTYPE_CONSTRAINT;        
 	
 ENTITY land
- SUBTYPE OF (component_shape_aspect);
+ SUBTYPE OF (assembly_component);
 WHERE
-  WR1: SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
+  WR1: SIZEOF (QUERY (i_f <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
-       'LAND_MIM.' +
-       'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (i_f.relating_shape_aspect))) = 1;
-  WR2: SIZEOF (QUERY (aud <* QUERY (sar <* USEDIN (SELF,
-       'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'alternate usage definition') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'definition usage') |
        'LAND_MIM.' +
        'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (aud.relating_shape_aspect))) <= 1;
-  WR3: SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
+       TYPEOF (i_f.relating_product_definition))) = 1;
+  WR2: SIZEOF (QUERY (aud <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'stratum feature implementation') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'alternate usage definition') |
+       'LAND_MIM.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (aud.relating_product_definition))) <= 1;
+  WR3: SIZEOF (QUERY (sfi <* QUERY (pdr <* USEDIN (SELF,
+       'LAND_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'stratum feature implementation') |
        'LAND_MIM.' +
        'STRATUM_FEATURE' IN
-       TYPEOF (sfi.relating_shape_aspect))) = 1;
+       TYPEOF (sfi.relating_product_definition))) = 1;
 (*
   WR4: (NOT (SELF\shape_aspect.description IN
        ['via and contact size dependent land',
@@ -84,120 +84,120 @@ WHERE
        (at\shape_aspect.description =
        'non functional land join terminal')))) >= 1);
 *)
-  WR8: (NOT (SELF\shape_aspect.description IN
+  WR8: (NOT (SELF\product_definition.description IN
        ['component termination passage and contact size dependent land',
        'component termination passage and contact size dependent' + 
        'non functional land',
        'component termination passage dependent land',
        'component termination passage dependent non functional land'])) OR
-       (SIZEOF (QUERY (rp <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (rp <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'reference passage') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'reference passage') |
        (('LAND_MIM.' +
        'PLATED_PASSAGE' IN
-       TYPEOF (rp.relating_shape_aspect)) AND
-       (rp.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (rp.relating_product_definition)) AND
+       (rp.relating_product_definition\product_definition.description =
        'component termination passage')))) = 1);
- WR9: (NOT (SELF\shape_aspect.description IN
+ WR9: (NOT (SELF\product_definition.description IN
        ['via and contact size dependent land',
        'via and contact size dependent non functional land',
        'via dependent land', 'via dependent non functional land'])) OR
-       (SIZEOF (QUERY (rv <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (rv <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'reference via') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'reference via') |
        (('LAND_MIM.' +
        'PLATED_PASSAGE' IN
-       TYPEOF (rv.relating_shape_aspect)) AND
-       (rv.relating_shape_aspect\shape_aspect.description IN
+       TYPEOF (rv.relating_product_definition)) AND
+       (rv.relating_product_definition\product_definition.description IN
        ['buried via', 'interfacial connection', 
        'bonded conductive base blind via', 'non conductive base blind via',
        'plated conductive base blind via'])))) = 1);
- WR10: (NOT (SELF\shape_aspect.description = 
+ WR10: (NOT (SELF\product_definition.description = 
        'unsupported passage dependent non functional land')) OR
-       (SIZEOF (QUERY (rp <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (rp <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'reference passage') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'reference passage') |
        ('LAND_MIM.' +
        'INTER_STRATUM_FEATURE' IN
-       TYPEOF (rp.relating_shape_aspect)) AND
-       (rp.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (rp.relating_product_definition)) AND
+       (rp.relating_product_definition\product_definition.description =
        'unsupported passage'))) = 1);
- WR11: (NOT (SELF\shape_aspect.description IN
+ WR11: (NOT (SELF\product_definition.description IN
        ['component termination passage dependent land',
        'component termination passage dependent non functional land'])) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        (('LAND_MIM.' +
        'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'default component termination passage based')))) = 1);
- WR12: (NOT (SELF\shape_aspect.description IN
+ WR12: (NOT (SELF\product_definition.description IN
        ['component termination passage and contact size dependent land',
        'component termination passage and contact size dependent ' +
        'non functional land'])) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        (('LAND_MIM.' +
        'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'default attachment size and component termination ' +
        'passage based')))) = 1);
- WR13: (NOT (SELF\shape_aspect.description IN
+ WR13: (NOT (SELF\product_definition.description IN
        ['contact size dependent land',
        'contact size dependent non functional land'])) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        (('LAND_MIM.' +
        'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'default attachment size based')))) = 1);
- WR14: (NOT (SELF\shape_aspect.description IN
+ WR14: (NOT (SELF\product_definition.description IN
        ['via and contact size dependent land',
        'via and contact size dependent non functional land'])) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        (('LAND_MIM.' +
        'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'default attachment size and via based')))) = 1);
- WR15: (NOT (SELF\shape_aspect.description IN
+ WR15: (NOT (SELF\product_definition.description IN
        ['via dependent land',
        'via dependent non functional land'])) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        (('LAND_MIM.' +
        'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'default via based')))) = 1);
- WR16: (NOT (SELF\shape_aspect.description = 
+ WR16: (NOT (SELF\product_definition.description = 
        'unsupported passage dependent ' +
        'non functional land')) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAND_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAND_MIM.' +
        'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'default unsupported passage based'))) = 1);
 END_ENTITY;	
 	

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.14 2005/02/02 14:43:51 budreckytej Exp $
+   $Id: mim.exp,v 1.15 2005/02/04 15:44:27 budreckytej Exp $
    ISO TC184/SC4/WG12 N3484 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS MIM
 *)
 
@@ -57,8 +57,9 @@ WHERE
 END_ENTITY; 
 
 ENTITY connected_area_component
- SUBTYPE OF (component_shape_aspect);
+ SUBTYPE OF (assembly_component);
 WHERE
+(* invalid csa
  WR1: SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
@@ -72,15 +73,15 @@ WHERE
        sar\shape_aspect_relationship.name = 'associated layer connection point') |
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAYER_CONNECTION_POINT' IN
-       TYPEOF (sfi.relating_shape_aspect))) >= 1;
- WR3: SELF\shape_aspect.description = 'stratum feature template component';
+       TYPEOF (sfi.relating_shape_aspect))) >= 1; *)
+ WR3: SELF\product_definition.description = 'stratum feature template component';
  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
-       SELF\component_shape_aspect||
+       SELF\component_definition||
        SELF\connected_area_component)) = 0;
 END_ENTITY;
 	
-ENTITY electrical_isolation_component_shape_aspect
-  SUBTYPE OF (filled_area_material_removal_component_shape_aspect);
+ENTITY electrical_isolation_component_definition
+  SUBTYPE OF (filled_area_material_removal_component_definition);
 END_ENTITY;
 (**
 ENTITY externally_defined_interconnect_definition
@@ -92,20 +93,17 @@ WHERE
 END_ENTITY;
 *)
 ENTITY fiducial
-  SUBTYPE OF (component_shape_aspect);
+  SUBTYPE OF (assembly_component);
 WHERE
-  WR1: (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-          'COMPONENT_DEFINITION') IN TYPEOF(SELF.of_shape.definition))
-            AND (SELF.of_shape.definition\product_definition.description = 
-                    'laminate component');
+  WR1: (description = 'laminate component');
 END_ENTITY;
 
 ENTITY fiducial_stratum_feature
  SUBTYPE OF (stratum_feature);
 END_ENTITY;
 
-ENTITY filled_area_material_removal_component_shape_aspect
-  SUBTYPE OF (material_removal_component_shape_aspect);
+ENTITY filled_area_material_removal_component_definition
+  SUBTYPE OF (material_removal_component_definition);
 END_ENTITY;
 
 ENTITY footprint_occurrence
@@ -115,9 +113,6 @@ END_ENTITY;
 ENTITY footprint_occurrence_product_definition_relationship
   SUBTYPE OF (product_definition_relationship);
 WHERE
---  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
---       SELF\shape_aspect_relationship.relating_shape_aspect;
---  WR2: SELF\shape_aspect_relationship.name = 'footprint occurrence sub assembly relationship';
   WR1: SELF\product_definition_relationship.related_product_definition :<>:
        SELF\product_definition_relationship.relating_product_definition;
   WR2: SELF\product_definition_relationship.name = 'footprint occurrence sub assembly relationship';
@@ -125,9 +120,9 @@ WHERE
 END_ENTITY; 
 
 ENTITY inter_stratum_feature
- SUBTYPE OF (component_shape_aspect);
+ SUBTYPE OF (assembly_component);
 WHERE
-  WR1: SELF\shape_aspect.description IN ['bonded conductive base blind via', 
+  WR1: SELF\product_definition.description IN ['bonded conductive base blind via', 
        'buried via', 'component termination passage', 
        'interfacial connection', 'non conductive base blind via', 
        'plated conductive base blind via', 'plated cutout', 
@@ -151,60 +146,60 @@ WHERE
        IN TYPEOF (it)) AND
        (it\representation_item.name = 'feature of size') AND
        (it\descriptive_representation_item.description IN ['true', 'false']))) = 1)) = 1))) = 1;
-  WR3: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+  WR3: SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description IN
+       'TEMPLATE_DEFINITION' IN
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description IN
        ['inter stratum feature template',
        'via template',
        'component termination passage template',
        'unsupported passage template']))) = 1;
-  WR4: (NOT (SELF\shape_aspect.description = 'cutout edge segment')) OR
-       (SIZEOF (QUERY (cc <* QUERY (sar <* USEDIN (SELF,
+  WR4: (NOT (SELF\product_definition.description = 'cutout edge segment')) OR
+       (SIZEOF (QUERY (cc <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed cutout') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'composed cutout') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE' IN
-       TYPEOF (cc.relating_shape_aspect)) AND
-       ((cc.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (cc.relating_product_definition)) AND
+       ((cc.relating_product_definition\product_definition.description =
        'cutout') OR
-       (cc.relating_shape_aspect\shape_aspect.description =
+       (cc.relating_product_definition\product_definition.description =
        'physical connectivity interrupting cutout') OR
-       (cc.relating_shape_aspect\shape_aspect.description =
+       (cc.relating_product_definition\product_definition.description =
        'partially plated cutout')))) = 1);
-  WR5: (NOT (SELF\shape_aspect.description = 'interconnect module edge segment')) OR
-       (SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
+  WR5: (NOT (SELF\product_definition.description = 'interconnect module edge segment')) OR
+       (SIZEOF (QUERY (ce <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed edge') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'composed edge') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE' IN
-       TYPEOF (ce.relating_shape_aspect)) AND
-       ((ce.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (ce.relating_product_definition)) AND
+       ((ce.relating_product_definition\product_definition.description =
        'interconnect module edge') OR
-       (ce.relating_shape_aspect\shape_aspect.description =
+       (ce.relating_product_definition\product_definition.description =
        'interconnect module edge')
         ))) = 1);
-  WR6: (NOT (SELF\shape_aspect.description = 'dielectric material passage')) OR
-       (SIZEOF (QUERY (pp <* QUERY (sar <* USEDIN (SELF,
+  WR6: (NOT (SELF\product_definition.description = 'dielectric material passage')) OR
+       (SIZEOF (QUERY (pp <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'precedent passage') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'precedent passage') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE' IN
-       TYPEOF (pp.relating_shape_aspect)) AND
-       ((pp.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (pp.relating_product_definition)) AND
+       ((pp.relating_product_definition\product_definition.description =
        'cutout') OR
-       (pp.relating_shape_aspect\shape_aspect.description =
+       (pp.relating_product_definition\product_definition.description =
        'physical connectivity interrupting cutout') OR
-       (pp.relating_shape_aspect\shape_aspect.description =
+       (pp.relating_product_definition\product_definition.description =
        'partially plated cutout')))) = 1);
-  WR7: (NOT (SELF\shape_aspect.description = 'dielectric material passage')) OR
+  WR7: (NOT (SELF\product_definition.description = 'dielectric material passage')) OR
        ((SIZEOF (QUERY (rp <* QUERY (pd <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -215,71 +210,71 @@ WHERE
        (SIZEOF (USEDIN (SELF, 
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MATERIAL_DESIGNATION.DEFINITIONS')) <= 1));
-  WR8: (NOT (SELF\shape_aspect.description = 
+  WR8: (NOT (SELF\product_definition.description = 
        'physical connectivity interrupting cutout')) OR
-       (SIZEOF (QUERY (ice <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (ice <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'interrupted connectivity elements') |
-       ice.relating_shape_aspect\shape_aspect.name =
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'interrupted connectivity elements') |
+       ice.relating_product_definition\product_definition.name =
        'conductive interconnect element')) >= 1);
-  WR9: (NOT (SELF\shape_aspect.description = 'unsupported passage')) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+  WR9: (NOT (SELF\product_definition.description = 'unsupported passage')) OR
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       'TEMPLATE_DEFINITION' IN
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'unsupported passage template'))) = 1);
- WR10: (NOT (SELF\shape_aspect.description = 'cutout edge segment')) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+ WR10: (NOT (SELF\product_definition.description = 'cutout edge segment')) OR
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)))) = 1);
- WR11: (NOT (SELF\shape_aspect.description = 
+       TYPEOF (it.relating_product_definition)))) = 1);
+ WR11: (NOT (SELF\product_definition.description = 
        'plated cutout edge segment')) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)))) = 1);
- WR12: (NOT (SELF\shape_aspect.description = 
+       TYPEOF (it.relating_product_definition)))) = 1);
+ WR12: (NOT (SELF\product_definition.description = 
        'interconnect module edge segment')) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)))) = 1);
- WR13: (NOT (SELF\shape_aspect.description = 
+       TYPEOF (it.relating_product_definition)))) = 1);
+ WR13: (NOT (SELF\product_definition.description = 
        'plated interconnect module edge segment')) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)))) = 1);
+       TYPEOF (it.relating_product_definition)))) = 1);
 END_ENTITY;
 
 ENTITY interconnect_module_join_terminal
   SUBTYPE OF (interconnect_module_terminal);
 END_ENTITY;
 
-ENTITY interface_access_component_shape_aspect
-  SUBTYPE OF (component_shape_aspect);
+ENTITY interface_access_component_definition
+  SUBTYPE OF (assembly_component);
 END_ENTITY;
 
-ENTITY interface_access_material_removal_component_shape_aspect
-  SUBTYPE OF (material_removal_component_shape_aspect);
+ENTITY interface_access_material_removal_component_definition
+  SUBTYPE OF (material_removal_component_definition);
 END_ENTITY;
 
 ENTITY internal_probe_access_area
@@ -624,16 +619,16 @@ ENTITY layout_junction
   SUBTYPE OF (shape_aspect);
 END_ENTITY;
 
-ENTITY material_removal_component_shape_aspect
-  SUBTYPE OF (component_shape_aspect);
+ENTITY material_removal_component_definition
+  SUBTYPE OF (assembly_component);
 END_ENTITY;
 
-ENTITY multi_layer_component_shape_aspect
-  SUBTYPE OF (component_shape_aspect);
+ENTITY multi_layer_component_definition
+  SUBTYPE OF (assembly_component);
 END_ENTITY;
 
-ENTITY multi_layer_material_removal_component_shape_aspect
-  SUBTYPE OF (material_removal_component_shape_aspect);
+ENTITY multi_layer_material_removal_component_definition
+  SUBTYPE OF (material_removal_component_definition);
 END_ENTITY;
 
 ENTITY multi_layer_stratum_feature
@@ -954,7 +949,7 @@ ENTITY plated_inter_stratum_feature
   SUPERTYPE OF (plated_passage)
   SUBTYPE OF (inter_stratum_feature);
 WHERE
-  WR1: (SELF\shape_aspect.description IN ['bonded conductive base blind via', 
+  WR1: (SELF\product_definition.description IN ['bonded conductive base blind via', 
         'buried via',
        'component termination passage', 'interfacial connection', 
        'non conductive base blind via', 
@@ -966,6 +961,7 @@ WHERE
 	'PLATED_CUTOUT_EDGE_SEGMENT',
 	'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
 	'PLATED_INTERCONNECT_MODULE_EDGE_SEGMENT'] * TYPEOF (SELF)) = 1 );
+(* invalid csa 	
   WR2: SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
@@ -974,17 +970,18 @@ WHERE
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (ji.relating_shape_aspect)) AND
        (ji.relating_shape_aspect\shape_aspect.name =
-       'inter stratum join'))) <= 1;
+       'inter stratum join'))) <= 1; *)
 END_ENTITY;
 
 ENTITY plated_passage 
   SUBTYPE OF (plated_inter_stratum_feature);
 WHERE
-  WR1: SELF\shape_aspect.description IN ['bonded conductive base blind via', 
+  WR1: SELF\product_definition.description IN ['bonded conductive base blind via', 
        'buried via', 'component termination passage', 
        'interfacial connection', 'non conductive base blind via',
        'plated conductive base blind via'];
-  WR2: (NOT (SELF\shape_aspect.description = 'bonded conductive base blind via')) OR
+(* invalid csa        
+  WR2: (NOT (SELF\product_definition.description = 'bonded conductive base blind via')) OR
        (SIZEOF (QUERY (fj <* QUERY (sar <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
@@ -993,16 +990,16 @@ WHERE
        'STRATUM_CONCEPT_RELATIONSHIP' IN
        TYPEOF (fj.relating_shape_aspect)) AND
        (fj.relating_shape_aspect\shape_aspect.name =
-       'stratum feature conductive join'))) = 1);
-  WR3: (NOT (SELF\shape_aspect.description = 'component termination passage')) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'stratum feature conductive join'))) = 1); *)
+  WR3: (NOT (SELF\product_definition.description = 'component termination passage')) OR
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'component termination passage template'))) = 1);
 (*
   WR4: (NOT (SELF\shape_aspect.description = 'component termination passage')) OR
@@ -1020,43 +1017,47 @@ WHERE
        (at\shape_aspect.description =
        'component termination passage join terminal')))) >= 1);
 *)
-  WR6: (NOT (SELF\shape_aspect.description IN
+  WR6: (NOT (SELF\product_definition.description IN
        ['bonded conductive base blind via',
        'buried via',
        'interfacial connection',
        'non conductive base blind via',
        'plated conductive base blind via'])) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (it <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
+       pdr\product_definition_relationship.name = 'instantiated template') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
+       TYPEOF (it.relating_product_definition)) AND
+       (it.relating_product_definition\product_definition.description =
        'via template'))) = 1);
 END_ENTITY;
 
 ENTITY probe_access_area
-  SUBTYPE OF (component_shape_aspect);
+  SUBTYPE OF (assembly_component);
 WHERE
   WR1: EXISTS(SELF.of_shape.definition\product_definition.name);
+(* invalid csa   
   WR2: ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_DEFINITION' IN
        TYPEOF (SELF.of_shape.definition)) AND
-       (SELF.of_shape.definition\product_definition.name = 'interconnect module');
+       (SELF.of_shape.definition\product_definition.name = 'interconnect module');*)
+(* invalid csa          
   WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar.related_shape_aspect\shape_aspect.description =
-       'connection zone')) = 1;
+       'connection zone')) = 1; *)
+(* invalid csa          
   WR4: SIZEOF (QUERY (pli <* QUERY (sar <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'probed layout item') |
        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
-       TYPEOF (pli.related_shape_aspect))) = 1;
+       TYPEOF (pli.related_shape_aspect))) = 1; *)
+(* invalid csa          
   WR5: (NOT (SELF\shape_aspect.description = 
         'internal probe access area')) OR
        (SIZEOF (QUERY (i <* QUERY (sar <* USEDIN (SELF,
@@ -1065,7 +1066,7 @@ WHERE
        sar\shape_aspect_relationship.name = 'implementation') |
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
-       TYPEOF (i.relating_shape_aspect)))) = 1);
+       TYPEOF (i.relating_shape_aspect)))) = 1); *)
 END_ENTITY;
 
 ENTITY stratum
@@ -1232,6 +1233,7 @@ WHERE
        ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
        TYPEOF (rdc.relating_shape_aspect)))) = 1);
+(* invalid csa        
   WR5: (NOT (SELF\shape_aspect_relationship.name = 
        'stratum feature conductive join')) OR
        (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
@@ -1251,7 +1253,7 @@ WHERE
        'COMPONENT_SHAPE_ASPECT' IN
        TYPEOF (SELF.related_shape_aspect)) AND
        (SELF.related_shape_aspect\shape_aspect.description = 
-       'stratum feature template component')));
+       'stratum feature template component'))); *)
   WR7: (NOT (SELF\shape_aspect_relationship.name =
        'stratum feature conductive join')) OR
        (SIZEOF (QUERY (fj <* QUERY (sar <* USEDIN (SELF,
@@ -1351,8 +1353,8 @@ WHERE
          'STRATUM' IN TYPEOF(SELF\shape_aspect.of_shape.definition);
 END_ENTITY;
 
-ENTITY thermal_isolation_component_shape_aspect
-  SUBTYPE OF (filled_area_material_removal_component_shape_aspect);
+ENTITY thermal_isolation_component_definition
+  SUBTYPE OF (filled_area_material_removal_component_definition);
 END_ENTITY;
 
 RULE adjacent_stratum_surface_definition_constraint FOR 
@@ -1430,7 +1432,7 @@ WHERE
   WR1: pass1;
   WR2: pass2;
 END_RULE;
-
+(* invalid csa
 RULE component_termination_passage_template_terminal_unique_constraint FOR
  ( shape_aspect );
 LOCAL
@@ -1485,7 +1487,8 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE;
-
+*)
+(* invalid csa
 RULE conductive_interconnect_element_terminal_unique_constraint FOR
  ( component_terminal );
 LOCAL
@@ -1493,9 +1496,9 @@ LOCAL
 (ct\shape_aspect.description = 'conductive interconnect element terminal') );
   name_bag : BAG OF STRING := [];
   ct_bag : BAG OF component_terminal;
-  sar_bag : BAG OF shape_aspect_relationship;
+  pdr_bag : BAG OF product_definition_relationship;
   pass : BOOLEAN := TRUE;
-  csa_bag : BAG OF component_shape_aspect;
+  csa_bag : BAG OF component_definition;
 END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(ciet) by 1;
@@ -1514,21 +1517,21 @@ REPEAT i := 1 to SIZEOF(name_bag) by 1;
   REPEAT j := 1 to SIZEOF(ct_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
-    sar_bag := QUERY( sar <* USEDIN( ct_bag[j],
+    pdr_bag := QUERY( pdr <* USEDIN( ct_bag[j],
 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') | ((sar\shape_aspect_relationship.name =
-'associated component') AND (sar.relating_shape_aspect\shape_aspect.description IN
+'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | ((pdr\product_definition_relationship.name =
+'associated component') AND (pdr.relating_product_definition\product_definition.description IN
 ['conductive interconnect element with pre defined transitions',
 'conductive interconnect element with user defined single transition'])
 AND ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-'COMPONENT_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))) );
-    REPEAT k := 1 to SIZEOF(sar_bag) by 1;
-      IF EXISTS( sar_bag[k].relating_shape_aspect ) THEN
-        IF( sar_bag[k].relating_shape_aspect IN csa_bag ) THEN
+'COMPONENT_DEFINITION' IN TYPEOF(pdr.relating_product_definition))) );
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+      IF EXISTS( pdr_bag[k].relating_product_definition ) THEN
+        IF( pdr_bag[k].relating_product_definition IN csa_bag ) THEN
           pass := FALSE;
           ESCAPE;
         ELSE
-          csa_bag := csa_bag + sar_bag[k].relating_shape_aspect;
+          csa_bag := csa_bag + pdr_bag[k].relating_product_definition;
         END_IF;
       END_IF;
     END_REPEAT;
@@ -1537,7 +1540,7 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE;
-
+*)
 RULE default_passage_based_land_physical_template_unique_constraint FOR
  ( land_physical_template );
 LOCAL

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.44 2005/02/06 21:24:41 thomasrthurman Exp $
+   $Id: arm.exp,v 1.45 2005/02/08 05:33:15 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -64,8 +64,10 @@ SCHEMA Layered_interconnect_module_design_arm;
 		 Interconnect_module_join_terminal));
 	END_SUBTYPE_CONSTRAINT; 
 
-	SUBTYPE_CONSTRAINT layout_template_definition_subtypes FOR Layout_template_definition; 
-	    (ONEOF (Inter_stratum_feature_template,
+	SUBTYPE_CONSTRAINT template_definition_subtypes FOR Template_definition; 
+	    (ONEOF (Footprint_definition,
+	    Padstack_definition,
+	    Inter_stratum_feature_template,
 		 Material_removal_feature_template,
 		 Non_conductive_cross_section_template,
 		 Printed_part_cross_section_template,
@@ -95,7 +97,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
 
 	TYPE limd_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
-   	(Layout_template_definition,
+   	(Template_definition,
    	Part_usage_view,
    	Part_design_view,
    	Stratum);
@@ -119,7 +121,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 	   (Part_feature,
 		Physical_component_feature,
 	 	Physical_laminate_component,
-	 	Layout_template_definition,
+	 	Template_definition,
 	 	Stratum_feature);
 	END_TYPE;
 
@@ -365,7 +367,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
     INVERSE
-      deposition_material : material_identification FOR items;
+      SELF\Passage_technology.deposition_material : material_identification FOR items;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
@@ -425,7 +427,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
     INVERSE
-      deposition_material : material_identification FOR items;
+      SELF\Passage_technology.deposition_material : material_identification FOR items;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
@@ -554,7 +556,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_template
-    SUBTYPE OF (Layout_template_definition);
+    SUBTYPE OF (Template_definition);
       of_passage_technology : Passage_technology;
   END_ENTITY;
 
@@ -671,7 +673,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 			Laminate_text_string_component) ANDOR
 			Fiducial)
     SUBTYPE OF (Assembly_component);
-      SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Layout_template_definition;
+      SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Template_definition;
     INVERSE
       padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view; --related_component;      
       footprint_occurrence_assembly : SET[0:1] OF footprint_occurrence_sub_assembly_relationship FOR related_view;
@@ -928,7 +930,6 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     SUBTYPE OF (Part_view_definition);
       of_technology 												: Stratum_technology;
     DERIVE
-      name : STRING := SELF\Product_view_definition.product_definition_id;
       of_average_surface 	: SET[0:1] OF stratum_average_surface := USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE.OF_STRATUM');
     INVERSE
       of_surface         	: SET[1:2] OF stratum_surface FOR of_stratum;

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.9 2005/02/02 14:43:51 budreckytej Exp $
+   $Id: mim.exp,v 1.10 2005/02/04 15:43:55 budreckytej Exp $
    ISO TC184/SC4/WG12 N3646 - ISO/CD-TS 10303-1697 Layered interconnect module 3d shape - EXPRESS MIM
 *)
 
@@ -17,27 +17,27 @@ ENTITY cutout_edge_segment
   SUPERTYPE OF (plated_cutout_edge_segment)
   SUBTYPE OF (inter_stratum_feature,shape_aspect_relationship);
 WHERE
-  WR1: SELF\shape_aspect.description IN [
+  WR1: SELF\product_definition.description IN [
        'plated cutout edge segment',
        'cutout edge segment'];
-  WR2: SIZEOF (QUERY (cc <* QUERY (sar <* USEDIN (SELF,
+  WR2: SIZEOF (QUERY (cc <* QUERY (pdr <* USEDIN (SELF,
        'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed cutout') |(
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'composed cutout') |(
        ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
        'INTER_STRATUM_FEATURE' IN
-       TYPEOF (cc.relating_shape_aspect)) AND 
-	(cc.relating_shape_aspect\shape_aspect.description  IN ['cutout',
+       TYPEOF (cc.relating_product_definition)) AND 
+	(cc.relating_product_definition\product_definition.description  IN ['cutout',
          'physical connectivity interrupting cutout', 'plated cutout']))
        )) = 1;
   WR3: ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
        'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect));
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition));
   WR4: ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
        'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect));
-  WR5: SELF\shape_aspect_relationship.related_shape_aspect :<>:
-       SELF\shape_aspect_relationship.relating_shape_aspect;
+       TYPEOF (SELF\product_definition_relationship.related_product_definition));
+  WR5: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
 END_ENTITY;
 
 ENTITY edge_segment_cross_section
@@ -124,7 +124,7 @@ ENTITY inter_stratum_feature_edge_template
 WHERE
   WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\part_template_definition ||
        SELF\inter_stratum_feature_edge_template)) = 0;
-  WR2: SELF\shape_aspect.description = 
+  WR2: SELF\product_definition.description = 
        'inter stratum feature edge template';
 END_ENTITY;
 

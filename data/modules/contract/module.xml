@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.10 2002/05/20 17:40:56 buchanan Exp $ -->
+<!-- $Id: module.xml,v 1.11 2002/05/28 20:10:24 darla Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 
 <module
    name="contract"
    part="1062"
-   wg.number="N750"
-   version="1"
+	 version="1"
+   wg.number="1125" 
+	 wg.number.supersedes="750" 
+	 checklist.internal_review="1056"
+	 checklist.project_leader="1057"
+	 checklist.convener="1058"
    status="TS"
    language="E"
    publication.year="2002"
    published="n"
-   rcs.date="$Date: 2002/05/20 17:40:56 $"
-   rcs.revision="$Revision: 1.10 $">
-
+   rcs.date="$Date: 2002/05/28 20:10:24 $"
+   rcs.revision="$Revision: 1.11 $">
  <keywords>
     module, contract
  </keywords>
@@ -23,159 +26,85 @@
    <editor ref="pdmmodules.editor"/>
  </contacts>
 
- <purpose>The Contract application module supports the requirement to record the identification of the contract or agreement under which product data is created or modified.</purpose>
+ <purpose>The Contract application module supports the requirement to describe contract agreements.</purpose>
 
  <inscope>
-<li>creating and identifying the contract;</li>
-<li>associating product data to the contract;</li>
-<li>identifying the contract the optional organization or person in organization that assigned the identification to the contract;</li>
-<li>identifying the contract the optional date or date and time when the contract was signed;</li>
-<li>identifying the contract the optional approvals for a contract.</li>
+ 		<li>creating and identifying the contract;</li>
+		<li>associating activity or product data to the contract.</li>
  </inscope>
-
- <outscope>
- <li>all things which are not involved in the representation of contract information and applying it to product data.</li>
- </outscope>
-
  <normrefs>
    <normref.inc normref="ref10303-41.2000"/>
  </normrefs>
-
-
+ 
  <arm>
    <uof name="Contract">
-   <description>The Contract UoF specifies the definitional information for the concept of representing the contract information for product data.</description>
-   <uof.ae entity="Contract" />
-   <uof.ae entity="Contract_assignment" />
+      <description>The Contract UoF specifies the definitional information for representing 
+	                 contract information that may be attached to an activity or to any aspect of product data.
+			</description>
+   		<uof.ae entity="Contract" />
+   		<uof.ae entity="Contract_assignment" />
    </uof>
 
-  <!--
-   <uoflink module="approval" uof="Approval" />
-
-   <uoflink module="person_organization_assignment" uof="Person_Organization_Assignment" /> 
-
-   <uoflink module="person_organization" uof="Person_Organization" /> 
-
-   <uoflink module="date_time" uof="Date_Time" />
-
-   <uoflink module="date_time_assignment" uof="Date_Time_Assignment" /> 
-  -->
    <express-g>
      <imgfile file="armexpg1.xml"/>
-         <imgfile file="armexpg2.xml"/>
-    </express-g>
+     <imgfile file="armexpg2.xml"/>
+   </express-g>
  </arm>
 
- <mapping_table>   <ae entity="Contract">
+ <mapping_table>   
+   <ae entity="Contract">
      <aimelt>contract</aimelt>
      <source>41</source>   
-
      <aa attribute="id">
        <aimelt>contract.id</aimelt>
        <source>41</source>
      </aa>
-
      <aa attribute="purpose">
        <aimelt>contract.purpose</aimelt>
        <source>41</source>
      </aa>
-
-
-     <aa attribute="classification">
+     <aa attribute="kind"> 
        <aimelt>contract_type.description</aimelt>
        <source>41</source>
-       <refpath></refpath>
+       <refpath>
+			 	 contract.kind -&gt; contract_type
+				 contract_type.description
+				 </refpath>
      </aa>
-        
-
-     <aa attribute="identifier">
-       <aimelt>(applied_organization_assignment.items)
-(applied_person_and_organization_assignment.items)</aimelt>
-       <source>1013</source>
-       <refpath>contract
-(applied_organization_assignment.items-&gt;
-{applied_organization_assignment
-applied_organization_assignment.role-&gt;
-organization_role
-organization_role.name='identifier'})
-{applied_person_and_organization_assignment
-applied_person_and_organization_assignment.role-&gt;
-person_and_organization_role
-person_and_organization_role.name='identifier'})</refpath>
-     </aa>
-       
-
-
-     <aa attribute="contractor">
-       <aimelt>(applied_organization_assignment.items)
-(applied_person_and_organization_assignment.items)</aimelt>
-       <source>1013</source>
-       <refpath>contract
-(applied_organization_assignment.items-&gt;
-{applied_organization_assignment
-applied_organization_assignment.role-&gt;
-organization_role
-organization_role.name='contractor'})
-{applied_person_and_organization_assignment
-applied_person_and_organization_assignment.role-&gt;
-person_and_organization_role
-person_and_organization_role.name='contractor'})</refpath>
-     </aa>
-       
-
-
-     <aa attribute="contract_date">
-       <aimelt>(applied_date_assignment.items)
-(applied_date_and_time_assignment.items)</aimelt>
-       <source>1014</source>
-       <refpath>contract
-applied_date_assignment.items-&gt;
-{applied_date_assignment
-applied_date_assignment.role-&gt;
-date_role
-date_role.name='contract date'})
-(applied_date_and_time_assignment.items-&gt;
-{applied_date_and_time_assignment
-applied_date_and_time_assignment.role-&gt;
-date_time_role
-date_time_role.name='contract date'}</refpath>
-     </aa>
-       
-
-      
-
-     <aa attribute="approval">
-       <aimelt>applied_approval_assignment.items</aimelt>
-       <source>1012</source>
-       <refpath>contract &lt;-
-applied_approval_assignment.items</refpath>
+   </ae>   
+   <ae entity="Contract_assignment">
+     <aimelt>applied_contract_assignment</aimelt>
+     <source>1062</source>
+     <refpath>
+			 		applied_contract_assignment &lt;=
+			 		contract_assignment
+			 </refpath>     
+		<aa attribute="assigned_contract" assertion_to="contract">
+       <aimelt>PATH</aimelt>
+       <refpath>
+			    contract_assignment
+			 		contract_assignment.assigned_contract -&gt; contract
+			 </refpath>			 
+			
+		 </aa>
+     <aa attribute="items" assertion_to="contract_item">
+       <aimelt>PATH</aimelt>
+       <refpath>
+			 		contract_assignment =&gt;
+			 		applied_contract_assignment
+					applied_contract_assignment.items[i]
+					-&gt; contract_item 
+			 </refpath>			 
      </aa>
    </ae>
-
-
-   <ae entity="CONTRACT_ASSIGNMENT">
-     <aimelt>contract_assignment</aimelt>
-     <source>41</source>
-     <aa attribute="assigned_contract">
-       <aimelt>contract_assignment.assigned_contract</aimelt>
-       <source>41</source>
-     </aa>
-     <aa attribute="items">
-       <aimelt>applied_contract_assignment.items</aimelt>
-       <source>1062</source>
-       <refpath>contract_assignment &lt;=
-applied_contract_assignment
-applied_contract_assignment.items</refpath>
-     </aa>
-   </ae>
-
-
  </mapping_table>
 
  <mim>
    <express-g>
      <imgfile file="mimexpg1.xml"/>
-    </express-g>
+   </express-g>
+	 <shortnames>
+      <shortname name="APCNAS" entity="applied_contract_assignment"/> 
+ 	 </shortnames>
  </mim>
-
 </module>

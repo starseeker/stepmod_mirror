@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.4 2002/09/26 09:25:19 mikeward Exp $
+$Id: sect_contents.xsl,v 1.5 2002/10/29 18:43:10 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../sect_contents.xsl"/>
@@ -490,6 +490,21 @@ $Id: sect_contents.xsl,v 1.4 2002/09/26 09:25:19 mikeward Exp $
 		<xsl:variable name="aim_desc_xml" select="document($aim_xml)/express/@description.file"/>
 		<h3>Tables</h3>
 		<xsl:apply-templates select="//table" mode="toc"/>
+				<p class="content">
+					<a href="./6_ccs{$FILE_EXT}#table_1">
+						Table 1 &#8212; Conformance classes per UOF
+					</a>
+				</p>
+				<p class="content">
+					<a href="./6_ccs{$FILE_EXT}#table_2">
+						Table 2 &#8212; Conformance classes per ARM entity
+					</a>
+				</p>
+				<p class="content">
+					<a href="./6_ccs{$FILE_EXT}#table_3">
+						Table 3 &#8212; Conformance classes per MIM entity
+					</a>
+				</p>
 		<xsl:choose>
 			<xsl:when test="$arm_desc_xml">
 				<xsl:apply-templates select="document($arm_desc_xml)//table" mode="toc"/>

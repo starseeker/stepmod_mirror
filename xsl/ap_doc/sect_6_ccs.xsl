@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_6_ccs.xsl,v 1.3 2002/10/08 10:18:09 mikeward Exp $
+     $Id: sect_6_ccs.xsl,v 1.4 2002/10/29 18:43:10 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
-	<xsl:import href="cc_descriptions.xsl"/>
+	<xsl:import href="cc_descriptions_2.xsl"/>
 	<xsl:output method="html"/>
 	
 	<xsl:template match="module"/>
@@ -16,7 +16,8 @@
 			<xsl:with-param name="heading" select="'6 Conformance requirements'"/>
 			<xsl:with-param name="aname" select="'ccs'"/>
 		</xsl:call-template>
-		Conformance to this application protocol includes satisfying the requirements stated in this specification, the requirements of the implementation method(s) supported and the relevant requirements of the normative references.  An implementation shall support at least one of the following implementation methods:
+		Conformance to this application protocol includes satisfying the requirements stated in this specification, the requirements of the implementation method(s) supported and the relevant requirements of the normative references.  
+		An implementation shall support at least one of the following implementation methods:
 		<ul>
 			<xsl:for-each select="imp_meths/imp_meth">
 				<li>

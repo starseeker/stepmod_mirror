@@ -1,4 +1,4 @@
-//$Id: xml2html.js,v 1.1 2001/12/28 15:58:59 robbod Exp $
+//$Id: xml2html.js,v 1.2 2002/01/03 10:35:42 robbod Exp $
 // JScript to convert the module XML to HTML
 //
 // This script uses The Saxon XSLT processor:
@@ -184,11 +184,14 @@ function readRepositoryIndexModules2Array() {
 	while (!xmlTs.AtEndOfStream)
 	    {
 		var l = xmlTs.ReadLine();
+		//var reg = /name=\"(\b.*)\"/g;
+		
 		var reg = /<module\b.*name=/;
-		if (l.match(reg)) {
-		    l = l.replace(reg,"");
-		    l = l.replace(/"/g,"");
-		    l = l.replace(/\/>/g,"");
+		var m = l.match(reg);
+		if (m) {
+		    l = l.replace(reg,"");		    
+		    l = l.replace(/"/,"");
+		    l = l.replace(/\".*\/>/g,"");
 		    l = l.replace(/(^\s*)|(\s*$)/g, "");
                     arr[i++]=l;
 		}
@@ -210,11 +213,12 @@ function readRepositoryIndexResources2Array() {
 		var l = xmlTs.ReadLine();
 		var reg = /<resource\b.*name=/;
 		if (l.match(reg)) {
-		    l = l.replace(reg,"");
-		    l = l.replace(/"/g,"");
-		    l = l.replace(/\/>/g,"");
+				    l = l.replace(reg,"");		    
+		    l = l.replace(/"/,"");
+		    l = l.replace(/\".*\/>/g,"");
 		    l = l.replace(/(^\s*)|(\s*$)/g, "");
                     arr[i++]=l;
+		    userMessage(l);
 		}
 	    }
     }
@@ -279,3 +283,6 @@ function Main() {
 }
 
 Main();
+
+
+

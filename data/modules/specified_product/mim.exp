@@ -1,19 +1,38 @@
-(* N	ISO/CD-TS	Specified product	Express MIM *)
+(* $Id: arm.exp,v 1.2 2002/07/17 09:25:38 goset1 Exp $
+N	ISO/CD-TS 10303-1104	Specified product	Express MIM *)
 
 SCHEMA Specified_product_mim;
 
-USE FROM Product_class_mim;
-
 USE FROM configuration_management_schema(
-	configurable_item,
 	configuration_item);
 
 USE FROM product_property_definition_schema(
 	characterized_object);
 
+USE FROM Product_class_mim;
 
-ENTITY Product_specification
-SUBTYPE OF (configuration_item, characterized_object,configurable_item);
+TYPE id_for_product_identification = SELECT BASED_ON identification_item WITH (product_identification);
+END_TYPE;
+
+TYPE version_for_product_identification = SELECT BASED_ON versionable_item WITH (product_identification);
+END_TYPE;
+
+ENTITY product_identification
+  SUBTYPE OF (configuration_item, characterized_object);
+  SELF\configuration_item.item_concept : product_class;
+WHERE
+ WR1 : SIZEOF(QUERY ( cd <* USEDIN ( SELF ,'SPECIFIED_PRODUCT_MIM.CONFIGURATION_DESIGN.CONFIGURATION' ) |
+     ( 'SPECIFIED_PRODUCT_MIM.'+ 'PRODUCT_DEFINITION_FORMATION' IN TYPEOF ( cd. design ) ) AND 
+    ( SIZEOF ( QUERY ( prpc <* USEDIN ( cd. design\product_definition_formation.of_product ,
+     'SPECIFIED_PRODUCT_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+         prpc. name IN ['part' , 'raw material' , 'tool'] ) ) >0
+     ) ) ) <=1;
+ WR2 : NOT ( 'SPECIFIED_PRODUCT_MIM.'+ 'CONFIGURABLE_ITEM' IN TYPEOF( SELF ) ) XOR 
+    ( 'SPECIFIED_PRODUCT_MIM.'+ 'PRODUCT_SPECIFICATION' IN TYPEOF ( SELF ) ) ;
+END_ENTITY;
+
+ENTITY product_specification
+  SUBTYPE OF (product_identification, configurable_item);
 END_ENTITY;
 
 END_SCHEMA;

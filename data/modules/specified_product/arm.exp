@@ -1,17 +1,26 @@
-(* $Id: $
-N	ISO/CD-TS	Specified product	Express ARM *)
+(* $Id: arm.exp,v 1.2 2002/07/17 09:25:38 goset1 Exp $
+N	ISO/CD-TS 10303-1104	Specified product	Express ARM *)
 
 SCHEMA Specified_product_arm;
 
 USE FROM Product_class_arm;
 
-ENTITY Product_specification;
-  id: STRING;
+USE FROM Configuration_item_arm;
+
+USE FROM Product_version_arm;
+
+ENTITY Product_specification
+SUBTYTPE OF (Configuration_watched_item);
   version_id: OPTIONAL STRING;
-  name: OPTIONAL STRING;
-  containing_class: Product_class;
+  SELF\Configuration_watched_item.item_context: Product_class;
   defining_specifications: SET [0:?] OF Specification;
-  description: OPTIONAL STRING;
 END_ENTITY;
 
+ENTITY Specification_based_product_version
+SUBTYPE OF (Product_version);
+INVERSE
+  specification_source: Item_design_association FOR proposed_design;
+WHERE
+WR1 : 'SPECIFIED_PRODUCT_ARM.PRODUCT_SPECIFICATION' IN TYPEOF(specification_source.watched_item);
+END_ENTITY;
 END_SCHEMA;

@@ -1,12 +1,244 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.17 2002/07/15 09:00:07 goset1 Exp $ -->
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
 <express
-   language_version="2"
-   rcs.date="$Date: 2002/07/15 09:00:07 $"
-   rcs.revision="$Revision: 1.17 $">
-  <schema name="surface_conditions_mim">
+  language_version="2"
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.22"
+    source="../data/modules/surface_conditions/mim.exp"/>
+
+  <schema name="Surface_conditions_mim">
+    <interface
+      kind="use"
+      schema="Extended_measure_representation_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Measure_representation_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Elemental_geometric_shape_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Shape_property_assignment_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_definition_schema">
+      <interfaced.item
+        name="property_definition"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_representation_schema">
+      <interfaced.item
+        name="property_definition_representation"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="representation"/>
+    </interface>
+
+    <entity
+      name="contact_ratio_representation"
+      supertypes="representation">
+      <where
+        label="WR1"
+        expression="( SIZEOF ( SELF.items ) =1 ) AND ( SIZEOF ( QUERY ( i &lt;*     SELF.items | ( SIZEOF ( ['SURFACE_CONDITIONS_MIM.'+     'MEASURE_REPRESENTATION_ITEM' , 'SURFACE_CONDITIONS_MIM.'+     'VALUE_RANGE']* TYPEOF ( i ) ) =1 ) AND ( i.name =     'ratio value' ) ) ) =1 ) ">
+      </where>
+      <where
+        label="WR2"
+        expression="( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) | pdr. name =     'contact ratio reference' ) ) =1 ) AND ( SIZEOF ( QUERY (     pdr &lt;* USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) | ( pdr. name =     'contact ratio reference' ) AND ( 'SURFACE_CONDITIONS_MIM.'+     'PHYSICALLY_MODELLED_PRODUCT_DEFINITION' IN TYPEOF ( pdr.     definition.definition ) ) ) ) =1 ) ">
+      </where>
+      <where
+        label="WR3"
+        expression="( SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr     &lt;* USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa &lt;* USEDIN (     pdr. definition ,     'SURFACE_CONDITIONS_MIM.'+'GENERAL_PROPERTY_ASSOCIATION.'+     'DERIVED_DEFINITION' ) | ( 'SURFACE_CONDITIONS_MIM.'+     'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND     ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )     ) =1 ) ">
+      </where>
+    </entity>
+
+    <entity
+      name="hardness_representation"
+      supertypes="representation">
+      <where
+        label="WR1"
+        expression="( {2&lt;= SIZEOF ( SELF.items ) &lt;=4} ) AND ( SIZEOF ( QUERY (     i &lt;* items | ( 'SURFACE_CONDITIONS_MIM.'+     'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND (     i.name IN [ 'measuring method' , 'measuring position' ] ) )     ) + SIZEOF ( QUERY ( i &lt;* items | ( SIZEOF (     ['SURFACE_CONDITIONS_MIM.'+ 'MEASURE_REPRESENTATION_ITEM' ,     'SURFACE_CONDITIONS_MIM.'+ 'VALUE_RANGE']* TYPEOF ( i ) ) =1 )     AND ( i.name IN ['depth' , 'hardness'] ) ) ) = SIZEOF (     SELF.items ) ) ">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name =     'measuring method' ) ) =1">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name ='hardness' ) )     =1">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name =     'measuring position' ) ) &lt;=1">
+      </where>
+      <where
+        label="WR5"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name ='depth' ) )     &lt;=1">
+      </where>
+      <where
+        label="WR6"
+        expression="( SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr     &lt;* USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa &lt;* USEDIN (     pdr. definition ,     'SURFACE_CONDITIONS_MIM.'+'GENERAL_PROPERTY_ASSOCIATION.'+     'DERIVED_DEFINITION' ) | ( 'SURFACE_CONDITIONS_MIM.'+     'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND     ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )     ) =1 ) ">
+      </where>
+    </entity>
+
+    <entity
+      name="surface_texture_representation"
+      supertypes="representation">
+      <where
+        label="WR1"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | SIZEOF (     ['SURFACE_CONDITIONS_MIM.'+ 'MEASURE_REPRESENTATION_ITEM' ,     'SURFACE_CONDITIONS_MIM.'+ 'VALUE_RANGE' , 'SURFACE_CONDITIONS_MIM.'+     'DESCRIPTIVE_REPRESENTATION_ITEM']* TYPEOF ( i ) ) &lt;&gt;1 ) )     =0">
+      </where>
+      <where
+        label="WR2"
+        expression="( SIZEOF ( QUERY ( i &lt;* SELF.items | 'SURFACE_CONDITIONS_MIM.'+     'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) ) =1 )     AND ( SIZEOF ( QUERY ( i &lt;* SELF.items | (     'SURFACE_CONDITIONS_MIM.'+ 'DESCRIPTIVE_REPRESENTATION_ITEM' IN     TYPEOF ( i ) ) AND ( i.name = 'measuring method' ) ) ) =1 )     ">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | SIZEOF (     ['SURFACE_CONDITIONS_MIM.'+ 'MEASURE_REPRESENTATION_ITEM' ,     'SURFACE_CONDITIONS_MIM.'+ 'VALUE_RANGE']* TYPEOF ( i ) ) =1 ) )     &gt;0">
+      </where>
+      <where
+        label="WR4"
+        expression="( SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'REPRESENTATION_RELATIONSHIP.'+     'REP_1' ) ) &lt;=1 ) AND ( SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'REPRESENTATION_RELATIONSHIP.'+     'REP_2' ) ) =0 ) AND ( SIZEOF ( QUERY ( rr &lt;* USEDIN ( SELF     , 'SURFACE_CONDITIONS_MIM.'+'REPRESENTATION_RELATIONSHIP.'+     'REP_1' ) | rr. rep_2.name = 'measuring direction' ) ) =     SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'REPRESENTATION_RELATIONSHIP.'+     'REP_1' ) ) ) ">
+      </where>
+      <where
+        label="WR5"
+        expression="( SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr     &lt;* USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa &lt;* USEDIN (     pdr. definition ,     'SURFACE_CONDITIONS_MIM.'+'GENERAL_PROPERTY_ASSOCIATION.'+     'DERIVED_DEFINITION' ) | ( 'SURFACE_CONDITIONS_MIM.'+     'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND     ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )     ) =1 ) ">
+      </where>
+    </entity>
+
+    <entity
+      name="tactile_appearance_representation"
+      supertypes="representation">
+      <where
+        label="WR1"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | SIZEOF (     ['SURFACE_CONDITIONS_MIM.'+ 'MEASURE_REPRESENTATION_ITEM' ,     'SURFACE_CONDITIONS_MIM.'+ 'VALUE_RANGE']* TYPEOF ( i ) ) &lt;&gt;1 )     ) =0">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | name ='depth' ) ) &lt;=1">
+      </where>
+      <where
+        label="WR3"
+        expression="( SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr     &lt;* USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa &lt;* USEDIN (     pdr. definition ,     'SURFACE_CONDITIONS_MIM.'+'GENERAL_PROPERTY_ASSOCIATION.'+     'DERIVED_DEFINITION' ) | ( 'SURFACE_CONDITIONS_MIM.'+     'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND     ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )     ) =1 ) ">
+      </where>
+    </entity>
+
+    <entity
+      name="visual_appearance_representation"
+      supertypes="representation">
+      <where
+        label="WR1"
+        expression="( {2&lt;= SIZEOF ( SELF.items ) &lt;=5} ) AND ( SIZEOF ( QUERY (     i &lt;* items | ( 'SURFACE_CONDITIONS_MIM.'+     'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND (     i.name IN [ 'colour id' , 'colour name' , 'lustre' ,     'pattern' , 'transparency'] ) ) ) = SIZEOF ( SELF.items ) )     ">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name = 'colour id' )     ) =1">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name ='lustre' ) )     =1">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name = 'colour name'     ) ) &lt;=1">
+      </where>
+      <where
+        label="WR5"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name ='pattern' ) )     &lt;=1">
+      </where>
+      <where
+        label="WR6"
+        expression="SIZEOF ( QUERY ( i &lt;* SELF.items | i.name ='transparency'     ) ) &lt;=1">
+      </where>
+      <where
+        label="WR7"
+        expression="( SIZEOF ( USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr     &lt;* USEDIN ( SELF ,     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+     'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa &lt;* USEDIN (     pdr. definition ,     'SURFACE_CONDITIONS_MIM.'+'GENERAL_PROPERTY_ASSOCIATION.'+     'DERIVED_DEFINITION' ) | ( 'SURFACE_CONDITIONS_MIM.'+     'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND     ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )     ) =1 ) ">
+      </where>
+    </entity>
+
+    <function
+      name="surface_condition_correlation">
+      <parameter
+        name="pd">
+        <typename
+          name="property_definition"/>
+      </parameter>
+      <parameter
+        name="rep">
+        <typename
+          name="representation"/>
+      </parameter>
+      <builtintype
+        type="LOGICAL"/>
+      <algorithm>
+
+CASE pd.name OF
+'visual appearance', 'tactile appearance', 'contact ratio', 'hardness', 'treatment result', 'surface texture' : 
+	RETURN(pd.name = rep.name);
+
+OTHERWISE : RETURN(UNKNOWN);
+END_CASE;
+
+      </algorithm>
+
+    </function>
+
+    <rule
+      name="restrict_representation_for_surface_condition"
+      appliesto="property_definition_representation">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(pdr &lt;* product_definition_representation | 	NOT surface_condition_correlation(pdr.definition, pdr.used_representation) ))=0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="restrict_treatment_result"
+      appliesto="representation">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="(SIZEOF( QUERY( r &lt;* representation | 	(r.name = 'treatment result') AND (SIZEOF(r.items) &gt; 2) )) = 0) AND	 (SIZEOF( QUERY( r &lt;* representation | (r.name = 'treatment result') AND	 (SIZEOF( QUERY( i &lt;* r.items | 	NOT ('SURFACE_CONDITIONS_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) &gt; 0) )) = 0)">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF( QUERY( r &lt;* representation | 	(r.name = 'treatment result') AND (SIZEOF( QUERY( i &lt;* r.items | i.name = 'result' )) = 0) )) = 0">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF( QUERY( r &lt;* representation | 	(r.name = 'treatment result') AND (SIZEOF( QUERY( i &lt;* r.items | i.name = 'purpose' )) &gt; 1) )) = 0">
+      </where>
+
+    </rule>
+
   </schema>
+
 </express>

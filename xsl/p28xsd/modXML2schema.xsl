@@ -470,7 +470,8 @@
 			</xsl:choose>
 		</xsl:variable>
 		
-		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE: xsd element declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
+		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
+
 		
 		<xs:element 
 			name="{$corrected_entity_name_param}" 
@@ -480,12 +481,13 @@
 		</xs:element>
 		<xsl:text>&#xa;</xsl:text>
 		<xsl:text>&#xa;</xsl:text>
-		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE: xsd complexType declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
+		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
+
 		<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
 			<xs:complexContent>
 				<xs:extension base="{$ext_base_sub_grp}">
 					<xsl:if test="./explicit">
-						<xs:sequence>
+						<xs:sequence><xsl:text>&#xa;</xsl:text>
 							<xsl:apply-templates select="explicit"/>
 						</xs:sequence>
 					</xsl:if>
@@ -497,7 +499,7 @@
 		
 					
 		<xsl:if test="./explicit/redeclaration">
-			<xsl:comment>EXPRESS ENTITY DATATYPE  WITHOUT MULTIPLE INHERITANCE BUT WITH REDECLARED ATTRIBUTES: xsd complexType declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
+			<xsl:comment>EXPRESS ENTITY DATATYPE  WITHOUT MULTIPLE INHERITANCE BUT WITH REDECLARED ATTRIBUTES TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
 			<xs:complexType name="{$corrected_entity_name_param}-temp" abstract="true">
 				<xs:complexContent>
 					<xs:restriction base="{$namespace_prefix}{$corrected_supertype_name}">
@@ -775,8 +777,8 @@
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:choose>
-						<xsl:when test="../typename">
-							<xsl:variable name="target" select="../typename/@name"/>
+						<xsl:when test="./typename">
+							<xsl:variable name="target" select="./typename/@name"/>
 							<xsl:variable name="corrected_target_name">
 								<xsl:call-template name="put_into_lower_case">
 									<xsl:with-param name="raw_item_name_param" select="$target"/>
@@ -789,14 +791,19 @@
 										<xs:group ref="{$namespace_prefix}{$corrected_target_name}"/>
 									</xs:complexType>
 									</xs:element>
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:text>&#xa;</xsl:text>
 								</xsl:when>
 								<xsl:otherwise>
-									<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$target}"/>
+									<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:text>&#xa;</xsl:text>
 								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:when>
 						<xsl:when test="./builtintype">
-							<xsl:comment>EXPRESS attribute: xsd element declaration for <xsl:value-of select="$corrected_attribute_name"/></xsl:comment>
+							<xsl:comment>EXPRESS ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/></xsl:comment><xsl:text>&#xa;</xsl:text>
+
 							<xsl:call-template name="generate_attribute_to_simple_datatype">
 								<xsl:with-param name="type_param" select="."/>
 								<xsl:with-param name="optionality_param" select="$optionality"/>

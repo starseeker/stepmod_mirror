@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.21 2002/08/07 06:36:23 goset1 Exp $
+//$Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -346,7 +346,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.21 2002/08/07 06:36:23 goset1 Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -356,7 +356,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.21 $";
+    var appCVSRevision = "$Revision: 1.22 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -824,15 +824,24 @@ function xmlUnderlyingType(statement,outTs) {
 	if (unique) xmlAttr("unique",unique,outTs);
 
 	xmlCloseAttr(outTs); 
-	xmlOpenElement("<typename",outTs);
 
-	xmlAttr("name",typename,outTs);
-	xmlCloseAttr(outTs);
+	reg = /\bBINARY|BOOLEAN|GENERIC|GENERICENTITY|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
+	var aggtype = statement.match(reg); 
+	if (aggtype) {
+	    xmlOpenElement("<builtintype",outTs);
+	    xmlAttr("type",aggtype,outTs);
+	    xmlCloseAttr(outTs);
+	} else {
+	    xmlOpenElement("<typename",outTs);
+	    xmlAttr("name",typename,outTs);
+	    xmlCloseAttr(outTs);
+	}
 	return;
     }
-    
+
     reg = /\bBINARY|BOOLEAN|GENERIC|GENERICENTITY|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
     var type = statement.match(reg);
+
     if (type) {
 	xmlOpenElement("<builtintype",outTs);
 	xmlAttr("type",type,outTs);

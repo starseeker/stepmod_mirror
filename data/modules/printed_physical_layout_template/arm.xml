@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-26T18:54:33" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-01T11:09:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="printed_physical_layout_template_arm schema_instance"/>
    <schema name="Printed_physical_layout_template_arm">
       <interface kind="use" schema="Physical_layout_template_arm"/>
@@ -19,6 +19,18 @@
       <type name="printed_part_template_terminal_class">
          <enumeration items="curve_edge_segment surface_point area_edge_segment surface_area"/>
       </type>
+      <entity name="Functional_usage_view_to_printed_part_template_terminal_assignment">
+         <explicit name="functional_usage_view_terminal">
+            <typename name="Scalar_terminal_definition"/>
+         </explicit>
+         <explicit name="physical_usage_view_terminal">
+            <typename name="Printed_part_template_terminal"/>
+         </explicit>
+         <unique label="Ur1">
+            <unique.attribute entity-ref="Functional_usage_view_to_printed_part_template_terminal_assignment" attribute="functional_usage_view_terminal"/>
+            <unique.attribute entity-ref="Functional_usage_view_to_printed_part_template_terminal_assignment" attribute="physical_usage_view_terminal"/>
+         </unique>
+      </entity>
       <entity name="Non_conductive_cross_section_template" supertypes="Layout_template_definition">
          <explicit name="nominal_width">
             <typename name="Length_data_element"/>
@@ -43,11 +55,11 @@
          <explicit name="join_terminal">
             <typename name="Printed_part_template_join_terminal"/>
          </explicit>
-         <unique label="ur2">
+         <unique label="Ur2">
             <unique.attribute entity-ref="Printed_connector_template_terminal_relationship" attribute="interface_terminal"/>
             <unique.attribute entity-ref="Printed_connector_template_terminal_relationship" attribute="connector"/>
          </unique>
-         <unique label="ur1">
+         <unique label="Ur1">
             <unique.attribute entity-ref="Printed_connector_template_terminal_relationship" attribute="join_terminal"/>
             <unique.attribute entity-ref="Printed_connector_template_terminal_relationship" attribute="connector"/>
          </unique>
@@ -87,12 +99,12 @@
          <inverse name="using_terminal" entity="Printed_part_cross_section_template_terminal" attribute="cross_section_definition">
             <inverse.aggregate type="SET" lower="1"/>
          </inverse>
-         <where label="WR6" expression=" start_vertex :&lt;&gt;: end_vertex "/>
-         <where label="WR5" expression=" horizontal_material_link :&lt;&gt;: vertical_material_link "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( hml &lt;* vertical_material_link | NOT ( hml . precedent_material \ shape_element . element_name IN [ 'top' ] ) ) ) = 0 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( hml &lt;* vertical_material_link | NOT ( hml . precedent_material \ shape_element . element_name IN [ 'bottom' ] ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( hml &lt;* horizontal_material_link | NOT ( hml . subsequent_material \ shape_element . element_name IN [ 'left' ] ) ) ) = 0 "/>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( hml &lt;* horizontal_material_link | NOT ( hml . precedent_material \ shape_element . element_name IN [ 'right' ] ) ) ) = 0 "/>
+         <where label="Wr6" expression=" start_vertex :&lt;&gt;: end_vertex "/>
+         <where label="Wr5" expression=" horizontal_material_link :&lt;&gt;: vertical_material_link "/>
+         <where label="Wr4" expression=" SIZEOF ( QUERY ( hml &lt;* vertical_material_link | NOT ( hml . precedent_material \ shape_element . element_name IN [ 'top' ] ) ) ) = 0 "/>
+         <where label="Wr3" expression=" SIZEOF ( QUERY ( hml &lt;* vertical_material_link | NOT ( hml . precedent_material \ shape_element . element_name IN [ 'bottom' ] ) ) ) = 0 "/>
+         <where label="Wr2" expression=" SIZEOF ( QUERY ( hml &lt;* horizontal_material_link | NOT ( hml . subsequent_material \ shape_element . element_name IN [ 'left' ] ) ) ) = 0 "/>
+         <where label="Wr1" expression=" SIZEOF ( QUERY ( hml &lt;* horizontal_material_link | NOT ( hml . precedent_material \ shape_element . element_name IN [ 'right' ] ) ) ) = 0 "/>
       </entity>
       <entity name="Printed_part_cross_section_template_terminal" supertypes="Printed_part_template_terminal">
          <explicit name="material_to_bottom_of_terminal" optional="YES">
@@ -110,20 +122,20 @@
          <explicit name="cross_section_definition">
             <typename name="Printed_part_cross_section_template"/>
          </explicit>
-         <unique label="UR1">
+         <unique label="Ur1">
             <unique.attribute entity-ref="Printed_part_cross_section_template_terminal" attribute="cross_section_definition"/>
             <unique.attribute entity-ref="Printed_part_cross_section_template_terminal" attribute="material_to_left_of_terminal"/>
             <unique.attribute entity-ref="Printed_part_cross_section_template_terminal" attribute="material_to_right_of_terminal"/>
             <unique.attribute entity-ref="Printed_part_cross_section_template_terminal" attribute="material_to_top_of_terminal"/>
             <unique.attribute entity-ref="Printed_part_cross_section_template_terminal" attribute="material_to_bottom_of_terminal"/>
          </unique>
-         <where label="WR7" expression=" NOT ( EXISTS ( material_to_top_of_terminal ) AND EXISTS ( material_to_bottom_of_terminal ) ) OR ( material_to_top_of_terminal :&lt;&gt;: material_to_bottom_of_terminal ) "/>
-         <where label="WR6" expression=" NOT ( EXISTS ( material_to_right_of_terminal ) AND EXISTS ( material_to_bottom_of_terminal ) ) OR ( material_to_right_of_terminal :&lt;&gt;: material_to_bottom_of_terminal ) "/>
-         <where label="WR5" expression=" NOT ( EXISTS ( material_to_right_of_terminal ) AND EXISTS ( material_to_top_of_terminal ) ) OR ( material_to_right_of_terminal :&lt;&gt;: material_to_top_of_terminal ) "/>
-         <where label="WR4" expression=" NOT ( EXISTS ( material_to_left_of_terminal ) AND EXISTS ( material_to_bottom_of_terminal ) ) OR ( material_to_left_of_terminal :&lt;&gt;: material_to_bottom_of_terminal ) "/>
-         <where label="WR3" expression=" NOT ( EXISTS ( material_to_left_of_terminal ) AND EXISTS ( material_to_top_of_terminal ) ) OR ( material_to_left_of_terminal :&lt;&gt;: material_to_top_of_terminal ) "/>
-         <where label="WR2" expression=" NOT ( EXISTS ( material_to_left_of_terminal ) AND EXISTS ( material_to_right_of_terminal ) ) OR ( material_to_left_of_terminal :&lt;&gt;: material_to_right_of_terminal ) "/>
-         <where label="WR1" expression=" ( SELF \ printed_part_template_terminal . connection_zone_category = curve_edge_segment ) OR ( SELF \ printed_part_template_terminal . connection_zone_category = area_edge_segment ) "/>
+         <where label="Wr7" expression=" NOT ( EXISTS ( material_to_top_of_terminal ) AND EXISTS ( material_to_bottom_of_terminal ) ) OR ( material_to_top_of_terminal :&lt;&gt;: material_to_bottom_of_terminal ) "/>
+         <where label="Wr6" expression=" NOT ( EXISTS ( material_to_right_of_terminal ) AND EXISTS ( material_to_bottom_of_terminal ) ) OR ( material_to_right_of_terminal :&lt;&gt;: material_to_bottom_of_terminal ) "/>
+         <where label="Wr5" expression=" NOT ( EXISTS ( material_to_right_of_terminal ) AND EXISTS ( material_to_top_of_terminal ) ) OR ( material_to_right_of_terminal :&lt;&gt;: material_to_top_of_terminal ) "/>
+         <where label="Wr4" expression=" NOT ( EXISTS ( material_to_left_of_terminal ) AND EXISTS ( material_to_bottom_of_terminal ) ) OR ( material_to_left_of_terminal :&lt;&gt;: material_to_bottom_of_terminal ) "/>
+         <where label="Wr3" expression=" NOT ( EXISTS ( material_to_left_of_terminal ) AND EXISTS ( material_to_top_of_terminal ) ) OR ( material_to_left_of_terminal :&lt;&gt;: material_to_top_of_terminal ) "/>
+         <where label="Wr2" expression=" NOT ( EXISTS ( material_to_left_of_terminal ) AND EXISTS ( material_to_right_of_terminal ) ) OR ( material_to_left_of_terminal :&lt;&gt;: material_to_right_of_terminal ) "/>
+         <where label="Wr1" expression=" ( SELF \ printed_part_template_terminal . connection_zone_category = curve_edge_segment ) OR ( SELF \ printed_part_template_terminal . connection_zone_category = area_edge_segment ) "/>
       </entity>
       <entity name="Printed_part_template" supertypes="Layout_template_definition">
          <explicit name="implemented_function" optional="YES">
@@ -163,9 +175,9 @@
          <inverse name="raw_access_mechanisms" entity="Printed_part_template_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0"/>
          </inverse>
-         <where label="WR3" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_ARM.' + 'FOOTPRINT_DEFINITION.REFERENCE_PACKAGE' ) ) &lt; 2 "/>
-         <where label="WR2" expression=" ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . name = 'printed part' ) ) ) &gt;= 0 ) OR ( 'AP210_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN TYPEOF ( SELF ) ) "/>
-         <where label="WR1" expression=" ( a AND b AND c ) OR ( a AND b AND d ) OR ( a AND c AND d ) OR ( b AND c AND d ) "/>
+         <where label="Wr3" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_ARM.' + 'FOOTPRINT_DEFINITION.REFERENCE_PACKAGE' ) ) &lt; 2 "/>
+         <where label="Wr2" expression=" ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . name = 'printed part' ) ) ) &gt;= 0 ) OR ( 'AP210_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN TYPEOF ( SELF ) ) "/>
+         <where label="Wr1" expression=" ( a AND b AND c ) OR ( a AND b AND d ) OR ( a AND c AND d ) OR ( b AND c AND d ) "/>
       </entity>
       <entity name="Printed_part_template_connected_terminals_definition">
          <explicit name="name">
@@ -175,7 +187,7 @@
             <aggregate type="SET" lower="2" upper="?"/>
             <typename name="Printed_part_template_terminal"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="Ur1">
             <unique.attribute entity-ref="Printed_part_template_connected_terminals_definition" attribute="name"/>
          </unique>
       </entity>
@@ -201,12 +213,12 @@
             <typename name="Printed_part_template"/>
          </explicit>
          <inverse name="associated_printed_part_template" entity="Printed_part_template" attribute="printed_part_template_stack"/>
-         <where label="WR6" expression=" SIZEOF ( subsequent_printed_part_template . of_stratum_technology ) = 1 "/>
-         <where label="WR5" expression=" SIZEOF ( precedent_printed_part_template . of_stratum_technology ) = 1 "/>
-         <where label="WR4" expression=" subsequent_printed_part_template . of_stratum_technology [ 1 ] = SELF \ stratum_technology_link . subsequent_stratum_technology "/>
-         <where label="WR3" expression=" precedent_printed_part_template . of_stratum_technology [ 1 ] = SELF \ stratum_technology_link . precedent_stratum_technology "/>
-         <where label="WR2" expression=" EXISTS ( subsequent_printed_part_template . of_stratum_technology ) "/>
-         <where label="WR1" expression=" EXISTS ( precedent_printed_part_template . of_stratum_technology ) "/>
+         <where label="Wr6" expression=" SIZEOF ( subsequent_printed_part_template . of_stratum_technology ) = 1 "/>
+         <where label="Wr5" expression=" SIZEOF ( precedent_printed_part_template . of_stratum_technology ) = 1 "/>
+         <where label="Wr4" expression=" subsequent_printed_part_template . of_stratum_technology [ 1 ] = SELF \ stratum_technology_link . subsequent_stratum_technology "/>
+         <where label="Wr3" expression=" precedent_printed_part_template . of_stratum_technology [ 1 ] = SELF \ stratum_technology_link . precedent_stratum_technology "/>
+         <where label="Wr2" expression=" EXISTS ( subsequent_printed_part_template . of_stratum_technology ) "/>
+         <where label="Wr1" expression=" EXISTS ( precedent_printed_part_template . of_stratum_technology ) "/>
       </entity>
       <entity name="Printed_part_template_material">
          <explicit name="required_material">
@@ -221,10 +233,10 @@
          <inverse name="boundary" entity="Template_material_cross_section_boundary" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="4"/>
          </inverse>
-         <where label="wr4" expression=" SIZEOF ( QUERY ( temp &lt;* ( USEDIN ( SELF , 'AP210_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION' ) ) | temp \ shape_element . element_name = 'right' ) ) &lt;= 1 "/>
-         <where label="wr3" expression=" SIZEOF ( QUERY ( temp &lt;* ( USEDIN ( SELF , 'AP210_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION' ) ) | temp \ shape_element . element_name = 'left' ) ) &lt;= 1 "/>
-         <where label="wr2" expression=" SIZEOF ( QUERY ( temp &lt;* ( USEDIN ( SELF , 'AP210_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION' ) ) | temp \ shape_element . element_name = 'bottom' ) ) &lt;= 1 "/>
-         <where label="wr1" expression=" SIZEOF ( QUERY ( temp &lt;* ( USEDIN ( SELF , 'AP210_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION' ) ) | temp \ shape_element . element_name = 'top' ) ) &lt;= 1 "/>
+         <where label="Wr4" expression=" SIZEOF ( QUERY ( temp &lt;* ( USEDIN ( SELF , 'AP210_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION' ) ) | temp \ shape_element . element_name = 'right' ) ) &lt;= 1 "/>
+         <where label="Wr3" expression=" SIZEOF ( QUERY ( temp &lt;* ( USEDIN ( SELF , 'AP210_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION' ) ) | temp \ shape_element . element_name = 'left' ) ) &lt;= 1 "/>
+         <where label="Wr2" expression=" SIZEOF ( QUERY ( temp &lt;* ( USEDIN ( SELF , 'AP210_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION' ) ) | temp \ shape_element . element_name = 'bottom' ) ) &lt;= 1 "/>
+         <where label="Wr1" expression=" SIZEOF ( QUERY ( temp &lt;* ( USEDIN ( SELF , 'AP210_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION' ) ) | temp \ shape_element . element_name = 'top' ) ) &lt;= 1 "/>
       </entity>
       <entity name="Printed_part_template_material_link">
          <explicit name="subsequent_material">
@@ -233,13 +245,13 @@
          <explicit name="precedent_material">
             <typename name="Template_material_cross_section_boundary"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="Ur1">
             <unique.attribute entity-ref="Printed_part_template_material_link" attribute="precedent_material"/>
             <unique.attribute entity-ref="Printed_part_template_material_link" attribute="subsequent_material"/>
          </unique>
-         <where label="wr3" expression=" subsequent_material \ shape_element . element_name IN [ 'top' , 'left' ] "/>
-         <where label="wr2" expression=" precedent_material \ shape_element . element_name IN [ 'bottom' , 'right' ] "/>
-         <where label="wr1" expression=" precedent_material :&lt;&gt;: subsequent_material "/>
+         <where label="Wr3" expression=" subsequent_material \ shape_element . element_name IN [ 'top' , 'left' ] "/>
+         <where label="Wr2" expression=" precedent_material \ shape_element . element_name IN [ 'bottom' , 'right' ] "/>
+         <where label="Wr1" expression=" precedent_material :&lt;&gt;: subsequent_material "/>
       </entity>
       <entity name="Printed_part_template_terminal" abstract.entity="YES" supertypes="Shape_element" super.expression="Printed_part_cross_section_template_terminal ANDOR ONEOF (Printed_part_template_join_terminal, Printed_part_template_interface_terminal)">
          <explicit name="element_name">
@@ -265,21 +277,9 @@
          <inverse name="connection_requirement" entity="Printed_part_template_connected_terminals_definition" attribute="connected_terminals">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <unique label="ur1">
+         <unique label="Ur1">
             <unique.attribute entity-ref="Printed_part_template_terminal" attribute="element_name"/>
             <unique.attribute entity-ref="Printed_part_template_terminal" attribute="associated_definition"/>
-         </unique>
-      </entity>
-      <entity name="Functional_usage_view_to_printed_part_template_terminal_assignment">
-         <explicit name="functional_usage_view_terminal">
-            <typename name="Scalar_terminal_definition"/>
-         </explicit>
-         <explicit name="physical_usage_view_terminal">
-            <typename name="Printed_part_template_terminal"/>
-         </explicit>
-         <unique label="ur1">
-            <unique.attribute entity-ref="Functional_usage_view_to_printed_part_template_terminal_assignment" attribute="functional_usage_view_terminal"/>
-            <unique.attribute entity-ref="Functional_usage_view_to_printed_part_template_terminal_assignment" attribute="physical_usage_view_terminal"/>
          </unique>
       </entity>
       <entity name="Printed_part_template_terminal_relationship">
@@ -294,13 +294,13 @@
          <explicit name="associated_definition">
             <typename name="Printed_part_template_material"/>
          </explicit>
-         <unique label="ur1">
+         <unique label="Ur1">
             <unique.attribute entity-ref="Template_material_cross_section_boundary" attribute="associated_definition"/>
             <unique.attribute entity-ref="Template_material_cross_section_boundary" attribute="element_name"/>
          </unique>
-         <where label="wr1" expression=" SELF \ shape_element . element_name IN [ 'top' , 'bottom' , 'left' , 'right' ] "/>
+         <where label="Wr1" expression=" SELF \ shape_element . element_name IN [ 'top' , 'bottom' , 'left' , 'right' ] "/>
       </entity>
-      <function name="printed_part_template_access_mechanisms">
+      <function name="Printed_part_template_access_mechanisms">
          <parameter name="input">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Printed_part_template_link"/>

@@ -1,34 +1,132 @@
 (*
-   $Id: arm.exp,v 1.1 2003/02/06 18:03:16 magnevs Exp $
+   $Id: arm.exp,v 1.2 2003/05/05 22:51:54 magnevs Exp $
    N - ISO/CD-TS - 10303-1304 ap239_product_status_recording - EXPRESS ARM*)
    
 SCHEMA Ap239_product_status_recording_arm; 
 
-USE FROM Activity_as_realized_arm;    -- ISO/CD-TS 10303-1259
+USE FROM Document_and_version_identification_arm;    -- ISO/TS 10303-1121
+
+USE FROM Document_definition_arm;    -- ISO/TS 10303-1123
+
+USE FROM Event_assignment_arm;    -- ISO/TS 10303-1364
+
+USE FROM File_identification_arm;    -- ISO/TS 10303-1127
+
+USE FROM Justification_arm;    -- ISO/CD-TS 10303-1263
+
+USE FROM Location_arm;    -- ISO/CD-TS 10303-1278
+
+USE FROM Observation_arm;    -- ISO/CD-TS 10303-1258
+
+USE FROM Organization_type_arm;    -- ISO/CD-TS 10303-1240
+
+USE FROM Part_and_version_identification_arm;    -- ISO/TS 10303-1022
+
+USE FROM Part_view_definition_arm;    -- ISO/TS 10303-1023
+
+USE FROM Person_organization_arm;    -- ISO/TS 10303-1011
+
+USE FROM Position_in_organization_arm;    -- ISO/CD-TS 10303-1242
+
+USE FROM Probability_arm;    -- ISO/CD-TS 10303-1252
+
+USE FROM Probability_distribution_arm;    -- ISO/CD-TS 10303-1274
 
 USE FROM Product_as_individual_arm;    -- ISO/CD-TS 10303-1164
 
-USE FROM Resource_as_realized_characterized_arm;    -- ISO/CD-TS 10303-1283
+USE FROM Product_group_arm;    -- ISO/CD-TS 10303-1278
 
-USE FROM State_definition_arm;    -- ISO/CD-TS 10303-1255
+USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 USE FROM State_observed_arm;    -- ISO/CD-TS 10303-1256
 
+USE FROM Task_specification_arm;    -- ISO/CD-TS 10303-1262
 
-TYPE ap239_psr_state_definition_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_definition_of_item WITH 
-   (Activity_actual, 
-    Product_as_realized, 
-    Resource_as_realized);
+USE FROM Type_of_person_arm;    -- ISO/CD-TS 10303-1245
+
+
+TYPE ap239_psr_event_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_item WITH 
+   (Applied_state_assignment, 
+    Observation, 
+    State, 
+    State_relationship);
+END_TYPE; 
+
+TYPE ap239_psr_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+TYPE ap239_psr_justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_support_item WITH 
+   (Digital_document_definition, 
+    Digital_file, 
+    Document, 
+    Document_version, 
+    File_location_identification, 
+    Hardcopy, 
+    Physical_document_definition);
+END_TYPE; 
+
+TYPE ap239_psr_probability_select = SELECT
+   (Probability, 
+    Probability_distribution);
+END_TYPE; 
+
+TYPE ap239_psr_property_assignment_select = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH 
+   (Defined_state_relationship, 
+    State, 
+    State_assertion, 
+    State_assessment, 
+    State_relationship, 
+    Task_result, 
+    Task_result_state_relationship);
 END_TYPE; 
 
 TYPE ap239_psr_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_of_item WITH 
-   (Activity_actual, 
-    Product_as_realized, 
-    Resource_as_realized);
+   (Document, 
+    Document_definition, 
+    Document_version, 
+    File, 
+    Location, 
+    Organization, 
+    Organization_type, 
+    Part, 
+    Part_version, 
+    Part_view_definition, 
+    Person, 
+    Person_in_organization, 
+    Position, 
+    Position_type, 
+    Product_as_individual, 
+    Product_group, 
+    Type_of_person);
 END_TYPE; 
 
 TYPE ap239_psr_task_item = SELECT BASED_ON ;
 END_TYPE; 
 
-END_SCHEMA;  -- Ap239_product_status_recording_arm
+ENTITY Applied_state_assignment_probability;
+  applied_state_assignment : Applied_state_assignment;
+  probability : ap239_psr_probability_select;
+END_ENTITY;
 
+ENTITY Applied_task_result_state_relationship;
+  assigned_task_result_state_relationship : Task_result_state_relationship;
+  items : SET[1:?] OF ap239_psr_item;
+  role : STRING;
+END_ENTITY;
+
+ENTITY Observation_probability;
+  observation : Observation;
+  probability : ap239_psr_probability_select;
+END_ENTITY;
+
+ENTITY State_probability_relationship;
+  probability : ap239_psr_probability_select;
+  state : State;
+END_ENTITY;
+
+ENTITY State_relationship_probability_relationship;
+  probability : ap239_psr_probability_select;
+  state_relationship : State_relationship;
+END_ENTITY;
+
+END_SCHEMA;  -- Ap239_product_status_recording_arm

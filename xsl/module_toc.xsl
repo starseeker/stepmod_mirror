@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.8 2002/04/02 17:05:25 robbod Exp $
+$Id: module_toc.xsl,v 1.9 2002/05/13 15:52:48 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -455,7 +455,7 @@ $Id: module_toc.xsl,v 1.8 2002/04/02 17:05:25 robbod Exp $
 
         <A HREF="d_mim_expg{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
         <xsl:apply-templates 
-          select="arm/express-g/imgfile" mode="page_number"/>
+          select="mim/express-g/imgfile" mode="page_number"/>
         <BR/>
         <A HREF="e_exp{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS
 listings</A><BR/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.76 2004/02/05 07:42:51 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.77 2004/08/13 20:12:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -157,7 +157,7 @@ $Id: sect_5_mapping.xsl,v 1.76 2004/02/05 07:42:51 robbod Exp $
         </xsl:apply-templates>
       </p>
     </xsl:when>
-    <xsl:otherwise>
+    <xsl:when test="$arm_xml/express/schema/interface">
       <p>
         The mapping specification for this part of ISO 10303 is defined in:    
       </p>
@@ -166,6 +166,9 @@ $Id: sect_5_mapping.xsl,v 1.76 2004/02/05 07:42:51 robbod Exp $
           <xsl:with-param name="item" select="'li'"/>
         </xsl:apply-templates>
       </ul>
+    </xsl:when>
+    <xsl:otherwise>
+      There is no mapping specification for this part of ISO 10303.
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

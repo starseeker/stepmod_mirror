@@ -2,6 +2,117 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical node requirement to implementing component allocation - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Physical_node_requirement_to_implementing_component_allocation_arm;
-END_SCHEMA;
+
+USE FROM Functional_design_elaboration_arm(Physical_connectivity_definition);
+
+USE FROM Physical_unit_design_view_arm;
+
+USE FROM Assembly_module_with_packaged_connector_component_arm;
+
+USE FROM Part_terminal_arm (part_connected_terminals_definition);
+
+USE FROM Packaged_connector_model_arm(packaged_connector_terminal_relationship);
+
+USE FROM Component_feature_arm;
+
+USE FROM Interface_component_arm;
+
+USE FROM Assembly_technology_arm;
+
+  ENTITY Physical_node_requirement_to_implementing_component_allocation;
+      physical_node_requirement          : physical_connectivity_definition;
+      implementation_component           : assembly_component;
+      implementation_interface_joint_set : OPTIONAL SET[1:?] OF interface_mounted_join;
+      implementation_joint_set           : OPTIONAL SET[1:?] OF assembly_joint;
+    DERIVE
+      implementation_connection_definition_1 : SET[0:1] OF part_connected_terminals_definition := get_pctd(implementation_component,
+ implementation_joint_set);
+      implementation_connection_definition_2 : SET[0:1] OF packaged_connector_terminal_relationship := get_pctr(implementation_component,
+ implementation_interface_joint_set);
+    WHERE
+      WR1 : EXISTS(implementation_interface_joint_set) XOR EXISTS(implementation_joint_set);
+      WR2 : (SIZEOF(implementation_connection_definition_1) + SIZEOF(implementation_connection_definition_2) = 1) OR (('AP210_ARM.INTERFACE_COMPONENT' IN TYPEOF(implementation_component)) AND ('AP210_ARM.COMPONENT_INTERFACE_TERMINAL' IN TYPEOF(get_cit(implementation_component,
+ implementation_joint_set)))) OR ('AP210_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF(implementation_component));
+      WR3 : SIZEOF(QUERY(pct <* physical_node_requirement.associated_terminals | pct\component_feature.associated_component = implementation_component)) = 0;
+  END_ENTITY; -- physical_node_requirement_to_implementing_component_allocation
+
+  FUNCTION get_pctr(
+    ac   : assembly_component ;
+    imjb : SET OF interface_mounted_join
+  ) : SET OF packaged_connector_terminal_relationship;
+
+    LOCAL
+      cf   : component_feature;
+      pctr : SET OF packaged_connector_terminal_relationship := [];
+    END_LOCAL;
+
+    cf := imjb[1].connection_to_interconnect_module_component;
+    IF ac :=: cf.associated_component THEN
+      IF ('AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(cf.definition)) THEN
+        pctr := cf.definition.external_connector_function;
+        RETURN(pctr);
+      ELSE
+        RETURN(pctr);
+      END_IF;
+    ELSE
+      RETURN(pctr);
+    END_IF;
+    RETURN(?);
+  END_FUNCTION; -- get_pctr
+
+  FUNCTION get_cit(
+    ac  : assembly_component ;
+    ajb : SET OF assembly_joint
+  ) : component_interface_terminal;
+
+    LOCAL
+      cf  : LIST[1:?] OF component_feature := [];
+      cit : component_interface_terminal;
+    END_LOCAL;
+
+    REPEAT i := 1 TO 2 BY 1;
+      cf[1] := ajb[1].assembly_features_1;
+      cf[2] := ajb[1].assembly_features_2;
+      IF ac :=: cf[i].associated_component THEN
+        IF ('AP210_ARM.INTERFACE_COMPONENT' IN TYPEOF(cf[i].associated_component)) THEN
+          RETURN(cf[i]);
+        ELSE
+          RETURN(?);
+        END_IF;
+      ELSE
+        RETURN(?);
+      END_IF;
+    END_REPEAT;
+    RETURN(?);
+  END_FUNCTION; -- get_cit
+
+  FUNCTION get_pctd(
+    ac  : assembly_component ;
+    ajb : SET OF assembly_joint
+  ) : SET OF part_connected_terminals_definition;
+
+    LOCAL
+      cf   : LIST[1:?] OF component_feature;
+      pctd : SET OF part_connected_terminals_definition := [];
+    END_LOCAL;
+
+    REPEAT i := 1 TO 2 BY 1;
+      cf[1] := ajb[1].assembly_features_1;
+      cf[2] := ajb[1].assembly_features_2;
+      IF ac :=: cf[i].associated_component THEN
+        IF ('AP210_ARM.PART_TERMINAL' IN TYPEOF(cf[i].definition)) THEN
+          pctd := cf[i].definition.connection_requirement;
+          RETURN(pctd);
+        ELSE
+          RETURN(pctd);
+        END_IF;
+      ELSE
+        RETURN(pctd);
+      END_IF;
+    END_REPEAT;
+    RETURN(?);
+  END_FUNCTION; -- get_pctd
+
+END_SCHEMA;  

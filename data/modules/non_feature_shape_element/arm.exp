@@ -2,6 +2,80 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Non feature shape element - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
-SCHEMA Non_feature_shape_element_arm;
+
+SCHEMA Non_feature_shape_element_arm; 
+
+USE FROM Shape_property_assignment_arm; 
+
+USE FROM Basic_geometry_arm;
+
+USE FROM Layered_2d_shape_arm;
+
+REFERENCE FROM Part_feature_location_arm;
+  
+  TYPE ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+	
+  TYPE view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+
+(**     Removed
+  WR1 : SIZEOF(['AP210_ARM.BARE_DIE', 'AP210_ARM.PACKAGE'] * TYPEOF(SELF\non_feature_shape_element.scope)) = 1;
+  Need to rewrite it as global rule later
+*)  
+  ENTITY Seating_plane
+    SUBTYPE OF (Non_feature_shape_element);
+--    WHERE
+--      WR1 : SIZEOF(['AP210_ARM.BARE_DIE', 'AP210_ARM.PACKAGE'] * TYPEOF(SELF\non_feature_shape_element.scope)) = 1;
+  END_ENTITY; -- seating_plane
+
+  ENTITY Non_feature_shape_element
+    SUBTYPE OF (shape_element);
+      scope : ee_product_definition_with_annotation_elements;
+    INVERSE
+      element_shape            : SET[0:?] OF non_feature_shape_definition FOR associated_element;
+      associated_usage_concept : SET[0:?] OF usage_concept_usage_relationship FOR associated_usage;
+    UNIQUE
+      UR1 : SELF\shape_element.element_name,
+ scope;
+    WHERE
+      WR1 : (NOT (SIZEOF(associated_usage_concept) > 0)) OR (SIZEOF(element_shape) > 0);
+  END_ENTITY; -- non_feature_shape_element
+
+  ENTITY Non_feature_shape_element_relationship
+    SUBTYPE OF (shape_element_relationship);
+      SELF\shape_element_relationship.related : non_feature_shape_element;
+      SELF\shape_element_relationship.relating : non_feature_shape_element;
+    UNIQUE
+      ur1 : SELF\shape_element_relationship.related,
+ SELF\shape_element_relationship.relating;
+  END_ENTITY; -- non_feature_shape_element_relationship
+
+  ENTITY Non_feature_shape_definition
+    SUBTYPE OF (Geometric_model);
+      associated_element : non_feature_shape_element;
+      model_shape        : OPTIONAL feature_shape_definition;
+  END_ENTITY; -- non_feature_shape_definition
+
+   ENTITY Reference_graphic_registration_mark
+    SUBTYPE OF (Non_feature_shape_element);
+  END_ENTITY; -- reference_graphic_registration_mark
+  
+  ENTITY Non_feature_shape_composition_relationship
+    SUBTYPE OF (Geometric_model_relationship);
+      related_feature_shape_placement : OPTIONAL axis_placement_or_cto2d;
+    DERIVE
+      related_feature_shape   : non_feature_shape_definition := SELF\Geometric_model_relationship.rep_1;
+      resultant_feature_shape : non_feature_shape_definition := SELF\Geometric_model_relationship.rep_2;
+    WHERE
+      WR1 : EXISTS(related_feature_shape_placement) OR (related_feature_shape\representation.context_of_items :=: resultant_feature_shape\representation.context_of_items);
+  END_ENTITY; -- non_feature_shape_composition_relationship
+
+  ENTITY View_level_non_feature_shape_definition
+    SUBTYPE OF (Non_feature_shape_definition);
+      SELF\non_feature_shape_definition.model_shape : view_shape_select;
+    WHERE
+      WR1 : SELF\geometric_model.context_of_items = SELF\non_feature_shape_definition.model_shape\geometric_model.context_of_items;
+  END_ENTITY; -- view_level_non_feature_shape_definition
+
 END_SCHEMA;

@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="1"
+	reference="ISO 10303-503"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.24"
+    source="../data/resources/aic_geometrically_bounded_2d_wireframe/aic_geometrically_bounded_2d_wireframe.exp"/>
+
+  <schema name="aic_geometrically_bounded_2d_wireframe">
+    <interface
+      kind="use"
+      schema="geometric_model_schema">
+      <interfaced.item
+        name="geometric_curve_set"/>
+      <interfaced.item
+        name="geometric_set"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="geometry_schema">
+      <interfaced.item
+        name="axis2_placement_2d"/>
+      <interfaced.item
+        name="b_spline_curve_with_knots"/>
+      <interfaced.item
+        name="bezier_curve"/>
+      <interfaced.item
+        name="circle"/>
+      <interfaced.item
+        name="composite_curve"/>
+      <interfaced.item
+        name="composite_curve_segment"/>
+      <interfaced.item
+        name="curve"/>
+      <interfaced.item
+        name="curve_replica"/>
+      <interfaced.item
+        name="ellipse"/>
+      <interfaced.item
+        name="geometric_representation_context"/>
+      <interfaced.item
+        name="hyperbola"/>
+      <interfaced.item
+        name="line"/>
+      <interfaced.item
+        name="offset_curve_2d"/>
+      <interfaced.item
+        name="parabola"/>
+      <interfaced.item
+        name="point_on_curve"/>
+      <interfaced.item
+        name="polyline"/>
+      <interfaced.item
+        name="quasi_uniform_curve"/>
+      <interfaced.item
+        name="rational_b_spline_curve"/>
+      <interfaced.item
+        name="trimmed_curve"/>
+      <interfaced.item
+        name="uniform_curve"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_representation_schema">
+      <interfaced.item
+        name="shape_representation"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="mapped_item"/>
+    </interface>
+
+    <entity
+      name="geometrically_bounded_2d_wireframe_representation"
+      supertypes="shape_representation">
+      <where
+        label="WR1"
+        expression="SELF.context_of_items\geometric_representation_context.            coordinate_space_dimension = 2">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (QUERY (item &lt;* SELF.items |         NOT (SIZEOF (TYPEOF (item) *['AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.GEOMETRIC_CURVE_SET',           'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.AXIS2_PLACEMENT_2D',            'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.MAPPED_ITEM']) = 1)       )) = 0">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (item &lt;* SELF.items |         SIZEOF (TYPEOF (item) *          ['AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.GEOMETRIC_CURVE_SET',            'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.MAPPED_ITEM']) = 1       )) &gt;= 1">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF (QUERY (mi &lt;* QUERY (item &lt;* SELF.items |     ('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.MAPPED_ITEM'           IN TYPEOF (item))) |         NOT ('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.' +              'GEOMETRICALLY_BOUNDED_2D_WIREFRAME_REPRESENTATION'           IN TYPEOF              (mi\mapped_item.mapping_source.mapped_representation))       )) = 0">
+      </where>
+      <where
+        label="WR5"
+        expression="SIZEOF (QUERY (gcs &lt;* QUERY (item &lt;* SELF.items |     ('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.GEOMETRIC_CURVE_SET'                IN TYPEOF (item))) |         NOT (SIZEOF (QUERY (elem &lt;* gcs\geometric_set.elements |           NOT (SIZEOF (TYPEOF (elem) *             ['AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.B_SPLINE_CURVE',              'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.CIRCLE',              'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.COMPOSITE_CURVE',              'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.ELLIPSE',              'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.OFFSET_CURVE_2D',              'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.POINT',              'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.POLYLINE',              'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.TRIMMED_CURVE']) =               1)         )) = 0)       )) = 0">
+      </where>
+      <where
+        label="WR6"
+        expression="SIZEOF (QUERY (gcs &lt;* QUERY (item &lt;* SELF.items |     ('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.GEOMETRIC_CURVE_SET'                IN TYPEOF (item))) |         NOT (SIZEOF (QUERY (crv &lt;*            QUERY (elem &lt;* gcs\geometric_set.elements |              ('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.CURVE'                   IN TYPEOF (elem))) |           NOT (valid_basis_curve_in_2d_wireframe              (crv))         )) = 0)       )) = 0">
+      </where>
+      <where
+        label="WR7"
+        expression="SIZEOF (QUERY (gcs &lt;* QUERY (item &lt;* SELF.items |         ('AIC_- GEOMETRICALLY_BOUNDED_2D_WIREFRAME.GEOMETRIC_CURVE_SET'                IN TYPEOF (item))) |         NOT (SIZEOF (QUERY (pnt &lt;*           QUERY (elem &lt;* gcs\geometric_set.elements |             ('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.POINT'                  IN TYPEOF(elem))) |             NOT (SIZEOF (TYPEOF (pnt) *               ['AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.CARTESIAN_POINT',                'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.POINT_ON_CURVE'])          = 1)         )) = 0)       )) = 0">
+      </where>
+      <where
+        label="WR8"
+        expression="SIZEOF (QUERY (gcs &lt;* QUERY (item &lt;* SELF.items |             ('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.GEOMETRIC_CURVE_SET'           IN TYPEOF (item))) |         NOT (SIZEOF (QUERY (pl &lt;*            QUERY (elem &lt;* gcs\geometric_set.elements |             ('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.POLYLINE'                  IN TYPEOF (elem))) |             NOT (SIZEOF (pl\polyline.points) &gt; 2)         )) = 0)       )) = 0">
+      </where>
+    </entity>
+
+    <function
+      name="valid_basis_curve_in_2d_wireframe">
+      <parameter
+        name="crv">
+        <typename
+          name="curve"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+   -- check for valid basic curve types
+  IF SIZEOF (['AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.POLYLINE',
+               'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.B_SPLINE_CURVE',
+               'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.ELLIPSE',
+               'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.CIRCLE'] * 
+               TYPEOF (crv)) = 1
+    THEN RETURN (TRUE);
+  ELSE
+    -- if the curve is a trimmed_curve
+    IF (('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.TRIMMED_CURVE') 
+    IN TYPEOF (crv)) THEN
+      -- if a line, parabola, or hyperbola is being trimmed, then valid
+      IF SIZEOF (['AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.LINE',
+                   'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.PARABOLA',
+                   'AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.HYPERBOLA'] *
+           TYPEOF(crv\trimmed_curve.basis_curve)) = 1
+        THEN RETURN (TRUE);
+      -- otherwise, recursively check basis_curve
+      ELSE RETURN (valid_basis_curve_in_2d_wireframe
+                         (crv\trimmed_curve.basis_curve));
+      END_IF;
+    ELSE
+      -- recursively check the offset_curve basis curve
+      IF (('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.OFFSET_CURVE_2D') 
+      IN TYPEOF (crv))
+        THEN RETURN (valid_basis_curve_in_2d_wireframe
+                           (crv\offset_curve_2d.basis_curve));
+      ELSE
+        -- recursively check the curve_replica parent curve
+        IF (('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.CURVE_REPLICA') 
+        IN TYPEOF (crv))
+          THEN RETURN (valid_basis_curve_in_2d_wireframe
+                         (crv\curve_replica.parent_curve));
+        ELSE
+          -- recursively check the composite_curve segments
+          IF (('AIC_GEOMETRICALLY_BOUNDED_2D_WIREFRAME.COMPOSITE_CURVE') 
+          IN TYPEOF (crv)) THEN
+            RETURN (SIZEOF (QUERY (ccs &lt;* crv\composite_curve.segments |
+                      NOT (valid_basis_curve_in_2d_wireframe
+                             (ccs.parent_curve)))) = 0);
+          END_IF;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_IF;
+  RETURN (FALSE);
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

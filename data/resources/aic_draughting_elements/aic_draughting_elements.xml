@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="1"
+	reference="ISO 10303-506"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.24"
+    source="../data/resources/aic_draughting_elements/aic_draughting_elements.exp"/>
+
+  <schema name="aic_draughting_elements">
+    <interface
+      kind="use"
+      schema="draughting_element_schema">
+      <interfaced.item
+        name="dimension_curve"/>
+      <interfaced.item
+        name="dimension_curve_directed_callout"/>
+      <interfaced.item
+        name="dimension_curve_terminator"/>
+      <interfaced.item
+        name="draughting_callout"/>
+      <interfaced.item
+        name="draughting_callout_relationship"/>
+      <interfaced.item
+        name="leader_curve"/>
+      <interfaced.item
+        name="leader_directed_callout"/>
+      <interfaced.item
+        name="leader_terminator"/>
+      <interfaced.item
+        name="projection_curve"/>
+      <interfaced.item
+        name="projection_directed_callout"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="presentation_definition_schema">
+      <interfaced.item
+        name="annotation_text_occurrence"/>
+    </interface>
+
+    <entity
+      name="angular_dimension"
+      supertypes="dimension_curve_directed_callout">
+    </entity>
+
+    <entity
+      name="curve_dimension"
+      supertypes="dimension_curve_directed_callout">
+    </entity>
+
+    <entity
+      name="datum_feature_callout"
+      supertypes="draughting_callout">
+    </entity>
+
+    <entity
+      name="datum_target_callout"
+      supertypes="draughting_callout">
+    </entity>
+
+    <entity
+      name="diameter_dimension"
+      supertypes="dimension_curve_directed_callout">
+    </entity>
+
+    <entity
+      name="dimension_callout_component_relationship"
+      supertypes="draughting_callout_relationship">
+      <where
+        label="WR1"
+        expression="SELF.name IN ['prefix', 'suffix']">
+      </where>
+      <where
+        label="WR2"
+        expression="'AIC_DRAUGHTING_ELEMENTS.STRUCTURED_DIMENSION_CALLOUT'           IN TYPEOF (SELF.relating_draughting_callout)">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (TYPEOF (SELF.related_draughting_callout) *       ['AIC_DRAUGHTING_ELEMENTS.LEADER_DIRECTED_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.PROJECTION_DIRECTED_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.DIMENSION_CURVE_DIRECTED_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.STRUCTURED_DIMENSION_CALLOUT']) = 0">
+      </where>
+      <where
+        label="WR4"
+        expression="SELF.related_draughting_callout.contents *       SELF.relating_draughting_callout.contents =       SELF.related_draughting_callout.contents">
+      </where>
+      <where
+        label="WR5"
+        expression="((SELF.name = 'prefix') AND       (SIZEOF (QUERY (ato &lt;* QUERY (con &lt;*                 SELF.related_draughting_callout.contents |         ('AIC_DRAUGHTING_ELEMENTS.ANNOTATION_TEXT_OCCURRENCE'             IN TYPEOF(con))) |         NOT (ato.name = 'prefix text')       )) = 0))">
+      </where>
+      <where
+        label="WR6"
+        expression="((SELF.name = 'suffix') AND       (SIZEOF (QUERY (ato &lt;* QUERY (con &lt;*                 SELF.related_draughting_callout.contents |         ('AIC_DRAUGHTING_ELEMENTS.ANNOTATION_TEXT_OCCURRENCE'             IN TYPEOF(con))) |         NOT (ato.name = 'suffix text')       )) = 0))">
+      </where>
+    </entity>
+
+    <entity
+      name="dimension_callout_relationship"
+      supertypes="draughting_callout_relationship">
+      <where
+        label="WR1"
+        expression="SELF.name IN ['primary', 'secondary']">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (TYPEOF (SELF.relating_draughting_callout) *        ['AIC_DRAUGHTING_ELEMENTS.ANGULAR_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.CURVE_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.DIAMETER_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.LEADER_DIRECTED_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.LINEAR_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.ORDINATE_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.RADIUS_DIMENSION'])&gt;=1">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (TYPEOF (SELF.related_draughting_callout) *       ['AIC_DRAUGHTING_ELEMENTS.DIMENSION_CURVE_DIRECTED_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.PROJECTION_DIRECTED_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.LEADER_DIRECTED_CALLOUT']) = 0">
+      </where>
+      <where
+        label="WR4"
+        expression="SELF.related_draughting_callout.contents *       SELF.relating_draughting_callout.contents =       SELF.related_draughting_callout.contents">
+      </where>
+    </entity>
+
+    <entity
+      name="dimension_pair"
+      supertypes="draughting_callout_relationship">
+      <where
+        label="WR1"
+        expression="SELF.name IN ['chained', 'parallel']">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (TYPEOF (SELF.relating_draughting_callout) *       ['AIC_DRAUGHTING_ELEMENTS.ANGULAR_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.CURVE_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.DIAMETER_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.LINEAR_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.ORDINATE_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.RADIUS_DIMENSION'])=1">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (TYPEOF (SELF.related_draughting_callout) *       ['AIC_DRAUGHTING_ELEMENTS.ANGULAR_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.CURVE_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.DIAMETER_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.LINEAR_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.ORDINATE_DIMENSION',        'AIC_DRAUGHTING_ELEMENTS.RADIUS_DIMENSION'])=1">
+      </where>
+    </entity>
+
+    <entity
+      name="draughting_elements"
+      supertypes="draughting_callout">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (l_c &lt;* QUERY (con &lt;* SELF.contents |              ('AIC_DRAUGHTING_ELEMENTS.LEADER_CURVE' IN TYPEOF(con))) |              NOT (SIZEOF (QUERY (ldc &lt;* USEDIN (l_c,               'AIC_DRAUGHTING_ELEMENTS.' + 'DRAUGHTING_CALLOUT.CONTENTS') |              ('AIC_DRAUGHTING_ELEMENTS.LEADER_DIRECTED_CALLOUT'              IN TYPEOF (ldc)))) &lt;= 1)))=0">
+      </where>
+      <where
+        label="WR2"
+        expression="NOT    ('AIC_DRAUGHTING_ELEMENTS.DIMENSION_CURVE_DIRECTED_CALLOUT'              IN TYPEOF(SELF)) OR              (SIZEOF (QUERY (con &lt;* SELF.contents |              ('AIC_DRAUGHTING_ELEMENTS.PROJECTION_CURVE' IN               TYPEOF (con)))) &lt;= 2)">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (rc &lt;* USEDIN (SELF,              'AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_CALLOUT_' +              'RELATIONSHIP.RELATING_DRAUGHTING_CALLOUT') |              ('AIC_DRAUGHTING_ELEMENTS.' +               'DIMENSION_CALLOUT_RELATIONSHIP' IN TYPEOF (rc)) AND              (rc.name = 'primary') )) &lt;= 1">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF (QUERY (rc &lt;* USEDIN (SELF,              'AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_CALLOUT_' +              'RELATIONSHIP.RELATING_DRAUGHTING_CALLOUT') |               ('AIC_DRAUGHTING_ELEMENTS.' +                'DIMENSION_CALLOUT_RELATIONSHIP' IN TYPEOF (rc)) AND                (rc.name = 'secondary') )) &lt;= 1">
+      </where>
+      <where
+        label="WR5"
+        expression="SIZEOF (QUERY (sec &lt;* QUERY (rc &lt;* USEDIN (SELF,               'AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_CALLOUT_' +               'RELATIONSHIP.RELATING_DRAUGHTING_CALLOUT') |               ('AIC_DRAUGHTING_ELEMENTS.' +                'DIMENSION_CALLOUT_RELATIONSHIP' IN TYPEOF (rc)) AND                         (rc.name = 'secondary') ) |         NOT (SIZEOF (QUERY (prim &lt;* USEDIN (SELF,               'AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_CALLOUT_' +               'RELATIONSHIP.RELATING_DRAUGHTING_CALLOUT') |               ('AIC_DRAUGHTING_ELEMENTS.' +                'DIMENSION_CALLOUT_RELATIONSHIP' IN TYPEOF (prim)) AND                         (prim.name = 'primary') )) = 1))) = 0">
+      </where>
+    </entity>
+
+    <entity
+      name="geometrical_tolerance_callout"
+      supertypes="draughting_callout">
+    </entity>
+
+    <entity
+      name="leader_directed_dimension"
+      supertypes="leader_directed_callout">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (con &lt;* SELF.contents |       'AIC_DRAUGHTING_ELEMENTS.LEADER_CURVE' IN TYPEOF (con)))=1">
+      </where>
+    </entity>
+
+    <entity
+      name="linear_dimension"
+      supertypes="dimension_curve_directed_callout">
+    </entity>
+
+    <entity
+      name="ordinate_dimension"
+      supertypes="projection_directed_callout">
+    </entity>
+
+    <entity
+      name="radius_dimension"
+      supertypes="dimension_curve_directed_callout">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (con &lt;* SELF.contents |       'AIC_DRAUGHTING_ELEMENTS.PROJECTION_CURVE' IN TYPEOF (con)))&lt;=1">
+      </where>
+    </entity>
+
+    <entity
+      name="structured_dimension_callout"
+      supertypes="draughting_callout">
+      <where
+        label="WR1"
+        expression="SIZEOF (TYPEOF (SELF) *       ['AIC_DRAUGHTING_ELEMENTS.DATUM_FEATURE_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.DATUM_TARGET_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.GEOMETRICAL_TOLERANCE_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.LEADER_DIRECTED_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.PROJECTION_DIRECTED_CALLOUT',        'AIC_DRAUGHTING_ELEMENTS.DIMENSION_CURVE_DIRECTED_CALLOUT']) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (QUERY (ato &lt;* QUERY (con &lt;* SELF.contents |         ('AIC_DRAUGHTING_ELEMENTS.ANNOTATION_TEXT_OCCURRENCE'             IN TYPEOF (con))) |         NOT (ato.name IN             ['dimension value', 'tolerance value', 'unit text',              'prefix text', 'suffix text']))) = 0">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (ato &lt;* QUERY (con &lt;* SELF.contents |         ('AIC_DRAUGHTING_ELEMENTS.ANNOTATION_TEXT_OCCURRENCE'             IN TYPEOF (con))) |         (ato.name = 'dimension value')       )) &gt;= 1">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF (QUERY (dcr &lt;* USEDIN (SELF, 'AIC_DRAUGHTING_ELEMENTS.' +         'DRAUGHTING_CALLOUT_RELATIONSHIP.' +         'RELATING_DRAUGHTING_CALLOUT') |         ('AIC_DRAUGHTING_ELEMENTS.' +          'DIMENSION_CALLOUT_COMPONENT_RELATIONSHIP' IN TYPEOF (dcr)) AND          (dcr.name = 'prefix') )) &lt;= 1">
+      </where>
+      <where
+        label="WR5"
+        expression="SIZEOF (QUERY (dcr &lt;* USEDIN (SELF, 'AIC_DRAUGHTING_ELEMENTS.' +         'DRAUGHTING_CALLOUT_RELATIONSHIP.' +         'RELATING_DRAUGHTING_CALLOUT') |         ('AIC_DRAUGHTING_ELEMENTS.' +          'DIMENSION_CALLOUT_COMPONENT_RELATIONSHIP' IN TYPEOF (dcr)) AND          (dcr.name = 'suffix') )) &lt;= 1">
+      </where>
+      <where
+        label="WR6"
+        expression="NOT((SIZEOF (QUERY (ato &lt;* QUERY (con &lt;* SELF.contents |         ('AIC_DRAUGHTING_ELEMENTS.ANNOTATION_TEXT_OCCURRENCE'             IN TYPEOF(con)) ) |         (ato.name = 'prefix text')       )) &gt; 0)) OR       (SIZEOF (QUERY (dcr &lt;* USEDIN (SELF, 'AIC_DRAUGHTING_ELEMENTS.' +                               'DRAUGHTING_CALLOUT_RELATIONSHIP.' +                               'RELATING_DRAUGHTING_CALLOUT') |         ('AIC_DRAUGHTING_ELEMENTS.' +          'DIMENSION_CALLOUT_COMPONENT_RELATIONSHIP' IN TYPEOF (dcr)) AND           (dcr.name = 'prefix') )) = 1)">
+      </where>
+      <where
+        label="WR7"
+        expression="NOT(SIZEOF (QUERY (ato &lt;* QUERY (con &lt;* SELF.contents |         ('AIC_DRAUGHTING_ELEMENTS.ANNOTATION_TEXT_OCCURRENCE'             IN TYPEOF(con))) |         (ato.name = 'suffix text')       )) &gt; 0) OR       (SIZEOF (QUERY (dcr &lt;* USEDIN (SELF, 'AIC_DRAUGHTING_ELEMENTS.' +                               'DRAUGHTING_CALLOUT_RELATIONSHIP.' +                               'RELATING_DRAUGHTING_CALLOUT') |         ('AIC_DRAUGHTING_ELEMENTS.' +          'DIMENSION_CALLOUT_COMPONENT_RELATIONSHIP' IN TYPEOF (dcr)) AND                (dcr.name = 'suffix') )) = 1)">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

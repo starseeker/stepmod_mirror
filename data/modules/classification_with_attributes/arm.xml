@@ -28,7 +28,7 @@
 
     <interface
       kind="use"
-      schema="Measure_representation_arm">
+      schema="Extended_measure_representation_arm">
     </interface>
 
     <interface
@@ -46,10 +46,26 @@
       schema="Part_view_definition_arm">
     </interface>
 
+    <type name="classification_item_extended">
+      <select
+        extensible="YES"
+        genericentity="YES"
+        basedon="classification_item"
+        selectitems="Part Part_version Part_view_definition">
+      </select>
+
+    </type>
     <type name="classified_element_select">
       <select
         extensible="YES"
-        genericentity="YES">
+        genericentity="YES"
+        selectitems="Part Part_version Part_view_definition">
+      </select>
+
+    </type>
+    <type name="external_class_select">
+      <select
+        selectitems="Plib_class_reference External_class">
       </select>
 
     </type>
@@ -74,45 +90,36 @@
         <typename
           name="Classification_system"/>
       </explicit>
-      <explicit
-        name="characterization_attributes">
-        <aggregate
+      <inverse
+        name="characterization_attributes"
+        entity="Classification_attribute"
+        attribute="characterized_class">
+        <inverse.aggregate
           type="SET"
           lower="0"
           upper="?"/>
-        <typename
-          name="Classification_attribute"/>
-      </explicit>
+      </inverse>
     </entity>
 
     <entity
       name="External_class_with_attributes"
-      supertypes="Class_with_attributes External_class">
+      supertypes="Class_with_attributes">
       <explicit
-        name="external_source">
-        <redeclaration
-          entity-ref="External_class"/>
-          <typename
-            name="plib_class_source_select"/>
-        </explicit>
-      </entity>
+        name="source">
+        <typename
+          name="external_class_select"/>
+      </explicit>
+    </entity>
 
-      <entity
-        name="Classification_association">
-        <explicit
-          name="associated_classification">
+    <entity
+      name="Classification_association"
+      supertypes="Classification_assignment">
+      <explicit
+        name="assigned_grouping">
+        <redeclaration
+          entity-ref="Classification_assignment"/>
           <typename
-            name="Class"/>
-        </explicit>
-        <explicit
-          name="classified_element">
-          <typename
-            name="classified_element_select"/>
-        </explicit>
-        <explicit
-          name="role">
-          <builtintype
-            type="STRING"/>
+            name="Class_with_attributes"/>
         </explicit>
         <explicit
           name="definitional">
@@ -121,7 +128,11 @@
         </explicit>
         <where
           label="WR1"
-          expression="('CLASSIFICATION_WITH_ATTRIBUTES_ARM.DEFINABLE_OBJECTS' IN TYPEOF(classified_element)) OR 	NOT definitional">
+          expression="SIZEOF(QUERY(it&lt;* SELF\Classification_assignment.items |     NOT('CLASSIFICATION_WITH_ATTRIBUTES_ARM.DEFINABLE_OBJECTS' IN TYPEOF(it)) AND definitional ))=0">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF(QUERY(it&lt;* SELF\Classification_assignment.items |     NOT('CLASSIFICATION_WITH_ATTRIBUTES_ARM.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it)) )) =0">
         </where>
       </entity>
 
@@ -153,6 +164,11 @@
             upper="?"/>
           <typename
             name="Measure_item"/>
+        </explicit>
+        <explicit
+          name="characterized_class">
+          <typename
+            name="Class_with_attributes"/>
         </explicit>
       </entity>
 

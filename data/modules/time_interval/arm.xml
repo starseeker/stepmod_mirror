@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.0"
+    source="../data/modules/time_interval/arm.exp"/>
+
+  <schema name="Time_interval_arm">
+    <interface
+      kind="use"
+      schema="Person_organisation_assignment_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Event_arm">
+    </interface>
+
+    <type name="time_interval_item">
+      <select
+        extensible="YES"
+        selectitems="">
+      </select>
+
+    </type>
+    <type name="time_interval_organisation_or_person_in_organisation_item">
+      <select
+        basedon="organisation_or_person_in_organisation_item"
+        selectitems="Time_interval">
+      </select>
+
+    </type>
+    <entity
+      name="Time_interval">
+      <explicit
+        name="id"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="duration"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="start">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="end"
+        optional="YES">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+      <inverse
+        name="identifier"
+        entity="Organisation_or_person_in_organisation_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <where
+        label="WR1"
+        expression="NOT (EXISTS (duration) AND EXISTS (end_date))">
+      </where>
+    </entity>
+
+    <entity
+      name="Time_interval_assignment">
+      <explicit
+        name="assigned_interval">
+        <typename
+          name="Time_interval"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="time_interval_item"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

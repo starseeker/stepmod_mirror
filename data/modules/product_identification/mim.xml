@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.0"
+    source="../data/modules/product_identification/mim.exp"/>
+
+  <schema name="Product_identification_mim">
+    <interface
+      kind="use"
+      schema="Person_organisation_assignment_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Product_categorisation_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_definition_schema">
+      <interfaced.item
+        name="product"/>
+      <interfaced.item
+        name="product_related_product_category"/>
+    </interface>
+
+    <type name="product_organization_item">
+      <select
+        basedon="organization_item"
+        selectitems="product">
+      </select>
+
+    </type>
+    <type name="product_person_and_organization_item">
+      <select
+        basedon="person_and_organization_item"
+        selectitems="product">
+      </select>
+
+    </type>
+    <rule
+      name="product_requires_product_category"
+      appliesto="product product_related_product_category">
+      <algorithm>
+WHERE
+  WR1: SIZEOF (QUERY (prod &lt;* product |
+       NOT (SIZEOF (QUERY (prpc &lt;* product_related_product_category |
+       (prod IN prpc.products))) &gt;= 1))) = 0;
+      </algorithm>
+
+    </rule>
+
+    <rule
+      name="restrict_product_category_name"
+      appliesto="product_category">
+      <algorithm>
+WHERE
+      </algorithm>
+
+    </rule>
+
+  </schema>
+
+</express>

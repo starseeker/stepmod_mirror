@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.121 2003/10/21 12:24:56 robbod Exp $
+$Id: common.xsl,v 1.122 2003/11/25 08:32:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3435,10 +3435,26 @@ is case sensitive.')"/>
     <xsl:param name="str"/>
     <xsl:param name="char"/>
     <xsl:param name="previous_str" select="''"/>
+    <xsl:variable name="first" select="substring-before($str,$char)"/>
+    <xsl:variable name="rest" select="substring-after($str,$char)"/>
+    <xsl:variable name="prev">
+      <xsl:choose>
+        <xsl:when test="$previous_str=''">
+          <xsl:value-of select="$first"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat($previous_str,$char,$first)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:choose>
-      <xsl:when test="contains($str,$char)">
-        <xsl:variable name="prev" 
-          select="concat($previous_str,substring-before($str,$char))"/>
+      <xsl:when test="$first='' and $previous_str=''">
+        <!-- string does not contain char -->
+        <xsl:value-of select="$str"/>
+      </xsl:when>
+      <xsl:when test="contains($rest,$char)">
+        <!-- still a char in the string so recurse -->
         <xsl:call-template name="get_string_before">
           <xsl:with-param name="str" select="substring-after($str,$char)"/>
           <xsl:with-param name="char" select="$char"/>
@@ -3446,7 +3462,8 @@ is case sensitive.')"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat($previous_str,$str)"/>
+        <!-- rest of the string does not contain a char so stop -->
+        <xsl:value-of select="$prev"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

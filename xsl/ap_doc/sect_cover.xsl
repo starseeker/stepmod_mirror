@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_cover.xsl,v 1.9 2003/06/24 18:41:21 darla Exp $
+$Id: sect_cover.xsl,v 1.10 2003/08/15 07:15:03 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -180,7 +180,7 @@ $Id: sect_cover.xsl,v 1.9 2003/06/24 18:41:21 darla Exp $
 
         <xsl:choose>
           <xsl:when test="$status='CD'">
-  <p>
+            <p>
               This ISO document is a Committee Draft and is copyright protected by ISO. While the
               reproduction of working drafts or Committee Drafts in any
               form for use by Participants in the ISO standards development
@@ -215,9 +215,38 @@ $Id: sect_cover.xsl,v 1.9 2003/06/24 18:41:21 darla Exp $
           <xsl:when test="$status='FDIS'">
             Final Draft International Standard
           </xsl:when>
+
           <xsl:when test="$status='DIS'">
-            Draft International Standard
+            <p>
+              This ISO document is a Draft International Standard and is
+              copyright-protected by ISO. Except as permitted under the applicable laws
+              of the user's country, neither this ISO draft nor any extract
+              from it may be reproduced, stored in a retrieval system or
+              transmitted in any form or by any means, electronic, photocopying,
+              recording, or otherwise, without prior written permission being
+              secured.
+            </p>
+            <p>
+              Requests for permission to reproduce should be addressed to
+              ISO at the address below or ISO's member body in the country
+              of the requester:
+            </p>
+            <div align="center">
+              ISO copyright office<br/>
+              Case postale 56. CH-1211 Geneva 20<br/>
+              Tel. + 41 22 749 01 11<br/>
+              Fax + 41 22 734 10 79<br/>
+              E-mail copyright@iso.ch<br/>
+            </div>
+            <p>
+              Reproduction for sales purposes for any of the above-mentioned documents may be subject to royalty
+              payments or a licensing agreement.
+            </p>
+            <p>
+              Violators may be prosecuted.
+            </p>
           </xsl:when>
+
           <xsl:when test="$status='IS'">
             International Standard
           </xsl:when>
@@ -344,7 +373,7 @@ o=isocs; s=central<br/>
         </xsl:choose>
       </xsl:variable>
   
-      <xsl:if test="$status='CD-TS'">
+      <xsl:if test="$status='CD-TS' or $status='DIS'">
         <p>
           Recipients of this draft are invited to submit, with their comments,
           notification of any relevant patent rights of which they are aware and to

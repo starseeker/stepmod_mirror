@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.13 2003/08/15 08:49:21 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.14 2003/09/19 09:08:12 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -79,8 +79,21 @@ $Id: aam_descriptions.xsl,v 1.13 2003/08/15 08:49:21 robbod Exp $
     <xsl:for-each select="./page/activity|./icoms/icom">
       <xsl:sort select="normalize-space(./name)"/>
       <xsl:variable name="asterisk"><xsl:if test="@inscope='no'">*</xsl:if></xsl:variable>
+      <!-- Note - previously linked to ./name 
+           <xsl:variable name="aname">
+             <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
+           </xsl:variable>
+           -->
       <xsl:variable name="aname">
-        <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
+        <xsl:choose>
+          <!-- only use thename if no identifier provided -->
+          <xsl:when test="string-length(normalize-space(@identifier))=0">
+            <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="translate(normalize-space(@identifier),' ','_')"/>
+          </xsl:otherwise>
+        </xsl:choose>        
       </xsl:variable>
       <h2>
         <a name="{$aname}">

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.8 2005/01/04 07:21:33 kovaliovas Exp $
+   $Id: mim.exp,v 1.9 2005/01/06 09:21:37 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit design view - EXPRESS MIM
 *)
 
@@ -520,6 +520,107 @@ THEN
 END_IF;
 RETURN (pass);
 END_FUNCTION;
+
+RULE assembly_composition_relationship_unique_constraint FOR
+ ( assembly_component_usage );
+LOCAL
+  acr : BAG OF assembly_component_usage := 
+ QUERY( acu <* assembly_component_usage |
+(acu\product_definition_relationship.name = 'assembly composition') );
+  pu_bag : BAG OF physical_unit := [];
+  acu_bag : BAG OF assembly_component_usage;
+  pass : BOOLEAN := TRUE;
+  cd_bag : BAG OF component_definition;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(acr) by 1;
+  IF EXISTS( acr[i].relating_product_definition ) THEN
+    IF( (acr[i].relating_product_definition.frame_of_reference.name = 
+         'physical design')
+AND ('PHYSICAL_UNIT_USAGE_VIEW_MIM.' +
+'PHYSICAL_UNIT' IN TYPEOF(acr[i].relating_product_definition)) ) THEN
+      IF ( NOT ( acr[i].relating_product_definition IN pu_bag )) THEN
+        pu_bag := pu_bag + acr[i].relating_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pu_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  cd_bag := [];
+  acu_bag := QUERY( acu <* acr | (acu.relating_product_definition :=: 
+                               pu_bag[i]) );
+  REPEAT j := 1 to SIZEOF(acu_bag) by 1;
+    IF EXISTS( acu_bag[j].related_product_definition ) THEN
+      IF ( 'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
+'COMPONENT_DEFINITION' IN 
+             TYPEOF(acu_bag[j].related_product_definition) ) THEN
+        IF ( acu_bag[j].related_product_definition IN cd_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          cd_bag := cd_bag + acu_bag[j].related_product_definition;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE next_higher_assembly_relationship_unique_constraint FOR
+ ( next_assembly_usage_occurrence );
+LOCAL
+  pu_bag : BAG OF physical_unit := [];
+  nauo_bag : BAG OF next_assembly_usage_occurrence;
+  pass : BOOLEAN := TRUE;
+  refdes_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(next_assembly_usage_occurrence) by 1;
+  IF EXISTS( next_assembly_usage_occurrence[i].relating_product_definition )
+                                                               THEN
+    IF( 
+(next_assembly_usage_occurrence[i].
+                relating_product_definition.frame_of_reference.name 
+                                                  = 'physical design')
+AND ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
+'PHYSICAL_UNIT' 
+     IN TYPEOF(next_assembly_usage_occurrence[i].
+                                relating_product_definition)) ) THEN
+      IF ( NOT ( next_assembly_usage_occurrence[i].
+                                  relating_product_definition 
+                                              IN pu_bag )) THEN
+        pu_bag := pu_bag + 
+             next_assembly_usage_occurrence[i].relating_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pu_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  refdes_bag := [];
+  nauo_bag := QUERY( nauo <* next_assembly_usage_occurrence | 
+                  (nauo.relating_product_definition :=: pu_bag[i]) );
+  REPEAT j := 1 to SIZEOF(nauo_bag) by 1;
+    IF EXISTS( nauo_bag[j].reference_designator ) THEN
+      IF ( nauo_bag[j].reference_designator IN refdes_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        refdes_bag := refdes_bag + nauo_bag[j].reference_designator;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
 	
 END_SCHEMA;
 

@@ -1,19 +1,42 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.7 2005/01/04 07:11:16 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered 2d shape - EXPRESS ARM
 *)
 
 SCHEMA Layered_2d_shape_arm;
 
-USE FROM Layered_shape_arm;
+USE FROM Extended_elemental_geometric_shape_arm;
+USE FROM Part_template_2d_shape_arm;
+USE FROM Physical_unit_2d_shape_arm;
 
-  TYPE axis_placement_or_cto2d = SELECT
-    (Axis_placement,
-     Cartesian_transformation_2d);
-  END_TYPE;
+
+  	TYPE axis_placement_or_cto2d = SELECT
+    	(Axis_placement,
+     	Cartesian_transformation_2d);
+  	END_TYPE;
+
+	TYPE l2ds_part_template_or_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_shape_select WITH 
+ 		(part_template_or_physical_unit_2d_shape_select);
+	END_TYPE;
+
+  	TYPE part_template_or_physical_unit_2d_shape_select = SELECT
+    	(Part_template_planar_shape,
+     	Physical_unit_planar_shape);
+  	END_TYPE;
 
   ENTITY Axis_placement_2d
     SUBTYPE OF (Axis_placement);
+  END_ENTITY;
+
+  ENTITY Part_template_or_physical_unit_2d_shape_representation_relationship
+  	SUBTYPE OF (Geometric_model_relationship);
+      SELF\Geometric_model_relationship.rep_1 RENAMED principal_part_shape : part_template_or_physical_unit_2d_shape_select;
+      SELF\Geometric_model_relationship.rep_2 RENAMED related_part_shape   : part_template_or_physical_unit_2d_shape_select;
+    UNIQUE
+      UR1 : principal_part_shape,
+ related_part_shape;
+    WHERE
+      WR1 : principal_part_shape :<>: related_part_shape;
   END_ENTITY;
 
   ENTITY Planar_projected_shape

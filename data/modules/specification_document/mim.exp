@@ -92,6 +92,19 @@ WHERE
        'EXTERNALLY_DEFINED_REPRESENTATION_ITEM' IN 
        TYPEOF (it))) = 1); 
 END_ENTITY;
+
+RULE product_association_constraint FOR 
+( product_definition_formation_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdfr <* product_definition_formation_relationship |
+       (pdfr\product_definition_formation_relationship.name = 'product association')
+       AND (SIZEOF(QUERY(adr <* USEDIN(pdfr,
+       'SPECIFICATION_DOCUMENT_MIM.'
+       + 'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'EE_SPECIFICATION' IN TYPEOF(adr.assigned_document))
+       )) = 0))) = 0;
+END_RULE;
 	
 END_SCHEMA;
 

@@ -13,11 +13,27 @@ USE FROM Geometrically_bounded_surface_arm;
 
 USE FROM Layered_2d_shape_arm;
 
+USE FROM Part_template_3d_shape_arm;
+
+USE FROM Part_template_non_planar_shape_arm;
+
+USE FROM Physical_unit_3d_shape_arm;
+
+	TYPE l3ds_part_template_or_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_shape_select WITH 
+ 		(part_template_or_physical_unit_3d_shape_select);
+	END_TYPE;
+
 	SUBTYPE_CONSTRAINT l3ds_geometric_representation_relationship_subtypes FOR Geometric_model_relationship;     
 		(ONEOF (Shape_definition_3d_intersection,
 		 Shape_definition_3d_plane_projection 
 		 ));    
 	END_SUBTYPE_CONSTRAINT;
+
+	  TYPE part_template_or_physical_unit_3d_shape_select = SELECT
+	    (Part_template_3d_shape,
+	     Part_template_non_planar_2d_shape,
+	     Physical_unit_3d_shape);
+	  END_TYPE;
 
 	TYPE three_dimensional_shape = SELECT
 		(Advanced_brep_shape_representation,
@@ -27,6 +43,17 @@ USE FROM Layered_2d_shape_arm;
 
   ENTITY Axis_placement_3d
     SUBTYPE OF (Axis_placement);
+  END_ENTITY;
+
+  ENTITY Part_template_or_physical_unit_3d_shape_representation_relationship
+  	SUBTYPE OF (Geometric_model_relationship);
+      SELF\Geometric_model_relationship.rep_1 RENAMED principal_part_shape : part_template_or_physical_unit_3d_shape_select;
+      SELF\Geometric_model_relationship.rep_2 RENAMED related_part_shape   : part_template_or_physical_unit_3d_shape_select;
+    UNIQUE
+      UR1 : principal_part_shape,
+ related_part_shape;
+    WHERE
+      WR1 : principal_part_shape :<>: related_part_shape;
   END_ENTITY;
 
   ENTITY Shape_definition_3d_intersection

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.12 2003/03/03 11:20:30 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.13 2003/03/14 01:36:32 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -355,7 +355,7 @@ $Id: mapping_view.xsl,v 1.12 2003/03/03 11:20:30 nigelshaw Exp $
 		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		  <xsl:with-param 
 		       	    name="message" 
-		            select="concat('Error Map25: ',.,' not found in relevant schemas')"/>
+		            select="concat('Error Map25: ',aimelt,' not found in relevant schemas')"/>
 		</xsl:call-template>    
 
 
@@ -996,6 +996,9 @@ $Id: mapping_view.xsl,v 1.12 2003/03/03 11:20:30 nigelshaw Exp $
 		<xsl:with-param name="schemas" select="$schemas" />
 	</xsl:apply-templates>
 
+	<xsl:apply-templates select="is-subtype-of | is-supertype-of" mode="test" >
+		<xsl:with-param name="schemas" select="$schemas" />
+	</xsl:apply-templates>
 
 	</blockquote>
 
@@ -1336,6 +1339,63 @@ $Id: mapping_view.xsl,v 1.12 2003/03/03 11:20:30 nigelshaw Exp $
 
 
 
+<xsl:template match="is-supertype-of | is-subtype-of" mode="test">
+	<xsl:param name="schemas" />	
+	<!-- test that types are properly related -->
+
+	<xsl:variable name="first" select="string(preceding-sibling::*[not(name() ='new-line')][1])" />
+	<xsl:variable name="second" select="string(following-sibling::*[not(name() ='new-line')][1])" />
+
+	<xsl:choose>
+		<xsl:when test="name()='is-supertype-of'">
+
+			<xsl:choose>
+				<xsl:when test="not($schemas//entity[@name=$second]
+					[contains(concat(' ',@supertypes,' '),concat(' ',$first,' '))])" >
+					<xsl:call-template name="error_message">			
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+			        	    name="message" 
+				            select="concat('Error Map34: ERROR in subtyping in PATH: ', $first,
+					' is not a supertype of ',$second)"/>
+					</xsl:call-template>    
+
+				</xsl:when>
+				<xsl:otherwise>
+					<br/>			
+					<xsl:value-of select="concat( $first,
+					' is a supertype of ',$second)" />					
+				</xsl:otherwise>
+			</xsl:choose>
+
+		</xsl:when>
+		<xsl:when test="name()='is-subtype-of'">
+			<xsl:choose>
+				<xsl:when test="not($schemas//entity[@name=$first]
+					[contains(concat(' ',@supertypes,' '),concat(' ',$second,' '))])" >
+					<xsl:call-template name="error_message">			
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+			        	    name="message" 
+				            select="concat('Error Map35: ERROR in subtyping in PATH: ', $first,
+					' is not a subtype of ',$second)"/>
+					</xsl:call-template>    				
+				</xsl:when>
+				<xsl:otherwise>
+					<br/>			
+					<xsl:value-of select="concat($first,
+					' is a subtype of ',$second)" />					
+				</xsl:otherwise>
+			</xsl:choose>
+
+		</xsl:when>
+		<xsl:otherwise>
+		</xsl:otherwise>
+	</xsl:choose>
+	
+</xsl:template>
 
 
 

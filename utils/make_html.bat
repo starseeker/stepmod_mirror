@@ -1,5 +1,5 @@
-@echo off
-REM $Id: make_html.bat,v 1.12 2001-09-12 09:56:17+01 rob Exp rob $
+
+REM $Id: make_html.bat,v 1.1 2001/11/21 15:41:20 robbod Exp $
 
 REM Generate the html for a module.
 REM make_html [module]
@@ -36,11 +36,42 @@ REM if not exist "%MODULE_PATH%"\model\model.xml goto ERR_PATH
 
 REM ******** The main program
 :MAIN
+echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 echo Making html for %MODULE%
 rem goto :4_INFO_REQS
 rem goto :5_MIM
 rem goto :5_MAP
 rem goto :E_EXP_ARM
+
+:EXPG
+echo.
+echo .... %MODULE_PATH%\..\armexpg1.htm
+%SAXON% -a -o "%MODULE_PATH%\..\armexpg1.htm" "%MODULE_PATH%\..\armexpg1.xml" output_type="HTM"
+
+echo.
+echo .... %MODULE_PATH%\..\armexpg2.htm
+%SAXON% -a -o "%MODULE_PATH%\..\armexpg2.htm" "%MODULE_PATH%\..\armexpg2.xml" output_type="HTM"
+
+echo.
+echo .... %MODULE_PATH%\..\armexpg3.htm
+%SAXON% -a -o "%MODULE_PATH%\..\armmexpg3.htm" "%MODULE_PATH%\..\armexpg2.xml" output_type="HTM"
+
+echo.
+echo .... %MODULE_PATH%\..\mimexpg1.htm
+%SAXON% -a -o "%MODULE_PATH%\..\mimexpg1.htm" "%MODULE_PATH%\..\mimexpg1.xml" output_type="HTM"
+
+echo.
+echo .... %MODULE_PATH%\..\mimexpg2.htm
+%SAXON% -a -o "%MODULE_PATH%\..\mimexpg2.htm" "%MODULE_PATH%\..\mimexpg2.xml" output_type="HTM"
+
+echo.
+echo .... %MODULE_PATH%\..\mimexpg3.htm
+%SAXON% -a -o "%MODULE_PATH%\..\mimepxg3.htm" "%MODULE_PATH%\..\mimexpg3.xml" output_type="HTM"
+
+echo.
+echo .... %MODULE_PATH%\..\mimexpg4.htm
+%SAXON% -a -o "%MODULE_PATH%\..\mimepxg4.htm" "%MODULE_PATH%\..\mimexpg4.xml" output_type="HTM"
+goto :END 
 
 :MAINHTML
 echo.

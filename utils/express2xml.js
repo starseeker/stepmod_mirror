@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $
+//$Id: express2xml.js,v 1.18 2002/07/14 16:55:57 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -213,12 +213,13 @@ function splitList(str, listNo)
 }
 
 
-//Return true if statment contains OPTIONAL
+//Return true if an attribute statment is OPTIONAL
+// It will be the first word after the colon.
 function isOptional(statement) {
+    statement = getAfterColon(statement);
+    var word = getWord(1,statement);
     var result = false;
-    var reg = /\bOPTIONAL\b/;
-    var token = statement.match(reg);
-    if (token) result = true;
+    if (word=="OPTIONAL") result = true;
     return (result);
 }
 
@@ -340,7 +341,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.18 2002/07/14 16:55:57 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -350,7 +351,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.17 $";
+    var appCVSRevision = "$Revision: 1.18 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -738,15 +739,31 @@ function xmlUnderlyingType(statement,outTs) {
 	    upper = upper[0].replace(/:/,"");
 	}
 	var pos = statement.search(/\bOF\b/i);
-	var typename = statement.substr(pos+3);
-	typename = getWord(1,typename);
-	// need to do OPTIONAL and UNIQUE ??
+	var rest = statement.substr(pos+3);
+	var unique = null;
+	var optional = null;
+	reg = /\bOPTIONAL\b/;
+	if (rest.match(reg)) {
+	    optional="YES";
+	    rest = rest.replace(reg,"");
+	}
+	reg = /\bUNIQUE\b/;
+	if (rest.match(reg)) {
+	    unique="YES";
+	    rest = rest.replace(reg,"");
+	}
+	var typename = getWord(1,rest);
+
 	xmlOpenElement("<aggregate",outTs);
 	xmlAttr("type",agg,outTs);
 	if (bounds) {
 	    xmlAttr("lower",lower,outTs);
 	    xmlAttr("upper",upper,outTs);
 	}
+
+	if (optional) xmlAttr("optional",optional,outTs);
+	if (unique) xmlAttr("unique",unique,outTs);
+
 	xmlCloseAttr(outTs); 
 	xmlOpenElement("<typename",outTs);
 
@@ -1361,7 +1378,7 @@ function Main() {
 	ErrorMessage(msg);
 	return(false);
     }
-    userMessage("Warning: This script does not do any EXPRESS parsing,\n so if there errors in the express, then unexpected output may be produced..");
+    userMessage("Warning: \n This script does not do any EXPRESS parsing, so if there are\n errors in the EXPRESS, then unexpected output may be produced.\n Furthermore, as the program is a string parser, assumptions have\n been made about the layout of the EXPRESS.\n It is advisable to display the resulting XML and compare with\n the orginal EXPRESS.\n\n");
     var module, expFile, type;
     if (cArgs.length >= 2) {
 	switch(cArgs(1)) {

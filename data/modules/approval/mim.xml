@@ -1,38 +1,93 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!--$Id: mim.xml,v 1.6 2002/03/28 15:45:15 robbod Exp $-->
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express rcs.date="$Date:$" rcs.revision="$Revision:$">
-	<application name="pdm_module2mim.xml" owner="PDTec GmbH" url="http://www.pdtec.de" version="0.8" source="../data/modules/approval/mim.exp"/>
-	<schema name="approval_mim">
-		<interface kind="use" schema="date_time_mim"/>
-		<interface kind="use" schema="person_organization_mim"/>
-		<interface kind="use" schema="approval_schema">
-			<interfaced.item name="approval_status"/>
-			<interfaced.item name="approval_role"/>
-			<interfaced.item name="approval_relationship"/>
-			<interfaced.item name="approval_person_organization"/>
-			<interfaced.item name="approval_date_time"/>
-			<interfaced.item name="approval"/>
-		</interface>
-		<interface kind="use" schema="management_resources_schema">
-			<interfaced.item name="approval_assignment"/>
-		</interface>
-		<interface kind="use" schema="person_organization_schema">
-			<interfaced.item name="person"/>
-		</interface>
-		<type name="approval_item">
-			<select extensible="YES"/>
-		</type>
-		<entity name="applied_approval_assignment" supertypes="approval_assignment">
-			<explicit name="items">
-				<aggregate type="SET" lower="1" upper="?"/>
-				<typename name="approval_item"/>
-			</explicit>
-		</entity>
-		<rule name="person_requires_person_and_organization" appliesto="person">
-			<algorithm>;</algorithm>
-			<where label="wr1" expression="SIZEOF( QUERY( p &lt;* person | SIZEOF( USEDIN(p, 'APPROVAL_MIM.' + 'PERSON_AND_ORGANIZATION.THE_PERSON') ) &lt; 1 ))=0;"/>
-		</rule>
-	</schema>
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.9"
+    source="../data/modules/approval/mim.exp"/>
+
+  <schema name="Approval_mim">
+    <interface
+      kind="use"
+      schema="Date_time_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Person_organization_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="approval_schema">
+      <interfaced.item
+        name="approval"/>
+      <interfaced.item
+        name="approval_date_time"/>
+      <interfaced.item
+        name="approval_person_organization"/>
+      <interfaced.item
+        name="approval_relationship"/>
+      <interfaced.item
+        name="approval_role"/>
+      <interfaced.item
+        name="approval_status"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="management_resources_schema">
+      <interfaced.item
+        name="approval_assignment"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="person_organization_schema">
+      <interfaced.item
+        name="person"/>
+    </interface>
+
+    <type name="approval_item">
+      <select
+        extensible="YES"
+        selectitems="null">
+      </select>
+
+    </type>
+    <entity
+      name="applied_approval_assignment"
+      supertypes="approval_assignment">
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="approval_item"/>
+      </explicit>
+    </entity>
+
+    <rule
+      name="person_requires_person_and_organization"
+      appliesto="person">
+      <algorithm>
+WHERE
+-- WR1: SIZEOF( QUERY( p &lt;* person | SIZEOF( USEDIN(p, 'AUTOMOTIVE_DESIGN.' + 'PERSON_AND_ORGANIZATION.THE_PERSON') ) &lt; 1 ))=0;
+WR1: SIZEOF( QUERY( p &lt;* person | SIZEOF( USEDIN(p, 'APPROVAL_MIM.' + 'PERSON_AND_ORGANIZATION.THE_PERSON') ) &lt; 1 ))=0;
+      </algorithm>
+
+    </rule>
+
+  </schema>
+
 </express>

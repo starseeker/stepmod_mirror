@@ -1,83 +1,136 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.6 2002/04/22 12:38:17 buchanan Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: 2002/04/22 12:38:17 $" rcs.revision="$Revision: 1.6 $">
-	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.6" source="../data/modules/approval/arm.exp"/>
-	<schema name="Approval_arm">
-		<interface kind="use" schema="Date_time_arm">
-		</interface>
-		<interface kind="use" schema="Person_organization_arm">
-		</interface>
-		<entity name="Approval">
-			<description><p>An <b>Approval</b> represents pending or actual authorization information. It specifies what person or discipline is to provide the authorization. The approver or discipline indicates who or what group has authorized or is requested to provide authorization. The actual date indcates when the approval definition was completed. The status indicates if the approval is in-process, approved, disapproved or withdrawn. The approval purpose indicates (optionally) why the approval is being requested/ provided.</p></description>
-			<explicit name="approver" optional="YES">
-				<description>the set of organization or persons within organization objects authorizing or requested to authorize the <b>Approval</b>.</description>
-				<typename name="organization_or_person_in_organization_select"/>
-			</explicit>
-			<explicit name="discipline" optional="YES">
-				<description>the functional role required of the <b>approver</b> or what organizational function is required to approve.
-         <example number="1"><p>A discipline might be 'design engineering', 'manufacturing engineering', 'configuration management', 'checked by', or 'engineering management'.</p>
-					</example>
-				</description>
-				<builtintype type="STRING"/>
-			</explicit>
-			<explicit name="planned_date" optional="YES">
-				<description>the optional date or date and time when the <b>Approval</b> is to be given.</description>
-				<typename name="date_or_date_time_select"/>
-			</explicit>
-			<explicit name="actual_date" optional="YES">
-				<description>the optional date or date and time when the <b>Approval</b> became actual.</description>
-				<typename name="date_or_date_time_select"/>
-			</explicit>
-			<explicit name="purpose" optional="YES">
-				<description>the optional reason for the <b>Approval</b>. 
-        <example number="2">A purpose of an approval might be 'approved for production' or 'approved for prototype'.</example>
-				</description>
-				<builtintype type="STRING"/>
-			</explicit>
-			<explicit name="status">
-				<description>the state of consent applied to product data.</description>
-				<builtintype type="STRING"/>
-			</explicit>
-			<where label="WR1" expression="(EXISTS (approver) OR         EXISTS (discipline))">
-				<description>the <b>approver</b> or <b>discpline</b> shall exist.</description>
-			</where>
-						
-		</entity>
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
-<note number="1">Status can be used to provide levels of approval such as approved, dissaproved, withdrawn, or not yet approved.</note>
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.9"
+    source="../data/modules/approval/arm.exp"/>
 
-		<entity name="Approval_assignment">
-			<description>An <b>Approval_assignment</b> assigns an Approval to product data.</description>
-			<explicit name="assigned_approval">
-				<description>the <b>Approval</b> to be assigned to product data.</description>
-				<typename name="Approval"/>
-			</explicit>
-			<explicit name="items">
-				<description>the product data to which the <b>Approval</b> is assigned.</description>
-				<aggregate type="SET" lower="1" upper="?"/>
-				<typename name="approval_item"/>
-			</explicit>
-		</entity>
-		<entity name="Approval_relationship">
-			<description>An <b>Approval_relationship</b> specifies that two approvals are related. This is a foundation concept which may be refined in other modules. This concept can be used to define sequencing. In its non-refined state, it is used to relate approval instances where one approves and one withdraws that approval.</description>
-			<explicit name="relation_type" optional="YES">
-				<description>an optional type descriptor for the relationship.</description>
-				<builtintype type="STRING"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<description>an optional description of the relationship.</description>
-				<builtintype type="STRING"/>
-			</explicit>
-			<explicit name="approval1">
-				<description>the <b>Approval</b> to be related to <b>approval2</b>.</description>
-				<typename name="Approval"/>
-			</explicit>
-			<explicit name="approval2">
-				<description>the <b>Approval</b> to be related to <b>approval1</b>.</description>
-				<typename name="Approval"/>
-			</explicit>
-		</entity>
-	</schema>
+  <schema name="Approval_arm">
+    <interface
+      kind="use"
+      schema="Date_time_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Person_organization_arm">
+    </interface>
+
+    <type name="approval_item">
+      <select
+        extensible="YES"
+        selectitems="null">
+      </select>
+
+    </type>
+    <entity
+      name="Approval">
+      <explicit
+        name="planned_date"
+        optional="YES">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="actual_date"
+        optional="YES">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="purpose"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(EXISTS (approver))">
+      </where>
+    </entity>
+
+    <entity
+      name="Approver">
+      <explicit
+        name="approver_list">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="?"/>
+        <typename
+          name="organization_or_person_in_organization_select"/>
+      </explicit>
+      <explicit
+        name="discipline"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="actual_date"
+        optional="YES">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Approval_assignment">
+      <explicit
+        name="assigned_approval">
+        <typename
+          name="Approval"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="approval_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Approval_relationship">
+      <explicit
+        name="relation_type">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="approval1">
+        <typename
+          name="Approval"/>
+      </explicit>
+      <explicit
+        name="approval2">
+        <typename
+          name="Approval"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
 </express>

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $ -->
+<!-- $Id: arm.xml,v 1.3 2002/01/16 14:24:57 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2002/01/16 14:24:57 $"
+  rcs.revision="$Revision: 1.3 $">
 
   <application
     name="express2xml.js"
@@ -41,6 +41,7 @@
     </interface>
 
     <type name="product_version_security_classification_item">
+      <description>This select is extends a security_classification_assignment to apply to <b>Product_version</b> instances.</description>
       <select
         basedon="security_classification_item"
         selectitems="Product_version">
@@ -48,6 +49,7 @@
 
     </type>
     <type name="product_version_organisation_or_person_in_organisation_item">
+      <description>This select extends the assignment of an organization or a person in an organization to Product_version.</description>
       <select
         basedon="organisation_or_person_in_organisation_item"
         selectitems="Product_version">
@@ -55,6 +57,7 @@
 
     </type>
     <type name="product_version_approval_item">
+      <description>This select extends an approval_assignment to apply to <b>Product_version</b> instances.</description>
       <select
         basedon="approval_item"
         selectitems="Product_version">
@@ -62,6 +65,7 @@
 
     </type>
     <type name="product_version_contract_item">
+      <description>This select extends an contract_assignment to apply to Product_version instances.</description>
       <select
         basedon="contract_item"
         selectitems="Product_version">
@@ -70,18 +74,22 @@
     </type>
     <entity
       name="Product_version">
+      <description>A <b>Product_version</b> is the identification of a variant incarnation of a <b>Product</b> which is form, fit and functionally equivalent to it predecessors. The set of all versions of a product represents the history of the product.</description>
       <explicit
         name="id">
+        <description>the identification of the version</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description">
+        <description>the words used to describe the version</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="of_product">
+        <description></description>
         <typename
           name="Product"/>
       </explicit>
@@ -89,6 +97,7 @@
         name="security"
         entity="Security_classification_assignment"
         attribute="items">
+        <description>the <b>Security_classification</b> of the version</description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -98,11 +107,13 @@
         name="creator"
         entity="Organisation_or_person_in_organisation_assignment"
         attribute="items">
+        <description>the organization (and person) that initially defined the version</description>
       </inverse>
       <inverse
         name="custodian"
         entity="Organisation_or_person_in_organisation_assignment"
         attribute="items">
+        <description>the organization (and person) controls the master documentation of the version</description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -112,6 +123,7 @@
         name="approval"
         entity="Approval_assignment"
         attribute="items">
+        <description>the approval(s) of the version</description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -121,6 +133,7 @@
         name="contracts"
         entity="Contract_assignment"
         attribute="items">
+        <description>the contract(s) sponsoring the version</description>
         <inverse.aggregate
           type="SET"
           lower="0"
@@ -128,6 +141,7 @@
       </inverse>
       <unique
         label="UR1">
+        <description>the combination of the <b>id</b> and <b>product</b> reference shall be unique</description>
         <unique.attribute
           attribute="id"/>
         <unique.attribute
@@ -136,10 +150,12 @@
       <where
         label="WR1"
         expression="SELF.creator.role = 'creator'">
+        <description>the creator role shall be 'creator'</description>
       </where>
       <where
         label="WR2"
         expression="SELF.custodian.role = 'design supplier' OR NOT EXISTS(custodian)">
+        <description>if the custodian exists, the custodian role shall be 'design supplier'</description>
       </where>
     </entity>
 

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $ -->
+<!-- $Id: arm.xml,v 1.3 2002/01/16 14:24:57 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2002/01/16 14:24:57 $"
+  rcs.revision="$Revision: 1.3 $">
 
   <application
     name="express2xml.js"
@@ -26,6 +26,7 @@
     </interface>
 
     <type name="product_organisation_or_person_in_organisation_item">
+      <description><p>This select extends the assignments of an organization or a person in an organization to Product.</p></description>
       <select
         basedon="organisation_or_person_in_organisation_item"
         selectitems="Product">
@@ -34,29 +35,40 @@
     </type>
     <entity
       name="Product">
+      <description><p>A <b>Product</b> is something an organisation has identified for some purpose. A product is uniquely identified by an identifier and an organisational scope of that identifier within a type of product. This is required since an organization may produce many types of products.</p>
+<example><p>An organization may have two products numbered 2865000 where one is a drawing or document and the other is a part.</p></example>
+<p>A product belongs to one or more categories and has one or more versions.</p>
+
+<note><p>The mechanism for guaranteeing the uniqueness of organisation id is outside the scope of ISO 10303.</p></note>
+      </description>
       <explicit
         name="id">
+        <description>the identification of the product assigned by the organisation</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="name">
+        <description>words by which the product is known.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description"
         optional="YES">
+        <description>text which describes the product.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="product_type">
+        <description>the type of the product.</description>
         <typename
           name="Product_category"/>
       </explicit>
       <explicit
         name="categories">
+        <description>the class or classes with hierarchies to which the product belongs.</description>
         <aggregate
           type="SET"
           lower="1"
@@ -68,9 +80,11 @@
         name="identifier"
         entity="Organisation_or_person_in_organisation_assignment"
         attribute="items">
+        <description>the organisation (or person in an organisation) that assigned and owns the product id</description>
       </inverse>
       <unique
         label="UR1">
+        <description>The combination of the id, identifier, and product_type shall be unique.</description>
         <unique.attribute
           attribute="id"/>
         <unique.attribute
@@ -78,13 +92,37 @@
         <unique.attribute
           attribute="product_type"/>
       </unique>
+
       <where
         label="WR1"
         expression="SELF.identifer.role = 'id owner'">
+        <description>The <b>identifier</b> role shall be 'id owner'.</description>
       </where>
       <where
         label="WR2"
         expression="SELF.product_type.name IN ['part', 'raw material',       'document', 'functionality', 'requirement']">
+        <description>The <b>product_type</b> role shall be 'part', 'raw material', 'document', 'functionality', or 'requirement'.</description>
+      </where>
+
+      <where
+        label="document" >
+        <description>The item plays the role of a document.</description>
+      </where>
+      <where
+        label="part" >
+        <description>The item plays the role of a part.</description>
+      </where>
+      <where
+        label="functionality" >
+        <description>The item plays the role of a function.</description>
+      </where>
+      <where
+        label="raw material" >
+        <description>The item plays the role of raw material.</description>
+      </where>
+      <where
+        label="requirement" >
+        <description>The item plays the role of a requirement.</description>
       </where>
     </entity>
 

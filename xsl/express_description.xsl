@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.44 2004/01/18 09:37:41 robbod Exp $
+$Id: express_description.xsl,v 1.45 2004/02/05 07:42:51 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -258,7 +258,12 @@ $Id: express_description.xsl,v 1.44 2004/01/18 09:37:41 robbod Exp $
     <xsl:if test="string-length($type)=0 and contains(substring-after($description/@linkend,'.'),'.') and not(contains($schema,$description/@linkend)) and not(contains($description/@linkend,'.wr:'))">
 
       <xsl:if test="$ERROR_CHECK_ATTRIBUTES='YES'">
-        <xsl:variable name="phrase" select="normalize-space($description/text())"/>
+        <xsl:variable name="raw_phrase">
+          <xsl:apply-templates select="$description" mode="phrase_text"/>
+        </xsl:variable>
+        <xsl:variable name="phrase" select="normalize-space($raw_phrase)"/>
+        <!--        <xsl:variable name="phrase" select="normalize-space($description/text())"/> -->
+
         <xsl:variable name="first_word"
           select="substring-before($phrase,' ')"/>
         <xsl:variable name="second_word"
@@ -529,6 +534,14 @@ $Id: express_description.xsl,v 1.44 2004/01/18 09:37:41 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:if>  
+</xsl:template>
+
+<xsl:template match="text|p" mode="phrase_text">
+  <xsl:apply-templates mode="phrase_text"/>
+</xsl:template>
+
+<xsl:template match="express_ref" mode="phrase_text">
+  <xsl:value-of select="substring-after(./@linkend,'.')" />
 </xsl:template>
 
 <!-- output the definition of the attribute

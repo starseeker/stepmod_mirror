@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express.xsl,v 1.4 2001/11/12 08:57:11 robbod Exp $
+     $Id: express_code.xsl,v 1.1 2001/11/21 08:13:50 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -23,24 +23,9 @@
   <xsl:output method="html"/>
 
 
-<xsl:template match="express" >
-  <HTML>
-    <HEAD>
-      <xsl:apply-templates select="./application" mode="meta"/>
-        <!-- apply a cascading stylesheet.
-             the stylesheet will only be applied if the parameter output_css
-             is set in parameter.xsl 
-             -->
-      <xsl:call-template name="output_css">
-        <xsl:with-param name="path" select="'../../../css/'"/>
-      </xsl:call-template>
-      <TITLE></TITLE>
-    </HEAD>
-    <BODY>  
-    <xsl:apply-templates select="./schema" mode="code"/>
-    </BODY>
-  </HTML>
-</xsl:template>
+  <!-- +++++++++++++++++++
+         Templates
+       +++++++++++++++++++ -->
 
 
 <xsl:template match="schema" mode="code">
@@ -242,9 +227,29 @@
 </xsl:template>
 
 <xsl:template name="super.expression-code">
+  <!-- check of the expression already ends in () -->
+  <xsl:variable name="open_paren">
+    <xsl:if test="not(starts-with(normalize-space(@super.expression),'('))">
+      (
+    </xsl:if>
+  </xsl:variable>
+  <xsl:variable name="close_paren">
+    <xsl:if test="$open_paren">
+      )
+    </xsl:if>
+  </xsl:variable>
+
+  <xsl:if test="@abstract.supertype='YES'">
+    <br/>
+    &#160; ABSTRACT SUPERTYPE
+    <xsl:if test="@super.expression">
+      OF 
+    </xsl:if>
+  </xsl:if>
+
   <xsl:if test="@super.expression">
     <br/>
-    &#160; SUPERTYPE OF (<xsl:value-of select="@super.expression"/>)
+    &#160; <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
   </xsl:if>
 </xsl:template>
 

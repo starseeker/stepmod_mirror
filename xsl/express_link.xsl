@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_link.xsl,v 1.2 2001/11/21 08:11:54 robbod Exp $
+     $Id: express_link.xsl,v 1.3 2001/11/21 10:17:20 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -19,6 +19,37 @@
 
   <xsl:output method="html"/>
 
+
+  <!-- +++++++++++++++++++
+         Global variables
+       +++++++++++++++++++ -->
+
+    <!-- 
+         variable name="global_xref_list"
+       Global variable used by:
+         link_object
+         link_list
+       Provides a lookup table of all the references for the entities and
+       types indexed through all the interface specifications in the
+       express.
+       Note:  This variable must defined in each XSL that is used for
+       formatting express.
+         sect_4_info.xsl
+         sect_5_mim.xsl
+         sect_e_exp_arm.xsl
+         sect_e_exp_mim.xsl
+
+       These XSL import express_link.xsl
+       -->
+
+  <!-- a list of all the entities and resources defined in the resources.
+       Used by link_resource_object to produce a URL
+       This variable is overwritten when exoress_link.xsl is imported
+       into another stylesheet.
+       -->
+    <xsl:variable name="global_resource_xref_list"/>
+
+  
   
 <xsl:template name="build_schema_xref_list">
   <xsl:param name="schema_node"/>
@@ -29,7 +60,7 @@
   <xsl:variable name="l1_xref_list">
     <xsl:call-template name="get_objects_in_schema">
       <xsl:with-param name="xref_list" select="$xref_list"/>
-      <xsl:with-param name="object_nodes" select="$schema_node/entity|$schema_node/type"/>
+      <xsl:with-param name="object_nodes" select="$schema_node/entity|$schema_node/type|$schema_node/function|$schema_node/rule|$schema_node/procedure|$schema_node/constant"/>
     </xsl:call-template>        
   </xsl:variable>
   <!-- debug 
@@ -118,7 +149,7 @@
             <xsl:variable name="l2_xref_list">
               <xsl:call-template name="get_objects_in_schema">
                 <xsl:with-param name="xref_list" select="$xref_list"/>
-                <xsl:with-param name="object_nodes" select="$l_schema_node/entity|$l_schema_node/type"/>
+                <xsl:with-param name="object_nodes" select="$l_schema_node/entity|$l_schema_node/type|$l_schema_node/function|$l_schema_node/rule|$l_schema_node/procedure|$l_schema_node/constant"/>
               </xsl:call-template> 
             </xsl:variable>
 
@@ -284,6 +315,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
   
   <xsl:variable name="schema_name"
     select="$object/../@name"/>
+
 
   <xsl:variable 
     name="object_ref"
@@ -723,8 +755,9 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
 <xsl:template name="express_file_to_ref">
   <xsl:param name="schema_name"/>
   <xsl:param name="clause" select="section"/>
+
   <xsl:variable name="data_path">
-    <xsl:value-of select="'../../../../data'"/>
+    <xsl:value-of select="concat($relative_root, 'data')"/>
   </xsl:variable>
 
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
@@ -788,6 +821,135 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
   <xsl:value-of select="$filepath"/>  
 </xsl:template>
 
+
+
+<!-- Given the name of an object, extract the xref from the
+     $global_resource_xref_list
+-->
+<xsl:template name="get_object_resource_xref">
+  <xsl:param name="object_name"/>
+  <xsl:param name="clause" select="section"/>
+  
+  <xsl:variable 
+    name="first"
+    select="substring-before($global_resource_xref_list, concat('.',$object_name,'|'))"/>
+  <xsl:variable name="schema">
+    <xsl:call-template name="get_last">
+      <xsl:with-param name="str"
+        select="substring-after($first,'|')"/>
+      <xsl:with-param name="token" select="'|'"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param 
+        name="section1" 
+        select="$schema"/>
+      <xsl:with-param 
+        name="section2" 
+        select="$object_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="express_file_to_ref">
+    <xsl:call-template name="express_file_to_ref">
+      <xsl:with-param name="schema_name" select="$schema"/>
+      <xsl:with-param name="clause" select="$clause"/>
+    </xsl:call-template>        
+  </xsl:variable>
+  
+  <xsl:variable name="xref" select="concat($express_file_to_ref,'#',$aname)"/>
+  <xsl:value-of select="$xref"/>
+</xsl:template>
+
+<!-- return the HREF for an integrated resource object -->
+<xsl:template name="xref_resource_object">
+  <xsl:param name="object_name"/>
+  <!-- make sure that the arguments don't have any whitespace -->
+  <xsl:variable name="lobject_name" 
+    select="normalize-space($object_name)"/>
+
+  <xsl:call-template name="get_object_resource_xref">
+    <xsl:with-param name="clause" select="'annexe'"/>
+    <xsl:with-param name="object_name" select="$lobject_name"/>
+  </xsl:call-template>
+</xsl:template>
+
+
+<!-- output the object, linked to the integrated resource
+-->
+<xsl:template name="link_resource_object">
+  <xsl:param name="object_name"/>
+  <!-- make sure that the arguments don't have any whitespace -->
+  <xsl:variable name="lobject_name" 
+    select="normalize-space($object_name)"/>
+
+  <xsl:choose>
+    <xsl:when
+      test="contains($global_resource_xref_list,concat('.',$lobject_name,'|'))">
+      <xsl:variable name="xref">
+        <xsl:call-template name="get_object_resource_xref">
+          <xsl:with-param name="clause" select="'annexe'"/>
+          <xsl:with-param name="object_name" select="$lobject_name"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <A HREF="{$xref}">
+        <xsl:value-of select="$lobject_name"/>
+      </A>
+    </xsl:when>
+
+    <xsl:otherwise>
+      <xsl:value-of select="$lobject_name"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+<!-- build a list of all the entities and types in the integrated resources
+     that are referenced in repository_index.xml 
+     Normally used to assign the list to global_resource_xref_list
+-->
+<xsl:template name="build_resource_xref_list">
+  <xsl:call-template name="build_resource_xref_list_rec">
+    <xsl:with-param name="resources"
+      select="document('../repository_index.xml')/repository_index/resources/resource"/>
+  </xsl:call-template>
+</xsl:template>
+<xsl:template name="build_resource_xref_list_rec">
+  <xsl:param name="resources"/>
+  <xsl:param name="xref_list" select="'|'"/>
+  
+  <xsl:variable name="first_resource" select="$resources[1]"/>
+  <xsl:variable name="remaining_resources" select="$resources[position()!=1]"/>
+
+  <xsl:variable name="express_file" 
+    select="concat('../data/resources/',
+            $first_resource/@name,'/',$first_resource/@name,'.xml')"/>
+  <xsl:variable name="object_nodes"
+    select="document($express_file)/express/schema/entity|/express/schema/type|/express/schema/function|/express/schema/procedure|/express/schema/rule|/express/schema/constant"/>
+  <xsl:choose>
+    <xsl:when test="$remaining_resources">
+      <xsl:variable name="l_xref_list">
+        <xsl:call-template name="get_objects_in_schema">
+          <xsl:with-param name="object_nodes" select="$object_nodes"/>
+          <xsl:with-param name="xref_list" select="$xref_list"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:call-template name="build_resource_xref_list_rec">
+        <xsl:with-param name="resources" select="$remaining_resources"/>
+        <xsl:with-param name="xref_list" select="$l_xref_list"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="get_objects_in_schema">
+        <xsl:with-param name="object_nodes" select="$object_nodes"/>
+        <xsl:with-param name="xref_list" select="$xref_list"/>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
 
 </xsl:stylesheet>

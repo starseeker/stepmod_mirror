@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.2 2001/11/15 18:16:54 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.3 2001/11/21 08:11:54 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -14,17 +14,28 @@
 	version="1.0"
 >
 
-
   <xsl:import href="express_link.xsl"/> 
 
   <xsl:output method="html"/>
 
-  <!-- loop through all the interface specifications in the express and 
-       build a reference table of all the URLS for the entties and types
+  <!-- +++++++++++++++++++
+         Global variables
+       +++++++++++++++++++ -->
+
+  <!-- 
+       Global variable used in express_link.xsl by:
+         link_object
+         link_list
+       Provides a lookup table of all the references for the entities and
+       types indexed through all the interface specifications in the
+       express.
+       Note:  This variable must defined in each XSL that is used for
+       formatting express.
+         sect_4_info.xsl
+         sect_5_mim.xsl
+         sect_e_exp_arm.xsl
+         sect_e_exp_mim.xsl
        build_xref_list is defined in express_link
-       This variable is used in express_link.xsl;
-       link_object
-       link_list
        -->
   <xsl:variable name="global_xref_list">
     <!-- debug 
@@ -59,8 +70,22 @@
     </xsl:choose>
   </xsl:variable>
 
+  <!-- A global variable used by the express_file_to_ref template defined
+       in express_link.xsl.
+       It defines the relative path from the file applying the stylesheet
+       to the root of the stepmod repository.
+       sect_4_express.xsl stylesheet is normally applied from file in:
+         stepmod/data/module/?module?/sys/
+       Hence the relative root is: ../../../
+       -->
+  <xsl:variable 
+    name="relative_root"
+    select="'../../../../'"/>
 
 
+  <!-- +++++++++++++++++++
+         Templates
+       +++++++++++++++++++ -->
 <xsl:template match="interface">
   <xsl:variable 
     name="schema_name" 
@@ -506,9 +531,29 @@
 
 
 <xsl:template name="super.expression-code">
+  <!-- check of the expression already ends in () -->
+  <xsl:variable name="open_paren">
+    <xsl:if test="not(starts-with(normalize-space(@super.expression),'('))">
+      (
+    </xsl:if>
+  </xsl:variable>
+  <xsl:variable name="close_paren">
+    <xsl:if test="$open_paren">
+      )
+    </xsl:if>
+  </xsl:variable>
+
+  <xsl:if test="@abstract.supertype='YES'">
+    <br/>
+    &#160; ABSTRACT SUPERTYPE
+    <xsl:if test="@super.expression">
+      OF 
+    </xsl:if>
+  </xsl:if>
+
   <xsl:if test="@super.expression">
     <br/>
-    &#160; SUPERTYPE OF (<xsl:value-of select="@super.expression"/>)
+    &#160; <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
   </xsl:if>
 </xsl:template>
 

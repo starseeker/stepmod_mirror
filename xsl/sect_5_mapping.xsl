@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.2 2001/11/14 17:58:47 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.3 2001/11/14 18:25:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -18,6 +18,35 @@ $Id: sect_5_mapping.xsl,v 1.2 2001/11/14 17:58:47 robbod Exp $
 
 
   <xsl:output method="html"/>
+
+
+  <!-- +++++++++++++++++++
+         Global variables
+       +++++++++++++++++++ -->
+
+  <!-- a list of all the entities and resources defined in the resources.
+       Used by link_resource_object to produce a URL
+       -->
+  <xsl:variable name="global_resource_xref_list">
+    <xsl:call-template name="build_resource_xref_list"/>
+  </xsl:variable>
+
+
+  <!-- A global variable used by the express_file_to_ref template defined
+       in express_link.xsl.
+       It defines the relative path from the file applying the stylesheet
+       to the root of the stepmod repository.
+       sect_e_exp_arm.xsl stylesheet is normally used
+         stepmod/data/module/?module?/sys/5_mapping.xml
+       Hence the relative root is: ../../../../
+       -->
+  <xsl:variable 
+    name="relative_root"
+    select="'../../../../'"/>
+
+  <!-- +++++++++++++++++++
+         Templates
+       +++++++++++++++++++ -->
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
@@ -88,14 +117,8 @@ $Id: sect_5_mapping.xsl,v 1.2 2001/11/14 17:58:47 robbod Exp $
     </tr>
 
     <tr>
-      <td VALIGN="TOP" width="21%">
-        <font size="-1">
-          <a href="">
-            <xsl:value-of select="@entity"/>
-          </a>
-        </font>
-      </td>
 
+      <xsl:apply-templates select="."/>
       <xsl:apply-templates select="./aimelt"/>
       <xsl:apply-templates select="./source"/>
 
@@ -111,11 +134,53 @@ $Id: sect_5_mapping.xsl,v 1.2 2001/11/14 17:58:47 robbod Exp $
   </table>
 </xsl:template>
 
+<xsl:template match="ae">
+  <xsl:variable 
+    name="schema_name" 
+    select="concat(../../../module/@name,'_arm')"/>
+    <xsl:variable name="ae_aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="@entity"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable 
+    name="ae_xref"
+    select="concat('./4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
+
+  <td VALIGN="TOP" width="21%">
+    <font size="-1">
+      <a href="{$ae_xref}">
+        <xsl:value-of select="@entity"/>
+      </a>
+    </font>
+  </td>
+
+</xsl:template>
+
+
 <xsl:template match="aa">
+  <xsl:variable 
+    name="schema_name" 
+    select="concat(../../../../module/@name,'_arm')"/>
+
+  <xsl:variable name="aa_aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="../@entity"/>
+      <xsl:with-param name="section3" select="@attribute"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable 
+    name="aa_xref"
+    select="concat('./4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
+
   <tr>
     <td VALIGN="TOP" width="21%">
       <font size="-1">
-        <a href="">
+        <a href="{$aa_xref}">
           <xsl:value-of select="@attribute"/>
         </a>
       </font>
@@ -133,10 +198,32 @@ $Id: sect_5_mapping.xsl,v 1.2 2001/11/14 17:58:47 robbod Exp $
 </xsl:template>
 
 <xsl:template match="aimelt">
+
+  <xsl:variable 
+    name="aimelt"
+    select="translate(normalize-space(string(.)),' ','')"/>
+
+  <xsl:variable name="aim_entity">
+    <xsl:choose>
+      <xsl:when test="contains($aimelt,'.')">
+        <xsl:value-of select="substring-before($aimelt,'.')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$aimelt"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="aim_xref">
+    <xsl:call-template name="xref_resource_object">
+      <xsl:with-param name="object_name" select="$aim_entity"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <td VALIGN="TOP" width="21%">
     <font size="-1">
-      <a href="">
-        <xsl:value-of select="string(.)"/>
+      <a href="{$aim_xref}">
+        <xsl:value-of select="$aimelt"/>
       </a>
     </font>
   </td>

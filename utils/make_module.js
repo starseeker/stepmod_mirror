@@ -1,4 +1,4 @@
-//$Id: make_module.js,v 1.2 2001/11/22 09:51:22 robbod Exp $
+//$Id: make_module.js,v 1.3 2001/11/22 14:29:59 robbod Exp $
 // JScript to generate the expressg html for a module.
 // This script uses The Saxon XSLT processor:
 //  http://sourceforge.net/projects/saxon
@@ -36,15 +36,16 @@ var moduleClauses = new Array("main", "cover", "introduction", "foreword",
 //   - run convertBallotModules
 //MainConvertBallotModules(ballotModulesHome);
 //
-// List a set of modules in a directory structure, outputting th result in XML
+// List a set of modules in a directory structure, outputting the result in XML
 //   - run listModules
 //
 //  run SAXON to generate the HTML for the modules
-//   - makeHtmlModule
+// 
+//makeHtmlModule("approval");
 //
 //  generate the directory structure and initial content for a module
 //   - run MainMakeModule
-//MainMakeModule();
+MainMakeModule();
 //
 //  update the directory structure and initial content for a module
 //   - run MainUpdateModule
@@ -56,13 +57,13 @@ var moduleClauses = new Array("main", "cover", "introduction", "foreword",
 //MainUpdateModules() 
 //
 // Make the HTML for all the resources from the XML
-// MainMakeHtmlResources()
+//MainMakeHtmlResources()
 
 // Make the HTML for all the modules from the XML
 // MainMakeHtmlModules()
 
 // Make the all HTML for all the modules, resources and index
-MainMakeHtmlAll()
+//MainMakeHtmlAll()
 
 
 
@@ -178,7 +179,7 @@ function MakeModuleXML(module) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.2 2001/11/22 09:51:22 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.3 2001/11/22 14:29:59 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -231,7 +232,7 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.2 2001/11/22 09:51:22 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.3 2001/11/22 14:29:59 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -257,7 +258,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.2 2001/11/22 09:51:22 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.3 2001/11/22 14:29:59 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -312,16 +313,16 @@ function makeHtmlModule(module)
 	runSaxon(xmlFile, htmFile);
     }
 
-    xmlFile = moduleHome + "arm.xml";
-    htmFile = moduleHome + "arm.htm";	
+    xmlFile = moduleHome + "/arm.xml";
+    htmFile = moduleHome + "/arm.htm";	
     runSaxon(xmlFile, htmFile);
 
-    xmlFile = moduleHome + "mim.xml";
-    htmFile = moduleHome + "mim.htm";	
+    xmlFile = moduleHome + "/mim.xml";
+    htmFile = moduleHome + "/mim.htm";	
     runSaxon(xmlFile, htmFile);
 
-    xmlFile = moduleHome + "mim_lf.xml";
-    htmFile = moduleHome + "mim_lf.htm";	
+    xmlFile = moduleHome + "/mim_lf.xml";
+    htmFile = moduleHome + "/mim_lf.htm";	
     runSaxon(xmlFile, htmFile);
 
 }
@@ -559,7 +560,7 @@ function MainMakeHtmlModules() {
 }
 
 function MainMakeHtmlAll() {
-    //MainMakeHtmlResources();
-    //MainMakeHtmlModules();
+    MainMakeHtmlResources();
+    MainMakeHtmlModules();
     makeHtmlIndex();
 }

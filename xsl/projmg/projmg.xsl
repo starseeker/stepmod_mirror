@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: projmg.xsl,v 1.1 2002/05/21 12:15:22 robbod Exp $
+     $Id: projmg.xsl,v 1.2 2002/08/14 12:47:27 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -16,7 +16,9 @@
   version="1.0"
 >
 
-  <xsl:import href="../common.xsl"/>
+  <!-- need both for module TOC -->
+  <xsl:import href="../sect_4_express.xsl"/>
+  <xsl:import href="../module_toc.xsl"/>
 
   <xsl:output method="html"/>
 
@@ -28,6 +30,7 @@
         <xsl:value-of select="concat(/management/@module,' - status')"/>
       </TITLE>
       <BODY>
+
         <xsl:apply-templates />
       </BODY>
     </HTML>
@@ -35,6 +38,38 @@
 
 
   <xsl:template match="management">
+        <!-- Output a Table of contents -->
+        <xsl:variable name="module_name" select="@module"/>
+        <xsl:variable name="module_file"
+          select="concat('../../data/modules/',@module,'/module.xml')"/>
+        <xsl:variable name="in_repo"
+          select="document('../../repository_index.xml')/repository_index/modules/module[@name=$module_name]"/>
+        <xsl:choose>
+          <!-- the module is present in the STEP mod repository -->
+          <xsl:when test="$in_repo">
+            <xsl:variable name="module_node"
+              select="document($module_file)/module[@name=$module_name]"/>
+            <xsl:apply-templates select="$module_node"
+              mode="TOCmultiplePage"/> 
+
+          </xsl:when>
+          <xsl:otherwise>
+            <p>
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="warning_gif"
+                  select="'../../../images/warning.gif'"/>
+                
+                <xsl:with-param name="message">
+                  <xsl:value-of select="concat('Error B1: Module ',
+                                        $module_name,
+                                        ' does not exist in stepmod/repository_index.xml')"/>
+                </xsl:with-param>
+              </xsl:call-template>
+            </p>
+          </xsl:otherwise>
+        </xsl:choose>
+
+
     <xsl:variable name="xref" 
       select="concat('../sys/1_scope',$FILE_EXT)"/>
     <table border="1">

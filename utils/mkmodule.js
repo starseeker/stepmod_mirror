@@ -1,4 +1,4 @@
-//$Id: mkmodule.js,v 1.1 2001/12/28 15:58:59 robbod Exp $
+//$Id: mkmodule.js,v 1.2 2002/01/03 09:33:52 robbod Exp $
 // JScript to generate the deafault XML for the module.
 // This script uses The Saxon XSLT processor:
 //  http://sourceforge.net/projects/saxon
@@ -10,7 +10,7 @@
 // Global variables
 // -----------------------------------------------------------
 
-var stepmodHome = "Z:/My Documents/projects/nist_module_repo/stepmod";
+var stepmodHome = "z:/My Documents/projects/nist_module_repo/stepmod";
 
 var moduleClauses = new Array("main", "cover", "introduction", "foreword", 
 			      "1_scope", "2_refs", "3_defs", "4_info_reqs", 
@@ -33,6 +33,16 @@ function ErrorMessage(msg){
 function userMessage(msg) {
     WScript.Echo(msg);
 }		
+
+function CheckStepHome() {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (!fso.FolderExists(stepmodHome)) {
+	ErrorMessage("The variable stepmodHome is incorrectly set in mkmodule.js\n"+ stepmodHome);
+	return(false);
+    } 
+    return(true);
+}
+
 
 function CheckArgs() {
     var cArgs = WScript.Arguments;
@@ -75,7 +85,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.1 2001/12/28 15:58:59 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.2 2002/01/03 09:33:52 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -98,7 +108,7 @@ function MakeModuleXML(module) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.1 2001/12/28 15:58:59 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.2 2002/01/03 09:33:52 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -159,7 +169,7 @@ function MakeExpressG(module, expgfile, title, gif) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.1 2001/12/28 15:58:59 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.2 2002/01/03 09:33:52 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("    href=\"../../../xsl/imgfile.xsl\"?>");
@@ -186,7 +196,7 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.1 2001/12/28 15:58:59 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.2 2002/01/03 09:33:52 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -231,11 +241,11 @@ function MakeModule(module) {
 
 function Main() {
     var cArgs = WScript.Arguments;
-    if (CheckArgs() == 1) {
+    if (CheckArgs() && CheckStepHome() ) {
 	var cArgs = WScript.Arguments;
 	var module=cArgs(0);
 	try {
-	    //MakeModule(module);
+	    MakeModule(module);
 	    MakeModuleXML(module);
 	}
 	catch(e) {

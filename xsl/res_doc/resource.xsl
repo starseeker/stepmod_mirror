@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.11 2002/12/12 23:08:05 nigelshaw Exp $
+$Id: resource.xsl,v 1.12 2002/12/20 12:35:58 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1039,7 +1039,7 @@ defined in annex D of ISO 10303-11.
           </xsl:call-template>
         </xsl:variable>
 
-        <xsl:variable name="expg_path" select="concat('../../../../..',$resource_dir,'/',$schema,'expg',$diagno)"/>
+        <xsl:variable name="expg_path" select="concat('../../',$resource_dir,'/',$schema,'expg',$diagno)"/>
 
         <xsl:variable name="schema_url">
           <xsl:choose>

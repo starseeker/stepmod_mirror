@@ -2,19 +2,66 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-27T18:25:32" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-02T14:45:07" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="shield_arm schema_instance"/>
    <schema name="Shield_arm">
+      <interface kind="use" schema="Assembly_component_placement_requirements_arm"/>
+      <interface kind="use" schema="Assembly_module_design_arm"/>
       <interface kind="use" schema="Component_feature_arm"/>
-      <interface kind="use" schema="Physical_connectivity_definition_arm"/>
+      <interface kind="use" schema="Layered_interconnect_module_with_printed_component_design_arm"/>
+      <type name="laminate_shieldable_item">
+         <select selectitems="Component_external_reference Component_feature component_group_external_reference Generic_physical_network Physical_connectivity_definition physical_connectivity_definition_external_reference Stratum_feature_template_component"/>
+      </type>
+      <type name="physical_shieldable_item">
+         <select selectitems="shieldable_item Placement_group"/>
+      </type>
+      <type name="shield">
+         <select selectitems="Routed_shield Integral_shield Physical_shield"/>
+      </type>
       <type name="shieldable_item">
          <select selectitems="Assembly_component Component_feature Physical_connectivity_definition"/>
       </type>
-      <entity name="Shield" supertypes="Assembly_component">
+      <entity name="Integral_shield" supertypes="Laminate_component">
          <explicit name="shielded_item">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="shieldable_item"/>
+            <typename name="laminate_shieldable_item"/>
          </explicit>
+      </entity>
+      <entity name="Physical_shield" supertypes="Physical_component">
+         <explicit name="shielded_item">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="physical_shieldable_item"/>
+         </explicit>
+      </entity>
+      <entity name="Routed_shield" supertypes="Routed_printed_component">
+         <explicit name="shielded_item">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="laminate_shieldable_item"/>
+         </explicit>
+      </entity>
+      <entity name="component_group_external_reference">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <builtintype type="STRING"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="component_group_external_reference" attribute="name"/>
+            <unique.attribute entity-ref="component_group_external_reference" attribute="associated_definition"/>
+         </unique>
+      </entity>
+      <entity name="physical_connectivity_definition_external_reference">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <builtintype type="STRING"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="physical_connectivity_definition_external_reference" attribute="name"/>
+            <unique.attribute entity-ref="physical_connectivity_definition_external_reference" attribute="associated_definition"/>
+         </unique>
       </entity>
    </schema>
 </express>

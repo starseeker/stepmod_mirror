@@ -1,0 +1,186 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.36 2004/05/25 20:27:05 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  reference="10303-109"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.36"
+    source="../data/resources/assembly_constraint_schema/assembly_constraint_schema.exp"/>
+
+  <schema name="assembly_constraint_schema">
+
+    <interface
+      kind="reference"
+      schema="assembly_feature_relationship_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="explicit_constraint_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="explicit_geometric_constraint_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="geometry_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="geometric_model_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="parameterization_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="product_definition_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="product_structure_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="representation_schema">
+    </interface>
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+    </interface>
+    <entity
+      name="assembly_geometric_constraint"
+      abstract.supertype="YES"
+      super.expression="(ONEOF(binary_assembly_constraint, fixed_constituent_assembly_constraint))"
+      supertypes="explicit_constraint">
+    </entity>
+
+    <entity
+      name="binary_assembly_constraint"
+      abstract.supertype="YES"
+      super.expression="(ONEOF(parallel_assembly_constraint, surface_distance_assembly_constraint_with_dimension, angle_assembly_constraint_with_dimension, perpendicular_assembly_constraint, incidence_assembly_constraint, coaxial_assembly_constraint, tangent_assembly_constraint))"
+      supertypes="assembly_geometric_constraint representation_relationship_with_transformation">
+      <explicit
+        name="rep_1">
+        <typename
+          name="representative_shape_representation"/>
+        <redeclaration
+          entity-ref="representation_relationship"/>
+        </explicit>
+        <explicit
+          name="rep_2">
+          <typename
+            name="representative_shape_representation"/>
+          <redeclaration
+            entity-ref="representation_relationship"/>
+          </explicit>
+          <where
+            label="WR1"
+            expression="(SELF\explicit_constraint.constrained_elements[1]\geometric_representation_item.dim = 3) AND(SELF\explicit_constraint.reference_elements[1]\geometric_representation_item.dim = 3)">
+          </where>
+          <where
+            label="WR2"
+            expression="(SELF\representation_relationship.rep_1 IN (using_representations(SELF\representation_relationship_with_transformation. transformation_operator\item_defined_transformation.transform_item_1) + using_representation_with_mapping(SELF\representation_relationship_with_transformation. transformation_operator\item_defined_transformation.transform_item_1))) AND(SELF\representation_relationship.rep_2 IN (using_representations(SELF\representation_relationship_with_transformation. transformation_operator\item_defined_transformation.transform_item_2) + using_representation_with_mapping(SELF\representation_relationship_with_transformation. transformation_operator\item_defined_transformation.transform_item_2)))">
+          </where>
+          <where
+            label="WR3"
+            expression="(SIZEOF(SELF\explicit_constraint.constrained_elements)=1) AND(SIZEOF(SELF\explicit_constraint.reference_elements)=1)">
+          </where>
+          <where
+            label="WR4"
+            expression="(SELF\representation_relationship_with_transformation. transformation_operator\item_defined_transformation.transform_item_1 = SELF\explicit_constraint.reference_elements[1]) AND(SELF\representation_relationship_with_transformation. transformation_operator\item_defined_transformation.transform_item_2 = SELF\explicit_constraint.constrained_elements[1])">
+          </where>
+        </entity>
+
+        <entity
+          name="fixed_constituent_assembly_constraint"
+          supertypes="assembly_geometric_constraint fixed_element_geometric_constraint">
+          <where
+            label="WR1"
+            expression="SELF\explicit_constraint.constrained_elements[1]\geometric_representation_item.dim = 3">
+          </where>
+          <where
+            label="WR2"
+            expression="(assembly_leaf (using_product_definition_of_shape_representation(SELF\representation_relationship.rep_2\shape_representation)[1]))">
+          </where>
+          <where
+            label="WR3"
+            expression="(SIZEOF(SELF\explicit_constraint.constrained_elements) = 1) AND(SIZEOF(SELF\explicit_constraint.reference_elements) = 0)">
+          </where>
+        </entity>
+
+        <entity
+          name="parallel_assembly_constraint"
+          supertypes="binary_assembly_constraint parallel_geometric_constraint">
+        </entity>
+
+        <entity
+          name="parallel_assembly_constraint_with_dimension"
+          supertypes="parallel_assembly_constraint pgc_with_dimension">
+        </entity>
+
+        <entity
+          name="surface_distance_assembly_constraint_with_dimension"
+          supertypes="binary_assembly_constraint sdgc_with_dimension">
+        </entity>
+
+        <entity
+          name="angle_assembly_constraint_with_dimension"
+          supertypes="binary_assembly_constraint agc_with_dimension">
+        </entity>
+
+        <entity
+          name="perpendicular_assembly_constraint"
+          supertypes="binary_assembly_constraint perpendicular_geometric_constraint">
+        </entity>
+
+        <entity
+          name="incidence_assembly_constraint"
+          supertypes="binary_assembly_constraint incidence_geometric_constraint">
+        </entity>
+
+        <entity
+          name="coaxial_assembly_constraint"
+          supertypes="binary_assembly_constraint coaxial_geometric_constraint">
+        </entity>
+
+        <entity
+          name="tangent_assembly_constraint"
+          supertypes="binary_assembly_constraint tangent_geometric_constraint">
+        </entity>
+
+        <function
+          name="assembly_leaf">
+          <parameter
+            name="item">
+            <typename
+              name="product_definition"/>
+          </parameter>
+          <builtintype
+            type="BOOLEAN"/>
+          <algorithm>
+LOCAL
+local_relation: SET OF assembly_component_usage := [];
+local_relation2: BAG OF assembly_component_usage := [];
+END_LOCAL;
+local_relation2 := local_relation2 + (USEDIN (item,
+'PRODUCT_STRUCTURE_SCHEMA.ASSEMBLY_COMPONENT_USAGE.'+
+'RELATING_PRODUCT_DEFINITION'));
+local_relation := bag_to_set (local_relation2);
+IF (SIZEOF (local_relation) = 0) THEN RETURN (TRUE);
+ELSE RETURN (FALSE);
+END_IF;
+          </algorithm>
+        </function>
+
+      </schema>
+    </express>

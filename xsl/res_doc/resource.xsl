@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.39 2004/02/25 16:48:16 thendrix Exp $
+$Id: resource.xsl,v 1.40 2004/04/19 23:33:56 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -897,7 +897,7 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
     </A>
   </blockquote>
 
-
+  <!-- removed per ISO 
   <p>
     Annexes A and B form an integral part of this part of ISO
     10303.  
@@ -920,6 +920,7 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
     </xsl:choose>
     are for information only.  
   </p> 
+-->
     <p>
       <a name="future">
        <sup>1)</sup>A future edition of ISO 10303-1 will describe the application modules series. 

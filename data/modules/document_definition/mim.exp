@@ -20,16 +20,5 @@ TYPE document_location_select = SELECT BASED_ON external_identification_item WIT
    (product_definition);
 END_TYPE; 
 
-RULE restrict_document_definition_category FOR 
-(product_definition);
-
-LOCAL
-  document_definitions: SET OF product_definition := [];
-END_LOCAL;
-  document_definitions :=  QUERY( pd <* product_definition | 
-  (pd.frame_of_reference.name IN ['digital document definition', 'physical document definition']));
-      WHERE
-  WR1: SIZEOF( QUERY( pd <* document_definitions | (SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | prpc.name IN ['document'] )) = 0 ) )) = 0;
-END_RULE; 
-
 END_SCHEMA;  -- Document_definition_mim
+

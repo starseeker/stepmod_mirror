@@ -43,24 +43,4 @@ TYPE spr_person_and_organization_item = EXTENSIBLE SELECT BASED_ON person_and_or
     product_definition_formation);
 END_TYPE; 
 
-RULE product_requires_category FOR 
-(product);
-WHERE
-  WR1: SIZEOF(QUERY(p <* product | SIZEOF(USEDIN(p, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')) = 0)) = 0;
-END_RULE; 
-
-FUNCTION categories_of_product
- (obj : product) : SET OF STRING; 
-LOCAL
-category_assignments: BAG OF product_category;
-categories: SET OF STRING:=[];
-i: INTEGER;
-END_LOCAL;
-category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
-REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-categories := categories + category_assignments[i].name;
-END_REPEAT;
-RETURN(categories);
-      END_FUNCTION; 
-
 END_SCHEMA;  -- Single_part_representation_mim

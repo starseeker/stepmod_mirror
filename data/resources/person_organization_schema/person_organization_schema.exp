@@ -5,7 +5,6 @@
 	EXPRESS Declarations for ISO 10303-41: 3rd Edition
 *)
 
-
 SCHEMA person_organization_schema; 
 
 REFERENCE FROM basic_attribute_schema   -- ISO 10303-41
@@ -27,8 +26,8 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
 
 
 TYPE person_organization_select = SELECT
-   (person, 
-    organization, 
+   (organization, 
+    person, 
     person_and_organization);
 END_TYPE; 
 
@@ -46,8 +45,8 @@ ENTITY address;
   electronic_mail_address : OPTIONAL label;
   telex_number : OPTIONAL label;
 DERIVE
-  name : label := get_name_value (SELF);
-  url : identifier := get_id_value (SELF);
+  name : label := get_name_value(SELF);
+  url : identifier := get_id_value(SELF);
 WHERE
   WR1: EXISTS(internal_location) OR EXISTS(street_number) OR EXISTS(street) OR EXISTS(postal_box) OR EXISTS(town) OR EXISTS(region) OR EXISTS(postal_code) OR EXISTS(country) OR EXISTS(facsimile_number) OR EXISTS(telephone_number) OR EXISTS(electronic_mail_address) OR EXISTS(telex_number);
 END_ENTITY;
@@ -68,7 +67,7 @@ END_ENTITY;
 ENTITY organization_role;
   name : label;
 DERIVE
-  description : text := get_description_value (SELF);
+  description : text := get_description_value(SELF);
 WHERE
   WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
 END_ENTITY;
@@ -125,8 +124,8 @@ ENTITY person_and_organization;
   the_person : person;
   the_organization : organization;
 DERIVE
+  description : text := get_description_value(SELF);
   name : label := get_name_value (SELF);
-  description : text := get_description_value (SELF);
 WHERE
   WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1;
   WR2: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
@@ -188,12 +187,6 @@ ENTITY position_in_organization;
   description : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY position_in_organization_type;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-END_ENTITY;
-
 ENTITY position_in_organization_relationship;
   id : STRING;
   name : STRING;
@@ -202,56 +195,46 @@ ENTITY position_in_organization_relationship;
   related_position_in_organization : position_in_organization;
 END_ENTITY;
 
+ENTITY position_in_organization_type;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
 FUNCTION acyclic_organization_relationship
  (relation : organization_relationship; relatives : SET[1:?] OF organization; specific_relation : STRING) : BOOLEAN; 
   LOCAL
-    x                : SET OF organization_relationship;
-  END_LOCAL;
-  IF relation.relating_organization IN relatives THEN
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY (org <* bag_to_set
-             (USEDIN (relation.relating_organization,
-             'PERSON_ORGANIZATION_SCHEMA.' +
-             'ORGANIZATION_RELATIONSHIP.' +
-             'RELATED_ORGANIZATION')) |
-              specific_relation IN TYPEOF (org));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_organization_relationship
-      (x[i], 
-       relatives + relation.relating_organization, 
-       specific_relation) THEN
-      RETURN(FALSE);
+      x : SET OF organization_relationship;
+    END_LOCAL;
+
+    IF relation.relating_organization IN relatives THEN
+      RETURN (FALSE);
     END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-			END_FUNCTION; 
+    x := QUERY(org <* bag_to_set(USEDIN(relation.relating_organization, 'PERSON_ORGANIZATION_SCHEMA.' + 'ORGANIZATION_RELATIONSHIP.' + 'RELATED_ORGANIZATION')) | specific_relation IN TYPEOF(org));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_organization_relationship(x[i], relatives + relation.relating_organization, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
 
 FUNCTION acyclic_organizational_project_relationship
  (relation : organizational_project_relationship; relatives : SET[1:?] OF organizational_project; specific_relation : STRING) : BOOLEAN; 
   LOCAL
-    x                : SET OF organizational_project_relationship;
-  END_LOCAL;
-  IF relation.relating_organizational_project IN relatives THEN 
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY (op <* bag_to_set 
-             (USEDIN (relation.relating_organizational_project,
-             'PERSON_ORGANIZATION_SCHEMA.' + 
-             'ORGANIZATIONAL_PROJECT_RELATIONSHIP.' +
-             'RELATED_ORGANIZATIONAL_PROJECT')) |
-              specific_relation IN TYPEOF (op));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_organizational_project_relationship
-      (x[i], 
-       relatives + relation.relating_organizational_project, 
-       specific_relation) THEN
-      RETURN(FALSE);
+      x : SET OF organizational_project_relationship;
+    END_LOCAL;
+
+    IF relation.relating_organizational_project IN relatives THEN
+      RETURN (FALSE);
     END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-      END_FUNCTION; 
+    x := QUERY(op <* bag_to_set(USEDIN(relation.relating_organizational_project, 'PERSON_ORGANIZATION_SCHEMA.' + 'ORGANIZATIONAL_PROJECT_RELATIONSHIP.' + 'RELATED_ORGANIZATIONAL_PROJECT')) | specific_relation IN TYPEOF(op));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_organizational_project_relationship(x[i], relatives + relation.relating_organizational_project, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
 
 END_SCHEMA;  -- person_organization_schema
-
-

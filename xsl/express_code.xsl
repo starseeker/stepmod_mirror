@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_code.xsl,v 1.3 2001/12/21 09:41:11 robbod Exp $
+     $Id: express_code.xsl,v 1.4 2002/01/16 12:10:27 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -173,8 +173,8 @@
     GENERIC_ENTITY
   </xsl:if>
 
-  SELECT 
-
+  SELECT
+  
   <xsl:if test="@basedon">
     BASED ON
       <xsl:call-template name="link_object">
@@ -185,13 +185,14 @@
       </xsl:call-template>  
       WITH 
   </xsl:if>
+  <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
   (<xsl:call-template name="link_list">
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="list" select="@selectitems"/>
     <xsl:with-param name="object_used_in_schema_name"
       select="../../@name"/>
     <xsl:with-param name="clause" select="'annexe'"/>
-  </xsl:call-template>)</xsl:template>
+  </xsl:call-template>)</xsl:if></xsl:template>
 
 
 <xsl:template match="enumeration" mode="underlying">

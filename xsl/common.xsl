@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.27 2002/03/19 13:26:43 robbod Exp $
+$Id: common.xsl,v 1.28 2002/03/21 09:28:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -203,24 +203,21 @@ $Id: common.xsl,v 1.27 2002/03/19 13:26:43 robbod Exp $
     <TR>
       <TD valign="MIDDLE">
         <B>
-          application module: 
-          <xsl:value-of select="@name"/>
+          Application module: 
+          <xsl:call-template name="module_display_name">
+            <xsl:with-param name="module" select="@name"/>
+          </xsl:call-template>
         </B>
       </TD>
       <TD valign="MIDDLE">
-        <xsl:choose>
-          <xsl:when test="string-length(@part)>0">
-            <b>
-              <xsl:value-of 
-                select="concat('ISO/',@status,' 10303-',@part,':2001(E)')"/>
-            </b>
-          </xsl:when>
-          <xsl:otherwise>
-            <b>
-              <xsl:value-of select="concat('ISO/',@status,' 10303-')"/><font color="#FF0000">XXXX</font>:2001(E)</b>
-      </xsl:otherwise>
-    </xsl:choose>
-
+        <xsl:variable name="stdnumber">
+          <xsl:call-template name="get_module_stdnumber">
+            <xsl:with-param name="module" select="."/>
+          </xsl:call-template>
+        </xsl:variable>
+        <b>
+          <xsl:value-of select="$stdnumber"/>
+        </b>
       </TD>
     </TR>
   </TABLE>
@@ -1292,6 +1289,61 @@ $Id: common.xsl,v 1.27 2002/03/19 13:26:43 robbod Exp $
     </xsl:choose>
 
   </xsl:template>
+
+
+
+<!-- return the standard number of the module -->
+<xsl:template name="get_module_stdnumber">
+  <xsl:param name="module"/>
+  <xsl:variable name="part">
+    <xsl:choose>
+      <xsl:when test="string-length($module/@part)>0">
+        <xsl:value-of select="$module/@part"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;part&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+  <xsl:variable name="status">
+    <xsl:choose>
+      <xsl:when test="string-length($module/@status)>0">
+        <xsl:value-of select="$module/@status"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;status&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+    <xsl:variable name="language">
+      <xsl:choose>
+        <xsl:when test="string-length($module/@language)">
+          <xsl:value-of select="$module/@language"/>
+        </xsl:when>
+        <xsl:otherwise>
+          E
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+    <xsl:variable name="pub_year">
+      <xsl:choose>
+        <xsl:when test="string-length($module/@publication.year)">
+          <xsl:value-of select="$module/@publication.year"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;publication.year&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="orgname" select="'ISO'"/>
+    <xsl:variable name="stdnumber"
+      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+    <xsl:value-of select="$stdnumber"/>
+</xsl:template>
 
 </xsl:stylesheet>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.2 2002/01/21 14:22:10 robbod Exp $
+$Id: imgfile.xsl,v 1.3 2002/03/04 07:54:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -32,7 +32,25 @@ $Id: imgfile.xsl,v 1.2 2002/01/21 14:22:10 robbod Exp $
 
     <BODY>
 
-      <xsl:variable name="href"  select="concat('./sys/1_scope',$FILE_EXT)"/>
+      <!-- Need to identify whether looking at an ARM or MIM expressG
+           diagram. Make an assumption if an ARM diagram then the href of
+           img.area will contain 4_info_reqs -->
+      <xsl:variable name="href">
+        <xsl:choose>
+          <xsl:when test="./img/img.area[contains(@href,'4_info_reqs.xml')]">
+            <xsl:value-of select="concat('./sys/c_arm_expg',$FILE_EXT)"/>  
+          </xsl:when>
+          <xsl:when test="./img/img.area[contains(@href,'5_mim.xml')]">
+            <xsl:value-of select="concat('./sys/d_mim_expg',$FILE_EXT)"/>  
+          </xsl:when>
+          <xsl:otherwise>
+            <!-- the image map is probably incorrect -->
+            <xsl:value-of select="concat('./sys/1_scope',$FILE_EXT)"/>  
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+
       <h3>
         <a href="{$href}">application module: <xsl:value-of select="@module"/></a><br/>
       </h3>

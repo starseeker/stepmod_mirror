@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.37 2002/03/19 13:26:43 robbod Exp $
+$Id: module.xsl,v 1.38 2002/03/21 09:28:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2147,51 +2147,6 @@ defines it. Use: normref.inc')"/>
     </xsl:call-template>
   </xsl:variable>
   <xsl:value-of select="floor($section1 div 2)"/>
-</xsl:template>
-
-
-<!-- return the standard number of the module -->
-<xsl:template name="get_module_stdnumber">
-  <xsl:param name="module"/>
-  <xsl:variable name="part">
-    <xsl:choose>
-      <xsl:when test="string-length($module/@part)>0">
-        <xsl:value-of select="$module/@part"/>
-      </xsl:when>
-        <xsl:otherwise>
-          &lt;part&gt;
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    
-    <xsl:variable name="language">
-      <xsl:choose>
-        <xsl:when test="string-length($module/@language)">
-          <xsl:value-of select="$module/@language"/>
-        </xsl:when>
-        <xsl:otherwise>
-          E
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    
-    <xsl:variable name="pub_year">
-      <xsl:choose>
-        <xsl:when test="string-length($module/@publication.year)">
-          <xsl:value-of select="$module/@publication.year"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <font color="#FF0000">
-            &lt;publication.year&gt;
-          </font>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="orgname" select="'ISO/TS'"/>
-    <xsl:variable name="stdnumber"
-      select="concat($orgname,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
-    <xsl:value-of select="$stdnumber"/>
 </xsl:template>
 
 

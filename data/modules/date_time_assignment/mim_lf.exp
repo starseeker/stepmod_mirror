@@ -1,0 +1,227 @@
+SCHEMA date_time_assignment_mim;
+
+  TYPE ahead_or_behind = ENUMERATION OF
+    (ahead,
+     exact,
+     behind);
+  END_TYPE; -- ahead_or_behind
+
+  TYPE attribute_type = SELECT
+    (label,
+     text);
+  END_TYPE; -- attribute_type
+
+  TYPE date_and_time_item = EXTENSIBLE SELECT
+    ();
+  END_TYPE; -- date_and_time_item
+
+  TYPE date_item = EXTENSIBLE SELECT
+    ();
+  END_TYPE; -- date_item
+
+  TYPE date_time_select = SELECT
+    (date,
+     local_time,
+     date_and_time);
+  END_TYPE; -- date_time_select
+
+  TYPE day_in_month_number = INTEGER;
+  WHERE
+    wr1: ((1 <= SELF) AND (SELF <= 31));
+  END_TYPE; -- day_in_month_number
+
+  TYPE description_attribute_select = SELECT
+    (date_role,
+     date_time_role);
+  END_TYPE; -- description_attribute_select
+
+  TYPE hour_in_day = INTEGER;
+  WHERE
+    wr1: ((0 <= SELF) AND (SELF < 24));
+  END_TYPE; -- hour_in_day
+
+  TYPE label = STRING;
+  END_TYPE; -- label
+
+  TYPE minute_in_hour = INTEGER;
+  WHERE
+    wr1: ((0 <= SELF) AND (SELF <= 59));
+  END_TYPE; -- minute_in_hour
+
+  TYPE month_in_year_number = INTEGER;
+  WHERE
+    wr1: ((1 <= SELF) AND (SELF <= 12));
+  END_TYPE; -- month_in_year_number
+
+  TYPE second_in_minute = REAL;
+  WHERE
+    wr1: ((0 <= SELF) AND (SELF <= 60));
+  END_TYPE; -- second_in_minute
+
+  TYPE text = STRING;
+  END_TYPE; -- text
+
+  TYPE year_number = INTEGER;
+  END_TYPE; -- year_number
+
+  ENTITY applied_date_and_time_assignment
+    SUBTYPE OF (date_and_time_assignment);
+      items : SET [1:?] OF date_and_time_item;
+  END_ENTITY; -- applied_date_and_time_assignment
+
+  ENTITY applied_date_assignment
+    SUBTYPE OF (date_assignment);
+      items : SET [1:?] OF date_item;
+  END_ENTITY; -- applied_date_assignment
+
+  ENTITY calendar_date
+    SUBTYPE OF (date);
+      day_component   : day_in_month_number;
+      month_component : month_in_year_number;
+    WHERE
+      wr1: valid_calendar_date(SELF);
+  END_ENTITY; -- calendar_date
+
+  ENTITY coordinated_universal_time_offset;
+      hour_offset   : INTEGER;
+      minute_offset : OPTIONAL INTEGER;
+      sense         : ahead_or_behind;
+    WHERE
+      wr1: ((0 <= hour_offset) AND (hour_offset <= 12));
+      wr2: ((0 <= minute_offset) AND (minute_offset <= 59));
+      wr3: (NOT ((hour_offset <> 0) AND (sense = exact)));
+  END_ENTITY; -- coordinated_universal_time_offset
+
+  ENTITY date
+    SUPERTYPE OF (calendar_date);
+      year_component : year_number;
+  END_ENTITY; -- date
+
+  ENTITY date_and_time;
+      date_component : date;
+      time_component : local_time;
+  END_ENTITY; -- date_and_time
+
+  ENTITY date_and_time_assignment
+    ABSTRACT SUPERTYPE;
+      assigned_date_and_time : date_and_time;
+      role                   : date_time_role;
+  END_ENTITY; -- date_and_time_assignment
+
+  ENTITY date_assignment
+    ABSTRACT SUPERTYPE;
+      assigned_date : date;
+      role          : date_role;
+  END_ENTITY; -- date_assignment
+
+  ENTITY date_role;
+      name : label;
+    DERIVE
+      description : text := get_description_value(SELF);
+    WHERE
+      wr1: (SIZEOF(USEDIN(SELF,'DATE_TIME_ASSIGNMENT_MIM.' + 
+               'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
+  END_ENTITY; -- date_role
+
+  ENTITY date_time_role;
+      name : label;
+    DERIVE
+      description : text := get_description_value(SELF);
+    WHERE
+      wr1: (SIZEOF(USEDIN(SELF,'DATE_TIME_ASSIGNMENT_MIM.' + 
+               'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
+  END_ENTITY; -- date_time_role
+
+  ENTITY description_attribute;
+      attribute_value : text;
+      described_item  : description_attribute_select;
+  END_ENTITY; -- description_attribute
+
+  ENTITY local_time;
+      hour_component   : hour_in_day;
+      minute_component : OPTIONAL minute_in_hour;
+      second_component : OPTIONAL second_in_minute;
+      zone             : coordinated_universal_time_offset;
+    WHERE
+      wr1: valid_time(SELF);
+  END_ENTITY; -- local_time
+
+  FUNCTION get_description_value(
+               obj: description_attribute_select
+      ): text;
+
+    LOCAL
+      description_bag : BAG OF description_attribute := USEDIN(obj,
+                         'DATE_TIME_ASSIGNMENT_MIM.' + 
+                         'DESCRIPTION_ATTRIBUTE.' + 'DESCRIBED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(description_bag) = 1 THEN
+      RETURN(description_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+  END_FUNCTION; -- get_description_value
+
+  FUNCTION leap_year(
+               year: year_number
+      ): BOOLEAN;
+    IF (((year MOD 4) = 0) AND ((year MOD 100) <> 0)) OR ((year MOD 400) =
+         0) THEN
+      RETURN(TRUE);
+    ELSE
+      RETURN(FALSE);
+    END_IF;
+
+  END_FUNCTION; -- leap_year
+
+  FUNCTION valid_calendar_date(
+               date: calendar_date
+      ): LOGICAL;
+    CASE date.month_component OF
+      1 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      2 :         BEGIN
+          IF leap_year(date.year_component) THEN
+            RETURN((1 <= date.day_component) AND (date.day_component <= 29));
+          ELSE
+            RETURN((1 <= date.day_component) AND (date.day_component <= 28));
+          END_IF;
+        END;
+      3 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      4 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 30));
+      5 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      6 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 30));
+      7 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      8 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      9 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 30));
+      10  :         RETURN((1 <= date.day_component) AND (date.
+            day_component <= 31));
+      11  :         RETURN((1 <= date.day_component) AND (date.
+            day_component <= 30));
+      12  :         RETURN((1 <= date.day_component) AND (date.
+            day_component <= 31));
+      END_CASE;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- valid_calendar_date
+
+  FUNCTION valid_time(
+               time: local_time
+      ): BOOLEAN;
+    IF EXISTS(time.second_component) THEN
+      RETURN(EXISTS(time.minute_component));
+    ELSE
+      RETURN(TRUE);
+    END_IF;
+
+  END_FUNCTION; -- valid_time
+
+END_SCHEMA; -- date_time_assignment_mim

@@ -2,19 +2,26 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.9 2002/06/17 16:15:58 robbod Exp $
+     $Id: parameters.xsl,v 1.10 2002/06/20 13:05:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
-     Used to display the commented XML encoded Express generated 
-     from GraphicalExpress 
+     Used to set global parameters 
 -->
 
 <xsl:stylesheet 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	version="1.0"
 >
+
+  <!--
+       Parameters to set the menu bar.
+       This may be customized by the user, hence a separate file
+       -->
+  <xsl:import href="menubar_params.xsl"/>
+
+
 
   <!-- parameters that control the output -->
 
@@ -58,18 +65,5 @@
   <!-- when YES issues will be read from the issues.xml file stored in the
        module directory -->
   <xsl:param name="output_issues" select="'YES'"/>
-
-
-
-  <!-- Every module can display a menubar at the top of the module.
-       The default menubar is menubar_default.xml -->
-  <!--
-
-  <xsl:param name="menubar_file" select="'../plcsmod/menubar.xml'"/>
-  <xsl:param name="menubar_file" select="'menubar_default.xml'"/>
-  <xsl:param name="menubar_file" select="'./ballots/ballots/pdm_ballot_072002/menubar_ballot.xml'"/>
-  -->
-
-  <xsl:param name="menubar_file" select="'./ballots/ballots/pdm_ballot_072002/menubar_ballot.xml'"/>
 
 </xsl:stylesheet>

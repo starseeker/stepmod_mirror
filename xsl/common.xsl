@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.8 2001/11/16 08:41:14 robbod Exp $
+$Id: common.xsl,v 1.9 2001/11/21 08:11:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -238,14 +238,40 @@ $Id: common.xsl,v 1.8 2001/11/16 08:41:14 robbod Exp $
   </H3>
 </xsl:template>
 
+<!-- output the Annex heading -->
+<xsl:template name="annex_header">
+  <xsl:param name="heading"/>
+  <xsl:param name="annex_no"/>
+  <xsl:param name="title"/>
+  <xsl:param name="aname"/>
+  <center>
+    <h3>
+      <A NAME="{$aname}">
+        <xsl:value-of select="concat('Annex ', $annex_no)"/>
+      </A>
+    </h3>
+    (informative)
+    <h3><xsl:value-of select="$heading"/></h3>
+  </center>
+</xsl:template>
+
+
+
 <xsl:template match="description">
-  <xsl:apply-templates/>
+    <xsl:apply-templates/>
 </xsl:template>
 
 
 <xsl:template match="note" >
   <blockquote>
-    <xsl:value-of select="concat('NOTE ',position(),' ')"/>
+    <xsl:value-of select="concat('NOTE ',position(),' ')"/>&#160;&#160;
+    <xsl:apply-templates/>
+  </blockquote>
+</xsl:template>
+
+<xsl:template match="example" >
+  <blockquote>
+    <xsl:value-of select="concat('EXAMPLE ',position(),' ')"/>&#160;&#160;
     <xsl:apply-templates/>
   </blockquote>
 </xsl:template>
@@ -291,6 +317,18 @@ $Id: common.xsl,v 1.8 2001/11/16 08:41:14 robbod Exp $
   </li>
 </xsl:template>
 
+<xsl:template match="p" >
+  <p>
+    <xsl:apply-templates />
+  </p>
+</xsl:template>
+
+
+<xsl:template match="screen" >
+  <pre>
+    <xsl:apply-templates />
+  </pre>
+</xsl:template>
 
 
 <!-- Given a string representing a space separated list, remove all
@@ -440,6 +478,114 @@ $Id: common.xsl,v 1.8 2001/11/16 08:41:14 robbod Exp $
       </xsl:when>
     </xsl:choose>
     
+  </xsl:template>
+
+
+  <xsl:template match="module_ref">
+    
+  </xsl:template>
+
+  <!-- a reference to an express entity 
+     The reference for an EXPRESS construct in a module ARM or MIM:
+     <module>:mim|arm:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
+ 
+     e.g. work_order:arm:work_order_arm.Activity.name
+
+     To address an EXPRESS construct in an Integrated Resource schema:
+     <ir>:ir:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
+-->
+  <xsl:template match="express_ref">
+    <!-- remove all whitespace -->
+    <xsl:variable 
+      name="nlinkend"
+      select="translate(@linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+
+    <xsl:variable 
+      name="module" 
+      select="substring-before($nlinkend,':')"/>
+
+    <xsl:variable 
+      name="arm_mim_ir" 
+      select="substring-before(substring-after($nlinkend,':'),':')"/>
+
+    <xsl:variable 
+      name="express_ref" 
+      select="translate(substring-after(substring-after($nlinkend,':'),':'),
+              'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
+
+    <xsl:variable name="href">
+      <xsl:choose>
+        <xsl:when test="$arm_mim_ir='ir'">
+          <xsl:value-of 
+            select="concat('../../../resources/',$module,'/',
+                    $module,$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+        <xsl:when test="$arm_mim_ir='arm'">
+          <xsl:value-of 
+            select="concat('../../../modules/',$module,
+                    '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+
+        <xsl:when test="$arm_mim_ir='arm_express'">
+          <xsl:value-of 
+            select="concat('../../../modules/',$module,
+                    '/arm',$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+
+        <xsl:when test="$arm_mim_ir='mim'">
+          <xsl:value-of 
+            select="concat('../../../modules/',$module,
+                    '/sys/5_mim',$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+
+
+        <xsl:when test="$arm_mim_ir='mim_express'">
+          <xsl:value-of 
+            select="concat('../../../modules/',$module,
+                    '/mim',$FILE_EXT,'#',$express_ref)"/>
+        </xsl:when>
+
+        <!--
+             arm
+             arm_express
+             mim
+             mim_express
+             ir_express
+             introduction
+             
+             1_inscope
+             1_outscope
+             2_normref
+             3_defs
+             4_info_reqs
+             4_uof
+             4_uof:ao
+             4_interfaces
+             4_constants
+             4_types
+             4_entities
+             4_rules
+             4_functions
+             4_procedures
+             5_mapping
+             5_mapping:ao
+             5_interfaces
+             5_constants
+             5_types
+             5_entities
+             5_rules
+             5_functions
+             5_procedures
+             -->
+
+      </xsl:choose>
+    </xsl:variable>
+      
+    [<xsl:value-of select="$nlinkend"/>]
+    [<xsl:value-of select="$module"/>]
+    [<xsl:value-of select="$arm_mim_ir"/>]
+    [<xsl:value-of select="$href"/>]
+    <a href="{$href}"><xsl:apply-templates/></a>
   </xsl:template>
 
 </xsl:stylesheet>

@@ -1,4 +1,4 @@
-(* $Id: mim.exp,v 1.4 2003/02/06 16:23:39 goset1 Exp $
+(* $Id: mim.exp,v 1.5 2003/10/01 06:43:49 rugarcia Exp $
 ISO/TC184/SC4 WG12N1770	ISO/CD-TS 10303-1112	Specification control - Express MIM *)
 
 SCHEMA Specification_control_mim;
@@ -32,6 +32,11 @@ TYPE effectivity_for_replacement  = SELECT BASED_ON effectivity_item WITH
   (product_definition_substitute);
 END_TYPE;
 
+TYPE instance_usage_context_select  = EXTENSIBLE GENERIC_ENTITY SELECT 
+  (product_definition_relationship,
+   product_definition_usage);
+END_TYPE;
+
 
 ENTITY class_usage_effectivity_context_assignment 
 SUBTYPE OF (effectivity_context_assignment); 
@@ -44,6 +49,11 @@ WR3: ('SPECIFICATION_CONTROL_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT' IN TYPEOF(SELF.
   (SELF.assigned_effectivity_assignment.assigned_effectivity.id = 'class usage') AND 
  (SIZEOF( QUERY( i <* SELF.assigned_effectivity_assignment\applied_effectivity_assignment.items | 
    NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_CONCEPT_FEATURE_CATEGORY_USAGE' IN TYPEOF(i)) )) = 0); 
+END_ENTITY; 
+
+ENTITY instance_usage_context_assignment 
+SUBTYPE OF (product_definition_context); 
+items : SET [1:?] OF instance_usage_context_select; 
 END_ENTITY; 
 
 

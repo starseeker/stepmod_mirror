@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.3 2003/06/11 10:16:30 robbod Exp $
+$Id: index_mim_express_inner.xsl,v 1.4 2003/06/16 16:41:27 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -680,17 +680,18 @@ $Id: index_mim_express_inner.xsl,v 1.3 2003/06/11 10:16:30 robbod Exp $
 	<xsl:variable name="orig" select="$called-schemas//entity[@name=$this-ent-name]" />
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
+	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)" />
 
 	<xsl:choose>
-		<xsl:when test="substring-before($schema-name,'_mim')" >
+		<xsl:when test="substring-before($schema-name-l,'_mim')" >
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
-						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+						substring-before($schema-name-l,'_mim')),$UPPER,$LOWER)" />
                           <xsl:apply-templates select="." mode="expressg_icon">
                             <xsl:with-param name="target" select="'content'"/>
                             <xsl:with-param name="expressg" select="$expressg"/>
                           </xsl:apply-templates> 
-			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
+			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
@@ -698,10 +699,10 @@ $Id: index_mim_express_inner.xsl,v 1.3 2003/06/11 10:16:30 robbod Exp $
 			<br/>
 			
 		</xsl:when>
-		<xsl:when test="substring-before($schema-name,'_schema')" >
+		<xsl:when test="substring-before($schema-name-l,'_schema')" >
  	 		<xsl:variable name="res-dir" 
-				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)" />
+			<A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
@@ -710,8 +711,8 @@ $Id: index_mim_express_inner.xsl,v 1.3 2003/06/11 10:16:30 robbod Exp $
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
-				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)" />
+			<A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 

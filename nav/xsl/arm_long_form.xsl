@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: arm_long_form.xsl,v 1.4 2003/04/14 07:54:24 thendrix Exp $
+$Id: arm_long_form.xsl,v 1.5 2003/07/07 10:09:35 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -360,7 +360,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
         <br/>    
         TYPE <b><xsl:value-of select="@name"/></b> = SELECT
           
-        <xsl:variable name="based-on-down" >
+        <xsl:variable name="based-on-down">
           <xsl:apply-templates select="$this-schema//type[@name=$this_base] 
                                        | $called-schemas//type[@name=$this_base]"
             mode="basedon-down">
@@ -369,7 +369,6 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
             <xsl:with-param name="done" select="concat(' ',$this_select,' ')"/>
           </xsl:apply-templates>
         </xsl:variable>
-
         <!-- check if select items overlaps with already included types from lower selects -->
         <!-- should also check against subtypes of previous items ??? -->
     
@@ -474,7 +473,6 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 
      </xsl:choose>
    </xsl:for-each>
-   <hr/>
 </xsl:template>
 
 

@@ -1,0 +1,63 @@
+{ iso standard 10303 part (11) version (4) }
+
+(******************************************************************************)
+(*                                                                            *)
+(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* Original model: required_resource_arm.vsd *)
+(* Title: required_resource ver 5 *)
+(* Author: LEGY *)
+(* Comments :
+ *)
+
+SCHEMA Required_resource_arm;
+
+USE FROM Classification_arm;
+
+USE FROM Resource_item_arm;
+
+USE FROM Value_with_unit_arm;
+
+TYPE required_resource_classified_select = SELECT BASED_ON classified_select WITH
+  (Required_resource,
+   Required_resource_relationship);
+END_TYPE;
+
+TYPE resource_required_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+TYPE specification_item_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+ENTITY Required_resource
+ABSTRACT SUPERTYPE OF (ONEOF(Required_resource_item, Required_resource_specification));
+  name : STRING;
+  description : OPTIONAL STRING;
+  resource_required_by : resource_required_select;
+  required_quantity : OPTIONAL Value_with_unit;
+END_ENTITY;
+
+ENTITY Required_resource_item
+SUBTYPE OF (Required_resource);
+  realized_by : Resource_item;
+END_ENTITY;
+
+ENTITY Required_resource_relationship;
+  relating : Required_resource;
+  related : Required_resource;
+END_ENTITY;
+
+ENTITY Required_resource_specification
+SUBTYPE OF (Required_resource);
+END_ENTITY;
+
+ENTITY Required_resource_specification_relationship;
+  relating : Required_resource_specification;
+  related : specification_item_select;
+END_ENTITY;
+
+END_SCHEMA;
+
+

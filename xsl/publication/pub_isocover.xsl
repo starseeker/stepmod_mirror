@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: pub_isocover.xsl,v 1.6 2004/09/28 23:31:49 thendrix Exp $
+$Id: pub_isocover.xsl,v 1.7 2004/10/09 15:25:20 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -533,7 +533,7 @@ $Id: pub_isocover.xsl,v 1.6 2004/09/28 23:31:49 thendrix Exp $
   <xsl:template match="resource" mode="display_name_french">
     Ressources g&#233;n&#233;riques int&#233;gr&#233;es: 
     <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@french.name"/>
+      <xsl:with-param name="module" select="@name.french"/>
     </xsl:call-template>
   </xsl:template>
 
@@ -548,7 +548,7 @@ $Id: pub_isocover.xsl,v 1.6 2004/09/28 23:31:49 thendrix Exp $
 <xsl:template match="module" mode="page_count">
     <xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />
       <xsl:variable name="usage_guide" select="count(.//usage_guide)" />
-          <xsl:value-of select="$expg_count   + 28" />
+          <xsl:value-of select="$expg_count  + 28" />
         </xsl:template>
 
   <xsl:template match="application_protocol" mode="page_count">

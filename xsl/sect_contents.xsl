@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.9 2002/08/12 11:57:25 robbod Exp $
+$Id: sect_contents.xsl,v 1.10 2002/08/19 00:21:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -217,6 +217,28 @@ $Id: sect_contents.xsl,v 1.9 2002/08/12 11:57:25 robbod Exp $
     </p>
   </xsl:if>
   
+
+  <!-- only output if there are subtype_constraints defined and therefore a
+       section -->
+  <xsl:variable name="subtype_constraint_clause">
+    <xsl:call-template name="express_clause_present">
+      <xsl:with-param name="clause" select="'subtype.constraint'"/>
+      <xsl:with-param name="schema_name" select="$arm_schema_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:if test="$subtype_constraint_clause != 0">
+    <p class="content">
+      &#160; &#160;
+      <A HREF="./4_info_reqs{$FILE_EXT}#subtype_constraints">
+        <xsl:value-of select="concat($subtype_constraint_clause,
+                              ' ARM subtype constraint definitions')"/>
+      </A>
+    </p>
+    <xsl:apply-templates 
+      select="document($arm_xml)/express/schema/subtype.constraint" mode="contents"/>
+  </xsl:if>
+
+
   <!-- only output if there are functions defined and therefore a
        section -->
   <xsl:variable name="function_clause">
@@ -458,7 +480,26 @@ $Id: sect_contents.xsl,v 1.9 2002/08/12 11:57:25 robbod Exp $
     </p>
   </xsl:if>
   
-  
+    <!-- only output if there are subtype_constraints defined and therefore a
+       section -->
+  <xsl:variable name="subtype_constraint_mim_clause">
+    <xsl:call-template name="express_clause_present">
+      <xsl:with-param name="clause" select="'subtype.constraint'"/>
+      <xsl:with-param name="schema_name" select="$mim_schema_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:if test="$subtype_constraint_mim_clause != 0">
+    <p class="content">
+      &#160; &#160; &#160;
+      <A HREF="./5_mim{$FILE_EXT}#subtype_constraints">
+        <xsl:value-of select="concat($subtype_constraint_mim_clause,
+                              ' MIM subtype constraint definitions')"/>
+      </A>
+    </p>
+    <xsl:apply-templates 
+      select="document($mim_xml)/express/schema/subtype.constraint" mode="contents"/>
+  </xsl:if>
+
   <!-- only output if there are functions defined and therefore a
        section -->
   <xsl:variable name="function_mim_clause">
@@ -475,6 +516,8 @@ $Id: sect_contents.xsl,v 1.9 2002/08/12 11:57:25 robbod Exp $
                               ' MIM function definitions')"/>
       </A>
     </p>
+    <xsl:apply-templates 
+      select="document($mim_xml)/express/schema/function" mode="contents"/>
   </xsl:if>          
   <!-- only output if there are imported functions defined and 
        therefore a section -->
@@ -606,7 +649,7 @@ $Id: sect_contents.xsl,v 1.9 2002/08/12 11:57:25 robbod Exp $
 
 
 
-<xsl:template match="constant|type|entity|rule|procedure|function" 
+<xsl:template match="constant|type|entity|subtype.constraint|rule|procedure|function" 
   mode="contents">
   <xsl:variable name="node_type" select="name(.)"/>
   <xsl:variable name="schema_name" select="../@name"/>

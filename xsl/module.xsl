@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.184 2005/03/02 20:33:07 robbod Exp $
+$Id: module.xsl,v 1.185 2005/03/02 23:14:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -608,18 +608,45 @@ o=isocs; s=central<br/>
     </xsl:call-template> specifies the application module for
     <xsl:value-of select="$module_name"/>.       
   </P>
-  <P>
-    The following are within the scope of 
-    <xsl:call-template name="get_module_stdnumber">
-      <xsl:with-param name="module" select="."/>
-    </xsl:call-template>:
-  </P>
 
   <xsl:choose>
     <xsl:when test="./abstract">
-      <xsl:apply-templates select="./abstract"/>
+      <xsl:choose>
+        <xsl:when  test="./abstract/li">
+          <xsl:choose>
+            <xsl:when  test="count(./abstract/li)=1">
+              <P>
+                The following is within the scope of 
+                <xsl:call-template name="get_module_stdnumber">
+                  <xsl:with-param name="module" select="."/>
+                </xsl:call-template>:
+              </P>
+            </xsl:when>
+            <xsl:otherwise>
+              <P>
+                The following are within the scope of 
+                <xsl:call-template name="get_module_stdnumber">
+                  <xsl:with-param name="module" select="."/>
+                </xsl:call-template>:
+              </P>
+            </xsl:otherwise>
+          </xsl:choose>
+          <ul>
+            <xsl:apply-templates select="./abstract"/>
+          </ul>          
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="./abstract"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:when>
     <xsl:otherwise>
+      <P>
+        The following are within the scope of 
+        <xsl:call-template name="get_module_stdnumber">
+          <xsl:with-param name="module" select="."/>
+        </xsl:call-template>:
+      </P>
       <UL>
         <xsl:apply-templates select="./inscope/li"/>
       </UL>

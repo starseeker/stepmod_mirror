@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->
+<!-- $Id: issues.xml,v 1.1 2002/08/28 13:55:41 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="plib_class_reference">
@@ -46,5 +46,94 @@ Comment - is a comment raised by someone about the issue
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- +++++++++++++++++++   ISSUES                  ++++++++++++++ -->
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="RBN-1"
+   type="arm"
+   linkend="Plib_class_reference_arm.plib_class_source_select"
+   status="open"
+   category="minor technical"
+   by="Pascal Huau"
+   date="02-09-17">
+<description>
+  <p>
+    in AP214 External_library_reference identifies an entry in an external
+    library and is mapped onto externally_defined_class (for the class relevant
+    case). 
+  </p>
+  <p>
+    I do not understand why you extend in Plib_class_reference the type
+    class_source_select (which contains external_class_library) with
+    Plib_class_reference: one entity identifies a library and the other a
+    class. 
+  </p>
+  <p>
+    What is needed is: Select(External_class, Plib_class_reference)
+  </p>
+</description>
+
+<comment
+   by="Rob Bodington"
+   date="02-09-17">
+<description>
+  The intent with the plib_class_reference module was to enable the
+  classification of something as a PLIB class.
+
+  My difficulty with what is in Ap214 is that there is no distinction
+  between the identification of a class and a library that contains the
+  class.
+
+  I understand that Plib_class_reference (which I copied directly from
+  AP214) actually identifies the class and the library that contains the
+  class through the supplier_bsu attribute.
+
+  I focussed on the library aspect rather than the class aspect, hence the
+  extension of the select class_source_select.
+  
+  I think that you are correct in your observation; however, I'm not sure
+  that I agree with the solution.
+
+  It seems to me that if that Plib_class_reference identifies a class as
+  external_class does, then the issue is how to classify something as a plib
+  class as defined by Plib_class_reference.
+
+  I think that there are two solutions:
+  <ul>
+    <li>
+      Make Plib_class_reference a subtype of class. That way classification
+      module will enable something to be classified as a Plib class. The issue
+      here is what to do with the id, name and description attributes of Class.
+  </li>
+
+  <li>
+    Change the classification module to use an extensible select through
+    which classification refers to the class. This select can then be extended
+    with  Plib_class_reference.
+  </li>
+  </ul>
+E.g
+  <screen>
+   TYPE class_select = EXTENSIBLE SELECT (class);
+   END_TYPE;
+ 
+   ENTITY Classification;      
+      classified : classified_select;      
+      classifier : class_select;
+   END_ENTITY;
+ 
+   ENTITY Complete_membership;
+      containing_set : class_select;
+      members : SET [1 : ?] OF classified_select;
+   END_ENTITY;
+  </screen>
+ 
+I think that this is my preferred option.
+Either way, I intend to delete class_source_select in external_class.
+
+</description>
+</comment>
+</issue>
 
 </issues>

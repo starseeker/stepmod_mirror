@@ -1,6 +1,123 @@
 (*
-   $Id: mkmodule.js,v 1.24 2002/09/30 09:10:26 robbod Exp $
-   N - ISO/CD-TS - 10303- location_in_building - EXPRESS MIM*)
+   $Id: mim.exp,v 1.1 2002/10/10 08:58:19 whaas Exp $
+   N - ISO/CD-TS - 10303-1146 location_in_building - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Location_in_building_mim;
+
+USE FROM product_definition_schema 			-- ISO 10303-41
+  (product_definition,
+   product_definition_relationship );
+  
+USE FROM product_property_definition_schema 	-- ISO 10303-41
+  (characterized_definition,
+   characterized_product_definition,
+   property_definition
+   shape_aspect
+   shape_definition);
+
+USE FROM product_property_representation_schema -- ISO 10303-41
+  (shape_representation,
+   property_definition_representation);
+
+USE FROM representation_schema 			-- ISO 10303-43
+  (functionally_defined_transformation,
+   mapped_item,
+   representation,
+   representation_item,
+   representation_map,
+   representation_relationship,
+   representation_relationship_with_transformation
+   transformation);
+
+USE FROM geometry_schema 				-- ISO 10303-42
+  (cartesian_transformation_operator,
+   cartesian_transformation_operator_3d,
+   geometric_representation_item,
+   placement);
+
+RULE building_element_maps_into_building_section FOR
+  (mapped_item, representation_relationship_with_transformation);
+WHERE
+   WR1: SIZEOF (QUERY (mi <* mapped_item |
+        (SIZEOF (QUERY (pdr <*
+        USEDIN(mi.mapping_source.mapped_representation,
+        ’LOCATION_IN_BUILDING_MIM.’+
+        ’PROPERTY_DEFINITION_REPRESENTATION.’+
+        ’USED_REPRESENTATION’) |
+	  SIZEOF (TYPEOF (pdr.definition.definition) *
+        [’BUILDING_ITEM_MIM.BUILDING_ELEMENT’,
+        ’BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT’,
+        ’BUILDING_ITEM_MIM.SERVICE_ELEMENT’,
+        ’BUILDING_ITEM_MIM.SPACE_ELEMENT’,
+        ’BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT’]
+        ) = 1
+        )) >= 1)
+        AND
+        (NOT (SIZEOF (QUERY (r <* USEDIN (mi,’LOCATION_IN_BUILDING_MIM.’+
+        ’REPRESENTATION.ITEMS’) |
+        SIZEOF (QUERY (pdr <* USEDIN(r,’LOCATION_IN_BUILDING_MIM.’+
+        ’PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION’)
+        | (’BUILDING_STRUCTURE_MIM.BUILDING_SECTION’ IN
+        TYPEOF (pdr.definition.definition))
+        )) >= 1
+        )) = 1))
+        )) = 0;
+  WR2: (SIZEOF (QUERY (rrwt <*
+       representation_relationship_with_transformation |
+       (SIZEOF (QUERY (pdr <*
+       USEDIN(rrwt\representation_relationship.rep_2,
+       ’LOCATION_IN_BUILDING_MIM.’+
+       ’PROPERTY_DEFINITION_REPRESENTATION.’+
+       ’USED_REPRESENTATION’) |
+       SIZEOF (TYPEOF (pdr.definition.definition) *
+       [’BUILDING_ITEM_MIM.BUILDING_ELEMENT’,
+       ’BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT’,
+       ’BUILDING_ITEM_MIM.SERVICE_ELEMENT’,
+       ’BUILDING_ITEM_MIM.SPACE_ELEMENT’,
+       ’BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT’]
+       ) = 1
+       )) >= 1)
+       AND
+      (NOT (SIZEOF (QUERY (pdr <*
+       USEDIN(rrwt\representation_relationship.rep_1,
+       ’LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_’+
+       ’REPRESENTATION.USED_REPRESENTATION’) |
+       (’BUILDING_STRUCTURE_MIM.BUILDING_SECTION’ IN
+       TYPEOF (pdr.definition.definition))
+       )) = 1))
+       )) = 0);
+  WR3: SIZEOF (QUERY (rrwt_1 <*
+       representation_relationship_with_transformation |
+       SIZEOF (QUERY (rrwt_2 <*
+       representation_relationship_with_transformation |
+       (SIZEOF (QUERY (pdr <*
+       USEDIN(rrwt_1\representation_relationship.rep_2,
+       ’LOCATION_IN_BUILDING_MIM.PROPERTY_DEFINITION_’ +
+       ’REPRESENTATION.USED_REPRESENTATION’) |
+       SIZEOF (TYPEOF (pdr.definition.definition) *
+       [’BUILDING_ITEM_MIM.BUILDING_ELEMENT’,
+       ’BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT’,
+       ’BUILDING_ITEM_MIM.SERVICE_ELEMENT’,
+       ’BUILDING_ITEM_MIM.SPACE_ELEMENT’,
+       ’BUILDING_ITEM_MIM.’ +
+       ’STRUCTURE_ENCLOSURE_ELEMENT’]) = 1
+       )) >= 1)
+       AND
+       (rrwt_1\representation_relationship.rep_2 =
+       rrwt_2\representation_relationship.rep_2)
+       )) >= 1
+       )) = 0;
+END_RULE;
+
+RULE restrict_origin_and_target FOR
+  (mapped_item);
+WHERE
+  WR1: SIZEOF (QUERY (mi <* mapped_item |
+       NOT ((’ELEMENTAL_GEOMETRIC_SHAPE_MIM.AXIS2_PLACEMENT_3D’
+       IN TYPEOF (mi.mapping_target))
+       AND
+       (’ELEMENTAL_GEOMETRIC_SHAPE_MIM.AXIS2_PLACEMENT_3D’
+       IN TYPEOF (mi.mapping_source.mapping_origin))))) = 0;
+END_RULE;
+
 END_SCHEMA;

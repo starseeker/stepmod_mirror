@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.13 2004/11/15 14:53:19 robbod Exp $
+<!--  $Id: build.xsl,v 1.14 2004/11/15 15:31:52 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -1268,6 +1268,39 @@
           <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
           <xsl:with-param name="suffix" select="'/schema_diagexpg*.xml'"/>
         </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+
+    <xsl:variable name="resdoc_file" select="concat('../../data/resource_docs/',resource_docs/res_doc/@name,'/resource.xml')"/>
+    <xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">RESDOCRESOURCESSCHEMADIAGXML</xsl:attribute>
+      <xsl:attribute name="value">
+      <xsl:apply-templates select="$resdoc_xml//schema" mode="list">
+        <xsl:with-param name="prefix" select="'data/resources/'"/>
+        <xsl:with-param name="suffix" select="'expg*.xml'"/>
+      </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">RESDOCRESOURCESSCHEMADIAGGIF</xsl:attribute>
+      <xsl:attribute name="value">
+      <xsl:apply-templates select="$resdoc_xml//schema" mode="list">
+        <xsl:with-param name="prefix" select="'data/resources/'"/>
+        <xsl:with-param name="suffix" select="'expg*.gif'"/>
+        <xsl:with-param name="terminate" select="'NO'"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="$resdoc_xml//schema" mode="list">
+        <xsl:with-param name="prefix" select="'data/resources/'"/>
+        <xsl:with-param name="suffix" select="'expg*.png'"/>
+        <xsl:with-param name="terminate" select="'NO'"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="$resdoc_xml//schema" mode="list">
+        <xsl:with-param name="prefix" select="'data/resources/'"/>
+        <xsl:with-param name="suffix" select="'expg*.jpg'"/>
+      </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
 
@@ -4219,7 +4252,7 @@
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESOURCESSCHEMAEXPGXMLS}'"/>
+          <xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPGXMLS}'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
@@ -4341,6 +4374,17 @@
         <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
 
+     <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${RESDOCRESOURCESSCHEMADIAGXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
+        </xsl:attribute>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
+      </xsl:element>
+    
+
       <xsl:element name="copy">
         <xsl:attribute name="todir">
           <xsl:value-of select="'${TMPDIR}'"/>
@@ -4364,7 +4408,7 @@
             <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'${RESOURCESSCHEMAEXPGGIFS}'"/>
+            <xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPGGIFS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -4853,6 +4897,7 @@
 
 
     <!-- cocatenate the resource doc  express -->
+
 
        <xsl:variable name="schemalist">
          <xsl:apply-templates select="$resdoc_xml//schema" mode="list">

@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.1.1.1 2001/06/29 19:12:26 joshualubell Exp $
+$Id: readme.txt,v 1.2 2001/09/17 14:09:58 joshualubell Exp $
 
 The module repository is organized as follows:
 
@@ -20,9 +20,6 @@ The DTD's system idenfifier. The root element is "module".
 dtd/mapping.ent
 Markup declarations for the units of functionality, application
 objects, and mapping specification.
-
-dtd/common.ent
-Markup declarations used throughout the DTD.
 
 dtd/express.dtd
 Markup declarations for EXPRESS code.

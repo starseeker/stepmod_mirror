@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.23 2004/12/21 18:04:18 budreckytej Exp $
+   $Id: arm.exp,v 1.28 2005/01/04 07:11:17 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -35,9 +35,9 @@ USE FROM Interconnect_physical_requirement_allocation_arm;
 
 USE FROM Layered_shape_arm;
 
-USE FROM Basic_curve_arm; 
+USE FROM Basic_curve_arm;
 
-	SUBTYPE_CONSTRAINT assembly_component_subtypes FOR Assembly_component; 
+	SUBTYPE_CONSTRAINT limd_assembly_component_subtypes FOR Assembly_component; 
 	    (ONEOF (Physical_component,
 	 	Laminate_component));
 	END_SUBTYPE_CONSTRAINT;
@@ -107,10 +107,13 @@ USE FROM Basic_curve_arm;
     (right,
      centre,
      left);
-  END_TYPE; we can move those entities into separate module?
+  END_TYPE;
+
 
 	TYPE limd_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
    	(Layout_template_definition,
+   	Part_usage_view,
+   	Part_design_view,
    	Stratum);
 	END_TYPE; 
 
@@ -171,11 +174,6 @@ USE FROM Basic_curve_arm;
   TYPE stratum_surface_designation = ENUMERATION OF
     (primary_surface,
      secondary_surface);
-  END_TYPE;
-
-  TYPE trimmed_or_boundary_curve = SELECT
-    (Boundary_curve,
-     Trimmed_curve);
   END_TYPE;
 
   TYPE vertical_justification = ENUMERATION OF
@@ -383,6 +381,11 @@ USE FROM Basic_curve_arm;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
+	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY;
 
   ENTITY Default_passage_based_land_physical_template
@@ -433,6 +436,12 @@ USE FROM Basic_curve_arm;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
+      (** Deposition_material *)
+	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY;
 
   ENTITY Design_layer_stratum
@@ -701,12 +710,12 @@ USE FROM Basic_curve_arm;
       SELF\component_make_from_relationship.resultant_component : Assembly_group_component;
       stratum_mapping                                           : SET[1:?] OF Part_definition_relationship; --stratum_make_from_relationship;
     WHERE
-      WR1 : SIZEOF(QUERY(sar <* SELF\component_make_from_relationship.reusable_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_view)))) = 0;
-      WR2 : SIZEOF(QUERY(sar <* SELF\component_make_from_relationship.resultant_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_view)))) = 0;
+      WR1 : SIZEOF(QUERY(sar <* SELF\component_make_from_relationship.reusable_component.assembly | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_component)))) = 0;
+      WR2 : SIZEOF(QUERY(sar <* SELF\component_make_from_relationship.resultant_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_component)))) = 0;
   END_ENTITY;
 
   ENTITY Laminate_layer;
-      name        : STRING; --ee_name;  
+      name        : STRING;  
       extent      : Inter_stratum_extent;
     INVERSE
       layer_usage	: SET[0:1] OF External_source_identification FOR item;
@@ -728,12 +737,12 @@ USE FROM Basic_curve_arm;
       of_horizontal_justification : horizontal_justification;
       of_vertical_justification   : vertical_justification;
     WHERE
-      WR1 : SIZEOF(QUERY(sar <* SELF\assembly_group_component.components | TYPEOF(sar.related_view) <> 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT')) = 0;
+      WR1 : SIZEOF(QUERY(sar <* SELF\assembly_group_component.components | TYPEOF(sar.related_component) <> 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT')) = 0;
   END_ENTITY;
 
   ENTITY Layer_connection_point
     ABSTRACT SUPERTYPE;
-      name                          : STRING; --ee_name;    
+      name                          : STRING;    
       location_2d                   : OPTIONAL Cartesian_point;
       location_3d                   : OPTIONAL Cartesian_point;
       resident_design_layer_stratum : Design_layer_stratum;
@@ -758,7 +767,7 @@ USE FROM Basic_curve_arm;
   END_ENTITY;
 
   ENTITY Layout_junction;
-      name                  : STRING; --ee_name;  
+      name                  : STRING;  
       associated_definition : Interconnect_module;
       net                   : Generic_physical_network;
       location              : Cartesian_point;
@@ -833,6 +842,12 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 	  of_technology						: Passage_technology_parameters;
       associated_definition				: Interconnect_module;
       as_finished_inter_stratum_extent	: Inter_stratum_extent;      
+	  WHERE
+	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) <= 1);
 	END_ENTITY;
 
   ENTITY Pcb
@@ -954,7 +969,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     WHERE
       WR1 : SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(SELF\part_template_location_in_padstack_definition.Template)) = 1;
+ 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(SELF\part_template_location_in_padstack_definition.template.associated_template_occurrence)) = 1;
   END_ENTITY;
 
   ENTITY Stratum_surface;
@@ -963,10 +978,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     UNIQUE
       UR1 : name,
  of_stratum;
-  END_ENTITY; Stratum_make_from_relationship;
---      reusable_stratum  : Stratum;
---      resultant_stratum : Stratum;
---  END_ENTITY;
+  END_ENTITY;
 
   ENTITY Thermal_isolation_laminate_component
     SUBTYPE OF (Filled_area_material_removal_laminate_component);

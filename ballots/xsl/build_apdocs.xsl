@@ -6,9 +6,10 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
    Purpose: To build the initial ANT build package. 
 -->
 
-<xsl:stylesheet 
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+		xmlns:exslt="http://exslt.org/common"
+                version="1.0">
   
   <xsl:import href="../../xsl/common.xsl"/>
 
@@ -43,24 +44,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:attribute name="name">OUTPUT_ISSUES</xsl:attribute>
           <xsl:attribute name="value">NO</xsl:attribute>
         </xsl:element>
-
+        
         <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_BACKGROUND</xsl:attribute>
           <xsl:choose>
             <xsl:when test="./@output_background='YES'">
               <xsl:attribute name="value">YES</xsl:attribute>
             </xsl:when>            
-          <xsl:otherwise>
-          <xsl:attribute name="value">NO</xsl:attribute>            
-          </xsl:otherwise>
+            <xsl:otherwise>
+              <xsl:attribute name="value">NO</xsl:attribute>            
+            </xsl:otherwise>
           </xsl:choose>
         </xsl:element>
-
+        
         <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_RESOURCES_BACKGROUND</xsl:attribute>
-          <xsl:attribute name="value">YES</xsl:attribute>            
+          <xsl:choose>
+            <xsl:when test="./@output_resources_background='NO'">
+              <xsl:attribute name="value">NO</xsl:attribute>
+            </xsl:when>            
+            <xsl:otherwise>
+              <xsl:attribute name="value">YES</xsl:attribute>            
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:element>
-
+        
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMODSTYLES</xsl:attribute>
           <xsl:attribute name="value">xsl</xsl:attribute>
@@ -97,804 +105,1245 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_ballot.xml')"/>
           </xsl:attribute>
         </xsl:element>
-
+        
         <xsl:element name="property">
           <xsl:attribute name="name">ARCHIVE</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:choose>
               <xsl:when test="string-length(./@wg.number.ballot_package) > 3">
-            <xsl:value-of select="concat(translate(normalize-space(translate(./@wg.number.ballot_package,$UPPER,$LOWER)),' ',''),'-',@name,'-${DSTAMP}')"/>
+                <xsl:value-of select="concat(translate(normalize-space(translate(./@wg.number.ballot_package,$UPPER,$LOWER)),' ',''),'-',@name,'-${DSTAMP}')"/>
               </xsl:when>
               <xsl:otherwise>
-            <xsl:value-of select="concat('wgxxnxxxx' ,'-',@name,'-${DSTAMP}')"/>                
+                <xsl:value-of select="concat('wgxxnxxxx' ,'-',@name,'-${DSTAMP}')"/>                
               </xsl:otherwise>
             </xsl:choose>
-
           </xsl:attribute>
         </xsl:element>
-
+        
         <xsl:element name="property">
           <xsl:attribute name="name">DATE</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:value-of select="'${DSTAMP}'"/>
           </xsl:attribute>
         </xsl:element>
+
+        <xsl:if test="./ballot_package/ap_doc">
+          <xsl:apply-templates select="." mode="apdoc_variables"/>
+          <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
+        </xsl:if>
+        <xsl:if test="./ballot_package/module">
+          <xsl:apply-templates select="."  mode="modules_variables"/>
+        </xsl:if>
+      </xsl:element>
+      
+      <xsl:text>
+      </xsl:text>
+      <target name="init" depends="variables">
+        <xsl:element name="mkdir">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${ISODIR}'"/>
+          </xsl:attribute>          
+        </xsl:element>
+        
+        <xsl:element name="copy">
+          <xsl:attribute name="todir">
+            <xsl:value-of select="'${ISODIR}/images'"/>
+          </xsl:attribute>
+          <fileset dir="images"/>
+        </xsl:element>
+      </target>
+      
+      <xsl:text>
+      </xsl:text>
+      
+      <xsl:variable name="all_target1" select="'init, resources, isoindex'"/>
+      <xsl:variable name="all_target2">
+        <xsl:choose>
+          <xsl:when test="./ballot_package/ap_doc">
+            <xsl:value-of select="concat($all_target1, ', isoapdoc, isodepmodules')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$all_target1"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:variable name="all_target">
+        <xsl:choose>
+          <xsl:when test="./ballot_package/module">
+            <xsl:value-of select="concat($all_target2, ', isomodules')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$all_target2"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <target name="all" depends="{$all_target}" 
+        description="Create HTML for everything"/> 
+      <xsl:text>
+      </xsl:text>
+      <target name="clean" depends="variables" 
+        description="delete generated files">
+        <xsl:element name="delete">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${ISODIR}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </target>
+      
+      <xsl:text>
+      </xsl:text>
+      <target name="zip" depends="all" description="create .zip file">
+        <xsl:element name="zip">
+          <xsl:attribute name="zipfile">
+            <xsl:value-of select="'${ISODIR}/${ARCHIVE}.zip'"/>
+          </xsl:attribute>
+          <xsl:attribute name="basedir">
+            <xsl:value-of select="'${ISODIR}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="excludes">
+            <xsl:value-of select="'**/*.zip'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'**'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </target>
+      
+      <xsl:text>
+      </xsl:text>
+      <target name="isoindex" depends="init" 
+        description="Create HTML index">
+        <dependset>
+          <xsl:element name="srcfileset">
+            <xsl:attribute name="dir">
+              <xsl:value-of select="'${DTDDIR}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'**/*.dtd, **/*.ent'"/>
+            </xsl:attribute>
+          </xsl:element>
+          <xsl:element name="srcfileset">
+            <xsl:attribute name="dir">
+              <xsl:value-of select="'${BALLLOTSTYLES}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'**/*.xsl'"/>
+            </xsl:attribute>
+          </xsl:element>
+          <xsl:element name="srcfileset">
+            <xsl:attribute name="dir">
+              <xsl:value-of select="'${BALLOTDIR}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'**/*.xml'"/>
+            </xsl:attribute>
+          </xsl:element>
+          <xsl:element name="targetfileset">
+            <xsl:attribute name="dir">
+              <xsl:value-of select="'.'"/>
+            </xsl:attribute>
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${BALLOTDIR}/*.htm*'"/>
+            </xsl:attribute>
+          </xsl:element>
+        </dependset>
+        
+        <xsl:element name="style">
+          <xsl:attribute name="in">
+            <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
+          </xsl:attribute>
+          <xsl:attribute name="out">
+            <xsl:value-of select="'${ISODIR}/index.htm'"/>
+          </xsl:attribute>
+          <xsl:attribute name="destdir">
+            <xsl:value-of select="'${ISODIR}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="extension">
+            <xsl:value-of select="'.htm'"/>
+          </xsl:attribute>
+          <xsl:attribute name="style">
+            <xsl:value-of select="'${BALLLOTSTYLES}/ballot_summary.xsl'"/>
+          </xsl:attribute>
+          <param name="output_type" expression="HTM"/>
+          <param name="stepmodhome" expression="."/>
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'date'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="'${DATE}'"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:element>
+      </target>
+      
+      <xsl:text>
+      </xsl:text>
+      
+      <xsl:if test="./ballot_package/ap_doc">
+        <xsl:apply-templates select="." mode="apdoc_target"/>
+        <xsl:apply-templates select="." mode="dependent_modules_target"/>
+      </xsl:if>
+      <xsl:if test="./ballot_package/module">
+        <xsl:apply-templates select="." mode="modules_target"/>
+      </xsl:if>
+      <xsl:apply-templates select="." mode="resources_target"/>
+      
+    </project>
+  </xsl:template>
+
+  <xsl:template match="module">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="terminate" select="'YES'"/>
+    <xsl:choose>
+      <xsl:when test="$terminate='YES'">
+        <xsl:choose>
+          <xsl:when test="position()=last()">
+            <xsl:value-of select="concat($prefix,@name,$suffix)"/><xsl:text/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat($prefix,@name,$suffix)"/>,<xsl:text/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($prefix,@name,$suffix)"/>,<xsl:text/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+
+
+  <xsl:template match="ballot_index" mode="apdoc_variables">
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDIR</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:value-of select="concat('data/application_protocols/',./ballot_package/ap_doc/@name)"/>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCS</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/**/*.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APXSL</xsl:attribute>
+      <xsl:attribute name="value">xsl/ap_doc</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCGIFS</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/*.gif</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCSHOMEXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/home.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCSAAMXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/aam.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCSAAMIDEFXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/aamidef*.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCSDATAPLANXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/data_plan_*.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCSCOPEXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/1_scope.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCREFSXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/2_refs.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCDEFSXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/3_defs.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINFOREQSXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/4_info_reqs.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCMAINXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/5_main.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCCCSXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/6_ccs.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXAAM</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_aam.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXARMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_arm_expg.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXCHANGESXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_changes.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXCOMP</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_comp_int.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXEXPLFXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_exp_lf.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXGUIDEXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_guide.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXIMPMETHXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_imp_meth.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXOBJREGXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_obj_reg.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXPICSXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_pics.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXSHORTNAMESXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_shortnames.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXTECHDISCXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_tech_disc.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCBIBLIOXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/biblio.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCCONTENTSXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/contents.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCCOVERXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/cover.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCFOREWORDXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/foreword.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCFRAMEAPTITLEXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/frame_aptitle.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCFRAMECONTENTTITLEXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/frame_contenttitle.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCFRAMEINDEXXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/frame_index.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCFRAMETOCXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/frame_toc.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMEXPRESSXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_express.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMEXPRESSINNERXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_express_inner.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMEXPRESSTOPXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_express_top.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMMAPPINGSXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_mappings.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMMAPPINGSINNERXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_mappings_inner.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMMAPPINGSTOP</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/xml arm_mappings_top.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMMODULES</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/arm_modules.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMMODULESINNER</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/arm_modules_inner.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXARMMODULESTOP</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/arm_modules_top.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXMIMEXPRESS</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/mim_express.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXMIMEXPRESSINNERXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/mim_express_inner.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXMIMEXPRESSTOP</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/mim_express_top.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXMIMMODULES</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/mim_modules.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXMIMMODULESINNER</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/mim_modules_inner.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXMIMMODULESTOP</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/mim_modules_top.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXRESOURCES</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_resources.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXRESOURCESINNER</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_resources_inner.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINDEXRESOURCESTOP</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/xmlindex_resources_top.xml</xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCINTRODUCTION</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/introduction.xml</xsl:attribute>
+    </xsl:element>
+  </xsl:template>
   
-        <xsl:element name="property">
-          <xsl:attribute name="name">EXPRESS</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/*.exp'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:text>
-        </xsl:text>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">GIFS</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/ap_doc">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/*.exp'"/>
-              <xsl:with-param name="terminate" select="'NO'"/>
-            </xsl:apply-templates>
-            <xsl:apply-templates select="ballot_package/ap_doc">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/*.gif'"/>
-              <xsl:with-param name="terminate" select="'NO'"/>
-            </xsl:apply-templates>
-            <xsl:apply-templates select="ballot_package/ap_doc">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/*.png'"/>
-              <xsl:with-param name="terminate" select="'NO'"/>
-            </xsl:apply-templates>
-            <xsl:apply-templates select="ballot_package/ap_doc">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/*.jpg'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCGIFS</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/*.exp'"/>
-              <xsl:with-param name="terminate" select="'NO'"/>
-            </xsl:apply-templates>
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/*.gif'"/>
-              <xsl:with-param name="terminate" select="'NO'"/>
-            </xsl:apply-templates>
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/*.png'"/>
-              <xsl:with-param name="terminate" select="'NO'"/>
-            </xsl:apply-templates>
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/*.jpg'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCINDEXXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/index.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCISSUESXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/dvlp/issues.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCABSTRACTXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCCONTENTSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/contents.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCS</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/**/*.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCSCOPEXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/1_scope.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCREFSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/2_refs.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCDEFSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/3_defs.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCMAINXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/main.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name"></xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="''"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCSCHEMAXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/*_schema.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCASHORTNAMESXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/a_short_names.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCBOBJREGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/b_obj_reg.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCBIBLIOXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/biblio.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCCOVERXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCCEXPSCHEMAXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/c_exp_schema_*.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCCEXPXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/c_exp.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCDEXPGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/d_expg.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCTECHDISCUSSIONXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/tech_discussion.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCEXAMPLESXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/examples.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCADDSCOPE</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/add_scope.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCFOREWORDXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/foreword.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCINTRODUCTIONXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/sys/introduction.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCDESCRIPTIONSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resources/'"/>
-              <xsl:with-param name="suffix" select="'/descriptions.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCSCHEMADIAGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/schema_diagexpg*.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">CONTENTSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/contents.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">MODULES</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/**/*.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">SCOPEXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/1_scope.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">REFSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/2_refs.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">DEFSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/3_defs.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">INFOREQSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/4_info_reqs.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">MAINXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/5_main.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">MAPPINGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/5_mapping.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name"></xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="''"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">MIMXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/5_mim.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">INDEXXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/index.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">ABSTRACTXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">ASHORTNAMESXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/a_short_names.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">BOBJREGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/b_obj_reg.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">BIBLIOXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/biblio.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">CARMEXPGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/c_arm_expg.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">COVERXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">DMIMEXPGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/d_mim_expg.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">EEXPXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/e_exp.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">EEXPARMXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/e_exp_arm.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">EEXPARMLFXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">EEXPMIMXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/e_exp_mim.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">EEXPMIMLFXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/e_exp_mim_lf.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">FGUIDEXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/f_guide.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">FOREWORDXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/foreword.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">INTRODUCTIONXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/sys/introduction.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">ARMDESCRIPTIONSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/arm_descriptions.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">MIMDESCRIPTIONSXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/mim_descriptions.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">ARMEXPGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/armexpg*.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">MIMEXPGXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/mimexpg*.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">ARMEXPXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/arm.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">MIMEXPXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="'/mim.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:variable name="resources_set">
-          <xsl:apply-templates select="ballot_package/module" mode="resources" />
-          <xsl:apply-templates select="ballot_package/resource" mode="resources"/>
-        </xsl:variable>
-
-        <xsl:variable name="resdoc_resources_set">
-          <xsl:apply-templates select="ballot_package/resource" mode="resdoc_resources"/>
-        </xsl:variable>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESOURCESXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:call-template name="output_resources">
-              <xsl:with-param name="resources"
-                select="normalize-space($resources_set)"/>
-              <xsl:with-param name="prefix" select="'data/resources/'"/>
-              <xsl:with-param name="suffix" select="'.xml'"/>
-            </xsl:call-template>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESOURCESEXP</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:call-template name="output_resources">
-              <xsl:with-param name="resources"
-                select="normalize-space($resources_set)"/>
-              <xsl:with-param name="prefix" select="'data/resources/'"/>
-              <xsl:with-param name="suffix" select="'.exp'"/>
-            </xsl:call-template>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCRESOURCESEXP</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:call-template name="output_resources">
-              <xsl:with-param name="resources"
-                select="normalize-space($resdoc_resources_set)"/>
-              <xsl:with-param name="prefix" select="'data/resources/'"/>
-              <xsl:with-param name="suffix" select="'.exp'"/>
-            </xsl:call-template>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESOURCESSCHEMAEXPGGIFS</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:call-template name="output_resources">
-              <xsl:with-param name="resources"
-                select="normalize-space($resources_set)"/>
-              <xsl:with-param name="prefix" select="'data/resources/'"/>
-              <xsl:with-param name="suffix" select="'expg*.gif'"/>
-            </xsl:call-template>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESOURCESSCHEMAEXPGXMLS</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:call-template name="output_resources">
-              <xsl:with-param name="resources"
-                select="normalize-space($resources_set)"/>
-              <xsl:with-param name="prefix" select="'data/resources/'"/>
-              <xsl:with-param name="suffix" select="'expg*.xml'"/>
-            </xsl:call-template>
-          </xsl:attribute>
-        </xsl:element>
+  
+  <xsl:template match="ballot_index" mode="modules_variables">
+    <!-- the Modules -->
+    <xsl:element name="property">
+      <xsl:attribute name="name">EXPRESS</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.exp'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">GIFS</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.exp'"/>
+          <xsl:with-param name="terminate" select="'NO'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.gif'"/>
+          <xsl:with-param name="terminate" select="'NO'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.png'"/>
+          <xsl:with-param name="terminate" select="'NO'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.jpg'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">CONTENTSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/contents.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">MODULES</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/**/*.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">SCOPEXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/1_scope.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">REFSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/2_refs.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DEFSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/3_defs.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">INFOREQSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/4_info_reqs.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">MAINXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/5_main.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">MAPPINGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/5_mapping.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">MIMXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/5_mim.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">INDEXXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/index.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">ABSTRACTXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">ASHORTNAMESXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/a_short_names.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">BOBJREGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/b_obj_reg.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">BIBLIOXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/biblio.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">CARMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/c_arm_expg.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">COVERXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMIMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/d_mim_expg.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">EEXPXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">EEXPARMXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_arm.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">EEXPARMLFXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">EEXPMIMXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_mim.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">EEXPMIMLFXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_mim_lf.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">FGUIDEXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/f_guide.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">FOREWORDXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/foreword.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">INTRODUCTIONXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/introduction.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">ARMDESCRIPTIONSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/arm_descriptions.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">MIMDESCRIPTIONSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/mim_descriptions.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">ARMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/armexpg*.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">MIMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/mimexpg*.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">ARMEXPXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/arm.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">MIMEXPXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/mim.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+  </xsl:template>
+  
+  <!-- output the variable for the dependent modules and resources -->
+  <xsl:template match="ballot_index" mode="dependent_mod_res_variables">
+    <xsl:variable name="mim_modules">
+      <xsl:apply-templates select="./ballot_package/ap_doc" mode="get_mod_node_set"/>
+    </xsl:variable>
+    
+    <xsl:variable name="mim_modules_node_set" select="exslt:node-set($mim_modules)"/>
+
+    <!--    
+    <xsl:apply-templates select="$mim_modules_node_set/xmodule" mode="properties"/>
+    <xsl:apply-templates select="$mim_modules_node_set/xresource" mode="properties"/>
+    -->
+    
+    <!-- The resources -->
+    <xsl:element name="property">
+      <xsl:attribute name="name">RESOURCESXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/resource">
+          <xsl:with-param name="prefix" select="'data/resources/'"/>
+          <xsl:with-param name="suffix" select="'.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">RESOURCESEXP</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/resource">
+          <xsl:with-param name="prefix" select="'data/resources/'"/>
+          <xsl:with-param name="suffix" select="'.exp'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">RESOURCESSCHEMAEXPGGIFS</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/resource">
+          <xsl:with-param name="prefix" select="'data/resources/'"/>
+          <xsl:with-param name="suffix" select="'/expg*.gif'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">RESOURCESSCHEMAEXPGXMLS</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/resource">
+          <xsl:with-param name="prefix" select="'data/resources/'"/>
+          <xsl:with-param name="suffix" select="'/expg*.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
     </xsl:element>
 
+    <!-- The dependent modules -->
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODEXPRESS</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.exp'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODGIFS</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.exp'"/>
+          <xsl:with-param name="terminate" select="'NO'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.gif'"/>
+          <xsl:with-param name="terminate" select="'NO'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.png'"/>
+          <xsl:with-param name="terminate" select="'NO'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/*.jpg'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODCONTENTSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/contents.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODMODULES</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/**/*.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODSCOPEXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/1_scope.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODREFSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/2_refs.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODDEFSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/3_defs.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODINFOREQSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/4_info_reqs.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODMAINXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/5_main.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODMAPPINGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/5_mapping.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODMIMXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/5_mim.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODINDEXXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/index.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODABSTRACTXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODASHORTNAMESXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/a_short_names.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODBOBJREGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/b_obj_reg.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODBIBLIOXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/biblio.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODCARMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/c_arm_expg.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODCOVERXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODDMIMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/d_mim_expg.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODEEXPXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODEEXPARMXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_arm.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODEEXPARMLFXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODEEXPMIMXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_mim.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODEEXPMIMLFXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_mim_lf.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODFGUIDEXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/f_guide.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODFOREWORDXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/foreword.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODINTRODUCTIONXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/introduction.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+      
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODARMDESCRIPTIONSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/arm_descriptions.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODMIMDESCRIPTIONSXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/mim_descriptions.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODARMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/armexpg*.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODMIMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/mimexpg*.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODARMEXPXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/arm.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODMIMEXPXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/mim.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+  </xsl:template>
+  
+  <xsl:template match="ballot_index" mode="apdoc_target">
     <xsl:text>
     </xsl:text>
-    <target name="init" depends="variables">
-      <xsl:element name="mkdir">
-        <xsl:attribute name="dir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>          
-      </xsl:element>
-
-      <xsl:element name="copy">
-        <xsl:attribute name="todir">
-          <xsl:value-of select="'${ISODIR}/images'"/>
-        </xsl:attribute>
-        <fileset dir="images"/>
-      </xsl:element>
-    </target>
-
-    <xsl:text>
-    </xsl:text>
-    <xsl:choose>
-      <target name="all" depends="init, resources, apdoc, isoindex, isomodules," 
-        description="Create HTML for everything"/> 
-    <xsl:text>
-    </xsl:text>
-    <target name="clean" depends="variables" 
-      description="delete generated files">
-      <xsl:element name="delete">
-        <xsl:attribute name="dir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-      </xsl:element>
-    </target>
-
-    <xsl:text>
-    </xsl:text>
-    <target name="zip" depends="all" description="create .zip file">
-      <xsl:element name="zip">
-        <xsl:attribute name="zipfile">
-          <xsl:value-of select="'${ISODIR}/${ARCHIVE}.zip'"/>
-        </xsl:attribute>
-        <xsl:attribute name="basedir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="excludes">
-          <xsl:value-of select="'**/*.zip'"/>
-        </xsl:attribute>
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'**'"/>
-        </xsl:attribute>
-      </xsl:element>
-    </target>
-
-    <xsl:text>
-    </xsl:text>
-    <target name="isoindex" depends="init" 
-      description="Create HTML index">
+    <target name="isoapdoc" depends="init" description="generate HTML for AP doc">
       <dependset>
         <xsl:element name="srcfileset">
           <xsl:attribute name="dir">
-            <xsl:value-of select="'${DTDDIR}'"/>
+            <xsl:value-of select="'${STEPMODDTDDIR}'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
             <xsl:value-of select="'**/*.dtd, **/*.ent'"/>
@@ -902,7 +1351,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="srcfileset">
           <xsl:attribute name="dir">
-            <xsl:value-of select="'${BALLLOTSTYLES}'"/>
+            <xsl:value-of select="'${STEPMODSTYLES}'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
             <xsl:value-of select="'**/*.xsl'"/>
@@ -910,28 +1359,33 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="srcfileset">
           <xsl:attribute name="dir">
-            <xsl:value-of select="'${BALLOTDIR}'"/>
+            <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'**/*.xml'"/>
+            <xsl:value-of select="'${APDOCS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:element name="targetfileset">
+        <xsl:element name="srcfileset">
           <xsl:attribute name="dir">
             <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'${BALLOTDIR}/*.htm*'"/>
+            <xsl:value-of select="'${APDOCGIFS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="targetfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${ISODIR}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'/${APDIR}/**/*.htm'"/>
           </xsl:attribute>
         </xsl:element>
       </dependset>
       
       <xsl:element name="style">
-        <xsl:attribute name="in">
-          <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
-        </xsl:attribute>
-        <xsl:attribute name="out">
-          <xsl:value-of select="'${ISODIR}/index.htm'"/>
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCSHOMEXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -940,25 +1394,1890 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${BALLLOTSTYLES}/ballot_summary.xsl'"/>
+          <xsl:value-of select="'${APXSL}/home.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
-        <param name="stepmodhome" expression="."/>
         <xsl:element name="param">
           <xsl:attribute name="name">
-            <xsl:value-of select="'date'"/>
+            <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${DATE}'"/>
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
           </xsl:attribute>
         </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCFRAMEAPTITLEXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/frame_aptitle.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCFRAMECONTENTTITLEXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/frame_contenttitle.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCFRAMEINDEXXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/frame_index.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCFRAMETOCXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/frame_toc.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCSAAMXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/aam_descriptions.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCSAAMIDEFXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/imgfile.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCSDATAPLANXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/imgfile.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCSCOPEXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_1_scope.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCREFSXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_2_refs.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCDEFSXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_3_defs.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINFOREQSXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_4_info_reqs.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCMAINXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_5_main.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCCCSXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_6_ccs.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXAAM}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_aam.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXARMEXPGXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_arm_expg.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXCHANGESXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_changes.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXCOMP}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_comp_int.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXEXPLFXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_exp_lf.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+       </xsl:element>
+       <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXGUIDEXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_guide.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXIMPMETHXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_imp_meth.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+       </xsl:element>
 
+       <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXOBJREGXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_obj_reg.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+         <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXPICSXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_pics.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXSHORTNAMESXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_shortnames.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXTECHDISCXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_tech_disc.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCBIBLIOXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_biblio.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCCONTENTSXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_contents.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCCOVERXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_cover.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCFOREWORDXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_foreword.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMEXPRESSXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_arm_express.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMEXPRESSINNERXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_arm_express_inner.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMEXPRESSTOPXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_arm_express_top.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMMAPPINGSXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_arm_mappings.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMMAPPINGSINNERXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_arm_mappings_inner.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMMAPPINGSTOP}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/xml arm_mappings_top.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMMODULES}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/arm_modules.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMMODULESINNER}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/arm_modules_inner.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXARMMODULESTOP}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/arm_modules_top.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXMIMEXPRESS}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/mim_express.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXMIMEXPRESSINNERXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/mim_express_inner.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXMIMEXPRESSTOP}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/mim_express_top.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXMIMMODULES}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/mim_modules.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXMIMMODULESINNER}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/mim_modules_inner.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXMIMMODULESTOP}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/mim_modules_top.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXRESOURCES}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_resources.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXRESOURCESINNER}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_resources_inner.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINDEXRESOURCESTOP}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/xmlindex_resources_top.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         </xsl:element>
+        <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCINTRODUCTION}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_introduction.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+         
+      <xsl:element name="copy">
+        <xsl:attribute name="todir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${APDOCGIFS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
     </target>
-    
+  </xsl:template>
+
+
+  <xsl:template match="ballot_index" mode="resources_target">
     <xsl:text>
     </xsl:text>
-    
     <target name="resources" depends="init" 
       description="generate common resources">
       <dependset>
@@ -1042,15 +3361,13 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${RESOURCESEXP}'"/>
           </xsl:attribute>
         </xsl:element>
-      </xsl:element>
-   
-
+      </xsl:element>  
     </target>
-    
-    
+  </xsl:template>
+
+  <xsl:template match="ballot_index" mode="modules_target">
     <xsl:text>
     </xsl:text>    
-
     <target name="isomodules" depends="init" 
       description="generate HTML for all modules">
       <dependset>
@@ -1220,14 +3537,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${REFSXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_2_refs.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${REFSXML}'"/>
@@ -1286,14 +3595,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${DEFSXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_3_defs.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DEFSXML}'"/>
@@ -1352,14 +3653,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${INFOREQSXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_4_info_reqs.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INFOREQSXML}'"/>
@@ -1418,14 +3711,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${MAINXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_5_main.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MAINXML}'"/>
@@ -1484,14 +3769,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${MAPPINGXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_5_mapping.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MAPPINGXML}'"/>
@@ -1550,14 +3827,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${MIMXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_5_mim.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${MIMXML}'"/>
@@ -1616,14 +3885,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
 
-      <!--
-    <style includes="${MODULES}/index.xml" 
-      destdir="." extension=".htm"
-      style="${STYLES}/index.xsl">
-      <param name="output_type" expression="HTM"/>
-      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-    </style>
-    -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INDEXXML}'"/>
@@ -1656,14 +3917,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
 
-      <!--
-<style includes="${ABSTRACTXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_abstract.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->      
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ABSTRACTXML}'"/>
@@ -1696,15 +3949,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
 
-
-      <!--
-<style includes="${ASHORTNAMESXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_a_short_names.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ASHORTNAMESXML}'"/>
@@ -1763,14 +4007,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${BOBJREGXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_b_obj_reg.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${BOBJREGXML}'"/>
@@ -1829,14 +4065,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${BIBLIOXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_biblio.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${BIBLIOXML}'"/>
@@ -1895,14 +4123,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${CARMEXPGXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_c_arm_expg.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${CARMEXPGXML}'"/>
@@ -1961,14 +4181,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${COVERXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_cover.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${COVERXML}'"/>
@@ -2035,14 +4247,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${DMIMEXPGXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_d_mim_expg.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMIMEXPGXML}'"/>
@@ -2101,14 +4305,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${EEXPXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_e_exp.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPXML}'"/>
@@ -2167,14 +4363,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${EEXPARMXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_e_exp_arm.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPARMXML}'"/>
@@ -2233,14 +4421,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${EEXPARMLFXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPARMLFXML}'"/>
@@ -2281,15 +4461,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
 
-
-      <!--
-<style includes="${EEXPMIMXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_e_exp_mim.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPMIMXML}'"/>
@@ -2348,14 +4519,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${EEXPMIMLFXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPMIMLFXML}'"/>
@@ -2414,14 +4577,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${FGUIDEXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_f_guide.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${FGUIDEXML}'"/>
@@ -2480,14 +4635,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${FOREWORDXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_foreword.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${FOREWORDXML}'"/>
@@ -2546,14 +4693,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${INTRODUCTIONXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_introduction.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${INTRODUCTIONXML}'"/>
@@ -2612,14 +4751,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-      <!--
-<style includes="${ARMEXPXML}, ${MIMEXPXML}" 
-        destdir="${ISODIR}" extension=".htm"
-        style="${STEPMODSTYLES}/express.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ARMEXPXML}, ${MIMEXPXML}'"/>
@@ -2678,16 +4809,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-           
-      <!--
-<style includes="${ARMEXPGXML},
-                       ${MIMEXPGXML}" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/imgfile.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-        <param name="menubar_file" expression="${ISOMENU}"/>
-</style> -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${ARMEXPGXML},${MIMEXPGXML}'"/>
@@ -2745,14 +4866,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-      
-      <!--
-<style includes="${SYS}/e_exp_arm_lf.xml" destdir="${ISODIR}"
-        extension=".htm"
-        style="${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl">
-        <param name="output_type" expression="HTM"/>
-        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-</style> -->
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
@@ -2839,10 +4953,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
     </target>
+  </xsl:template>
 
-      <xsl:if test="ballot_package/resource">
-
-    <target name="isoresdocs" depends="init" 
+  <xsl:template match="ballot_index" mode="dependent_modules_target">
+    <xsl:text>
+    </xsl:text>    
+    <target name="isodepmodules" depends="init" 
       description="generate HTML for all modules">
       <dependset>
         <xsl:element name="srcfileset">
@@ -2866,7 +4982,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'${RESDOCS}'"/>
+            <xsl:value-of select="'${DMODMODULES}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="srcfileset">
@@ -2874,32 +4990,30 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'${RESDOCGIFS}'"/>
+            <xsl:value-of select="'${DMODGIFS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <!-- 
-          <xsl:element name="srcfileset">
+        <xsl:element name="srcfileset">
           <xsl:attribute name="dir">
             <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'${EXPRESS}'"/>
+            <xsl:value-of select="'${DMODEXPRESS}'"/>
           </xsl:attribute>
         </xsl:element>
-        -->
         <xsl:element name="targetfileset">
           <xsl:attribute name="dir">
             <xsl:value-of select="'${ISODIR}'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'/data/resource_docs/**/*.htm'"/>
+            <xsl:value-of select="'/data/modules/**/*.htm'"/>
           </xsl:attribute>
         </xsl:element>
       </dependset>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCINDEXXML}'"/>
+          <xsl:value-of select="'${DMODCONTENTSXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -2908,104 +5022,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/index.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCISSUESXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/projmg/resource_issues_file.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCABSTRACTXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_abstract.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCCONTENTSXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_contents.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_contents.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -3026,85 +5043,22 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
+            <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
-      </xsl:element>      
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCSCOPEXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_1_scope.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-      
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCREFSXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_2_refs.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3117,7 +5071,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCDEFSXML}'"/>
+          <xsl:value-of select="'${DMODSCOPEXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3126,7 +5080,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_3_defs.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_1_scope.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -3145,6 +5099,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3157,7 +5129,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCSCHEMAXML}'"/>
+          <xsl:value-of select="'${DMODREFSXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3166,7 +5138,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_schema.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_2_refs.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -3185,6 +5157,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3197,7 +5187,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCCEXPSCHEMAXML}'"/>
+          <xsl:value-of select="'${DMODDEFSXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3206,7 +5196,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_c_exp_schema.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_3_defs.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -3227,124 +5217,22 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
+            <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCCEXPXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_c_exp.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCDEXPGXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_d_expg.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCMAINXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_main.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3357,7 +5245,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCASHORTNAMESXML}'"/>
+          <xsl:value-of select="'${DMODINFOREQSXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3366,7 +5254,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_a_short_names.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_4_info_reqs.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -3385,6 +5273,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3397,7 +5303,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCBOBJREGXML}'"/>
+          <xsl:value-of select="'${DMODMAINXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3406,7 +5312,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_b_obj_reg.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_5_main.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -3427,286 +5333,22 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
+            <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESOURCESSCHEMAEXPGXMLS}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCTECHDISCUSSIONXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_tech_discussion.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCEXAMPLESXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_examples.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCADDSCOPEXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_add_scope.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>      
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCBIBLIOXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_biblio.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCCOVERXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_cover.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${ISOMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCFOREWORDXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="destdir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="extension">
-          <xsl:value-of select="'.htm'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_foreword.xsl'"/>
-        </xsl:attribute>
-        <param name="output_type" expression="HTM"/>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_rcs'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_RCS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'output_issues'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
-          </xsl:attribute>
-        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3719,7 +5361,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCINTRODUCTIONXML}'"/>
+          <xsl:value-of select="'${DMODMAPPINGXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3728,7 +5370,659 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_introduction.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mapping.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODMIMXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mim.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODINDEXXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/index.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODABSTRACTXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_abstract.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODASHORTNAMESXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_a_short_names.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODBOBJREGXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_b_obj_reg.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODBIBLIOXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_biblio.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODCARMEXPGXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_c_arm_expg.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODCOVERXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_cover.xsl'"/>
+        </xsl:attribute>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'coverpage_date'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DATE}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODDMIMEXPGXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_d_mim_expg.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+       <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODEEXPXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODEEXPARMXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -3756,10 +6050,10 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-      
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCSCHEMADIAGXML}'"/>
+          <xsl:value-of select="'${DMODEEXPMIMXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3768,7 +6062,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -3787,6 +6081,430 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODFGUIDEXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_f_guide.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODFOREWORDXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_foreword.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODINTRODUCTIONXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_introduction.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODARMEXPXML}, ${DMODMIMEXPXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${DMODARMEXPGXML},${DMODMIMEXPGXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/imgfile.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3806,11 +6524,11 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'${RESDOCGIFS}'"/>
+            <xsl:value-of select="'${DMODEXPRESS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-
+      
       <xsl:element name="copy">
         <xsl:attribute name="todir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3820,273 +6538,11 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'${RESOURCESSCHEMAEXPGGIFS}'"/>
+            <xsl:value-of select="'${DMODGIFS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-
-    <xsl:variable name="resdoc_name">
-      <xsl:apply-templates select="ballot_package/resource" mode="name"/>
-    </xsl:variable>
-
-    <xsl:variable name="resdoc_dir">
-      <xsl:value-of select="concat('../../data/resource_docs/',$resdoc_name)"/>
-    </xsl:variable>
-     
-    <xsl:variable name="resdoc_ok">
-      <xsl:call-template name="check_resdoc_exists">
-        <xsl:with-param name="resdoc" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="resdoc_xml"
-                select="concat($resdoc_dir,'/resource.xml')"/>
-
-    <xsl:variable name="wgnumexp">
-      <xsl:apply-templates select="document($resdoc_xml)/resource" mode="wgnumexp"/>
-    </xsl:variable>
-
-      <xsl:element name="concat">
-        <xsl:attribute name="destfile">
-          <xsl:value-of select="concat('${ISODIR}','/', 'wg12n',$wgnumexp,'.exp')" />
-        </xsl:attribute>
-        <xsl:element name="fileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'.'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'${RESDOCRESOURCESEXP}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>   
     </target>
-  </xsl:if>
-
-  </project>
-
-  </xsl:template>
-
-  <xsl:template match="module">
-    <xsl:param name="prefix"/>
-    <xsl:param name="suffix"/>
-    <xsl:param name="terminate" select="'YES'"/>
-    <xsl:choose>
-      <xsl:when test="$terminate='YES'">
-        <xsl:choose>
-          <xsl:when test="position()=last()">
-            <xsl:value-of select="concat($prefix,@name,$suffix)"/><xsl:text/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="concat($prefix,@name,$suffix)"/>,<xsl:text/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat($prefix,@name,$suffix)"/>,<xsl:text/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-<xsl:template match="resource" mode="resources">
-    <xsl:param name="prefix"/>
-    <xsl:param name="suffix"/>
-    <xsl:param name="terminate" select="'YES'"/>
-
-    <xsl:variable name="resdoc_dir">
-      <xsl:value-of select="concat('../../data/resource_docs/',@name)"/>
-    </xsl:variable>
-     
-    <xsl:variable name="resdoc_ok">
-      <xsl:call-template name="check_resdoc_exists">
-        <xsl:with-param name="resdoc" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="resdoc_xml"
-                select="concat($resdoc_dir,'/resource.xml')"/>
-
-    <xsl:choose>
-      <xsl:when test="$resdoc_ok='true'">
-        <xsl:apply-templates select="document($resdoc_xml)/resource/schema"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="inline" select="'no'"/>
-          <xsl:with-param name="message">
-            <xsl:value-of select="concat('Error ref1: ', $resdoc_ok)"/>
-          </xsl:with-param>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-<xsl:template match="resource" mode="resdoc_resources">
-    <xsl:param name="prefix"/>
-    <xsl:param name="suffix"/>
-    <xsl:param name="terminate" select="'YES'"/>
-
-    <xsl:variable name="resdoc_dir">
-      <xsl:value-of select="concat('../../data/resource_docs/',@name)"/>
-    </xsl:variable>
-     
-    <xsl:variable name="resdoc_ok">
-      <xsl:call-template name="check_resdoc_exists">
-        <xsl:with-param name="resdoc" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="resdoc_xml"
-                select="concat($resdoc_dir,'/resource.xml')"/>
-
-    <xsl:choose>
-      <xsl:when test="$resdoc_ok='true'">
-        <xsl:apply-templates select="document($resdoc_xml)/resource/schema">
-          <xsl:with-param name="recurse" select="'NO'" />
-        </xsl:apply-templates>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="inline" select="'no'"/>
-          <xsl:with-param name="message">
-            <xsl:value-of select="concat('Error ref1: ', $resdoc_ok)"/>
-          </xsl:with-param>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-
-  <xsl:template match="interface" mode="resources">
-    <xsl:param name="resource_set" />
-    <!-- the name of the resource directory should be in lower case -->
-    <xsl:variable name="lschema" select="translate(./@schema,$UPPER,$LOWER)"/>
-    <xsl:variable name="lname" select="translate(../@name,$UPPER,$LOWER)"/>
-      <xsl:choose>        
-      <!--      <xsl:when test="contains($resource_set,$lschema)"> -->
-      <xsl:when test="contains($resource_set,concat(':',$lschema,':'))">
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat($resource_set,':',$lschema,':')"/>
-        <xsl:variable name="resource_dir">
-          <xsl:value-of select="concat('../../data/resources/',$lschema,'/')"/>
-        </xsl:variable>
-        <xsl:variable name="resource_xml">
-          <xsl:value-of select="concat($resource_dir,$lschema,'.xml')" />
-          </xsl:variable>
-          <xsl:apply-templates select="document($resource_xml)/express/schema/interface" mode="resources">
-            <xsl:with-param name="resource_set" select="concat($resource_set,':',$lname,':')"/>  
-          </xsl:apply-templates>
-        </xsl:otherwise>
-      </xsl:choose>  
-    </xsl:template>
-
-  <xsl:template match="module" mode="resources">
-    <xsl:param name="prefix"/>
-    <xsl:param name="suffix"/>
-    <xsl:param name="terminate" select="'YES'"/>
-
-    <xsl:variable name="module_dir">
-      <xsl:value-of select="concat('../../data/modules/',@name)"/>
-    </xsl:variable>
-
-    <xsl:variable name="module_ok">
-      <xsl:call-template name="check_module_exists">
-        <xsl:with-param name="module" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <!--
-    <xsl:message >
-     !!!!Module name:  <xsl:value-of select="@name"/>: module name 
-
-    </xsl:message>
--->
-    <xsl:choose>
-      <xsl:when test="$module_ok='true'">
-        <xsl:variable name="mim_xml" 
-          select="concat($module_dir,'/mim.xml')"/>
-        <xsl:apply-templates select="document($mim_xml)/express/schema/interface"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="inline" select="'no'"/>
-          <xsl:with-param name="message">
-            <xsl:value-of select="concat('Error ref1: ', $module_ok)"/>
-          </xsl:with-param>
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-
-  <xsl:template match="interface">
-    <xsl:variable name="type" 
-      select="substring(@schema,string-length(@schema)-3)"/>
-    <xsl:if test="$type!='_mim'">
-      <xsl:value-of select="concat(':',@schema,':')"/>
-      <!--
-      <xsl:message>
-            schema:<xsl:value-of select="concat(':',@schema,':')"/>:schema
-      </xsl:message>
-      -->
-    </xsl:if>
-  </xsl:template>
-
-
-  <xsl:template match="schema">
-    <xsl:param name="recurse" select="'YES'" />
-    <!-- the name of the resource directory should be in lower case -->
-    <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
-
-    <xsl:value-of select="concat(':',$lname,':')"/>
-    <xsl:if test="$recurse='YES'">
-      
-    <xsl:variable name="resource_dir">
-      <xsl:value-of select="concat('../../data/resources/',$lname,'/')"/>
-    </xsl:variable>
-    <xsl:variable name="resource_xml">
-      <xsl:value-of select="concat($resource_dir,$lname,'.xml')" />
-    </xsl:variable>
-    <xsl:apply-templates select="document($resource_xml)/express/schema/interface" mode="resources">
-      <xsl:with-param name="resource_set" select="concat(':',$lname,':')" />
-    </xsl:apply-templates>
-    </xsl:if>
-</xsl:template>
-
-
-  <xsl:template name="output_resources">
-    <xsl:param name="resources"/>
-    <xsl:param name="prefix" select="'data/resources/'"/>
-    <xsl:param name="suffix" select="'.xml'"/>
-    <xsl:variable
-      name="first"
-      select="substring-before(substring-after($resources,':'),':')"/>
-
-    <!--    <xsl:message>
-      first-<xsl:value-of select="$first"/>-first
-    </xsl:message> -->
-    <xsl:variable
-      name="rest"
-      select="substring-after(substring-after($resources,':'),':')"/>
-    <xsl:choose>
-      <!-- added second test because the recursion does not stop otherwise - rats  -->
-      <xsl:when test="contains($rest,$first) and string-length($first)!=0">
-        <!-- the schema is in the list and will be dealt with later -->
-        <xsl:call-template name="output_resources">
-          <xsl:with-param name="resources" select="$rest"/>
-          <xsl:with-param name="suffix" select="$suffix"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="contains($rest,':')">
-        <xsl:value-of select="concat($prefix,$first,'/',$first,$suffix)"/>,<xsl:text/>
-        <xsl:call-template name="output_resources">
-          <xsl:with-param name="resources" select="$rest"/>
-          <xsl:with-param name="suffix" select="$suffix"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat($prefix,$first,'/',$first,$suffix)"/><xsl:text/>
-      </xsl:otherwise>
-    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="resource">
@@ -4121,25 +6577,136 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:value-of select="./@name" />     
   </xsl:template>
 
- <xsl:template name="check_resdoc_exists">
-    <xsl:param name="resdoc"/>
 
-    <xsl:variable name="ret_val">
+  <xsl:template match="ap_doc" mode="get_mod_node_set">
+    <xsl:variable name="selected_ap" select="@name"/>
+    <xsl:variable name="ap_file" 
+      select="concat('../../data/application_protocols/',$selected_ap,'/application_protocol.xml')"/>	    
+    <xsl:variable name="ap_node" select="document($ap_file)"/>
+    <xsl:variable name="ap_top_module" select="$ap_node/application_protocol/@module_name"/>
+    
+    <xsl:variable name="top_module_file" 
+      select="concat('../../data/modules/',$ap_top_module,'/mim.xml')"/>
+    
+    <xsl:variable name="top_module_node"
+      select="document($top_module_file)/express"/>
+    
+    <xsl:variable name="schema-name"
+      select="$top_module_node//schema/@name"/>
+    
+    <xsl:variable name="mim_schemas">
+      <xsl:call-template name="depends-on-recurse-mim-x">
+        <xsl:with-param name="todo" select="concat(' ',$schema-name,' ')"/>
+        <xsl:with-param name="done" select="' '"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
+    
+      <xsl:for-each select="$schemas-node-set//x">
+        <xsl:sort/>
         <xsl:choose>
-          <xsl:when
-            test="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc]">
-            <xsl:value-of select="'true'"/>
+          <xsl:when test="substring-before(.,'/mim.xml')">
+            <xsl:variable name="module" select="substring-after(substring-before(.,'/mim'),'modules/')"/>
+            <xsl:variable name="module_ok">
+              <xsl:call-template name="check_module_exists">
+                <xsl:with-param name="module" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:choose>
+              <xsl:when test="$module_ok='true'">
+                <module>
+                  <xsl:attribute name="name">
+                    <xsl:value-of select="$module"/>
+                  </xsl:attribute>
+                </module>
+              </xsl:when>
+              <xsl:otherwise>
+                <error>
+                  <xsl:value-of select="$module"/>
+                </error>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of
-              select="concat(' The resource document ', $resdoc,
-                      ' is not identified as a resource document  in repository_index.xml')"/>
+            <xsl:variable name="resource" 
+              select="substring-after(substring-before(.,'.xml'),'../../data/resources/')"/>
+            <resource>
+              <xsl:attribute name="name">
+                <xsl:value-of select="$resource"/>
+              </xsl:attribute>
+            </resource>
           </xsl:otherwise>
         </xsl:choose>
-      </xsl:variable>
-      <xsl:value-of select="$ret_val"/>
+      </xsl:for-each>
   </xsl:template>
 
+<xsl:template name="depends-on-recurse-mim-x">
+  <xsl:param name="todo" select="' '"/>
+  <xsl:param name="done" />
+    <!--
+         For each interfaced schema:
+         Check if not already done
+         Otherwise output and add to todo
+         -->
+    <xsl:variable name="this-schema" select="substring-before(concat(normalize-space($todo),' '),' ')"/>
+    <xsl:if test="$this-schema">
+
+      <!-- open up the relevant schema  - which can be a resource or a mim schema -->
+      <xsl:variable name="file_name">
+        <xsl:choose>
+          <xsl:when test="substring-before($this-schema,'_mim')">
+            <xsl:value-of select="concat('../../data/modules/',substring-before($this-schema,'_mim'),'/mim.xml')"/>
+          </xsl:when>
+          <xsl:when test="substring-before($this-schema,'_schema')">
+            <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
+          </xsl:when>
+          <xsl:when test="starts-with($this-schema,'aic_')">
+            <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            BAD SCHEMA name !!! <xsl:value-of select="$this-schema"/>
+        </xsl:otherwise>
+      </xsl:choose>
+  </xsl:variable>
+  
+  <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
+    <x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    'abcdefghijklmnopqrstuvwxyz')" /></x>
+  </xsl:if>
+  
+  <xsl:variable name="mim-node" select="document($file_name)/express"/>
+  
+  
+  <!-- get the list of schemas for this level that have not already been done -->
+
+  <xsl:variable name="my-kids" >
+    <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))" >
+      <xsl:apply-templates select="$mim-node//interface" mode="interface-schemas">
+        <xsl:with-param name="done" select="$done" />
+        </xsl:apply-templates>
+      </xsl:if>
+    </xsl:variable>
+
+    <xsl:variable name="after" select="normalize-space(concat(substring-after($todo, $this-schema),$my-kids))"/>
+                          
+    <xsl:if test="$after">
+      <xsl:call-template name="depends-on-recurse-mim-x">
+        <xsl:with-param name="todo" select="$after"/>
+        <xsl:with-param name="done" select="concat($done,' ',$this-schema,' ')"/>
+      </xsl:call-template>
+    </xsl:if>
+    
+  </xsl:if>
+
+</xsl:template>
+
+<xsl:template match="interface" mode="interface-schemas">
+  <xsl:param name="done"/>
+  <xsl:if test="not(contains($done,@schema))">
+    <xsl:value-of select="concat(' ',@schema,' ')"/> 
+  </xsl:if>
+</xsl:template>
 
 </xsl:stylesheet>
 

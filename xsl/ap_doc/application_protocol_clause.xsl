@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: application_protocol_clause.xsl,v 1.4 2002/10/08 10:20:08 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module_clause.xsl"/>
@@ -10,22 +10,28 @@
 		<xsl:apply-templates select="./application_protocol_clause"/>
 	</xsl:template>
 	
+	<!--
 	<xsl:template match="module_clause"/>
-	
+	-->
 	<xsl:template match="application_protocol_clause">
-    		<xsl:variable name="application_protocol_xml_file" select="concat('../../data/application_protocols/',@directory,'/application_protocol.xml')"/>
-		<xsl:variable name="module_xml_file" select="concat('../../data/modules/',@directory,'/module.xml')"/>
+    <xsl:variable name="application_protocol_xml_file" 
+				select="concat('../../data/application_protocols/',@directory,'/application_protocol.xml')"/>
+		<xsl:variable name="module_xml_file" 
+		select="concat('../../data/modules/',@directory,'/module.xml')"/>
     		<html>
-      			<head>
-        			<title>
-          				<xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol" mode="title"/>
-        			</title>
-      			</head>
-      			<body>
-        			<xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol" mode="TOCmultiplePage"/>
+      	<head>
+        <title>
+         <xsl:apply-templates 
+						select="document($application_protocol_xml_file)/application_protocol" mode="title"/>
+        </title>
+      	</head>
+      	<body>
+        <xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol" mode="TOCmultiplePage"/>
 				<xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol"/>
+
 				<xsl:apply-templates select="document($module_xml_file)/module"/>
-      			</body>
+
+      	</body>
     		</html>
 	</xsl:template>
 	

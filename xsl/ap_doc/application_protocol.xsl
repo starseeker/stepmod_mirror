@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.11 2002/10/30 15:28:17 mikeward Exp $
+     $Id: application_protocol.xsl,v 1.12 2002/11/26 10:41:38 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -13,9 +13,9 @@
 	<xsl:template match="/">
 		<HTML>
 			<HEAD>
-      				<TITLE>
+      	<TITLE>
        		 		<xsl:apply-templates select="./application_protocol" mode="title"/>
-      				</TITLE>
+      	</TITLE>
 			</HEAD>
     			<BODY>
       				<xsl:apply-templates select="./application_protocol" mode="TOCsinglePage"/>
@@ -28,11 +28,12 @@
 		<xsl:apply-templates select="." mode="foreword"/>
 	</xsl:template>
 	
-	<xsl:template match="module">
-		<!-- xsl:apply-templates select="." mode="coverpage"/ -->
+		<!--	
+		<xsl:template match="module">
+ xsl:apply-templates select="." mode="coverpage"/ 
 		<xsl:apply-templates/>
 	</xsl:template>
-
+-->
 	<xsl:template match="application_protocol" mode="title">
 		<xsl:variable name="lpart">
 			<xsl:choose>
@@ -56,9 +57,10 @@
 		</xsl:choose>
 	</xsl:template>
 
-	<xsl:template match="module" mode="coverpage">
-		<xsl:variable name="n_number" select="concat('ISO TC184/SC4/WG12&#160;N',./@wg.number)"/>
-		<xsl:variable name="date" select="translate(substring-before(substring-after(@rcs.date,'$Date: '),' '), '/','-')"/>
+<xsl:template match="application_protocol" mode="coverpage">
+		<xsl:variable name="n_number" select="concat('ISO TC184/SC4/WG3&#160;N',./@wg.number)"/>
+		<xsl:variable name="date" 
+		select="translate(substring-before(substring-after(@rcs.date,'$Date: '),' '), '/','-')"/>
 		<table width="624">
 			<tr>
 				<td>
@@ -82,7 +84,7 @@
 					<td>
 						<xsl:call-template name="error_message">
 							<xsl:with-param name="message">
-								<xsl:value-of select="concat('Error in module.xml/application_protocol/@wg.number - ', 	$test_wg_number)"/>
+								<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/@wg.number - ', 	$test_wg_number)"/>
 							</xsl:with-param>
 						</xsl:call-template>
 					</td>
@@ -98,7 +100,7 @@
 									<xsl:value-of select="@wg.number.supersedes"/>
 								</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.supersedes)"/>
+									<xsl:value-of select="concat('ISO&#160;TC184/SC4/WG3&#160;N',@wg.number.supersedes)"/>
 								</xsl:otherwise>
 							</xsl:choose>
 						</h3>
@@ -130,16 +132,19 @@
 				</tr>
 			</xsl:if>
 		</table>
-		<xsl:variable name="module_name">
-			<xsl:call-template name="module_display_name">
-				<xsl:with-param name="module" select="./@name"/>
+		
+	 <xsl:variable name="module_name">
+			<xsl:call-template name="protocol_display_name">
+				<xsl:with-param name="application_protocol" select="@title"/>
 			</xsl:call-template>
 		</xsl:variable>
+		
 		<xsl:variable name="stdnumber">
-			<xsl:call-template name="get_module_stdnumber">
-				<xsl:with-param name="module" select="."/>
+			<xsl:call-template name="get_protocol_stdnumber">
+				<xsl:with-param name="application_protocol" select="."/>
 			</xsl:call-template>
 		</xsl:variable>
+		
 		<h4>
 			<xsl:value-of select="$stdnumber"/>
 			<br/>
@@ -266,7 +271,7 @@
 							</xsl:when>
 						</xsl:choose>
 					</xsl:variable>
-					This document has been reviewed using the internal review checklist (see <xsl:value-of select="concat('WG12	&#160;N',@checklist.internal_review)"/>),
+					This document has been reviewed using the internal review checklist (see <xsl:value-of select="concat('WG3	&#160;N',@checklist.internal_review)"/>),
 					<xsl:variable name="test_cl_internal_review">
 						<xsl:call-template name="test_wg_number">
 							<xsl:with-param name="wgnumber" select="./@checklist.internal_review"/>
@@ -281,7 +286,7 @@
 							</xsl:call-template>
 						</p>
 					</xsl:if>
-					the project leader checklist (see <xsl:value-of select="concat('WG12&#160;N',@checklist.project_leader)"/>),
+					the project leader checklist (see <xsl:value-of select="concat('WG3&#160;N',@checklist.project_leader)"/>),
 					<xsl:variable name="test_cl_project_leader">
 						<xsl:call-template name="test_wg_number">
 							<xsl:with-param name="wgnumber" select="./@checklist.project_leader"/>
@@ -296,7 +301,7 @@
 							</xsl:call-template>
 						</p>
 					</xsl:if>
-					and the convener checklist (see <xsl:value-of select="concat('WG12&#160;N',@checklist.convener)"/>),
+					and the convener checklist (see <xsl:value-of select="concat('WG3&#160;N',@checklist.convener)"/>),
 					<xsl:variable name="test_cl_convener">
 						<xsl:call-template name="test_wg_number">
 							<xsl:with-param name="wgnumber" select="./@checklist.convener"/>
@@ -306,7 +311,7 @@
 						<p>
 							<xsl:call-template name="error_message">
 								<xsl:with-param name="message">
-									<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/	@checklist.convener - ', $test_cl_convener)"/>
+									<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/@checklist.convener - ', $test_cl_convener)"/>
 								</xsl:with-param>
 							</xsl:call-template>
 						</p>
@@ -323,7 +328,7 @@
 				</td>
 			</tr>
 		</table>
-	</xsl:template>
+</xsl:template>
 
 	<xsl:template match="projlead">
 		<xsl:variable name="ref" select="@ref"/>
@@ -366,6 +371,17 @@
 	</xsl:template>
 	
 	<xsl:template match="application_protocol" mode="foreword">
+	    <xsl:variable name="part_no">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          ISO/TS 10303-XXXX
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
 		<h3>
 			<a name="foreword">
 				Foreword
@@ -446,6 +462,138 @@
 				Industrial data.
 			</i>
 		</p>
+		
+		<xsl:if test="string-length(@previous.revision.year)>0">
+    <xsl:variable name="this_edition">
+      <xsl:choose>
+        <xsl:when test="@version='2'">
+          second
+        </xsl:when>
+        <xsl:when test="@version='3'">
+          third
+        </xsl:when>
+        <xsl:when test="@version='4'">
+          fourth
+        </xsl:when>
+        <xsl:when test="@version='5'">
+          fifth
+        </xsl:when>
+        <xsl:when test="@version='6'">
+          sixth
+        </xsl:when>
+        <xsl:when test="@version='7'">
+          seventh
+        </xsl:when>
+        <xsl:when test="@version='8'">
+          eighth
+        </xsl:when>
+        <xsl:when test="@version='9'">
+          ninth
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="prev_edition">
+      <xsl:choose>
+        <xsl:when test="@version='2'">
+          first
+        </xsl:when>
+        <xsl:when test="@version='3'">
+          second
+        </xsl:when>
+        <xsl:when test="@version='4'">
+          third
+        </xsl:when>
+        <xsl:when test="@version='5'">
+          fourth
+        </xsl:when>
+        <xsl:when test="@version='6'">
+          fifth
+        </xsl:when>
+        <xsl:when test="@version='7'">
+          sixth
+        </xsl:when>
+        <xsl:when test="@version='8'">
+          seventh
+        </xsl:when>
+        <xsl:when test="@version='9'">
+          eighth
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="@previous.revision.cancelled='NO'">
+        This <xsl:value-of select="$this_edition"/> edition of  
+        <xsl:value-of select="$part_no"/> 
+        constitutes a technical revision of the
+        <xsl:value-of select="@previous.revision.year"/> edition  
+        (<xsl:value-of
+          select="@previous.revision.number"/>),
+        which is provisionally retained in order to support continued use
+        and maintenance of implementations based on the
+        <xsl:value-of select="$prev_edition"/> 
+        edition and to satisfy the normative references of other parts of
+        ISO 10303. 
+
+
+        <xsl:choose>
+          <!-- only changed a section of the document -->
+          <xsl:when test="@revision.complete='NO'">
+            <xsl:value-of select="@revision.scope"/>
+            of the <xsl:value-of select="$prev_edition"/> 
+            edition  
+            <xsl:choose>
+            <!-- will be Clauses/Figures/ etc so if contains 'es' 
+                 then must be plural-->
+              <xsl:when test="contains(@revision.scope,'es')">
+                have
+              </xsl:when>
+              <xsl:otherwise>
+                has
+              </xsl:otherwise>
+            </xsl:choose>
+            been technically revised.
+          </xsl:when>
+          <xsl:otherwise>
+            <!-- complete revision so no extra text -->
+          </xsl:otherwise>
+        </xsl:choose>
+
+      </xsl:when>
+
+      <xsl:otherwise>
+        <!-- cancelled -->
+        This <xsl:value-of select="$this_edition"/> edition of 
+        <xsl:value-of select="$part_no"/> cancels and replaces the
+        <xsl:value-of select="@previous.revision.year"/> edition
+        (<xsl:value-of
+          select="@previous.revision.number"/>), 
+
+        <xsl:choose>
+          <!-- only changed a section of the document -->
+          <xsl:when test="@revision.complete='NO'">
+            of which 
+            <xsl:value-of select="@revision.scope"/>
+            <xsl:choose>
+            <!-- will be Clauses/Figures/ etc so if contains 'es' 
+                 then must be plural-->
+              <xsl:when test="contains(@revision.scope,'es')">
+                have
+              </xsl:when>
+              <xsl:otherwise>
+                has
+              </xsl:otherwise>
+            </xsl:choose>
+            been technically revised.
+          </xsl:when>
+          <xsl:otherwise>
+            of which it constitutes a technical revision.
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:if>
+
 		<p>
 			    This International Standard is organized as a series of parts, each
 			    published separately. The structure of this International Standard is
@@ -520,9 +668,7 @@
 			, shows the correspondence between the information requirements and the AIM. The short listing of the AIM specifies 
 			the interface to the resources and is given in 
 			<a href="5_aim{$FILE_EXT}">
-				5.2
-			</a>
-			.
+				5.2</a>.
 			</p>
 			<p>
 				In this International Standard, the same English language words may be
@@ -799,7 +945,7 @@
 					</xsl:call-template>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat('WG12 N',$wgnumber)"/>
+					<xsl:value-of select="concat('WG3 N',$wgnumber)"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</td>

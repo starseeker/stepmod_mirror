@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: common.xsl,v 1.8 2002/10/28 18:18:24 mikeward Exp $
+     $Id: common.xsl,v 1.9 2002/10/29 18:43:10 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../common.xsl"/>
@@ -89,15 +89,15 @@
 				<td valign="MIDDLE">
 					<B>
 						Application protocol:
-						<xsl:call-template name="module_display_name">
-							<xsl:with-param name="module" select="@name"/>
+						<xsl:call-template name="protocol_display_name">
+							<xsl:with-param name="application_protocol" select="@name"/>
 						</xsl:call-template>
 					</B>
 				</td>
 				<td valign="MIDDLE" align="RIGHT">
 					<xsl:variable name="stdnumber">
-						<xsl:call-template name="get_module_pageheader">
-							<xsl:with-param name="module" select="."/>
+						<xsl:call-template name="get_protocol_pageheader">
+							<xsl:with-param name="application_protocol" select="."/>
 						</xsl:call-template>
 					</xsl:variable>
 					<b>

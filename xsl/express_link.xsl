@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.10 2002/08/05 09:41:09 robbod Exp $
+     $Id: express_link.xsl,v 1.11 2002/08/06 08:05:48 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -530,7 +530,8 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
   <!-- If yes then output prefix on first object -->
   <xsl:param name="first_prefix" select="'yes'"/>
   <xsl:param name="clause" select="section"/>
-
+  <xsl:param name="and_for_last_pair" select="'no'"/>
+ 
   <xsl:variable name="nlist"
     select="translate(normalize-space($list),' ',',')"/>
 
@@ -562,25 +563,83 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
         <xsl:with-param name="clause" select="$clause"/>
       </xsl:call-template>
 
-      <xsl:call-template name="output-fix">
-        <xsl:with-param name="fix" select="$suffix"/>
-      </xsl:call-template>
-      <xsl:if test="$linebreak='yes'">
-        <br/>
+      <xsl:if test="not( $and_for_last_pair='yes' and not
+                    (string-length($rest) - string-length(translate($rest,',','')) > 1 ))">
+
+        <xsl:call-template name="output-fix">
+          <xsl:with-param name="fix" select="$suffix"/>
+        </xsl:call-template>
+        <xsl:if test="$linebreak='yes'">
+          <br/>
+        </xsl:if>        
       </xsl:if>
 
-      <xsl:call-template name="link_list">
-        <xsl:with-param name="prefix" select="$prefix"/>
-        <xsl:with-param name="suffix" select="$suffix"/>
-        <xsl:with-param name="linebreak" select="$linebreak"/>
-        <xsl:with-param name="first_prefix" select="'yes'"/>
-        <xsl:with-param name="list" select="$rest"/>
-        <xsl:with-param 
-          name="object_used_in_schema_name" 
-          select="$object_used_in_schema_name"/>
-        <xsl:with-param name="clause" select="$clause"/>
-      </xsl:call-template>
 
+      <!-- check how many comma separators are left. 
+           If less than one, have reached last item in list so check for
+           "and_if_last_pair" 
+           -->
+      
+      <xsl:choose>
+        <xsl:when test="$and_for_last_pair='yes' and
+                        (string-length($rest) - string-length(translate($rest,',','')) = 1 )">
+          
+          <xsl:call-template name="output-fix">
+            <xsl:with-param name="fix" select="$suffix"/>
+          </xsl:call-template>
+          <xsl:if test="$linebreak='yes'">
+            <br/>
+          </xsl:if>
+          
+          <xsl:call-template name="link_object">
+            <xsl:with-param name="object_name" 
+              select="substring-before($rest,',')"/>
+            <xsl:with-param 
+              name="object_used_in_schema_name" 
+              select="$object_used_in_schema_name"/>
+            <xsl:with-param name="clause" select="$clause"/>
+          </xsl:call-template>
+          
+          and
+          
+          <xsl:call-template name="link_object">
+            <xsl:with-param name="object_name" 
+              select="substring-after($rest,',')"/>
+            <xsl:with-param 
+              name="object_used_in_schema_name" 
+              select="$object_used_in_schema_name"/>
+            <xsl:with-param name="clause" select="$clause"/>
+          </xsl:call-template>                    
+	</xsl:when>
+
+	<xsl:when test="$and_for_last_pair='yes' and
+                        (string-length($rest) - string-length(translate($rest,',','')) = 0 )">
+          and
+          <xsl:call-template name="link_object">
+            <xsl:with-param name="object_name" 
+              select="$rest"/>
+            <xsl:with-param 
+              name="object_used_in_schema_name" 
+              select="$object_used_in_schema_name"/>
+            <xsl:with-param name="clause" select="$clause"/>
+          </xsl:call-template>
+        </xsl:when>
+        
+        <xsl:otherwise>
+          <xsl:call-template name="link_list">
+            <xsl:with-param name="prefix" select="$prefix"/>
+            <xsl:with-param name="suffix" select="$suffix"/>
+            <xsl:with-param name="linebreak" select="$linebreak"/>
+            <xsl:with-param name="first_prefix" select="'yes'"/>
+            <xsl:with-param name="list" select="$rest"/>
+            <xsl:with-param 
+              name="object_used_in_schema_name" 
+              select="$object_used_in_schema_name"/>
+            <xsl:with-param name="clause" select="$clause"/>
+            <xsl:with-param name="and_for_last_pair" select="$and_for_last_pair"/>
+          </xsl:call-template>          
+       </xsl:otherwise>
+      </xsl:choose>
     </xsl:when>
 
     <xsl:otherwise>

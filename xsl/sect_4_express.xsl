@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.61 2002/08/14 14:08:55 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.62 2002/08/19 00:21:43 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -19,7 +19,7 @@
   <xsl:import href="express_link.xsl"/> 
   <xsl:import href="express_description.xsl"/> 
 
-  <!-- <xsl:import href="issues.xsl"/> -->
+  <xsl:import href="projmg/issues.xsl"/> 
 
   <xsl:output method="html"/>
 
@@ -537,6 +537,12 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
+  <!-- output any issue against constant   -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="./@name"/>
+  </xsl:call-template> 
+
 
     <!-- output EXPRESS -->
     <p><u>EXPRESS specification:</u></p>
@@ -670,6 +676,11 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
+  <!-- output any issue against type -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="./@name"/>
+  </xsl:call-template> 
 
   <p><u>EXPRESS specification:</u></p>
   <p>
@@ -904,13 +915,11 @@
     </xsl:choose>
   </p>
 
-
-  <!-- output any issue against entity 
+  <!-- output any issue against entity   -->
   <xsl:call-template name="output_express_issue">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="./@name"/>
   </xsl:call-template> 
-  -->
 
   <p><u>EXPRESS specification:</u></p>
   <p>
@@ -1159,6 +1168,14 @@
       </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
+
+  <!-- output any issue against attribute  -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="entity" select="../@name"/>
+    <xsl:with-param name="attribute" select="@name"/>
+  </xsl:call-template> 
+
 </p>
 </xsl:template>
 
@@ -1213,6 +1230,13 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
+  <!-- output any issues against derived attributes -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="entity" select="../@name"/>
+    <xsl:with-param name="attribute" select="@name"/>
+  </xsl:call-template>
+
 </xsl:template>
 
 <xsl:template match="inverse" mode="description">
@@ -1265,6 +1289,13 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
+  <!-- output any issues against inverse attribute -->
+  <xsl:call-template name="output_external_description">
+    <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="entity" select="../@name"/>
+    <xsl:with-param name="attribute" select="@name"/>
+  </xsl:call-template>
+
 </xsl:template>
 
 
@@ -1319,6 +1350,13 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
+    <!-- output issues against unique rule -->
+    <xsl:call-template name="output_express_issue">
+      <xsl:with-param name="schema" select="../../@name"/>
+      <xsl:with-param name="entity" select="../@name"/>
+      <xsl:with-param name="unique" select="./@label"/>
+    </xsl:call-template>
+
 </xsl:template>
 
 <xsl:template name="output_where_formal">
@@ -1385,6 +1423,13 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
+  <!-- output issue against entity -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="entity" select="../@name"/>
+    <xsl:with-param name="where" select="@label"/>
+  </xsl:call-template>
+
 </xsl:template>
 
 <!-- P. Huau - addition processing of SUBTYPE_CONSTRAINT -->
@@ -1467,6 +1512,13 @@
       </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
+
+  <!-- output express issues against supertype constraint -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="@name"/>
+  </xsl:call-template>
+
 
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
@@ -1569,6 +1621,12 @@
     </xsl:otherwise>
   </xsl:choose>
 
+  <!-- output issues against function -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="@name"/>
+  </xsl:call-template>
+
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
   <p>
@@ -1668,6 +1726,11 @@
       </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
+  <!-- output any issue against procedure -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="./@name"/>
+  </xsl:call-template> 
   
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
@@ -1756,6 +1819,12 @@
     </xsl:otherwise>
   </xsl:choose>
 </p>
+  <!-- output issues against parameter -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="entity" select="../@name"/>
+    <xsl:with-param name="attribute" select="@name"/>
+  </xsl:call-template>
 </xsl:template>
 
 <xsl:template match="algorithm" mode="code">
@@ -1851,6 +1920,12 @@
       </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
+
+  <!-- output any issue against algorithm -->
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="./@name"/>
+  </xsl:call-template> 
   
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
@@ -2746,6 +2821,7 @@
             <xsl:with-param name="object_used_in_schema_name"
               select="../../@name"/>
             <xsl:with-param name="clause" select="'section'"/>
+            <xsl:with-param name="and_for_last_pair" select="'yes'"/>
           </xsl:call-template>
           to the list of alternate data types.
         </xsl:if>
@@ -2788,6 +2864,7 @@
             <xsl:with-param name="object_used_in_schema_name"
               select="../../@name"/>
             <xsl:with-param name="clause" select="'section'"/>
+            <xsl:with-param name="and_for_last_pair" select="'yes'"/>
           </xsl:call-template>
           to the list of alternate data types.
         </xsl:if>

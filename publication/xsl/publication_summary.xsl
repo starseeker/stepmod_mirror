@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.20 2003/07/25 00:33:31 thendrix Exp $
+$Id: publication_summary.xsl,v 1.1 2004/01/09 17:35:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -62,7 +62,7 @@ $Id: ballot_summary.xsl,v 1.20 2003/07/25 00:33:31 thendrix Exp $
 
         <tr>
           <td>Publication set WG number:</td>
-          <td><xsl:value-of select="concat('WG',@sc4.working_group,' N', @wg.number.publication_set"/></td>
+          <td><xsl:value-of select="concat('WG',@sc4.working_group,' N', @wg.number.publication_set)"/></td>
         </tr>
         <tr>
           <td>Publication project leader:</td>

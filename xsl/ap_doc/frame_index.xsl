@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_index.xsl,v 1.4 2003/10/31 15:55:56 robbod Exp $
+$Id: frame_index.xsl,v 1.5 2004/02/05 17:51:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -31,7 +31,8 @@ $Id: frame_index.xsl,v 1.4 2003/10/31 15:55:56 robbod Exp $
         </title>
       </head>
       <body>
-        <h2>Index</h2>
+        <h2>Navigation Indices</h2>
+	<a href="./index_apdoc{$FILE_EXT}" target="info">Application Protocol Index</a><br/>
         <a href="index_arm_modules{$FILE_EXT}">Module ARMs</a><br/>
         <a href="index_mim_modules{$FILE_EXT}">Module MIMs</a><br/>
         <a href="index_resources{$FILE_EXT}">Resource schemas</a><br/>

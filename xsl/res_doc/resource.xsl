@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.5 2002/11/01 04:38:57 thendrix Exp $
+$Id: resource.xsl,v 1.6 2002/11/06 00:54:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1105,11 +1105,12 @@ defined in annex D of ISO 10303-11.
     </xsl:call-template>
   </xsl:variable>
 
-    <xsl:variable name="clause_intro">The following Express declaration begins the 
-      <b><xsl:value-of select="$schema_name" /></b>
- and identifies the necessary external references.
+  <xsl:variable name="clause_intro_1">The following Express declaration begins the </xsl:variable>
+    <xsl:variable name="clause_intro_2"> and identifies the necessary external references.
       </xsl:variable>
-      <xsl:value-of select="$clause_intro"/>
+      <xsl:value-of select="$clause_intro_1"/>
+    <xsl:element name='b'><xsl:value-of select="$schema_name" /></xsl:element>
+      <xsl:value-of select="$clause_intro_2"/>
       <p/>
     <u>EXPRESS specification: </u>
   <code>

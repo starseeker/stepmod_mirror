@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.8 2002/02/15 12:21:31 robbod Exp $
+//$Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -8,9 +8,11 @@
 //    cscript express2xml.js <module> mim
 //    cscript express2xml.js <module> mim_lf
 //    cscript express2xml.js <module> module
-//    cscript express2xml.js <resource> resource
+//    cscript express2xml.js <resource> resource partnumber
 //    e.g
 //    cscript express2xml.js part_and_version_identification arm
+//    cscript express2xml.js action_schema resource "ISO 10303-41"
+
 
 // ------------------------------------------------------------
 // Global variables
@@ -311,7 +313,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.8 2002/02/15 12:21:31 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -321,7 +323,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.8 $";
+    var appCVSRevision = "$Revision: 1.9 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -1022,7 +1024,7 @@ function xmlCloseAttr(outTs) {
     }
 }
 
-function Output2xml(expFile, xmlFile) {
+function Output2xml(expFile, xmlFile, partnumber) {
     userMessage("Reading EXPRESS: " + expFile);
     userMessage("Writing XML: " + xmlFile);
     var fso = new ActiveXObject("Scripting.FileSystemObject");
@@ -1036,6 +1038,19 @@ function Output2xml(expFile, xmlFile) {
     xmlXMLhdr(xmlTs);
     xmlOpenElement("<express",xmlTs);
     xmlAttr("language_version","2",xmlTs);
+
+    if (expFile.match(/_schema.exp$/)) {
+	// An integrated resource
+	if (partnumber) {
+	    xmlAttr("reference",partnumber,xmlTs);
+	}	
+    } else if (expFile.match(/arm.exp$/)) {
+	xmlAttr("description.file","arm_descriptions.xml",xmlTs);
+    } else if (expFile.match(/mim.exp$/)) {
+	xmlAttr("description.file","mim_descriptions.xml",xmlTs);	
+    }
+
+
     var rcsdate = "$"+"Date: $";
     xmlAttr("rcs.date",rcsdate,xmlTs);
     var rcsrevision = "$"+"Revision: $";
@@ -1161,19 +1176,19 @@ function MainMim() {
 // -----------------------------------------------------------
 function Main() {
     var cArgs = WScript.Arguments;
-    if ( !((cArgs.length == 1) || (cArgs.length == 2)) )  {
+    if ( !((cArgs.length == 1) || (cArgs.length == 2) || (cArgs.length == 3)) )  {
 	var msg="Incorrect arguments\n"+
 	    "  cscript express2xml.js <express.exp>\nOr\n"+
 	    "  cscript express2xml.js <module> arm\nOr\n"+
 	    "  cscript express2xml.js <module> mim\nOr\n"+
 	    "  cscript express2xml.js <module> mim_lf\nOr\n"+
 	    "  cscript express2xml.js <module> module\nOr\n"+
-	    "  cscript express2xml.js <resource> resource\n";
+	    "  cscript express2xml.js <resource> resource partnumber\n";
 	ErrorMessage(msg);
 	return(false);
     }
     var module, expFile, type;
-    if (cArgs.length == 2) {
+    if (cArgs.length >= 2) {
 	switch(cArgs(1)) {
 	case "arm" :
 	    var module = cArgs(0);
@@ -1197,11 +1212,18 @@ function Main() {
 	    Output2xml(expFile, xmlFile);
 	    break;
 	case "resource" :
-	    var resource = cArgs(0);    
+	    var resource = cArgs(0);	    
 	    expFile = '../data/resources/'+resource+'/'+resource+'.exp';
 	    currentExpFile=expFile;
 	    var xmlFile = expFile.replace("\.exp","\.xml");
-	    Output2xml(expFile, xmlFile);
+
+	    var partno;
+	    if (cArgs.length>2) {
+		partno = cArgs(2);
+		Output2xml(expFile, xmlFile, partno);
+	    } else {
+		Output2xml(expFile, xmlFile);
+	    }
 	    break;
 	case "module" :
 	    var module = cArgs(0);   

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.4 2004/10/04 21:16:09 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.5 2004/10/05 20:45:24 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -58,10 +58,13 @@
 	  <para>Literals are enclosed in single quotes.</para>
 	</listitem>
 	<listitem>
-	  <para><literal>#PCDATA</literal> denotes a character string in a content model.</para>
+	  <para><literal>text</literal> means any character string.</para>
 	</listitem>
 	<listitem>
-	  <para><literal>text</literal> denotes a string XML attribute type.</para>
+	  <para><literal>#PCDATA</literal> denotes <quote>parsed character data</quote>, as defined in XML 1.0, in a content model.</para>
+	</listitem>
+	<listitem>
+	  <para><literal>NMTOKEN</literal> denotes a name token, as defined in XML 1.0.</para>
 	</listitem>
       </itemizedlist>
       <xsl:for-each select="//rng:element">

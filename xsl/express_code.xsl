@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.12 2002/04/02 07:07:20 robbod Exp $
+     $Id: express_code.xsl,v 1.13 2002/04/05 10:31:48 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -324,8 +324,8 @@ SELF\<xsl:call-template name="link_object">
   <!-- need to clarify the XML for derive --> 
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:apply-templates select="./aggregate" mode="code"/>
-  <xsl:apply-templates select="./*" mode="underlying"/>
-  <xsl:value-of select="concat(' : ',@expression,';')"/><br/>
+  <xsl:apply-templates select="./*" mode="underlying"/> 
+  <xsl:value-of select="concat(' := ',@expression,';')"/><br/>
 </xsl:template>
 
 <xsl:template match="inverse" mode="code">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.27 2002/04/05 10:31:48 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.28 2002/04/16 13:36:59 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -688,7 +688,7 @@ SELF\<xsl:call-template name="link_object">
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:apply-templates select="./aggregate" mode="code"/>
   <xsl:apply-templates select="./*" mode="underlying"/>
-  <xsl:value-of select="concat(' : ',@expression,';')"/><br/>
+  <xsl:value-of select="concat(' := ',@expression,';')"/><br/>
 </xsl:template>
 
 <xsl:template match="inverse" mode="code">

@@ -1242,14 +1242,43 @@
 		</xsl:choose>
 	</xsl:template>
 	
+	<xsl:template name="look_down_subtype_tree_for_redeclarations">
+		<xsl:param name="raw_entity_name_param"/>
+		<xsl:param name="raw_attribute_name_param"/>
+		<xsl:for-each select="//entity[@supertypes=$raw_entity_name_param]/explicit">
+			
+			<xsl:choose>
+				<xsl:when test="./@name=$raw_attribute_name_param"><xsl:value-of select="string('redeclaration')"/></xsl:when>
+				<xsl:when test="./redeclaration/@old_name=$raw_attribute_name_param"><xsl:value-of select="string('redeclaration')"/></xsl:when>
+				<xsl:otherwise>
+						<xsl:variable name="raw_subtype_name" select="../entity/@name"/>
+						<xsl:call-template name="look_down_subtype_tree_for_redeclarations">
+								<xsl:with-param name="raw_entity_name_param" select="$raw_subtype_name"/>
+								<xsl:with-param name="raw_attribute_name_param" select="$raw_attribute_name_param"/>
+						</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:for-each>
+			
+		
+	</xsl:template>
+	
 	<xsl:template name="collect_attributes_from_supertypes_but_weed_out_those_redeclared_here">
 		<xsl:param name="raw_supertype_param"/>
 		<xsl:param name="raw_entity_param"/>
+		
 		<xsl:for-each select="//entity[@name=$raw_supertype_param]/explicit">
 			<xsl:variable name="raw_attribute_name" select="./@name"/>
+			<xsl:variable name="redeclarations_found_in_subtype_tree">
+					<xsl:call-template name="look_down_subtype_tree_for_redeclarations">
+							<xsl:with-param name="raw_entity_name_param" select="$raw_supertype_param"/>
+							<xsl:with-param name="raw_attribute_name_param" select="$raw_attribute_name"/>
+					</xsl:call-template>
+			</xsl:variable>
 			<xsl:choose>
-				<xsl:when test="$raw_attribute_name=//entity[@name=$raw_entity_param]/explicit/@name"></xsl:when>
-				<xsl:when test="$raw_attribute_name=//entity[@name=$raw_entity_param]/explicit/redeclaration/@old_name"></xsl:when>
+				<xsl:when test="string-length($redeclarations_found_in_subtype_tree) > 0"></xsl:when>
+				<!-- xsl:when test="$raw_attribute_name=//entity[@name=$raw_entity_param]/explicit/@name"></xsl:when>
+				<xsl:when test="$raw_attribute_name=//entity[@name=$raw_entity_param]/explicit/redeclaration/@old_name"></xsl:when -->
 				<xsl:otherwise>
 					<xsl:variable name="corrected_attribute_name">
 						<xsl:call-template name="put_into_lower_case">
@@ -1291,7 +1320,7 @@
 		<xsl:if test="$next_supertype_name">
 			<xsl:call-template name="collect_attributes_from_supertypes_but_weed_out_those_redeclared_here">
 				<xsl:with-param name="raw_supertype_param" select="$next_supertype_name"/>
-				<xsl:with-param name="raw_entity_param" select="$raw_supertype_param"/>
+				<xsl:with-param name="raw_entity_param" select="$raw_entity_param"/>
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.109 2002/10/30 15:07:21 robbod Exp $
+$Id: module.xsl,v 1.110 2002/11/19 08:15:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -112,7 +112,7 @@ $Id: module.xsl,v 1.109 2002/10/30 15:07:21 robbod Exp $
     <tr>
       <td><h2><xsl:value-of select="$n_number"/></h2></td>
       <td>&#x20;</td>
-      <td valign="top"><b>Date:&#x20;</b><xsl:value-of select="$date"/></td>
+      <td valign="top" width="200"><b>Date:&#x20;</b><xsl:value-of select="$date"/></td>
     </tr>    
 
     <xsl:variable name="test_wg_number">

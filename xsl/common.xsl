@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
+$Id: common.xsl,v 1.74 2002/08/28 13:45:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -836,6 +836,7 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
        will be included  in the HTML output.
        NOTE - this gets overridden if $INLINE_ERRORS defined in
        parameters.xsl is 'no'
+       A line break can be inserted into the string by inserting a #
        -->
   <xsl:template name="error_message">
     <xsl:param name="message"/>
@@ -855,7 +856,11 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
           width="20" height="20"/>
         <font color="#FF0000" size="-1">
           <i>
-            <xsl:value-of select="$message"/>
+            <xsl:call-template name="output_line_breaks">
+              <xsl:with-param name="str" select="$message"/>
+              <xsl:with-param name="break_char" select="'#'"/>
+              <xsl:with-param name="replace_break_char" select="'true'"/>
+            </xsl:call-template>
           </i>
         </font>
         <br/>
@@ -995,6 +1000,11 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
      <ir>:ir:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
 -->
   <xsl:template match="express_ref">
+
+    <xsl:call-template name="check_express_ref">
+      <xsl:with-param name="linkend" select="@linkend"/>
+    </xsl:call-template>
+
     <xsl:variable name="href">
       <xsl:call-template name="get_href_from_express_ref">
         <xsl:with-param name="linkend" select="@linkend"/>
@@ -1012,9 +1022,9 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
         <xsl:call-template name="error_message">
           <xsl:with-param
             name="message"
-            select="concat('ERROR c2: express_ref linkend ',
+            select="concat('ERROR c2: express_ref linkend #',
                     @linkend,
-                    ' is incorrectly specified')"/>
+                    '# is incorrectly specified.')"/>
         </xsl:call-template>
         <xsl:choose>
           <xsl:when test="string-length(.)>0">
@@ -1518,9 +1528,9 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
         <xsl:call-template name="error_message">
           <xsl:with-param
             name="message"
-            select="concat('ERROR c3: module_ref linkend ',
+            select="concat('ERROR c3: module_ref linkend #',
                     $nlinkend,
-                    ' is incorrectly specified')"/>
+                    '# is incorrectly specified.')"/>
         </xsl:call-template>
         <xsl:apply-templates/>
       </xsl:when>
@@ -1785,6 +1795,221 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
 
 
 
+<xsl:template name="check_express_ref">
+  <xsl:param name="linkend"/>
+
+  <xsl:variable name="first_sect">
+    <xsl:call-template name="check_express_ref_first_section">
+      <xsl:with-param name="linkend" select="$linkend"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="$first_sect = 'OK'">
+      
+      <!-- remove all whitespace -->
+      <xsl:variable
+        name="nlinkend"
+        select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+
+      <xsl:variable
+        name="module"
+        select="substring-before($nlinkend,':')"/>
+
+      <xsl:variable name="mod_dir">
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="$module"/>
+        </xsl:call-template>
+      </xsl:variable>
+
+
+      <xsl:variable name="express_path"
+        select="substring-after(substring-after($nlinkend,':'),':')"/>
+      
+      <xsl:variable name="schema">
+        <xsl:choose>
+          <xsl:when test="contains($express_path,'.')">
+            <xsl:value-of select="substring-before($express_path,'.')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$express_path"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:variable name="express_path1"
+        select="substring-after($express_path,'.')"/>
+      
+      <xsl:variable name="entity_type">
+        <xsl:choose>
+          <xsl:when test="contains($express_path1,'.')">
+            <xsl:value-of select="substring-before($express_path1,'.')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$express_path1"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:variable name="express_path2"
+        select="substring-after($express_path1,'.')"/>
+
+      <xsl:variable name="attribute">
+        <xsl:choose>
+          <xsl:when test="starts-with($express_path2,'wr:') 
+                          or starts-with($express_path2,'ur:')">
+            <xsl:value-of select="''"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$express_path2"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:variable name="wr">
+        <xsl:choose>
+          <xsl:when test="starts-with($express_path2,'wr:')">
+            <xsl:value-of select="substring-after($express_path2,'wr:')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="''"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:variable name="ur">
+        <xsl:choose>
+          <xsl:when test="starts-with($express_path2,'ur:')">
+            <xsl:value-of select="substring-after($express_path2,'ur:')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="''"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+
+
+      <xsl:variable name="arm_mim_res"
+        select="substring-before(substring-after($nlinkend,':'),':')"/>
+
+      <xsl:variable name="express_file">
+        <xsl:choose>
+          <xsl:when test="$arm_mim_res='arm'
+                          or $arm_mim_res='arm_express'">
+            <xsl:value-of select="concat($mod_dir,'/arm.xml')"/>
+          </xsl:when>
+          <xsl:when test="$arm_mim_res='mim'
+                          or $arm_mim_res='mim_express'">
+            <xsl:value-of select="concat($mod_dir,'/mim.xml')"/>
+          </xsl:when>
+          <xsl:when test="$arm_mim_res='ir_express'">
+            <xsl:value-of select="concat('../data/resources/',$schema,'/',$schema,'.xml')"/>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:variable name="express_nodes"
+        select="document(string($express_file))"/>
+      <xsl:choose>
+        <xsl:when test="string-length($wr) != 0">
+          <xsl:if test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/where[@label=$wr])">
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message" 
+                select="concat('Error ER-4: The express_ref linkend #', 
+                        $linkend, 
+                        '# is incorrectly specified. 
+                        #The WHERE rule does not exist.
+                        #Note linkend is case sensitive.')"/>
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:when>
+
+        <xsl:when test="string-length($ur) != 0">
+          <xsl:if test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/unique[@label=$ur])">
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message" 
+                select="concat('Error ER-5: The express_ref linkend ', 
+                        $linkend, 
+                        '# is incorrectly specified.# 
+                        The UNIQUE rule does not exist.
+                        #Note linkend is case sensitive.')"/>
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:when>
+
+        <xsl:when test="string-length($attribute) != 0">
+          <xsl:if
+            test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/explicit[@name=$attribute]
+                  or 
+                  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/inverse[@name=$attribute]
+                  or
+                  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/derived[@name=$attribute])">
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message" 
+                select="concat('Error ER-6: The express_ref linkend# ', 
+                        $linkend, 
+                        '# is incorrectly specified. 
+                        The attribute does not exist.#
+                        Note linkend
+is case sensitive.')"/>
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:when>
+
+
+        <xsl:when test="string-length($entity_type) != 0">
+          <xsl:if
+            test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]
+                  or 
+                  $express_nodes/express/schema[@name=$schema]/type[@name=$entity_type])">
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message" 
+                select="concat('Error ER-7: The express_ref linkend#', 
+                              $linkend, 
+                              '# is incorrectly specified.# 
+                        The entity does not exist.#Note linkend
+is case sensitive.')"/>
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:when>
+
+        <xsl:when test="string-length($schema) != 0">
+          <xsl:if
+            test="not($express_nodes/express/schema[@name=$schema])">
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message" 
+                select="concat('Error ER-8: The express_ref linkend# ', 
+                        $linkend, 
+                        '# is incorrectly specified.# 
+                        The schema does not exist.
+                        #Note linkend
+is case sensitive.')"/>
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:when>
+
+
+        <xsl:otherwise>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message" 
+                select="concat('Error ER-9: The express_ref linkend #', 
+                        $linkend, 
+                        '# is incorrectly specified.')"/>
+            </xsl:call-template>          
+        </xsl:otherwise>
+
+      </xsl:choose>
+
+    </xsl:when>
+
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message" select="$first_sect"/>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 <!-- 
      Return an error message if the linkend of an express_ref is incorrect 
      Just checks the first section i.e module:arm: 
@@ -1800,15 +2025,31 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
     name="module_section" 
     select="substring-before($nlinkend,':')"/>
   
-  <xsl:variable name="module_ok">
-    <xsl:call-template name="check_module_exists">
-      <xsl:with-param name="module" select="$module_section"/>
-    </xsl:call-template>
-  </xsl:variable>
-  
   <xsl:variable 
     name="nlinkend1"
     select="substring-before(substring-after($nlinkend,':'),':')"/>
+
+
+  <xsl:variable name="module_resource_ok">
+    <xsl:choose>
+      <xsl:when test="$nlinkend1='arm'
+                      or $nlinkend1='arm_express'
+                      or $nlinkend1='mim'
+                      or $nlinkend1='mim_express'">
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="$module_section"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="$nlinkend1='ir_express'">
+        <xsl:call-template name="check_resource_exists">
+          <xsl:with-param name="schema" select="$module_section"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'false'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
   
   <xsl:variable name="arm_mim_ir_section">
     <xsl:choose>
@@ -1830,21 +2071,21 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
   <xsl:variable name="linkend_ok">
     <xsl:choose>
       <xsl:when test="$arm_mim_ir_section=''">
-        <xsl:value-of select="concat('express_ref linkend ', 
+        <xsl:value-of select="concat('Error ER-1: The express_ref linkend ', 
                               $linkend, 
                               ' is incorrectly specified. 
                               Need to specify :arm: :arm_express: :mim: :ir_express')"/>
       </xsl:when>
       <xsl:when test="$module_section=''">
-        <xsl:value-of select="concat('express_ref linkend ', 
+        <xsl:value-of select="concat('Error ER-2: express_ref linkend ', 
                               $linkend, 
                               ' is incorrectly specified.
                               Need to specify the module first')"/>
       </xsl:when>
-      <xsl:when test="$module_ok!='true'">
-        <xsl:value-of select="concat('express_ref linkend ', 
+      <xsl:when test="$module_resource_ok!='true'">
+        <xsl:value-of select="concat('Error ER-3: express_ref linkend ', 
                               $linkend, 
-                              ' is incorrectly specified.', $module_ok)"/>
+                              ' is incorrectly specified.', $module_resource_ok)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="'OK'"/>
@@ -1997,8 +2238,8 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
         <xsl:call-template name="error_message">
           <xsl:with-param
             name="message"
-            select="concat('ERROR mb1: The menubar ',
-                    $menubar_file ,' must contain a path')"/>
+            select="concat('ERROR mb1: The menubar #',
+                    $menubar_file ,' must contain a path.')"/>
         </xsl:call-template>
       </xsl:when>
       
@@ -2103,7 +2344,7 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
         <xsl:with-param 
           name="message" 
           select="concat('Error q3: the entity ',$entity_name,' incorrectly
-                  named. First letter must uppercase, rest is lower case')"/>
+                  named.#First letter must uppercase, rest is lower case')"/>
       </xsl:call-template>    
     </xsl:if>
   </xsl:template>
@@ -2122,7 +2363,7 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
         <xsl:with-param 
           name="message" 
           select="concat('Error q4: the type ',$type_name,' incorrectly
-                  named. Should be all lower case')"/>
+                  named.#Should be all lower case')"/>
       </xsl:call-template>    
     </xsl:if>
   </xsl:template>
@@ -2140,7 +2381,7 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
         <xsl:with-param 
           name="message" 
           select="concat('Error q5: the entity ',$entity_name,' incorrectly
-                  named. Should be all lower case')"/>
+                  named.# Should be all lower case.')"/>
       </xsl:call-template>    
     </xsl:if>
   </xsl:template>
@@ -2378,20 +2619,31 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
 
   <!-- given a string, output the string with line breaks after the specified
        character (break_char) that occurs immediately before a specified
-       number of characters (length)
+       number of characters (length).
+       If replace_break_char = true then replace the break-char with <br/>
+       otherwise the break char is output.
        -->
   <xsl:template name="output_line_breaks">
     <xsl:param name="str"/>
     <xsl:param name="break_char"/>
+    <xsl:param name="replace_break_char" select="'false'"/>
     <xsl:param name="indent" select="''"/>
     <xsl:choose>
       <xsl:when test="contains($str,$break_char)">
         <xsl:variable name="substr" 
           select="substring-before($str,$break_char)"/>
-        <xsl:value-of select="concat($indent,$substr,$break_char)"/><br/>
+        <xsl:choose>
+          <xsl:when test="$replace_break_char != 'false'">
+            <xsl:value-of select="concat($indent,$substr)"/><br/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat($indent,$substr,$break_char)"/><br/>
+          </xsl:otherwise>
+        </xsl:choose>
         <xsl:call-template name="output_line_breaks">
           <xsl:with-param name="str" select="substring-after($str,$break_char)"/>
           <xsl:with-param name="break_char" select="$break_char"/>
+          <xsl:with-param name="replace_break_char" select="$replace_break_char"/>
           <xsl:with-param name="indent" select="'&#160;&#160;&#160;&#160;'"/>
         </xsl:call-template> 
       </xsl:when>
@@ -2400,6 +2652,7 @@ $Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
       </xsl:otherwise>        
     </xsl:choose>
   </xsl:template>
+
 
 
   <!--

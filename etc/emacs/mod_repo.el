@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.3 2002/08/29 07:39:47 robbod Exp $
+;;; $Id: mod_repo.el,v 1.4 2002/09/05 07:06:33 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -104,6 +104,61 @@
 )
 
 
+;;; Insert WG Number and header into arm.exp and mim.exp files
+;;; It will also remove any comments etc prior to the fisrt schema declaration.
+(defun modrep-insert-wgn (type)
+  (let ((f (file-name-nondirectory buffer-file-truename))
+	(module (file-name-nondirectory 
+		 (directory-file-name (file-name-directory buffer-file-truename))))
+	(wgn "XXXX")
+	(partno "ZZZZ")
+	armmim
+	pos beg end 
+	)
+    (cond ((equalp f "arm.exp")
+	   (setq armmim "ARM"))
+	  (t (setq armmim "MIM")))
+	       
+    (goto-char (point-min))
+    (setq beg (point))
+    (search-forward "SCHEMA")
+    (search-backward "SCHEMA")
+    (setq end (point))
+    (delete-region beg end)
+
+    (insert "(*\n")
+    (insert "  $Id: ")
+    (insert "$\n")
+    (insert "  ISO/TC184/SC4 WG12N")
+    (insert wgn)
+    (insert (format " - ISO/%s - 10303-%s " type partno))
+    (setq pos (point))
+    (setq beg pos)
+    (insert module)
+    (setq end (point))
+    (capitalize-region pos (+ 1 pos))
+    
+    (goto-char beg)
+    (replace-string "_" " " nil beg end)
+    (goto-char end)
+
+    (insert " - EXPRESS ")
+    (insert armmim)
+    (insert "\n*)\n\n")
+    )  
+)
+
+(defun modrep-insert-wgn-cd ()
+  (interactive)
+  (modrep-insert-wgn "CD-TS")
+  )
+
+(defun modrep-insert-wgn-ts ()
+  (interactive)
+  (modrep-insert-wgn "CD TS")
+  )
+
+
 ;;; Insert a Module Repository issue
 (defun modrep-insert-issue (type)  
   (let (pos module beg end
@@ -190,7 +245,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.3 2002/08/29 07:39:47 robbod Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.4 2002/09/05 07:06:33 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-esl)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")
@@ -454,6 +509,12 @@
 
   ["Insert EXPRESS-G module/file attributes" 
    (modrep-update-imgfile-content) t]
+
+  ["Insert CD TS WGN header into arm.exp or mim.exp file" 
+   (modrep-insert-wgn-cd) t]
+
+  ["Insert TS WGN header into arm.exp or mim.exp file" 
+   (modrep-insert-wgn-ts) t]
 
   ["Insert <b>" 
    (modrep-insert-tag "b") t]

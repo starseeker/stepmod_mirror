@@ -4,7 +4,7 @@
   href="../../../xsl/express.xsl"
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Experience_arm_v7.vsd" />
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Experience_arm.vsd" />
 <schema name="Experience_arm">
 <description>
       The identification of experience and the association of experience with a person or an organization.
@@ -17,17 +17,24 @@
 </interface>
 <interface kind="use" schema="Person_organization_arm">
 </interface>
+<interface kind="use" schema="Property_assignment_arm">
+</interface>
 <interface kind="use" schema="Required_resource_arm">
 </interface>
-<interface kind="use" schema="Value_with_unit_arm">
-</interface>
-<type name="capacity_item">
-<select extensible="YES" selectitems="Activity_method Capacity Required_resource" />
-<graphic.element page="2" xcoord="226" ycoord="382" />
-</type>
 <type name="classified_select_for_experience_type">
 <select extensible="YES" basedon="classified_select" selectitems="Experience_type" />
 <graphic.element page="2" xcoord="538" ycoord="552" />
+</type>
+<type name="defined_methods">
+<select extensible="YES" selectitems="Activity_method Required_resource" />
+<graphic.element page="2" xcoord="113" ycoord="255" />
+</type>
+<type name="instance_property_assignment_select">
+<description>
+        The assignment of properties that define the experience instance.
+      </description>
+<select extensible="YES" basedon="property_assignment_select" selectitems="Experience_instance" />
+<graphic.element page="2" xcoord="333" ycoord="297" />
 </type>
 <type name="person_or_organization_or_person_in_organization_select">
 <description>
@@ -36,60 +43,15 @@
 <select extensible="YES" selectitems="organization_or_person_in_organization_select person" />
 <graphic.element page="2" xcoord="559" ycoord="367" />
 </type>
-<entity name="Capacity">
-<description>
-        The capacity in which the experince was gained
-      </description>
-<explicit name="amount" optional="YES">
-<description>
-          The description of the amount of the capacity.
-<example>number of hours flown</example>
-<example>number of landings</example>
-</description>
-<typename name="Value_with_unit" />
-</explicit>
-<explicit name="description" optional="YES">
-<description>
-          The text which characterizes the capacity.
-        </description>
-<builtintype type="STRING" />
-</explicit>
-<explicit name="end_date" optional="YES">
-<description>
-          The end date for the capacity record.
-        </description>
-<typename name="calendar_date" />
-</explicit>
-<explicit name="name">
-<description>
-          The label by which the capacity is known.
-        </description>
-<builtintype type="STRING" />
-</explicit>
-<explicit name="start_date" optional="YES">
-<description>
-          The start date for the capacity record.
-        </description>
-<typename name="calendar_date" />
-</explicit>
-<explicit name="worth" optional="YES">
-<description>
-          The value of the capacity record.
-<example>10 of the 100 landings were completed successfully</example>
-</description>
-<typename name="Value_with_unit" />
-</explicit>
-<graphic.element page="2" xcoord="226" ycoord="233" />
-</entity>
 <entity name="Experience_gained">
 <description>
-        An experience is assigned to a person or organization.
+        An experience is gained by a person or organization.
       </description>
-<explicit name="gained_by">
+<explicit name="end_date" optional="YES">
 <description>
-          The person, organization or person in organization that has the experience.
+          Date on which the gaining of the experience finished.
         </description>
-<typename name="person_or_organization_or_person_in_organization_select" />
+<typename name="calendar_date" />
 </explicit>
 <explicit name="experience_of">
 <description>
@@ -97,34 +59,79 @@
         </description>
 <typename name="Experience_type" />
 </explicit>
+<explicit name="gained_by">
+<description>
+          The person, organization or person in organization that has the experience.
+        </description>
+<typename name="person_or_organization_or_person_in_organization_select" />
+</explicit>
 <explicit name="start_date" optional="YES">
 <description>
           Date on which the gaining of the experience started.
         </description>
 <typename name="calendar_date" />
 </explicit>
+<graphic.element page="2" xcoord="361" ycoord="460" />
+</entity>
+<entity name="Experience_instance">
+<description>
+        An instance of experience which contributes to the accumulation of knowledge or skill.
+
+<example>Changing the exhaust system on a car</example>
+<example>2 years work on same type of milling machine</example>
+<example>100 flying hours in a Tornado jetr</example>
+<example>5 years as Workshop Manager</example>
+
+The nature, duration and worth of the experience instance can be described using assigned properties or by refering to activities or tasks.
+      </description>
+<explicit name="consists_of" optional="YES">
+<description>
+          An experience instance can be described by, amonst other things, acting as a reource or taking part in an activity.
+        </description>
+<typename name="defined_methods" />
+</explicit>
+<explicit name="defines">
+<description>
+          An experience instace contributes to the definition of the experience gained.
+        </description>
+<typename name="Experience_gained" />
+</explicit>
+<explicit name="description" optional="YES">
+<description>
+          The text which characterizes the experience instance.
+        </description>
+<builtintype type="STRING" />
+</explicit>
 <explicit name="end_date" optional="YES">
 <description>
-          Date on which the gaining of the experience finished.
+          The end date for the experience instance record.
         </description>
 <typename name="calendar_date" />
 </explicit>
-<explicit name="capacity" optional="YES">
+<explicit name="role" optional="YES">
 <description>
-          The capacity in which the experience has been acquired.
-        </description>
-<aggregate type="LIST" lower="0" upper="?" />
-<typename name="capacity_item" />
+          The role in which the experience instance was performed.
+<example>inspector</example>
+<example>manager</example>
+<example>mechanic</example>
+</description>
+<builtintype type="STRING" />
 </explicit>
-<graphic.element page="2" xcoord="361" ycoord="460" />
+<explicit name="start_date" optional="YES">
+<description>
+          The start date for the experience instance record.
+        </description>
+<typename name="calendar_date" />
+</explicit>
+<graphic.element page="2" xcoord="226" ycoord="375" />
 </entity>
 <entity name="Experience_type">
 <description>
-        Active participation of a person in events or tasks, leading to the accumulation of knowledge or skill. 
+        A classification of exerience.
 
-<example>
-Changing the exhaust system on a car.
-</example>
+<example>welding</example>
+<example>mechanical design</example>
+<example>flying</example>
 </description>
 <explicit name="description" optional="YES">
 <description>

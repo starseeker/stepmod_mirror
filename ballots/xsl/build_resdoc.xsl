@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.6 2002/12/05 10:03:18 robbod Exp $
+$Id: build_resdoc.xsl,v 1.1 2003/01/18 19:13:12 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To build the initial ANT build package. 
@@ -712,6 +712,31 @@ $Id: build.xsl,v 1.6 2002/12/05 10:03:18 robbod Exp $
             </xsl:call-template>
           </xsl:attribute>
         </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESOURCESSCHEMAEXPGGIFS</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:call-template name="output_resources">
+              <xsl:with-param name="resources"
+                select="normalize-space($resources_set)"/>
+              <xsl:with-param name="prefix" select="'data/resources/'"/>
+              <xsl:with-param name="suffix" select="'expg*.gif'"/>
+            </xsl:call-template>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESOURCESSCHEMAEXPGXMLS</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:call-template name="output_resources">
+              <xsl:with-param name="resources"
+                select="normalize-space($resources_set)"/>
+              <xsl:with-param name="prefix" select="'data/resources/'"/>
+              <xsl:with-param name="suffix" select="'expg*.xml'"/>
+            </xsl:call-template>
+          </xsl:attribute>
+        </xsl:element>
+
 
     </xsl:element>
 
@@ -2687,6 +2712,46 @@ $Id: build.xsl,v 1.6 2002/12/05 10:03:18 robbod Exp $
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
+          <xsl:value-of select="'${RESOURCESSCHEMAEXPGXMLS}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCTECHDISCUSSIONXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
@@ -3023,8 +3088,21 @@ $Id: build.xsl,v 1.6 2002/12/05 10:03:18 robbod Exp $
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
-    </target>
 
+      <xsl:element name="copy">
+        <xsl:attribute name="todir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${RESOURCESSCHEMAEXPGGIFS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+    </target>
 
   </project>
 
@@ -3209,7 +3287,6 @@ $Id: build.xsl,v 1.6 2002/12/05 10:03:18 robbod Exp $
 
   <!-- end TEH added -->
 </xsl:stylesheet>
-
 
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.10 2003/06/02 08:32:40 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.11 2003/06/02 09:26:53 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -172,11 +172,19 @@
         <xsl:with-param name="annex_list" select="$annex_list"/>
       </xsl:call-template>
     </xsl:variable>
-
+    <xsl:variable name="note">
+      <xsl:choose>
+        <xsl:when test="//purpose//note">
+          NOTE&#160;1&#160;&#160;Detailed description of the changes is provided in Annex
+        </xsl:when>
+        <xsl:otherwise>
+          NOTE&#160;&#160;Detailed description of the changes is provided in Annex
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <p class="note">
       <small>
-        NOTE&#160;&#160;Detailed description of the changes is provided in
-        Annex
+        <xsl:value-of select="$note"/>
         <a href="./annex_changes{$FILE_EXT}">
           <xsl:value-of select="$al_changes"/>
         </a>

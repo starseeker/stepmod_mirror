@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.19 2003/03/05 17:06:59 magnevs Exp $
+   $Id: arm.exp,v 1.20 2003/03/17 22:19:51 magnevs Exp $
    N1433 - ISO/CD-TS - 10303-1255 State_definition - EXPRESS ARM
 *)
 
@@ -7,21 +7,14 @@ SCHEMA State_definition_arm;
 
 USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
 
-USE FROM Condition_assignment_arm;    -- ISO/CD-TS 10303-1257
-
 USE FROM Identification_assignment_arm;    -- ISO/TS 10303-1021
 
 USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 
-TYPE state_definition_classified_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+TYPE state_definition_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
    (Applied_state_definition_assignment, 
     State_definition, 
-    State_definition_relationship);
-END_TYPE; 
-
-TYPE state_definition_condition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_item WITH 
-   (State_definition, 
     State_definition_relationship);
 END_TYPE; 
 
@@ -50,8 +43,8 @@ END_ENTITY;
 
 ENTITY Composition_of_state_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED whole : State_definition;
-  SELF\State_definition_relationship.related RENAMED part : State_definition;
+  SELF\State_definition_relationship.relating RENAMED whole : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.related RENAMED part : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY Or_state_cause_effect_definition
@@ -60,21 +53,21 @@ END_ENTITY;
 
 ENTITY Sequence_of_state_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED successor : State_definition;
-  SELF\State_definition_relationship.related RENAMED predecessor : State_definition;
+  SELF\State_definition_relationship.relating RENAMED successor : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.related RENAMED predecessor : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_cause_effect_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED effect : State_definition;
-  SELF\State_definition_relationship.related RENAMED cause : State_definition;
+  SELF\State_definition_relationship.relating RENAMED effect : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.related RENAMED cause : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_complement_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED universe : State_definition;
-  SELF\State_definition_relationship.related RENAMED set_1 : State_definition;
-  set_2 : State_definition;
+  SELF\State_definition_relationship.relating RENAMED universe : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.related RENAMED set_1 : SET[1:?] OF State_definition;
+  set_2 : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_definition;
@@ -85,8 +78,8 @@ END_ENTITY;
 ENTITY State_definition_relationship;
   name : STRING;
   description : OPTIONAL STRING;
-  relating : State_definition;
-  related : State_definition;
+  relating : SET[1:?] OF State_definition;
+  related : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_definition_role;
@@ -96,26 +89,26 @@ END_ENTITY;
 
 ENTITY State_proper_subset_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.related RENAMED proper_subset : State_definition;
-  SELF\State_definition_relationship.relating RENAMED proper_superset : State_definition;
+  SELF\State_definition_relationship.related RENAMED proper_subset : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.relating RENAMED proper_superset : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_subset_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED superset : State_definition;
-  SELF\State_definition_relationship.related RENAMED subset : State_definition;
+  SELF\State_definition_relationship.relating RENAMED superset : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.relating RENAMED subset : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_symptom_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED symptom_effect : State_definition;
-  SELF\State_definition_relationship.related RENAMED symptom_cause : State_definition;
+  SELF\State_definition_relationship.relating RENAMED symptom_effect : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.related RENAMED symptom_cause : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_transition_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED end_state : State_definition;
-  SELF\State_definition_relationship.related RENAMED start_state : State_definition;
+  SELF\State_definition_relationship.relating RENAMED end_state : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.related RENAMED start_state : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY Xor_state_cause_effect_definition

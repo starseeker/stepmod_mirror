@@ -1,6 +1,136 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/17 16:48:47 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 09:00:08 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Characteristic - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Characteristic_arm;
-END_SCHEMA;
+
+USE FROM Value_with_unit_extension_arm;
+
+USE FROM Extended_measure_representation_arm;
+
+  TYPE range_class = ENUMERATION OF
+    (closed,
+     lower_open,
+     upper_open,
+     open);
+  END_TYPE; -- range_class
+
+  TYPE scalar_or_coordinated_characteristics = SELECT
+    (coordinated_characteristic,
+     characteristic);
+  END_TYPE; -- scalar_or_coordinated_characteristics
+
+  TYPE value_qualifier = SELECT
+    (precision_qualifier,
+     type_qualifier,
+     uncertainty_qualifier);
+  END_TYPE; -- value_qualifier
+  
+  TYPE coordinated_characteristic = SELECT
+    (property_value_representation,
+    characteristic_representation);
+  END_TYPE; -- value_qualifier
+  
+  TYPE characteristic = SELECT
+    (string_representation_item,
+    
+    numerical_item_with_unit,
+    
+    value_list,
+    
+    value_set);
+  END_TYPE; -- value_qualifier
+
+  ENTITY Text_representation_item
+  	SUBTYPE OF (string_representation_item);
+  END_ENTITY; -- text_representation_item
+
+  ENTITY Expanded_uncertainty
+    SUBTYPE OF (standard_uncertainty);
+      coverage_factor : REAL;
+  END_ENTITY; -- expanded_uncertainty
+
+  ENTITY Standard_uncertainty
+    SUPERTYPE OF (expanded_uncertainty)
+    SUBTYPE OF (uncertainty_qualifier);
+      uncertainty_value : REAL;
+  END_ENTITY; -- standard_uncertainty
+
+  ENTITY Uncertainty_qualifier
+    SUPERTYPE OF (ONEOF (standard_uncertainty,
+ qualitative_uncertainty));
+      measure_name : STRING; --text;
+      description  : STRING; --text;
+  END_ENTITY; -- uncertainty_qualifier
+
+  ENTITY Maximum_tolerance_characteristic
+    SUBTYPE OF (tolerance_characteristic);
+      SELF\characteristic_representation.items : SET[1:1] OF numerical_item_with_unit;
+  END_ENTITY; -- maximum_tolerance_characteristic
+
+  ENTITY Nominal_tolerance_characteristic
+    SUBTYPE OF (tolerance_characteristic);
+  END_ENTITY; -- nominal_tolerance_characteristic
+
+  ENTITY Measure_qualification;
+      name              : STRING; --text;
+      description       : STRING; --text;
+      qualified_measure : value_with_unit;
+      qualifiers        : SET[1:?] OF value_qualifier;
+  END_ENTITY; -- measure_qualification
+
+  ENTITY Minimum_tolerance_characteristic
+    SUBTYPE OF (tolerance_characteristic);
+      SELF\characteristic_representation.items : SET[1:1] OF numerical_item_with_unit;
+  END_ENTITY; -- minimum_tolerance_characteristic
+
+  ENTITY Plus_minus_tolerance_characteristic
+    SUBTYPE OF (tolerance_characteristic);
+      SELF\characteristic_representation.items : SET[3:3] OF numerical_item_with_unit;
+  END_ENTITY; -- plus_minus_tolerance_characteristic
+
+  ENTITY Statistical_tolerance_characteristic
+    SUBTYPE OF (tolerance_characteristic);
+  END_ENTITY; -- statistical_tolerance_characteristic
+
+  ENTITY Symmetrical_tolerance_characteristic
+    SUBTYPE OF (tolerance_characteristic);
+      SELF\characteristic_representation.items : SET[2:2] OF numerical_item_with_unit;
+  END_ENTITY; -- symmetrical_tolerance_characteristic
+
+  ENTITY Tolerance_characteristic
+    SUPERTYPE OF (ONEOF (minimum_tolerance_characteristic,
+ statistical_tolerance_characteristic,
+ symmetrical_tolerance_characteristic,
+ maximum_tolerance_characteristic,
+ plus_minus_tolerance_characteristic,
+ nominal_tolerance_characteristic))
+    SUBTYPE OF (Characteristic_representation);
+      SELF\characteristic_representation.items : SET[1:?] OF numerical_item_with_unit;
+  END_ENTITY; -- tolerance_characteristic
+
+	ENTITY Characteristic_representation
+		SUBTYPE OF (representation);
+	END_ENTITY; -- characteristic_representation
+
+  ENTITY Precision_qualifier;
+      precision_value : INTEGER;
+  END_ENTITY; -- precision_qualifier
+
+  ENTITY Qualitative_uncertainty
+    SUBTYPE OF (uncertainty_qualifier);
+      uncertainty_value : STRING; --text;
+  END_ENTITY; -- qualitative_uncertainty
+
+  ENTITY Range_characteristic
+    SUBTYPE OF (Characteristic_representation);
+      SELF\characteristic_representation.items 	: SET[2:2] OF numerical_item_with_unit;
+      range_type				: range_class;
+  END_ENTITY; -- range_characteristic
+
+  ENTITY Type_qualifier;
+      name : STRING; --label;
+  END_ENTITY; -- type_qualifier
+
+END_SCHEMA; -- Characteristic_arm

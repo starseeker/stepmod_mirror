@@ -1,6 +1,127 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/16 16:14:57 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 08:54:13 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Bare die - EXPRESS ARM
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Bare_die_arm;
-END_SCHEMA;
+
+USE FROM Value_with_unit_extension_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+USE FROM Part_feature_function_arm (
+	part_mounting_feature);
+	
+USE FROM Extended_geometric_tolerance_arm;
+
+USE FROM Pdm_material_aspects_arm;
+
+USE FROM Physical_unit_usage_view_arm;
+
+USE FROM Network_functional_usage_view_arm;
+
+USE FROM Non_feature_shape_element_arm;
+
+USE FROM Shape_composition_arm;
+
+USE FROM Part_terminal_arm;
+
+USE FROM Pdm_material_aspects_arm;
+
+USE FROM Part_occurrence_arm (definition_based_product_occurrence);
+
+  ENTITY Connection_zone_bare_die_interface_plane_relationship;
+      interface_plane          : seating_plane;
+      mating_zone              : connection_zone_in_usage_view;
+      derived_zone             : connection_zone_in_usage_view;
+      derived_zone_shape_class : STRING;
+    INVERSE
+      associated_bare_die_terminal : SET[0:1] OF bare_die_terminal FOR seating_plane_zone;
+    UNIQUE
+      ur1 : interface_plane,
+ mating_zone;
+    WHERE
+      wr1 : derived_zone_shape_class IN ['area', 'edge'];
+  END_ENTITY; 
+
+  ENTITY Bare_die
+    SUBTYPE OF (part_usage_view);
+      least_material_condition_centroid_location   : OPTIONAL cartesian_point;
+      maximum_height_above_seating_plane           : OPTIONAL length_data_element;
+      maximum_material_condition_centroid_location : OPTIONAL cartesian_point;
+-- TBD      
+--      SELF\physical_unit.unit_technology           : technology;
+      implemented_function                         : functional_unit_usage_view;
+    INVERSE
+      access_mechanisms : SET[2:?] OF minimally_defined_bare_die_terminal FOR associated_definition;
+      die_seating_plane : non_feature_shape_element FOR scope;
+    UNIQUE
+      ur1 : implemented_function;
+-- TBD      
+--      ,SELF\physical_unit.unit_technology;
+    WHERE
+      WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'AP210_ARM.shape_element.containing_shape') | ('AP210_ARM.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF(pf)))) <= 1;
+      WR2 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'AP210_ARM.shape_element.containing_shape') | ('AP210_ARM.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF(pf)))) <= 1;
+      WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'AP210_ARM.shape_element.containing_shape') | ('AP210_ARM.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
+      WR4 : 'AP210_ARM.SEATING_PLANE' IN TYPEOF(die_seating_plane);
+  END_ENTITY; -- bare_die
+
+  ENTITY Bare_die_bottom_surface
+    SUBTYPE OF (Bare_die_surface);
+  END_ENTITY; -- bare_die_bottom_surface
+
+  ENTITY Bare_die_edge_segment_surface
+    SUBTYPE OF (Bare_die_surface);
+      composed_surface                        : bare_die_edge_surface;
+      start_vertex                            : edge_segment_vertex;
+      end_vertex                              : edge_segment_vertex;
+    WHERE
+      wr1 : start_vertex :<>: end_vertex;
+      wr2 : SELF\shape_element.containing_shape :=: composed_surface\shape_element.containing_shape;
+  END_ENTITY; -- bare_die_edge_segment_surface
+
+  ENTITY Bare_die_edge_surface
+    SUBTYPE OF (Bare_die_surface);
+  END_ENTITY; -- bare_die_edge_surface
+
+  ENTITY Bare_die_surface
+    ABSTRACT SUPERTYPE OF (ONEOF (bare_die_top_surface,
+ bare_die_bottom_surface,
+ bare_die_edge_segment_surface,
+ bare_die_edge_surface))
+    SUBTYPE OF (part_mounting_feature);
+			SELF\part_feature.associated_definition : bare_die;    
+  END_ENTITY; -- bare_die_surface
+
+  ENTITY Bare_die_terminal
+    SUBTYPE OF (Minimally_defined_bare_die_terminal);
+      material                 : material_identification;
+      external_connection_area : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+      seating_plane_zone       : OPTIONAL connection_zone_bare_die_interface_plane_relationship;
+  END_ENTITY; -- bare_die_terminal
+
+  ENTITY Bare_die_terminal_surface_constituent_relationship
+    SUBTYPE OF (shape_element_constituent_relationship);
+      SELF\shape_element_relationship.relating : bare_die_surface;
+      SELF\shape_element_relationship.related  : bare_die_terminal;
+  END_ENTITY; -- bare_die_terminal_surface_constituent_relationship
+
+  ENTITY Bare_die_top_surface
+    SUBTYPE OF (Bare_die_surface);
+  END_ENTITY; -- bare_die_top_surface
+
+  ENTITY Guided_wave_bare_die_terminal
+    SUBTYPE OF (Minimally_defined_bare_die_terminal);
+  END_ENTITY; -- guided_wave_bare_die_terminal
+
+  ENTITY Minimally_defined_bare_die_terminal
+    SUPERTYPE OF (guided_wave_bare_die_terminal ANDOR
+ bare_die_terminal)
+    SUBTYPE OF (part_terminal);
+      SELF\part_feature.associated_definition : bare_die;
+  END_ENTITY; -- minimally_defined_bare_die_terminal
+
+END_SCHEMA; -- Bare_die_arm

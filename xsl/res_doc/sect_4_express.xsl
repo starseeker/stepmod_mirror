@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.20 2004/11/04 22:42:36 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.21 2004/11/10 01:17:38 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1935,7 +1935,7 @@
       <br/>(*
     </code>
   <!-- end blockquote -->
-  </p>
+
   <xsl:apply-templates select="./parameter" mode="description"/>
 </xsl:template>
 

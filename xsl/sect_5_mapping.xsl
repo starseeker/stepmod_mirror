@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.33 2002/06/28 15:02:01 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -329,7 +329,8 @@ $Id: sect_5_mapping.xsl,v 1.33 2002/06/28 15:02:01 robbod Exp $
     </tr>
   </table>
   The definition and use of mapping templates is not supported in the
-  present version of the application modules.  
+  present version of the application modules. However, use of predefined
+  templates /SUBTYPE/ and /SUPERTYPE/ is supported. 
 </xsl:template>
 
 

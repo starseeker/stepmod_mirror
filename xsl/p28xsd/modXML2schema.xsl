@@ -108,15 +108,15 @@
 							<xs:complexType name="{$corrected_type_name}">
 								<xs:sequence>
 									<xs:element 
-										ref="{$base_datatype}" 
+										ref="ap239:{$base_datatype}" 
 										minOccurs="{$lower_bound}"
 										maxOccurs="{$upper_bound}"
 									/>
 								</xs:sequence>
 								<xs:attribute name="ref" type="xs:IDREF" use="{$optionality}"/>
-								<xs:attribute ref="ex:itemType" fixed="{$base_datatype}"/>
+								<xs:attribute ref="ex:itemType" fixed="ap239:{$base_datatype}"/>
 								<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-								<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
+								<xs:attribute ref="ex:arraySize" use="optional"/>
 							</xs:complexType>
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
@@ -134,7 +134,7 @@
 								<xs:attribute name="ref" type="xs:IDREF" use="{$optionality}"/>
 								<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
 								<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-								<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
+								<xs:attribute ref="ex:arraySize" use="optional"/>
 							</xs:complexType>
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
@@ -173,7 +173,7 @@
 									<xs:attribute name="ref" type="xs:IDREF" use="{$optionality}"/>
 									<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
 									<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-									<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
+									<xs:attribute ref="ex:arraySize" use="optional"/>
 								</xs:complexType>
 							</xs:element>
 							<xsl:text>&#xa;</xsl:text>
@@ -184,11 +184,11 @@
 			</xsl:when>
 			<xsl:when test="./typename/@name=//type[select]/@name">
 				<xsl:variable name="corrected_underlying_select_type_name">
-					<xsl:call-template name="generate_base_datatype">
+					<xsl:call-template name="put_into_lower_case">
 						<xsl:with-param name="type" select="./typename/@name"/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xs:complexType name = "{$corrected_type_name}" >
+				<xs:complexType name = "{$corrected_type_name}">
 					<xs:group ref="ap239:{$corrected_underlying_select_type_name}"/>
 				</xs:complexType>
 			</xsl:when>
@@ -250,7 +250,9 @@
 				<xsl:call-template name="inheritance-free_mapping">
 					<xsl:with-param name="raw_entity_name_param" select="$raw_entity_name"/>
 					<xsl:with-param name="corrected_entity_name_param" select="$corrected_entity_name"/>
+					<xsl:with-param name="abstractness_param" select="$abstractness"/>
 					<xsl:with-param name="base_type_of_optional_array_param" select="$base_type_of_optional_array"/>
+					<xsl:with-param name="raw_supertype_name_param" select="$raw_supertypes_list"/>
 				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>
@@ -267,14 +269,58 @@
 	<xsl:template name="inheritance-free_mapping">
 		<xsl:param name="raw_entity_name_param"/>
 		<xsl:param name="corrected_entity_name_param"/>
+		<xsl:param name="abstractness_param"/>
 		<xsl:param name="base_type_of_optional_array_param"/>
+		<xsl:param name="raw_supertype_name_param"/>
+
+		<xsl:variable name="corrected_supertype_name">
+			<xsl:call-template name="put_into_lower_case">
+				<xsl:with-param name="raw_item_name_param" select="$raw_supertype_name_param"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="ext_base_sub_grp">
+			<xsl:choose>
+				<xsl:when test="$raw_supertype_name_param">
+					<xsl:value-of select="concat('ap239:', $corrected_supertype_name)"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="string('ex:Entity')"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		
 		<xsl:choose>
 			<xsl:when test="$base_type_of_optional_array_param='true'">
 			</xsl:when>
 			<xsl:when test="$base_type_of_optional_array_param='false'">
 				<xsl:comment>EXPRESS ENTITY DATATYPE WITH MULTIPLE INHERITANCE: xsd element declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
+				<!-- xs:element 
+					name="{$corrected_entity_name_param}" 
+					type="ap239:{$corrected_entity_name_param}" 
+					block="extension restriction" 
+					substitutionGroup="{$ext_base_sub_grp}"
+					nillable="true">
+				</xs:element>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text -->
+
 				<xsl:comment>EXPRESS ENTITY DATATYPE WITH MULTIPLE INHERITANCE: xsd complexType declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
-				<!-- xs:complexType></xs:complexType -->
+				<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
+			<xs:complexContent>
+				<xs:extension base="ex:Entity">
+					<xsl:if test="./explicit">
+						<xs:all>
+							<xsl:apply-templates select="explicit"/>
+						</xs:all>
+					</xsl:if>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+		<xsl:text>&#xa;</xsl:text>
+		<xsl:text>&#xa;</xsl:text>
+		
+
 			</xsl:when>
 		</xsl:choose>
 		<xsl:comment>EXPRESS ENTITY DATATYPE WITH MULTIPLE INHERITANCE: xsd group declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
@@ -1166,7 +1212,6 @@
 			<xsl:otherwise></xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
-
 
 	<xsl:template name="recurse_through_select_items">
 		<xsl:param name="list_of_items_param"/>

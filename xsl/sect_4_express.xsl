@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.67 2002/09/05 07:48:21 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.68 2002/09/12 07:19:35 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -705,6 +705,9 @@
     </code>
   <!-- </blockquote> -->
 </p>
+  <xsl:call-template name="output_where_formal"/>
+  <xsl:call-template name="output_where_informal"/>
+
 </xsl:template>
 
 <!-- empty template to prevent the description element being out put along

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.5 2002/11/26 16:34:30 nigelshaw Exp $
+$Id: select_view.xsl,v 1.6 2002/12/09 14:54:26 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -185,14 +185,14 @@ $Id: select_view.xsl,v 1.5 2002/11/26 16:34:30 nigelshaw Exp $
 		<xsl:variable name="this_select" select="@name" />
 		<xsl:variable name="this_base" select="select/@basedon" />
 
-		<br/>SELECT TYPE <xsl:value-of select="@name" /> includes:
+		<br/>SELECT TYPE <xsl:value-of select="@name" /> is declared in this module and now includes:
 			<blockquote>
 				<xsl:value-of select="select/@selectitems" />
 				<xsl:if test="select/@selectitems"> <br/>
 				</xsl:if>
 				<xsl:apply-templates select="$this-schema//type[@name=$this_base] 
 							| $called-schemas//type[@name=$this_base]"
-						mode="basedon">
+						mode="basedon-down">
 					<xsl:with-param name="this-schema" select="$this-schema"/>
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
 					<xsl:with-param name="done" select="concat(' ',$this_select,' ')" />
@@ -218,7 +218,8 @@ $Id: select_view.xsl,v 1.5 2002/11/26 16:34:30 nigelshaw Exp $
 
 	</xsl:for-each>
 
-
+<!-- need to present members of type[select/@extensible='YES'][not(select/@basedon)] by recursing upwards
+-->
 
 	<!-- check that all based-on extended selects have a counterpart in scope -->
 
@@ -268,6 +269,36 @@ $Id: select_view.xsl,v 1.5 2002/11/26 16:34:30 nigelshaw Exp $
 		</xsl:if>
 
 	</xsl:for-each>
+
+	<xsl:if test="$this-schema//type/select[@extensible='YES'][not(@basedon)] 
+				| $called-schemas//type/select[@extensible='YES'][not(@basedon)]" >
+		<hr/>
+		SELECT TYPES declared as extensible but not based on:
+		<blockquote>
+			<xsl:for-each select="$this-schema//type[select/@extensible='YES'][not(select/@basedon)]
+				| $called-schemas//type[select/@extensible='YES'][not(select/@basedon)]" >
+				<xsl:sort select="@name" />
+
+				<xsl:apply-templates select="."  mode="code" />
+
+				<!-- recurse up here to provide full select items list -->
+				<br/>
+				Now includes:
+				<blockquote>
+				<xsl:apply-templates select="." mode="basedon">
+					<xsl:with-param name="this-schema" select="$this-schema"/>
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="done" select="' '" />
+				</xsl:apply-templates>
+				</blockquote>
+
+
+			</xsl:for-each>
+
+		</blockquote>
+
+	</xsl:if>
+
 
 	<xsl:if test="$this-schema//explicit[typename/@name]" >
 		<hr/>
@@ -439,6 +470,34 @@ $Id: select_view.xsl,v 1.5 2002/11/26 16:34:30 nigelshaw Exp $
 	</xsl:if>
 
 </xsl:template>
+
+<xsl:template match="type" mode="basedon-down">
+	<xsl:param name="this-schema" />
+	<xsl:param name="called-schemas" />
+	<xsl:param name="done" select="' '" />
+
+	<xsl:variable name="this_select" select="@name" />
+	<xsl:variable name="this_base" select="@basedon" />
+
+	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
+	
+		<xsl:if test="select/@selectitems" >
+			<xsl:value-of select="select/@selectitems" /> <!-- [<xsl:value-of select="./@name" />] -->
+			<br/>
+		</xsl:if>
+
+		<xsl:apply-templates select="$this-schema//type[select/@name=$this_base] 
+							| $called-schemas//type[select/@name=$this_base]" 
+						mode="basedon-down">
+			<xsl:with-param name="this-schema" select="$this-schema"/>
+			<xsl:with-param name="called-schemas" select="$called-schemas" />
+			<xsl:with-param name="done" select="concat($done,' ',$this_select,' ')" />
+		</xsl:apply-templates>
+
+	</xsl:if>
+
+</xsl:template>
+
 
 <xsl:template match="x" >
 	<br/>x: <xsl:value-of select="." />

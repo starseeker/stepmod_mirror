@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.1 2002/12/10 10:43:25 robbod Exp $
+$Id: mapping_view_with_test.xsl,v 1.2 2003/01/14 14:05:26 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -1278,7 +1278,33 @@ $Id: mapping_view_with_test.xsl,v 1.1 2002/12/10 10:43:25 robbod Exp $
 				<xsl:when test="contains(.,'.')" >
 					<xsl:if test="not( contains($mim_list_complete,concat('.',
 							substring-before(.,'.'),' ')) )" >
+                                          <!-- RBN now output error -->
+                                          <xsl:variable name="warn1"
+                                            select="concat(.,' ENTITY NOT FOUND in mapping of ', ./ancestor::mapping/@entity)"/>
+                                          <xsl:variable name="warn2">
+                                            <xsl:if test="./ancestor::mapping/@attribute">
+                                              <xsl:value-of
+                                                select="concat('.',./ancestor::mapping/@attribute)"/>
+                                            </xsl:if>
+                                          </xsl:variable>
+                                          
+                                          <xsl:variable name="warn3">
+                                            <xsl:if test="./ancestor::mapping/@assertion_to">
+                                              <xsl:value-of 
+                                                select="concat('Assertion to: ',./ancestor::mapping/@assertion_to)"/>
+                                            </xsl:if>
+                                          </xsl:variable>
+                                          <xsl:call-template name="error_message">
+                                            <xsl:with-param name="inline" select="'yes'"/>
+                                            <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+                                            <xsl:with-param 
+                                              name="message" 
+                                              select="concat('Warning Map1: ',$warn1, $warn2, $warn3)"/>
+                                          </xsl:call-template>
 
+                                          <xsl:value-of select="concat($warn1, $warn2, $warn3)"/>
+                                          <br/>
+                                           <!--
 						<xsl:value-of select="." />
 						ENTITY NOT FOUND in mapping of
 						<xsl:value-of select="./ancestor::mapping/@entity" />
@@ -1290,11 +1316,39 @@ $Id: mapping_view_with_test.xsl,v 1.1 2002/12/10 10:43:25 robbod Exp $
 							<xsl:value-of select="./ancestor::mapping/@assertion_to" />
 						</xsl:if>
 						<br/>
+                                                -->
 					</xsl:if>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:if test="not( contains($mim_list_complete,concat('.',.,' ')) )" >
+                                          <!-- ####### make error -->
+                                          <!-- RBN now output error -->
+                                          <xsl:variable name="warn1"
+                                            select="concat(.,
+                                                    ' NOT FOUND in mapping of ',
+                                                    ./ancestor::mapping/@entity)"/>
+                                          <xsl:variable name="warn2">
+                                            <xsl:if test="./ancestor::mapping/@attribute">
+                                              <xsl:value-of select="concat('.',./ancestor::mapping/@attribute)"/>
+                                            </xsl:if>
+                                          </xsl:variable>
 
+                                          <xsl:variable name="warn3">
+                                              <xsl:value-of
+                                                select="concat('Assertion to: ',
+                                                        ./ancestor::mapping/@assertion_to)"/> 
+                                          </xsl:variable>
+                                          <xsl:call-template name="error_message">
+                                            <xsl:with-param name="inline" select="'yes'"/>
+                                            <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+                                            <xsl:with-param 
+                                              name="message" 
+                                              select="concat('Warning Map1: ',$warn1, $warn2, $warn3)"/>
+                                          </xsl:call-template>
+
+                                          <xsl:value-of select="concat($warn1, $warn2, $warn3)"/>
+                                          <br/>
+                                          <!--
 						<xsl:value-of select="." />
 						NOT FOUND in mapping of
 						<xsl:value-of select="./ancestor::mapping/@entity" />
@@ -1304,9 +1358,9 @@ $Id: mapping_view_with_test.xsl,v 1.1 2002/12/10 10:43:25 robbod Exp $
 						<xsl:if test="./ancestor::mapping/@assertion_to" > 
 							Assertion to: 
 							<xsl:value-of select="./ancestor::mapping/@assertion_to" />
-						</xsl:if>
-						
+						</xsl:if>						
 						<br/>
+                                                -->
 					</xsl:if>
 				</xsl:otherwise>
 			</xsl:choose>

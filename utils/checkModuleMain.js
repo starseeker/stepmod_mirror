@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.8 2003/10/09 09:53:30 robbod Exp $
+//$Id: checkModuleMain.js,v 1.9 2004/08/26 17:28:02 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -47,7 +47,7 @@ var moduleSysFiles = new Array("main.xml", "abstract.xml", "cover.xml", "content
 			      "e_exp_mim.xml", "e_exp_mim_lf.xml", 
 			      "e_exp_arm.xml", "e_exp_arm_lf.xml", 
 			      "f_guide.xml", 
-			      "biblio.xml");
+			      "biblio.xml", "isocover.xml");
 
 var moduleNavFiles = new Array("arm_descriptions.xml",
 			       "arm_long_form.xml",
@@ -542,7 +542,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.8 2003/10/09 09:53:30 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.9 2004/08/26 17:28:02 robbod Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";

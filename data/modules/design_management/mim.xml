@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-24T12:02:39" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-25T15:51:17" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="design_management_mim schema_instance"/>
    <schema name="Design_management_mim">
       <interface kind="use" schema="Approval_mim"/>
@@ -15,64 +15,15 @@
       <type name="managed_design_object">
          <select extensible="YES" genericentity="YES"/>
       </type>
-      <entity name="add_design_object_assignment" supertypes="action_assignment">
+      <entity name="current_design_assignment" supertypes="design_object_management_assignment"/>
+      <entity name="current_design_object_assignment" supertypes="design_object_management_assignment"/>
+      <entity name="design_object_management_assignment" supertypes="action_assignment">
          <explicit name="items">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="managed_design_object"/>
          </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( it ) ) AND ( it \ product_definition_relationship . name = 'design object addition' ) ) ) = 1 "/>
       </entity>
-      <entity name="add_design_object_request_assignment" supertypes="action_request_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="managed_design_object"/>
-         </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( it ) ) AND ( it \ product_definition_relationship . name = 'design object addition' ) ) ) = 1 "/>
-      </entity>
-      <entity name="change_from_design_object_assignment" supertypes="action_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="managed_design_object"/>
-         </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( aa &lt;* USEDIN ( SELF \ action_assignment . assigned_action , 'DESIGN_MANAGEMENT_MIM.' + 'ACTION_ASSIGNMENT.ASSIGNED_ACTION' ) | 'DESIGN_MANAGEMENT_MIM.' + 'CHANGE_TO_DESIGN_OBJECT_ASSIGNMENT' IN TYPEOF ( aa ) ) ) &gt;= 1 "/>
-      </entity>
-      <entity name="change_from_design_object_request_assignment" supertypes="action_request_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="managed_design_object"/>
-         </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( aa &lt;* USEDIN ( SELF \ action_request_assignment . assigned_action_request , 'DESIGN_MANAGEMENT_MIM.' + 'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST' ) | 'DESIGN_MANAGEMENT_MIM.' + 'CHANGE_TO_DESIGN_OBJECT_REQUEST_ASSIGNMENT' IN TYPEOF ( aa ) ) ) &gt;= 1 "/>
-      </entity>
-      <entity name="change_to_design_object_assignment" supertypes="action_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="managed_design_object"/>
-         </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( aa &lt;* USEDIN ( SELF \ action_assignment . assigned_action , 'DESIGN_MANAGEMENT_MIM.' + 'ACTION_ASSIGNMENT.ASSIGNED_ACTION' ) | 'DESIGN_MANAGEMENT_MIM.' + 'CHANGE_FROM_DESIGN_OBJECT_ASSIGNMENT' IN TYPEOF ( aa ) ) ) &gt;= 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( pdr &lt;* SELF . items | ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( pdr ) ) AND ( pdr \ product_definition_relationship . name = 'design object change' ) ) ) = 1 "/>
-      </entity>
-      <entity name="change_to_design_object_request_assignment" supertypes="action_request_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="managed_design_object"/>
-         </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( aa &lt;* USEDIN ( SELF \ action_request_assignment . assigned_action_request , 'DESIGN_MANAGEMENT_MIM.' + 'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST' ) | 'DESIGN_MANAGEMENT_MIM.' + 'CHANGE_FROM_DESIGN_OBJECT_REQUEST_ASSIGNMENT' IN TYPEOF ( aa ) ) ) &gt;= 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( pdr &lt;* SELF . items | ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( pdr ) ) AND ( pdr \ product_definition_relationship . name = 'design object change' ) ) ) = 1 "/>
-      </entity>
-      <entity name="delete_design_object_assignment" supertypes="action_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="managed_design_object"/>
-         </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( it ) ) AND ( it \ product_definition_relationship . name = 'design object deletion' ) ) ) = 1 "/>
-      </entity>
-      <entity name="delete_design_object_request_assignment" supertypes="action_request_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="managed_design_object"/>
-         </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( it ) ) AND ( it \ product_definition_relationship . name = 'design object deletion' ) ) ) = 1 "/>
-      </entity>
+      <entity name="design_object_management_relationship_action" supertypes="action"/>
       <entity name="frozen_assignment" supertypes="approval_assignment">
          <explicit name="items">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -80,18 +31,7 @@
          </explicit>
          <where label="WR1" expression=" SELF \ approval_assignment . assigned_approval . status . name in [ 'approved' , 'not yet approved' ] "/>
       </entity>
-      <rule name="add_design_object_management_relationship_unique_constraint" appliesto="add_design_object_assignment add_design_object_request_assignment">
-         <algorithm> LOCAL pdr_bag : BAG OF product_definition_relationship := [ ] ; pd_bag : BAG OF product_definition := [ ] ; adoa_bag : BAG OF add_design_object_assignment ; adora_bag : BAG OF add_design_object_request_assignment ; pass : BOOLEAN := TRUE ; mdo_bag : BAG OF managed_design_object ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( add_design_object_assignment ) by 1 ; REPEAT j := 1 TO SIZEOF ( add_design_object_assignment [ i ] . items ) by 1 ; IF ( ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( add_design_object_assignment [ i ] . items [ j ] ) ) AND ( add_design_object_assignment [ i ] . items [ j ] . name = 'design object addition' ) ) THEN IF EXISTS ( add_design_object_assignment [ i ] . items [ j ] . related_product_definition ) THEN IF ( NOT ( add_design_object_assignment [ i ] . items [ j ] . related_product_definition IN pd_bag ) ) THEN pd_bag := pd_bag + add_design_object_assignment [ i ] . items [ j ] . related_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( add_design_object_request_assignment ) by 1 ; REPEAT j := 1 TO SIZEOF ( add_design_object_request_assignment [ i ] . items ) by 1 ; IF ( ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( add_design_object_request_assignment [ i ] . items [ j ] ) ) AND ( add_design_object_request_assignment [ i ] . items [ j ] . name = 'design object addition' ) ) THEN IF EXISTS ( add_design_object_request_assignment [ i ] . items [ j ] . related_product_definition ) THEN IF ( NOT ( add_design_object_request_assignment [ i ] . items [ j ] . related_product_definition IN pd_bag ) ) THEN pd_bag := pd_bag + add_design_object_request_assignment [ i ] . items [ j ] . related_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pd_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; mdo_bag := [ ] ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( pd_bag [ i ] , 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | ( pdr \ product_definition_relationship . name = 'design object addition' ) ) ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adoa_bag := QUERY ( adoa &lt;* add_design_object_assignment | ( pdr_bag [ j ] IN adoa . items ) ) ; REPEAT k := 1 to SIZEOF ( adoa_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( adoa_bag [ k ] . items ) by 1 ; IF EXISTS ( adoa_bag [ k ] . items [ l ] ) THEN IF ( adoa_bag [ k ] . items [ l ] IN mdo_bag ) THEN pass := FALSE ; ESCAPE ; ELSE mdo_bag := mdo_bag + adoa_bag [ k ] . items [ l ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adora_bag := QUERY ( adora &lt;* add_design_object_request_assignment | ( pdr_bag [ j ] IN adora . items ) ) ; REPEAT k := 1 to SIZEOF ( adora_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( adora_bag [ k ] . items ) by 1 ; IF ( adora_bag [ k ] . items [ l ] IN mdo_bag ) THEN pass := FALSE ; ESCAPE ; ELSE mdo_bag := mdo_bag + adora_bag [ k ] . items [ l ] ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
-      <rule name="change_design_object_management_relationship_unique_constraint" appliesto="change_from_design_object_assignment change_from_design_object_request_assignment change_to_design_object_assignment change_to_design_object_request_assignment">
-         <algorithm> LOCAL pd_bag : BAG OF product_definition := [ ] ; pdr_bag : BAG OF product_definition_relationship ; ctdoa_bag : BAG OF change_to_design_object_assignment ; ctdora_bag : BAG OF change_to_design_object_request_assignment ; cfdoa_bag : BAG OF change_from_design_object_assignment ; cfdora_bag : BAG OF change_from_design_object_request_assignment ; pass1 : BOOLEAN := TRUE ; pass2 : BOOLEAN := TRUE ; mdo_bag : BAG OF managed_design_object ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( change_from_design_object_assignment ) by 1 ; REPEAT j := 1 TO SIZEOF ( change_from_design_object_assignment [ i ] . items ) by 1 ; IF ( ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( change_from_design_object_assignment [ i ] . items [ j ] ) ) AND ( change_from_design_object_assignment [ i ] . items [ j ] . name = 'design object change' ) ) THEN IF EXISTS ( change_from_design_object_assignment [ i ] . items [ j ] . relating_product_definition ) THEN IF ( NOT ( change_from_design_object_assignment [ i ] . items [ j ] . relating_product_definition IN pd_bag ) ) THEN pd_bag := pd_bag + change_from_design_object_assignment [ i ] . items [ j ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( change_from_design_object_request_assignment ) by 1 ; REPEAT j := 1 TO SIZEOF ( change_from_design_object_request_assignment [ i ] . items ) by 1 ; IF ( ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( change_from_design_object_request_assignment [ i ] . items [ j ] ) ) AND ( change_from_design_object_request_assignment [ i ] . items [ j ] . name = 'design object change' ) ) THEN IF EXISTS ( change_from_design_object_request_assignment [ i ] . items [ j ] . relating_product_definition ) THEN IF ( NOT ( change_from_design_object_request_assignment [ i ] . items [ j ] . relating_product_definition IN pd_bag ) ) THEN pd_bag := pd_bag + change_from_design_object_request_assignment [ i ] . items [ j ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pd_bag ) by 1 ; IF ( NOT ( pass1 AND pass2 ) ) THEN ESCAPE ; END_IF ; IF ( pass1 ) THEN mdo_bag := [ ] ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( pd_bag [ i ] , 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | ( pdr \ product_definition_relationship . name = 'design object change' ) ) ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass1 ) THEN ESCAPE ; END_IF ; ctdoa_bag := QUERY ( ctdoa &lt;* change_to_design_object_assignment | ( pdr_bag [ j ] IN ctdoa . items ) ) ; REPEAT k := 1 to SIZEOF ( ctdoa_bag ) by 1 ; IF ( NOT pass1 ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( ctdoa_bag [ k ] . items ) by 1 ; IF EXISTS ( ctdoa_bag [ k ] . items [ l ] ) THEN IF ( ctdoa_bag [ k ] . items [ l ] IN mdo_bag ) THEN pass1 := FALSE ; ESCAPE ; ELSE mdo_bag := mdo_bag + ctdoa_bag [ k ] . items [ l ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass1 ) THEN ESCAPE ; END_IF ; ctdora_bag := QUERY ( ctdora &lt;* change_to_design_object_request_assignment | ( pdr_bag [ j ] IN ctdora . items ) ) ; REPEAT k := 1 to SIZEOF ( ctdora_bag ) by 1 ; IF ( NOT pass1 ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( ctdora_bag [ k ] . items ) by 1 ; IF EXISTS ( ctdora_bag [ k ] . items [ l ] ) THEN IF ( ctdora_bag [ k ] . items [ l ] IN mdo_bag ) THEN pass1 := FALSE ; ESCAPE ; ELSE mdo_bag := mdo_bag + ctdora_bag [ k ] . items [ l ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; END_IF ; IF ( pass2 ) THEN mdo_bag := [ ] ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( pd_bag [ i ] , 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION' ) | ( pdr \ product_definition_relationship . name = 'design object change' ) ) ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass2 ) THEN ESCAPE ; END_IF ; cfdoa_bag := QUERY ( cfdoa &lt;* change_from_design_object_assignment | ( pdr_bag [ j ] IN cfdoa . items ) ) ; REPEAT k := 1 to SIZEOF ( cfdoa_bag ) by 1 ; IF ( NOT pass2 ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( cfdoa_bag [ k ] . items ) by 1 ; IF EXISTS ( cfdoa_bag [ k ] . items [ l ] ) THEN IF ( cfdoa_bag [ k ] . items [ l ] IN mdo_bag ) THEN pass2 := FALSE ; ESCAPE ; ELSE mdo_bag := mdo_bag + cfdoa_bag [ k ] . items [ l ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass2 ) THEN ESCAPE ; END_IF ; cfdora_bag := QUERY ( cfdora &lt;* change_from_design_object_request_assignment | ( pdr_bag [ j ] IN cfdora . items ) ) ; REPEAT k := 1 to SIZEOF ( cfdora_bag ) by 1 ; IF ( NOT pass2 ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( cfdora_bag [ k ] . items ) by 1 ; IF EXISTS ( cfdora_bag [ k ] . items [ l ] ) THEN IF ( cfdora_bag [ k ] . items [ l ] IN mdo_bag ) THEN pass2 := FALSE ; ESCAPE ; ELSE mdo_bag := mdo_bag + cfdora_bag [ k ] . items [ l ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass1 "/>
-         <where label="WR2" expression=" pass2 "/>
-      </rule>
-      <rule name="delete_design_object_management_relationship_unique_constraint" appliesto="delete_design_object_assignment delete_design_object_request_assignment">
-         <algorithm> LOCAL pdr_bag : BAG OF product_definition_relationship := [ ] ; pd_bag : BAG OF product_definition := [ ] ; ddoa_bag : BAG OF delete_design_object_assignment ; ddora_bag : BAG OF delete_design_object_request_assignment ; pass : BOOLEAN := TRUE ; mdo_bag : BAG OF managed_design_object ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( delete_design_object_assignment ) by 1 ; REPEAT j := 1 TO SIZEOF ( delete_design_object_assignment [ i ] . items ) by 1 ; IF ( ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( delete_design_object_assignment [ i ] . items [ j ] ) ) AND ( delete_design_object_assignment [ i ] . items [ j ] . name = 'design object deletion' ) ) THEN IF EXISTS ( delete_design_object_assignment [ i ] . items [ j ] . relating_product_definition ) THEN IF ( NOT ( delete_design_object_assignment [ i ] . items [ j ] . relating_product_definition IN pd_bag ) ) THEN pd_bag := pd_bag + delete_design_object_assignment [ i ] . items [ j ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( delete_design_object_request_assignment ) by 1 ; REPEAT j := 1 TO SIZEOF ( delete_design_object_request_assignment [ i ] . items ) by 1 ; IF ( ( 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( delete_design_object_request_assignment [ i ] . items [ j ] ) ) AND ( delete_design_object_request_assignment [ i ] . items [ j ] . name = 'design object deletion' ) ) THEN IF EXISTS ( delete_design_object_request_assignment [ i ] . items [ j ] . relating_product_definition ) THEN IF ( NOT ( delete_design_object_request_assignment [ i ] . items [ j ] . relating_product_definition IN pd_bag ) ) THEN pd_bag := pd_bag + delete_design_object_request_assignment [ i ] . items [ j ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pd_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; mdo_bag := [ ] ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( pd_bag [ i ] , 'DESIGN_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION' ) | ( pdr \ product_definition_relationship . name = 'design object deletion' ) ) ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; ddoa_bag := QUERY ( ddoa &lt;* delete_design_object_assignment | ( pdr_bag [ j ] IN ddoa . items ) ) ; REPEAT k := 1 to SIZEOF ( ddoa_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( ddoa_bag [ k ] . items ) by 1 ; IF EXISTS ( ddoa_bag [ k ] . items [ l ] ) THEN IF ( ddoa_bag [ k ] . items [ l ] IN mdo_bag ) THEN pass := FALSE ; ESCAPE ; ELSE mdo_bag := mdo_bag + ddoa_bag [ k ] . items [ l ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; ddora_bag := QUERY ( ddora &lt;* delete_design_object_request_assignment | ( pdr_bag [ j ] IN ddora . items ) ) ; REPEAT k := 1 to SIZEOF ( ddora_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( ddora_bag [ k ] . items ) by 1 ; IF EXISTS ( ddora_bag [ k ] . items [ l ] ) THEN IF ( ddora_bag [ k ] . items [ l ] IN mdo_bag ) THEN pass := FALSE ; ESCAPE ; ELSE mdo_bag := mdo_bag + ddora_bag [ k ] . items [ l ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
+      <entity name="previous_design_assignment" supertypes="design_object_management_assignment"/>
+      <entity name="previous_design_object_assignment" supertypes="design_object_management_assignment"/>
    </schema>
 </express>

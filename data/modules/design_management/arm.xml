@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-24T12:01:57" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-25T15:49:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="design_management_arm schema_instance"/>
    <schema name="Design_management_arm">
       <interface kind="use" schema="Approval_arm"/>
@@ -22,6 +22,10 @@
          <explicit name="current_design_object">
             <typename name="managed_design_object"/>
          </explicit>
+         <derived name="name" expression=" 'add' ">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Activity"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute entity-ref="Add_design_object_management_relationship" attribute="current_design_object"/>
          </unique>
@@ -30,35 +34,32 @@
          <explicit name="current_design_object">
             <typename name="managed_design_object"/>
          </explicit>
-         <explicit name="previous_design_object">
+         <explicit name="previous_design_object" optional="YES">
             <typename name="managed_design_object"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Change_design_object_management_relationship" attribute="current_design_object"/>
-         </unique>
-         <unique label="UR2">
-            <unique.attribute entity-ref="Change_design_object_management_relationship" attribute="previous_design_object"/>
-         </unique>
+         <explicit name="attribute_name" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <derived name="name" expression=" 'change' ">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Activity"/>
+         </derived>
+         <where label="WR1" expression=" TYPEOF ( current_design_object ) = TYPEOF ( previous_design_object ) "/>
+         <where label="WR2" expression=" current_design_object &lt;&gt; previous_design_object "/>
       </entity>
       <entity name="Delete_design_object_management_relationship" supertypes="Design_object_management_relationship">
          <explicit name="previous_design_object">
             <typename name="managed_design_object"/>
          </explicit>
+         <derived name="name" expression=" 'delete' ">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Activity"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute entity-ref="Delete_design_object_management_relationship" attribute="previous_design_object"/>
          </unique>
       </entity>
-      <entity name="Design_object_management_relationship" abstract.supertype="YES" super.expression="ONEOF (Change_design_object_management_relationship, Delete_design_object_management_relationship, Add_design_object_management_relationship) ANDOR View_dependent_design_object_management_relationship"/>
-      <entity name="Design_object_management_relationship_assignment">
-         <explicit name="changes">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Design_object_management_relationship"/>
-         </explicit>
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="design_object_management_relationship_item"/>
-         </explicit>
-      </entity>
+      <entity name="Design_object_management_relationship" abstract.supertype="YES" supertypes="Activity" super.expression="ONEOF (Change_design_object_management_relationship, Delete_design_object_management_relationship, Add_design_object_management_relationship) ANDOR View_dependent_design_object_management_relationship"/>
       <entity name="Frozen_assignment">
          <explicit name="frozen_item">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -72,6 +73,10 @@
          <explicit name="current_design">
             <typename name="Product_view_definition"/>
          </explicit>
+         <derived name="name" expression=" 'design dependent' ">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Activity"/>
+         </derived>
       </entity>
    </schema>
 </express>

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.13 2002/09/13 12:03:29 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.14 2002/09/17 07:47:40 robbod Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -6,6 +6,9 @@
 <!--                                                   -->
 <!-- written by Josh Lubell, NIST                      -->
 <!-- lubell@nist.gov                                   -->
+<!--                                                   -->
+<!-- Additions by Rob Bodingon, Eurostep Limited       -->
+<!--  rob.bodington@eurostep.com                       -->
 <!--                                                   -->
 <!-- For use with the Ant build tool                   -->
 <!-- (http://jakarta.apache.org/ant)                   -->
@@ -44,6 +47,16 @@ generates HTML for all the modules
 
 "ant -DMODULES=data/modules/[module-name] modules" 
 generates HTML for a single module
+
+"ant aps"
+generate Application protocol documents
+
+"ant -DAPDOCS=data/application_protocols/[ap-name] aps" 
+deletes all HTML generated for a single application protocol
+
+"ant -DAPDOCS=data/application_protocols/[ap-name] clean_aps" 
+deletes all HTML generated for a single application protocol
+
 
 "ant nav"
 generates all the navigation indices for the repository
@@ -87,6 +100,10 @@ tar.gz format)
     <property name="MODULESDIR" value="data/modules"/>
     <property name="MODULES" value="${MODULESDIR}/**"/>
 
+    <property name="APDIR" value="data/application_protocols"/>
+    <property name="APDOCS" value="${APDIR}/**"/>
+    <property name="APXSL" value="xsl/ap_doc"/>
+
     <property name="NAVDIR" value="nav"/>
     <property name="NAV" value="${NAVDIR}/**"/>
     <property name="NAVXSL" value="nav/xsl"/>
@@ -111,11 +128,14 @@ tar.gz format)
       <fileset dir="." includes="repository_index.htm*"/>
       <fileset dir="${RESOURCESDIR}" includes="**/*.htm*"/>
       <fileset dir="${MODULESDIR}" includes="**/*.htm*"/>
+      <fileset dir="${APDIR}" includes="**/*.htm*"/>
+      <fileset dir="${NAVDIR}" includes="**/*.htm*"/>
       <fileset dir="ballots" includes="**/*.htm*"/>
     </delete>
   </target>
 
-  <target name="clean_module" depends="init" description="delete generated files">
+  <target name="clean_module" depends="init" 
+    description="delete generated files">
     <delete>
       <fileset dir="${MODULES}" includes="**/*.htm*"/>
     </delete>
@@ -125,6 +145,13 @@ tar.gz format)
     description="delete generated files">
     <delete>
       <fileset dir="${RESOURCES}" includes="**/*.htm*"/>
+    </delete>
+  </target>
+
+  <target name="clean_aps" depends="init" 
+    description="delete generated files">
+    <delete>
+      <fileset dir="${APDOCS}" includes="**/*.htm*"/>
     </delete>
   </target>
 
@@ -547,7 +574,199 @@ tar.gz format)
   </target>
 
 
-  <target name="all" depends="index, resources, modules"
+  <target name="aps" depends="init" 
+          description="generate Application protocol documents">
+    <dependset>
+
+      <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="${APDOCS}/*.htm*"/>
+    </dependset>
+
+    <style includes="${APDOCS}/aam.xml" 
+      destdir="." extension=".htm"
+      style="${APXSL}/aam_descriptions.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/aamidef*.xml" 
+      destdir="." extension=".htm"
+      style="${APXSL}/imgfile.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/1_scope.xml" destdir="."
+      extension=".htm"
+      style="${APXSL}/sect_1_scope.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/2_refs.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_2_refs.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/3_defs.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_3_defs.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/4_info_reqs.xml" destdir="."
+      extension=".htm"
+      style="${APXSL}/sect_4_info_reqs.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/5_aim.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_5_aim.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/5_main.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_5_main.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <!-- XSL not present
+    <style includes="${APDOCS}/sys/5_mapping.xml" destdir="."
+      extension=".htm"
+	   style="${APXSL}/sect_5_mapping.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+    -->
+
+    <style includes="${APDOCS}/sys/6_ccs.xml" destdir="."
+      extension=".htm"
+      style="${APXSL}/sect_6_ccs.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/a_exp_aim_lf.xml" destdir="."
+      extension=".htm"
+      style="${APXSL}/sect_a_exp_aim_lf.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/b_imp_meth.xml" destdir="."
+      extension=".htm"
+	   style="${APXSL}/sect_b_imp_meth.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/biblio.xml" destdir="."
+      extension=".htm"
+      style="${APXSL}/sect_biblio.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/c_pics.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_c_pics.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/contents.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_contents.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+    
+    <style includes="${APDOCS}/sys/cover.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_cover.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/d_obj_reg.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_d_obj_reg.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/e_aam.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_e_aam.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/f_arm_expg.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_f_arm_expg.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+    
+    <style includes="${APDOCS}/sys/foreword.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_foreword.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+    
+    <style includes="${APDOCS}/sys/g_exp_aim.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_g_exp_aim.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/h_guide.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_h_guide.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${APDOCS}/sys/introduction.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_introduction.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <!-- XSL not present
+    <style includes="${APDOCS}/sys/j_obj_reg.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_j_obj_reg.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+    -->
+
+    <!-- XSL not present
+    <style includes="${APDOCS}/sys/main.xml" destdir="."
+	   extension=".htm"
+	   style="${APXSL}/sect_main.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+    -->
+  </target>
+
+
+  <target name="all" depends="index, resources, modules, aps"
 	  description="create HTML for everything"/>
 
   <target name="tgz" depends="all" 

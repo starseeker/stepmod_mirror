@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.4 2005/02/02 15:02:39 budreckytej Exp $
+   $Id: mim.exp,v 1.5 2005/02/04 15:26:57 budreckytej Exp $
    ISO TC184/SC4/WG12 N3664 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS MIM
 *)
 
@@ -19,15 +19,15 @@ SCHEMA Fabrication_technology_mim;
 ENTITY dependent_material_removal_feature_template
   SUBTYPE OF (part_template_definition);
 WHERE
-  WR1: SELF\shape_aspect.description = 'material removal feature template';
-  WR2: SIZEOF (QUERY (am <* QUERY (sar <* USEDIN (SELF,
+  WR1: SELF\product_definition.description = 'material removal feature template';
+  WR2: SIZEOF (QUERY (am <* QUERY (pdr <* USEDIN (SELF,
        'FABRICATION_TECHNOLOGY_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'associated template') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'associated template') |
        (('FABRICATION_TECHNOLOGY_MIM.' +
        'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (am.relating_shape_aspect)) AND
-       (am.relating_shape_aspect.description IN
+       TYPEOF (am.relating_product_definition)) AND
+       (am.relating_product_definition.description IN
        ['default attachment size and component termination passage based',
        'default attachment size based',
        'default attachment size and via based',
@@ -268,13 +268,15 @@ WHERE
        'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |
     duc\document_usage_constraint.subject_element = 
                  'pre defined classification code')) = 1)) <= 1;
+(* invalid csa                 
   WR2: SIZEOF (QUERY (am <* QUERY (sar <* USEDIN (SELF,
        'FABRICATION_TECHNOLOGY_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated definition') |
        'FABRICATION_TECHNOLOGY_MIM.' +
        'LAND_TEMPLATE_TERMINAL' IN
-       TYPEOF (am.related_shape_aspect))) >= 1;
+       TYPEOF (am.related_shape_aspect))) >= 1; *)
+(* invalid csa       
  WR3:  NOT(EXISTS(SELF\shape_aspect.description)) OR
        ((NOT (SELF\shape_aspect.description IN ['default attachment size based',
        'default attachment size and component termination passage based', 
@@ -283,7 +285,8 @@ WHERE
        'FABRICATION_TECHNOLOGY_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        ((sar\shape_aspect_relationship.name = 'minimum attachment region size') AND 
-       (sar.related_shape_aspect\shape_aspect.description = 'connection zone')))) <= 1));
+       (sar.related_shape_aspect\shape_aspect.description = 'connection zone')))) <= 1));*)
+(* invalid csa              
  WR4:  NOT(EXISTS(SELF\shape_aspect.description)) OR
        ((NOT (SELF\shape_aspect.description IN ['default attachment size based',
        'default attachment size and component termination passage based', 
@@ -292,7 +295,8 @@ WHERE
        'FABRICATION_TECHNOLOGY_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        ((sar\shape_aspect_relationship.name = 'maximum attachment region size') AND 
-       (sar.related_shape_aspect\shape_aspect.description = 'connection zone')))) <= 1));
+       (sar.related_shape_aspect\shape_aspect.description = 'connection zone')))) <= 1));*)
+(* invalid csa              
  WR5:  NOT(EXISTS(SELF\shape_aspect.description)) OR
        ((NOT (SELF\shape_aspect.description IN 
        ['default component termination passage based',
@@ -305,7 +309,8 @@ WHERE
        'PASSAGE_TECHNOLOGY' IN
        TYPEOF (tu.related_shape_aspect)) AND
        (tu.related_shape_aspect\shape_aspect.description = 
-       'default component termination passage definition'))) = 1));
+       'default component termination passage definition'))) = 1)); *)
+(* invalid csa              
  WR6:  NOT(EXISTS(SELF\shape_aspect.description)) OR
        ((NOT (SELF\shape_aspect.description IN 
        ['default attachment size and component termination passage based',
@@ -321,9 +326,9 @@ WHERE
        'FABRICATION_TECHNOLOGY_MIM.' +
        'STRATUM_TECHNOLOGY' IN 
        TYPEOF (ost.relating_shape_aspect.of_shape.definition)
-       )) = 1));
- WR7:  NOT(EXISTS(SELF\shape_aspect.description)) OR
-       ((NOT (SELF\shape_aspect.description IN 
+       )) = 1)); *)
+ WR7:  NOT(EXISTS(SELF\product_definition.description)) OR
+       ((NOT (SELF\product_definition.description IN 
        ['default attachment size and component termination passage based', 
        'default attachment size and via based', 
        'default component termination passage based', 'default via based', 
@@ -341,8 +346,8 @@ WHERE
        'FABRICATION_TECHNOLOGY_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] * 
        TYPEOF (it)) = 2)) = 2)) = 1))) = 0));
- WR8:  NOT(EXISTS(SELF\shape_aspect.description)) OR
-       ((NOT (SELF\shape_aspect.description IN 
+ WR8:  NOT(EXISTS(SELF\product_definition.description)) OR
+       ((NOT (SELF\product_definition.description IN 
        ['default attachment size and component termination passage based', 
        'default attachment size and via based', 
        'default component termination passage based', 'default via based', 
@@ -362,8 +367,8 @@ WHERE
        TYPEOF (it)) = 2) AND 
        (it\representation_item.name = 'minimum fabrication allowance'))) 
        = 1)) = 1))) = 0));
- WR9:  NOT(EXISTS(SELF\shape_aspect.description)) OR
-       ((NOT (SELF\shape_aspect.description IN 
+ WR9:  NOT(EXISTS(SELF\product_definition.description)) OR
+       ((NOT (SELF\product_definition.description IN 
        ['default attachment size and component termination passage based', 
        'default attachment size and via based', 
        'default component termination passage based', 'default via based', 
@@ -382,6 +387,7 @@ WHERE
        'LENGTH_MEASURE_WITH_UNIT'] * 
        TYPEOF (it)) = 2) AND (it\representation_item.name = 'minimum annular ring'))) = 1
        )) = 1))) = 0));
+(* invalid csa       
  WR10: NOT(EXISTS(SELF\shape_aspect.description)) OR
        ((NOT (SELF\shape_aspect.description IN 
        ['default attachment size and component termination passage based', 
@@ -394,7 +400,8 @@ WHERE
        sar\shape_aspect_relationship.name = 'technology usage') |
        'FABRICATION_TECHNOLOGY_MIM.' +
        'PASSAGE_TECHNOLOGY' IN
-       TYPEOF (tu.related_shape_aspect))) = 1));
+       TYPEOF (tu.related_shape_aspect))) = 1)); *)
+(* invalid csa              
  WR11: NOT(EXISTS(SELF\shape_aspect.description)) OR
        ((NOT (SELF\shape_aspect.description IN ['default via based',
        'default attachment size and via based'])) OR
@@ -406,7 +413,8 @@ WHERE
        'PASSAGE_TECHNOLOGY' IN
        TYPEOF (tu.related_shape_aspect)) AND
        (tu.related_shape_aspect\shape_aspect.description = 'default via definition'))) 
-       = 1));
+       = 1)); *)
+(* invalid csa         
  WR12: NOT(EXISTS(SELF\shape_aspect.description)) OR
        ((NOT (SELF\shape_aspect.description = 'default unsupported passage')) OR
        (SIZEOF (QUERY (tu <* QUERY (sar <* USEDIN (SELF,
@@ -417,7 +425,7 @@ WHERE
        'PASSAGE_TECHNOLOGY' IN
        TYPEOF (tu.related_shape_aspect)) AND
        (tu.related_shape_aspect\shape_aspect.description = 
-       'default unsupported passage definition'))) = 1));
+       'default unsupported passage definition'))) = 1)); *)
 END_ENTITY;
 
 ENTITY land_template_terminal

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.14 2003/10/22 11:21:07 robbod Exp $
+     $Id: issues.xsl,v 1.15 2003/10/22 17:01:15 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -216,7 +216,8 @@
       <xsl:if test="@ballot_comment='yes'">
         <i>
           Registered as a Ballot comment by:
-          <xsl:value-of select="@member_body"/>
+          <xsl:value-of select="concat(@member_body,' (',@ballot,')')"/>
+          
         </i>
         <br/>
       </xsl:if>      

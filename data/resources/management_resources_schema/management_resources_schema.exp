@@ -478,6 +478,23 @@ ENTITY time_interval_assignment
   role : time_interval_role;
 END_ENTITY;
 
+  FUNCTION acyclic_identification_assignment_relationship (relation : identification_assignment_relationship; relatives : SET [1:?] OF identification_assignment; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF identification_assignment_relationship;
+    END_LOCAL;
+
+    IF relation.relating_identification_assignment IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(ia <* bag_to_set(USEDIN(relation.relating_identification_assignment, 'MANAGEMENT_RESOURCES_SCHEMA.' + 'IDENTIFICATION_ASSIGNMENT_RELATIONSHIP.' + 'RELATED_IDENTIFICATION_ASSIGNMENT')) | specific_relation IN TYPEOF(ia));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_identification_assignment_relationship(x[i], relatives + relation.relating_identification_assignment, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
 END_SCHEMA;  -- management_resources_schema
 
 

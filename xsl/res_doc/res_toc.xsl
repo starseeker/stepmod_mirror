@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.4 2002/11/01 04:38:57 thendrix Exp $
+$Id: res_toc.xsl,v 1.5 2002/12/12 22:59:53 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -52,7 +52,7 @@ NEED TO FIX up the hrefs -->
           <xsl:value-of select="concat($clauseno,'.1 Introduction')"/>
           </A><BR/>
 
-          <!-- fundamendal concepts - seems to always be there -->
+          <!-- fundamental concepts - seems to always be there -->
           &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#funcon{$clauseno}">
           <xsl:value-of select="concat($clauseno,'.2 Fundamental concepts and assumptions')"/>
           </A><BR/>

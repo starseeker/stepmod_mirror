@@ -1,11 +1,11 @@
 (*
- $Id: mim.exp,v 1.22 2004/01/28 20:00:11 leifgyllstrom Exp $
- ISO TC184/SC4/WG3 N1385 - ISO/TS 10303-1306 AP239 task specification resourced - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG3 N1273
+ $Id: mim.exp,v 1.23 2004/02/28 18:37:50 robbod Exp $
+ISO TC184/SC4/WG3 N1566 - ISO/TS 10303-1306 AP239 task specification resourced - EXPRESS MIM
+Supersedes ISO TC184/SC4/WG3 N1385
 *) 
 
 
-SCHEMA Ap239_task_specification_resourced_mim; 
+SCHEMA Ap239_task_specification_resourced_mim;
 
 USE FROM action_schema   -- ISO 10303-41
   (action,
@@ -44,11 +44,13 @@ USE FROM contract_schema   -- ISO 10303-41
 
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 
-USE FROM Document_and_version_identification_mim;    -- ISO/TS 10303-1121
+USE FROM Document_and_version_identification_mim;    -- ISO/TS 10303-2956
 
 USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
 
 USE FROM Document_definition_mim;    -- ISO/TS 10303-1123
+
+USE FROM Document_properties_mim;    -- ISO/TS 10303-1126
 
 USE FROM Experience_mim;    -- ISO/TS 10303-1243
 
@@ -64,6 +66,8 @@ USE FROM group_schema   -- ISO 10303-41
 
 USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
 
+USE FROM Information_rights_mim;    -- ISO/TS 10303-1241
+
 USE FROM Interface_lifecycle_mim;    -- ISO/TS 10303-1294
 
 USE FROM Interface_mim;    -- ISO/TS 10303-1251
@@ -77,7 +81,8 @@ USE FROM Location_assignment_mim;    -- ISO/TS 10303-1277
 USE FROM Location_mim;    -- ISO/TS 10303-1276
 
 USE FROM location_schema   -- ISO 10303-41
-  (location); 
+  (location,
+   location_relationship); 
 
 USE FROM Management_resource_information_mim;    -- ISO/TS 10303-1288
 
@@ -97,7 +102,8 @@ USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
 USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
 
 USE FROM person_organization_schema   -- ISO 10303-41
-  (organization,
+  (address,
+   organization,
    organization_role,
    organization_type,
    organizational_project,
@@ -138,6 +144,7 @@ USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
 
 USE FROM product_property_definition_schema   -- ISO 10303-41
   (characterized_object,
+   general_property,
    property_definition); 
 
 USE FROM Product_version_mim;    -- ISO/TS 10303-1018
@@ -154,6 +161,13 @@ USE FROM Qualifications_mim;    -- ISO/TS 10303-1244
 
 USE FROM qualifications_schema   -- ISO 10303-41
   (qualification_type); 
+
+USE FROM qualified_measure_schema   -- ISO 10303-45
+  (descriptive_representation_item,
+   measure_representation_item); 
+
+USE FROM representation_schema   -- ISO 10303-43
+  (representation); 
 
 USE FROM Required_resource_characterized_mim;    -- ISO/TS 10303-1280
 
@@ -215,6 +229,8 @@ TYPE tsr_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_
     position_in_organization_type, 
     product, 
     product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
     product_definition, 
     product_definition_formation, 
     product_definition_relationship, 
@@ -241,22 +257,32 @@ TYPE tsr_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item
     product_group, 
     product_group_membership, 
     product_group_relationship, 
-    qualification_type);
+    qualification_type, 
+    resource_property);
 END_TYPE; 
 
 TYPE tsr_attribute_classification_item = SELECT BASED_ON attribute_classification_item WITH 
    (action_property, 
+    address, 
+    applied_location_representation_assignment, 
+    measure_representation_item, 
+    representation, 
     resource_property);
 END_TYPE; 
 
 TYPE tsr_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_language_item WITH 
    (action_method, 
     action_method_relationship, 
+    address, 
     applied_action_method_assignment, 
     applied_experience_assignment, 
+    applied_location_representation_assignment, 
     applied_person_type_assignment, 
     experience_type, 
     group, 
+    location, 
+    location_relationship, 
+    measure_representation_item, 
     organization_type, 
     person_type, 
     person_type_definition, 
@@ -267,7 +293,8 @@ TYPE tsr_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON att
     position_in_organization_type, 
     product_group, 
     product_group_relationship, 
-    qualification_type);
+    qualification_type, 
+    representation);
 END_TYPE; 
 
 TYPE tsr_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
@@ -278,6 +305,10 @@ END_TYPE;
 
 TYPE tsr_classification_item = SELECT BASED_ON classification_item WITH 
    (action_property, 
+    address, 
+    applied_location_representation_assignment, 
+    measure_representation_item, 
+    representation, 
     resource_property);
 END_TYPE; 
 
@@ -309,7 +340,9 @@ TYPE tsr_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and
    (action_method, 
     action_method_relationship, 
     action_property, 
+    address, 
     applied_action_method_assignment, 
+    applied_location_representation_assignment, 
     applied_organization_type_assignment, 
     applied_person_and_organization_assignment, 
     applied_person_type_assignment, 
@@ -321,6 +354,7 @@ TYPE tsr_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and
     product_group, 
     product_group_membership, 
     product_group_relationship, 
+    representation, 
     resource_property);
 END_TYPE; 
 
@@ -328,7 +362,9 @@ TYPE tsr_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH
    (action_method, 
     action_method_relationship, 
     action_property, 
+    address, 
     applied_action_method_assignment, 
+    applied_location_representation_assignment, 
     applied_organization_type_assignment, 
     applied_person_and_organization_assignment, 
     applied_person_type_assignment, 
@@ -340,6 +376,7 @@ TYPE tsr_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH
     product_group, 
     product_group_membership, 
     product_group_relationship, 
+    representation, 
     resource_property);
 END_TYPE; 
 
@@ -373,20 +410,32 @@ END_TYPE;
 TYPE tsr_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
    (action_method, 
     action_method_relationship, 
+    address, 
     applied_action_method_assignment, 
+    applied_location_representation_assignment, 
     applied_qualification_type_assignment, 
     applied_state_observed_assignment, 
     applied_state_type_assignment, 
+    descriptive_representation_item, 
     experience_type, 
-    group,
+    group, 
     location, 
+    measure_representation_item, 
     organization_type, 
     person_type, 
     position_in_organization, 
     product_group, 
     product_group_membership, 
     product_group_relationship, 
-    qualification_type);
+    qualification_type, 
+    representation, 
+    resource_property);
+END_TYPE; 
+
+TYPE tsr_ir_usage_right_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usage_item WITH 
+   (task_element, 
+    task_method, 
+    task_objective);
 END_TYPE; 
 
 TYPE tsr_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_item WITH 
@@ -446,11 +495,16 @@ END_TYPE;
 TYPE tsr_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON multi_language_attribute_item WITH 
    (action_method, 
     action_method_relationship, 
+    address, 
     applied_action_method_assignment, 
     applied_experience_assignment, 
+    applied_location_representation_assignment, 
     applied_person_type_assignment, 
     experience_type, 
     group, 
+    location, 
+    location_relationship, 
+    measure_representation_item, 
     organization_type, 
     person_type, 
     person_type_definition, 
@@ -461,7 +515,8 @@ TYPE tsr_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_
     position_in_organization_type, 
     product_group, 
     product_group_relationship, 
-    qualification_type);
+    qualification_type, 
+    representation);
 END_TYPE; 
 
 TYPE tsr_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
@@ -474,10 +529,12 @@ TYPE tsr_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organizat
     applied_position_in_organization_type_assignment, 
     applied_state_observed_assignment, 
     applied_state_type_assignment, 
+    general_property, 
     position_in_organization_type, 
     product_group, 
     product_group_membership, 
-    product_group_relationship);
+    product_group_relationship, 
+    resource_property);
 END_TYPE; 
 
 TYPE tsr_person_and_organization_item = SELECT BASED_ON person_and_organization_item WITH 
@@ -490,10 +547,12 @@ TYPE tsr_person_and_organization_item = SELECT BASED_ON person_and_organization_
     applied_position_in_organization_type_assignment, 
     applied_state_observed_assignment, 
     applied_state_type_assignment, 
+    general_property, 
     position_in_organization_type, 
     product_group, 
     product_group_membership, 
-    product_group_relationship);
+    product_group_relationship, 
+    resource_property);
 END_TYPE; 
 
 TYPE tsr_person_type_item = SELECT BASED_ON person_type_item WITH 
@@ -562,6 +621,9 @@ TYPE tsr_resource_assignment_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON a
     location, 
     organizational_project, 
     product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
     product_definition, 
     product_definition_formation, 
     product_group);
@@ -576,6 +638,10 @@ TYPE tsr_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_O
     product_group, 
     product_group_membership, 
     product_group_relationship);
+END_TYPE; 
+
+TYPE tsr_state_observed_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_observed_of_item WITH 
+   (task_method);
 END_TYPE; 
 
 TYPE tsr_state_type_of_item = SELECT BASED_ON state_type_of_item WITH 
@@ -596,4 +662,3 @@ ENTITY characterized_applied_state_type_assignment
 END_ENTITY;
 
 END_SCHEMA;  -- Ap239_task_specification_resourced_mim
-

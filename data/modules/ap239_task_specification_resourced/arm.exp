@@ -1,10 +1,11 @@
 (*
- $Id: arm.exp,v 1.17 2004/01/28 20:00:12 leifgyllstrom Exp $
- ISO TC184/SC4/WG3 N1384 - ISO/TS 10303-1306 AP239 task specification resourced - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG3 N1272
+ $Id: arm.exp,v 1.18 2004/02/28 18:37:50 robbod Exp $
+ISO TC184/SC4/WG3 N1558 - ISO/TS 10303-1306 AP239 task specification resourced - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG3 N1384
 *) 
 
-SCHEMA Ap239_task_specification_resourced_arm; 
+
+SCHEMA Ap239_task_specification_resourced_arm;
 
 USE FROM Activity_arm;    -- ISO/TS 10303-1047
 
@@ -30,11 +31,13 @@ USE FROM Contract_arm;    -- ISO/TS 10303-1062
 
 USE FROM Date_time_assignment_arm;    -- ISO/TS 10303-1014
 
-USE FROM Document_and_version_identification_arm;    -- ISO/TS 10303-1121
+USE FROM Document_and_version_identification_arm;    -- ISO/TS 10303-2956
 
 USE FROM Document_assignment_arm;    -- ISO/TS 10303-1122
 
 USE FROM Document_definition_arm;    -- ISO/TS 10303-1123
+
+USE FROM Document_properties_arm;    -- ISO/TS 10303-1126
 
 USE FROM Experience_arm;    -- ISO/TS 10303-1243
 
@@ -43,6 +46,10 @@ USE FROM File_identification_arm;    -- ISO/TS 10303-1127
 USE FROM Functional_breakdown_arm;    -- ISO/TS 10303-1216
 
 USE FROM Identification_assignment_arm;    -- ISO/TS 10303-1021
+
+USE FROM Information_rights_arm;    -- ISO/TS 10303-1241
+
+USE FROM Information_rights_arm;    -- ISO/TS 10303-1241
 
 USE FROM Interface_arm;    -- ISO/TS 10303-1251
 
@@ -133,35 +140,6 @@ USE FROM Work_output_characterized_arm;    -- ISO/TS 10303-1301
 USE FROM Zonal_breakdown_arm;    -- ISO/TS 10303-1217
 
 
-TYPE task_resource_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_item_select WITH 
-   (Document, 
-    Document_definition, 
-    Document_version, 
-    File, 
-    Location, 
-    Organization, 
-    Organization_type, 
-    Part, 
-    Part_version, 
-    Part_view_definition, 
-    Person, 
-    Person_in_organization, 
-    Position, 
-    Position_type, 
-    Product_as_individual, 
-    Product_group, 
-    Type_of_person);
-END_TYPE; 
-
-TYPE tse_position_group_item = SELECT BASED_ON position_group_item WITH 
-   (Approving_person_organization, 
-    Document_definition, 
-    Organization_or_person_in_organization_assignment, 
-    Product, 
-    Product_version, 
-    Product_view_definition);
-END_TYPE; 
-
 TYPE tsr_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
    (Experience_gained, 
     Experience_type, 
@@ -180,15 +158,16 @@ TYPE tsr_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item
     Qualification_type, 
     Required_resource_assignment, 
     Resource_as_realized_assignment, 
-    Task, 
-    Task_assignment, 
+    Resource_property, 
+    Task_element, 
+    Task_element_relationship, 
+    Task_element_state_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
     Task_method_state_relationship, 
-    Task_relationship, 
-    Task_result, 
-    Task_result_state_relationship, 
-    Task_state_relationship, 
+    Task_objective, 
+    Task_objective_state_relationship, 
     Type_of_person, 
     Type_of_person_assignment);
 END_TYPE; 
@@ -196,18 +175,28 @@ END_TYPE;
 TYPE tsr_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
    (Product_group, 
     Product_group_relationship, 
-    Task, 
+    Task_element, 
     Task_method, 
-    Task_result);
+    Task_objective);
 END_TYPE; 
 
-TYPE tsr_classification_item = SELECT BASED_ON classification_item WITH 
+TYPE tsr_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
    (Activity_property, 
+    Location_representation, 
+    Organizational_location_identification, 
+    Regional_coordinate, 
     Resource_property);
 END_TYPE; 
 
-TYPE tsr_classified_attribute_select = SELECT BASED_ON classified_attribute_select WITH 
+TYPE tsr_classified_attribute_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classified_attribute_select WITH 
    (Activity_property, 
+    Global_location_representation, 
+    Location, 
+    Location_relationship, 
+    Organizational_location_identification, 
+    Product_based_location_identification, 
+    Regional_coordinate, 
+    Regional_grid_location_representation, 
     Resource_property);
 END_TYPE; 
 
@@ -219,12 +208,12 @@ TYPE tsr_condition_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_it
     Required_resource_relationship, 
     Resource_item_assignment, 
     Resource_item_relationship, 
-    Task_assignment, 
-    Task_method_relationship, 
-    Task_relationship);
+    Task_element_relationship, 
+    Task_method_assignment, 
+    Task_method_relationship);
 END_TYPE; 
 
-TYPE tsr_condition_parameter_item = SELECT BASED_ON condition_parameter_item WITH 
+TYPE tsr_condition_parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_parameter_item WITH 
    (Activity, 
     Activity_method, 
     Activity_property, 
@@ -239,16 +228,17 @@ END_TYPE;
 TYPE tsr_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH 
    (Product_group, 
     Product_group_relationship, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
+    Task_element_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
-    Task_relationship, 
-    Task_result);
+    Task_objective);
 END_TYPE; 
 
 TYPE tsr_date_or_date_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_item WITH 
    (Activity_property, 
+    Location_representation, 
     Organization_organization_type_relationship, 
     Person_or_organization_or_person_in_organization_in_position, 
     Position_assignment, 
@@ -261,15 +251,15 @@ TYPE tsr_date_or_date_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date
     Required_resource_assignment, 
     Resource_as_realized_assignment, 
     Resource_property, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
+    Task_element_relationship, 
+    Task_element_state_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
     Task_method_state_relationship, 
-    Task_relationship, 
-    Task_result, 
-    Task_result_state_relationship, 
-    Task_state_relationship, 
+    Task_objective, 
+    Task_objective_state_relationship, 
     Type_of_person_assignment);
 END_TYPE; 
 
@@ -292,22 +282,25 @@ TYPE tsr_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON d
     Resource_item_assignment, 
     Resource_item_relationship, 
     Resource_property, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
+    Task_element_state_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
     Task_method_state_relationship, 
+    Task_objective, 
+    Task_objective_state_relationship, 
     Task_relationship, 
-    Task_result, 
-    Task_result_state_relationship, 
-    Task_state_relationship, 
     Type_of_person, 
     Type_of_person_definition);
 END_TYPE; 
 
 TYPE tsr_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
-   (Experience_type,
+   (Descriptive_document_property, 
+    Experience_type, 
     Location, 
+    Location_representation, 
+    Numerical_document_property, 
     Organization_type, 
     Position, 
     Position_group, 
@@ -316,16 +309,22 @@ TYPE tsr_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identif
     Product_group_relationship, 
     Qualification_assignment, 
     Qualification_type, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
+    Task_element_relationship, 
+    Task_element_state_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
     Task_method_state_relationship, 
-    Task_relationship, 
-    Task_result, 
-    Task_result_state_relationship, 
-    Task_state_relationship, 
+    Task_objective, 
+    Task_objective_state_relationship, 
     Type_of_person);
+END_TYPE; 
+
+TYPE tsr_information_usage_right_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON information_usage_right_item WITH 
+   (Task_element, 
+    Task_method, 
+    Task_objective);
 END_TYPE; 
 
 TYPE tsr_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_item WITH 
@@ -333,15 +332,15 @@ TYPE tsr_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justific
     Assigned_property, 
     Location_assignment, 
     Resource_property, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
+    Task_element_state_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
     Task_method_state_relationship, 
-    Task_relationship, 
-    Task_result, 
-    Task_result_state_relationship, 
-    Task_state_relationship);
+    Task_objective, 
+    Task_objective_state_relationship, 
+    Task_relationship);
 END_TYPE; 
 
 TYPE tsr_justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_support_item WITH 
@@ -381,14 +380,15 @@ TYPE tsr_location_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
     Required_resource_assignment, 
     Resource_item, 
     Resource_item_assignment, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
     Task_method, 
+    Task_method_assignment, 
     Type_of_person);
 END_TYPE; 
 
 TYPE tsr_organization_person_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_or_person_in_organization_item WITH 
-   (Position_assignment, 
+   (Applied_independent_resource_property, 
+    Position_assignment, 
     Position_group_assignment, 
     Position_position_type_assignment, 
     Position_type, 
@@ -398,19 +398,20 @@ TYPE tsr_organization_person_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON or
     Product_group_relationship, 
     Required_resource_assignment, 
     Resource_as_realized_assignment, 
-    Task, 
-    Task_assignment, 
+    Resource_property, 
+    Task_element, 
+    Task_element_relationship, 
+    Task_element_state_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
     Task_method_state_relationship, 
-    Task_relationship, 
-    Task_result, 
-    Task_result_state_relationship, 
-    Task_state_relationship, 
+    Task_objective, 
+    Task_objective_state_relationship, 
     Type_of_person_assignment);
 END_TYPE; 
 
-TYPE tsr_position_item = SELECT BASED_ON position_item WITH 
+TYPE tsr_position_group_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_group_item WITH 
    (Approving_person_organization, 
     Document_definition, 
     Organization_or_person_in_organization_assignment, 
@@ -419,7 +420,16 @@ TYPE tsr_position_item = SELECT BASED_ON position_item WITH
     Product_view_definition);
 END_TYPE; 
 
-TYPE tsr_position_type_item = SELECT BASED_ON position_type_item WITH 
+TYPE tsr_position_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_item WITH 
+   (Approving_person_organization, 
+    Document_definition, 
+    Organization_or_person_in_organization_assignment, 
+    Product, 
+    Product_version, 
+    Product_view_definition);
+END_TYPE; 
+
+TYPE tsr_position_type_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_type_item WITH 
    (Approving_person_organization, 
     Document_definition, 
     Organization_or_person_in_organization_assignment, 
@@ -430,31 +440,31 @@ END_TYPE;
 
 TYPE tsr_process_property_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON characterized_activity_definition WITH 
    (Activity_method_relationship, 
-    Task_result);
+    Task_objective);
 END_TYPE; 
 
 TYPE tsr_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WITH 
    (Product_group, 
     Product_group_membership, 
     Product_group_relationship, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
     Task_method, 
-    Task_result);
+    Task_method_assignment, 
+    Task_objective);
 END_TYPE; 
 
 TYPE tsr_property_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH 
    (Applied_activity_method_assignment, 
-    Task_result_state_relationship, 
-    Task_state_relationship);
+    Task_method_state_relationship, 
+    Task_objective_state_relationship);
 END_TYPE; 
 
 TYPE tsr_required_resource_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON required_resource_item WITH 
    (Position, 
     Position_type, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
     Task_method, 
+    Task_method_assignment, 
     Type_of_person);
 END_TYPE; 
 
@@ -482,47 +492,84 @@ TYPE tsr_resource_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON re
     Part, 
     Part_version, 
     Part_view_definition, 
+    Product_as_individual, 
+    Product_as_individual_version, 
+    Product_as_individual_view, 
     Product_group, 
     Project);
 END_TYPE; 
 
-TYPE tsr_security_classification_item = SELECT BASED_ON security_classification_item WITH 
+TYPE tsr_resource_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_item_select WITH 
+   (Document, 
+    Document_definition, 
+    Document_version, 
+    File, 
+    Location, 
+    Organization, 
+    Organization_type, 
+    Part, 
+    Part_version, 
+    Part_view_definition, 
+    Person, 
+    Person_in_organization, 
+    Position, 
+    Position_type, 
+    Product_as_individual, 
+    Product_as_individual_version, 
+    Product_as_individual_view, 
+    Product_group, 
+    Type_of_person);
+END_TYPE; 
+
+TYPE tsr_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH 
    (Product_group, 
     Product_group_membership, 
     Product_group_relationship, 
-    Task, 
-    Task_assignment, 
+    Task_element, 
+    Task_element_relationship, 
+    Task_element_state_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
-    Task_method_state_relationship, 
-    Task_relationship, 
-    Task_result, 
-    Task_result_state_relationship);
+    Task_objective, 
+    Task_objective_state_relationship);
 END_TYPE; 
 
-TYPE tsr_state_definition_of_item = SELECT BASED_ON state_definition_of_item WITH 
+TYPE tsr_state_definition_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_definition_of_item WITH 
    (Activity_method, 
     Applied_activity_method_assignment);
+END_TYPE; 
+
+TYPE tsr_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_of_item WITH 
+   (Task_method);
 END_TYPE; 
 
 TYPE tsr_string_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON string_select WITH 
    (Experience_gained, 
     Experience_type, 
+    Global_location_representation, 
+    Location, 
+    Location_relationship, 
+    Location_representation, 
     Organization_type, 
+    Organizational_location_identification, 
     Position, 
     Position_group, 
     Position_relationship, 
     Position_role, 
     Position_type, 
+    Product_based_location_identification, 
     Product_group, 
     Product_group_relationship, 
     Qualification_type, 
-    Task, 
-    Task_assignment, 
+    Regional_coordinate, 
+    Regional_grid_location_representation, 
+    Task_element, 
+    Task_element_relationship, 
     Task_method, 
+    Task_method_assignment, 
     Task_method_relationship, 
-    Task_relationship, 
-    Task_result, 
+    Task_objective, 
     Type_of_person, 
     Type_of_person_assignment, 
     Type_of_person_definition, 
@@ -547,19 +594,21 @@ TYPE tsr_task_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON task_item WITH
     Position_type, 
     Product, 
     Product_as_individual, 
+    Product_as_individual_version, 
+    Product_as_individual_view, 
     Product_group, 
     Product_version, 
     Product_view_definition, 
     Required_resource, 
     Required_resource_assignment, 
     Resource_item, 
-    Task, 
+    Task_method, 
     Type_of_person, 
     Type_of_person_definition, 
     View_definition_relationship);
 END_TYPE; 
 
-TYPE tsr_type_of_person_item_select = SELECT BASED_ON type_of_person_item_select WITH 
+TYPE tsr_type_of_person_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON type_of_person_item_select WITH 
    (Person, 
     Person_in_organization, 
     Position, 
@@ -568,7 +617,7 @@ TYPE tsr_type_of_person_item_select = SELECT BASED_ON type_of_person_item_select
 END_TYPE; 
 
 TYPE tsr_work_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_item WITH 
-   (Task, 
+   (Task_element, 
     Task_method);
 END_TYPE; 
 
@@ -587,10 +636,11 @@ TYPE tsr_work_output_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_outpu
     Position, 
     Position_type, 
     Product_as_individual, 
+    Product_as_individual_version, 
+    Product_as_individual_view, 
     Product_group, 
     Resource_item, 
     Type_of_person);
 END_TYPE; 
 
 END_SCHEMA;  -- Ap239_task_specification_resourced_arm
-

@@ -101,9 +101,103 @@ A message is a collection of information made at a particular time for some part
 
  <!-- Clause 5.1 Mapping specification -->
  <mapping_table>
+
+<!-- mappings due to the extension of the approval_item select -->
+   <ae entity="Approval_assignment" original_module="approval">
+     <aa attribute="items" assertion_to="Message">
+       <refpath_extend extended_select="approval_item">
+         approval_item *> message_approval
+        message_approval=product
+       </refpath_extend>
+     </aa>
+   </ae>
+
+
+<!-- mappings due to the extension of the date_or_date_time_item select-->
+<!-- format due to table being nicked from management_resource_information-->
+   <ae entity="Date_or_date_time_assignment" original_module="date_time_assignment">
+     <aa attribute="items" assertion_to="Envelope">
+       <alt_map alt_map.inc="1">
+         <refpath_extend extended_select="date_or_date_time_item">
+           date_item *> message_date
+           message_date = product
+         </refpath_extend>
+       </alt_map>
+       <alt_map alt_map.inc="2">
+         <refpath_extend extended_select="date_or_date_time_item">
+         date_and_time_item *> message_date_time
+           message_date_time = product 
+         </refpath_extend>
+       </alt_map>
+     </aa>
+   </ae>
+
    <ae entity="contents_entry"/>
-   <ae entity="message"/>
-   <ae entity="message_relationship"/>
+
+
+   <ae entity="Message">
+   <aimelt>message</aimelt>
+   <source>ISO 10303-41</source>
+   <aimelt>PATH</aimelt>
+   <refpath>
+      message &lt;= 
+      product
+      {product.frame_of_reference[1] -&gt;
+      product_context
+      product_context.discipline_type='message'}
+   </refpath>
+
+
+
+	<aa attribute="id">
+        <aimelt>product.id</aimelt>
+	<source>ISO 10303-41</source>
+        </aa>
+
+        <aa attribute="message_type">
+        <aimelt>product.name</aimelt>
+	<source>ISO 10303-41</source>
+	</aa>
+
+        <aa attribute="purpose">
+        <aimelt>product.description</aimelt>
+	<source>ISO 10303-41</source>
+	</aa>
+        
+   </ae>
+
+<ae entity="Message_association">
+   <aimelt>PATH</aimelt>
+   <source>ISO 10303-41</source>
+   <refpath>message_relationship &lt;=
+   product_relationship
+   </refpath>
+
+	<aa attribute="related">
+	<aimelt>PATH</aimelt>
+	<source>ISO 10303-41</source>
+	<refpath>
+	product_relationship
+	product_relationship.related_product -&gt;
+	product
+	</refpath>
+	</aa>
+
+	<aa attribute="relating">
+	<aimelt>PATH</aimelt>
+	<source>ISO 10303-41</source>
+	<refpath>
+	product_relationship
+	product_relationship.related_product -&gt;
+	product
+	</refpath>
+        </aa>
+
+	<aa attribute="role">
+	<aimelt>product_relationship.name</aimelt>
+	<source>ISO 10303-41</source>
+        </aa>
+   </ae>
  </mapping_table>
 
  <!-- Clause 5.2 MIM -->

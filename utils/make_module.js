@@ -1,5 +1,7 @@
-//$Id: make_expressg.js,v 1.1 2001-06-28 07:16:47+01 rob Exp rob $
+//$Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $
 // JScript to generate the expressg html for a module.
+// This script uses The Saxon XSLT processor:
+//  http://sourceforge.net/projects/saxon
 // cscript make_module.js <module> 
 // e.g.
 // cscript make_module.js person
@@ -8,7 +10,7 @@
 // Global variables
 // -----------------------------------------------------------
 
-var saxonExe = "e:/apps/instant-saxon/saxon.exe";
+var saxonExe = "z:/apps/instant-saxon/saxon.exe";
 var stepmodHome = "Z:/My Documents/projects/nist_module_repo/stepmod";
 var ballotModulesHome = "Z:/My Documents/technology/stepparts/modules/BallotModulesSC4N1169";
 
@@ -51,7 +53,17 @@ var moduleClauses = new Array("main", "cover", "introduction", "foreword",
 //  update the directory structure and initial content for all modules listed
 // in repository_index.xml
 //   - run MainUpdateModule
-MainUpdateModules() 
+//MainUpdateModules() 
+//
+// Make the HTML for all the resources from the XML
+MainMakeHtmlResources()
+
+// Make the HTML for all the modules from the XML
+// MainMakeHtmlModules()
+
+// Make the all HTML for all the modules, resources and index
+//MainMakeHtmlAll()
+
 
 
 function ErrorMessage(msg){
@@ -166,7 +178,7 @@ function MakeModuleXML(module) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: " + "$ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -219,7 +231,7 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: " + "$ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -245,7 +257,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: " + "$ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -255,40 +267,63 @@ function MakeModuleClause(module, clause) {
 }
 
 
-
-function runSaxon(module,section)
-{
-    var moduleHome = stepmodHome + "/data/modules/" + module;
-    switch(section) {
-    case "arm" :
-	break;
-    case "arm_lf" :
-	break;
-    case "mim" :
-	break;
-    case "mim_lf" :
-	break;
-    default :
-	moduleHome = moduleHome + "/sys/";
-    }
-    var xmlFile = moduleHome + section +".xml";
-    var htmFile = moduleHome + section +".htm";
-    userMessage("HTML for: "+module+" "+section);
-    userMessage(htmFile);
+function runSaxon(xmlFile, htmFile) {
+    userMessage("HTML to XML: ");
+    userMessage("  html: " + htmFile);
+    userMessage("  xml: " + xmlFile);
     var args = " -a -o \"" + htmFile + "\" \"" + xmlFile + "\" output_type=\"HTM\"";
-    var WSHShell = WScript.CreateObject("WScript.Shell");
-    WSHShell.Run (saxonExe + args, 1, true);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+    if (fso.FileExists(xmlFile)) {
+	var WSHShell = WScript.CreateObject("WScript.Shell");
+	var ret = WSHShell.Run (saxonExe + args, 2, true);
+	userMessage(ret);
+    } else {
+	ErrorMessage(" Can't find:: " + xmlFile);
+    }
+}
+
+
+function makeHtmlIndex()
+{
+    var xmlFile = stepmodHome + "/repository_index.xml";
+    var htmFile = stepmodHome + "/repository_index.htm";
+    runSaxon(xmlFile, htmFile);
+}
+
+function makeHtmlResource(resource)
+{
+    var resourceHome = stepmodHome + "/data/resources/" 
+	+ resource + "/" + resource;
+    var xmlFile = resourceHome + ".xml";
+    var htmFile = resourceHome + ".htm";
+    runSaxon(xmlFile, htmFile);
 }
 
 
 function makeHtmlModule(module)
 {
+    var moduleHome = stepmodHome + "/data/modules/" + module;
+    var xmlFile, htmFile;
+
     for (var i=0; i<moduleClauses.length; i++) {
-	runSaxon(module, moduleClauses[i]);
+	xmlFile = moduleHome + "/sys/" + moduleClauses[i] +".xml";
+	htmFile = moduleHome + "/sys/" + moduleClauses[i] +".htm";	
+	runSaxon(xmlFile, htmFile);
     }
 
-    runSaxon(module,"arm");
-    runSaxon(module,"mim");
+    xmlFile = moduleHome + "arm.xml";
+    htmFile = moduleHome + "arm.htm";	
+    runSaxon(xmlFile, htmFile);
+
+    xmlFile = moduleHome + "mim.xml";
+    htmFile = moduleHome + "mim.htm";	
+    runSaxon(xmlFile, htmFile);
+
+    xmlFile = moduleHome + "mim_lf.xml";
+    htmFile = moduleHome + "mim_lf.htm";	
+    runSaxon(xmlFile, htmFile);
+
 }
 
 
@@ -503,3 +538,28 @@ function MainUpdateModules() {
     }
 }
 
+// Make the HTML for all the resources from the XML
+function MainMakeHtmlResources() {
+    var resources = readRepositoryIndexResources2Array();
+    for (var i=0; i<resources.length; i++) {
+	var resource = resources[i];
+	userMessage(resource);
+	makeHtmlResource(resource);
+    }
+}
+
+// Make the HTML for all the modules from the XML
+function MainMakeHtmlModules() {
+    var modules = readRepositoryIndexModules2Array();
+    for (var i=0; i<modules.length; i++) {
+	var module = modules[i];
+	userMessage(module);
+	makeHtmlModule(module);
+    }
+}
+
+function MainMakeHtmlAll() {
+    //MainMakeHtmlResources();
+    //MainMakeHtmlModules();
+    makeHtmlIndex();
+}

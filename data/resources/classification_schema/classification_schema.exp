@@ -1,6 +1,5 @@
 (* 
-$Id: classification_schema.exp,v 1.7 2004/11/16 17:49:51 thendrix Exp $
-part of:
+$Id: classification_schema.exp,v 1.8 2004/11/25 15:56:23 thendrix Exp $
 ISO TC184/SC4/WG12 N3213 - ISO/IS 10303-54 Classification and set theory - EXPRESS
 Supersedes ISO TC184/SC4/WG12 N1510
 *) 
@@ -37,19 +36,29 @@ END_ENTITY;
 
 ENTITY classification
   SUBTYPE OF (classification_assignment);
-  classified : SET[1:1] OF classification_select;
+  classified : classification_select;
 DERIVE
   classifier : class := SELF\classification_assignment.assigned_class;
 END_ENTITY;
 
 ENTITY complete_membership
   SUBTYPE OF (classification_assignment);
-  members : SET[0:?] OF complete_membership_select;
 DERIVE
   containing_set : class := SELF\classification_assignment.assigned_class;
 END_ENTITY;
 
+ENTITY complete_membership_of_empty_set
+  SUBTYPE OF (complete_membership);
+END_ENTITY;
+
+ENTITY complete_membership_of_non_empty_set
+  SUBTYPE OF (complete_membership);
+  members : SET[1:?] OF complete_membership_select;
+END_ENTITY;
+
 SUBTYPE_CONSTRAINT classification_or_complete_membership FOR classification_assignment;
+  ONEOF (classification,
+         complete_membership);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- classification_schema

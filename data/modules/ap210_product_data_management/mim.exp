@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.12 2005/01/06 07:33:36 liutkus Exp $
+   $Id: mim.exp,v 1.13 2005/01/06 14:04:24 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx AP210 product data management - EXPRESS MIM
 *)
 
@@ -13,6 +13,7 @@ USE FROM Certification_mim;    -- ISO/TS 10303-1044
 USE FROM Class_mim;    -- ISO/TS 10303-1070
 USE FROM Classification_assignment_mim;    -- ISO/TS 10303-1114
 USE FROM Configuration_effectivity_mim;    -- ISO/TS 10303-1058
+USE FROM Classification_with_attributes_mim;
 USE FROM Contract_mim;    -- ISO/TS 10303-1062
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
@@ -45,6 +46,7 @@ USE FROM Work_order_mim;    -- ISO/TS 10303-1043
 	USE FROM Contract_schema(contract_type);
 	USE FROM Document_schema(document_type);
 	USE FROM Product_definition_schema(product_definition_formation_with_specified_source);
+	USE FROM Product_structure_schema(make_from_usage_option);
 	USE FROM Representation_schema(parametric_representation_context);
 
 TYPE pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
@@ -480,66 +482,6 @@ WHERE
        AND (ada.role\date_role.name = 'start date'))) = 1 )))) = 0;
 END_RULE;
 
-RULE ee_document_constraint FOR ( document );
-WHERE
-  WR1: SIZEOF(QUERY(doc <* document |
-       (SIZEOF(QUERY(adata <* USEDIN(doc,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
-       + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS')
-       | (adata.role\date_time_role.name = 'creation date')
-       )) = 0))) = 0;
-  WR2: SIZEOF(QUERY(doc <* document |
-       NOT ((SIZEOF(QUERY(aoa <* USEDIN(doc,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
-       + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')
-       | (aoa.role\organization_role.name = 'publisher')
-       )) = 1) OR 
-       (SIZEOF(QUERY(apaoa <* USEDIN(doc,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
-       + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')
-       | (apaoa.role\person_and_organization_role.name = 'publisher')
-       )) = 1)))) = 0;
-  WR3: SIZEOF(QUERY(doc <* document |
-       NOT (SIZEOF(USEDIN(doc,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
-       + 'DOCUMENT_IDENTIFIER_ASSIGNMENT.ITEMS')) = 1)
-       )) = 0;
-END_RULE;
-
-RULE ee_document_unique_constraint FOR
- ( document, document_identifier_assignment );
-LOCAL
-  pass : BOOLEAN := TRUE;
-  rev_exists_bag : BAG OF document := [];
-  dia_bag : BAG OF document_identifier_assignment := [];
-  desc_bag : BAG OF STRING := [];
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(document) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  IF NOT(EXISTS( document[i].description )) THEN
-   pass := FALSE;
-  END_IF;
-END_REPEAT;
-
-
-REPEAT i := 1 to SIZEOF(document_identifier_assignment) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  desc_bag := [];
-  REPEAT j := 1 to SIZEOF(document_identifier_assignment[i].items) by 1;
-     desc_bag := desc_bag + document_identifier_assignment[i].items[j]\document.description;
-  END_REPEAT;
-  IF NOT(value_unique(desc_bag)) THEN
-    pass := FALSE;
-  END_IF;
-END_REPEAT;
-
-WHERE
-  WR1: pass;
-END_RULE;
-
 RULE ee_product_configuration_unique_constraint FOR
  ( configuration_item );
 LOCAL
@@ -857,58 +799,6 @@ WHERE
   WR1: pass;
 END_RULE;
 
-RULE product_association_unique_constraint FOR
- ( product_definition_formation_relationship );
-LOCAL
-  pdfr : BAG OF product_definition_formation_relationship := QUERY( r <*
-product_definition_formation_relationship | 
-  (r\product_definition_formation_relationship.name = 'product association' ) );
-  pdf_bag : BAG OF product_definition_formation := [];
-  pdfr_bag : BAG OF product_definition_formation_relationship;
-  pass : BOOLEAN := TRUE;
-  adr_bag : BAG OF applied_document_reference;
-  es_bag : BAG OF ee_specification;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(pdfr) by 1;
-  IF EXISTS( pdfr[i].relating_product_definition_formation ) THEN
-    IF( NOT( pdfr[i].relating_product_definition_formation IN pdf_bag ) )
-                                                              THEN
-      pdf_bag := pdf_bag + pdfr[i].
-                 relating_product_definition_formation;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(pdf_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  pdfr_bag := QUERY( r <* pdfr | 
-             (r.relating_product_definition_formation :=: pdf_bag[i]) );
-  es_bag := [];
-  REPEAT j := 1 to SIZEOF(pdfr_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    adr_bag := QUERY( adr <* USEDIN( pdfr_bag[j], 
-('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
-+ 'APPLIED_DOCUMENT_REFERENCE.ITEMS')) | 
-(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
-'EE_SPECIFICATION') IN TYPEOF(adr.assigned_document)) );
-    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
-      IF EXISTS( adr_bag[k].assigned_document ) THEN
-        IF ( adr_bag[k].assigned_document IN es_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          es_bag := es_bag + adr_bag[k].assigned_document;
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass;
-END_RULE;
 
 RULE product_concept_requires_configuration_item FOR
   (product_concept, configuration_item);

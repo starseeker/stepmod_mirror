@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.4 2003/02/05 20:51:35 thendrix Exp $
+     $Id: express_link.xsl,v 1.5 2003/04/14 03:37:16 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -497,6 +497,99 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
 
 </xsl:template>
 
+<!-- 
+     Output a HREF for the fundamental concepts.
+     -->
+<xsl:template name="link_fund_cons">
+  <xsl:param name="schema_name"/>
+  <xsl:param name="clause" select="section"/>
+
+  <!-- check the express file for the schema being referenced -->
+  <xsl:variable name="express_file_ok">
+    <xsl:call-template name="check_express_file_to_read">
+      <xsl:with-param name="schema_name" select="$schema_name"/>         
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:variable name="express_file_to_ref">
+    <xsl:call-template name="express_file_to_ref">
+      <xsl:with-param name="schema_name" select="$schema_name"/>
+      <xsl:with-param name="clause" select="$clause"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="xref">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="'funcon'"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="contains($express_file_ok,'ERROR')">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message" select="$express_file_ok"/>
+        <xsl:with-param name="inline" select="'no'"/>
+      </xsl:call-template>
+      <!-- express file does not exist, so return the unmodified
+           xref_list -->
+      <xsl:value-of select="$schema_name"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <A HREF="{$express_file_to_ref}#{$xref}">
+        <xsl:value-of select="$schema_name"/>
+      </A>
+    </xsl:otherwise>
+  </xsl:choose>
+
+</xsl:template>
+
+<!-- 
+     Output a HREF for the fundamental concepts.
+     -->
+<xsl:template name="link_intro">
+  <xsl:param name="schema_name"/>
+  <xsl:param name="clause" select="section"/>
+
+  <!-- check the express file for the schema being referenced -->
+  <xsl:variable name="express_file_ok">
+    <xsl:call-template name="check_express_file_to_read">
+      <xsl:with-param name="schema_name" select="$schema_name"/>         
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:variable name="express_file_to_ref">
+    <xsl:call-template name="express_file_to_ref">
+      <xsl:with-param name="schema_name" select="$schema_name"/>
+      <xsl:with-param name="clause" select="$clause"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="xref">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="'intro'"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="contains($express_file_ok,'ERROR')">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message" select="$express_file_ok"/>
+        <xsl:with-param name="inline" select="'no'"/>
+      </xsl:call-template>
+      <!-- express file does not exist, so return the unmodified
+           xref_list -->
+      <xsl:value-of select="$schema_name"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <A HREF="{$express_file_to_ref}#{$xref}">
+        <xsl:value-of select="$schema_name"/>
+      </A>
+    </xsl:otherwise>
+  </xsl:choose>
+
+</xsl:template>
+
+
 
 <!--
      Output HREF URL for an Express object (either a TYPE or ENTITY).
@@ -956,8 +1049,7 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
           select="concat($data_path,'/modules/',substring-before($schema_name_tmp,'_arm;'),
                   '/arm.xml')"/>
       </xsl:when>
-      <xsl:when test="$resdoc_xml">
-        
+      <xsl:when test="$resdoc_xml">        
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of 
@@ -1043,7 +1135,10 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
       -->
       <xsl:when test="$resdoc_xml//schema[@name=$schema_name]/@name">
         <xsl:variable name="clauseno">
-        <xsl:apply-templates select="$resdoc_xml//schema[@name=$schema_name]" mode="pos">
+          <!--        <xsl:apply-templates select="$resdoc_xml//schema[@name=$schema_name]" mode="pos"> -->
+<xsl:apply-templates select="$resdoc_xml//schema" mode="pos">
+      <xsl:with-param name="schema_name" select="$schema_name"/>         
+
         </xsl:apply-templates>
       </xsl:variable>
         <xsl:value-of 
@@ -1149,8 +1244,12 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
 </xsl:template>
 
 <xsl:template match="schema" mode="pos">
+      <xsl:param name="schema_name"/>         
+
   <!--  <xsl:value-of select="position()"/> -->
   <!-- <xsl:variable name="clauseno" select="3+position()"/> -->
-  <xsl:value-of select="3+position()"/>
+  <xsl:if test="@name=$schema_name">
+    <xsl:value-of select="3+position()"/>    
+  </xsl:if>
 </xsl:template>
 </xsl:stylesheet>

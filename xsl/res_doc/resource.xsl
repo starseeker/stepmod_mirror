@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.36 2003/11/12 06:14:52 thendrix Exp $
+$Id: resource.xsl,v 1.37 2004/01/29 23:55:26 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -979,7 +979,7 @@ o=isocs; s=central<br/>
 
 <!-- prepare variables to output list of used schemas and parts -->
   
-  <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1  using the EXPRESS-G notation. EXPRESS-G is defined in annex D of ISO 10303-11. 
+  <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1  using the EXPRESS-G notation. EXPRESS-G is defined in Annex D of ISO 10303-11. 
   </p>
   <p>
   The $schemas_used_from  are specified in $parts_used_from. 
@@ -1232,7 +1232,7 @@ o=isocs; s=central<br/>
   <p>
 The diagrams in this annex correspond to the EXPRESS schemas specified in this part of ISO 10303.
 The diagrams use the EXPRESS-G graphical notation for the EXPRESS language. EXPRESS-G is
-defined in annex D of ISO 10303-11.
+defined in Annex D of ISO 10303-11.
   </p>
 
   <ul>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_f_aam.xsl,v 1.1 2003/05/23 15:50:29 robbod Exp $
+$Id: sect_annex_aam.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -33,9 +33,11 @@ $Id: sect_f_aam.xsl,v 1.1 2003/05/23 15:50:29 robbod Exp $
 		<h2>F.2 Application activity model diagrams</h2>
 		<xsl:apply-templates select="aam"/>
 	</xsl:template>
+
 	<xsl:template match="aam">
 		<xsl:apply-templates select="idef0" mode="fig_no"/>	
 	</xsl:template>
+
 	<xsl:template match="idef0" mode="fig_no">
 		<xsl:variable name="ap_dir">
 			<xsl:value-of select="../../@name"/>
@@ -46,8 +48,11 @@ $Id: sect_f_aam.xsl,v 1.1 2003/05/23 15:50:29 robbod Exp $
 		<xsl:variable name="no_of_diagrams" select="count(imgfile)"/>
 		The AAM is presented in Figures E.1 to E.<xsl:value-of select="$no_of_diagrams"/>. Activities and data flows which are out of scope are marked with asterisks.
 		<xsl:for-each select="imgfile">
-			<xsl:variable name="aam_filename" select="./@file"/>
-			<xsl:variable name="aam_href" select="concat('../', $aam_filename)"/>
+			<xsl:variable name="aam_href">
+                          <xsl:call-template name="set_file_ext">
+                            <xsl:with-param name="filename" select="concat('../',./@file)"/>
+                          </xsl:call-template>
+                        </xsl:variable>
 			<xsl:variable name="fig_no" select="position()"/>
 			<xsl:variable name="node" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@node"/>
 			<xsl:variable name="fig_title" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>

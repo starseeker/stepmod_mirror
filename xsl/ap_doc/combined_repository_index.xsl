@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: combined_repository_index.xsl,v 1.3 2002/10/08 10:20:08 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../repository_index.xsl"/>
@@ -267,7 +267,7 @@
 	  	<xsl:variable name="arm_expg" select="concat('../modules/',@name,'/armexpg1',$FILE_EXT)"/>
 	  	<xsl:variable name="xref5" select="concat('../modules/',@name,'/sys/5_mim',$FILE_EXT)"/>
 	  	<xsl:variable name="aim_expg" select="concat('../modules/',@name,'/mimexpg1',$FILE_EXT)"/>
-		<xsl:variable name="aam" select="concat('./',@name,'/sys/e_aam',$FILE_EXT)"/>
+		<xsl:variable name="aam" select="concat('./',@name,'/sys/annex_aam',$FILE_EXT)"/>
 		<xsl:variable name="ap_directory" select="concat('./',@name)"/>
 		<table cellspacing="0" cellpadding="1">
 			<tr>

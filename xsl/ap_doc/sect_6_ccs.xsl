@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.7 2003/05/27 07:34:15 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.8 2003/05/30 09:42:26 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -138,7 +138,7 @@ $Id: sect_6_ccs.xsl,v 1.7 2003/05/27 07:34:15 robbod Exp $
     <div align="center">
       <p>
         <b>
-          <a name="cc_summ">
+          <a name="cc_mim_table">
             Table 2 &#8212; Conformance classes per MIM entity
           </a>
         </b>

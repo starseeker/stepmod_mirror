@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.7 2003/05/24 16:50:46 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.8 2003/05/27 07:34:15 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -16,6 +16,23 @@
   </xsl:template>
 	
   <xsl:template match="purpose">
+
+    <xsl:variable name="module">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="/application_protocol/@module_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+   <xsl:variable name="module_dir">
+     <xsl:call-template name="ap_module_directory">
+       <xsl:with-param name="application_protocol" select="$module"/>
+     </xsl:call-template>
+   </xsl:variable>
+   <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
+
+   <xsl:variable name="module_href" select="concat('../../../modules/',$module,'/sys/')"/>
+
+    
     <h2>
       <a name="introduction">Introduction</a>
     </h2>
@@ -61,51 +78,60 @@
   <!-- display content of purpose element-->
   <xsl:apply-templates/>
 		
-		<p>
-			Clause 
-			<a href="1_scope{$FILE_EXT}">1</a> 
-			defines the scope of the application protocol and summarizes the functionality and data covered. 
-			</p>
-			<p>Clause <a href="3_defs{$FILE_EXT}">3</a> 
-			lists the words defined in this part of ISO 10303 and refers to words defined elsewhere. 
-</p>
-<p>			The information 
-			requirements of the application are specified in clause 
-			<a href="4_info_reqs{$FILE_EXT}">4</a> 
-			using terminology appropriate to the application. A graphical representation of the information requirements, referred 
-			to as the application reference model, is given in annex 
-			<a href="f_arm_expg{$FILE_EXT}">F</a>.</p> 
-<p>Resource constructs are interpreted to meet the information requirements. This interpretation produces the application 
-			interpreted model (AIM). This interpretation, given in 
-			<a href="5_mapping{$FILE_EXT}">5.1</a>
-			, shows the correspondence between the information requirements and the AIM. 
-			The short listing of the AIM specifies 
-			the interface to the resources and is given in 
-			<a href="5_aim{$FILE_EXT}">5.2</a>.
-			</p>
-			<p>
-				In this International Standard, the same English language words may be
-				    used to refer to an object in the real world or concept, and as the
-				    name of an EXPRESS data type that represents this object or concept.
-			</p>
-			<p>
-				The following typographical convention is used to distinguish between
-				    these. If a word or phrase occurs in the same typeface as narrative
-				    text, the referent is the object or concept. If the word or phrase
-				    occurs in a bold typeface or as a hyperlink, the referent is the
-				    EXPRESS data type.
-			</p>
-			<p>
-				The name of an EXPRESS data type may be used to refer to the data type
-				    itself, or to an instance of the data type. The distinction between
-				    these uses is normally clear from the context. If there is a likelihood
-				    of ambiguity, either the phrase "entity data type" or "instance(s) of" is
-				    included in the text.
-			</p>
-			<p>
-				Double quotation marks " " denote quoted text. Single quotation marks ' ' denote particular text string values.
-			</p>
-		</xsl:template>
+  <p>
+    Clause 
+    <a href="1_scope{$FILE_EXT}">1</a> 
+    defines the scope of the application protocol and summarizes the functionality and data covered. 
+  </p>
+  <p>
+    Clause 
+    <a href="3_defs{$FILE_EXT}">3</a> 
+    lists the words defined in this part of ISO 10303 and refers to words defined elsewhere. 
+  </p>
+  <p>
+    The information requirements of the application are specified in clause 
+    <a href="{$module_href}4_info_reqs{$FILE_EXT}">4</a> 
+    using terminology appropriate to the application. 
+    <xsl:if test="$module_xml/module/arm_lf/express-g">
+      A graphical
+      representation of the information requirements, referred  
+      to as the application reference model, is given in annex 
+      <a href="annex_arm_expg{$FILE_EXT}">G</a>.
+    </xsl:if>
+  </p> 
+  <p>
+    Resource constructs are interpreted to meet the information
+    requirements. This interpretation produces the application  
+    interpreted model (AIM). This interpretation, given in 
+    <a href="{$module_href}5_mapping{$FILE_EXT}">5.1</a>,
+    shows the correspondence between the information requirements and the AIM. 
+    The short listing of the AIM specifies 
+    the interface to the resources and is given in 
+    <a href="{$module_href}5_mim{$FILE_EXT}">5.2</a>.
+  </p>
+  <p>
+    In this International Standard, the same English language words may be
+    used to refer to an object in the real world or concept, and as the
+    name of an EXPRESS data type that represents this object or concept.
+  </p>
+  <p>
+    The following typographical convention is used to distinguish between
+    these. If a word or phrase occurs in the same typeface as narrative
+    text, the referent is the object or concept. If the word or phrase
+    occurs in a bold typeface or as a hyperlink, the referent is the
+    EXPRESS data type.
+  </p>
+  <p>
+    The name of an EXPRESS data type may be used to refer to the data type
+    itself, or to an instance of the data type. The distinction between
+    these uses is normally clear from the context. If there is a likelihood
+    of ambiguity, either the phrase "entity data type" or "instance(s) of" is
+    included in the text.
+  </p>
+  <p>
+    Double quotation marks " " denote quoted text. Single quotation marks ' ' denote particular text string values.
+  </p>
+</xsl:template>
 
   <xsl:template match="imgfile" mode="data_plan_figures">
     <xsl:if test="position()=1">

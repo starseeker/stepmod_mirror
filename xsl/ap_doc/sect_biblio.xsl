@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.6 2003/05/27 07:34:15 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.7 2003/05/27 08:08:48 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -16,7 +16,7 @@
     
     <div align="center">
       <h2>
-        <A NAME="bibliography">Bibliography</A>
+        <A NAME="biblio">Bibliography</A>
       </h2>
     </div>
     <xsl:choose>

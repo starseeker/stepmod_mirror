@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.11 2003/05/29 06:59:29 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.12 2003/05/30 06:17:42 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -63,12 +63,12 @@ $Id: sect_4_info_reqs.xsl,v 1.11 2003/05/29 06:59:29 robbod Exp $
       subject area of this application protocol. 
     </p>
 
-    <xsl:variable name="e_aam" select="concat('./e_aam',$FILE_EXT)"/>
+    <xsl:variable name="annex_aam" select="concat('./annex_aam',$FILE_EXT)"/>
     <p class="note">
       <small>
         NOTE&#160;1&#160;&#160;The information requirements correspond to those of the activities 
         identified as being within the scope of this application protocol,
-        in Annex <a href="{$e_aam}">E</a>.
+        in Annex <a href="{$annex_aam}">E</a>.
       </small>
     </p>
 
@@ -182,8 +182,6 @@ $Id: sect_4_info_reqs.xsl,v 1.11 2003/05/29 06:59:29 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="href" select="concat('../../../module/',$module_name,'/introduction',$FILE_EXT)"/>
-
     <xsl:choose>
       <xsl:when test="$module_ok!='true'">
         <xsl:call-template name="error_message">
@@ -204,7 +202,15 @@ $Id: sect_4_info_reqs.xsl,v 1.11 2003/05/29 06:59:29 robbod Exp $
             <xsl:with-param name="application_protocol" select="$module"/>
           </xsl:call-template>
         </xsl:variable>
+
+        <xsl:variable name="module1">
+          <xsl:call-template name="module_name">
+            <xsl:with-param name="module" select="$module"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         
+        <xsl:variable name="href" select="concat('../../../modules/',$module1,'/sys/introduction',$FILE_EXT)"/>
         <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
         <xsl:variable name="module_partno" select="concat('ISO 10303-',$module_xml/module/@part)"/>
                 

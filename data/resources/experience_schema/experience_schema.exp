@@ -1,5 +1,5 @@
 (*
-
+  $Id: $
   WG12N2161 - ISO 10303-41 experience_schema: 3rd Edition
 
 *)
@@ -40,5 +40,41 @@ ENTITY experience_type_relationship;
   relating_experience_type : experience_type;
   related_experience_type : experience_type;
 END_ENTITY;
+
+FUNCTION acyclic_experience_relationship
+ (relation : experience_relationship; relatives : SET OF experience; specific_relation : STRING) : BOOLEAN; 
+   LOCAL
+      x : SET OF experience_relationship;
+    END_LOCAL;
+
+    IF relation.relating_experience IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(actn <* bag_to_set(USEDIN(relation.relating_experience, 'EXPERIENCE_SCHEMA.' + 'EXPERIENCE_RELATIONSHIP.' + 'RELATED_EXPERIENCE')) | specific_relation IN TYPEOF(actn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_experience_relationship(x[i], relatives + relation.relating_experience, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
+
+FUNCTION acyclic_experience_type_relationship
+ (relation : experience_type_relationship; relatives : SET OF experience_type; specific_relation : STRING) : BOOLEAN; 
+   LOCAL
+      x : SET OF experience_type_relationship;
+    END_LOCAL;
+
+    IF relation.relating_experience_type IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(actn <* bag_to_set(USEDIN(relation.relating_experience_type, 'EXPERIENCE_SCHEMA.' + 'EXPERIENCE_TYPE_RELATIONSHIP.' + 'RELATED_EXPERIENCE_TYPE')) | specific_relation IN TYPEOF(actn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_experience_type_relationship(x[i], relatives + relation.relating_experience_type, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+ END_FUNCTION;
 
 END_SCHEMA;  -- experience_schema

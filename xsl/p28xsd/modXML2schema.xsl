@@ -25,10 +25,46 @@
 			
 			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
 			
-		<xsl:apply-templates select="type"/>
+		<xsl:text>&#xa;</xsl:text>
+			<xsl:text>&#xa;</xsl:text>
+			
+			<xs:complexType name="uos">
+				<xs:complexContent>
+					<xs:restriction base="ex:uos">
+						<xs:choice maxOccurs="unbounded" minOccurs="0">
+						<xsl:for-each select="//entity">
+							<xsl:variable name="raw_entity_name" select="./@name"/>
+							<xsl:choose>
+								<xsl:when test="./@abstract.supertype='YES'">
+								</xsl:when>
+								<xsl:when test="@abstract.entity='YES'">
+								</xsl:when>
+								<xsl:when test="//subtype.constraint[@abstract.supertype='YES']/@entity=$raw_entity_name">
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:variable name="corrected_entity_name">
+										<xsl:call-template name="put_into_lower_case">
+											<xsl:with-param name="raw_item_name_param" select="$raw_entity_name"/>
+										</xsl:call-template>
+									</xsl:variable>
+									<xs:element ref="{$namespace_prefix}{$corrected_entity_name}"/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:for-each>
+						</xs:choice>
+					</xs:restriction>
+				</xs:complexContent>
+			</xs:complexType>
+			<xsl:text>&#xa;</xsl:text>
+			<xsl:text>&#xa;</xsl:text>
+
+			<xsl:apply-templates select="type"/>
 			<xsl:apply-templates select="entity"/>
+
 		</xs:schema>
 	</xsl:template>
+	
+	
 	
 	<!-- DEAL WITH NON-ENTITY EXPRESS DATATYPES -->
 	<xsl:template match="type">

@@ -1,7 +1,9 @@
-(* $Id: mim.exp,v 1.4 2002/12/05 12:41:28 goset1 Exp $
+(* $Id: mim.exp,v 1.5 2002/12/05 16:18:36 goset1 Exp $
 N	ISO/CD-TS 10303-1063	Product occurrence	Express MIM *)
 
 SCHEMA Product_occurrence_mim;
+
+USE FROM Functional_breakdown_mim;
 
 USE FROM Extended_measure_representation_mim;
 
@@ -9,14 +11,15 @@ USE FROM Measure_representation_mim;
 
 USE FROM Part_view_definition_mim;
 
-USE FROM Product_breakdown_mim;
-
 USE FROM Product_view_definition_relationship_mim;
 
 USE FROM Specified_product_mim;
 
+USE FROM Value_with_unit_mim;
+
 USE FROM product_structure_schema
 	(product_definition_occurrence_relationship);
+
 
 RULE restrict_part_occurrence FOR (product_definition);
 LOCAL
@@ -30,8 +33,8 @@ wr2: SIZEOF ( QUERY ( pd <* part_occurrences |
  (SIZEOF ( QUERY ( pdr <* USEDIN ( pd ,
 'PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.' +'RELATED_PRODUCT_DEFINITION' ) | 
 pdr.name = 'definition usage' ) ) <>1 ) AND 
-( SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +
-'CONFIGURATION_DESIGN.' + 'DESIGN' ) | ( cd.name = 'occurrence usage definition' ) AND ( NOT (
+( SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' + 'CONFIGURATION_DESIGN.' + 'DESIGN' ) | 
+( cd.name = 'occurrence usage definition' ) AND ( NOT (
 'PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_IDENTIFICATION' IN TYPEOF( cd.configuration ) ) ) ) ) <>1 ) ) ) = 0;
 wr3: SIZEOF ( QUERY ( pd <* part_occurrences |  
 (SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.'+ 'PRODUCT_DEFINITION_RELATIONSHIP.' +
@@ -41,7 +44,8 @@ wr3: SIZEOF ( QUERY ( pd <* part_occurrences |
 'OCCURRENCE' ) ) = 0 ) ) ) = 0;
 wr4: SIZEOF ( QUERY ( pd <* part_occurrences | 
  ( pd.name = 'selected instance' ) AND ( SIZEOF ( QUERY ( prd<* USEDIN ( pd ,
-'PRODUCT_OCCURRENCE_MIM.PROPERTY_DEFINITION.DEFINITION' ) | (prd.name = 'occurrence selection' ) AND
+'PRODUCT_OCCURRENCE_MIM.PROPERTY_DEFINITION.DEFINITION' ) | 
+ (prd.name = 'occurrence selection' ) AND
  ( SIZEOF (QUERY ( pdr <* USEDIN ( prd , 'PRODUCT_OCCURRENCE_MIM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
 ( pdr.used_representation.name = 'selection criteria' ) AND
  ( SIZEOF ( pdr.used_representation.items ) = 2 ) AND
@@ -58,14 +62,14 @@ ppd <* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION.' + 'DEFINI
  ( ppd.name ='occurrence quantity' ) AND ( SIZEOF ( QUERY ( pdr <*
 USEDIN ( ppd , 'PRODUCT_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION_REPRESENTATION.' + 'DEFINITION' ) | (
 pdr.used_representation.name = 'quantity' ) AND (
-SIZEOF ( pdr.used_representation.items ) = 1 ) AND (SIZEOF ( QUERY ( i <* pdr.used_representation.items | (
+SIZEOF ( pdr.used_representation.items ) = 1 ) AND 
+ (SIZEOF ( QUERY ( i <* pdr.used_representation.items | (
 'PRODUCT_OCCURRENCE_MIM.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
  ( i.name = 'quantity measure' ) ) ) = 1)))= 1 )))= 0 )))= 0;
 wr6: SIZEOF ( QUERY ( pd <* part_occurrences | 
 ( pd.name = 'specified instance' ) AND ( SIZEOF ( QUERY (
-pdor <* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.' +
-'OCCURRENCE' ) | 'PRODUCT_OCCURRENCE_MIM.' +'SPECIFIED_HIGHER_USAGE_OCCURRENCE' IN TYPEOF ( pdor.
-occurrence_usage ) ) ) = 0 ) ) ) = 0;
+pdor <* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.' + 'OCCURRENCE' ) | 
+  'PRODUCT_OCCURRENCE_MIM.' +'SPECIFIED_HIGHER_USAGE_OCCURRENCE' IN TYPEOF ( pdor.occurrence_usage ) ) ) = 0 ) ) ) = 0;
 END_RULE;
 
 RULE restrict_part_occurrence_category FOR (product_definition);

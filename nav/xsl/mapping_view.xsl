@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: developer.xsl,v 1.2 2002/09/17 07:04:33 robbod Exp $
+$Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -59,27 +59,6 @@ $Id: developer.xsl,v 1.2 2002/09/17 07:04:33 robbod Exp $
   <body>
 
 <H1> Mapping analysis </H1>
-  
-<!--
-
-      <xsl:choose>
-	<xsl:when test="function-available('msxsl:node-set')">
-	  <xsl:apply-templates select="msxsl:node-set($mappings-result)/module" mode="output"/>
-
-	</xsl:when>
-	
-	<xsl:when test="function-available('saxon:node-set')">
-	  <xsl:apply-templates select="saxon:node-set($mappings-result)/module" mode="output"/>
-	</xsl:when>
-
-	<xsl:otherwise>
-		<br/>
-		STYLESHEET set up to work with msxsl and saxon. Neither is available.
-		<br/>
-	</xsl:otherwise>
-      </xsl:choose>	
-  <hr/>
--->
 
       <xsl:choose>
 	<xsl:when test="function-available('msxsl:node-set')">
@@ -331,6 +310,15 @@ $Id: developer.xsl,v 1.2 2002/09/17 07:04:33 robbod Exp $
 	<xsl:text> *&gt; </xsl:text>
 </xsl:template>
 
+<xsl:template match="subtype-template" >
+	<xsl:text> /SUBTYPE </xsl:text>
+</xsl:template>
+
+<xsl:template match="supertype-template" >
+	<xsl:text> /SUPERTYPE </xsl:text>
+</xsl:template>
+
+
 <!-- <xsl:template match="SELF" >
 	<xsl:text> SELF\</xsl:text>
 </xsl:template>
@@ -533,6 +521,8 @@ $Id: developer.xsl,v 1.2 2002/09/17 07:04:33 robbod Exp $
 		<xsl:choose>
 			<xsl:when test="name(preceding-sibling::*[1]) ='start-bracket' and 
 					name(following-sibling::*[1]) ='end-bracket' ">
+			</xsl:when>
+			<xsl:when test=".='/'">
 			</xsl:when>
 			<xsl:otherwise>
 				<!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->

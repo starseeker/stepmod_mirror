@@ -251,6 +251,16 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
+		<xsl:when test="$first-char='/'">
+			<xsl:choose>
+				<xsl:when test="substring($path,2,2)='SU'">
+					<xsl:text>/</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text> / </xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
 		<xsl:when test="$first-char='('">
 			<xsl:text> ( </xsl:text>
 		</xsl:when>
@@ -367,6 +377,12 @@
 			</xsl:when>
 			<xsl:when test="$word='*&gt;'">
 				<xsl:element name="is-extension-from" />
+			</xsl:when>
+			<xsl:when test="$word='/SUBTYPE'">
+				<xsl:element name="subtype-template" />
+			</xsl:when>
+			<xsl:when test="$word='/SUPERTYPE'">
+				<xsl:element name="supertype-template" />
 			</xsl:when>
 
 <!--			<xsl:when test="substring($word,1,5)='SELF\'">

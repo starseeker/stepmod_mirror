@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->
+<!-- $Id: express2xml.js,v 1.23 2002/09/24 16:42:56 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,10 +12,15 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.22"
+    version="1.23"
     source="../data/modules/product_class/mim.exp"/>
 
   <schema name="Product_class_mim">
+    <interface
+      kind="use"
+      schema="Identification_assignment_mim">
+    </interface>
+
     <interface
       kind="use"
       schema="Product_concept_identification_mim">
@@ -26,6 +31,8 @@
       schema="group_schema">
       <interfaced.item
         name="group"/>
+      <interfaced.item
+        name="group_relationship"/>
     </interface>
 
     <interface
@@ -39,7 +46,7 @@
       kind="use"
       schema="product_concept_schema">
       <interfaced.item
-        name="conditional_concept_feature_relationship"/>
+        name="conditional_concept_feature"/>
       <interfaced.item
         name="product_concept_relationship"/>
       <interfaced.item
@@ -90,7 +97,7 @@
       supertypes="group">
       <where
         label="WR1"
-        expression="SIZEOF(QUERY( aga &lt;* USEDIN( SELF, 'PRODUCT_CLASS_MIM.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) |     ( 'PRODUCT_CLASS_MIM.'+ 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF ( aga ) ) AND    ( ( aga. role.name &lt;&gt; 'specification category member' ) OR     ( SIZEOF(QUERY ( i &lt;* aga. items | ( 'PRODUCT_CLASS_MIM.'+     'PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( i ) ) AND     NOT ('PRODUCT_CLASS_MIM.'+ 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF ( i ) ) ) ) &lt;&gt; SIZEOF ( aga. items ) ) )        ) ) =0">
+        expression="SIZEOF(QUERY( aga &lt;* USEDIN( SELF, 'PRODUCT_CLASS_MIM.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) |     ( 'PRODUCT_CLASS_MIM.'+ 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF ( aga ) ) AND    ( ( aga. role.name &lt;&gt; 'specification category member' ) OR     ( SIZEOF(QUERY ( i &lt;* aga. items | ( 'PRODUCT_CLASS_MIM.'+     'PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( i ) ) AND     NOT ('PRODUCT_CLASS_MIM.'+ 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF (i)))) &lt;&gt; SIZEOF (aga. items)))        ) ) =0">
       </where>
     </entity>
 
@@ -126,12 +133,16 @@
         </algorithm>
 
         <where
-          label="WR1"
-          expression="SIZEOF( QUERY( cfo &lt;* concept_feature_operator |   NOT (cfo.name IN ['and','or','oneof','not','implication']) )) = 0">
+          label="wr1"
+          expression="SIZEOF ( QUERY ( cfo &lt;* concept_feature_operator | NOT( cfo.name IN ['and' , 'or' , 'oneof' , 'not' , 'implication'] ) ) ) = 0">
         </where>
         <where
-          label="WR2"
-          expression="SIZEOF( QUERY( cfo &lt;* concept_feature_operator |   (cfo.name = 'implication') AND   (SIZEOF( QUERY( cfrwc &lt;* USEDIN(cfo, 'PRODUCT_CLASS_MIM.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.CONDITIONAL_OPERATOR') |   SIZEOF( QUERY( ccf &lt;* USEDIN(cfrwc, 'PRODUCT_CLASS_MIM.' + 'CONDITIONAL_CONCEPT_FEATURE.CONDITION') |   NOT('PRODUCT_CLASS_MIM.INCLUSION_PRODUCT_CONCEPT_FEATURE' IN TYPEOF(ccf)) )) &gt; 0 )) &gt; 0 ) )) = 0">
+          label="wr2"
+          expression="SIZEOF ( QUERY ( cfo &lt;* concept_feature_operator | (cfo.name = 'implication' ) AND ( SIZEOF ( QUERY (cfrwc &lt;* USEDIN ( cfo , 'PRODUCT_CLASS_MIM.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.' +'CONDITIONAL_OPERATOR' ) | SIZEOF ( QUERY ( ccf &lt;* USEDIN( cfrwc , 'PRODUCT_CLASS_MIM.' + 'CONDITIONAL_CONCEPT_FEATURE.' + 'CONDITION' ) |  NOT ('PRODUCT_CLASS_MIM.' + 'INCLUSION_PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( ccf )))) &gt;0 )) &gt;0 ))) = 0">
+        </where>
+        <where
+          label="wr3"
+          expression="SIZEOF( QUERY (cfo &lt;* concept_feature_operator | (cfo.name = 'not') AND (SIZEOF(QUERY(cfrwc &lt;* USEDIN(cfo, 'PRODUCT_CLASS_MIM.' + 'CONCEPT_FEATURE_RELATIONSHIP_WITH_CONDITION.' +'CONDITIONAL_OPERATOR') | cfrwc.related_product_concept_feature :&lt;&gt;: cfrwc.relating_product_concept_feature)) &gt;0 ))) = 0">
         </where>
 
       </rule>

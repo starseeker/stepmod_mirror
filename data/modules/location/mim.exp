@@ -7,11 +7,12 @@ SCHEMA Location_mim;
 
 USE FROM Classification_assignment_mim;    -- ISO/CD-TS 10303-1114
 
-USE FROM Location_assignment_mim;    -- ISO/CD-TS 10303-1277
-
 USE FROM location_schema   -- ISO 10303-41
   (location,
    location_relationship); 
+
+USE FROM management_resources_schema   -- ISO 10303-41
+  (location_representation_assignment); 
 
 USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
 
@@ -48,11 +49,16 @@ TYPE location_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON cl
    (location_relationship);
 END_TYPE; 
 
-TYPE location_location_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON location_item WITH 
+TYPE location_representation_item = EXTENSIBLE GENERIC_ENTITY SELECT
    (organizational_address, 
     person_and_organization_address, 
     product);
 END_TYPE; 
+
+ENTITY applied_location_representation_assignment
+  SUBTYPE OF (location_representation_assignment);
+  items : SET[1:?] OF location_representation_item;
+END_ENTITY;
 
 ENTITY characterized_location_object
   SUBTYPE OF (characterized_object, location);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.12 2003/07/31 07:29:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -91,7 +91,7 @@ $Id: aam_descriptions.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
           </xsl:if>
         </xsl:if>
       </h2>
-      <xsl:apply-templates select="./description" mode="check_phrase"/> 
+      <!-- <xsl:apply-templates select="./description" mode="check_phrase"/> -->
       <p><xsl:value-of select="./description"/></p>
       <xsl:apply-templates select="note"/>
       <xsl:apply-templates select="example"/>      

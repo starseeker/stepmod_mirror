@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.1 2003/05/23 09:29:11 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.2 2003/05/23 12:14:02 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -153,9 +153,10 @@ $Id: index_arm_mappings_inner.xsl,v 1.1 2003/05/23 09:29:11 nigelshaw Exp $
 		<xsl:variable name="mod-name" select="substring-before(../@name,'_arm')" />
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="lc-ent" select="translate(@name,$UPPER,$LOWER)"/>
 
 		<br/>
-		<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{@name}" TARGET="content">
+		<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}" TARGET="content">
 			<xsl:value-of select="@name"/>
 		</A>
 		<br/>
@@ -170,8 +171,9 @@ $Id: index_arm_mappings_inner.xsl,v 1.1 2003/05/23 09:29:11 nigelshaw Exp $
 		<xsl:variable name="mod-name" select="substring-before(../../@name,'_arm')" />
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="lc-ent" select="translate(../@name,$UPPER,$LOWER)"/>
 
-		&#160;&#160;<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{../@name}.{@name}" TARGET="content">
+		&#160;&#160;<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
 		<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 		</A>
 		<br/>

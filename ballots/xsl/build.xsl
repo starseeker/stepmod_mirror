@@ -57,6 +57,19 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+          <xsl:attribute name="name">INLINE_ERRORS</xsl:attribute>
+          <xsl:choose>
+            <xsl:when test="./@output_background='YES'">
+              <xsl:attribute name="value">NO</xsl:attribute>
+            </xsl:when>            
+          <xsl:otherwise>
+          <xsl:attribute name="value">YES</xsl:attribute>            
+          </xsl:otherwise>
+          </xsl:choose>
+        </xsl:element>
+
+
+        <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_RESOURCES_BACKGROUND</xsl:attribute>
           <xsl:choose>
             <xsl:when test="./@output_resources_background='NO'">
@@ -1187,6 +1200,16 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
           </xsl:attribute>
         </xsl:element>
+
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
@@ -1195,6 +1218,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
+
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
@@ -1251,6 +1275,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1321,6 +1353,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1387,6 +1427,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+       <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1449,6 +1497,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1519,6 +1575,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1585,6 +1649,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1647,6 +1719,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1798,6 +1878,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1860,6 +1948,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1930,6 +2026,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1992,6 +2096,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2070,6 +2182,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2132,6 +2252,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2202,6 +2330,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2264,6 +2400,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2334,6 +2478,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2379,6 +2531,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2449,6 +2609,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2511,6 +2679,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2581,6 +2757,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2647,6 +2831,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2709,6 +2901,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2781,6 +2981,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2842,6 +3050,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3087,6 +3303,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3123,6 +3347,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3168,6 +3400,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3204,6 +3444,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3248,6 +3496,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3284,6 +3540,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3328,6 +3592,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3364,6 +3636,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3408,6 +3688,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3444,6 +3732,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3488,6 +3784,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3528,6 +3832,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3564,6 +3876,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3609,6 +3929,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3645,6 +3973,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3689,6 +4025,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3725,6 +4069,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3770,6 +4122,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3810,6 +4170,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3846,6 +4214,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">

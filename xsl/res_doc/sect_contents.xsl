@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.2 2002/10/28 04:53:41 thendrix Exp $
+$Id: sect_contents.xsl,v 1.3 2002/11/01 04:40:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -165,45 +165,72 @@ $Id: sect_contents.xsl,v 1.2 2002/10/28 04:53:41 thendrix Exp $
  </xsl:template>
 
  <xsl:template match="imgfile" mode="expressg_figure">
-   <!--   <xsl:param name="file"/>
-   <xsl:if test="$file=@file">  
--->
+   <xsl:variable name="file">
+     <xsl:value-of select ="@file"/>
+   </xsl:variable>
      <xsl:variable name="number">
-       <xsl:number/>
+       <xsl:number level="any"/>
      </xsl:variable>
-     <xsl:variable name="fig_no">
        <xsl:choose>
          <xsl:when test="contains(@file,'schema_diag')">
+           <xsl:variable name="figtext" >
+             
            <xsl:value-of 
              select="concat('Figure',$number, 
-                         ' &#8212; Schema interface diagram of schemas specified in this standard')"/>
-             </xsl:when>
+                         ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture ')"/>
+           </xsl:variable>
+
+           <xsl:variable name="href" select="concat('../',$file)"/>
+           
+           <p class="content">
+             <a href="{$href}"><xsl:value-of select="$figtext"/></a>
+           </p>
+
+         </xsl:when>
 
          <xsl:when test="contains(@file,'schemaexpg')">
-           <xsl:variable name="schname" select="substring-before(@file,'expg')" />
-           <xsl:choose>
-             <xsl:when test="$number=1">
+             <xsl:variable name="schname" select="substring-before(@file,'expg')" />
+             <xsl:variable name="diagno" >
+               <xsl:variable name="trail" select="substring-after(@file,'expg')" />
+               <xsl:value-of select="substring-before($trail,'.xml')"/>
+             </xsl:variable>
+
+             <xsl:variable name="figtext" >
                <xsl:value-of 
-                 select="concat('Figure D.',$number, 
-                         ' &#8212; Entity level diagram of ', $schname, '( page ', $number,' )' )" />
-             </xsl:when>
-             <xsl:otherwise>
-               <xsl:value-of 
-                 select="concat('Figure D.',$number, 
-                         ' &#8212; Entity level diagram of ', $schname, ($number - 1)) "/>
-             </xsl:otherwise>
-           </xsl:choose>
-         </xsl:when>
-         <xsl:otherwise>
-                       <xsl:value-of 
-               select="concat('Figure  1. ',
-                       ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture')" />
-         </xsl:otherwise>
-       </xsl:choose>
-     </xsl:variable>
-     <xsl:value-of select="$fig_no"/>
-     <!--   </xsl:if> -->
- </xsl:template>
+                 select="concat('Figure D.',($number - 1), 
+                         ' &#8212; EXPRESS-G diagram of the ', $schname, ' diagram ', $diagno)"/>
+             </xsl:variable>
+
+             <xsl:variable name="resource_dir">
+               <xsl:call-template name="resource_directory">
+                 <xsl:with-param name="resource" select="$schname"/>
+               </xsl:call-template>
+             </xsl:variable>
+             <xsl:message>
+               resource_dir in sect_cont :<xsl:value-of select="$resource_dir"/>
+             </xsl:message>
+             <xsl:variable name="expg_path" select="concat('../../',$resource_dir,'/',$schname,'expg',$diagno)"/>
+
+             <xsl:variable name="schema_url">
+               <xsl:choose>
+                 <xsl:when test="$FILE_EXT='.xml'">
+                   <xsl:value-of select="concat($expg_path,'.xml')"/>
+                 </xsl:when>
+                 <xsl:otherwise>
+                   <xsl:value-of select="concat($expg_path,'.htm')"/>
+                 </xsl:otherwise>
+               </xsl:choose>
+             </xsl:variable>
+        
+             <xsl:variable name="href" select="$schema_url"/>
+
+             <p class="content">
+               <a href="{$href}"><xsl:value-of select="$figtext"/></a>
+             </p>
+
+           </xsl:when>
+         </xsl:choose>
+       </xsl:template>
 
 
 
@@ -222,11 +249,14 @@ $Id: sect_contents.xsl,v 1.2 2002/10/28 04:53:41 thendrix Exp $
    <h3>Figures</h3>
    <!-- collect up the figures from the Module -->
    <xsl:apply-templates select="./purpose//figure" mode="toc"/>
+   <xsl:apply-templates 
+     select="./schema_diag//imgfile" mode="expressg_figure"/>
+
    <xsl:apply-templates select="./inscope//figure" mode="toc"/>
    <xsl:apply-templates select="./outscope//figure" mode="toc"/>
    <!-- collect up the EXpressG figures from the schemas -->
    <xsl:apply-templates 
-     select="./schema/imgfile" mode="expressg_figure"/>
+     select="./schema//imgfile" mode="expressg_figure"/>
    <xsl:apply-templates select="./usage_guide//figure" mode="toc"/>
  </xsl:template>
 

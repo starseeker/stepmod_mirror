@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.2 2002/11/01 04:38:57 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1990,7 +1990,6 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
             test="document(string($xml_file))/express/schema/type">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="main_clause" select="$main_clause"/>
-
               <xsl:with-param name="clause" select="'type'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2471,30 +2470,33 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
         <xsl:value-of select="$interface_clause + $constant_clause"/>
       </xsl:when>
       <xsl:when test="$clause='imported_constant'">
-        <xsl:value-of select="$interface_clause + 
+        <!-- temporary kludge to deal with the fact that in an IR 
+             there is not a separate subclause for the interfaced schemas.
+             -->
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause"/>
       </xsl:when>
 
       <xsl:when test="$clause='type'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause + 
                               $type_clause"/>
       </xsl:when>
       <xsl:when test="$clause='imported_type'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause + 
                               $type_clause + $imported_type_clause"/>
       </xsl:when>
 
       <xsl:when test="$clause='entity'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause +
                               $entity_clause"/>
 
         <xsl:message>
           in clause number
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause +
                               $entity_clause"/>
@@ -2502,14 +2504,14 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
         </xsl:message>
       </xsl:when>
       <xsl:when test="$clause='imported_entity'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause"/>
       </xsl:when>
 
       <xsl:when test="$clause='subtype.constraint'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
@@ -2517,7 +2519,7 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
       </xsl:when>
 
       <xsl:when test="$clause='function'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause +
@@ -2525,7 +2527,7 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
                               $function_clause"/>
       </xsl:when>
       <xsl:when test="$clause='imported_function'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 
@@ -2553,7 +2555,7 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
       </xsl:when>
 
       <xsl:when test="$clause='procedure'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause +
                               $entity_clause + $imported_entity_clause + 
@@ -2563,7 +2565,7 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
                               $procedure_clause"/>
       </xsl:when>
       <xsl:when test="$clause='imported_procedure'">
-        <xsl:value-of select="$interface_clause + 
+        <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause + 

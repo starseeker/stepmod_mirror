@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.25 2004/07/31 20:56:41 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.26 2004/08/31 07:16:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -126,6 +126,12 @@ $Id: ballot_summary.xsl,v 1.25 2004/07/31 20:56:41 thendrix Exp $
         </tr>
       </table>
       <hr/>
+      <p>
+        <!-- NOTE - not all packages have normref_check file -->
+        Normative reference 
+        <a href="normref_check{$FILE_EXT}">check</a>
+      </p>
+
       <xsl:if test="./ballot_package/module">
         <xsl:call-template name="module_table_hdr"/>
       </xsl:if>

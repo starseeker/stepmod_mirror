@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.16 2004/11/22 21:10:27 thendrix Exp $
+<!--  $Id: build.xsl,v 1.17 2004/11/22 21:37:32 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -60,6 +60,7 @@
           <xsl:apply-templates select="." mode="target_variables"/>
           <xsl:apply-templates select="." mode="target_init"/>
           <xsl:apply-templates select="." mode="target_isoindex"/>
+          <xsl:apply-templates select="." mode="target_normref_check"/>
           <xsl:apply-templates select="." mode="target_finish"/>
           <xsl:apply-templates select="." mode="target_resources"/>
           <xsl:if test="./modules/module">
@@ -1303,9 +1304,81 @@
       </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
-
-
   </xsl:template>
+
+
+  <!-- generate the target "normref_check" -->
+  <!-- Note - that this target should be included in isoindex, but left out
+       as not all publication packages have a normref_check file yet -->
+  <xsl:template match="publication_index" mode="target_normref_check">
+    <xsl:text>
+    </xsl:text>
+    <target name="normref_check" depends="init" 
+      description="Create normative reference check">
+      <dependset>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${PUBSRCDTD}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'**/*.dtd, **/*.ent'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${STEPMODSTYLES}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'**/*.xsl'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${PUBSRCDIR}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'**/*.xml'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="targetfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${PUBSRCDIR}/*.htm*'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </dependset>
+      <xsl:element name="style">
+        <xsl:attribute name="in">
+          <xsl:value-of select="'${PUBSRCDIR}/normref_check.xml'"/>
+        </xsl:attribute>
+        <xsl:attribute name="out">
+          <xsl:value-of select="'${PUBDIR}/normref_check.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${PUBDIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/pub_ballot/normref_check.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <param name="stepmodhome" expression="."/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'date'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DATE}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+    </target>
+  </xsl:template>
+
 
   <!-- generate the target "isoindex" -->
   <xsl:template match="publication_index" mode="target_isoindex">

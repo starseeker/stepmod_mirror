@@ -1051,7 +1051,75 @@ utable as in buildscript -->
 -->
       </target>
 
-
+  <!-- generate the target "normref_check" -->
+  <!-- Note - that this target should be included in isoindex, but left out
+       as not all publication packages have a normref_check file yet -->
+    <xsl:text>
+    </xsl:text>
+    <target name="normref_check" depends="init" 
+      description="Create normative reference check">
+      <dependset>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${PUBSRCDTD}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'**/*.dtd, **/*.ent'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${STEPMODSTYLES}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'**/*.xsl'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'${PUBSRCDIR}'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'**/*.xml'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="targetfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${PUBSRCDIR}/*.htm*'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </dependset>
+      <xsl:element name="style">
+        <xsl:attribute name="in">
+          <xsl:value-of select="'${PUBSRCDIR}/normref_check.xml'"/>
+        </xsl:attribute>
+        <xsl:attribute name="out">
+          <xsl:value-of select="'${PUBDIR}/normref_check.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${PUBDIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/pub_ballot/normref_check.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <param name="stepmodhome" expression="."/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'date'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DATE}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+    </target>
 
     <xsl:text>
     </xsl:text>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
+$Id: index.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up the main frames
@@ -16,36 +16,30 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
   <xsl:output method="html"/>
 
 
-<xsl:template match="contentsindex">
-  <html>
+  <xsl:template match="/" >
+    <xsl:apply-templates select="./stylesheet_application"/>
+  </xsl:template>
+
+  <xsl:template match="stylesheet_application">
+    <html>
     <head>
       <link rel="stylesheet" type="text/css" href="../css/stepmod.css"/>
     <title>
-      <xsl:value-of select="@title" />
+      STEP modules
     </title>
   </head>
 
-  <xsl:variable name="index_item" 
-    select="indexitem[@default='index']"/>
-  <xsl:variable name="index_file" 
-    select="concat($index_item/@href,$FILE_EXT)"/>
-
-  <xsl:variable name="content_item" 
-    select="indexitem[@default='content']"/>
-  <xsl:variable name="content_file" 
-    select="concat($content_item/@href,$FILE_EXT)"/>
-
   <frameset framespacing="1" border="0" rows="13%,*" frameborder="0">
     <frame name="banner" 
-      src="contents{$FILE_EXT}"
+      src="banner{$FILE_EXT}"
       marginwidth="2" marginheight="0" scrolling="auto"/>
       <frameset cols="*,80%">
         <frame name="index" 
           target="main"
-          src="{$index_file}"
+          src="modules_alpha{$FILE_EXT}"
           scrolling="auto"/>
         <frame name="content" 
-          src="{$content_file}"
+          src="introduction{$FILE_EXT}"
           scrolling="auto"/>
       </frameset>
       <noframes>

@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $" reference="ISO 13584-42">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.24"
+    source="iso13584_iec61360_language_resource_schema.exp"/>
+
+  <schema name="ISO13584_IEC61360_language_resource_schema">
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <type name="language_code">
+      <typename
+        name="identifier"/>
+
+    </type>
+    <entity
+      name="global_language_assignment">
+      <explicit
+        name="language">
+        <typename
+          name="language_code"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="present_translations">
+      <explicit
+        name="language_codes">
+        <aggregate
+          type="LIST"
+          lower="1"
+          upper="?"
+          unique="YES"/>
+        <typename
+          name="language_code"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="language_codes"/>
+      </unique>
+    </entity>
+
+    <type name="translatable_label">
+      <select
+        selectitems="label translated_label">
+      </select>
+
+    </type>
+    <entity
+      name="translated_label">
+      <explicit
+        name="labels">
+        <aggregate
+          type="LIST"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="languages">
+        <typename
+          name="present_translations"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(labels) = SIZEOF(languages.language_codes)">
+      </where>
+    </entity>
+
+    <type name="translatable_text">
+      <select
+        selectitems="text translated_text">
+      </select>
+
+    </type>
+    <entity
+      name="translated_text">
+      <explicit
+        name="texts">
+        <aggregate
+          type="LIST"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="languages">
+        <typename
+          name="present_translations"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(texts) = SIZEOF(languages.language_codes)">
+      </where>
+    </entity>
+
+    <function
+      name="check_label_length">
+      <parameter
+        name="l">
+        <typename
+          name="translatable_label"/>
+      </parameter>
+      <parameter
+        name="l_length">
+        <builtintype
+          type="INTEGER"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+
+IF 'ISO13584_IEC61360_LANGUAGE_RESOURCE_SCHEMA.TRANSLATED_LABEL' 
+    IN TYPEOF(l) 
+THEN 
+    REPEAT i :=1 TO SIZEOF(l.labels);
+        IF LENGTH(l.labels[i]) &gt; l_length 
+        THEN
+            RETURN(FALSE);
+        END_IF;
+    END_REPEAT;
+
+    RETURN(TRUE);
+
+ELSE 
+    RETURN(LENGTH(l) &lt;= l_length); 
+END_IF;
+      </algorithm>
+
+    </function>
+
+    <function
+      name="check_text_length">
+      <parameter
+        name="t">
+        <typename
+          name="translatable_text"/>
+      </parameter>
+      <parameter
+        name="t_length">
+        <builtintype
+          type="INTEGER"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+
+IF 'ISO13584_IEC61360_LANGUAGE_RESOURCE_SCHEMA.TRANSLATED_TEXT' 
+    IN TYPEOF(t) 
+THEN 
+    REPEAT i :=1 TO SIZEOF(t.texts);
+        IF LENGTH(t.texts[i]) &gt; t_length 
+        THEN
+            RETURN(FALSE);
+        END_IF;
+    END_REPEAT;
+
+    RETURN(TRUE);
+
+ELSE 
+    RETURN(LENGTH(t) &lt;= t_length); 
+END_IF;
+      </algorithm>
+
+    </function>
+
+    <rule
+      name="single_language_assignment"
+      appliesto="global_language_assignment">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="SIZEOF"
+        expression="SIZEOF(global_language_assignment) &lt;= 1">
+      </where>
+
+    </rule>
+
+  </schema>
+
+</express>

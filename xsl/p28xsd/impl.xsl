@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: impl.xsl,v 1.1 2004/02/06 13:46:37 robbod Exp $
+$Id: impl.xsl,v 1.2 2004/02/06 13:58:38 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose:
@@ -13,7 +13,7 @@ $Id: impl.xsl,v 1.1 2004/02/06 13:46:37 robbod Exp $
 
   <xsl:import href="../common.xsl"/>
 
-  <xsl:template match="implementation_forms">
+  <xsl:template match="implementation_methods">
     <xsl:variable 
       name="module_xml"
       select="document(concat('../../data/modules/',@module,'/module.xml'))"/>  
@@ -34,7 +34,7 @@ $Id: impl.xsl,v 1.1 2004/02/06 13:46:37 robbod Exp $
       </HEAD>
       <BODY>
         <h2>
-          Implementation forms for module: 
+          Implementation methods for module: 
           <a href="./sys/introduction{$FILE_EXT}"><xsl:value-of select="@module"/></a>
         </h2>
         <b>WARNING THIS IS UNDER DEVELOPMENT</b>

@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.3 2003/01/14 22:56:00 leifgyllstrom Exp $
+$Id: arm.exp,v 1.4 2003/03/24 12:14:45 leifgyllstrom Exp $
 ISO TC184/SC4/WG12 N1430 - ISO/CD-TS 10303-1254 Condition evaluation - EXPRESS ARM
 *) 
 
@@ -11,21 +11,22 @@ USE FROM Condition_arm;
 
 TYPE condition_assignment_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
 (Condition_evaluation,
- Condition_evaluation_assignment);
+ Condition_evaluation_assignment,
+ Condition_evaluation_parameter_assignment,
+ Related_condition_parameter);
 END_TYPE;
 
 TYPE condition_evaluation_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE;
 
-TYPE evaluation_parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+TYPE condition_evaluation_parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE;
 
 ENTITY Condition_evaluation;
 name : STRING;
 description : OPTIONAL STRING;
-condition : Condition;
-evaluation_parameter : OPTIONAL evaluation_parameter_item;
 result : LOGICAL;
+condition : Condition;
 END_ENTITY;
 
 ENTITY Condition_evaluation_assignment;
@@ -33,19 +34,16 @@ assigned_condition_evaluation : Condition_evaluation;
 item : condition_evaluation_item;
 END_ENTITY;
 
-END_SCHEMA;
+ENTITY Condition_evaluation_parameter_assignment;
+condition_evaluation : Condition_evaluation;
+evaluation_parameter : condition_evaluation_parameter_item;
+END_ENTITY;
 
-SCHEMA Condition_arm;
-
-ENTITY Condition;
+ENTITY Related_condition_parameter;
+name : STRING;
+description : OPTIONAL STRING;
+conditon_evaluation_parameter : Condition_evaluation_parameter_assignment;
+condition_parameter : Condition_parameter_assignment;
 END_ENTITY;
 
 END_SCHEMA;
-
-SCHEMA Classification_assignment_arm;
-
-TYPE classification_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
-END_TYPE;
-
-END_SCHEMA;
-

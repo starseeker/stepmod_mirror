@@ -1920,7 +1920,7 @@
 
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  <p>
+
   <!--  start blockquote  -->
     <code>
       *)<br/>

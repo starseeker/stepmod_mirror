@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.14 2004/12/07 21:12:47 robbod Exp $
+//$Id: checkModuleMain.js,v 1.15 2005/03/08 23:30:13 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -375,27 +375,42 @@ function checkModuleFldr(moduleName, fldrName, fileArray) {
 
 // Check that every ExpressG file mentioned in module.xml is present
 function checkExpressGFileInModule(moduleName,fileName) {
-    var fso = new ActiveXObject("Scripting.FileSystemObject"); 
-    var modDir = "../data/modules/"+moduleName;  
-    var xmlFile = modDir+"/"+fileName;
-    //userMessage("Checking "+ moduleName + " " + fileName + " " + xmlFile);
-    if (!fso.FileExists(xmlFile)) {
+  var fso = new ActiveXObject("Scripting.FileSystemObject"); 
+  var modDir = "../data/modules/"+moduleName;  
+  var xmlFile = modDir+"/"+fileName;
+  //userMessage("Checking "+ moduleName + " " + fileName + " " + xmlFile);
+  if (!fso.FileExists(xmlFile)) {
 	errorMessage("Critical Error: "+fileName + " specified in "+moduleName+"/module.xml but not found");
-    }
-    var gifFile = xmlFile.replace('.xml','.gif');
-    if (!fso.FileExists(gifFile)) {
-	fileName = fileName.replace('.xml','.gif');
-	errorMessage("Critical Error: "+fileName + " specified in "+moduleName+"/module.xml but not found");
-    }
+  }
+  var gifFile = xmlFile.replace('.xml','.gif');
+  if (!fso.FileExists(gifFile)) {
+	var gifFileName = fileName.replace('.xml','.gif');
+	//THX modified
+	errorMessage("Warning: "+fileName + " specified in "+moduleName+"/module.xml but "+gifFileName+" not found");
+  }
+  //THX added
+  var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
+  xml.async = false;
+  xml.load(xmlFile);
+  if (checkXMLParse(xml)) {
+	var expr = '/imgfile.content/img';
+	var node = xml.selectSingleNode(expr);
+	var srcAttr = node.attributes.getNamedItem("src");
+	if (srcAttr) {
+	  var src = srcAttr.nodeValue;
+	  src = "../data/modules/"+moduleName+"/"+ src;
+	  if (!fso.FileExists(src)) {
+		errorMessage("Critical Error: "+src+" identified in "+xmlFile+" but not found");
+	  }
+	}
+  }
 }
-
 // Check that every expressG file in the module folder is referenced
 function checkExpressGFileInModFldr(moduleName) {
     var fso = new ActiveXObject("Scripting.FileSystemObject"); 
     var modDir = "../data/modules/"+moduleName;  
     var modFldr = fso.GetFolder(modDir);
     var fc = new Enumerator(modFldr.files);
-
     var xmlFile = "../data/modules/"+moduleName+"/module.xml";
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
     xml.async = false;
@@ -609,7 +624,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.14 2004/12/07 21:12:47 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.15 2005/03/08 23:30:13 thendrix Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";

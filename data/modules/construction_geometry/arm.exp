@@ -1,35 +1,38 @@
 (*
-  $Id: arm.exp,v 1.5 2002/11/15 17:24:50 goset1 Exp $
-  ISO/TC184/SC4 WG12N1541 - ISO/CD-TS 10303-1131 Construction_geometry
-*)
-SCHEMA Construction_geometry_arm;
+ISO TC184/SC4/WG12 N1541 - ISO/CD-TS 10303-1131 Construction geometry - EXPRESS ARM
+*) 
 
-USE FROM Elemental_geometric_shape_arm;
 
-TYPE constructive_element_select = EXTENSIBLE GENERIC_ENTITY SELECT 
-  (Axis_placement,
-   Curve,
-   point_select,
-   Surface);
-END_TYPE;
+SCHEMA Construction_geometry_arm; 
 
-TYPE constructive_geometry_select = SELECT 
-  (Constructive_geometry,
-   Geometric_model);
-END_TYPE;
+USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
 
-TYPE point_select = SELECT 
-  (Cartesian_point,
-   Point_on_curve,
-   Point_on_surface);
-END_TYPE;
+USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
+
+
+TYPE constructive_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Axis_placement, 
+    Curve, 
+    point_select, 
+    Surface);
+END_TYPE; 
+
+TYPE constructive_geometry_select = SELECT
+   (Constructive_geometry, 
+    Geometric_model);
+END_TYPE; 
+
+TYPE point_select = SELECT
+   (Cartesian_point, 
+    Point_on_curve, 
+    Point_on_surface);
+END_TYPE; 
 
 ENTITY Constructive_geometry
   SUBTYPE OF (Representation);
   SELF\Representation.context_of_items : Geometric_coordinate_space;
 WHERE
-  WR1: SIZEOF(SELF\Representation.items) = SIZEOF(QUERY (it <* SELF\Representation.items |
-	'CONSTRUCTION_GEOMETRY_ARM.CONSTRUCTIVE_ELEMENT_SELECT' IN TYPEOF(it)));
+  WR1: SIZEOF(SELF\Representation.items) = SIZEOF(QUERY (it <* SELF\Representation.items | 'CONSTRUCTION_GEOMETRY_ARM.CONSTRUCTIVE_ELEMENT_SELECT' IN TYPEOF(it)));
 END_ENTITY;
 
 ENTITY Constructive_geometry_association;
@@ -41,11 +44,11 @@ WHERE
 END_ENTITY;
 
 ENTITY Curve
-SUBTYPE OF (Detailed_geometric_model_element);
+  SUBTYPE OF (Detailed_geometric_model_element);
 END_ENTITY;
 
 ENTITY Line
-SUBTYPE OF (Curve);
+  SUBTYPE OF (Curve);
 END_ENTITY;
 
 ENTITY Measurement_path;
@@ -54,25 +57,29 @@ ENTITY Measurement_path;
 END_ENTITY;
 
 ENTITY Plane
-SUBTYPE OF (Surface);
+  SUBTYPE OF (Surface);
 END_ENTITY;
 
 ENTITY Point_on_curve
-SUBTYPE OF (Detailed_geometric_model_element);
-  supporting_curve: Curve;
+  SUBTYPE OF (Detailed_geometric_model_element);
+  supporting_curve : Curve;
 END_ENTITY;
 
 ENTITY Point_on_surface
-SUBTYPE OF (Detailed_geometric_model_element);
-  supporting_surface: Surface;
+  SUBTYPE OF (Detailed_geometric_model_element);
+  supporting_surface : Surface;
 END_ENTITY;
 
 ENTITY Surface
-SUBTYPE OF (Detailed_geometric_model_element);
+  SUBTYPE OF (Detailed_geometric_model_element);
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT alternate_geometry_items FOR Detailed_geometric_model_element;
-  ONEOF(Curve, Cartesian_point, Point_on_curve, Point_on_surface, Surface);
+  ONEOF (Cartesian_point,
+         Curve,
+         Point_on_curve,
+         Point_on_surface,
+         Surface);
 END_SUBTYPE_CONSTRAINT;
 
-END_SCHEMA;
+END_SCHEMA;  -- Construction_geometry_arm

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.8 2003/02/12 01:46:20 thendrix Exp $
-  Author:  Rob Bodington, Eurostep Limited
-  Owner:   Developed by Eurostep Limited http://www.eurostep.com
-  Purpose: To build the initial ANT build package. 
-
+$ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+   Author:  Rob Bodington, Eurostep Limited
+   Owner:   Developed by Eurostep Limited http://www.eurostep.com
+   Purpose: To build the initial ANT build package. 
 -->
 
 <xsl:stylesheet 
@@ -85,7 +84,7 @@ $Id: build.xsl,v 1.8 2003/02/12 01:46:20 thendrix Exp $
         <xsl:element name="property">
           <xsl:attribute name="name">ARCHIVE</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:value-of select="concat(@name,'-${DSTAMP}')"/>
+            <xsl:value-of select="concat(@wg.number.ballot_package,'-',@name,'-${DSTAMP}')"/>
           </xsl:attribute>
         </xsl:element>
   

@@ -2,17 +2,20 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.1 2002/06/20 13:32:42 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.2 2002/06/24 07:39:19 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
      
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-                version="1.0">
+<xsl:stylesheet 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:saxon="http://icl.com/saxon"
+  extension-element-prefixes="msxsl saxon"
+  version="1.0">
 
-
+  <!-- the SAXON and MSXML proprietary extensions are for node-set -->
 
 <xsl:template match="mapping_table" mode="check_all_arm_mapped">
   <xsl:variable name="module_dir">
@@ -95,7 +98,17 @@ $Id: sect_5_mapping_check.xsl,v 1.1 2002/06/20 13:32:42 robbod Exp $
         </NEW>
       </refpath>
     </xsl:variable>
-    <xsl:variable name="refpath_nodes" select="msxsl:node-set($refpath)"/>
+    <xsl:variable name="refpath_nodes">
+      <xsl:choose>
+        <xsl:when test="function-available('msxsl:node-set')">
+          <xsl:value-of select="msxsl:node-set($refpath)"/>
+        </xsl:when>
+        <xsl:when test="function-available('saxon:node-set')">
+          <xsl:value-of select="saxon:node-set($refpath)"/>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+
     <!--    -{<xsl:value-of select="$refpath_nodes/refpath/NEW"/>}- -->
 </xsl:template>
 

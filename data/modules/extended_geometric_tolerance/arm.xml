@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:38" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_geometric_tolerance_arm schema_instance"/>
    <schema name="Extended_geometric_tolerance_arm">
       <interface kind="use" schema="Geometric_tolerance_arm"/>
@@ -14,9 +14,6 @@
       <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="use" schema="Dimension_tolerance_arm"/>
       <interface kind="use" schema="Shape_parameters_arm"/>
-      <type name="physical_feature_or_part_template">
-         <select extensible="YES" genericentity="YES"/>
-      </type>
       <type name="centre_type">
          <enumeration items="centred_on_arc centred_on_radial"/>
       </type>
@@ -34,6 +31,9 @@
       </type>
       <type name="egt_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Externally_defined_dimension_representation"/>
+      </type>
+      <type name="egt_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_requirement_assignment_item" selectitems="Restraint_condition Statistical_dimensional_tolerance Statistical_geometric_tolerance"/>
       </type>
       <type name="geometric_or_dimension_select">
          <select selectitems="Geometric_tolerance Geometric_dimension"/>
@@ -56,23 +56,26 @@
       <type name="orientation_select">
          <select selectitems="Datum_axis_related_orientation Viewing_plane_based_orientation Datum_based_vector_orientation"/>
       </type>
+      <type name="physical_feature_or_part_template">
+         <select extensible="YES" genericentity="YES" selectitems="Datum_feature"/>
+      </type>
       <type name="restrained_item_select">
-         <select selectitems="Single_datum Physical_feature_or_part_template"/>
+         <select selectitems="Single_datum physical_feature_or_part_template"/>
       </type>
       <type name="true_profile_representations">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Dimension_set Document_definition Rule_function three_dimensional_shape"/>
       </type>
       <entity name="Apex" supertypes="Derived_shape_element"/>
-      <entity name="Boundary_size_characteristic" abstract.entity="YES" super.expression="ONEOF (Diametrical_boundary_size_characteristic, Opposing_boundary_set_size_characteristic)">
-         <explicit name="maximum_tolerance_value" optional="YES">
+      <entity name="Boundary_size_characteristic" abstract.supertype="YES" super.expression="ONEOF (Diametrical_boundary_size_characteristic, Opposing_boundary_set_size_characteristic)">
+         <explicit name="tolerance_value">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="tolerance_value">
+         <explicit name="maximum_tolerance_value" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
       </entity>
       <entity name="Centre_axis" supertypes="Centre_of_symmetry"/>
-      <entity name="Centre_of_symmetry" abstract.entity="YES" supertypes="Derived_shape_element" super.expression="ONEOF (Centre_axis, Centre_plane, Centre_point)"/>
+      <entity name="Centre_of_symmetry" abstract.supertype="YES" supertypes="Derived_shape_element" super.expression="ONEOF (Centre_axis, Centre_plane, Centre_point)"/>
       <entity name="Centre_plane" supertypes="Centre_of_symmetry"/>
       <entity name="Centre_point" supertypes="Centre_of_symmetry"/>
       <entity name="Composite_linear_profile_refinement_tolerance" supertypes="Line_profile_tolerance">
@@ -91,62 +94,62 @@
          </inverse>
       </entity>
       <entity name="Conical_tolerance_zone_boundary_and_surface_relationship">
-         <explicit name="terminating_surface">
-            <typename name="Physical_feature_or_part_template"/>
-         </explicit>
          <explicit name="sized_tolerance_zone_boundary">
             <typename name="Conical_tolerance_zone_boundary"/>
+         </explicit>
+         <explicit name="terminating_surface">
+            <typename name="physical_feature_or_part_template"/>
          </explicit>
          <inverse name="size_characteristic" entity="Conical_tolerance_zone_boundary_diametrical_size_characteristic" attribute="sized_boundary_at_surface"/>
       </entity>
       <entity name="Conical_tolerance_zone_boundary_diametrical_size_characteristic">
-         <explicit name="tolerance_value">
-            <typename name="Length_data_element"/>
-         </explicit>
          <explicit name="sized_boundary_at_surface">
             <typename name="Conical_tolerance_zone_boundary_and_surface_relationship"/>
+         </explicit>
+         <explicit name="tolerance_value">
+            <typename name="Length_data_element"/>
          </explicit>
       </entity>
       <entity name="Conical_tolerance_zone_definition" supertypes="Tolerance_zone_definition"/>
       <entity name="Curve_dimension" supertypes="Size_dimension"/>
-      <entity name="Datum_axis" supertypes="Datum"/>
+      <entity name="Datum_axis" supertypes="datum_shape_element"/>
       <entity name="Datum_axis_and_tolerance_zone_orienting_relationship">
-         <explicit name="orienting_datum_axis">
-            <typename name="Datum_axis"/>
-         </explicit>
          <explicit name="oriented_tolerance_zone">
             <typename name="Tolerance_zone"/>
+         </explicit>
+         <explicit name="orienting_datum_axis">
+            <typename name="Datum_axis"/>
          </explicit>
          <inverse name="zone_orientation" entity="Datum_axis_related_orientation" attribute="orienting_relationship"/>
       </entity>
       <entity name="Datum_axis_related_orientation">
-         <explicit name="orientation_type">
-            <typename name="centre_type"/>
-         </explicit>
          <explicit name="orienting_relationship">
             <typename name="Datum_axis_and_tolerance_zone_orienting_relationship"/>
          </explicit>
+         <explicit name="orientation_type">
+            <typename name="centre_type"/>
+         </explicit>
       </entity>
       <entity name="Datum_based_direction_vector">
-         <explicit name="positive_direction_vector">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="direction_vector_representation">
+            <typename name="Axis_placement"/>
          </explicit>
          <explicit name="vector_of">
             <typename name="Datum_plane"/>
          </explicit>
-         <explicit name="direction_vector_representation">
-            <typename name="Axis_placement"/>
+         <explicit name="positive_direction_vector">
+            <builtintype type="BOOLEAN"/>
          </explicit>
       </entity>
       <entity name="Datum_based_length_measure">
-         <explicit name="of_datum">
-            <typename name="Datum_plane"/>
+         <explicit name="measure">
+            <typename name="Length_data_element"/>
          </explicit>
          <explicit name="measure_orientation">
             <typename name="descriptive_or_geometric_orientation"/>
          </explicit>
-         <explicit name="measure">
-            <typename name="Length_data_element"/>
+         <explicit name="of_datum">
+            <typename name="Datum_plane"/>
          </explicit>
       </entity>
       <entity name="Datum_based_vector_orientation">
@@ -160,13 +163,13 @@
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
-         <explicit name="subsequent_datum">
-            <typename name="Datum"/>
-			<redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
-         </explicit>
          <explicit name="precedent_datum">
-            <typename name="Datum"/>
-			<redeclaration entity-ref="Shape_element_relationship" old_name="relating"/>
+            <typename name="datum_shape_element"/>
+            <redeclaration entity-ref="Shape_element_relationship" old_name="relating"/>
+         </explicit>
+         <explicit name="subsequent_datum">
+            <typename name="datum_shape_element"/>
+            <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
          </explicit>
       </entity>
       <entity name="Datum_difference_based_characteristic" supertypes="Measure_item">
@@ -179,16 +182,16 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="Datum_plane" supertypes="Datum"/>
-      <entity name="Datum_point" supertypes="Datum">
-         <explicit name="associated_3d_shape_intersection" optional="YES">
-            <typename name="Shape_definition_3d_intersection"/>
+      <entity name="Datum_plane" supertypes="datum_shape_element"/>
+      <entity name="Datum_point" supertypes="datum_shape_element">
+         <explicit name="location_in_2d" optional="YES">
+            <typename name="Cartesian_point"/>
          </explicit>
          <explicit name="location_in_3d" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
-         <explicit name="location_in_2d" optional="YES">
-            <typename name="Cartesian_point"/>
+         <explicit name="associated_3d_shape_intersection" optional="YES">
+            <typename name="Shape_definition_3d_intersection"/>
          </explicit>
          <where label="WR1" expression=" NOT ( EXISTS ( location_in_2d ) AND EXISTS ( location_in_3d ) ) OR EXISTS ( associated_3d_shape_intersection ) "/>
          <where label="WR2" expression=" NOT ( EXISTS ( location_in_2d ) ) OR ( ( SIZEOF ( location_in_2d \ cartesian_point . coordinates ) ) = 2 ) "/>
@@ -196,31 +199,31 @@
       </entity>
       <entity name="Datum_target_set" supertypes="Datum_feature">
          <inverse name="included_datum_targets" entity="Datum_target_usage_in_datum_target_set_relationship" attribute="defined_datum_target_set">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
       <entity name="Datum_target_usage_in_datum_target_set_relationship">
-         <explicit name="datum_target_number">
-            <builtintype type="INTEGER"/>
+         <explicit name="defined_datum_target_set">
+            <typename name="Datum_target_set"/>
          </explicit>
          <explicit name="used_datum_target">
             <typename name="Datum_target"/>
          </explicit>
-         <explicit name="defined_datum_target_set">
-            <typename name="Datum_target_set"/>
+         <explicit name="datum_target_number">
+            <builtintype type="INTEGER"/>
          </explicit>
-         <unique label="UR2">
-            <unique.attribute entity-ref="Datum_target_usage_in_datum_target_set_relationship" attribute="datum_target_number"/>
-            <unique.attribute entity-ref="Datum_target_usage_in_datum_target_set_relationship" attribute="defined_datum_target_set"/>
-         </unique>
          <unique label="UR1">
             <unique.attribute entity-ref="Datum_target_usage_in_datum_target_set_relationship" attribute="used_datum_target"/>
             <unique.attribute entity-ref="Datum_target_usage_in_datum_target_set_relationship" attribute="defined_datum_target_set"/>
          </unique>
+         <unique label="UR2">
+            <unique.attribute entity-ref="Datum_target_usage_in_datum_target_set_relationship" attribute="datum_target_number"/>
+            <unique.attribute entity-ref="Datum_target_usage_in_datum_target_set_relationship" attribute="defined_datum_target_set"/>
+         </unique>
       </entity>
-      <entity name="Derived_shape_element" abstract.entity="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Apex, Centre_of_symmetry, Linear_extension, Geometric_intersection, Geometric_alignment, Tangent_shape_element)">
+      <entity name="Derived_shape_element" abstract.supertype="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Apex, Centre_of_symmetry, Linear_extension, Geometric_intersection, Geometric_alignment, Tangent_shape_element)">
          <inverse name="deriving_relationships" entity="Shape_element_deriving_relationship" attribute="relating">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
       <entity name="Diametrical_boundary_size_characteristic" supertypes="Boundary_size_characteristic">
@@ -228,29 +231,29 @@
             <typename name="Tolerance_zone_circular_or_cylindrical_or_spherical_boundary"/>
          </explicit>
       </entity>
-      <entity name="Dimension_qualifier" abstract.entity="YES" super.expression="ONEOF (Pre_defined_dimension_qualifier, User_defined_dimension_qualifier)">
+      <entity name="Dimension_qualifier" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_dimension_qualifier, User_defined_dimension_qualifier)">
          <explicit name="qualified_dimensions">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Geometric_dimension"/>
          </explicit>
       </entity>
       <entity name="Dimension_related_positional_boundary" supertypes="Positional_boundary">
-         <explicit name="constrained_physical_feature">
-            <typename name="Physical_feature_or_part_template"/>
-         </explicit>
          <explicit name="boundary_members">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Positional_boundary_member"/>
          </explicit>
+         <explicit name="constrained_physical_feature">
+            <typename name="physical_feature_or_part_template"/>
+         </explicit>
       </entity>
       <entity name="Dimension_related_positional_boundary_definition" supertypes="Positional_boundary_definition">
-         <explicit name="characterized_boundary_member_definitions">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Positional_boundary_member_definition"/>
-         </explicit>
          <explicit name="defined_positional_boundary">
             <typename name="Dimension_related_positional_boundary"/>
             <redeclaration entity-ref="Positional_boundary_definition"/>
+         </explicit>
+         <explicit name="characterized_boundary_member_definitions">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Positional_boundary_member_definition"/>
          </explicit>
       </entity>
       <entity name="Dimension_set">
@@ -260,34 +263,34 @@
          </explicit>
       </entity>
       <entity name="Dimensional_characteristic_representation">
-         <explicit name="auxiliary_dimension_representation">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="representation">
+            <typename name="Shape_dimension_representation"/>
          </explicit>
          <explicit name="dimension">
             <typename name="dimensional_location_or_dimensional_size"/>
          </explicit>
-         <explicit name="representation">
-            <typename name="Shape_dimension_representation"/>
+         <explicit name="auxiliary_dimension_representation">
+            <builtintype type="BOOLEAN"/>
          </explicit>
       </entity>
       <entity name="Dimensional_size_based_on_opposing_boundaries" supertypes="Size_dimension">
+         <explicit name="boundary_separation">
+            <typename name="Shape_element_locating_relationship"/>
+         </explicit>
          <explicit name="is_applied_to">
             <typename name="Composite_unit_shape_element"/>
             <redeclaration entity-ref="Size_dimension"/>
          </explicit>
-         <explicit name="boundary_separation">
-            <typename name="Shape_element_locating_relationship"/>
-         </explicit>
       </entity>
       <entity name="Directed_axis" supertypes="Non_feature_shape_element">
-         <explicit name="end_shape_element">
-            <typename name="Shape_element"/>
+         <explicit name="axis_to_be_oriented">
+            <typename name="Centre_axis"/>
          </explicit>
          <explicit name="start_shape_element">
             <typename name="Shape_element"/>
          </explicit>
-         <explicit name="axis_to_be_oriented">
-            <typename name="Centre_axis"/>
+         <explicit name="end_shape_element">
+            <typename name="Shape_element"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Directed_axis" attribute="axis_to_be_oriented"/>
@@ -295,20 +298,20 @@
          </unique>
       </entity>
       <entity name="Direction_element">
-         <explicit name="direction_of_half_datum_plane">
+         <explicit name="direction">
             <typename name="Datum_based_direction_vector"/>
-         </explicit>
-         <explicit name="base_datum_plane">
-            <typename name="Datum_plane"/>
          </explicit>
          <explicit name="angle_value">
             <typename name="Angle_data_element"/>
          </explicit>
-         <explicit name="direction">
+         <explicit name="base_datum_plane">
+            <typename name="Datum_plane"/>
+         </explicit>
+         <explicit name="direction_of_half_datum_plane">
             <typename name="Datum_based_direction_vector"/>
          </explicit>
          <inverse name="elements_of" entity="Datum_based_vector_orientation" attribute="direction_components">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
       <entity name="Edge_segment_vertex" supertypes="Single_datum Datum_point">
@@ -321,12 +324,12 @@
             <typename name="Value_with_unit"/>
          </explicit>
          <inverse name="definitions" entity="External_source_identification" attribute="item">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
       <entity name="Geometric_alignment" supertypes="Derived_shape_element"/>
       <entity name="Geometric_intersection" supertypes="Derived_shape_element"/>
-      <entity name="Geometric_tolerance_qualifier" abstract.entity="YES" super.expression="ONEOF (Pre_defined_geometric_tolerance_qualifier, User_defined_geometric_tolerance_qualifier)">
+      <entity name="Geometric_tolerance_qualifier" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_geometric_tolerance_qualifier, User_defined_geometric_tolerance_qualifier)">
          <explicit name="qualified_geometric_tolerances">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Geometric_tolerance"/>
@@ -338,10 +341,10 @@
          </explicit>
       </entity>
       <entity name="Limit_dimension_representation" supertypes="Shape_dimension_representation">
-         <explicit name="lower_dimension_value">
+         <explicit name="upper_dimension_value">
             <typename name="Value_with_unit"/>
          </explicit>
-         <explicit name="upper_dimension_value">
+         <explicit name="lower_dimension_value">
             <typename name="Value_with_unit"/>
          </explicit>
       </entity>
@@ -355,45 +358,45 @@
       </entity>
       <entity name="Parallel_shape_element_relationship" supertypes="Shape_element_relationship"/>
       <entity name="Perpendicular_shape_element_relationship" supertypes="Shape_element_relationship"/>
-      <entity name="Positional_boundary" abstract.entity="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Profile_related_positional_boundary, Dimension_related_positional_boundary)">
+      <entity name="Positional_boundary" abstract.supertype="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Profile_related_positional_boundary, Dimension_related_positional_boundary)">
          <inverse name="boundary_definition" entity="Positional_boundary_definition" attribute="defined_positional_boundary"/>
       </entity>
       <entity name="Positional_boundary_and_profile_boundary_member_relationship">
-         <explicit name="base_profile_tolerance_zone_boundary_member">
-            <typename name="Tolerance_zone_boundary_member"/>
-         </explicit>
          <explicit name="offset_positional_boundary">
             <typename name="Profile_related_positional_boundary"/>
          </explicit>
+         <explicit name="base_profile_tolerance_zone_boundary_member">
+            <typename name="Tolerance_zone_boundary_member"/>
+         </explicit>
          <inverse name="offset" entity="Positional_boundary_offset" attribute="offset_boundary_relationship"/>
       </entity>
-      <entity name="Positional_boundary_definition" abstract.entity="YES" super.expression="ONEOF (Profile_related_positional_boundary_definition, Dimension_related_positional_boundary_definition)">
+      <entity name="Positional_boundary_definition" abstract.supertype="YES" super.expression="ONEOF (Profile_related_positional_boundary_definition, Dimension_related_positional_boundary_definition)">
          <explicit name="defined_positional_boundary">
             <typename name="Positional_boundary"/>
          </explicit>
       </entity>
       <entity name="Positional_boundary_member" supertypes="Non_feature_shape_element">
-         <inverse name="boundary_member_definition" entity="Positional_boundary_member_definition" attribute="defined_positional_boundary_member"/>
          <inverse name="composed_positional_boundary" entity="Dimension_related_positional_boundary" attribute="boundary_members"/>
+         <inverse name="boundary_member_definition" entity="Positional_boundary_member_definition" attribute="defined_positional_boundary_member"/>
       </entity>
       <entity name="Positional_boundary_member_definition">
-         <explicit name="associated_dimension">
-            <typename name="Size_dimension"/>
+         <explicit name="defined_positional_boundary_member">
+            <typename name="Positional_boundary_member"/>
          </explicit>
          <explicit name="tolerance_value">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="defined_positional_boundary_member">
-            <typename name="Positional_boundary_member"/>
+         <explicit name="associated_dimension">
+            <typename name="Size_dimension"/>
          </explicit>
          <inverse name="boundary_definition" entity="Dimension_related_positional_boundary_definition" attribute="characterized_boundary_member_definitions"/>
       </entity>
       <entity name="Positional_boundary_offset">
-         <explicit name="tolerance_value">
-            <typename name="Length_data_element"/>
-         </explicit>
          <explicit name="offset_boundary_relationship">
             <typename name="Positional_boundary_and_profile_boundary_member_relationship"/>
+         </explicit>
+         <explicit name="tolerance_value">
+            <typename name="Length_data_element"/>
          </explicit>
          <inverse name="boundary_definition" entity="Profile_related_positional_boundary_definition" attribute="boundary_offset"/>
       </entity>
@@ -411,29 +414,29 @@
          <inverse name="associating_relationship" entity="Positional_boundary_and_profile_boundary_member_relationship" attribute="offset_positional_boundary"/>
       </entity>
       <entity name="Profile_related_positional_boundary_definition" supertypes="Positional_boundary_definition">
+         <explicit name="defined_positional_boundary">
+            <typename name="Profile_related_positional_boundary"/>
+            <redeclaration entity-ref="Positional_boundary_definition"/>
+         </explicit>
          <explicit name="boundary_offset">
             <typename name="Positional_boundary_offset"/>
          </explicit>
-         <explicit name="defined_positional_boundary">
-            <typename name="Tolerance_zone_definition"/>
-            <redeclaration entity-ref="Positional_boundary_definition"/>
-         </explicit>
       </entity>
       <entity name="Projected_zone_and_base_relationship">
+         <explicit name="base_physical_feature">
+            <typename name="physical_feature_or_part_template"/>
+         </explicit>
          <explicit name="projected_zone">
             <typename name="Tolerance_zone"/>
-         </explicit>
-         <explicit name="base_physical_feature">
-            <typename name="Physical_feature_or_part_template"/>
          </explicit>
          <inverse name="size_characteristic" entity="Projected_zone_height_characteristic" attribute="defined_height_of"/>
       </entity>
       <entity name="Projected_zone_height_characteristic">
-         <explicit name="projected_height_value">
-            <typename name="Length_data_element"/>
-         </explicit>
          <explicit name="defined_height_of">
             <typename name="Projected_zone_and_base_relationship"/>
+         </explicit>
+         <explicit name="projected_height_value">
+            <typename name="Length_data_element"/>
          </explicit>
       </entity>
       <entity name="Restraint_condition" super.expression="Tolerance_specific_restraint_condition">
@@ -447,20 +450,20 @@
          </explicit>
       </entity>
       <entity name="Runout_tolerance_zone_orienting_relationship">
-         <explicit name="orienting_axis">
-            <typename name="Directed_axis"/>
-         </explicit>
          <explicit name="oriented_zone">
             <typename name="Tolerance_zone"/>
+         </explicit>
+         <explicit name="orienting_axis">
+            <typename name="Directed_axis"/>
          </explicit>
          <inverse name="angular_size_characteristic" entity="Runout_zone_orientation" attribute="oriented_relationship"/>
       </entity>
       <entity name="Runout_zone_orientation">
-         <explicit name="semi_angle_value">
-            <typename name="Angle_data_element"/>
-         </explicit>
          <explicit name="oriented_relationship">
             <typename name="Runout_tolerance_zone_orienting_relationship"/>
+         </explicit>
+         <explicit name="semi_angle_value">
+            <typename name="Angle_data_element"/>
          </explicit>
          <inverse name="zone_definition" entity="Runout_tolerance_zone_definition_with_specified_angle" attribute="runout_orientation"/>
       </entity>
@@ -470,7 +473,7 @@
             <typename name="Geometric_tolerance"/>
          </explicit>
       </entity>
-      <entity name="Shape_dimension_representation" abstract.entity="YES" super.expression="ONEOF (Limit_dimension_representation, Singular_dimension_representation, Externally_defined_dimension_representation)"/>
+      <entity name="Shape_dimension_representation" abstract.supertype="YES" super.expression="ONEOF (Limit_dimension_representation, Singular_dimension_representation, Externally_defined_dimension_representation)"/>
       <entity name="Shape_element_deriving_relationship" supertypes="Shape_element_relationship">
          <explicit name="relating">
             <typename name="Derived_shape_element"/>
@@ -487,7 +490,7 @@
             <typename name="Geometric_tolerance"/>
          </explicit>
       </entity>
-      <entity name="Singular_dimension_representation" abstract.entity="YES" supertypes="Shape_dimension_representation" super.expression="ONEOF (Theoretically_exact_dimension_representation, Maximum_dimension_representation, Minimum_dimension_representation)">
+      <entity name="Singular_dimension_representation" abstract.supertype="YES" supertypes="Shape_dimension_representation" super.expression="ONEOF (Theoretically_exact_dimension_representation, Maximum_dimension_representation, Minimum_dimension_representation)">
          <explicit name="dimension_value">
             <typename name="Value_with_unit"/>
          </explicit>
@@ -512,27 +515,27 @@
          </explicit>
       </entity>
       <entity name="Tolerance_zone_and_viewing_plane_orienting_relationship">
-         <explicit name="oriented_tolerance_zone">
-            <typename name="Tolerance_zone"/>
-         </explicit>
          <explicit name="orienting_viewing_plane">
             <typename name="Viewing_plane"/>
          </explicit>
+         <explicit name="oriented_tolerance_zone">
+            <typename name="Tolerance_zone"/>
+         </explicit>
          <inverse name="zone_orientation" entity="Viewing_plane_based_orientation" attribute="orienting_relationship"/>
       </entity>
-      <entity name="Tolerance_zone_boundary" abstract.entity="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Tolerance_zone_circular_or_cylindrical_or_spherical_boundary, Tolerance_zone_opposing_boundary_set, Conical_tolerance_zone_boundary)"/>
+      <entity name="Tolerance_zone_boundary" abstract.supertype="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Tolerance_zone_circular_or_cylindrical_or_spherical_boundary, Tolerance_zone_opposing_boundary_set, Conical_tolerance_zone_boundary)"/>
       <entity name="Tolerance_zone_boundary_member" supertypes="Non_feature_shape_element">
          <inverse name="explicit_opposing_boundary_set" entity="Tolerance_zone_explicit_opposing_boundary_set" attribute="boundary_members"/>
       </entity>
       <entity name="Tolerance_zone_boundary_member_offset">
-         <explicit name="type_of_offset">
-            <typename name="offset_types"/>
+         <explicit name="offset_tolerance_zone_boundary_member">
+            <typename name="Tolerance_zone_boundary_member"/>
          </explicit>
          <explicit name="offset_value">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="offset_tolerance_zone_boundary_member">
-            <typename name="Tolerance_zone_boundary_member"/>
+         <explicit name="type_of_offset">
+            <typename name="offset_types"/>
          </explicit>
       </entity>
       <entity name="Tolerance_zone_circular_or_cylindrical_or_spherical_boundary" supertypes="Tolerance_zone_boundary">
@@ -555,48 +558,48 @@
          </explicit>
       </entity>
       <entity name="Tolerance_zone_form">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="characterized_tolerance_zone">
             <typename name="Tolerance_zone"/>
          </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
       </entity>
       <entity name="Tolerance_zone_implicit_opposing_boundary_set" supertypes="Tolerance_zone_opposing_boundary_set"/>
-      <entity name="Tolerance_zone_opposing_boundary_set" abstract.entity="YES" supertypes="Tolerance_zone_boundary" super.expression="ONEOF (Tolerance_zone_explicit_opposing_boundary_set, Tolerance_zone_implicit_opposing_boundary_set)">
+      <entity name="Tolerance_zone_opposing_boundary_set" abstract.supertype="YES" supertypes="Tolerance_zone_boundary" super.expression="ONEOF (Tolerance_zone_explicit_opposing_boundary_set, Tolerance_zone_implicit_opposing_boundary_set)">
          <inverse name="size_characteristic" entity="Opposing_boundary_set_size_characteristic" attribute="sized_boundary_set"/>
       </entity>
       <entity name="Tolerance_zone_per_unit_size_specification">
+         <explicit name="specified_tolerance_zone">
+            <typename name="Tolerance_zone"/>
+         </explicit>
          <explicit name="per_unit_size">
             <aggregate type="SET" lower="1" upper="2"/>
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="specified_tolerance_zone">
-            <typename name="Tolerance_zone"/>
-         </explicit>
          <inverse name="zone_definition" entity="Tolerance_zone_definition_with_per_unit_size_specification" attribute="per_unit_size_specification"/>
       </entity>
       <entity name="True_profile">
+         <explicit name="profiled_surface">
+            <typename name="physical_feature_or_part_template"/>
+         </explicit>
          <explicit name="profile_representation">
             <typename name="true_profile_representations"/>
          </explicit>
-         <explicit name="profiled_surface">
-            <typename name="Physical_feature_or_part_template"/>
-         </explicit>
       </entity>
       <entity name="User_defined_dimension_qualifier" supertypes="Dimension_qualifier">
-         <explicit name="name">
+         <explicit name="description">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="description">
+         <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
       <entity name="User_defined_geometric_tolerance_qualifier" supertypes="Geometric_tolerance_qualifier">
-         <explicit name="name">
+         <explicit name="description">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="description">
+         <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
@@ -604,21 +607,23 @@
          <inverse name="viewing_plane_specification" entity="Viewing_plane_definition" attribute="defined_viewing_plane"/>
       </entity>
       <entity name="Viewing_plane_based_orientation">
-         <explicit name="viewing_plane_specification">
-            <typename name="Viewing_plane_definition"/>
-         </explicit>
          <explicit name="orienting_relationship">
             <typename name="Tolerance_zone_and_viewing_plane_orienting_relationship"/>
          </explicit>
+         <explicit name="viewing_plane_specification">
+            <typename name="Viewing_plane_definition"/>
+         </explicit>
       </entity>
       <entity name="Viewing_plane_definition">
-         <explicit name="viewing_plane_representation">
-            <typename name="Axis_placement"/>
-         </explicit>
          <explicit name="defined_viewing_plane">
             <typename name="Viewing_plane"/>
          </explicit>
+         <explicit name="viewing_plane_representation">
+            <typename name="Axis_placement"/>
+         </explicit>
          <inverse name="zone_orientation" entity="Viewing_plane_based_orientation" attribute="viewing_plane_specification"/>
       </entity>
+      <entity name="datum_shape_element" supertypes="Datum Non_feature_shape_element"/>
+      <subtype.constraint name="non_feature_shape_element_subtypes" entity="Non_feature_shape_element" super.expression="ONEOF (Derived_shape_element, Directed_axis, Positional_boundary, Positional_boundary_member, Tolerance_zone_boundary, Tolerance_zone_boundary_member, Viewing_plane, Seating_plane, Reference_graphic_registration_mark)"/>
    </schema>
 </express>

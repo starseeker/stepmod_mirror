@@ -2,62 +2,70 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:38" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="device_marking_arm schema_instance"/>
    <schema name="Device_marking_arm">
-      <interface kind="use" schema="Pdm_material_aspects_arm"/>
-      <interface kind="use" schema="Specification_document_arm"/>
+      <interface kind="use" schema="Approval_arm"/>
       <interface kind="use" schema="Characteristic_arm"/>
-      <interface kind="use" schema="Layered_shape_arm"/>
+      <interface kind="use" schema="Conductivity_material_aspects_arm"/>
+      <interface kind="use" schema="Part_template_2d_shape_arm"/>
+      <interface kind="use" schema="Part_template_3d_shape_arm"/>
+      <interface kind="use" schema="Part_template_non_planar_shape_arm"/>
+      <interface kind="use" schema="Person_organization_arm"/>
+      <interface kind="use" schema="Physical_unit_2d_shape_arm"/>
+      <interface kind="use" schema="Physical_unit_3d_shape_arm"/>
+      <interface kind="use" schema="Product_version_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
       <interface kind="use" schema="Styled_text_arm"/>
+      <type name="dm_material_item_select">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_material_item_select" selectitems="Marking"/>
+      </type>
       <type name="marked_message_select">
          <select selectitems="Configuration_controlled_message Text_representation_item"/>
       </type>
       <type name="marking_shape_select">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Part_template_3d_shape Physical_unit_3d_shape Part_template_non_planar_2d_shape Part_template_planar_shape Physical_unit_planar_shape"/>
       </type>
       <type name="message_source_select">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Organization Approval Product_version"/>
       </type>
       <type name="message_type">
          <enumeration items="part_number manufacturer_code revision_identifier approval_date"/>
       </type>
       <entity name="Configuration_controlled_message">
-         <explicit name="message_type_specification">
-            <typename name="message_type"/>
+         <explicit name="message_source">
+            <typename name="message_source_select"/>
          </explicit>
          <explicit name="message_content">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="message_source">
-            <typename name="message_source_select"/>
+         <explicit name="message_type_specification">
+            <typename name="message_type"/>
          </explicit>
       </entity>
       <entity name="Marking">
-         <explicit name="marking_specification">
-            <typename name="Specification_definition"/>
-         </explicit>
-         <explicit name="message_representation_text">
-            <typename name="Styled_text"/>
-         </explicit>
-         <explicit name="message_representation">
-            <typename name="Feature_shape_definition"/>
-         </explicit>
-         <explicit name="placement">
-            <typename name="Axis_placement"/>
-         </explicit>
-         <explicit name="marking_material">
-            <typename name="Material_identification"/>
+         <explicit name="marked_message">
+            <typename name="marked_message_select"/>
          </explicit>
          <explicit name="marked_device_shape">
             <typename name="marking_shape_select"/>
          </explicit>
-         <explicit name="marked_message">
-            <typename name="marked_message_select"/>
+         <explicit name="placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="message_representation">
+            <typename name="Feature_shape_definition"/>
+         </explicit>
+         <explicit name="message_representation_text">
+            <typename name="Styled_text"/>
+         </explicit>
+         <explicit name="marking_specification">
+            <typename name="Specification_definition"/>
          </explicit>
          <where label="WR1" expression=" SIZEOF ( QUERY ( st &lt;* message_representation \ geometric_model . items | st = message_representation_text ) ) = 1 "/>
          <where label="WR2" expression=" SIZEOF ( QUERY ( ap &lt;* marked_device_shape \ geometric_model . items | ap = placement ) ) = 1 "/>
          <where label="WR3" expression=" SIZEOF ( TYPEOF ( marked_device_shape ) * [ 'AP210_ARM.PHYSICAL_UNIT_3D_SHAPE' , 'AP210_ARM.PHYSICAL_UNIT_PLANAR_SHAPE' ] ) = 1 "/>
+         <where label="WR4" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) = 1 ) "/>
       </entity>
    </schema>
 </express>

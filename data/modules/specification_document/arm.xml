@@ -2,11 +2,11 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:41" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Document_definition_arm"/>
-      <interface kind="use" schema="Person_organization_arm"/>
+      <interface kind="use" schema="Person_organization_assignment_arm"/>
       <interface kind="use" schema="Characteristic_arm"/>
       <type name="sd_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Structured_text"/>
@@ -21,18 +21,18 @@
       <entity name="Material_specification" supertypes="Specification_definition"/>
       <entity name="Process_specification" supertypes="Specification_definition"/>
       <entity name="Specification_allocation">
-         <explicit name="identifier_in_target_context" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="purpose">
-            <builtintype type="STRING"/>
+         <explicit name="allocated_specification">
+            <typename name="Specification_definition"/>
          </explicit>
          <explicit name="target_product_object">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="specification_product_object_select"/>
          </explicit>
-         <explicit name="allocated_specification">
-            <typename name="Specification_definition"/>
+         <explicit name="purpose">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="identifier_in_target_context" optional="YES">
+            <builtintype type="STRING"/>
          </explicit>
          <derived name="the_context" expression=" target_product_object [ 1 ] ">
             <typename name="specification_product_object_select"/>
@@ -44,20 +44,18 @@
          <where label="WR1" expression=" NOT EXISTS ( identifier_in_target_context ) OR ( SIZEOF ( target_product_object ) = 1 ) "/>
       </entity>
       <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
-         <explicit name="source">
-            <typename name="organization_or_person_in_organization_select"/>
-         </explicit>
+         <inverse name="source" entity="Organization_or_person_in_organization_assignment" attribute="items"/>
       </entity>
       <entity name="Structured_text" supertypes="Document_definition">
-         <explicit name="structured_text_content" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Structured_text"/>
+         <explicit name="plain_text_content" optional="YES">
+            <typename name="Text_representation_item"/>
          </explicit>
          <explicit name="precedent_structured_text" optional="YES">
             <typename name="Structured_text"/>
          </explicit>
-         <explicit name="plain_text_content" optional="YES">
-            <typename name="Text_representation_item"/>
+         <explicit name="structured_text_content" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Structured_text"/>
          </explicit>
          <inverse name="content_markup" entity="External_source_identification" attribute="item"/>
       </entity>
@@ -65,11 +63,11 @@
          <explicit name="identifier">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="document">
-            <typename name="Document_definition"/>
-         </explicit>
          <explicit name="text">
             <typename name="Structured_text"/>
+         </explicit>
+         <explicit name="document">
+            <typename name="Document_definition"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Structured_text_id_in_document" attribute="identifier"/>

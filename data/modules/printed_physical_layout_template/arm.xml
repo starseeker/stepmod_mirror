@@ -2,20 +2,24 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-08T18:06:13" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:40" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="printed_physical_layout_template_arm schema_instance"/>
    <schema name="Printed_physical_layout_template_arm">
       <interface kind="use" schema="Physical_layout_template_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <interface kind="use" schema="Manufacturing_technology_arm"/>
       <interface kind="use" schema="Analytical_model_arm"/>
-      <interface kind="use" schema="Extended_geometric_tolerance_arm">
-         <interfaced.item name="Edge_segment_vertex"/>
-      </interface>
+      <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="use" schema="Feature_and_connection_zone_arm"/>
       <interface kind="use" schema="Non_feature_shape_element_arm"/>
       <interface kind="use" schema="Network_functional_usage_view_arm"/>
+      <interface kind="reference" schema="Requirement_decomposition_arm">
+         <interfaced.item name="get_requirement_definition_property"/>
+      </interface>
+      <type name="pplt_usage_concept">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_usage_concept" selectitems="Printed_part_template_terminal"/>
+      </type>
       <type name="printed_part_template_terminal_class">
          <enumeration items="curve_edge_segment surface_point area_edge_segment surface_area"/>
       </type>
@@ -180,12 +184,12 @@
          <where label="WR3" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_ARM.' + 'FOOTPRINT_DEFINITION.REFERENCE_PACKAGE' ) ) &lt; 2 "/>
       </entity>
       <entity name="Printed_part_template_connected_terminals_definition">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="connected_terminals">
             <aggregate type="SET" lower="2" upper="?"/>
             <typename name="Printed_part_template_terminal"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Printed_part_template_connected_terminals_definition" attribute="name"/>
@@ -253,7 +257,7 @@
          <where label="WR2" expression=" precedent_material \ shape_element . element_name IN [ 'bottom' , 'right' ] "/>
          <where label="WR3" expression=" subsequent_material \ shape_element . element_name IN [ 'top' , 'left' ] "/>
       </entity>
-      <entity name="Printed_part_template_terminal" abstract.entity="YES" supertypes="Shape_element" super.expression="Printed_part_cross_section_template_terminal ANDOR ONEOF (Printed_part_template_join_terminal, Printed_part_template_interface_terminal)">
+      <entity name="Printed_part_template_terminal" abstract.supertype="YES" supertypes="Shape_element" super.expression="Printed_part_cross_section_template_terminal ANDOR ONEOF (Printed_part_template_join_terminal, Printed_part_template_interface_terminal)">
          <explicit name="associated_definition">
             <typename name="Printed_part_template"/>
          </explicit>
@@ -283,10 +287,10 @@
          </unique>
       </entity>
       <entity name="Printed_part_template_terminal_relationship">
-         <explicit name="relating_printed_part_terminal">
+         <explicit name="related_printed_part_terminal">
             <typename name="Printed_part_template_terminal"/>
          </explicit>
-         <explicit name="related_printed_part_terminal">
+         <explicit name="relating_printed_part_terminal">
             <typename name="Printed_part_template_terminal"/>
          </explicit>
       </entity>

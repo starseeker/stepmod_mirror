@@ -2,45 +2,49 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:04" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:39" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_placement_requirements_arm schema_instance"/>
    <schema name="Interconnect_placement_requirements_arm">
-      <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
+      <interface kind="use" schema="Land_arm"/>
+      <interface kind="use" schema="Layered_interconnect_module_3d_shape_arm"/>
       <interface kind="use" schema="Non_feature_shape_element_arm"/>
       <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="use" schema="Part_template_extension_arm"/>
       <interface kind="use" schema="Assembly_component_placement_requirements_arm"/>
       <interface kind="use" schema="Characteristic_arm"/>
       <type name="assembly_or_interconnect_design_object_select">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Assembly_component Component_feature interconnect_module_design_object_select"/>
       </type>
       <type name="interconnect_module_design_object_category">
          <enumeration items="interconnect_module_via interconnect_module_inter_stratum_feature interconnect_module_cutout interconnect_module_fill_area interconnect_module_stratum_feature"/>
       </type>
       <type name="interconnect_module_design_object_select">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Via Cutout Component_termination_passage Land Conductor Conductive_filled_area Stratum_feature Laminate_component Inter_stratum_feature Non_functional_land"/>
+      </type>
+      <type name="ipr_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_requirement_assignment_item" selectitems="Interconnect_module_constraint_region"/>
       </type>
       <entity name="Interconnect_module_constraint_region" supertypes="Non_feature_shape_element">
-         <explicit name="constrained_design_object_category">
-            <typename name="interconnect_module_design_object_category"/>
-         </explicit>
-         <explicit name="associated_stratum_extent">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Inter_stratum_extent"/>
-         </explicit>
-         <explicit name="design_specific_purpose">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="scope">
-            <typename name="Interconnect_module"/>
-            <redeclaration entity-ref="Non_feature_shape_element"/>
+         <explicit name="keepout">
+            <builtintype type="BOOLEAN"/>
          </explicit>
          <explicit name="non_conformant_interconnect_module_design_object" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="interconnect_module_design_object_select"/>
          </explicit>
-         <explicit name="keepout">
-            <builtintype type="BOOLEAN"/>
+         <explicit name="scope">
+            <typename name="Interconnect_module"/>
+            <redeclaration entity-ref="Non_feature_shape_element"/>
+         </explicit>
+         <explicit name="design_specific_purpose">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="associated_stratum_extent">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Inter_stratum_extent"/>
+         </explicit>
+         <explicit name="constrained_design_object_category">
+            <typename name="interconnect_module_design_object_category"/>
          </explicit>
          <inverse name="precedent_version_constraint_region" entity="Non_feature_shape_element_relationship" attribute="related">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -55,16 +59,18 @@
          </explicit>
       </entity>
       <entity name="Layout_spacing_requirement_non_conforming_design_object">
-         <explicit name="design_requirement">
-            <typename name="Layout_spacing_requirement_occurrence"/>
-         </explicit>
-         <explicit name="reference_design_object">
-            <typename name="assembly_or_interconnect_design_object_select"/>
-         </explicit>
          <explicit name="non_conformant_design_object">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="assembly_or_interconnect_design_object_select"/>
          </explicit>
+         <explicit name="reference_design_object">
+            <typename name="assembly_or_interconnect_design_object_select"/>
+         </explicit>
+         <explicit name="design_requirement">
+            <typename name="Layout_spacing_requirement_occurrence"/>
+         </explicit>
       </entity>
+      <subtype.constraint name="non_feature_shape_element_subtypes" entity="Non_feature_shape_element" super.expression="ONEOF (Derived_shape_element, Directed_axis, Positional_boundary, Positional_boundary_member, Tolerance_zone_boundary, Tolerance_zone_boundary_member, Viewing_plane, Seating_plane, Template_material_cross_section_boundary, Interconnect_module_constraint_region, Reference_graphic_registration_mark, Mounting_restriction_area, Mounting_restriction_volume)"/>
+      <subtype.constraint name="requirement_definition_property_subtypes" entity="Requirement_definition_property" super.expression="ONEOF (Layout_spacing_requirement_occurrence, Item_restricted_requirement_occurrence)"/>
    </schema>
 </express>

@@ -2,35 +2,42 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:01" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:36" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_functional_interface_requirement_arm schema_instance"/>
    <schema name="Assembly_functional_interface_requirement_arm">
       <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
+      <interface kind="use" schema="Printed_physical_layout_template_arm"/>
       <interface kind="use" schema="Product_view_definition_arm"/>
       <interface kind="use" schema="Functional_specification_arm"/>
       <interface kind="use" schema="Requirement_assignment_arm"/>
       <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="use" schema="Assembly_physical_interface_requirement_arm"/>
+      <interface kind="reference" schema="Requirement_decomposition_arm">
+         <interfaced.item name="get_requirement_definition_property"/>
+      </interface>
+      <type name="afir_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_requirement_assignment_item" selectitems="Mating_connector_termination Termination_constraint"/>
+      </type>
       <type name="mating_connector_definition_select">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Packaged_part_terminal Printed_part_template_terminal"/>
       </type>
       <entity name="Interface_requirement_occurrence" supertypes="Design_requirement_occurrence">
-         <explicit name="reference_protocol" optional="YES">
-            <typename name="Protocol_physical_layer_definition"/>
-         </explicit>
          <explicit name="interface_to_next_higher_assembly" optional="YES">
             <typename name="Next_higher_assembly_interface_requirement"/>
          </explicit>
+         <explicit name="reference_protocol" optional="YES">
+            <typename name="Protocol_physical_layer_definition"/>
+         </explicit>
       </entity>
       <entity name="Mating_connector_termination">
-         <explicit name="name">
-            <builtintype type="STRING"/>
+         <explicit name="definition">
+            <typename name="mating_connector_definition_select"/>
          </explicit>
          <explicit name="accessed_connector">
             <typename name="Mating_connector_component"/>
          </explicit>
-         <explicit name="definition">
-            <typename name="mating_connector_definition_select"/>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Mating_connector_termination" attribute="definition"/>
@@ -44,7 +51,7 @@
             <redeclaration entity-ref="Packaged_part"/>
          </explicit>
          <inverse name="terminal" entity="Shape_element" attribute="containing_shape">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression=" SIZEOF ( QUERY ( t &lt;* SELF \ packaged_part . access_mechanisms | ( 'AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF ( t ) ) ) ) &gt;= 0 "/>
          <where label="WR2" expression=" NOT EXISTS ( SELF \ packaged_part . implemented_function ) "/>
@@ -52,26 +59,26 @@
          <where label="WR4" expression=" NOT ( 'AP210_ARM.ALTERED_PACKAGED_PART' IN TYPEOF ( SELF ) ) "/>
       </entity>
       <entity name="Protocol_physical_layer_definition" supertypes="Product_view_definition">
-         <explicit name="media_functional_definition" optional="YES">
+         <explicit name="host_connector" optional="YES">
+            <typename name="Minimally_defined_connector"/>
+         </explicit>
+         <explicit name="host_functional_definition">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
-         <explicit name="media_functional_characterization" optional="YES">
+         <explicit name="host_rcv_functional_characterization" optional="YES">
+            <typename name="Functional_specification_definition"/>
+         </explicit>
+         <explicit name="host_xmt_functional_characterization" optional="YES">
             <typename name="Functional_specification_definition"/>
          </explicit>
          <explicit name="media_connector" optional="YES">
             <typename name="Minimally_defined_connector"/>
          </explicit>
-         <explicit name="host_xmt_functional_characterization" optional="YES">
+         <explicit name="media_functional_characterization" optional="YES">
             <typename name="Functional_specification_definition"/>
          </explicit>
-         <explicit name="host_rcv_functional_characterization" optional="YES">
-            <typename name="Functional_specification_definition"/>
-         </explicit>
-         <explicit name="host_functional_definition">
+         <explicit name="media_functional_definition" optional="YES">
             <typename name="Functional_unit_usage_view"/>
-         </explicit>
-         <explicit name="host_connector" optional="YES">
-            <typename name="Minimally_defined_connector"/>
          </explicit>
          <derived name="reference_document" expression=" SELF \ product_view_definition . documentation ">
             <aggregate type="SET" lower="1" upper="1"/>
@@ -82,17 +89,16 @@
          <where label="WR3" expression=" EXISTS ( host_functional_definition ) OR EXISTS ( media_functional_definition ) "/>
       </entity>
       <entity name="Protocol_requirement_allocation_to_part_terminal" supertypes="Requirement_assignment">
-         <explicit name="protocol_signal">
-            <typename name="Functional_unit_usage_view_terminal_definition"/>
-         </explicit>
-         <explicit name="assigned_requirement">
-            <typename name="Interface_requirement_occurrence"/>
-            <redeclaration entity-ref="Requirement_assignment"/>
-         </explicit>
          <explicit name="assigned_to">
             <typename name="Part_terminal"/>
             <redeclaration entity-ref="Requirement_assignment"/>
          </explicit>
+         <explicit name="protocol_signal">
+            <typename name="Functional_unit_usage_view_terminal_definition"/>
+         </explicit>
+         <derived name="assigned_requirement_property" expression=" get_requirement_definition_property ( SELF , 'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_ARM.' + 'INTERFACE_REQUIREMENT_OCCURRENCE' ) ">
+            <typename name="Requirement_definition_property"/>
+         </derived>
          <where label="WR1" expression=" EXISTS ( SELF \ requirement_assignment . assigned_requirement . reference_protocol ) "/>
          <where label="WR2" expression=" protocol_signal IN SELF \ requirement_assignment . assigned_requirement . reference_protocol . host_functional_definition \ functional_unit_usage_view . access_mechanism "/>
       </entity>

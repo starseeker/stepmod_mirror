@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:37" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="design_management_arm schema_instance"/>
    <schema name="Design_management_arm">
       <interface kind="use" schema="Approval_arm"/>
@@ -27,17 +27,17 @@
          </unique>
       </entity>
       <entity name="Change_design_object_management_relationship" supertypes="Design_object_management_relationship">
-         <explicit name="previous_design_object">
-            <typename name="managed_design_object"/>
-         </explicit>
          <explicit name="current_design_object">
             <typename name="managed_design_object"/>
          </explicit>
-         <unique label="UR2">
-            <unique.attribute entity-ref="Change_design_object_management_relationship" attribute="previous_design_object"/>
-         </unique>
+         <explicit name="previous_design_object">
+            <typename name="managed_design_object"/>
+         </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Change_design_object_management_relationship" attribute="current_design_object"/>
+         </unique>
+         <unique label="UR2">
+            <unique.attribute entity-ref="Change_design_object_management_relationship" attribute="previous_design_object"/>
          </unique>
       </entity>
       <entity name="Delete_design_object_management_relationship" supertypes="Design_object_management_relationship">
@@ -48,15 +48,15 @@
             <unique.attribute entity-ref="Delete_design_object_management_relationship" attribute="previous_design_object"/>
          </unique>
       </entity>
-      <entity name="Design_object_management_relationship" abstract.entity="YES" super.expression="ONEOF (Change_design_object_management_relationship, Delete_design_object_management_relationship, Add_design_object_management_relationship) ANDOR View_dependent_design_object_management_relationship"/>
+      <entity name="Design_object_management_relationship" abstract.supertype="YES" super.expression="ONEOF (Change_design_object_management_relationship, Delete_design_object_management_relationship, Add_design_object_management_relationship) ANDOR View_dependent_design_object_management_relationship"/>
       <entity name="Design_object_management_relationship_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="design_object_management_relationship_item"/>
-         </explicit>
          <explicit name="changes">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Design_object_management_relationship"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="design_object_management_relationship_item"/>
          </explicit>
       </entity>
       <entity name="Frozen_assignment">
@@ -66,10 +66,10 @@
          </explicit>
       </entity>
       <entity name="View_dependent_design_object_management_relationship" supertypes="Design_object_management_relationship">
-         <explicit name="current_design">
+         <explicit name="previous_design">
             <typename name="Product_view_definition"/>
          </explicit>
-         <explicit name="previous_design">
+         <explicit name="current_design">
             <typename name="Product_view_definition"/>
          </explicit>
       </entity>

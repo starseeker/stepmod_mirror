@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:40" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_usage_view_arm schema_instance"/>
    <schema name="Physical_unit_usage_view_arm">
       <interface kind="use" schema="Part_view_definition_arm"/>
@@ -11,9 +11,19 @@
       <interface kind="use" schema="Feature_and_connection_zone_arm"/>
       <interface kind="use" schema="Analytical_model_arm"/>
       <interface kind="use" schema="Part_feature_location_arm"/>
+      <interface kind="use" schema="Requirement_assignment_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm"/>
+      <type name="ap210_usage_concept">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_usage_concept" selectitems="Part_feature"/>
+      </type>
       <type name="material_state_change_enumeration">
          <enumeration items="material_addition material_removal"/>
+      </type>
+      <type name="puuv_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_requirement_assignment_item" selectitems="Part_feature"/>
+      </type>
+      <type name="puuv_specification_product_object_select">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_specification_product_object_select" selectitems="Part_feature"/>
       </type>
       <entity name="Connection_zone_in_usage_view" supertypes="Connection_zone">
          <explicit name="associated_definition">
@@ -22,10 +32,10 @@
          </explicit>
       </entity>
       <entity name="Connection_zone_map_identification">
-         <explicit name="mapped_connection_zone_shape">
+         <explicit name="reference_connection_zone_shape">
             <typename name="Usage_view_connection_zone_terminal_shape_relationship"/>
          </explicit>
-         <explicit name="reference_connection_zone_shape">
+         <explicit name="mapped_connection_zone_shape">
             <typename name="Usage_view_connection_zone_terminal_shape_relationship"/>
          </explicit>
          <unique label="UR1">
@@ -36,18 +46,18 @@
          <where label="WR2" expression=" reference_connection_zone_shape . associated_connection_zone_shape_definition &lt;&gt; mapped_connection_zone_shape . associated_connection_zone_shape_definition "/>
       </entity>
       <entity name="Part_feature" supertypes="Shape_element">
-         <explicit name="precedent_feature" optional="YES">
-            <typename name="Part_feature"/>
-         </explicit>
-         <explicit name="material_state_change" optional="YES">
-            <typename name="material_state_change_enumeration"/>
-         </explicit>
          <explicit name="associated_definition">
             <typename name="Part_usage_view"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
+         <explicit name="material_state_change" optional="YES">
+            <typename name="material_state_change_enumeration"/>
+         </explicit>
+         <explicit name="precedent_feature" optional="YES">
+            <typename name="Part_feature"/>
+         </explicit>
          <inverse name="feature_shape" entity="Usage_concept_usage_relationship" attribute="associated_usage">
-            <inverse.aggregate type="SET" lower="0"/>
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <unique label="UR1">
             <unique.attribute entity-ref="Part_feature" attribute="element_name"/>
@@ -55,16 +65,16 @@
          </unique>
       </entity>
       <entity name="Part_feature_make_from_relationship" supertypes="Shape_element_relationship">
-         <explicit name="resultant_feature">
-            <typename name="Part_feature"/>
-            <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
+         <explicit name="associated_make_from">
+            <typename name="View_definition_relationship"/>
          </explicit>
          <explicit name="reusable_feature">
             <typename name="Part_feature"/>
             <redeclaration entity-ref="Shape_element_relationship" old_name="relating"/>
          </explicit>
-         <explicit name="associated_make_from">
-            <typename name="View_definition_relationship"/>
+         <explicit name="resultant_feature">
+            <typename name="Part_feature"/>
+            <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Part_feature_make_from_relationship" attribute="reusable_feature"/>
@@ -95,17 +105,17 @@
          <where label="WR1" expression=" SIZEOF ( QUERY ( acr &lt;* USEDIN ( SELF , 'AP210_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW' ) | NOT ( 'AP210_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF ( acr . related_view ) ) ) ) = 0 "/>
       </entity>
       <entity name="Usage_view_connection_zone_terminal_shape_relationship">
-         <explicit name="associated_usage_placement">
-            <typename name="Axis_placement"/>
-         </explicit>
-         <explicit name="associated_connection_zone_shape_definition">
-            <typename name="Feature_shape_definition"/>
+         <explicit name="associating_terminal_shape">
+            <typename name="Part_feature_template_shape_definition"/>
          </explicit>
          <explicit name="associated_usage">
             <typename name="Connection_zone_in_usage_view"/>
          </explicit>
-         <explicit name="associating_terminal_shape">
-            <typename name="Part_feature_template_shape_definition"/>
+         <explicit name="associated_connection_zone_shape_definition">
+            <typename name="Feature_shape_definition"/>
+         </explicit>
+         <explicit name="associated_usage_placement">
+            <typename name="Axis_placement"/>
          </explicit>
          <where label="WR1" expression=" associating_terminal_shape :&lt;&gt;: associated_connection_zone_shape_definition "/>
       </entity>

@@ -2,10 +2,10 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:02" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:37" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_arm schema_instance"/>
    <schema name="Assembly_technology_arm">
-      <interface kind="use" schema="Pdm_material_aspects_arm"/>
+      <interface kind="use" schema="Conductivity_material_aspects_arm"/>
       <interface kind="use" schema="Analytical_model_arm"/>
       <interface kind="use" schema="Layered_shape_arm"/>
       <interface kind="use" schema="Specification_document_arm"/>
@@ -14,6 +14,12 @@
       <interface kind="use" schema="Product_identification_extension_arm"/>
       <type name="at_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Assembly_bond_definition"/>
+      </type>
+      <type name="at_material_item_select">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_material_item_select" selectitems="Assembly_bond_definition"/>
+      </type>
+      <type name="at_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_requirement_assignment_item" selectitems="Assembly_joint"/>
       </type>
       <type name="degree_of_freedom">
          <enumeration items="x y z u v w"/>
@@ -32,49 +38,47 @@
          </explicit>
       </entity>
       <entity name="Assembly_bond_definition">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="bonded_feature_2">
-            <typename name="Part_feature"/>
-         </explicit>
-         <explicit name="bonded_feature_1">
-            <typename name="Part_feature"/>
-         </explicit>
-         <explicit name="bond_material">
-            <typename name="Material_identification"/>
-         </explicit>
-         <explicit name="associated_definition">
-            <typename name="Externally_defined_ee_product_definition"/>
-         </explicit>
          <explicit name="analytical_assembly_bond_representation" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Analytical_model_application"/>
          </explicit>
-         <inverse name="bond_category" entity="External_source_identification" attribute="item"/>
+         <explicit name="associated_definition">
+            <typename name="Externally_defined_ee_product_definition"/>
+         </explicit>
+         <explicit name="bonded_feature_1">
+            <typename name="Part_feature"/>
+         </explicit>
+         <explicit name="bonded_feature_2">
+            <typename name="Part_feature"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
          <inverse name="default_shape" entity="Default_assembly_bond_shape" attribute="characterized_bond_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
+         <inverse name="bond_category" entity="External_source_identification" attribute="item"/>
          <unique label="UR1">
             <unique.attribute entity-ref="Assembly_bond_definition" attribute="name"/>
          </unique>
          <where label="WR1" expression=" bonded_feature_1 &lt;&gt; bonded_feature_2 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) = 1 ) "/>
       </entity>
       <entity name="Assembly_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="associated_assembly">
-            <typename name="assembly_module_or_assembly_group_component"/>
+         <explicit name="assembly_features_1">
+            <typename name="assembled_feature_select"/>
          </explicit>
          <explicit name="assembly_features_2">
             <typename name="assembled_feature_select"/>
          </explicit>
-         <explicit name="assembly_features_1">
-            <typename name="assembled_feature_select"/>
+         <explicit name="associated_assembly">
+            <typename name="assembly_module_or_assembly_group_component"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Assembly_joint" attribute="name"/>
@@ -86,19 +90,19 @@
       </entity>
       <entity name="Assembly_technology_specification" supertypes="Process_specification"/>
       <entity name="Component_mating_constraint_condition">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="of_context">
-            <typename name="Part_design_view"/>
+         <explicit name="constraining_joint">
+            <aggregate type="SET" lower="1" upper="3"/>
+            <typename name="Assembly_joint"/>
          </explicit>
          <explicit name="constrained_degree_of_freedom">
             <aggregate type="SET" lower="1" upper="5"/>
             <typename name="degree_of_freedom"/>
          </explicit>
-         <explicit name="constraining_joint">
-            <aggregate type="SET" lower="1" upper="3"/>
-            <typename name="Assembly_joint"/>
+         <explicit name="of_context">
+            <typename name="Part_design_view"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Component_mating_constraint_condition" attribute="name"/>
@@ -106,10 +110,10 @@
          </unique>
       </entity>
       <entity name="Connection_zone_based_assembly_joint" supertypes="Assembly_joint">
-         <explicit name="zone_2">
+         <explicit name="zone_1">
             <typename name="Connection_zone_in_design_view"/>
          </explicit>
-         <explicit name="zone_1">
+         <explicit name="zone_2">
             <typename name="Connection_zone_in_design_view"/>
          </explicit>
          <where label="WR1" expression=" zone_1 :&lt;&gt;: zone_2 "/>
@@ -122,5 +126,7 @@
       <entity name="Reference_packaged_part_assembly_implementation" supertypes="Assembly_module">
          <where label="WR1" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ product_view_definition . defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | NOT ( SIZEOF ( QUERY ( epcr &lt;* USEDIN ( prpc , 'AP210_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY' ) | ( epcr . sub_category \ product_category . name = 'template model' ) ) ) = 1 ) ) ) = 0 "/>
       </entity>
+      <subtype.constraint name="assembly_module_subtypes" entity="Assembly_module" super.expression="ONEOF (Pca, Reference_packaged_part_assembly_implementation)"/>
+      <subtype.constraint name="process_specification_subtypes" entity="Process_specification" super.expression="ONEOF (Assembly_technology_specification, Fabrication_technology_specification)"/>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:02" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:37" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="cable_arm schema_instance"/>
    <schema name="Cable_arm">
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
@@ -13,23 +13,23 @@
       <interface kind="use" schema="Component_feature_arm"/>
       <interface kind="use" schema="Part_occurrence_arm"/>
       <entity name="Cable_terminal" supertypes="Part_terminal">
-         <explicit name="terminal_connection_zone" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Connection_zone_in_usage_view"/>
+         <explicit name="associated_definition">
+            <typename name="Cable_usage_view"/>
+            <redeclaration entity-ref="Part_feature"/>
          </explicit>
          <explicit name="mapped_terminal">
             <typename name="Packaged_connector_component_interface_terminal"/>
          </explicit>
-         <explicit name="associated_definition">
-            <typename name="Cable_usage_view"/>
-            <redeclaration entity-ref="Part_feature"/>
+         <explicit name="terminal_connection_zone" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Connection_zone_in_usage_view"/>
          </explicit>
          <where label="WR1" expression=" SIZEOF ( mapped_terminal \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts ) &lt;&gt; 0 "/>
          <where label="WR2" expression=" SELF \ shape_element . containing_shape :=: mapped_terminal \ component_feature . associated_component \ definition_based_product_occurrence . occurrence_contexts [ 1 ] . related_view "/>
       </entity>
       <entity name="Cable_usage_view" supertypes="Part_usage_view Assembly_definition">
          <inverse name="access_mechanisms" entity="Cable_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
    </schema>

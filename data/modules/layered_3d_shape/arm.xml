@@ -2,47 +2,51 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:05" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:39" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_3d_shape_arm schema_instance"/>
    <schema name="Layered_3d_shape_arm">
+      <interface kind="use" schema="Advanced_boundary_representation_arm"/>
+      <interface kind="use" schema="Curve_swept_solid_arm"/>
+      <interface kind="use" schema="Geometrically_bounded_surface_arm"/>
       <interface kind="use" schema="Layered_2d_shape_arm"/>
       <type name="three_dimensional_shape">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Advanced_brep_shape_representation Curve_swept_solid Geometrically_bounded_surface_shape_representation"/>
       </type>
       <entity name="Axis_placement_3d" supertypes="Axis_placement"/>
       <entity name="Shape_definition_3d_intersection" supertypes="Geometric_model_relationship">
-         <explicit name="planar_shape_origin">
-            <typename name="Axis_placement_2d"/>
-         </explicit>
          <explicit name="orientation_intersection_plane">
             <typename name="Axis_placement_3d"/>
          </explicit>
-         <explicit name="projected_volume">
-            <typename name="Geometric_model"/>
-			<redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
+         <explicit name="planar_shape_origin">
+            <typename name="Axis_placement_2d"/>
          </explicit>
          <explicit name="surface_intersection_result">
             <typename name="Planar_shape"/>
-			<redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+         </explicit>
+         <explicit name="projected_volume">
+            <typename name="Geometric_model"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
          <where label="WR1" expression=" NOT ( 'AP210_ARM.PLANAR_SHAPE' IN TYPEOF ( projected_volume ) ) "/>
       </entity>
       <entity name="Shape_definition_3d_plane_projection" supertypes="Geometric_model_relationship">
-         <explicit name="planar_shape_origin">
-            <typename name="Axis_placement_2d"/>
-         </explicit>
          <explicit name="viewing_plane">
             <typename name="Axis_placement_3d"/>
          </explicit>
-         <explicit name="projected_volume">
-            <typename name="Geometric_model"/>
-			<redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
+         <explicit name="planar_shape_origin">
+            <typename name="Axis_placement_2d"/>
          </explicit>
          <explicit name="surface_projection_result">
             <typename name="Planar_shape"/>
-			<redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+         </explicit>
+         <explicit name="projected_volume">
+            <typename name="Geometric_model"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
          <where label="WR1" expression=" NOT ( 'AP210_ARM.PLANAR_SHAPE' IN TYPEOF ( projected_volume ) ) "/>
       </entity>
+      <subtype.constraint name="geometric_representation_relationship_subtypes" entity="Geometric_model_relationship" super.expression="ONEOF (Shape_definition_3d_intersection, Shape_definition_3d_plane_projection)"/>
    </schema>
 </express>

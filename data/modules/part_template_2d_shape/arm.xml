@@ -2,22 +2,33 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:05" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:40" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_2d_shape_arm schema_instance"/>
    <schema name="Part_template_2d_shape_arm">
-      <interface kind="use" schema="Layered_2d_shape_arm"/>
-      <interface kind="use" schema="Part_template_shape_with_parameters_arm"/>
-      <interface kind="use" schema="Non_feature_shape_element_arm"/>
-      <interface kind="use" schema="Part_template_extension_arm"/>
       <interface kind="use" schema="Component_grouping_arm"/>
+      <interface kind="use" schema="Layered_2d_shape_arm"/>
+      <interface kind="use" schema="Non_feature_shape_element_arm"/>
+      <interface kind="use" schema="Part_template_shape_with_parameters_arm"/>
+      <interface kind="use" schema="Part_template_extension_arm"/>
+      <interface kind="use" schema="Package_arm"/>
+      <interface kind="use" schema="Printed_physical_layout_template_arm"/>
       <type name="package_or_printed_part_template">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Package Printed_part_template"/>
       </type>
       <type name="package_terminal_or_printed_part_template_terminal">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Package_terminal Printed_part_template_terminal"/>
       </type>
       <type name="padstack_arrangement">
          <enumeration items="top bottom symmetrical"/>
+      </type>
+      <type name="pt2ds_ee_product_definition_with_annotation_elements">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_ee_product_definition_with_annotation_elements" selectitems="Footprint_definition Padstack_definition"/>
+      </type>
+      <type name="pt2ds_physical_unit_or_part_template_or_fp_or_pd">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_physical_unit_or_part_template_or_fp_or_pd" selectitems="Footprint_definition Padstack_definition"/>
+      </type>
+      <type name="pt2ds_physical_unit_shape_select">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_physical_unit_shape_select" selectitems="Part_template_planar_shape"/>
       </type>
       <entity name="Design_layer_type_specific_padstack_definition" supertypes="Padstack_definition">
          <explicit name="design_layer_type_reference">
@@ -25,23 +36,23 @@
          </explicit>
       </entity>
       <entity name="Footprint_definition" supertypes="Template_definition">
-         <explicit name="reference_package">
-            <typename name="package_or_printed_part_template"/>
-         </explicit>
          <explicit name="reference_breakout" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Assembly_group_component"/>
          </explicit>
-         <derived name="padstack_reference_implementation" expression=" padstack [ 1 ] . padstack . reference_implementation ">
-            <typename name="Reference_packaged_part_interconnect_implementation"/>
-         </derived>
+         <explicit name="reference_package">
+            <typename name="package_or_printed_part_template"/>
+         </explicit>
          <derived name="footprint_location" expression=" get_padstack_arrangement ( padstack ) ">
             <typename name="padstack_arrangement"/>
          </derived>
-         <inverse name="padstack" entity="Padstack_location_in_footprint_definition" attribute="footprint">
-            <inverse.aggregate type="SET" lower="1"/>
-         </inverse>
+         <derived name="padstack_reference_implementation" expression=" padstack [ 1 ] . padstack . reference_implementation ">
+            <typename name="Reference_packaged_part_interconnect_implementation"/>
+         </derived>
          <inverse name="shape" entity="Footprint_definition_shape" attribute="shape_characterized_footprint_definition"/>
+         <inverse name="padstack" entity="Padstack_location_in_footprint_definition" attribute="footprint">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
          <where label="WR2" expression=" SIZEOF ( QUERY ( ps &lt;* padstack | ps . padstack . padstack_location &lt;&gt; footprint_location ) ) = 0 "/>
          <where label="WR3" expression=" SIZEOF ( QUERY ( ps &lt;* padstack | ps . padstack . reference_implementation &lt;&gt; padstack_reference_implementation ) ) = 0 "/>
          <where label="WR4" expression=" ( ( footprint_location = padstack_arrangement . top ) AND ( SELF \ product_view_definition . context_description . content = 'top' ) ) OR ( NOT ( footprint_location = padstack_arrangement . top ) AND NOT ( SELF \ product_view_definition . context_description . content = 'top' ) ) "/>
@@ -49,17 +60,17 @@
          <where label="WR6" expression=" ( ( footprint_location = padstack_arrangement . symmetrical ) AND ( SELF \ product_view_definition . context_description . content = 'symmetrical' ) ) OR ( NOT ( footprint_location = padstack_arrangement . symmetrical ) AND NOT ( SELF \ product_view_definition . context_description . content = 'symmetrical' ) ) "/>
       </entity>
       <entity name="Footprint_definition_shape" supertypes="Planar_projected_shape">
-         <explicit name="reference_shape">
-            <typename name="physical_unit_shape_select"/>
-         </explicit>
-         <explicit name="shape_material_condition">
-            <typename name="material_condition"/>
+         <explicit name="shape_characterized_footprint_definition">
+            <typename name="Footprint_definition"/>
          </explicit>
          <explicit name="shape_environment" optional="YES">
             <typename name="application_environment"/>
          </explicit>
-         <explicit name="shape_characterized_footprint_definition">
-            <typename name="Footprint_definition"/>
+         <explicit name="shape_material_condition">
+            <typename name="material_condition"/>
+         </explicit>
+         <explicit name="reference_shape">
+            <typename name="physical_unit_shape_select"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Footprint_definition_shape" attribute="shape_characterized_footprint_definition"/>
@@ -71,27 +82,27 @@
          <where label="WR5" expression=" ( SIZEOF ( USEDIN ( SELF , 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE' ) ) = 0 ) "/>
       </entity>
       <entity name="Padstack_definition" supertypes="Template_definition" super.expression="ONEOF (Design_layer_type_specific_padstack_definition, Stratum_type_independent_padstack_definition)">
-         <explicit name="padstack_location">
-            <typename name="padstack_arrangement"/>
-         </explicit>
          <explicit name="reference_implementation">
             <typename name="Reference_packaged_part_interconnect_implementation"/>
          </explicit>
-         <inverse name="template" entity="Part_template_location_in_padstack_definition" attribute="padstack">
-            <inverse.aggregate type="SET" lower="1"/>
-         </inverse>
+         <explicit name="padstack_location">
+            <typename name="padstack_arrangement"/>
+         </explicit>
          <inverse name="shape" entity="Padstack_definition_shape" attribute="shape_characterized_padstack_definition"/>
+         <inverse name="template" entity="Part_template_location_in_padstack_definition" attribute="padstack">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
          <where label="WR1" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ product_view_definition . defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . name = 'template model' ) ) ) &gt;= 0 "/>
       </entity>
       <entity name="Padstack_definition_shape" supertypes="Planar_projected_shape">
-         <explicit name="shape_material_condition">
-            <typename name="material_condition"/>
+         <explicit name="shape_characterized_padstack_definition">
+            <typename name="Padstack_definition"/>
          </explicit>
          <explicit name="shape_environment" optional="YES">
             <typename name="application_environment"/>
          </explicit>
-         <explicit name="shape_characterized_padstack_definition">
-            <typename name="Padstack_definition"/>
+         <explicit name="shape_material_condition">
+            <typename name="material_condition"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Padstack_definition_shape" attribute="shape_characterized_padstack_definition"/>
@@ -99,14 +110,14 @@
          <where label="WR1" expression=" ( SIZEOF ( USEDIN ( SELF , 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE' ) ) = 0 ) "/>
       </entity>
       <entity name="Padstack_location_in_footprint_definition">
-         <explicit name="reference_package_terminal">
-            <typename name="package_terminal_or_printed_part_template_terminal"/>
+         <explicit name="padstack">
+            <typename name="Padstack_definition"/>
          </explicit>
          <explicit name="footprint">
             <typename name="Footprint_definition"/>
          </explicit>
-         <explicit name="padstack">
-            <typename name="Padstack_definition"/>
+         <explicit name="reference_package_terminal">
+            <typename name="package_terminal_or_printed_part_template_terminal"/>
          </explicit>
          <inverse name="transform" entity="Padstack_location_in_footprint_definition_transform" attribute="reference_location"/>
          <where label="WR1" expression=" NOT ( 'AP210_ARM.PART_FEATURE' IN TYPEOF ( reference_package_terminal ) ) OR reference_package_terminal \ shape_element . containing_shape :=: footprint . reference_package "/>
@@ -114,31 +125,31 @@
          <where label="WR3" expression=" NOT ( 'AP210_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF ( footprint . reference_package ) ) OR ( 'AP210_ARM.PRINTED_PART_TEMPLATE_INTERFACE_TERMINAL' IN TYPEOF ( reference_package_terminal ) ) "/>
       </entity>
       <entity name="Padstack_location_in_footprint_definition_transform">
-         <explicit name="transform">
-            <typename name="Axis_placement_2d"/>
-         </explicit>
-         <explicit name="reference_location">
-            <typename name="Padstack_location_in_footprint_definition"/>
+         <explicit name="padstack_shape">
+            <typename name="Padstack_definition_shape"/>
          </explicit>
          <explicit name="footprint_shape">
             <typename name="Footprint_definition_shape"/>
          </explicit>
-         <explicit name="padstack_shape">
-            <typename name="Padstack_definition_shape"/>
+         <explicit name="reference_location">
+            <typename name="Padstack_location_in_footprint_definition"/>
+         </explicit>
+         <explicit name="transform">
+            <typename name="Axis_placement_2d"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Padstack_location_in_footprint_definition_transform" attribute="reference_location"/>
          </unique>
       </entity>
       <entity name="Part_template_location_in_padstack_definition">
-         <explicit name="reference_designation">
-            <builtintype type="STRING"/>
+         <explicit name="padstack">
+            <typename name="Padstack_definition"/>
          </explicit>
          <explicit name="template">
             <typename name="Layout_template_definition"/>
          </explicit>
-         <explicit name="padstack">
-            <typename name="Padstack_definition"/>
+         <explicit name="reference_designation">
+            <builtintype type="STRING"/>
          </explicit>
          <inverse name="transform" entity="Part_template_location_in_padstack_definition_transform" attribute="reference_location">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -146,17 +157,17 @@
          <where label="WR1" expression=" ( ( SIZEOF ( transform ) = 1 ) AND ( SIZEOF ( [ 'AP210_ARM.SNOWBALL_TEMPLATE' , 'AP210_ARM.TEARDROP_BY_ANGLE_TEMPLATE' , 'AP210_ARM.TEARDROP_BY_LENGTH_TEMPLATE' ] * TYPEOF ( transform [ 1 ] . template_shape . shape_characterized_part_template ) ) = 0 ) ) OR ( NOT ( SIZEOF ( transform ) = 1 ) AND ( SIZEOF ( [ 'AP210_ARM.SNOWBALL_TEMPLATE' , 'AP210_ARM.TEARDROP_BY_ANGLE_TEMPLATE' , 'AP210_ARM.TEARDROP_BY_LENGTH_TEMPLATE' ] * TYPEOF ( template . associated_template_occurrence ) ) = 1 ) ) "/>
       </entity>
       <entity name="Part_template_location_in_padstack_definition_transform">
-         <explicit name="transform">
-            <typename name="Axis_placement_2d"/>
-         </explicit>
-         <explicit name="reference_location">
-            <typename name="Part_template_location_in_padstack_definition"/>
+         <explicit name="padstack_shape">
+            <typename name="Padstack_definition_shape"/>
          </explicit>
          <explicit name="template_shape">
             <typename name="Part_template_planar_shape"/>
          </explicit>
-         <explicit name="padstack_shape">
-            <typename name="Padstack_definition_shape"/>
+         <explicit name="reference_location">
+            <typename name="Part_template_location_in_padstack_definition"/>
+         </explicit>
+         <explicit name="transform">
+            <typename name="Axis_placement_2d"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Part_template_location_in_padstack_definition_transform" attribute="reference_location"/>
@@ -165,7 +176,7 @@
       <entity name="Part_template_planar_keepout_shape" supertypes="Planar_shape Non_feature_shape_definition Part_template_keepout_shape"/>
       <entity name="Part_template_planar_shape" supertypes="Planar_projected_shape"/>
       <entity name="Stratum_type_independent_padstack_definition" supertypes="Padstack_definition"/>
-      <function name="Get_padstack_arrangement">
+      <function name="get_padstack_arrangement">
          <parameter name="input">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Padstack_location_in_footprint_definition"/>

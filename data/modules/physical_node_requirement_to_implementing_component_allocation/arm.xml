@@ -2,51 +2,45 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:40" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_node_requirement_to_implementing_component_allocation_arm schema_instance"/>
    <schema name="Physical_node_requirement_to_implementing_component_allocation_arm">
-      <interface kind="use" schema="Functional_design_elaboration_arm">
-         <interfaced.item name="Physical_connectivity_definition"/>
-      </interface>
+      <interface kind="use" schema="Functional_design_elaboration_arm"/>
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
       <interface kind="use" schema="Assembly_module_with_packaged_connector_component_arm"/>
-      <interface kind="use" schema="Part_terminal_arm">
-         <interfaced.item name="Part_connected_terminals_definition"/>
-      </interface>
-      <interface kind="use" schema="Packaged_connector_model_arm">
-         <interfaced.item name="Packaged_connector_terminal_relationship"/>
-      </interface>
+      <interface kind="use" schema="Part_terminal_arm"/>
+      <interface kind="use" schema="Packaged_connector_model_arm"/>
       <interface kind="use" schema="Component_feature_arm"/>
       <interface kind="use" schema="Interface_component_arm"/>
       <interface kind="use" schema="Assembly_technology_arm"/>
       <entity name="Physical_node_requirement_to_implementing_component_allocation">
-         <explicit name="implementation_joint_set" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Assembly_joint"/>
+         <explicit name="physical_node_requirement">
+            <typename name="Physical_connectivity_definition"/>
+         </explicit>
+         <explicit name="implementation_component">
+            <typename name="Assembly_component"/>
          </explicit>
          <explicit name="implementation_interface_joint_set" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Interface_mounted_join"/>
          </explicit>
-         <explicit name="implementation_component">
-            <typename name="Assembly_component"/>
+         <explicit name="implementation_joint_set" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Assembly_joint"/>
          </explicit>
-         <explicit name="physical_node_requirement">
-            <typename name="Physical_connectivity_definition"/>
-         </explicit>
-         <derived name="implementation_connection_definition_2" expression=" get_pctr ( implementation_component , implementation_interface_joint_set ) ">
-            <aggregate type="SET" lower="0" upper="1"/>
-            <typename name="Packaged_connector_terminal_relationship"/>
-         </derived>
          <derived name="implementation_connection_definition_1" expression=" get_pctd ( implementation_component , implementation_joint_set ) ">
             <aggregate type="SET" lower="0" upper="1"/>
             <typename name="Part_connected_terminals_definition"/>
+         </derived>
+         <derived name="implementation_connection_definition_2" expression=" get_pctr ( implementation_component , implementation_interface_joint_set ) ">
+            <aggregate type="SET" lower="0" upper="1"/>
+            <typename name="Packaged_connector_terminal_relationship"/>
          </derived>
          <where label="WR1" expression=" EXISTS ( implementation_interface_joint_set ) XOR EXISTS ( implementation_joint_set ) "/>
          <where label="WR2" expression=" ( SIZEOF ( implementation_connection_definition_1 ) + SIZEOF ( implementation_connection_definition_2 ) = 1 ) OR ( ( 'AP210_ARM.INTERFACE_COMPONENT' IN TYPEOF ( implementation_component ) ) AND ( 'AP210_ARM.COMPONENT_INTERFACE_TERMINAL' IN TYPEOF ( get_cit ( implementation_component , implementation_joint_set ) ) ) ) OR ( 'AP210_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF ( implementation_component ) ) "/>
          <where label="WR3" expression=" SIZEOF ( QUERY ( pct &lt;* physical_node_requirement . associated_terminals | pct \ component_feature . associated_component = implementation_component ) ) = 0 "/>
       </entity>
-      <function name="Get_cit">
+      <function name="get_cit">
          <parameter name="ac">
             <typename name="Assembly_component"/>
          </parameter>
@@ -57,7 +51,7 @@
          <typename name="Component_interface_terminal"/>
          <algorithm> LOCAL cf : LIST [ 1 : ? ] OF component_feature := [ ] ; cit : component_interface_terminal ; END_LOCAL ; REPEAT i := 1 TO 2 BY 1 ; cf [ 1 ] := ajb [ 1 ] . assembly_features_1 ; cf [ 2 ] := ajb [ 1 ] . assembly_features_2 ; IF ac :=: cf [ i ] . associated_component THEN IF ( 'AP210_ARM.INTERFACE_COMPONENT' IN TYPEOF ( cf [ i ] . associated_component ) ) THEN RETURN ( cf [ i ] ) ; ELSE RETURN ( ? ) ; END_IF ; ELSE RETURN ( ? ) ; END_IF ; END_REPEAT ; RETURN ( ? ) ; </algorithm>
       </function>
-      <function name="Get_pctd">
+      <function name="get_pctd">
          <parameter name="ac">
             <typename name="Assembly_component"/>
          </parameter>
@@ -69,7 +63,7 @@
          <typename name="Part_connected_terminals_definition"/>
          <algorithm> LOCAL cf : LIST [ 1 : ? ] OF component_feature ; pctd : SET OF part_connected_terminals_definition := [ ] ; END_LOCAL ; REPEAT i := 1 TO 2 BY 1 ; cf [ 1 ] := ajb [ 1 ] . assembly_features_1 ; cf [ 2 ] := ajb [ 1 ] . assembly_features_2 ; IF ac :=: cf [ i ] . associated_component THEN IF ( 'AP210_ARM.PART_TERMINAL' IN TYPEOF ( cf [ i ] . definition ) ) THEN pctd := cf [ i ] . definition . connection_requirement ; RETURN ( pctd ) ; ELSE RETURN ( pctd ) ; END_IF ; ELSE RETURN ( pctd ) ; END_IF ; END_REPEAT ; RETURN ( ? ) ; </algorithm>
       </function>
-      <function name="Get_pctr">
+      <function name="get_pctr">
          <parameter name="ac">
             <typename name="Assembly_component"/>
          </parameter>

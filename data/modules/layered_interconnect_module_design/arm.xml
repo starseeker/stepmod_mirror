@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-09T08:45:00" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:39" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
@@ -27,13 +27,31 @@
          <select extensible="YES" genericentity="YES"/>
       </type>
       <type name="component_feature_or_stratum_surface">
-         <select extensible="YES" genericentity="YES" selectitems="Stratum_surface"/>
+         <select extensible="YES" genericentity="YES" selectitems="Component_feature Stratum_surface"/>
       </type>
       <type name="horizontal_justification">
          <enumeration items="right centre left"/>
       </type>
+      <type name="limd_ee_product_definition_with_annotation_elements">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_ee_product_definition_with_annotation_elements" selectitems="Layout_template_definition Stratum"/>
+      </type>
       <type name="limd_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Laminate_layer Stratum Laminate_component"/>
+      </type>
+      <type name="limd_part_feature_or_template_feature">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_part_feature_or_template_feature" selectitems="Printed_part_template_terminal Land_template_terminal Component_termination_passage_template_terminal Via_template_terminal Part_terminal_external_reference"/>
+      </type>
+      <type name="limd_physical_feature_or_part_template">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Physical_laminate_component Layout_template_definition Stratum_feature"/>
+      </type>
+      <type name="limd_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_requirement_assignment_item" selectitems="Stratum_concept_relationship"/>
+      </type>
+      <type name="limd_specification_product_object_select">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_specification_product_object_select" selectitems="stratum_concept Stratum"/>
+      </type>
+      <type name="limd_usage_concept">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_usage_concept" selectitems="Component_termination_passage_template_terminal Via_template_terminal"/>
       </type>
       <type name="printed_part_template_or_printed_part_cross_section_template">
          <select selectitems="Printed_part_template Printed_part_cross_section_template"/>
@@ -42,7 +60,7 @@
          <select extensible="YES" genericentity="YES" selectitems="Laminate_component Inter_stratum_feature Stratum_feature Stratum Stratum_surface"/>
       </type>
       <type name="stratum_feature_or_stratum_feature_template_component">
-         <select extensible="YES" genericentity="YES"/>
+         <select selectitems="Stratum_feature Stratum_feature_template_component"/>
       </type>
       <type name="stratum_surface_designation">
          <enumeration items="primary_surface secondary_surface"/>
@@ -153,7 +171,7 @@
             <typename name="Inter_stratum_extent"/>
          </explicit>
       </entity>
-      <entity name="Component_termination_passage_template_terminal" abstract.entity="YES" supertypes="Shape_element">
+      <entity name="Component_termination_passage_template_terminal" abstract.supertype="YES" supertypes="Shape_element" super.expression="ONEOF (Component_termination_passage_template_interface_terminal, Component_termination_passage_template_join_terminal)">
          <explicit name="associated_definition">
             <typename name="Component_termination_passage_template"/>
          </explicit>
@@ -170,7 +188,7 @@
          </unique>
       </entity>
       <entity name="Conductive_filled_area" supertypes="Stratum_feature" super.expression="Connected_filled_area"/>
-      <entity name="Conductive_interconnect_element" abstract.entity="YES" supertypes="Laminate_component" super.expression="ONEOF (Unrouted_conductive_interconnect_element, Conductive_interconnect_element_with_pre_defined_transitions)">
+      <entity name="Conductive_interconnect_element" abstract.supertype="YES" supertypes="Laminate_component" super.expression="ONEOF (Unrouted_conductive_interconnect_element, Conductive_interconnect_element_with_pre_defined_transitions)">
          <explicit name="composed_conductor" optional="YES">
             <typename name="Stratum_feature"/>
          </explicit>
@@ -179,15 +197,15 @@
          </inverse>
       </entity>
       <entity name="Conductive_interconnect_element_terminal" supertypes="Laminate_component_feature">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="associated_component">
             <typename name="Conductive_interconnect_element"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
          <explicit name="connection" optional="YES">
             <typename name="Connection_zone_in_design_view"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <explicit name="location">
             <typename name="Layer_connection_point"/>
@@ -290,10 +308,6 @@
          <explicit name="maximum_allowed_component_terminal_extent">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="deposition_material">
-            <typename name="Material_identification"/>
-            <redeclaration entity-ref="Passage_technology"/>
-         </explicit>
          <derived name="minimum_as_finished_deposition_thickness" expression=" SELF \ passage_technology . of_technology ">
             <typename name="Length_data_element"/>
          </derived>
@@ -301,9 +315,10 @@
             <typename name="Length_data_element"/>
          </derived>
          <where label="WR1" expression=" EXISTS ( minimum_as_finished_deposition_thickness ) "/>
-         <where label="WR3" expression=" EXISTS ( minimum_as_finished_passage_extent ) "/>
+         <where label="WR2" expression=" EXISTS ( minimum_as_finished_passage_extent ) "/>
+         <where label="WR3" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) = 1 ) "/>
       </entity>
-      <entity name="Default_passage_based_land_physical_template" abstract.entity="YES" supertypes="Default_land_physical_template" super.expression="ONEOF (Default_via_based_land_physical_template, Default_component_termination_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)">
+      <entity name="Default_passage_based_land_physical_template" abstract.supertype="YES" supertypes="Default_land_physical_template" super.expression="ONEOF (Default_via_based_land_physical_template, Default_component_termination_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)">
          <explicit name="minimum_fabrication_allowance">
             <typename name="Length_data_element"/>
          </explicit>
@@ -346,10 +361,6 @@
          </explicit>
       </entity>
       <entity name="Default_via_definition" supertypes="Passage_technology">
-         <explicit name="deposition_material">
-            <typename name="Material_identification"/>
-            <redeclaration entity-ref="Passage_technology"/>
-         </explicit>
          <derived name="minimum_as_finished_deposition_thickness" expression=" SELF \ passage_technology . of_technology ">
             <typename name="Length_data_element"/>
          </derived>
@@ -357,7 +368,8 @@
             <typename name="Length_data_element"/>
          </derived>
          <where label="WR1" expression=" EXISTS ( minimum_as_finished_deposition_thickness ) "/>
-         <where label="WR3" expression=" EXISTS ( minimum_as_finished_passage_extent ) "/>
+         <where label="WR2" expression=" EXISTS ( minimum_as_finished_passage_extent ) "/>
+         <where label="WR3" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) = 1 ) "/>
       </entity>
       <entity name="Design_layer_stratum" supertypes="Stratum">
          <explicit name="primary_design_layer_stratum">
@@ -419,12 +431,12 @@
          <where label="WR4" expression=" ( SIZEOF ( components ) = 0 ) "/>
       </entity>
       <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
-         <explicit name="relating_view">
-            <typename name="Footprint_occurrence"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
-         </explicit>
          <explicit name="related_view">
             <typename name="Laminate_component"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="relating_view">
+            <typename name="Footprint_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <explicit name="sub_assembly_reference_designation">
@@ -442,7 +454,7 @@
          <where label="WR2" expression=" sub_assembly_reference_designation . padstack :=: terminal_location . padstack "/>
          <where label="WR3" expression=" related_view \ definition_based_product_occurrence . derived_from :=: sub_assembly_reference_designation . template . associated_template_occurrence "/>
       </entity>
-      <entity name="Generic_physical_network" abstract.entity="YES" super.expression="ONEOF (Unrouted_physical_network, Routed_physical_network)">
+      <entity name="Generic_physical_network" abstract.supertype="YES" super.expression="ONEOF (Unrouted_physical_network, Routed_physical_network)">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -471,7 +483,7 @@
             <typename name="Stratum"/>
          </explicit>
       </entity>
-      <entity name="Inter_stratum_feature" abstract.entity="YES" supertypes="Laminate_component" super.expression="ONEOF (Unsupported_passage, Plated_inter_stratum_feature)">
+      <entity name="Inter_stratum_feature" abstract.supertype="YES" supertypes="Laminate_component" super.expression="ONEOF (Unsupported_passage, Plated_inter_stratum_feature)">
          <explicit name="feature_of_size">
             <builtintype type="BOOLEAN"/>
          </explicit>
@@ -508,7 +520,7 @@
             <typename name="Interconnect_module"/>
          </explicit>
       </entity>
-      <entity name="Interconnect_module" supertypes="Part_design_view">
+      <entity name="Interconnect_module" supertypes="Part_design_view" super.expression="ONEOF (Pcb, Reference_packaged_part_interconnect_implementation)">
          <inverse name="of_fabrication_thickness_requirement" entity="Requirement_assignment" attribute="assigned_to">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
@@ -575,7 +587,7 @@
          </inverse>
          <where label="WR1" expression=" ( EXISTS ( ordered_implementation ) ) XOR ( EXISTS ( random_implementation ) ) "/>
       </entity>
-      <entity name="Join_relationship" abstract.entity="YES">
+      <entity name="Join_relationship" abstract.supertype="YES" super.expression="ONEOF (Inter_stratum_join_relationship, Intra_stratum_join_relationship, Stratum_embedded_component_join_relationship, Unrouted_join_relationship)">
          <explicit name="associated_layout">
             <typename name="Interconnect_module"/>
          </explicit>
@@ -606,9 +618,9 @@
          <where label="WR4" expression=" NOT ( SIZEOF ( occurrence_contexts ) = 0 ) OR ( SIZEOF ( SELF \ laminate_component . padstack_occurrence_assembly ) + SIZEOF ( SELF \ laminate_component . footprint_occurrence_assembly ) = 1 ) "/>
          <where label="WR5" expression=" ( SIZEOF ( occurrence_contexts ) &gt; 0 ) OR ( ( 'AP210_ARM.LAMINATE_COMPONENT' IN TYPEOF ( SELF ) ) AND ( SIZEOF ( SELF \ laminate_component . padstack_occurrence_assembly ) + SIZEOF ( SELF \ laminate_component . footprint_occurrence_assembly ) = 1 ) ) "/>
       </entity>
-      <entity name="Laminate_component_feature" abstract.entity="YES" supertypes="Component_feature" super.expression="ONEOF (Conductive_interconnect_element_terminal, Laminate_component_interface_terminal, Laminate_component_join_terminal, Via_terminal)"/>
-      <entity name="Laminate_component_interface_terminal" abstract.entity="YES" supertypes="Laminate_component_feature"/>
-      <entity name="Laminate_component_join_terminal" abstract.entity="YES" supertypes="Laminate_component_feature Component_terminal">
+      <entity name="Laminate_component_feature" abstract.supertype="YES" supertypes="Component_feature" super.expression="ONEOF (Conductive_interconnect_element_terminal, Laminate_component_interface_terminal, Laminate_component_join_terminal, Via_terminal)"/>
+      <entity name="Laminate_component_interface_terminal" abstract.supertype="YES" supertypes="Laminate_component_feature"/>
+      <entity name="Laminate_component_join_terminal" abstract.supertype="YES" supertypes="Laminate_component_feature Component_terminal">
          <inverse name="node_implementation" entity="Generic_physical_network" attribute="connectivity_requirement_element">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
@@ -630,11 +642,11 @@
          <where label="WR2" expression=" SIZEOF ( QUERY ( sar &lt;* SELF \ component_make_from_relationship . resultant_component . components | NOT ( 'AP210_ARM.LAMINATE_COMPONENT' IN TYPEOF ( sar . related_component ) ) ) ) = 0 "/>
       </entity>
       <entity name="Laminate_layer">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="extent">
             <typename name="Inter_stratum_extent"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <inverse name="layer_usage" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -668,15 +680,15 @@
          </explicit>
          <where label="WR1" expression=" SIZEOF ( QUERY ( sar &lt;* SELF \ assembly_group_component . components | TYPEOF ( sar . related_component ) &lt;&gt; 'AP210_ARM.LAMINATE_TEXT_COMPONENT' ) ) = 0 "/>
       </entity>
-      <entity name="Layer_connection_point" abstract.entity="YES">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
+      <entity name="Layer_connection_point" abstract.supertype="YES">
          <explicit name="location_2d" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
          <explicit name="location_3d" optional="YES">
             <typename name="Cartesian_point"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <explicit name="resident_design_layer_stratum">
             <typename name="Design_layer_stratum"/>
@@ -706,11 +718,11 @@
          <where label="WR5" expression=" EXISTS ( reference_network ) "/>
       </entity>
       <entity name="Layout_junction">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="associated_definition">
             <typename name="Interconnect_module"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <explicit name="net">
             <typename name="Generic_physical_network"/>
@@ -764,12 +776,12 @@
          <where label="WR2" expression=" ( SIZEOF ( components ) = 0 ) "/>
       </entity>
       <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
-         <explicit name="relating_view">
-            <typename name="Padstack_occurrence"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
-         </explicit>
          <explicit name="related_view">
             <typename name="Laminate_component"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="relating_view">
+            <typename name="Padstack_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <explicit name="sub_assembly_reference_designation">
@@ -786,7 +798,7 @@
             <typename name="Passage_technology"/>
          </explicit>
       </entity>
-      <entity name="Passage_technology">
+      <entity name="Passage_technology" super.expression="ONEOF (Default_via_definition, Default_component_termination_passage_definition, Default_unsupported_passage_definition)">
          <explicit name="of_technology">
             <typename name="Passage_technology_parameters"/>
          </explicit>
@@ -796,9 +808,7 @@
          <explicit name="as_finished_inter_stratum_extent">
             <typename name="Inter_stratum_extent"/>
          </explicit>
-         <explicit name="deposition_material" optional="YES">
-            <typename name="Material_identification"/>
-         </explicit>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) &lt;= 1 ) "/>
       </entity>
       <entity name="Pcb" supertypes="Interconnect_module">
          <explicit name="usage_view" optional="YES">
@@ -809,7 +819,7 @@
       <entity name="Physical_laminate_component" supertypes="Laminate_component">
          <where label="WR1" expression=" SIZEOF ( TYPEOF ( SELF ) ) &gt; 6 "/>
       </entity>
-      <entity name="Plated_inter_stratum_feature" abstract.entity="YES" supertypes="Inter_stratum_feature"/>
+      <entity name="Plated_inter_stratum_feature" abstract.supertype="YES" supertypes="Inter_stratum_feature"/>
       <entity name="Plated_passage" supertypes="Plated_inter_stratum_feature" super.expression="ONEOF (Component_termination_passage, Via)"/>
       <entity name="Primary_stratum_indicator_symbol" supertypes="Special_symbol_laminate_component"/>
       <entity name="Probe_access_area" supertypes="Laminate_component" super.expression="Internal_probe_access_area">
@@ -884,7 +894,7 @@
             <typename name="Stratum"/>
          </explicit>
       </entity>
-      <entity name="Stratum_concept_relationship" abstract.entity="YES">
+      <entity name="Stratum_concept_relationship" abstract.supertype="YES">
          <explicit name="resulting_shape" optional="YES">
             <typename name="Feature_shape_definition"/>
          </explicit>
@@ -931,11 +941,11 @@
          <where label="WR1" expression=" SIZEOF ( [ 'AP210_ARM.STRATUM_FEATURE_TEMPLATE' , 'AP210_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE' , 'AP210_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' ] * TYPEOF ( SELF \ part_template_location_in_padstack_definition . template . associated_template_occurrence ) ) = 1 "/>
       </entity>
       <entity name="Stratum_surface">
-         <explicit name="name">
-            <typename name="stratum_surface_designation"/>
-         </explicit>
          <explicit name="of_stratum">
             <typename name="Stratum"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="stratum_surface_designation"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Stratum_surface" attribute="name"/>
@@ -991,7 +1001,7 @@
             <redeclaration entity-ref="Inter_stratum_feature_template"/>
          </explicit>
       </entity>
-      <entity name="Via" abstract.entity="YES" supertypes="Plated_passage">
+      <entity name="Via" abstract.supertype="YES" supertypes="Plated_passage">
          <explicit name="derived_from">
             <typename name="Via_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
@@ -1035,6 +1045,15 @@
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
       </entity>
+      <subtype.constraint name="assembly_component_subtypes" entity="Assembly_component" super.expression="ONEOF (Physical_component, Laminate_component)"/>
+      <subtype.constraint name="array_placement_group_subtypes" entity="Array_placement_group" super.expression="ONEOF (Laminate_text_string_component, Linear_array_placement_group_component, Rectangular_array_placement_group_component)"/>
+      <subtype.constraint name="assembly_group_component_subtypes" entity="Assembly_group_component" super.expression="(Interfaced_group_component ANDOR Array_placement_group ANDOR ONEOF (Footprint_occurrence, Padstack_occurrence))"/>
+      <subtype.constraint name="component_feature_subtypes" entity="Component_feature" super.expression="ONEOF (Physical_component_feature, Laminate_component_feature)"/>
+      <subtype.constraint name="component_terminal_subtypes" entity="Component_terminal" super.expression="ONEOF (Physical_component_terminal, Laminate_component_join_terminal)"/>
+      <subtype.constraint name="default_land_physical_template_subtypes" entity="Default_land_physical_template" super.expression="ONEOF (Default_passage_based_land_physical_template, Default_attachment_size_based_land_physical_template)"/>
+      <subtype.constraint name="Default_attachment_size_based_land_physical_template_subtypes" entity="Default_attachment_size_based_land_physical_template" super.expression="ONEOF (Default_attachment_size_and_component_termination_passage_based_land_physical_template, Default_attachment_size_and_via_based_land_physical_template)"/>
+      <subtype.constraint name="interconnect_module_terminal_subtypes" entity="Interconnect_module_terminal" super.expression="ONEOF (Interconnect_module_interface_terminal, Interconnect_module_join_terminal)"/>
+      <subtype.constraint name="layout_template_definition_subtypes" entity="Layout_template_definition" super.expression="(ONEOF (Inter_stratum_feature_template, Material_removal_feature_template, Non_conductive_cross_section_template, Printed_part_cross_section_template, Printed_part_template, Special_symbol_part_template, Stratum_feature_template, Trace_template) ANDOR Part_text_template)"/>
       <function name="correlated_terminals">
          <parameter name="input1">
             <aggregate type="SET" lower="0" upper="?"/>

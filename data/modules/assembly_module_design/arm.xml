@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:01" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-20T15:16:36" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_module_design_arm schema_instance"/>
    <schema name="Assembly_module_design_arm">
       <interface kind="use" schema="Assembly_module_usage_view_arm"/>
@@ -13,10 +13,10 @@
       <interface kind="use" schema="Part_feature_function_arm"/>
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
       <type name="assembled_feature_select">
-         <select extensible="YES" genericentity="YES"/>
+         <select extensible="YES" genericentity="YES" selectitems="Bare_die_component_terminal Component_mounting_feature Packaged_component_join_terminal"/>
       </type>
       <type name="assembly_module_or_assembly_group_component">
-         <select extensible="YES" genericentity="YES" selectitems="Assembly_module"/>
+         <select extensible="YES" genericentity="YES" selectitems="Assembly_module Assembly_group_component"/>
       </type>
       <entity name="Assembly_module" supertypes="Part_design_view"/>
       <entity name="Bare_die_component" supertypes="Physical_component">
@@ -26,38 +26,38 @@
          </explicit>
       </entity>
       <entity name="Bare_die_component_terminal" supertypes="Physical_component_terminal">
-         <explicit name="associated_component">
-            <typename name="Bare_die_component"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </explicit>
          <explicit name="definition">
             <typename name="Bare_die_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
+         <explicit name="associated_component">
+            <typename name="Bare_die_component"/>
+            <redeclaration entity-ref="Component_feature"/>
+         </explicit>
       </entity>
       <entity name="Component_external_reference">
-         <explicit name="reference_designation">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="product_definition_id">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="revision_code">
+         <explicit name="design_owner">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="part_number">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="design_owner">
+         <explicit name="revision_code">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="product_definition_id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="reference_designation">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
       <entity name="Component_feature_external_reference">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="associated_component">
             <typename name="Component_external_reference"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Component_feature_external_reference" attribute="associated_component"/>
@@ -65,14 +65,14 @@
          </unique>
       </entity>
       <entity name="Component_mounting_clearance_relationship">
-         <explicit name="maximum_mounting_clearance" optional="YES">
-            <typename name="Length_data_element"/>
+         <explicit name="feature_relationship">
+            <typename name="Component_feature_relationship"/>
          </explicit>
          <explicit name="minimum_mounting_clearance">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="feature_relationship">
-            <typename name="Component_feature_relationship"/>
+         <explicit name="maximum_mounting_clearance" optional="YES">
+            <typename name="Length_data_element"/>
          </explicit>
       </entity>
       <entity name="Component_mounting_feature" supertypes="Physical_component_feature">
@@ -82,17 +82,17 @@
          </explicit>
       </entity>
       <entity name="Component_overlap_relationship">
-         <explicit name="maximum_added_clearance" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="minimum_added_clearance">
-            <typename name="Length_data_element"/>
+         <explicit name="previously_placed_component">
+            <typename name="Next_assembly_usage"/>
          </explicit>
          <explicit name="current_component">
             <typename name="Next_assembly_usage"/>
          </explicit>
-         <explicit name="previously_placed_component">
-            <typename name="Next_assembly_usage"/>
+         <explicit name="minimum_added_clearance">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_added_clearance" optional="YES">
+            <typename name="Length_data_element"/>
          </explicit>
       </entity>
       <entity name="Minimally_defined_component_terminal" supertypes="Physical_component_terminal">
@@ -102,41 +102,41 @@
          </explicit>
       </entity>
       <entity name="Movable_packaged_component_join_terminal" supertypes="Packaged_component_join_terminal">
-         <explicit name="minimum_wire_terminal_length">
+         <explicit name="maximum_wire_terminal_length">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="maximum_wire_terminal_length">
+         <explicit name="minimum_wire_terminal_length">
             <typename name="Length_data_element"/>
          </explicit>
          <where label="WR1" expression=" 'AP210_ARM.WIRE_TERMINAL' IN TYPEOF ( SELF \ component_feature . definition \ packaged_part_terminal . terminal_of_package ) "/>
       </entity>
       <entity name="Package_terminal_occurrence">
-         <explicit name="associated_component">
-            <typename name="Packaged_component"/>
-         </explicit>
          <explicit name="definition">
             <typename name="Package_terminal"/>
          </explicit>
+         <explicit name="associated_component">
+            <typename name="Packaged_component"/>
+         </explicit>
       </entity>
       <entity name="Packaged_component" supertypes="Physical_component">
-         <explicit name="selected_package_alternate" optional="YES">
-            <typename name="Altered_package"/>
-         </explicit>
          <explicit name="derived_from">
             <typename name="Packaged_part"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
+         <explicit name="selected_package_alternate" optional="YES">
+            <typename name="Altered_package"/>
+         </explicit>
          <inverse name="access_mechanism" entity="Packaged_component_join_terminal" attribute="associated_component">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
       <entity name="Packaged_component_join_terminal" supertypes="Physical_component_terminal">
-         <explicit name="associated_component">
-            <typename name="Packaged_component"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </explicit>
          <explicit name="definition">
             <typename name="Packaged_part_join_terminal"/>
+            <redeclaration entity-ref="Component_feature"/>
+         </explicit>
+         <explicit name="associated_component">
+            <typename name="Packaged_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
       </entity>

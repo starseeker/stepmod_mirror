@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $
+//$Id: express2xml.js,v 1.27 2003/02/10 13:57:21 goset1 Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -108,6 +108,10 @@ function normaliseStatement(statement) {
     statement = statement.replace(/\)/g," ) ");
     statement = statement.replace(/\t/g," ");
     statement = statement.replace(/^\s*/g,"");
+//TEH added - to fix case where role:type lacks white space
+    statement = statement.replace(/:/g,": ");
+    statement = statement.replace(/:\s*=/g,":=");
+//end TEH added
     while (statement.search(/  /) != -1) {
 	statement = statement.replace(/  /g," ");
     }
@@ -346,7 +350,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.27 2003/02/10 13:57:21 goset1 Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -356,7 +360,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.26 $";
+    var appCVSRevision = "$Revision: 1.27 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -543,11 +547,17 @@ function xmlEntityStructure(outTs,expTs,mode) {
 		xmlAttr("optional","YES",outTs);
 	    }
 	    outTs.WriteLine(">");
+//TEH added
+	    xmlUnderlyingType(rest,outTs);
+//end TEH added
 	    if (isRedeclared(statement)) {
 		xmlRedeclaredAttribute(statement, outTs);
 	    }
 
-	    xmlUnderlyingType(rest,outTs);
+//TEH delete - move before redeclaration
+//	    xmlUnderlyingType(rest,outTs);
+//end TEH delete
+
 	    xmlCloseElement("</explicit>",outTs);
 	    // process the next attribute
 	    xmlEntityStructure(outTs,expTs,mode);

@@ -4025,6 +4025,7 @@ utable as in buildscript -->
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <param name="view" expression="ballot"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>

@@ -1,4 +1,4 @@
-$Id: $
+$Id: readme.txt,v 1.2 2003/01/23 08:45:43 robbod Exp $
 ------------------------------------------------------------
 
 This directory contains files used to generate an package
@@ -43,6 +43,9 @@ for distribution to SC4 for balloting.
    First add the name of the tag and a description to
    stepmod/ballots/ballots/plcs_bp3/ballot_index.xml
    and check in the file.
+
+   The Tag name should be PLCS_<date>_bc3
+   where date takes the form yyyymmdd
 
    Then create the CVS tag. Using WinCVS, select the stepmod directory then
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-09T08:45:13" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="chemical_substance_arm schema_instance"/>
    <schema name="Chemical_substance_arm">
       <interface kind="use" schema="Value_with_unit_arm"/>
@@ -24,43 +24,43 @@
          <where label="WR2" expression=" SIZEOF ( QUERY ( t &lt;* SELF \ organization_or_person_in_organization_assignment . items | t . role = 'id owner' ) = 1 ) "/>
       </entity>
       <entity name="Chemical_element" supertypes="Substance">
-         <where label="WR1" expression=" SIZEOF ( [ 'chemical element' ] * types_of_product ( SELF ) ) = 1 "/>
-         <where label="WR2" expression=" SELF / product . name in chemical_elements "/>
+         <where label="wr1" expression=" SIZEOF ( [ 'chemical element' ] * types_of_product ( SELF ) ) = 1 "/>
+         <where label="wr2" expression=" SELF / product . name in chemical_elements "/>
       </entity>
       <entity name="Physical_particle" supertypes="Substance">
          <where label="WR1" expression=" SIZEOF ( [ 'physical particle' ] * types_of_product ( SELF ) ) = 1 "/>
       </entity>
       <entity name="Raw_material_definition_relationship" supertypes="View_definition_relationship">
-         <explicit name="definition">
-            <typename name="Substance_view_definition"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
-         </explicit>
          <explicit name="application">
             <typename name="Part_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
+         <explicit name="definition">
+            <typename name="Substance_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         </explicit>
       </entity>
       <entity name="Substance" supertypes="Product" super.expression="ONEOF (Chemical_element, Chemical_compound, Physical_particle)">
-         <where label="WR1" expression=" SIZEOF ( [ 'substance' ] * types_of_product ( SELF ) ) = 1 "/>
+         <where label="wr1" expression=" SIZEOF ( [ 'substance' ] * types_of_product ( SELF ) ) = 1 "/>
       </entity>
       <entity name="Substance_composition_relationship" supertypes="View_definition_relationship">
-         <explicit name="amount">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Value_with_unit"/>
+         <explicit name="constituent">
+            <typename name="Substance_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
-         <explicit name="determination_method">
-            <builtintype type="STRING"/>
+         <explicit name="whole">
+            <typename name="Substance_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
          </explicit>
          <explicit name="composition_basis">
             <typename name="substance_composition_basis"/>
          </explicit>
-         <explicit name="whole">
-            <typename name="Substance"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         <explicit name="determination_method">
+            <builtintype type="STRING"/>
          </explicit>
-         <explicit name="constituent">
-            <typename name="Substance"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         <explicit name="amount">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Value_with_unit"/>
          </explicit>
       </entity>
       <entity name="Substance_version" supertypes="Product_version">

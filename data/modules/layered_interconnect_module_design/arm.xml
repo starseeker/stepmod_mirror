@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-02T11:57:05" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-09T08:45:00" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
@@ -35,9 +35,6 @@
       <type name="limd_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Laminate_layer Stratum Laminate_component"/>
       </type>
-      <type name="message_content">
-         <builtintype type="STRING"/>
-      </type>
       <type name="printed_part_template_or_printed_part_cross_section_template">
          <select selectitems="Printed_part_template Printed_part_cross_section_template"/>
       </type>
@@ -57,41 +54,41 @@
          <enumeration items="centre top bottom"/>
       </type>
       <entity name="Adjacent_stratum_surface_definition">
-         <explicit name="subsequent_surface">
-            <typename name="Stratum_surface"/>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <explicit name="precedent_surface">
             <typename name="Stratum_surface"/>
          </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
+         <explicit name="subsequent_surface">
+            <typename name="Stratum_surface"/>
          </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Adjacent_stratum_surface_definition" attribute="name"/>
+         </unique>
          <unique label="UR2">
             <unique.attribute entity-ref="Adjacent_stratum_surface_definition" attribute="precedent_surface"/>
             <unique.attribute entity-ref="Adjacent_stratum_surface_definition" attribute="subsequent_surface"/>
-         </unique>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Adjacent_stratum_surface_definition" attribute="name"/>
          </unique>
          <where label="WR1" expression=" precedent_surface . name = stratum_surface_designation . secondary_surface "/>
          <where label="WR2" expression=" subsequent_surface . name = stratum_surface_designation . primary_surface "/>
       </entity>
       <entity name="Adjacent_stratum_surface_embedded_component_surface_definition">
-         <explicit name="subsequent_item">
-            <typename name="component_feature_or_stratum_surface"/>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <explicit name="precedent_item">
             <typename name="component_feature_or_stratum_surface"/>
          </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
+         <explicit name="subsequent_item">
+            <typename name="component_feature_or_stratum_surface"/>
          </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Adjacent_stratum_surface_embedded_component_surface_definition" attribute="name"/>
+         </unique>
          <unique label="UR2">
             <unique.attribute entity-ref="Adjacent_stratum_surface_embedded_component_surface_definition" attribute="precedent_item"/>
             <unique.attribute entity-ref="Adjacent_stratum_surface_embedded_component_surface_definition" attribute="subsequent_item"/>
-         </unique>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Adjacent_stratum_surface_embedded_component_surface_definition" attribute="name"/>
          </unique>
          <where label="WR1" expression=" TYPEOF ( precedent_item ) &lt;&gt; TYPEOF ( subsequent_item ) "/>
          <where label="WR2" expression=" NOT ( 'AP210_ARM.single_datum' IN TYPEOF ( SELF ) ) "/>
@@ -100,14 +97,14 @@
          <where label="WR5" expression=" NOT ( 'AP210_ARM.COMPONENT_FEATURE' IN TYPEOF ( subsequent_item ) ) OR ( SIZEOF ( [ 'AP210_ARM.BARE_DIE_SURFACE' , 'AP210_ARM.PACKAGE_BODY_SURFACE' ] * TYPEOF ( subsequent_item . definition ) ) = 1 ) "/>
       </entity>
       <entity name="Blind_passage_template" supertypes="Unsupported_passage_template">
-         <explicit name="bottom_distance_from_datum_reference">
-            <typename name="Shape_dimension_representation"/>
+         <explicit name="of_measure_orientation">
+            <typename name="measure_orientation"/>
          </explicit>
          <explicit name="datum_reference">
             <typename name="Stratum_surface"/>
          </explicit>
-         <explicit name="of_measure_orientation">
-            <typename name="measure_orientation"/>
+         <explicit name="bottom_distance_from_datum_reference">
+            <typename name="Shape_dimension_representation"/>
          </explicit>
       </entity>
       <entity name="Component_termination_passage" supertypes="Plated_passage">
@@ -115,28 +112,28 @@
             <typename name="Component_termination_passage_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse name="interface_access_mechanism" entity="Component_termination_passage_interface_terminal" attribute="associated_component"/>
          <inverse name="access_mechanism" entity="Component_termination_passage_join_terminal" attribute="associated_component">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
+         <inverse name="interface_access_mechanism" entity="Component_termination_passage_interface_terminal" attribute="associated_component"/>
       </entity>
       <entity name="Component_termination_passage_interface_terminal" supertypes="Laminate_component_interface_terminal">
-         <explicit name="associated_component">
-            <typename name="Component_termination_passage"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </explicit>
          <explicit name="definition">
             <typename name="Component_termination_passage_template_interface_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-      </entity>
-      <entity name="Component_termination_passage_join_terminal" supertypes="Laminate_component_join_terminal">
          <explicit name="associated_component">
             <typename name="Component_termination_passage"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
+      </entity>
+      <entity name="Component_termination_passage_join_terminal" supertypes="Laminate_component_join_terminal">
          <explicit name="definition">
             <typename name="Component_termination_passage_template_join_terminal"/>
+            <redeclaration entity-ref="Component_feature"/>
+         </explicit>
+         <explicit name="associated_component">
+            <typename name="Component_termination_passage"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
       </entity>
@@ -146,7 +143,7 @@
             <redeclaration entity-ref="Inter_stratum_feature_template"/>
          </explicit>
          <inverse name="access_mechanisms" entity="Component_termination_passage_template_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="2"/>
+            <inverse.aggregate type="SET" lower="2" upper="?"/>
          </inverse>
       </entity>
       <entity name="Component_termination_passage_template_interface_terminal" supertypes="Component_termination_passage_template_terminal"/>
@@ -157,12 +154,12 @@
          </explicit>
       </entity>
       <entity name="Component_termination_passage_template_terminal" abstract.entity="YES" supertypes="Shape_element">
+         <explicit name="associated_definition">
+            <typename name="Component_termination_passage_template"/>
+         </explicit>
          <explicit name="terminal_connection_zone" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Connection_zone_in_layout_template"/>
-         </explicit>
-         <explicit name="associated_definition">
-            <typename name="Component_termination_passage_template"/>
          </explicit>
          <inverse name="terminal_shape" entity="Usage_concept_usage_relationship" attribute="associated_usage">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -178,22 +175,22 @@
             <typename name="Stratum_feature"/>
          </explicit>
          <inverse name="access_mechanisms" entity="Conductive_interconnect_element_terminal" attribute="associated_component">
-            <inverse.aggregate type="SET" lower="2"/>
+            <inverse.aggregate type="SET" lower="2" upper="?"/>
          </inverse>
       </entity>
       <entity name="Conductive_interconnect_element_terminal" supertypes="Laminate_component_feature">
-         <explicit name="location">
-            <typename name="Layer_connection_point"/>
-         </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
+         <explicit name="associated_component">
+            <typename name="Conductive_interconnect_element"/>
+            <redeclaration entity-ref="Component_feature"/>
          </explicit>
          <explicit name="connection" optional="YES">
             <typename name="Connection_zone_in_design_view"/>
          </explicit>
-         <explicit name="associated_component">
-            <typename name="Conductive_interconnect_element"/>
-            <redeclaration entity-ref="Component_feature"/>
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="location">
+            <typename name="Layer_connection_point"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Conductive_interconnect_element_terminal" attribute="name"/>
@@ -202,14 +199,14 @@
          <where label="WR1" expression=" NOT ( EXISTS ( SELF \ component_feature . associated_component \ conductive_interconnect_element . composed_conductor ) ) OR ( location . resident_design_layer_stratum = SELF \ component_feature . associated_component \ conductive_interconnect_element . composed_conductor . resident_stratum ) "/>
       </entity>
       <entity name="Conductive_interconnect_element_terminal_link">
-         <explicit name="subsequent_point">
-            <typename name="Conductive_interconnect_element_terminal"/>
+         <explicit name="associated_element">
+            <typename name="Conductive_interconnect_element"/>
          </explicit>
          <explicit name="precedent_point">
             <typename name="Conductive_interconnect_element_terminal"/>
          </explicit>
-         <explicit name="associated_element">
-            <typename name="Conductive_interconnect_element"/>
+         <explicit name="subsequent_point">
+            <typename name="Conductive_interconnect_element_terminal"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Conductive_interconnect_element_terminal_link" attribute="precedent_point"/>
@@ -220,30 +217,30 @@
          <where label="WR3" expression=" subsequent_point . associated_component = associated_element "/>
       </entity>
       <entity name="Conductive_interconnect_element_with_pre_defined_transitions" supertypes="Conductive_interconnect_element" super.expression="Join_two_physical_connectivity_definition_supporting_printed_component">
-         <explicit name="composed_conductor">
-            <typename name="Stratum_feature"/>
-            <redeclaration entity-ref="Conductive_interconnect_element"/>
-         </explicit>
-         <explicit name="centreline_shape">
-            <typename name="Curve"/>
-         </explicit>
          <explicit name="derived_from">
             <typename name="Trace_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
+         <explicit name="centreline_shape">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="composed_conductor">
+            <typename name="Stratum_feature"/>
+            <redeclaration entity-ref="Conductive_interconnect_element"/>
+         </explicit>
          <inverse name="connected_points" entity="Conductive_interconnect_element_terminal_link" attribute="associated_element">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression=" SIZEOF ( connected_points ) = SIZEOF ( SELF \ conductive_interconnect_element . access_mechanisms ) - 1 "/>
          <where label="WR2" expression=" correlated_terminals ( SELF \ conductive_interconnect_element . access_mechanisms , connected_points ) "/>
       </entity>
       <entity name="Conductor" supertypes="Stratum_feature">
-         <explicit name="implementation_requirement">
-            <typename name="Intra_stratum_join_relationship"/>
-         </explicit>
          <explicit name="resident_stratum">
             <typename name="Design_layer_stratum"/>
             <redeclaration entity-ref="Stratum_feature"/>
+         </explicit>
+         <explicit name="implementation_requirement">
+            <typename name="Intra_stratum_join_relationship"/>
          </explicit>
       </entity>
       <entity name="Connected_area_component" supertypes="Stratum_feature_template_component">
@@ -254,28 +251,28 @@
          <where label="WR1" expression=" NOT ( EXISTS ( SELF \ definition_based_product_occurrence . derived_from ) ) "/>
       </entity>
       <entity name="Connected_filled_area" supertypes="Conductive_filled_area">
-         <explicit name="implementation_requirement">
-            <typename name="Intra_stratum_join_relationship"/>
-         </explicit>
          <explicit name="resident_stratum">
             <typename name="Design_layer_stratum"/>
             <redeclaration entity-ref="Stratum_feature"/>
          </explicit>
+         <explicit name="implementation_requirement">
+            <typename name="Intra_stratum_join_relationship"/>
+         </explicit>
       </entity>
       <entity name="Counterbore_passage_template" supertypes="Unsupported_passage_template">
-         <explicit name="larger_passage">
-            <typename name="Blind_passage_template"/>
-         </explicit>
          <explicit name="smaller_passage">
             <typename name="Unsupported_passage_template"/>
          </explicit>
-      </entity>
-      <entity name="Countersunk_passage_template" supertypes="Unsupported_passage_template">
-         <explicit name="tapered_passage">
+         <explicit name="larger_passage">
             <typename name="Blind_passage_template"/>
          </explicit>
+      </entity>
+      <entity name="Countersunk_passage_template" supertypes="Unsupported_passage_template">
          <explicit name="constant_diameter_passage">
             <typename name="Unsupported_passage_template"/>
+         </explicit>
+         <explicit name="tapered_passage">
+            <typename name="Blind_passage_template"/>
          </explicit>
       </entity>
       <entity name="Default_attachment_size_and_component_termination_passage_based_land_physical_template" supertypes="Default_component_termination_passage_based_land_physical_template Default_attachment_size_based_land_physical_template"/>
@@ -287,36 +284,36 @@
          </explicit>
       </entity>
       <entity name="Default_component_termination_passage_definition" supertypes="Passage_technology">
-         <explicit name="maximum_allowed_component_terminal_extent">
-            <typename name="Length_data_element"/>
-         </explicit>
          <explicit name="minimum_allowed_component_terminal_extent">
             <typename name="Length_data_element"/>
          </explicit>
-         <derived name="minimum_as_finished_passage_extent" expression=" SELF \ passage_technology . of_technology . minimum_as_finished_passage_extent ">
+         <explicit name="maximum_allowed_component_terminal_extent">
             <typename name="Length_data_element"/>
-         </derived>
+         </explicit>
+         <explicit name="deposition_material">
+            <typename name="Material_identification"/>
+            <redeclaration entity-ref="Passage_technology"/>
+         </explicit>
          <derived name="minimum_as_finished_deposition_thickness" expression=" SELF \ passage_technology . of_technology ">
             <typename name="Length_data_element"/>
          </derived>
-         <derived name="deposition_material" expression=" SELF \ passage_technology . of_technology . deposition_material ">
-            <typename name="Material_identification"/>
+         <derived name="minimum_as_finished_passage_extent" expression=" SELF \ passage_technology . of_technology . minimum_as_finished_passage_extent ">
+            <typename name="Length_data_element"/>
          </derived>
-         <where label="WR1" expression=" EXISTS ( deposition_material ) "/>
          <where label="WR1" expression=" EXISTS ( minimum_as_finished_deposition_thickness ) "/>
          <where label="WR3" expression=" EXISTS ( minimum_as_finished_passage_extent ) "/>
       </entity>
       <entity name="Default_passage_based_land_physical_template" abstract.entity="YES" supertypes="Default_land_physical_template" super.expression="ONEOF (Default_via_based_land_physical_template, Default_component_termination_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)">
-         <explicit name="minimum_annular_ring">
+         <explicit name="minimum_fabrication_allowance">
             <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="of_stratum_extent">
-            <typename name="Inter_stratum_extent"/>
          </explicit>
          <explicit name="of_passage_technology">
             <typename name="Passage_technology"/>
          </explicit>
-         <explicit name="minimum_fabrication_allowance">
+         <explicit name="of_stratum_extent">
+            <typename name="Inter_stratum_extent"/>
+         </explicit>
+         <explicit name="minimum_annular_ring">
             <typename name="Length_data_element"/>
          </explicit>
          <unique label="UR1">
@@ -349,32 +346,32 @@
          </explicit>
       </entity>
       <entity name="Default_via_definition" supertypes="Passage_technology">
-         <derived name="minimum_as_finished_passage_extent" expression=" SELF \ passage_technology . of_technology . minimum_as_finished_passage_extent ">
-            <typename name="Length_data_element"/>
-         </derived>
+         <explicit name="deposition_material">
+            <typename name="Material_identification"/>
+            <redeclaration entity-ref="Passage_technology"/>
+         </explicit>
          <derived name="minimum_as_finished_deposition_thickness" expression=" SELF \ passage_technology . of_technology ">
             <typename name="Length_data_element"/>
          </derived>
-         <derived name="deposition_material" expression=" SELF \ passage_technology . of_technology . deposition_material ">
-            <typename name="Material_identification"/>
+         <derived name="minimum_as_finished_passage_extent" expression=" SELF \ passage_technology . of_technology . minimum_as_finished_passage_extent ">
+            <typename name="Length_data_element"/>
          </derived>
-         <where label="WR1" expression=" EXISTS ( deposition_material ) "/>
          <where label="WR1" expression=" EXISTS ( minimum_as_finished_deposition_thickness ) "/>
          <where label="WR3" expression=" EXISTS ( minimum_as_finished_passage_extent ) "/>
       </entity>
       <entity name="Design_layer_stratum" supertypes="Stratum">
+         <explicit name="primary_design_layer_stratum">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
          <explicit name="of_technology">
             <typename name="Design_layer_technology"/>
             <redeclaration entity-ref="Stratum"/>
          </explicit>
-         <explicit name="primary_design_layer_stratum">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
+         <inverse name="existence_dependence" entity="Layer_connection_point" attribute="resident_design_layer_stratum">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
          <inverse name="library_definition" entity="View_definition_relationship" attribute="related_view">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <inverse name="existence_dependence" entity="Layer_connection_point" attribute="resident_design_layer_stratum">
-            <inverse.aggregate type="SET" lower="1"/>
          </inverse>
          <where label="WR1" expression=" ( NOT ( primary_design_layer_stratum ) AND ( SIZEOF ( QUERY ( imps &lt;* USEDIN ( SELF , 'AP210_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT' ) | ( 'AP210_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF ( imps . defined_part_feature ) ) ) ) = 0 ) ) OR ( ( primary_design_layer_stratum ) AND ( SIZEOF ( QUERY ( imps &lt;* USEDIN ( SELF , 'AP210_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT' ) | ( 'AP210_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF ( imps . defined_part_feature ) ) ) ) = 1 ) ) "/>
       </entity>
@@ -394,12 +391,12 @@
          </explicit>
       </entity>
       <entity name="Embedded_component_terminal" supertypes="Laminate_component_join_terminal">
-         <explicit name="associated_component">
-            <typename name="bare_die_component_or_packaged_component"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </explicit>
          <explicit name="definition">
             <typename name="bare_die_terminal_or_packaged_part_terminal"/>
+            <redeclaration entity-ref="Component_feature"/>
+         </explicit>
+         <explicit name="associated_component">
+            <typename name="bare_die_component_or_packaged_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
       </entity>
@@ -414,7 +411,7 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <inverse name="component" entity="Footprint_occurrence_sub_assembly_relationship" attribute="relating_view">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT' ) ) &lt;= 1 "/>
          <where label="WR2" expression=" NOT ( SIZEOF ( USEDIN ( SELF , 'AP210_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT' ) ) = 1 ) OR ( SIZEOF ( QUERY ( cmfr &lt;* USEDIN ( SELF , 'AP210_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT' ) | 'AP210_ARM.ASSEMBLY_GROUP_COMPONENT' IN TYPEOF ( cmfr . reusable_component ) ) ) = 1 ) "/>
@@ -422,19 +419,19 @@
          <where label="WR4" expression=" ( SIZEOF ( components ) = 0 ) "/>
       </entity>
       <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
-         <explicit name="terminal_location">
-            <typename name="Padstack_location_in_footprint_definition"/>
-         </explicit>
-         <explicit name="sub_assembly_reference_designation">
-            <typename name="Part_template_location_in_padstack_definition"/>
+         <explicit name="related_view">
+            <typename name="Laminate_component"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <explicit name="relating_view">
             <typename name="Footprint_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <explicit name="related_view">
-            <typename name="Laminate_component"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
+         <explicit name="sub_assembly_reference_designation">
+            <typename name="Part_template_location_in_padstack_definition"/>
+         </explicit>
+         <explicit name="terminal_location">
+            <typename name="Padstack_location_in_footprint_definition"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Footprint_occurrence_sub_assembly_relationship" attribute="sub_assembly_reference_designation"/>
@@ -446,19 +443,19 @@
          <where label="WR3" expression=" related_view \ definition_based_product_occurrence . derived_from :=: sub_assembly_reference_designation . template . associated_template_occurrence "/>
       </entity>
       <entity name="Generic_physical_network" abstract.entity="YES" super.expression="ONEOF (Unrouted_physical_network, Routed_physical_network)">
-         <explicit name="connectivity_requirement_element">
-            <aggregate type="SET" lower="2" upper="?"/>
-            <typename name="Laminate_component_join_terminal"/>
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="current_associated_definition">
+            <typename name="Interconnect_module"/>
          </explicit>
          <explicit name="prior_associated_definition" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Interconnect_module"/>
          </explicit>
-         <explicit name="current_associated_definition">
-            <typename name="Interconnect_module"/>
-         </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
+         <explicit name="connectivity_requirement_element">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="Laminate_component_join_terminal"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Generic_physical_network" attribute="name"/>
@@ -467,20 +464,20 @@
          <where label="WR1" expression=" NOT ( EXISTS ( prior_associated_definition ) ) OR NOT ( current_associated_definition IN prior_associated_definition ) "/>
       </entity>
       <entity name="Inter_stratum_extent">
-         <explicit name="to_stratum">
+         <explicit name="from_stratum">
             <typename name="Stratum"/>
          </explicit>
-         <explicit name="from_stratum">
+         <explicit name="to_stratum">
             <typename name="Stratum"/>
          </explicit>
       </entity>
       <entity name="Inter_stratum_feature" abstract.entity="YES" supertypes="Laminate_component" super.expression="ONEOF (Unsupported_passage, Plated_inter_stratum_feature)">
+         <explicit name="feature_of_size">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
          <explicit name="derived_from">
             <typename name="Inter_stratum_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
-         </explicit>
-         <explicit name="feature_of_size">
-            <builtintype type="BOOLEAN"/>
          </explicit>
       </entity>
       <entity name="Inter_stratum_feature_template" supertypes="Layout_template_definition">
@@ -495,25 +492,25 @@
          </explicit>
       </entity>
       <entity name="Interconnect_connection_zone_position_relationship">
-         <explicit name="associating_design_view">
-            <typename name="Interconnect_module"/>
-         </explicit>
-         <explicit name="associated_usage_placement">
-            <typename name="Axis_placement"/>
-         </explicit>
-         <explicit name="associated_connection_zone_shape_definition">
+         <explicit name="associating_design_view_shape">
             <typename name="Feature_shape_definition"/>
          </explicit>
          <explicit name="associated_usage">
             <typename name="Connection_zone_in_design_view"/>
          </explicit>
-         <explicit name="associating_design_view_shape">
+         <explicit name="associated_connection_zone_shape_definition">
             <typename name="Feature_shape_definition"/>
+         </explicit>
+         <explicit name="associated_usage_placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="associating_design_view">
+            <typename name="Interconnect_module"/>
          </explicit>
       </entity>
       <entity name="Interconnect_module" supertypes="Part_design_view">
          <inverse name="of_fabrication_thickness_requirement" entity="Requirement_assignment" attribute="assigned_to">
-            <inverse.aggregate type="SET" lower="0"/>
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression=" SIZEOF ( QUERY ( ftr &lt;* of_fabrication_thickness_requirement | NOT ( 'AP210_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF ( ftr \ requirement_assignment . assigned_requirement ) ) ) ) = 0 "/>
          <where label="WR2" expression=" SIZEOF ( QUERY ( imsar &lt;* USEDIN ( SELF , 'AP210_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY' ) | ( ( 'AP210_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF ( imsar . component ) ) AND ( imsar . component \ design_layer_stratum . primary_design_layer_stratum = TRUE ) ) ) ) = 1 "/>
@@ -523,14 +520,14 @@
          <where label="WR1" expression=" SIZEOF ( [ 'AP210_ARM.COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL' , 'AP210_ARM.VIA_TERMINAL' , 'AP210_ARM.PRINTED_COMPONENT_JOIN_TERMINAL' , 'AP210_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL' , 'AP210_ARM.LAND_JOIN_TERMINAL' , 'AP210_ARM.NON_FUNCTIONAL_LAND_JOIN_TERMINAL' ] * TYPEOF ( defining_terminal . assigned_terminal ) ) = 1 "/>
       </entity>
       <entity name="Interconnect_module_stratum_assembly_relationship">
-         <explicit name="reference_designation">
-            <builtintype type="STRING"/>
+         <explicit name="assembly">
+            <typename name="Interconnect_module"/>
          </explicit>
          <explicit name="component">
             <typename name="Stratum"/>
          </explicit>
-         <explicit name="assembly">
-            <typename name="Interconnect_module"/>
+         <explicit name="reference_designation">
+            <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Interconnect_module_stratum_assembly_relationship" attribute="assembly"/>
@@ -554,11 +551,11 @@
          <inverse name="internal_access" entity="Internal_stratum_access" attribute="connected_probe"/>
       </entity>
       <entity name="Internal_stratum_access">
-         <explicit name="inter_stratum_feature">
-            <typename name="Via"/>
-         </explicit>
          <explicit name="connected_probe">
             <typename name="Internal_probe_access_area"/>
+         </explicit>
+         <explicit name="inter_stratum_feature">
+            <typename name="Via"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Internal_stratum_access" attribute="connected_probe"/>
@@ -570,10 +567,10 @@
             <aggregate type="SET" lower="2" upper="?"/>
             <typename name="Layer_connection_point"/>
          </explicit>
-         <inverse name="random_implementation" entity="Connected_filled_area" attribute="implementation_requirement">
+         <inverse name="ordered_implementation" entity="Conductor" attribute="implementation_requirement">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <inverse name="ordered_implementation" entity="Conductor" attribute="implementation_requirement">
+         <inverse name="random_implementation" entity="Connected_filled_area" attribute="implementation_requirement">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression=" ( EXISTS ( ordered_implementation ) ) XOR ( EXISTS ( random_implementation ) ) "/>
@@ -595,13 +592,13 @@
             <typename name="Layout_template_definition"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse name="cad_layer" entity="External_source_identification" attribute="item">
+         <inverse name="padstack_occurrence_assembly" entity="Padstack_occurrence_sub_assembly_relationship" attribute="related_view">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <inverse name="footprint_occurrence_assembly" entity="Footprint_occurrence_sub_assembly_relationship" attribute="related_view">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <inverse name="padstack_occurrence_assembly" entity="Padstack_occurrence_sub_assembly_relationship" attribute="related_view">
+         <inverse name="cad_layer" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression=" ( ( SIZEOF ( padstack_occurrence_assembly ) = SIZEOF ( footprint_occurrence_assembly ) ) AND ( SIZEOF ( padstack_occurrence_assembly ) = 0 ) AND ( SIZEOF ( SELF \ definition_based_product_occurrence . occurrence_contexts ) &gt; 0 ) ) OR ( ( SIZEOF ( padstack_occurrence_assembly ) &lt;&gt; SIZEOF ( footprint_occurrence_assembly ) ) AND ( SIZEOF ( SELF \ definition_based_product_occurrence . occurrence_contexts ) = 0 ) ) "/>
@@ -617,27 +614,27 @@
          </inverse>
       </entity>
       <entity name="Laminate_group_component_make_from_relationship" supertypes="Component_make_from_relationship">
-         <explicit name="stratum_mapping">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Part_definition_relationship"/>
+         <explicit name="reusable_component">
+            <typename name="Assembly_group_component"/>
+            <redeclaration entity-ref="Component_make_from_relationship"/>
          </explicit>
          <explicit name="resultant_component">
             <typename name="Assembly_group_component"/>
             <redeclaration entity-ref="Component_make_from_relationship"/>
          </explicit>
-         <explicit name="reusable_component">
-            <typename name="Assembly_group_component"/>
-            <redeclaration entity-ref="Component_make_from_relationship"/>
+         <explicit name="stratum_mapping">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Part_definition_relationship"/>
          </explicit>
          <where label="WR1" expression=" SIZEOF ( QUERY ( sar &lt;* SELF \ component_make_from_relationship . reusable_component . assembly | NOT ( 'AP210_ARM.LAMINATE_COMPONENT' IN TYPEOF ( sar . related_component ) ) ) ) = 0 "/>
          <where label="WR2" expression=" SIZEOF ( QUERY ( sar &lt;* SELF \ component_make_from_relationship . resultant_component . components | NOT ( 'AP210_ARM.LAMINATE_COMPONENT' IN TYPEOF ( sar . related_component ) ) ) ) = 0 "/>
       </entity>
       <entity name="Laminate_layer">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="extent">
             <typename name="Inter_stratum_extent"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
          <inverse name="layer_usage" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -647,56 +644,56 @@
          </unique>
       </entity>
       <entity name="Laminate_text_component" supertypes="Laminate_component">
-         <explicit name="stratum_feature_implementation">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Stratum_feature"/>
+         <explicit name="of_character">
+            <builtintype type="STRING" width="1" fixed="YES"/>
          </explicit>
          <explicit name="derived_from" optional="YES">
             <typename name="Part_text_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <explicit name="of_character">
-            <builtintype type="STRING" width="1" fixed="YES"/>
+         <explicit name="stratum_feature_implementation">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Stratum_feature"/>
          </explicit>
       </entity>
       <entity name="Laminate_text_string_component" supertypes="Array_placement_group Laminate_component">
-         <explicit name="of_vertical_justification">
-            <typename name="vertical_justification"/>
+         <explicit name="message_contents">
+            <typename name="String_representation_item"/>
          </explicit>
          <explicit name="of_horizontal_justification">
             <typename name="horizontal_justification"/>
          </explicit>
-         <explicit name="message_contents">
-            <typename name="String_representation_item"/>
+         <explicit name="of_vertical_justification">
+            <typename name="vertical_justification"/>
          </explicit>
          <where label="WR1" expression=" SIZEOF ( QUERY ( sar &lt;* SELF \ assembly_group_component . components | TYPEOF ( sar . related_component ) &lt;&gt; 'AP210_ARM.LAMINATE_TEXT_COMPONENT' ) ) = 0 "/>
       </entity>
       <entity name="Layer_connection_point" abstract.entity="YES">
-         <explicit name="resident_design_layer_stratum">
-            <typename name="Design_layer_stratum"/>
-         </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
+         <explicit name="location_2d" optional="YES">
+            <typename name="Cartesian_point"/>
          </explicit>
          <explicit name="location_3d" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
-         <explicit name="location_2d" optional="YES">
-            <typename name="Cartesian_point"/>
+         <explicit name="name">
+            <builtintype type="STRING"/>
          </explicit>
-         <derived name="reference_network" expression=" aggregate_join [ 1 ] . network_topology ">
-            <typename name="Generic_physical_network"/>
-         </derived>
+         <explicit name="resident_design_layer_stratum">
+            <typename name="Design_layer_stratum"/>
+         </explicit>
          <derived name="aggregate_join" expression=" make_aggregate_join ( inter_join_path , intra_join_path , embedded_component_path ) ">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Join_relationship"/>
          </derived>
-         <inverse name="embedded_component_path" entity="Stratum_embedded_component_join_relationship" attribute="point_to_be_connected">
-            <inverse.aggregate type="SET" lower="0"/>
-         </inverse>
-         <inverse name="intra_join_path" entity="Intra_stratum_join_relationship" attribute="points_to_be_connected"/>
+         <derived name="reference_network" expression=" aggregate_join [ 1 ] . network_topology ">
+            <typename name="Generic_physical_network"/>
+         </derived>
          <inverse name="inter_join_path" entity="Inter_stratum_join_relationship" attribute="points_to_be_connected">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="intra_join_path" entity="Intra_stratum_join_relationship" attribute="points_to_be_connected"/>
+         <inverse name="embedded_component_path" entity="Stratum_embedded_component_join_relationship" attribute="point_to_be_connected">
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <unique label="UR1">
             <unique.attribute entity-ref="Layer_connection_point" attribute="name"/>
@@ -709,35 +706,35 @@
          <where label="WR5" expression=" EXISTS ( reference_network ) "/>
       </entity>
       <entity name="Layout_junction">
-         <explicit name="location">
-            <typename name="Cartesian_point"/>
-         </explicit>
-         <explicit name="net">
-            <typename name="Generic_physical_network"/>
+         <explicit name="associated_definition">
+            <typename name="Interconnect_module"/>
          </explicit>
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="associated_definition">
-            <typename name="Interconnect_module"/>
+         <explicit name="net">
+            <typename name="Generic_physical_network"/>
          </explicit>
-         <unique label="UR2">
-            <unique.attribute entity-ref="Layout_junction" attribute="name"/>
-            <unique.attribute entity-ref="Layout_junction" attribute="net"/>
-         </unique>
+         <explicit name="location">
+            <typename name="Cartesian_point"/>
+         </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Layout_junction" attribute="location"/>
+            <unique.attribute entity-ref="Layout_junction" attribute="net"/>
+         </unique>
+         <unique label="UR2">
+            <unique.attribute entity-ref="Layout_junction" attribute="name"/>
             <unique.attribute entity-ref="Layout_junction" attribute="net"/>
          </unique>
          <where label="WR1" expression=" associated_definition :=: net . current_associated_definition "/>
       </entity>
       <entity name="Material_removal_laminate_component" supertypes="Laminate_component" super.expression="Filled_area_material_removal_laminate_component">
-         <explicit name="design_intent">
-            <typename name="stratum_feature_or_stratum_feature_template_component"/>
-         </explicit>
          <explicit name="derived_from">
             <typename name="Material_removal_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <explicit name="design_intent">
+            <typename name="stratum_feature_or_stratum_feature_template_component"/>
          </explicit>
       </entity>
       <entity name="Multi_layer_material_removal_laminate_component" supertypes="Material_removal_laminate_component">
@@ -761,22 +758,22 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <inverse name="component" entity="Padstack_occurrence_sub_assembly_relationship" attribute="relating_view">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression=" SIZEOF ( TYPEOF ( SELF ) * [ 'AP210_ARM.PRINTED_COMPONENT' , 'AP210_ARM.LAMINATE_COMPONENT' , 'AP210_ARM.PHYSICAL_COMPONENT' ] ) = 0 "/>
          <where label="WR2" expression=" ( SIZEOF ( components ) = 0 ) "/>
       </entity>
       <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
-         <explicit name="sub_assembly_reference_designation">
-            <typename name="Part_template_location_in_padstack_definition"/>
+         <explicit name="related_view">
+            <typename name="Laminate_component"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <explicit name="relating_view">
             <typename name="Padstack_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <explicit name="related_view">
-            <typename name="Laminate_component"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
+         <explicit name="sub_assembly_reference_designation">
+            <typename name="Part_template_location_in_padstack_definition"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Padstack_occurrence_sub_assembly_relationship" attribute="sub_assembly_reference_designation"/>
@@ -790,14 +787,14 @@
          </explicit>
       </entity>
       <entity name="Passage_technology">
-         <explicit name="as_finished_inter_stratum_extent">
-            <typename name="Inter_stratum_extent"/>
+         <explicit name="of_technology">
+            <typename name="Passage_technology_parameters"/>
          </explicit>
          <explicit name="associated_definition">
             <typename name="Interconnect_module"/>
          </explicit>
-         <explicit name="of_technology">
-            <typename name="Passage_technology_parameters"/>
+         <explicit name="as_finished_inter_stratum_extent">
+            <typename name="Inter_stratum_extent"/>
          </explicit>
          <explicit name="deposition_material" optional="YES">
             <typename name="Material_identification"/>
@@ -816,36 +813,36 @@
       <entity name="Plated_passage" supertypes="Plated_inter_stratum_feature" super.expression="ONEOF (Component_termination_passage, Via)"/>
       <entity name="Primary_stratum_indicator_symbol" supertypes="Special_symbol_laminate_component"/>
       <entity name="Probe_access_area" supertypes="Laminate_component" super.expression="Internal_probe_access_area">
-         <explicit name="stratum_feature_material_stackup" optional="YES">
-            <typename name="Multi_layer_stratum_feature"/>
-         </explicit>
-         <explicit name="probe_contact_zone">
-            <typename name="Connection_zone_in_design_view"/>
-         </explicit>
-         <explicit name="probed_layout_item">
-            <typename name="Stratum_feature"/>
-         </explicit>
          <explicit name="derived_from" optional="YES">
             <typename name="Stratum_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
+         <explicit name="probed_layout_item">
+            <typename name="Stratum_feature"/>
+         </explicit>
+         <explicit name="probe_contact_zone">
+            <typename name="Connection_zone_in_design_view"/>
+         </explicit>
+         <explicit name="stratum_feature_material_stackup" optional="YES">
+            <typename name="Multi_layer_stratum_feature"/>
+         </explicit>
          <inverse name="network" entity="Routed_physical_network" attribute="probe"/>
       </entity>
       <entity name="Routed_physical_network" supertypes="Generic_physical_network">
-         <explicit name="probe" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Probe_access_area"/>
-         </explicit>
-         <explicit name="unrouted_connectivity_requirement_element" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Unrouted_join_relationship"/>
+         <explicit name="reference_connected_terminals" optional="YES">
+            <typename name="Part_connected_terminals_definition"/>
          </explicit>
          <explicit name="routed_connectivity_requirement_element">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Join_relationship"/>
          </explicit>
-         <explicit name="reference_connected_terminals" optional="YES">
-            <typename name="Part_connected_terminals_definition"/>
+         <explicit name="unrouted_connectivity_requirement_element" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Unrouted_join_relationship"/>
+         </explicit>
+         <explicit name="probe" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Probe_access_area"/>
          </explicit>
          <derived name="complete" expression=" EXISTS ( unrouted_connectivity_requirement_element ) ">
             <builtintype type="BOOLEAN"/>
@@ -854,12 +851,12 @@
          <where label="WR2" expression=" SIZEOF ( QUERY ( cre &lt;* connectivity_requirement_element | NOT ( NOT ( 'AP210_ARM.NON_FUNCTIONAL_LAND_JOIN_TERMINAL' IN TYPEOF ( cre ) ) OR ( SIZEOF ( TYPEOF ( cre \ component_feature . associated_component ) * [ 'AP210_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_' + 'CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND' , 'AP210_ARM.' + 'VIA_AND_CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND' ] ) = 1 ) ) ) ) = 0 "/>
       </entity>
       <entity name="Special_symbol_laminate_component" supertypes="Laminate_component" super.expression="Primary_stratum_indicator_symbol">
-         <explicit name="stratum_feature_implementation">
-            <typename name="Stratum_feature"/>
-         </explicit>
          <explicit name="derived_from">
             <typename name="Special_symbol_part_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <explicit name="stratum_feature_implementation">
+            <typename name="Stratum_feature"/>
          </explicit>
       </entity>
       <entity name="Stratum" supertypes="Part_view_definition" super.expression="ONEOF (Documentation_layer_stratum, Design_layer_stratum)">
@@ -869,16 +866,16 @@
          <derived name="name" expression=" SELF \ product_view_definition . product_definition_id ">
             <builtintype type="STRING"/>
          </derived>
-         <inverse name="stratum_usage" entity="External_source_identification" attribute="item">
+         <inverse name="of_average_surface" entity="Stratum_average_surface" attribute="of_stratum">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <inverse name="assembly" entity="Interconnect_module_stratum_assembly_relationship" attribute="component">
-            <inverse.aggregate type="SET" lower="1"/>
          </inverse>
          <inverse name="of_surface" entity="Stratum_surface" attribute="of_stratum">
             <inverse.aggregate type="SET" lower="1" upper="2"/>
          </inverse>
-         <inverse name="of_average_surface" entity="Stratum_average_surface" attribute="of_stratum">
+         <inverse name="assembly" entity="Interconnect_module_stratum_assembly_relationship" attribute="component">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <inverse name="stratum_usage" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
       </entity>
@@ -893,13 +890,13 @@
          </explicit>
       </entity>
       <entity name="Stratum_embedded_component_join_relationship" supertypes="Join_relationship">
-         <explicit name="point_to_be_connected">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Layer_connection_point"/>
-         </explicit>
          <explicit name="terminal_to_be_connected">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Embedded_component_terminal"/>
+         </explicit>
+         <explicit name="point_to_be_connected">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Layer_connection_point"/>
          </explicit>
          <derived name="associated_component" expression=" terminal_to_be_connected [ 1 ] \ component_feature . associated_component ">
             <typename name="Assembly_component"/>
@@ -907,11 +904,11 @@
          <where label="WR1" expression=" SIZEOF ( QUERY ( t &lt;* terminal_to_be_connected | t . associated_component &lt;&gt; associated_component ) ) = 0 "/>
       </entity>
       <entity name="Stratum_feature" supertypes="Shape_element" super.expression="ONEOF (Conductor, Conductive_filled_area) ANDOR Fiducial_stratum_feature">
-         <explicit name="feature_of_size">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
          <explicit name="resident_stratum">
             <typename name="Stratum"/>
+         </explicit>
+         <explicit name="feature_of_size">
+            <builtintype type="BOOLEAN"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Stratum_feature" attribute="element_name"/>
@@ -919,12 +916,12 @@
          </unique>
       </entity>
       <entity name="Stratum_feature_template_component" supertypes="Laminate_component">
-         <explicit name="stratum_feature_implementation">
-            <typename name="Stratum_feature"/>
-         </explicit>
          <explicit name="derived_from" optional="YES">
             <typename name="Stratum_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <explicit name="stratum_feature_implementation">
+            <typename name="Stratum_feature"/>
          </explicit>
       </entity>
       <entity name="Stratum_specific_part_template_location_in_padstack_definition" supertypes="Part_template_location_in_padstack_definition">
@@ -934,11 +931,11 @@
          <where label="WR1" expression=" SIZEOF ( [ 'AP210_ARM.STRATUM_FEATURE_TEMPLATE' , 'AP210_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE' , 'AP210_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' ] * TYPEOF ( SELF \ part_template_location_in_padstack_definition . template . associated_template_occurrence ) ) = 1 "/>
       </entity>
       <entity name="Stratum_surface">
-         <explicit name="name">
-            <typename name="stratum_surface_designation"/>
-         </explicit>
          <explicit name="of_stratum">
             <typename name="Stratum"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="stratum_surface_designation"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Stratum_surface" attribute="name"/>
@@ -953,31 +950,31 @@
       </entity>
       <entity name="Unrouted_conductive_interconnect_element" supertypes="Conductive_interconnect_element">
          <inverse name="connected_points" entity="Conductive_interconnect_element_terminal_link" attribute="associated_element">
-            <inverse.aggregate type="SET" lower="1"/>
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression=" NOT ( EXISTS ( SELF \ conductive_interconnect_element . composed_conductor ) ) "/>
          <where label="WR2" expression=" correlated_terminals ( SELF \ conductive_interconnect_element . access_mechanisms , connected_points ) "/>
       </entity>
       <entity name="Unrouted_join_relationship" supertypes="Join_relationship">
-         <explicit name="unrouted_via" optional="YES">
+         <explicit name="unrouted_terminals" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Via_terminal"/>
-         </explicit>
-         <explicit name="unrouted_paa" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Probe_access_area"/>
-         </explicit>
-         <explicit name="unrouted_junction" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Layout_junction"/>
+            <typename name="Laminate_component_join_terminal"/>
          </explicit>
          <explicit name="unrouted_lcp" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Layer_connection_point"/>
          </explicit>
-         <explicit name="unrouted_terminals" optional="YES">
+         <explicit name="unrouted_junction" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Laminate_component_join_terminal"/>
+            <typename name="Layout_junction"/>
+         </explicit>
+         <explicit name="unrouted_paa" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Probe_access_area"/>
+         </explicit>
+         <explicit name="unrouted_via" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Via_terminal"/>
          </explicit>
          <where label="WR1" expression=" ( SIZEOF ( unrouted_terminals ) + SIZEOF ( unrouted_lcp ) + SIZEOF ( unrouted_paa ) + SIZEOF ( unrouted_via ) + SIZEOF ( unrouted_junction ) ) &gt; 1 "/>
       </entity>
@@ -1006,19 +1003,19 @@
             <redeclaration entity-ref="Inter_stratum_feature_template"/>
          </explicit>
          <inverse name="access_mechanisms" entity="Via_template_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="2"/>
+            <inverse.aggregate type="SET" lower="2" upper="?"/>
          </inverse>
       </entity>
       <entity name="Via_template_terminal" supertypes="Shape_element">
-         <explicit name="terminal_connection_zone" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Connection_zone_in_layout_template"/>
+         <explicit name="associated_definition">
+            <typename name="Via_template"/>
          </explicit>
          <explicit name="disallowed_inter_stratum_extent" optional="YES">
             <typename name="Inter_stratum_extent"/>
          </explicit>
-         <explicit name="associated_definition">
-            <typename name="Via_template"/>
+         <explicit name="terminal_connection_zone" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Connection_zone_in_layout_template"/>
          </explicit>
          <inverse name="terminal_shape" entity="Usage_concept_usage_relationship" attribute="associated_usage">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -1029,16 +1026,16 @@
          </unique>
       </entity>
       <entity name="Via_terminal" supertypes="Laminate_component_feature">
-         <explicit name="associated_component">
-            <typename name="Via"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </explicit>
          <explicit name="definition">
             <typename name="Via_template_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
+         <explicit name="associated_component">
+            <typename name="Via"/>
+            <redeclaration entity-ref="Component_feature"/>
+         </explicit>
       </entity>
-      <function name="Correlated_terminals">
+      <function name="correlated_terminals">
          <parameter name="input1">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Conductive_interconnect_element_terminal"/>
@@ -1050,7 +1047,7 @@
          <builtintype type="BOOLEAN"/>
          <algorithm> LOCAL pass : BOOLEAN := FALSE ; ciet : SET OF conductive_interconnect_element_terminal := [ ] ; END_LOCAL ; REPEAT i := 1 TO SIZEOF ( input2 ) BY 1 ; ciet := ciet + input2 [ i ] . precedent_point ; ciet := ciet + input2 [ i ] . subsequent_point ; END_REPEAT ; pass := ( input1 = ciet ) ; RETURN ( pass ) ; </algorithm>
       </function>
-      <function name="Make_aggregate_join">
+      <function name="make_aggregate_join">
          <parameter name="input1">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Inter_stratum_join_relationship"/>

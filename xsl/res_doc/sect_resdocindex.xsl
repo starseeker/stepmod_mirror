@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_resdocindex.xsl,v 1.2 2003/08/28 06:34:06 thendrix Exp $
+$Id: sect_resdocindex.xsl,v 1.3 2004/01/27 00:06:29 thendrix Exp $
   Author:  Tom Hendrix, Boeing
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -162,6 +162,10 @@ $Id: sect_resdocindex.xsl,v 1.2 2003/08/28 06:34:06 thendrix Exp $
       <xsl:value-of select="@name"/>
     </xsl:attribute>
 
+    <xsl:attribute name="express_type">
+      <xsl:value-of select="name(.)"/>
+    </xsl:attribute>
+
     <xsl:attribute name="object_href">
       <xsl:value-of select="concat($pos + 3,'_schema',$FILE_EXT,'#',$aname)"/>
     </xsl:attribute>
@@ -268,12 +272,14 @@ $Id: sect_resdocindex.xsl,v 1.2 2003/08/28 06:34:06 thendrix Exp $
       <xsl:value-of select="$clause_no"/>
     </a>
   </div>
-  <div>
-    &#160;&#160;&#160;Object EXPRESS-G
-    <a href="{$expg_href}">
-      <xsl:value-of select="$expg_figure"/>
-    </a>
-  </div>
+  <xsl:if test="@express_type='entity' or @express_type='type' or @express_type='subtype.constraint'">
+    <div>
+      &#160;&#160;&#160;Object EXPRESS-G
+      <a href="{$expg_href}">
+        <xsl:value-of select="$expg_figure"/>
+      </a>
+    </div>
+  </xsl:if>
 </xsl:template>
 
 
@@ -315,6 +321,7 @@ $Id: sect_resdocindex.xsl,v 1.2 2003/08/28 06:34:06 thendrix Exp $
     <xsl:number level="any"/>
   </xsl:if>
 </xsl:template>
+
 <xsl:template match="resource" mode="get_definition_section">
   <!-- get a list of normative references that have terms defined -->
   <xsl:variable name="normrefs">

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.26 2003/06/30 21:53:12 thendrix Exp $
+$Id: express_description.xsl,v 1.27 2003/07/11 12:48:40 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -30,11 +30,29 @@ $Id: express_description.xsl,v 1.26 2003/06/30 21:53:12 thendrix Exp $
        Optional parameter -->
   <xsl:param name="entity" select="''"/>
   
-
   
-  <!-- if a type, the name of a type 
+  <!-- if a type, the name of the type 
        Optional parameter -->
   <xsl:param name="type" select="''"/>
+  
+<!-- if a function, the name of the function
+       Optional parameter -->
+  
+  <xsl:param name="function" select="''"/>
+
+<!-- if a  rule, the name of the rule
+       Optional parameter -->
+
+  <xsl:param name="rule" select="''"/>
+
+<!-- if a procedure, the name of the procedure
+       Optional parameter -->
+  <xsl:param name="procedure" select="''"/>
+
+<!-- if a constant , the name of the  constant
+       Optional parameter -->
+
+  <xsl:param name="constant" select="''"/>
   
 
   <!-- if an entity, the name of an attribute 
@@ -216,7 +234,7 @@ and  string is more than the schema name ( hence not the  schema )
     <xsl:if test="string-length($type)=0 and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
 
 
-      <xsl:if test="not(contains(substring(normalize-space($description/text()),1),'A'))">
+      <xsl:if test="string-length($rule)=0 and not(contains(substring(normalize-space($description/text()),1),'A'))">
         
       <xsl:call-template name="error_message">
           <xsl:with-param 
@@ -244,7 +262,7 @@ and  string is more than the schema name ( hence not the  schema )
 
       <!-- if -->
       <!--      <xsl:if test="not(contains('is',substring-before(normalize-space($description/text()[position()=2]),' ')))"> -->
-<xsl:if test="not(contains('is',substring-before(substring-after(substring-after(normalize-space($description),' '),' '),' ')))">
+<xsl:if test="string-length($rule)=0 and not(contains('is',substring-before(substring-after(substring-after(normalize-space($description),' '),' '),' ')))">
       <xsl:call-template name="error_message">
           <xsl:with-param  name="message"  >
             <xsl:value-of select="concat('Warning Ent3: ', $description/@linkend, '. Check that the description starts with' )"/>
@@ -262,7 +280,7 @@ and  string is more than the schema name ( hence not the  schema )
         
       </xsl:if>
       
-      <!--       NOTE this does not work when supertyp is an express_ref
+      <!--       NOTE this does not work when supertype is an express_ref
 
 <xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),concat('is a type of ',substring-before($supertypes,' ')))) and not(contains(normalize-space($description),concat('is a type of ',substring-after($supertypes,' '))))" >
         

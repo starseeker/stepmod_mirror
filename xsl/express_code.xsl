@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.49 2003/05/09 14:17:31 robbod Exp $
+     $Id: express_code.xsl,v 1.50 2003/05/19 14:31:45 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -48,8 +48,8 @@
   <xsl:apply-templates select="./type" mode="code"/>
   <xsl:apply-templates select="./entity" mode="code"/>
   <xsl:apply-templates select="./subtype.constraint" mode="code"/>
-  <xsl:apply-templates select="./function" mode="code"/>
   <xsl:apply-templates select="./rule" mode="code"/>
+  <xsl:apply-templates select="./function" mode="code"/>
   <xsl:apply-templates select="./procedure" mode="code"/>
   <br/>
   END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="@name"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.2 2002/09/06 21:24:27 robbod Exp $
+$Id: modules_list.xsl,v 1.3 2002/09/09 08:25:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -92,20 +92,25 @@ $Id: modules_list.xsl,v 1.2 2002/09/06 21:24:27 robbod Exp $
       </a>
     </p>
     
+    <xsl:variable name="arm" 
+      select="concat('../data/modules/',@name,'/sys/4_info_reqs',$FILE_EXT)"/>
+
     <xsl:variable name="armg" 
       select="concat('../data/modules/',@name,'/armexpg1',$FILE_EXT)"/>
     <p class="menuitem">
-      <a href="{$armg}" target="content">
-        ARM EXPRESS-G
-      </a>
+      <a href="{$arm}" target="content">ARM</a>
+      &#160;
+      <a href="{$armg}" target="content">EXPRESS-G</a>
     </p>
     
+    <xsl:variable name="mim" 
+      select="concat('../data/modules/',@name,'/sys/5_main',$FILE_EXT)"/>
     <xsl:variable name="mimg" 
       select="concat('../data/modules/',@name,'/mimexpg1',$FILE_EXT)"/>
     <p class="menuitem">
-      <a href="{$mimg}" target="content">
-        MIM EXPRESS-G
-      </a>
+      <a href="{$mim}" target="content">MIM</a>
+      &#160;
+      <a href="{$mimg}" target="content">EXPRESS-G</a>
     </p>
     
     <p class="menuitem">Developer view</p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="urn:iso10303-28:ex">
-	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 	<xsl:variable name="module_directory_name" select="//module_clause/@directory"/>
 	<xsl:variable name="dex_directory_name" select="//dex_clause/@directory"/>
 	<xsl:variable name="directory_path">
@@ -28,6 +28,9 @@
 	<xsl:variable name="stepmod_namespace_file" select="document(concat($directory_path, '/stepmod_namespace.xml'))"/>
 	<xsl:variable name="schema_name" select="$stepmod_namespace_file//dummy/@schema_name"/>
 	<xsl:variable name="namespace_prefix" select="concat($stepmod_namespace_file//dummy/@ns_prefix_name, ':')"/>
+
+	<xsl:strip-space elements="xs:all"/>	
+	
 	<xsl:template match="/">
 		<xsl:apply-templates select="express"/>
 	</xsl:template>
@@ -1007,13 +1010,11 @@
 				</xsl:variable>
 				<xsl:choose>
 					<xsl:when test="$attribute_node_param/aggregate[position()=1 and position()=last()]">
-						<xsl:comment>EXPRESS AGGREGATE ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/>
-						</xsl:comment>
+						<xsl:comment>EXPRESS AGGREGATE ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/></xsl:comment>
 						<xsl:text>&#xa;</xsl:text>
 						<xsl:choose>
 							<xsl:when test="$attribute_node_param/typename">
-								<xsl:comment>EXPRESS ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/>
-								</xsl:comment>
+								<xsl:comment>EXPRESS ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/></xsl:comment>
 								<xsl:variable name="target" select="$attribute_node_param/typename/@name"/>
 								<xsl:variable name="corrected_target_name">
 									<xsl:call-template name="put_into_lower_case">

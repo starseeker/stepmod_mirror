@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.21 2002/09/30 21:41:48 mikeward Exp $
+     $Id: repository_index.xsl,v 1.22 2003/02/03 13:46:19 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -65,7 +65,7 @@
       
   <font size="-1">
   <b>
-    This page has been deprecated. 
+    The use of this page is deprecated. 
     <br/>
     It has been replaced by a significantly improved navigation facility available at: 
     <br/>

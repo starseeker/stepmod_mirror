@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
+$Id: select_matrix_view.xsl,v 1.7 2003/11/25 17:25:25 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -38,17 +38,28 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
   </xsl:template>
 
   <xsl:template match="stylesheet_application">
+    <xsl:variable name="mode">
+      <xsl:choose>
+      <xsl:when test="@mode"> 
+        <xsl:value-of select="@mode"/>      
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'arm'"/>              
+      </xsl:otherwise>
+    </xsl:choose>
+    </xsl:variable>
+
     <HTML>
     <head>
       <link rel="stylesheet" type="text/css" 
         href="../../../../nav/css/developer.css"/>
       <title>
-        <xsl:value-of select="concat('ARM Select types matrix for ',@directory)"/>
+        <xsl:value-of select="concat(translate($mode,$LOWER,$UPPER), ' Select types matrix for ',@directory)"/>
       </title>
 
     </head>
   <body>
-  <H1> <xsl:value-of select="concat('ARM Select types matrix for ',@directory)"/>
+  <H1>         <xsl:value-of select="concat(translate($mode,$LOWER,$UPPER), ' Select types matrix for ',@directory)"/>
   </H1>
 
   <p>
@@ -61,15 +72,16 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 	This is to avoid hitting limits on numbers of columns in pasting into spreadsheets.
   </p>
 
-	<xsl:variable name="arm_file" 
-	    select="concat('../../data/modules/',@directory,'/arm.xml')"/>
+	<xsl:variable name="mim_file" 
+	    select="concat('../../data/modules/',@directory,'/',$mode,'.xml')"/>
 
-	<xsl:variable name="arm_node"
-	    select="document($arm_file)/express"/>
+
+	<xsl:variable name="mim_node"
+	    select="document($mim_file)/express"/>
+
 
 	<xsl:variable name="schema-name"
-	    select="$arm_node//schema/@name"/>
-
+	    select="$mim_node//schema/@name"/>
 			
 	<xsl:variable name="schemas" >
 		<xsl:call-template name="depends-on-recurse-no-list-x">
@@ -98,7 +110,7 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 				
 
 			<xsl:call-template name="select-matrix" >
-				<xsl:with-param name="this-schema" select="$arm_node" />
+				<xsl:with-param name="this-schema" select="$mim_node" />
 				<xsl:with-param name="called-schemas" select="$dep-schemas" />
 			</xsl:call-template>
 
@@ -120,7 +132,7 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 		<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" />
 
 			<xsl:call-template name="select-matrix" >
-				<xsl:with-param name="this-schema" select="$arm_node" />
+				<xsl:with-param name="this-schema" select="$mim_node" />
 				<xsl:with-param name="called-schemas" select="$dep-schemas" />
 			</xsl:call-template>
 
@@ -142,11 +154,16 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 	<xsl:param name="called-schemas" />
 	<xsl:param name="start" select="1" />
 
-
 	<xsl:variable name="all-entities" select="$this-schema//entity | $called-schemas//entity" />
 
+      <!--
 	<xsl:variable name="this-pass-entities" 
 		select="$all-entities[(position() - $start + 1) > 0 and 201 > (position()-$start + 1) ]" />
+      -->
+
+	<xsl:variable name="newstart" select="$start + 200" />
+
+
           <br/>
   <TABLE border="3">
   
@@ -155,6 +172,7 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 	<TR>
 		<TD>.</TD> <!-- empty top left corner -->
 
+        <!--
 			<xsl:for-each select="$this-pass-entities" >
 				<xsl:sort select="@name" />
 				
@@ -163,17 +181,25 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 				</TD>
 
 			</xsl:for-each>
+            -->
+
+			<xsl:for-each select="$all-entities" >
+				<xsl:sort select="@name" />
+                  <xsl:if test="((position() - $start + 1) > 0) and (201 > (position()-$start + 1))" >
+                    <TD>
+                      <xsl:value-of select="@name" />
+                        <!-- <xsl:value-of select="position()" /> -->
+                    </TD>
+                  </xsl:if>
+			</xsl:for-each>
 
 	</TR>
 	</THEAD>
-
 	<TBODY>
-
 			<xsl:for-each select="$this-schema//type[select/@extensible='YES'][not(select/@basedon)]
 				| $called-schemas//type[select/@extensible='YES'][not(select/@basedon)]" >
 				<xsl:sort select="@name" />
 				<TR>
-
 				<TD>
 				<xsl:value-of select="@name" />
 				</TD>
@@ -203,71 +229,44 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 					</xsl:variable>
 					
 					<xsl:variable name="subs-list" select="concat(' ',$subs,' ')" />
+                      <xsl:for-each select="$all-entities" >
+                        <xsl:sort select="@name" />
+                        <xsl:if test="((position() - $start + 1) > 0) and (201 > (position()-$start + 1))" >
+                          
+                          <xsl:variable name="this-ent" select="concat(' ',@name,' ')" />
+                            <TD border="3">
+                              <xsl:choose>
+                                <xsl:when test="contains($direct-list,$this-ent)">
+                                  Y
+                                </xsl:when >
+                                  <xsl:when test="contains($subs-list,$this-ent)">
+                                    S
+                                  </xsl:when >
+                                    <xsl:otherwise>.
+                                  </xsl:otherwise>
+                                </xsl:choose>				
+                              </TD>
+                            </xsl:if>
+                          </xsl:for-each>
+                        </TR>
+                      </xsl:for-each>
+                      
+                    </TBODY>
+                  </TABLE>
+                  <br/>
 
+                  <xsl:if test="count($this-schema//entity | $called-schemas//entity) > $start + 200" >
+                    
+                    <xsl:call-template name="select-matrix" >
+                      <xsl:with-param name="this-schema" select="$this-schema" />
+                      <xsl:with-param name="called-schemas" select="$called-schemas" />
+                      <xsl:with-param name="start" select="$newstart" />
+                    </xsl:call-template>
 
-				<xsl:for-each select="$this-pass-entities" >
-					<xsl:sort select="@name" />
-					<xsl:variable name="this-ent" select="concat(' ',@name,' ')" />
-					<TD border="3">
-					<xsl:choose>
-						<xsl:when test="contains($direct-list,$this-ent)">
-							Y
-						</xsl:when >
-						<xsl:when test="contains($subs-list,$this-ent)">
-							S
-						</xsl:when >
-						<xsl:otherwise>.
-						</xsl:otherwise>
-					</xsl:choose>				
-					</TD>
-				</xsl:for-each>
-				</TR>
-			</xsl:for-each>
-
-	</TBODY>
-  </TABLE>
-  <br/>
-
-	<xsl:if test="count($this-schema//entity | $called-schemas//entity) > $start + 200" >
-
-			<xsl:call-template name="select-matrix" >
-				<xsl:with-param name="this-schema" select="$this-schema" />
-				<xsl:with-param name="called-schemas" select="$called-schemas" />
-				<xsl:with-param name="start" select="$start + 200" />
-			</xsl:call-template>
-
-	</xsl:if>
+                  </xsl:if>
   
 </xsl:template>
 
-<!--
-
-<xsl:template match="type" mode="basedon">
-	<xsl:param name="this-schema" />
-	<xsl:param name="called-schemas" />
-	<xsl:param name="done" select="' '" />
-
-	<xsl:variable name="this_select" select="@name" />
-
-	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
-	
-		<xsl:if test="select/@selectitems" >
-			<xsl:value-of select="concat(' ',select/@selectitems)" /> 
-			<br/>
-		</xsl:if>
-
-		<xsl:apply-templates select="$this-schema//type[select/@basedon=$this_select] 
-							| $called-schemas//type[select/@basedon=$this_select]" 
-						mode="basedon">
-			<xsl:with-param name="this-schema" select="$this-schema"/>
-			<xsl:with-param name="called-schemas" select="$called-schemas" />
-			<xsl:with-param name="done" select="concat($done,' ',$this_select,' ')" />
-		</xsl:apply-templates>
-
-	</xsl:if>
-
-</xsl:template>
--->
 
 <xsl:template match="type" mode="basedon">
 	<xsl:param name="this-schema" />
@@ -489,17 +488,29 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 
 <!-- open up the relevant schema -->
 
-			<xsl:variable name="arm_file" 
-			    select="concat('../../data/modules/',substring-before($this-schema,'_arm'),'/arm.xml')"/>
-
-			<xsl:variable name="arm-node"
-			    select="document($arm_file)/express"/>
+			<xsl:variable name="mim_file" > 
+              <xsl:choose>
+              <xsl:when test="contains($this-schema,'_mim')" >
+                <xsl:value-of select="concat('../../data/modules/',substring-before($this-schema,'_mim'),'/mim.xml')"/>
+              </xsl:when>
+              <xsl:when test="contains($this-schema,'_arm')" >
+			    <xsl:value-of select="concat('../../data/modules/',substring-before($this-schema,'_arm'),'/arm.xml')"/>
+              </xsl:when>
+            <xsl:otherwise>
+              <xsl:message>
+                ERROR: unrecognized schema
+              </xsl:message>
+            </xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+			<xsl:variable name="mim-node"
+			    select="document($mim_file)/express"/>
 
 
 <!-- get the list of schemas for this level that have not already been done -->
 
 			<xsl:variable name="my-kids" >
-				<xsl:apply-templates select="$arm-node//interface" mode="interface-schemas" >
+				<xsl:apply-templates select="$mim-node//interface" mode="interface-schemas" >
 					<xsl:with-param name="done" select="$done" />
 				</xsl:apply-templates>
 			</xsl:variable>
@@ -541,9 +552,6 @@ $Id: select_matrix_view.xsl,v 1.6 2003/11/25 08:35:14 robbod Exp $
 
 		<xsl:if test="$this-schema" >
 
-			<xsl:if test="not(contains($done,$this-schema))" >
-				<xsl:variable name="mod" 
-				select="substring-before(translate($this-schema,$UPPER,$LOWER),'_arm')" />
 <!-- notes:
 msxml needs addresses relative to the original xml file
 saxon needs addresses relative to the xsl file.
@@ -558,60 +566,65 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				</xsl:variable>
 
 
+                  <xsl:variable name="prefix">
+                    <xsl:call-template name="get_last_section">
+                      <xsl:with-param name="path" select="$this-schema"/>
+                      <xsl:with-param name="divider" select="'_'"/>
+                    </xsl:call-template>
+                  </xsl:variable>
+                  <xsl:variable name="this-schema-file">
+                    <xsl:choose>
+                      <xsl:when test="$prefix='schema'">
+                        <xsl:value-of 
+                          select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')"/>
+                      </xsl:when>
+                      <xsl:when test="starts-with($this-schema,'aic_')">
+                        <xsl:value-of 
+                          select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')"/>
+                      </xsl:when>
+                      <xsl:when test="contains($this-schema,'_arm')">
+                        <xsl:value-of 
+                          select="concat($dir,'data/modules/',substring-before(translate($this-schema,$UPPER,$LOWER),'_arm'),'/arm.xml ')"/>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:value-of 
+                          select="concat($dir,'data/modules/',substring-before(translate($this-schema,$UPPER,$LOWER),'_mim'),'/mim.xml ')"/>
+                        
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </xsl:variable>
+                  <xsl:if test="not(contains($done,$this-schema))" >
 				<x>
-                                  <xsl:variable name="prefix">
-                                    <xsl:call-template name="get_last_section">
-                                      <xsl:with-param name="path" select="$this-schema"/>
-                                      <xsl:with-param name="divider" select="'_'"/>
-                                    </xsl:call-template>
-                                  </xsl:variable>
-                                  <xsl:choose>
-                                    <xsl:when test="$prefix='schema'">
-                                      <xsl:value-of 
-                                        select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')"/>
-                                    </xsl:when>
-                                    <xsl:when test="starts-with($this-schema,'aic_')">
-                                      <xsl:value-of 
-                                        select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')"/>
-                                    </xsl:when>
-                                    <xsl:otherwise>
-                                      <xsl:value-of select="concat($dir,'data/modules/',$mod,'/arm.xml ')"/>
-                                    </xsl:otherwise>
-                                  </xsl:choose>
-				</x>
-			</xsl:if>
 
-<!-- open up the relevant schema -->
+                    <xsl:value-of select="$this-schema-file"/>
+                </x>
+              </xsl:if>
+              
+              <!-- open up the relevant schema -->
+              <xsl:variable name="mim-node"
+                select="document($this-schema-file)/express"/>
+              
+              
+              <!-- get the list of schemas for this level that have not already been done -->
+              
+              <xsl:variable name="my-kids" >
+                <xsl:apply-templates select="$mim-node//interface" mode="interface-schemas" >
+                  <xsl:with-param name="done" select="$done" />
+                  </xsl:apply-templates>
+                </xsl:variable>
+                
+                <xsl:variable name="after" select="normalize-space(concat(substring-after($todo, $this-schema),$my-kids))" />
+                  
+                  
+                  <xsl:if test="$after" >
+                    <xsl:call-template name="depends-on-recurse-no-list-x">
+                      <xsl:with-param name="todo" select="$after" />
+                      <xsl:with-param name="done" select="concat($done,' ',$this-schema,' ')" />
+                    </xsl:call-template>
+                  </xsl:if>
+                    
+                </xsl:if>
 
-			<xsl:variable name="arm_file" 
-			    select="concat('../../data/modules/',
-			    		translate(substring-before($this-schema,'_arm'),$UPPER,$LOWER),'/arm.xml')"/>
-
-			<xsl:variable name="arm-node"
-			    select="document($arm_file)/express"/>
-
-
-<!-- get the list of schemas for this level that have not already been done -->
-
-			<xsl:variable name="my-kids" >
-				<xsl:apply-templates select="$arm-node//interface" mode="interface-schemas" >
-					<xsl:with-param name="done" select="$done" />
-				</xsl:apply-templates>
-			</xsl:variable>
-
-		<xsl:variable name="after" select="normalize-space(concat(substring-after($todo, $this-schema),$my-kids))" />
-
-
-			<xsl:if test="$after" >
-				<xsl:call-template name="depends-on-recurse-no-list-x">
-					<xsl:with-param name="todo" select="$after" />
-					<xsl:with-param name="done" select="concat($done,' ',$this-schema,' ')" />
-				</xsl:call-template>
-
-	
-			</xsl:if>
-
-		</xsl:if>
 
 </xsl:template>
 
@@ -655,7 +668,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-select" select="@name" />
-<!--		PP<xsl:value-of select="$this-select" />PP<br/> -->
+PP<xsl:value-of select="$this-select" />PP<br/>
 
 	<xsl:if test="$top-schema//type[select/@basedon=$this-select]">
 

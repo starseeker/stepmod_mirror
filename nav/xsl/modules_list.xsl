@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.22 2004/02/06 13:50:53 robbod Exp $
+$Id: modules_list.xsl,v 1.23 2004/02/09 10:02:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -355,6 +355,12 @@ $Id: modules_list.xsl,v 1.22 2004/02/06 13:50:53 robbod Exp $
       <xsl:variable name="select_matrix_view" 
         select="concat($module_root,'/nav/select_matrix_view',$FILE_EXT)"/>
       <a href="{$select_matrix_view}" target="content">Select matrix</a>
+    </p>
+
+    <p class="menuitem2">
+      <xsl:variable name="mim_select_matrix_view" 
+        select="concat($module_root,'/nav/mim_select_matrix_view',$FILE_EXT)"/>
+      <a href="{$mim_select_matrix_view}" target="content">MIM Select matrix</a>
     </p>
 
     <p class="menuitem2">

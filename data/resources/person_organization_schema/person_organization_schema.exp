@@ -201,4 +201,38 @@ ENTITY position_in_organization_type;
   description : OPTIONAL text;
 END_ENTITY;
 
+ FUNCTION acyclic_organization_relationship (relation : organization_relationship; relatives : SET [1:?] OF organization; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF organization_relationship;
+    END_LOCAL;
+
+    IF relation.relating_organization IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(org <* bag_to_set(USEDIN(relation.relating_organization, 'PERSON_ORGANIZATION_SCHEMA.' + 'ORGANIZATION_RELATIONSHIP.' + 'RELATED_ORGANIZATION')) | specific_relation IN TYPEOF(org));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_organization_relationship(x[i], relatives + relation.relating_organization, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
+  FUNCTION acyclic_organizational_project_relationship (relation : organizational_project_relationship; relatives : SET [1:?] OF organizational_project; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF organizational_project_relationship;
+    END_LOCAL;
+
+    IF relation.relating_organizational_project IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(op <* bag_to_set(USEDIN(relation.relating_organizational_project, 'PERSON_ORGANIZATION_SCHEMA.' + 'ORGANIZATIONAL_PROJECT_RELATIONSHIP.' + 'RELATED_ORGANIZATIONAL_PROJECT')) | specific_relation IN TYPEOF(op));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_organizational_project_relationship(x[i], relatives + relation.relating_organizational_project, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
 END_SCHEMA;  -- person_organization_schema

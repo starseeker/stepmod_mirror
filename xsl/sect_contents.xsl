@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.25 2003/05/09 23:08:38 thendrix Exp $
+$Id: sect_contents.xsl,v 1.26 2003/05/15 00:19:17 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -766,36 +766,37 @@ $Id: sect_contents.xsl,v 1.25 2003/05/09 23:08:38 thendrix Exp $
   </xsl:if>
   
   <!-- use #annexa to link direct -->
-    <A HREF="./a_short_names{$FILE_EXT}">A AM MIM
-    short names</A>
+    <A HREF="./a_short_names{$FILE_EXT}">
+      Annex A AM MIM short names</A>
   <br/>
   <!-- use #annexb to link direct -->
-    <A HREF="./b_obj_reg{$FILE_EXT}">B Information requirements object
+    <A HREF="./b_obj_reg{$FILE_EXT}">Annex B Information requirements object
     registration</A>
   <br/>
   
   <!-- use #annexc to link direct -->
-    <A HREF="./c_arm_expg{$FILE_EXT}">C ARM EXPRESS-G</A>
+    <A HREF="./c_arm_expg{$FILE_EXT}">Annex C ARM EXPRESS-G</A>
     <br/>
   
   <!-- use #annexd to link direct -->
-    <A HREF="./d_mim_expg{$FILE_EXT}">D MIM EXPRESS-G</A>
+    <A HREF="./d_mim_expg{$FILE_EXT}">Annex D MIM EXPRESS-G</A>
     <br/>
   
   <!-- use #annexe to link direct -->
-    <A HREF="./e_exp{$FILE_EXT}">E AM ARM and MIM EXPRESS
+    <A HREF="./e_exp{$FILE_EXT}">Annex E AM ARM and MIM EXPRESS
     listings</A>
   <br/>
   <xsl:if test="./usage_guide">
     <!-- use #annexa to link direct -->
       <A HREF="./f_guide{$FILE_EXT}">
-        F Application module implementation and usage guide
+        Annex F Application module implementation and usage guide
       </A>
     <br/>
 		<xsl:apply-templates 
       select="./usage_guide/guide_subclause" mode="contents"/>
   </xsl:if>
-  <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A>
+  <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A><br/>
+  <A HREF="./modindex{$FILE_EXT}">Index</A>
   
 </xsl:template>
 

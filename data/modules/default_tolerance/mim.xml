@@ -1,20 +1,19 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
+<!-- $Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
   description.file="mim_descriptions.xml"
   rcs.date="$Date: $"
-  rcs.revision="$Revision: $"
->
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.24"
-    source="mim.exp"/>
+    version="1.25"
+    source="../data/modules/default_tolerance/mim.exp"/>
 
   <schema name="Default_tolerance_mim">
     <interface
@@ -42,11 +41,11 @@
       supertypes="representation">
       <where
         label="WR1"
-        expression="SIZEOF( QUERY( i &lt;* SELF.items |  NOT('DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.DEFAULT_TOLERANCE_TABLE_CELL' IN  TYPEOF(i)) )) = 0">
+        expression="SIZEOF( QUERY( i &lt;* SELF.items |  NOT('DEFAULT_TOLERANCES_MIM.DEFAULT_TOLERANCE_TABLE_CELL' IN  TYPEOF(i)) )) = 0">
       </where>
       <where
         label="WR2"
-        expression="(SIZEOF( QUERY( rr &lt;* USEDIN(SELF,'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.' + 'REPRESENTATION_RELATIONSHIP.REP_1') |  rr.name &lt; 'general tolerance definition' )) = 0) AND (SIZEOF( QUERY( rr &lt;* USEDIN(SELF,'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.' + 'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name = 'general tolerance definition') AND (rr.rep2.name &lt; 'default tolerance') )) = 0) AND (SIZEOF( USEDIN(SELF,'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.' + 'REPRESENTATION_RELATIONSHIP.REP_2') ) = 0)">
+        expression="(SIZEOF( QUERY( rr &lt;* USEDIN(SELF,'DEFAULT_TOLERANCES_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_1') |  rr.name &lt; 'general tolerance definition' )) = 0) AND (SIZEOF( QUERY( rr &lt;* USEDIN(SELF,'DEFAULT_TOLERANCES_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name = 'general tolerance definition') AND (rr.rep2.name &lt; 'default tolerance') )) = 0) AND (SIZEOF( USEDIN(SELF,'DEFAULT_TOLERANCES_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2') ) = 0)">
       </where>
     </entity>
 
@@ -55,7 +54,7 @@
       supertypes="compound_representation_item">
       <where
         label="WR1"
-        expression="SIZEOF(QUERY( x &lt;* USEDIN(SELF,'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.' + 'REPRESENTATION.ITEMS') | 'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.' + 'DEFAULT_TOLERANCE_TABLE' IN TYPEOF(x)))=1">
+        expression="SIZEOF(QUERY( x &lt;* USEDIN(SELF,'DEFAULT_TOLERANCES_MIM.' + 'REPRESENTATION.ITEMS') | 'DEFAULT_TOLERANCES_MIM.' + 'DEFAULT_TOLERANCE_TABLE' IN TYPEOF(x)))=1">
       </where>
       <where
         label="WR2"
@@ -108,13 +107,13 @@ END;
       <algorithm>
 BEGIN 
 IF (SIZEOF(QUERY ( i &lt;* agg | (( 
-'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'significant number of digits')) )) 
 = 1) OR ((SIZEOF(QUERY ( i &lt;* agg | (( 
-'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'lower limit')) )) + SIZEOF( 
 QUERY ( i &lt;* agg | (( 
-'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'upper limit')) ))) = 2) THEN 
 RETURN(TRUE); 
 ELSE 
@@ -137,13 +136,13 @@ END;
       <algorithm>
 BEGIN 
 IF (SIZEOF(QUERY ( i &lt;* agg | (( 
-'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'plus minus tolerance value')) )) 
 = 1) OR ((SIZEOF(QUERY ( i &lt;* agg | (( 
-'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'lower tolerance value')) )) + 
 SIZEOF(QUERY ( i &lt;* agg | (( 
-'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'upper tolerance value')) ))) 
 = 2) THEN 
 RETURN(TRUE); 
@@ -167,10 +166,11 @@ END;
       <algorithm>
 BEGIN 
 IF (SIZEOF(QUERY ( i &lt;* agg | ( 
-'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) 
+'DEFAULT_TOLERANCES_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) 
 &lt;= 1) AND (SIZEOF(QUERY ( i &lt;* agg | ( 
-'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) 
-= SIZEOF(QUERY ( i &lt;* agg | (( 'DEFAULT_TOLERANCES_FOR_GEOMETRIC_DIMENSIONS.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCES_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) 
+= SIZEOF(QUERY ( i &lt;* agg | 
+(( 'DEFAULT_TOLERANCES_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'cell description')) ))) THEN 
 RETURN(TRUE); 
 ELSE 

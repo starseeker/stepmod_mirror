@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.8 2004/11/10 00:57:31 thendrix Exp $
+     $Id: express_code.xsl,v 1.9 2004/11/10 20:28:03 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -262,7 +262,7 @@ data/resources/',$resource,'/',$resource,'.xml.')"/>
       <xsl:apply-templates select="./aggregate" mode="code"/>        
       <xsl:choose>
         <xsl:when test="./where">
-          <xsl:apply-templates select="./*" mode="underlying"/><br/>
+          <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
           <xsl:apply-templates select="./where" mode="code"/>
         </xsl:when>
         <xsl:otherwise>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.33 2004/11/02 09:56:04 robbod Exp $
+$Id: sect_contents.xsl,v 1.34 2004/11/02 16:26:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -1016,7 +1016,7 @@ $Id: sect_contents.xsl,v 1.33 2004/11/02 09:56:04 robbod Exp $
   </xsl:choose>
   <xsl:apply-templates select="./mim/shortnames" mode="toc"/>
     <a href="./e_exp{$FILE_EXT}#table_e1">
-      Table E.1 &#8212; ARM and MIM EXPRESS listings.
+      Table E.1 &#8212; ARM and MIM EXPRESS listings
     </a>
   <br/>
   <xsl:apply-templates select="./usage_guide//table" mode="toc"/>

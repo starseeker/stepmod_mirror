@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.5 2003/03/13 19:17:01 robbod Exp $
+$Id: index.xsl,v 1.1 2003/03/23 17:34:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose: Provides the main entry page to the module.
@@ -18,19 +18,24 @@ $Id: sect_1_scope.xsl,v 1.5 2003/03/13 19:17:01 robbod Exp $
        -->
   <xsl:import href="file_ext.xsl"/>
 
-  <xsl:output method="html"/>
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
+    indent="yes"/>
+
 
 
   <xsl:template match="module_clause">
     <xsl:variable name="new_page" select="concat('./sys/cover',$FILE_EXT)"/>
     <html>
       <head>
-          <xsl:element name="meta">
-            <xsl:attribute name="http-equiv">Refresh</xsl:attribute>
-            <xsl:attribute name="content">
-              <xsl:value-of select="concat('5; URL=',$new_page)"/>
-            </xsl:attribute>
-          </xsl:element>
+        <xsl:element name="meta">
+          <xsl:attribute name="http-equiv">Refresh</xsl:attribute>
+          <xsl:attribute name="content">
+            <xsl:value-of select="concat('5; URL=',$new_page)"/>
+          </xsl:attribute>
+        </xsl:element>
+        <title>Module index redirection</title>
       </head>
       <body>
         <xsl:value-of select="concat('You will be redirected to ',$new_page,' in 5 seconds')"/><br/>

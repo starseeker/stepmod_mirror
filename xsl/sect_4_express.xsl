@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.108 2003/10/28 06:35:56 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.109 2003/10/31 08:01:32 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -784,7 +784,6 @@
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="./@name"/>
     <xsl:with-param name="type" select="./@name"/>
-
   </xsl:call-template> 
   <!-- output description from express -->
 
@@ -989,19 +988,23 @@
       <xsl:with-param name="section3" select="$enum_value"/>
     </xsl:call-template>
   </xsl:variable>
-
+  <!-- removed an now implemented in express_descriptions
+       template match="p" mode="first_paragraph_attribute"
+       template match="ext_description" mode="output_attr_descr   
   <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="$enum_value"/>:
       </a>
-    </b>
+    </b> -->
     
     <!-- get description from external file -->
     <xsl:call-template name="output_external_description">
       <xsl:with-param name="schema" select="$schema"/>
       <xsl:with-param name="entity" select="$enum_type"/>
       <xsl:with-param name="attribute" select="$enum_value"/>
+      <xsl:with-param name="inline_aname" select="$aname"/>
+      <xsl:with-param name="inline_name" select="$enum_value"/>
     </xsl:call-template>
 
     <xsl:variable name="external_description">
@@ -1018,7 +1021,6 @@
           select="concat('Error e15: No description provided for ',$enum_value)"/>
       </xsl:call-template>
     </xsl:if>
-  </p>
 </xsl:template>
 
 
@@ -1494,12 +1496,15 @@
     </xsl:call-template>
   </xsl:variable>
 
+  <!-- removed an now implemented in express_descriptions
+       template match="p" mode="first_paragraph_attribute"
+       template match="ext_description" mode="output_attr_descr
     <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="@name"/>:
       </a>
-    </b>
+    </b> -->
 
   <!-- get description from external file -->
   <xsl:call-template name="output_external_description">
@@ -1507,12 +1512,17 @@
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
     <xsl:with-param name="optional" select="@optional"/>
+    <xsl:with-param name="inline_aname" select="$aname"/>
+    <xsl:with-param name="inline_name" select="@name"/>
   </xsl:call-template>
   
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description" mode="exp_description"/>
+      <xsl:apply-templates select="./description" mode="exp_description">
+        <xsl:with-param name="inline_aname" select="$aname"/>
+        <xsl:with-param name="inline_name" select="@name"/>
+      </xsl:apply-templates>
     </xsl:when>
     <xsl:otherwise>      
       <xsl:variable name="external_description">
@@ -1539,7 +1549,6 @@
     <xsl:with-param name="attribute" select="@name"/>
   </xsl:call-template> 
 
-</p>
 </xsl:template>
 
 <xsl:template match="derived" mode="description">
@@ -1558,23 +1567,31 @@
     </xsl:call-template>
   </xsl:variable>
 
+  <!-- removed an now implemented in express_descriptions
+       template match="p" mode="first_paragraph_attribute"
+       template match="ext_description" mode="output_attr_descr
     <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="@name"/>:
       </a>
-    </b>
+    </b> -->
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
     <xsl:with-param name="optional" select="@optional"/>
+    <xsl:with-param name="inline_aname" select="$aname"/>
+    <xsl:with-param name="inline_name" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description" mode="exp_description"/>
+        <xsl:apply-templates select="./description" mode="exp_description">
+          <xsl:with-param name="inline_aname" select="$aname"/>
+          <xsl:with-param name="inline_name" select="@name"/>
+        </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1593,7 +1610,6 @@
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
-  </p>
   <!-- output any issues against derived attributes -->
   <xsl:call-template name="output_express_issue">
     <xsl:with-param name="schema" select="../../@name"/>
@@ -1617,23 +1633,31 @@
     </xsl:call-template>
   </xsl:variable>
   
+  <!-- removed an now implemented in express_descriptions
+       template match="p" mode="first_paragraph_attribute"
+       template match="ext_description" mode="output_attr_descr
     <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="@name"/>:
       </a>
-    </b>
+    </b> -->
 
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
+    <xsl:with-param name="inline_aname" select="$aname"/>
+    <xsl:with-param name="inline_name" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description" mode="exp_description"/>
+        <xsl:apply-templates select="./description" mode="exp_description">
+          <xsl:with-param name="inline_aname" select="$aname"/>
+          <xsl:with-param name="inline_name" select="@name"/>
+        </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1652,7 +1676,6 @@
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
-  </p>
   <!-- output any issues against inverse attribute -->
   <xsl:call-template name="output_express_issue">
     <xsl:with-param name="schema" select="../../@name"/>
@@ -1677,24 +1700,31 @@
       <xsl:with-param name="section3separator" select="'.ur:'"/>
     </xsl:call-template>
   </xsl:variable>
-
+  <!-- removed an now implemented in express_descriptions
+       template match="p" mode="first_paragraph_attribute"
+       template match="ext_description" mode="output_attr_descr
     <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="concat(@label,' : ')"/>
       </a>
-    </b>
+    </b> -->
     <!-- output description from external file -->
     <xsl:call-template name="output_external_description">
       <xsl:with-param name="schema" select="../../@name"/>
       <xsl:with-param name="entity" select="../@name"/>
       <xsl:with-param name="unique" select="./@label"/>
+      <xsl:with-param name="inline_aname" select="$aname"/>
+      <xsl:with-param name="inline_name" select="@label"/>
     </xsl:call-template>
     <!-- output description from express -->
     
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description" mode="exp_description"/>
+        <xsl:apply-templates select="./description" mode="exp_description">
+          <xsl:with-param name="inline_aname" select="$aname"/>
+          <xsl:with-param name="inline_name" select="@label"/>
+        </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1713,7 +1743,7 @@
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
-  </p>
+
     <!-- output issues against unique rule -->
     <xsl:call-template name="output_express_issue">
       <xsl:with-param name="schema" select="../../@name"/>
@@ -1749,25 +1779,32 @@
     </xsl:call-template>
   </xsl:variable>
 
+  <!-- removed an now implemented in express_descriptions
+       template match="p" mode="first_paragraph_attribute"
+       template match="ext_description" mode="output_attr_descr
     <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="concat(@label,' : ')"/>
       </a>
-    </b>
-
+    </b> -->
 
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="where" select="@label"/>
+    <xsl:with-param name="inline_aname" select="$aname"/>
+    <xsl:with-param name="inline_name" select="@label"/>
   </xsl:call-template>
   <!-- output description from express -->
 
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description" mode="exp_description"/>
+        <xsl:apply-templates select="./description" mode="exp_description">
+          <xsl:with-param name="inline_aname" select="$aname"/>
+          <xsl:with-param name="inline_name" select="@label"/>
+        </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1786,7 +1823,7 @@
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
-  </p>
+
   <!-- output issue against entity -->
   <xsl:call-template name="output_express_issue">
     <xsl:with-param name="schema" select="../../@name"/>
@@ -2297,7 +2334,7 @@
 
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  <p>
+
   <!-- <blockquote> -->
     <code>
       *)<br/>
@@ -2305,12 +2342,14 @@
       <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> :</xsl:text>
       <xsl:apply-templates select="./aggregate" mode="code"/>
       <xsl:apply-templates select="./*" mode="underlying"/>;
+    </code>
       <xsl:apply-templates select="./algorithm" mode="code"/>
+      <code>
       END_FUNCTION;
       <br/>(*
     </code>
   <!-- </blockquote> -->
-  </p>
+
   <xsl:apply-templates select="./parameter" mode="description"/>
 </xsl:template>
 
@@ -2447,7 +2486,9 @@
     <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
     <xsl:apply-templates select="./aggregate" mode="code"/>
     <xsl:apply-templates select="./*" mode="underlying"/>;
+  </code>
     <xsl:apply-templates select="./algorithm" mode="code"/><br/>
+    <code>
     END_PROCEDURE;
     <br/>(*
     </code>
@@ -2487,25 +2528,31 @@
       <xsl:with-param name="section3" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-
+  <!-- removed an now implemented in express_descriptions
+       template match="p" mode="first_paragraph_attribute"
+       template match="ext_description" mode="output_attr_descr
   <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="@name"/>:
       </a>
-    </b>
-
+    </b> -->
   <!-- get description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
+    <xsl:with-param name="inline_aname" select="$aname"/>
+    <xsl:with-param name="inline_name" select="@name"/>
   </xsl:call-template>
   
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description" mode="exp_description"/>
+      <xsl:apply-templates select="./description" mode="exp_description">
+        <xsl:with-param name="inline_aname" select="$aname"/>
+        <xsl:with-param name="inline_name" select="@name"/>
+      </xsl:apply-templates>
     </xsl:when>
     <xsl:otherwise>
       <xsl:variable name="external_description">
@@ -2524,7 +2571,7 @@
       </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
-</p>
+
   <!-- output issues against parameter -->
   <xsl:call-template name="output_express_issue">
     <xsl:with-param name="schema" select="../../@name"/>
@@ -2674,20 +2721,21 @@
   
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  <p>
   <!-- <blockquote> -->
     <code>
       *)<br/>
       RULE <xsl:value-of select="@name"/> FOR
     <br/>
       (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);<br/>
+  </code>
     <xsl:apply-templates select="./algorithm" mode="code"/>
+    <code>
     <xsl:apply-templates select="./where" mode="code"/>
       END_RULE;
     <br/>(*
     </code>
   <!-- </blockquote> -->
-   </p>
+
   <p><u>Argument definitions:</u></p>
   <xsl:call-template name="process_rule_arguments">
     <xsl:with-param name="args" select="@appliesto"/>

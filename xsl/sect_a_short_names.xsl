@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.17 2003/07/28 12:16:28 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.18 2003/08/11 16:48:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -121,19 +121,21 @@ $Id: sect_a_short_names.xsl,v 1.17 2003/07/28 12:16:28 robbod Exp $
       Requirements on the use of the short names are found in the
       implementation methods included in ISO 10303. 
     </p>
-  <p class="note">
-    <small>
-      NOTE&#160;&#160;The EXPRESS entity names are available from
-      Internet:<br/>  
+    <p class="note">
+      <small>
+        NOTE&#160;&#160;The EXPRESS entity names are available from
+        Internet:
+      </small>
+    </p>
+    <p align="center">
       <xsl:variable name="names_url"
-        select="'http://www.tc184-sc4.org/Short_Names/'"/>      
-      <p align="center">
+        select="'http://www.tc184-sc4.org/Short_Names/'"/> 
+      <small>
         &lt;
         <a href="{$names_url}"  target="_blank">
           <xsl:value-of select="$names_url"/>
-        </a>
-        &gt;
-      </p>
+      </a>
+      &gt;
     </small>
   </p>
   <p align="center">

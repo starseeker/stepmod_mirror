@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.51 2003/05/27 14:27:48 robbod Exp $
+     $Id: express_code.xsl,v 1.52 2003/06/11 12:13:54 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -39,10 +39,9 @@
 
   <code>
     <br/><br/>
-    <a name="{$aname}">
-      SCHEMA <b><xsl:value-of select="@name"/></b>;
-  </a>
-  <br/>    <br/>
+    <a name="{$aname}">SCHEMA <b><xsl:value-of select="@name"/></b>;</a>
+    <br/><br/>
+  </code>
   <xsl:apply-templates select="./interface" mode="code"/>
   <xsl:apply-templates select="./constant" mode="code"/>
   <xsl:apply-templates select="./type" mode="code"/>
@@ -51,9 +50,10 @@
   <xsl:apply-templates select="./rule" mode="code"/>
   <xsl:apply-templates select="./function" mode="code"/>
   <xsl:apply-templates select="./procedure" mode="code"/>
-  <br/>
-  END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="@name"/>
-  <br/>
+  <code>
+    <br/>
+    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="@name"/>
+    <br/>
   </code>
 </xsl:template>
 
@@ -62,6 +62,7 @@
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
+  <code>
   <xsl:choose>
     <xsl:when test="@kind='reference'">
       REFERENCE FROM 
@@ -116,6 +117,7 @@
       </xsl:call-template>
     </xsl:otherwise>
   </xsl:choose>
+</code>
 </xsl:template>
 
 <!-- output the trailing comment that shows where the express came from -->
@@ -240,54 +242,58 @@
 
 
 <xsl:template match="constant" mode="code">
-  <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
-
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>    
-  <br/>
-  <xsl:if test="position()=1">CONSTANT<br/></xsl:if>
-  <A NAME="{$aname}"></A>
-  &#160;&#160;<xsl:value-of select="@name"/> : <xsl:apply-templates select="./*" mode="underlying"/> := <xsl:value-of select="@expression"/>;
-  <xsl:if test="position()=last()">
+  <code>
+    <xsl:variable 
+      name="schema_name" 
+      select="../@name"/>      
+    
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="$schema_name"/>
+        <xsl:with-param name="section2" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>    
     <br/>
-    END_CONSTANT;
-    <br/>
-  </xsl:if>
+    <xsl:if test="position()=1">CONSTANT<br/></xsl:if>
+    <A NAME="{$aname}"></A>
+    &#160;&#160;<xsl:value-of select="@name"/> : <xsl:apply-templates select="./*" mode="underlying"/> := <xsl:value-of select="@expression"/>;
+    <xsl:if test="position()=last()">
+      <br/>
+      END_CONSTANT;
+      <br/>
+    </xsl:if>
+  </code>
 </xsl:template>
 
 
 <xsl:template match="type" mode="code">
-  <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
-
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>    
-
-  <br/>
-  <A NAME="{$aname}">TYPE </A><b><xsl:value-of select="@name"/></b> =
-      <xsl:apply-templates select="./aggregate" mode="code"/>        
-      <xsl:choose>
-        <xsl:when test="./where">
-          <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
-          <xsl:apply-templates select="./where" mode="code"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
-        </xsl:otherwise>
-      </xsl:choose>
+  <code>
+    <xsl:variable 
+      name="schema_name" 
+      select="../@name"/>      
+    
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="$schema_name"/>
+        <xsl:with-param name="section2" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>    
+    
+    <br/>
+    <A NAME="{$aname}">TYPE </A><b><xsl:value-of select="@name"/></b> =
+    <xsl:apply-templates select="./aggregate" mode="code"/>        
+    <xsl:choose>
+      <xsl:when test="./where">
+        <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
+        <xsl:apply-templates select="./where" mode="code"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
+      </xsl:otherwise>
+    </xsl:choose>
     END_TYPE; 
-  <br/>
+    <br/>
+  </code>
 </xsl:template>
 
 <!-- empty template to prevent the description element being output along
@@ -390,30 +396,32 @@
 
 
 <xsl:template match="entity" mode="code">
-  <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
-
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <br/>
-  <A NAME="{$aname}">ENTITY <b><xsl:value-of select="@name"/></b></A>
-  <xsl:call-template name="abstract.entity"/>
-  <xsl:call-template name="super.expression-code"/>
-  <xsl:call-template name="supertypes-code"/><xsl:text>;</xsl:text>  
-  <br/>
-  <xsl:apply-templates select="./explicit" mode="code"/>
-  <xsl:apply-templates select="./derived" mode="code"/>
-  <xsl:apply-templates select="./inverse" mode="code"/>
-  <xsl:apply-templates select="./unique" mode="code"/>
-  <xsl:apply-templates select="./where[@expression]" mode="code"/>
-  <!-- <xsl:call-template name="output_where_formal"/> -->
-  END_ENTITY;<br/>
+  <code>
+    <xsl:variable 
+      name="schema_name" 
+      select="../@name"/>      
+    
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="$schema_name"/>
+        <xsl:with-param name="section2" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <br/>
+    <A NAME="{$aname}">ENTITY <b><xsl:value-of select="@name"/></b></A>
+    <xsl:call-template name="abstract.entity"/>
+    <xsl:call-template name="super.expression-code"/>
+    <xsl:call-template name="supertypes-code"/><xsl:text>;</xsl:text>  
+    <br/>
+    <xsl:apply-templates select="./explicit" mode="code"/>
+    <xsl:apply-templates select="./derived" mode="code"/>
+    <xsl:apply-templates select="./inverse" mode="code"/>
+    <xsl:apply-templates select="./unique" mode="code"/>
+    <xsl:apply-templates select="./where[@expression]" mode="code"/>
+    <!-- <xsl:call-template name="output_where_formal"/> -->
+    END_ENTITY;<br/>
+  </code>
 </xsl:template>
 
 
@@ -652,16 +660,19 @@
       <xsl:with-param name="section2" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-             
-  <br/>
-  <A NAME="{$aname}">FUNCTION <b><xsl:value-of select="@name"/></b> </A>
-  <br/>
-  <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
-  <xsl:apply-templates select="./aggregate" mode="code"/>
-  <xsl:apply-templates select="./*" mode="underlying"/>;
+  <code>
+    <br/>
+    <A NAME="{$aname}">FUNCTION <b><xsl:value-of select="@name"/></b> </A>
+    <br/>
+    <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
+    <xsl:apply-templates select="./aggregate" mode="code"/>
+    <xsl:apply-templates select="./*" mode="underlying"/>;
+  </code>
   <xsl:apply-templates select="./algorithm" mode="code"/>
-	<!-- <br/> -->
-  END_FUNCTION;
+  <!-- <br/> -->
+  <code>
+    END_FUNCTION;
+  </code>
   <br/>
 </xsl:template>
 
@@ -701,7 +712,7 @@
 
 
 
-<xsl:template match="procedure" mode="code">    
+<xsl:template match="procedure" mode="code"> 
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -714,53 +725,64 @@
   </xsl:variable>
 
   <br/>
-  <A NAME="{$aname}">PROCEDURE <b><xsl:value-of select="@name"/></b> </A>
-  <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
-  <xsl:apply-templates select="./aggregate" mode="code"/>
-  <xsl:apply-templates select="./*" mode="underlying"/>;
+  <code>
+    <A NAME="{$aname}">PROCEDURE <b><xsl:value-of select="@name"/></b> </A>
+    <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
+    <xsl:apply-templates select="./aggregate" mode="code"/>
+    <xsl:apply-templates select="./*" mode="underlying"/>;
+  </code>
   <xsl:apply-templates select="./algorithm" mode="code"/><br/>
-  END_PROCEDURE;
+  <code>
+    END_PROCEDURE;
+  </code>
   <br/>
 
 </xsl:template>
 
-<xsl:template match="rule" mode="code">  
-  <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
-
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <br/>
-  <A NAME="{$aname}">RULE 
-  <b>
-    <xsl:value-of select="@name"/>
-  </b></A><xsl:text> FOR </xsl:text>
-  <br/>
-  (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);<br/>
+<xsl:template match="rule" mode="code">
+  <code>
+    <xsl:variable 
+      name="schema_name" 
+      select="../@name"/>      
+    
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="$schema_name"/>
+        <xsl:with-param name="section2" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <br/>
+    <A NAME="{$aname}">RULE 
+    <b>
+      <xsl:value-of select="@name"/>
+    </b></A><xsl:text> FOR </xsl:text>
+    <br/>
+    (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);<br/>
+  </code>
   <xsl:apply-templates select="./algorithm" mode="code"/>
-  <xsl:apply-templates select="./where" mode="code"/>
-  END_RULE;
+  <code>
+    <xsl:apply-templates select="./where" mode="code"/>
+  </code>
+  <code>
+    END_RULE;
+  </code>
   <br/>
 </xsl:template>
 
 <xsl:template match="subtype.constraint" mode="code">
-  <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
-
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
+  <code>
+    <xsl:variable 
+      name="schema_name" 
+      select="../@name"/>      
+    
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="$schema_name"/>
+        <xsl:with-param name="section2" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
   <!--
   <br/>
   <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
@@ -816,7 +838,7 @@
       </xsl:call-template>;<br/>
     </xsl:if>      
   END_SUBTYPE_CONSTRAINT;<br/>
-
+  </code>
 
 
 </xsl:template>

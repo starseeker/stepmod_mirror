@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_abstract.xsl,v 1.1 2003/03/10 20:56:28 robbod Exp $
+$Id: sect_abstract.xsl,v 1.2 2003/08/04 16:39:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -27,15 +27,23 @@ $Id: sect_abstract.xsl,v 1.1 2003/03/10 20:56:28 robbod Exp $
   
   <xsl:template match="module_clause">
     <xsl:variable 
-      name="module_xml_file"
-      select="concat('../data/modules/',@directory,'/module.xml')"/>
+      name="module_xml"
+      select="document(concat('../data/modules/',@directory,'/module.xml'))"/>
 
     <HTML>
       <HEAD>
+        <xsl:apply-templates select="$module_xml/module" mode="meta_data"/>
+
+        <TITLE>
+          <!-- output the module page title -->
+          <xsl:apply-templates 
+            select="$module_xml/module"
+            mode="title"/>
+        </TITLE>
       </HEAD>
       <BODY>
         <xsl:apply-templates 
-          select="document($module_xml_file)/module"
+          select="$module_xml/module"
           mode="abstract"/>
       </BODY>
     </HTML>

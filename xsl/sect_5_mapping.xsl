@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.74 2003/11/30 10:30:21 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.75 2003/12/04 00:07:52 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1251,13 +1251,16 @@ the mapping specification')"/>
 <!-- This is the main template to output the mapping specification -->
 <xsl:template match="ae|aa|alt_map" mode="output_mapping">
   <xsl:apply-templates select="." mode="output_id_description"/>
-  <table>
-    <xsl:apply-templates select="./aimelt"  mode="specification"/>
-    <xsl:apply-templates select="./source"  mode="specification"/>
-    <xsl:apply-templates select="./rules"  mode="specification"/>
-    <xsl:apply-templates select="./refpath"  mode="specification"/>
-    <xsl:apply-templates select="./refpath_extend"  mode="specification"/>
-  </table>  
+  <!-- only output a table if it will be populated -->
+  <xsl:if test="./aimelt or ./source or ./rules or ./refpath or ./refpath_extend">
+    <table>
+      <xsl:apply-templates select="./aimelt"  mode="specification"/>
+      <xsl:apply-templates select="./source"  mode="specification"/>
+      <xsl:apply-templates select="./rules"  mode="specification"/>
+      <xsl:apply-templates select="./refpath"  mode="specification"/>
+      <xsl:apply-templates select="./refpath_extend"  mode="specification"/>
+    </table>  
+  </xsl:if>
 </xsl:template>
 
 

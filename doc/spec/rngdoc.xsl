@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.2 2004/09/30 15:48:44 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.3 2004/10/01 18:34:50 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -7,6 +7,7 @@
      Created by Josh Lubell, lubell@nist.gov -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+		xmlns:exsl="http://exslt.org/common"
 		xmlns:rng="http://relaxng.org/ns/structure/1.0" 
 		xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" 
 		version="1.0"
@@ -61,23 +62,27 @@ following constructs.</xsl:param>
 	      </tbody>
 	    </tgroup>
 	  </informaltable>
-	  <informaltable>
-	    <tgroup cols="4">
-	      <thead>
-		<row>
-		  <entry>Attribute</entry>
-		  <entry>Documentation</entry>
-		  <entry>Type</entry>
-		  <entry>Default</entry>
-		</row>
-	      </thead>
-	      <tbody>
-		<xsl:apply-templates select="rng:optional | 
-					     rng:ref"
-				     mode="attributes"/>
-	      </tbody>
-	    </tgroup>
-	  </informaltable>
+	  <xsl:variable name="attributes">
+	    <xsl:apply-templates select="rng:optional | rng:ref"
+				 mode="attributes"/>
+	  </xsl:variable>
+	  <xsl:if test="exsl:node-set($attributes)/row">
+	    <informaltable>
+	      <tgroup cols="4">
+		<thead>
+		  <row>
+		    <entry>Attribute</entry>
+		    <entry>Documentation</entry>
+		    <entry>Type</entry>
+		    <entry>Default</entry>
+		  </row>
+		</thead>
+		<tbody>
+		  <xsl:copy-of select="$attributes"/>
+		</tbody>
+	      </tgroup>
+	    </informaltable>
+	  </xsl:if>
 	</section>
       </xsl:for-each>
     </section>
@@ -161,7 +166,14 @@ following constructs.</xsl:param>
 	</code>
       </entry>
       <entry>
-	<xsl:value-of select="a:documentation"/>
+	<xsl:choose>
+	  <xsl:when test="a:documentation">
+	    <xsl:value-of select="a:documentation"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:text>none</xsl:text>
+	  </xsl:otherwise>
+	</xsl:choose>
       </entry>
       <entry>
 	<code>

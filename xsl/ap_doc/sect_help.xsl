@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_help.xsl,v 1.1 2003/07/31 07:30:30 robbod Exp $
+$Id: sect_help.xsl,v 1.2 2003/07/31 13:01:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -25,7 +25,6 @@ $Id: sect_help.xsl,v 1.1 2003/07/31 07:30:30 robbod Exp $
     
     <html>
       <head>
-
         <xsl:apply-templates select="$application_protocol_xml/application_protocol" mode="meta_data"/>
         <title>
           <xsl:apply-templates 
@@ -34,9 +33,23 @@ $Id: sect_help.xsl,v 1.1 2003/07/31 07:30:30 robbod Exp $
       </head>
       <body>
         <h2>Help</h2>
+
+        
         <p>
           This is the collection of HTML pages that make up the AP document
-          for:
+          for: 
+          <br/>
+          <xsl:variable name="stdnumber">
+            <xsl:call-template name="get_protocol_stdnumber">
+              <xsl:with-param name="application_protocol" select="$application_protocol_xml/application_protocol"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:value-of select="$stdnumber"/>&#160;
+            Application protocol: 
+            <xsl:call-template name="protocol_display_name">
+              <xsl:with-param name="application_protocol" select="$application_protocol_xml/application_protocol/@title"/>
+            </xsl:call-template>
+
         </p>
         <p>
           All of the modules that are used by this AP are also included.

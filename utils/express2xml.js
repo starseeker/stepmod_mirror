@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.5 2001/12/28 15:59:29 robbod Exp $
+//$Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $
 // JScript to convert an Express file to an XML file
 // cscript express2xml.js <express.exp>
 // cscript express2xml.js <module> arm
@@ -308,7 +308,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.5 2001/12/28 15:59:29 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -318,7 +318,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.5 $";
+    var appCVSRevision = "$Revision: 1.6 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -661,7 +661,6 @@ function xmlUnderlyingType(statement,outTs) {
 	var pos = statement.search(/\bOF\b/i);
 	var typename = statement.substr(pos+3);
 	typename = getWord(1,typename);
-
 	// need to do OPTIONAL and UNIQUE ??
 	xmlOpenElement("<aggregate",outTs);
 	xmlAttr("type",agg,outTs);
@@ -671,6 +670,7 @@ function xmlUnderlyingType(statement,outTs) {
 	}
 	xmlCloseAttr(outTs); 
 	xmlOpenElement("<typename",outTs);
+
 	xmlAttr("name",typename,outTs);
 	xmlCloseAttr(outTs);
 	return;
@@ -685,6 +685,7 @@ function xmlUnderlyingType(statement,outTs) {
 	return;
     }
     xmlOpenElement("<typename",outTs);
+    statement = statement.trim();
     xmlAttr("name",statement,outTs);
     xmlCloseAttr(outTs);
 }
@@ -992,7 +993,7 @@ function xmlCloseElement(xmlElement, outTs) {
 
 // Output an indented attribute.
 function xmlAttr(name, value, outTs) {
-    var txt = indent+name+"=\""+value+"\"";
+    var txt = indent+name+'=\"'+value+'\"';
     outTs.WriteLine();
     outTs.Write(txt);
 }

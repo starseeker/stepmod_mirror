@@ -1,150 +1,87 @@
 (*
-
    $Id: arm.exp,v 1.11 2005/01/04 07:11:18 kovaliovas Exp $
-
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Model parameter - EXPRESS ARM
-
 *)
 
 
 
 SCHEMA Model_parameter_arm;
 
-
-
 USE FROM Classification_with_attributes_arm;
-
-
 
 USE FROM Independent_property_arm;
 
-
-
 USE FROM Independent_property_representation_arm;
-
-
 
 USE FROM Product_identification_arm;
 
-
-
 USE FROM Document_assignment_arm;
-
-
 
 USE FROM Document_definition_arm;
 
-
-
 USE FROM Characteristic_arm;
 
-
-
 	TYPE mp_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
-
 	   (Model_parameter);
-
 	END_TYPE; 
 
-
-
   ENTITY Category_model_parameter
-
     SUBTYPE OF (Model_parameter, Classification_attribute);
-
   END_ENTITY;
-
-
 
   ENTITY Model_parameter
-
    SUBTYPE OF (Independent_property);
-
       unit_of_measure    : OPTIONAL Unit; -- STRING
-
       valid_range        : OPTIONAL SET[1:?] OF Value_range; --coordinated_characteristic; 
-
       default_value      : OPTIONAL scalar_or_coordinated_characteristics;
-
-    INVERSE
-
-	  reference_document : document_assignment FOR is_assigned_to;    	
-
+	DERIVE
+  		reference_document: SET[0:?] OF Document_definition :=
+		QUERY (rvd <* QUERY (da <* USEDIN (SELF,
+       'DOCUMENT_ASSIGNMENT_ARM.'+
+       'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
+        (da.role = 'reference document'))  |
+       'DOCUMENT_DEFINITION_ARM.' +
+       'DOCUMENT_DEFINITION' IN 
+       TYPEOF (da.assigned_document));
+	WHERE
+   		WR1 : EXISTS (reference_document) AND SIZEOF(reference_document) = 1;
   END_ENTITY;
-
 
 
   ENTITY Parameter_assignment
-
     SUBTYPE OF (Independent_property_representation);
-
    (** We may need further specification here *)
-
 --      SELF\Independent_property_relationship.relating    	
-
 --	parameter_value: scalar_or_coordinated_characteristics;
-
       SELF\Independent_property_representation.property: Model_parameter;
-
 --	assigned_parameter: Model_parameter;
-
   END_ENTITY;
-
-
 
   ENTITY Parameter_assignment_override;
-
       overridden_parameter_assignment : Parameter_assignment;
-
       overriding_parameter_assignment : Parameter_assignment;
-
   END_ENTITY;
-
-
 
   ENTITY Schema_based_model_parameter
-
     SUBTYPE OF (Model_parameter);
-
       entity_name    : STRING;
-
       attribute_name : OPTIONAL STRING;
-
       SELF\Independent_property.property_type RENAMED schema_identifier : STRING;
-
     UNIQUE
-
       UR1 : entity_name,
-
  attribute_name,
-
  schema_identifier;
-
   END_ENTITY;
-
-
 
   ENTITY Product_specific_parameter_value_assignment;
-
       of_product         : Product;
-
       assigned_parameter : Parameter_assignment;
-
     DERIVE
-
       the_model_parameter : model_parameter := assigned_parameter.assigned_parameter;
-
     UNIQUE
-
       UR1 : the_model_parameter,
-
  of_product;
-
   END_ENTITY;
-
-
-
-
 
 END_SCHEMA;
 

@@ -70,8 +70,13 @@ USE FROM Characteristic_arm;
 	 Test_specification,
 	 Language_reference_manual))
     SUBTYPE OF (Document_definition);
-    INVERSE 
-      source : organization_or_person_in_organization_assignment FOR items;
+	DERIVE
+  		source: SET[0:?] OF Organization_or_person_in_organization_assignment :=
+         QUERY(temp <* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+
+         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |
+                         (temp.role = 'document source') );
+	WHERE
+   		WR1 : EXISTS (source) AND sizeof(source) = 1;
   END_ENTITY;
 
   ENTITY Structured_text

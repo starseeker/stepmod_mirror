@@ -20,9 +20,17 @@ USE FROM Part_template_shape_with_parameters_arm;
   ENTITY Part_template_3d_keepout_shape
     SUBTYPE OF (Non_feature_shape_definition,
     	Part_template_keepout_shape);
-(** Need a WR to constrain the cardinality    
-      application_technology_constraint  : OPTIONAL Requirement_definition_property;
-*)      
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'application technology constraint'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
+	WHERE
+   		WR1 : NOT EXISTS (application_technology_constraint) OR SIZEOF(application_technology_constraint) = 1;
   END_ENTITY;
 
   ENTITY Part_template_3d_shape

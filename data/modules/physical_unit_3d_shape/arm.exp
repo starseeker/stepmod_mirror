@@ -40,23 +40,38 @@ USE FROM Part_view_definition_arm;
 
   ENTITY Physical_unit_3d_keepout_shape   
     SUBTYPE OF (View_level_non_feature_shape_definition, Physical_unit_keepout_shape);
-(** Need a WR to constrain the cardinality
-      application_technology_constraint  : OPTIONAL Requirement_definition_property;
-*)      
       shape_classification               : shape_class;
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'application technology constraint'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
+	WHERE
+   		WR1 : NOT EXISTS (application_technology_constraint) OR SIZEOF(application_technology_constraint) = 1;
   END_ENTITY;
 
   ENTITY Physical_unit_3d_shape
     SUBTYPE OF (Feature_shape_definition, Physical_unit_shape);
-(** Need a WR to constrain the cardinality    
-      application_technology_constraint : OPTIONAL Requirement_definition_property;
-*)      
       shape_purpose                     : OPTIONAL predefined_3d_purpose;
       shape_classification              : shape_class;
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'application technology constraint'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
     INVERSE
 	  external_shape_purpose : SET [0:1] OF External_source_identification FOR item;      
 	WHERE
 	  WR1: (EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1);
+   	  WR2: NOT EXISTS (application_technology_constraint) OR SIZEOF(application_technology_constraint) = 1;
   END_ENTITY;
 
 END_SCHEMA;

@@ -50,27 +50,41 @@ USE FROM Value_with_unit_extension_arm;
     SUBTYPE OF (Planar_shape,
  			View_level_non_feature_shape_definition,
  			Physical_unit_keepout_shape);
-(** Need a WR to constrain the cardinality 
-      application_technology_constraint            : OPTIONAL Requirement_definition_property;
-*)      
       shape_distance_from_seating_plane            : OPTIONAL Length_data_element;
       shape_location_with_respect_to_seating_plane : shape_location;
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'application technology constraint'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
     WHERE
       WR1 : NOT ((congruent = shape_location_with_respect_to_seating_plane) AND (EXISTS(shape_distance_from_seating_plane)));
+   	  WR2 : NOT EXISTS (application_technology_constraint) OR SIZEOF(application_technology_constraint) = 1;
   END_ENTITY;
 
   ENTITY Physical_unit_planar_shape
     SUBTYPE OF (Planar_projected_shape, Physical_unit_shape);
-(** Need a WR to constrain the cardinality    
-      application_technology_constraint            : OPTIONAL Requirement_definition_property;
-*)      
       shape_distance_from_seating_plane            : OPTIONAL Length_data_element;
       shape_location_with_respect_to_seating_plane : shape_location;
       shape_purpose                                : OPTIONAL predefined_planar_purpose;
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'application technology constraint'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
     INVERSE
 	  external_shape_purpose : SET [0:1] OF External_source_identification FOR item;      
 	WHERE
 	  WR1: (EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1);
+   	  WR2 : NOT EXISTS (application_technology_constraint) OR SIZEOF(application_technology_constraint) = 1;	  
   END_ENTITY;
 
 END_SCHEMA;

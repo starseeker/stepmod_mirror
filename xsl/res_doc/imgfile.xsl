@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.8 2003/03/19 00:48:55 thendrix Exp $
+$Id: imgfile.xsl,v 1.9 2003/04/18 22:04:11 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -224,8 +224,14 @@ $Id: imgfile.xsl,v 1.8 2003/03/19 00:48:55 thendrix Exp $
     <xsl:variable name="number">
       <xsl:number/>
     </xsl:variable>
+    <xsl:variable name="number_any">
+      <xsl:number level="any"/>
+    </xsl:variable>
     <xsl:variable name="img_count">
       <xsl:value-of select="count(../imgfile)"/>
+    </xsl:variable>
+    <xsl:variable name="interface_diag_count">
+      <xsl:value-of select="count(//schema_diag//imgfile)"/>
     </xsl:variable>
     <xsl:variable name="fig_no">
       <xsl:choose>
@@ -233,7 +239,7 @@ $Id: imgfile.xsl,v 1.8 2003/03/19 00:48:55 thendrix Exp $
           <xsl:choose>
             <xsl:when test="$number=1">
               <xsl:value-of 
-                select="concat('Figure C.',$number, 
+                select="concat('Figure C.',$number_any - $interface_diag_count, 
                         ' &#8212; ARM schema level EXPRESS-G diagram ',$number)"/>
             </xsl:when>
             <xsl:otherwise>
@@ -261,7 +267,7 @@ $Id: imgfile.xsl,v 1.8 2003/03/19 00:48:55 thendrix Exp $
         <xsl:when test="contains(@file,'schemaexpg')">
           <xsl:variable name="schname" select="substring-before(@file,'expg')" />
             <xsl:value-of 
-              select="concat('Figure D.',$number, 
+              select="concat('Figure D.',$number_any - $interface_diag_count, 
                       ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $number,' of ', $img_count, ')' )" />
             </xsl:when>
             <xsl:otherwise>

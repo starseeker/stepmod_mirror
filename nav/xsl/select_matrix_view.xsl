@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_matrix_view.xsl,v 1.3 2003/07/04 20:39:26 nigelshaw Exp $
+$Id: select_matrix_view.xsl,v 1.4 2003/07/28 07:29:58 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -147,7 +147,7 @@ $Id: select_matrix_view.xsl,v 1.3 2003/07/04 20:39:26 nigelshaw Exp $
 
 	<xsl:variable name="this-pass-entities" 
 		select="$all-entities[(position() - $start + 1) > 0 and 201 > (position()-$start + 1) ]" />
-
+          <br/>
   <TABLE border="3">
   
 	<!-- output the header row -->
@@ -226,6 +226,7 @@ $Id: select_matrix_view.xsl,v 1.3 2003/07/04 20:39:26 nigelshaw Exp $
 
 	</TBODY>
   </TABLE>
+  <br/>
 
 	<xsl:if test="count($this-schema//entity | $called-schemas//entity) > $start + 200" >
 

@@ -98,11 +98,7 @@
 
     </xsl:if>
 
-      <xsl:variable name="ent_start_char"
-        select="substring(normalize-space($entity),1,1)"/>
-      <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-
-    <xsl:if test="contains($schema,$description/@linkend)">
+    <xsl:if test="$description/@linkend and contains($schema,$description/@linkend) and string-length(normalize-space($description)) > 1">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
@@ -111,6 +107,12 @@
 
 
     </xsl:if>
+
+
+      <xsl:variable name="ent_start_char"
+        select="substring(normalize-space($entity),1,1)"/>
+      <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
 
     <xsl:if test="contains($UPPER,$ent_start_char) and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
 

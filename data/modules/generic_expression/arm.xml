@@ -1,166 +1,167 @@
 <?xml version="1.0"?>
-<!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by olavo (uninova) -->
 <!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2002/08/12 06:37:58 $" rcs.revision="$Revision: $">
-	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.22" source="../data/modules/generic_expression/arm.exp"/>
-	<schema name="Generic_expression_arm">
-		<entity name="Generic_expression" abstract.supertype="YES" super.expression="(ONEOF(Simple_generic_expression,								Unary_generic_expression,								Binary_generic_expression,								Multiple_arity_generic_expression))">
-			<where label="WR1" expression="is_acyclic(SELF)"/>
-		</entity>
-		<entity name="Simple_generic_expression" abstract.supertype="YES" super.expression="(ONEOF(Generic_literal, Generic_variable))" supertypes="Generic_expression"/>
-		<entity name="Generic_literal" abstract.supertype="YES" supertypes="Simple_generic_expression"/>
-		<entity name="Generic_variable" abstract.supertype="YES" supertypes="Simple_generic_expression">
-			<inverse name="interpretation" entity="Environment" attribute="syntactic_representation"/>
-		</entity>
-		<entity name="Variable_semantics" abstract.supertype="YES"/>
-		<entity name="Environment">
-			<explicit name="syntactic_representation">
-				<typename name="Generic_variable"/>
-			</explicit>
-			<explicit name="semantics">
-				<typename name="Variable_semantics"/>
-			</explicit>
-		</entity>
-		<entity name="Unary_generic_expression" abstract.supertype="YES" supertypes="generic_expression">
-			<explicit name="operand">
-				<typename name="generic_expression"/>
-			</explicit>
-		</entity>
-		<entity name="Binary_generic_expression" abstract.supertype="YES" supertypes="generic_expression">
-			<explicit name="operands">
-				<aggregate type="LIST" lower="2" upper="2"/>
-				<typename name="generic_expression"/>
-			</explicit>
-		</entity>
-		<entity name="Multiple_arity_generic_expression" abstract.supertype="YES" supertypes="generic_expression">
-			<explicit name="operands">
-				<aggregate type="LIST" lower="2" upper="?"/>
-				<typename name="generic_expression"/>
-			</explicit>
-		</entity>
-		<entity name="Variable" abstract.supertype="YES" super.expression="(ONEOF (Numeric_variable,				Boolean_variable,					String_variable))" supertypes="Generic_variable"/>
-		<entity name="Numeric_variable" super.expression="(ONEOF (Int_numeric_variable,			          Real_numeric_variable))" supertypes="Variable">
-			<where label="WR1" expression="('ISO13584_EXPRESSIONS_SCHEMA.INT_NUMERIC_VARIABLE' 			IN TYPEOF(SELF) ) OR			('ISO13584_EXPRESSIONS_SCHEMA.REAL_NUMERIC_VARIABLE' 			IN TYPEOF(SELF) )"/>
-		</entity>
-		<entity name="Int_numeric_variable" supertypes="Numeric_variable"/>
-		<entity name="Real_numeric_variable" supertypes="Numeric_variable"/>
-		<entity name="Boolean_variable" supertypes="Variable"/>
-		<entity name="String_variable" supertypes="Variable"/>
-		<function name="is_acyclic">
-			<parameter name="arg">
-				<typename name="generic_expression"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-RETURN (acyclic (arg, []));
-      </algorithm>
-		</function>
-		<function name="acyclic">
-			<parameter name="arg1">
-				<typename name="generic_expression"/>
-			</parameter>
-			<parameter name="arg2">
-				<aggregate type="SET"/>
-				<typename name="generic_expression"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
+<express
+  language_version="2"
+  description.file="arm_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
-LOCAL
-	result: BOOLEAN;
-END_LOCAL;
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.22"
+    source="../data/modules/generic_expression/arm.exp"/>
 
-IF ('ISO13584_GENERIC_EXPRESSIONS_SCHEMA.SIMPLE_GENERIC_EXPRESSION'
-	IN TYPEOF (arg1)) 
-THEN
-	RETURN (TRUE);
-END_IF;
+  <schema name="Generic_expression_arm">
+    <interface
+      kind="use"
+      schema="Numeric_expression_arm">
+    </interface>
 
-IF arg1 IN arg2 
-THEN 
-	RETURN (FALSE);
-END_IF;
+    <interface
+      kind="use"
+      schema="Boolean_expression_arm">
+    </interface>
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.UNARY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg1) 
-THEN 
-	RETURN 
-	(acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
-END_IF;
+    <interface
+      kind="use"
+      schema="String_expression_arm">
+    </interface>
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.BINARY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg1) 
-THEN 
-	RETURN 
-	(acyclic(arg1\Binary_generic_expression.operands[1],arg2+[arg1])
-	AND
-	acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
-END_IF;
+    <entity
+      name="Generic_expression"
+      abstract.supertype="YES"
+      super.expression="(ONEOF(Simple_generic_expression,			    Unary_generic_expression,			    Binary_generic_expression,			    Multiple_arity_generic_expression))">
+      <where
+        label="WR1"
+        expression="Is_Acyclic(SELF)">
+      </where>
+    </entity>
 
-IF 
-'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.MULTIPLE_ARITY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg1) 
-THEN 
-	result := TRUE;
-	REPEAT i := 1 TO 
-			SIZEOF (arg1\Multiple_arity_generic_expression.operands);
-		result := result AND
-		acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2+[arg1]);
-	END_REPEAT;
+    <entity
+      name="Simple_generic_expression"
+      abstract.supertype="YES"
+      super.expression="(ONEOF(Generic_literal, Generic_variable))"
+      supertypes="Generic_expression">
+    </entity>
 
-	RETURN (result);
-END_IF;
+    <entity
+      name="Generic_literal"
+      abstract.supertype="YES"
+      supertypes="Simple_generic_expression">
+    </entity>
 
-      </algorithm>
-		</function>
-		<function name="used_variables">
-			<parameter name="arg">
-				<typename name="Generic_expression"/>
-			</parameter>
-			<aggregate type="SET"/>
-			<typename name="Generic_variable"/>
-			<algorithm>
+    <entity
+      name="Generic_variable"
+      abstract.supertype="YES"
+      supertypes="Simple_generic_expression">
+      <inverse
+        name="interpretation"
+        entity="Environment"
+        attribute="syntactic_representation">
+      </inverse>
+    </entity>
 
-LOCAL
-	result : SET OF Generic_variable := [];
-END_LOCAL;
+    <entity
+      name="Variable_semantics"
+      abstract.supertype="YES">
+    </entity>
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.GENERIC_VARIABLE' 
-	IN TYPEOF (arg) 
-THEN 
-	RETURN ([arg]);
-END_IF;
+    <entity
+      name="Environment">
+      <explicit
+        name="syntactic_representation">
+        <typename
+          name="Generic_variable"/>
+      </explicit>
+      <explicit
+        name="semantics">
+        <typename
+          name="Variable_semantics"/>
+      </explicit>
+    </entity>
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.UNARY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg)
-THEN 
-	RETURN (used_variables (arg\Unary_generic_expression.operand));
-END_IF;
+    <entity
+      name="Unary_generic_expression"
+      abstract.supertype="YES"
+      supertypes="Generic_expression">
+      <explicit
+        name="operand">
+        <typename
+          name="Generic_expression"/>
+      </explicit>
+    </entity>
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.BINARY_GENERIC_EXPRESSION'
-	IN TYPEOF (arg)
-THEN 
-	RETURN(used_variables(arg\Binary_generic_expression.operands[1])
-		+ used_variables (arg\Binary_generic_expression.operands[2]));
-END_IF;
+    <entity
+      name="Binary_generic_expression"
+      abstract.supertype="YES"
+      supertypes="Generic_expression">
+      <explicit
+        name="operands">
+        <aggregate
+          type="LIST"
+          lower="2"
+          upper="2"/>
+        <typename
+          name="Generic_expression"/>
+      </explicit>
+    </entity>
 
-IF
-'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.MULTIPLE_ARITY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg)
-THEN
-	REPEAT i := 1 TO 
-		SIZEOF(arg\Multiple_arity_generic_expression.operands);
-		result := result + used_variables(
-			arg\Multiple_arity_generic_expression.operands[i]);
-	END_REPEAT;
-	
-	RETURN (result);
-END_IF;
-RETURN ([ ]);      -- in this case the subtype shall not contain
-			            -- any variable (see IP1 in generic_expression)
-      </algorithm>
-		</function>
-	</schema>
+    <entity
+      name="Multiple_arity_generic_expression"
+      abstract.supertype="YES"
+      supertypes="Generic_expression">
+      <explicit
+        name="operands">
+        <aggregate
+          type="LIST"
+          lower="2"
+          upper="?"/>
+        <typename
+          name="Generic_expression"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Variable"
+      abstract.supertype="YES"
+      super.expression="(ONEOF (Numeric_variable,				Boolean_variable,					String_variable))"
+      supertypes="Generic_variable">
+    </entity>
+
+    <entity
+      name="Numeric_variable"
+      super.expression="(ONEOF (Int_numeric_variable,			          Real_numeric_variable))"
+      supertypes="Simple_numeric_expression Variable">
+      <where
+        label="WR1"
+        expression="('ISO13584_EXPRESSIONS_SCHEMA.Int_numeric_variable' 			IN TYPEOF(SELF) ) OR			('ISO13584_EXPRESSIONS_SCHEMA.Real_numeric_variable' 			IN TYPEOF(SELF) )">
+      </where>
+    </entity>
+
+    <entity
+      name="Int_numeric_variable"
+      supertypes="Numeric_variable">
+    </entity>
+
+    <entity
+      name="Real_numeric_variable"
+      supertypes="Numeric_variable">
+    </entity>
+
+    <entity
+      name="Boolean_variable"
+      supertypes="Simple_Boolean_expression Variable">
+    </entity>
+
+    <entity
+      name="String_variable"
+      supertypes="Simple_string_expression Variable">
+    </entity>
+
+  </schema>
+
 </express>

@@ -2,6 +2,66 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Part feature function - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Part_feature_function_arm;
+
+  USE FROM Physical_unit_usage_view_arm;
+   
+	USE FROM Geometric_tolerance_arm (single_datum);
+
+  ENTITY Part_tooling_feature
+    SUPERTYPE OF (ONEOF (fiducial_part_feature,
+ tool_registration_mark) ANDOR
+ test_point_part_feature)
+    SUBTYPE OF (part_feature);
+  END_ENTITY; -- part_tooling_feature
+
+  ENTITY Test_point_part_feature
+    SUBTYPE OF (part_tooling_feature);
+  END_ENTITY; -- test_point_part_feature
+
+  ENTITY Fiducial_part_feature
+    SUBTYPE OF (part_tooling_feature);
+  END_ENTITY; -- fiducial_part_feature
+
+  ENTITY Tool_registration_mark
+    SUBTYPE OF (part_tooling_feature);
+  END_ENTITY; -- tool_registration_mark
+
+  ENTITY Part_interface_access_feature
+    SUBTYPE OF (part_feature);
+      accessed_interface    : part_feature;
+      interface_access_area : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+    WHERE
+      wr1 : SELF\part_feature.material_state_change = material_removal;
+      wr2 : SELF <> accessed_interface;
+      wr3 : NOT ('AP210_ARM.PART_TERMINAL' IN TYPEOF(SELF));
+      wr4 : NOT ('AP210_ARM.PACKAGE_BODY' IN TYPEOF(SELF));
+      wr5 : NOT ('AP210_ARM.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
+      wr6 : NOT ('AP210_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
+      wr7 : NOT ('AP210_ARM.PACKAGE_TERMINAL' IN TYPEOF(SELF));
+      wr8 : NOT ('AP210_ARM.PACKAGE_BODY_SURFACE' IN TYPEOF(SELF));
+      wr9 : NOT ('AP210_ARM.POLARITY_INDICATION_FEATURE' IN TYPEOF(SELF));
+  END_ENTITY; -- part_interface_access_feature
+
+  ENTITY Part_mating_feature
+    SUBTYPE OF (part_feature);
+      mating_area : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+    WHERE
+      wr1 : NOT ('AP210_ARM.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
+      wr2 : NOT ('AP210_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
+      wr3 : NOT ('AP210_ARM.PACKAGE_TERMINAL' IN TYPEOF(SELF));
+      wr4 : NOT ('AP210_ARM.PART_TERMINAL' IN TYPEOF(SELF));
+  END_ENTITY; -- part_mating_feature
+
+  ENTITY Part_mounting_feature
+--    SUPERTYPE OF (bare_die_surface)
+    SUBTYPE OF (part_feature);
+      mounting_area : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+  END_ENTITY; -- part_mounting_feature
+
+  ENTITY Thermal_feature
+    SUBTYPE OF (part_feature);
+  END_ENTITY; -- thermal_feature
+
 END_SCHEMA;

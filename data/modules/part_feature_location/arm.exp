@@ -2,6 +2,32 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Part feature location - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Part_feature_location_arm;
+
+USE FROM Layered_2d_shape_arm;
+
+REFERENCE FROM Non_feature_shape_element_arm (Non_feature_shape_definition);
+
+	TYPE feature_or_non_feature_usage = 
+		EXTENSIBLE GENERIC_ENTITY SELECT (part_template_or_physical_unit_shape_select);
+	END_TYPE;
+
+ 	TYPE part_template_or_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+	TYPE usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Usage_concept_usage_relationship;
+      associating_usage_shape     : feature_or_non_feature_usage;
+      associated_usage            : usage_concept;
+      associated_shape_definition : geometric_model;
+      associated_usage_placement  : axis_placement_or_cto2d;
+    WHERE
+      WR1 : (('AP210_ARM.NON_FEATURE_SHAPE_DEFINITION' IN TYPEOF(associated_shape_definition)) AND ('AP210_ARM.NON_FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape))) OR (('AP210_ARM.FEATURE_SHAPE_DEFINITION' IN TYPEOF(associated_shape_definition)) AND ('AP210_ARM.FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape)));
+      WR2 : NOT ('AP210_ARM.cartesian_transformation_2d' IN TYPEOF(associated_usage_placement)) OR ('AP210_ARM.NON_FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape));
+  END_ENTITY; -- usage_concept_usage_relationship
+
+
 END_SCHEMA;

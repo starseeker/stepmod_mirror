@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.47 2004/11/08 17:59:09 thendrix Exp $
+$Id: resource.xsl,v 1.48 2004/11/09 12:06:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -490,6 +490,15 @@ o=isocs; s=central<br/>
           </xsl:when>
 
           <xsl:when test="$status='TS'">
+            publication
+          </xsl:when>
+          <xsl:when test="$status='FDIS'">
+            publication
+          </xsl:when>
+          <xsl:when test="$status='DIS'">
+            publication
+          </xsl:when>
+          <xsl:when test="$status='IS'">
             publication
           </xsl:when>
         </xsl:choose>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.8 2002/05/14 07:51:23 robbod Exp $
+$Id: imgfile.xsl,v 1.9 2002/05/16 07:32:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -63,7 +63,7 @@ $Id: imgfile.xsl,v 1.8 2002/05/14 07:51:23 robbod Exp $
         <xsl:apply-templates 
           select="document($module_file)/module"
           mode="TOCbannertitle">
-          <xsl:with-param name="fldr_icon" select="'../../../images/folder.gif'"/>
+          <xsl:with-param name="module_root" select="'.'"/>
         </xsl:apply-templates>
 
           <!-- only proceed if a module is specified -->

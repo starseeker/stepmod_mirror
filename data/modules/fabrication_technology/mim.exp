@@ -1,0 +1,806 @@
+(*
+   $Id: mim.exp,v 1.7 2005/01/04 07:21:31 budreckytej Exp $
+   ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Fabrication technology - EXPRESS MIM
+*)
+
+
+SCHEMA Fabrication_technology_mim;
+	USE FROM External_item_identification_assignment_mim;
+	USE FROM Feature_and_connection_zone_mim;
+	USE FROM Part_feature_location_mim;
+	USE FROM Pdm_material_aspects_mim;
+	USE FROM Physical_layout_template_mim;
+	USE FROM Requirement_decomposition_mim;
+	USE FROM Shape_property_assignment_mim;
+	USE FROM Specification_document_mim;
+	USE FROM Value_with_unit_extension_mim;
+	USE FROM Conductivity_material_aspects_mim;
+
+ENTITY dependent_material_removal_feature_template
+  SUBTYPE OF (part_template_definition);
+WHERE
+  WR1: SELF\shape_aspect.description = 'material removal feature template';
+  WR2: SIZEOF (QUERY (am <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'associated template') |
+       (('FABRICATION_TECHNOLOGY_MIM.' +
+       'LAND_PHYSICAL_TEMPLATE' IN
+       TYPEOF (am.relating_shape_aspect)) AND
+       (am.relating_shape_aspect.description IN
+       ['default attachment size and component termination passage based',
+       'default attachment size based',
+       'default attachment size and via based',
+       'default component termination passage based',
+       'default via based',
+       'default unsupported passage based']))
+        )) = 1;
+END_ENTITY;
+
+ENTITY design_object
+  SUBTYPE OF (characterized_object, group);
+END_ENTITY;
+
+ENTITY electrical_isolation_removal_template_definition
+  SUBTYPE OF (part_template_definition);
+(*
+WHERE
+  WR1: (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'TEXT_LITERAL' IN
+       TYPEOF (it))) = 1)) = 1))) = 0);
+  WR2: (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] * 
+       TYPEOF (it)) = 2) AND (it\representation_item.name = 
+         'maximum font vertical extent'))) = 1
+       )) = 1))) = 0);
+  WR3: (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] * 
+       TYPEOF (it)) = 2) AND (it\representation_item.name = 
+         'maximum font horizontal extent'))) = 1
+       )) = 1))) = 0);
+*)
+END_ENTITY;
+
+ENTITY grouped_requirements_property
+  SUBTYPE OF (group, requirements_property);
+WHERE
+  WR1: (NOT (SELF\group.name = 
+        'item restricted requirements property')) OR
+       (SIZEOF (QUERY (aga <* QUERY (ga <* USEDIN (SELF, 
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT' IN
+       TYPEOF (ga)) |
+       SIZEOF (aga.items) = 1)) = 1);
+  WR2: (NOT (SELF\group.name = 
+        'layout spacing requirements property')) OR
+       (SIZEOF (QUERY (aga <* QUERY (ga <* USEDIN (SELF, 
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT' IN
+       TYPEOF (ga)) |
+       (SIZEOF (aga.items) = 2) AND
+       (SIZEOF (QUERY (rp <* QUERY (it <* aga.items |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'DESIGN_OBJECT' IN 
+       TYPEOF (it)) |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'DESIGN_OBJECT' IN 
+       TYPEOF (rp)) AND
+       (rp\characterized_object.name IN [
+       'assembly module assembly component',
+       'assembly module component terminal',
+       'assembly module component',
+       'assembly module macro component join terminal',
+       'assembly module macro component',
+       'assembly module',
+       'bare die component terminal',
+       'bare die component',
+       'bonded conductive base blind via',
+       'buried via',
+       'cable component',
+       'component feature',
+       'component mounting feature',
+       'component termination passage and contact size dependent land',
+       'component termination passage and contact size dependent non functional land',
+       'component termination passage dependent land',
+       'component termination passage dependent non functional land',
+       'component termination passage interface terminal',
+       'component termination passage join terminal',
+       'component termination passage',
+       'conductive interconnect element terminal',
+       'conductive interconnect element with pre defined transitions',
+       'conductive interconnect element with user defined single transition',
+       'connected area component',
+       'contact size dependent land',
+       'contact size dependent non functional land',
+       'cutout edge segment',
+       'cutout',
+       'dielectric material passage',
+       'electrical isolation laminate component',
+       'embedded component terminal',
+       'fiducial',
+       'fill area',
+       'filled area material removal laminate component',
+       'inter stratum feature',
+       'interconnect component interface terminal',
+       'interconnect component join terminal',
+       'interconnect module assembly component',
+       'interconnect module component stratum based terminal',
+       'interconnect module component surface feature',
+       'interconnect module component terminal',
+       'interconnect module component',
+       'interconnect module edge segment',
+       'interconnect module edge',
+       'interconnect module macro component join terminal',
+       'interconnect module macro component',
+       'interface access material removal laminate component',
+       'interface access stratum feature template component',
+       'interface component',
+       'interfacial connection',
+       'internal probe access area',
+       'join two physical connectivity definition supporting inter stratum feature',
+       'join two physical connectivity definition supporting printed component',
+       'laminate component',
+       'laminate text component',
+       'laminate text string component',
+       'land interface terminal',
+       'land join terminal',
+       'land',
+       'material removal laminate component',
+       'minimally defined component terminal',
+       'movable packaged component join terminal',
+       'multi layer material removal laminate component',
+       'multi layer stratum feature template component',
+       'non conductive base blind via',
+       'non functional land interface terminal',
+       'non functional land join terminal',
+       'non functional land',
+       'packaged component join terminal',
+       'packaged component',
+       'packaged connector component interface terminal',
+       'packaged connector component',
+       'partially plated cutout',
+       'partially plated interconnect module edge',
+       'physical component',
+       'physical connectivity interrupting cutout',
+       'physical laminate component',
+       'physical network supporting inter stratum feature',
+       'plated conductive base blind via',
+       'plated cutout edge segment',
+       'plated cutout',
+       'plated interconnect module edge segment',
+       'plated interconnect module edge',
+       'plated passage or unsupported passage',
+       'plated passage',
+       'primary stratum indicator symbol',
+       'printed component join terminal',
+       'printed connector component interface terminal',
+       'probe access area',
+       'routed interconnect component',
+       'routed physical component',
+       'special symbol laminate component',
+       'stratum feature template component',
+       'stratum feature',
+       'thermal isolation laminate component',
+       'unrouted conductive interconnect element',
+       'unsupported passage dependent non functional land',
+       'unsupported passage',
+       'via and contact size dependent land',
+       'via and contact size dependent non functional land',
+       'via dependent land',
+       'via dependent non functional land',
+       'via terminal',
+       'via']))) = 2))) = 1);
+  WR3: (NOT (SELF\group.name = 
+       'layout spacing requirements property')) OR
+       (SIZEOF (QUERY (aga <* QUERY (ga <* USEDIN (SELF, 
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT' IN
+       TYPEOF (ga)) |
+       (SIZEOF (QUERY (rp <* QUERY (it <* aga.items |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'DESIGN_OBJECT' IN 
+       TYPEOF (it)) |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'DESIGN_OBJECT' IN 
+       TYPEOF (rp)) AND
+       (rp\characterized_object.description = 
+       'dependent design object category'))) = 1))) = 1);
+  WR4: (NOT (SELF\group.name = 
+       'layout spacing requirements property')) OR
+       (SIZEOF (QUERY (aga <* QUERY (ga <* USEDIN (SELF, 
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT' IN
+       TYPEOF (ga)) |
+       (SIZEOF (QUERY (rp <* QUERY (it <* aga.items |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'DESIGN_OBJECT' IN 
+       TYPEOF (it)) |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'DESIGN_OBJECT' IN 
+       TYPEOF (rp)) AND
+       (rp\characterized_object.description = 
+       'reference design object category'))) = 1))) = 1);
+END_ENTITY;
+
+ENTITY land_physical_template
+  SUBTYPE OF (part_template_definition);
+WHERE
+  WR1: SIZEOF (QUERY (ada <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       SIZEOF (QUERY (duc <* USEDIN (ada.assigned_document,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |
+    duc\document_usage_constraint.subject_element = 
+                 'pre defined classification code')) = 1)) <= 1;
+  WR2: SIZEOF (QUERY (am <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'associated definition') |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LAND_TEMPLATE_TERMINAL' IN
+       TYPEOF (am.related_shape_aspect))) >= 1;
+ WR3:  NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN ['default attachment size based',
+       'default attachment size and component termination passage based', 
+       'default attachment size and via based'])) OR
+       (SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       ((sar\shape_aspect_relationship.name = 'minimum attachment region size') AND 
+       (sar.related_shape_aspect\shape_aspect.description = 'connection zone')))) <= 1));
+ WR4:  NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN ['default attachment size based',
+       'default attachment size and component termination passage based', 
+       'default attachment size and via based'])) OR
+       (SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       ((sar\shape_aspect_relationship.name = 'maximum attachment region size') AND 
+       (sar.related_shape_aspect\shape_aspect.description = 'connection zone')))) <= 1));
+ WR5:  NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN 
+       ['default component termination passage based',
+   'default attachment size and component termination passage based'])) OR
+       (SIZEOF (QUERY (tu <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'technology usage') |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'PASSAGE_TECHNOLOGY' IN
+       TYPEOF (tu.related_shape_aspect)) AND
+       (tu.related_shape_aspect\shape_aspect.description = 
+       'default component termination passage definition'))) = 1));
+ WR6:  NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN 
+       ['default attachment size and component termination passage based',
+       'default attachment size based', 
+       'default attachment size and via based', 
+       'default component termination passage based',
+       'default via based',
+       'default unsupported passage based'])) OR
+       (SIZEOF (QUERY (ost <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'of stratum technology') |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'STRATUM_TECHNOLOGY' IN 
+       TYPEOF (ost.relating_shape_aspect.of_shape.definition)
+       )) = 1));
+ WR7:  NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN 
+       ['default attachment size and component termination passage based', 
+       'default attachment size and via based', 
+       'default component termination passage based', 'default via based', 
+       'default unsupported passage based'])) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] * 
+       TYPEOF (it)) = 2)) = 2)) = 1))) = 0));
+ WR8:  NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN 
+       ['default attachment size and component termination passage based', 
+       'default attachment size and via based', 
+       'default component termination passage based', 'default via based', 
+       'default unsupported passage based'])) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] * 
+       TYPEOF (it)) = 2) AND 
+       (it\representation_item.name = 'minimum fabrication allowance'))) 
+       = 1)) = 1))) = 0));
+ WR9:  NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN 
+       ['default attachment size and component termination passage based', 
+       'default attachment size and via based', 
+       'default component termination passage based', 'default via based', 
+       'default unsupported passage based'])) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] * 
+       TYPEOF (it)) = 2) AND (it\representation_item.name = 'minimum annular ring'))) = 1
+       )) = 1))) = 0));
+ WR10: NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN 
+       ['default attachment size and component termination passage based', 
+       'default attachment size and via based', 
+       'default component termination passage based', 'default via based', 
+       'default unsupported passage based'])) OR
+       (SIZEOF (QUERY (tu <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'technology usage') |
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PASSAGE_TECHNOLOGY' IN
+       TYPEOF (tu.related_shape_aspect))) = 1));
+ WR11: NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description IN ['default via based',
+       'default attachment size and via based'])) OR
+       (SIZEOF (QUERY (tu <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'technology usage') |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'PASSAGE_TECHNOLOGY' IN
+       TYPEOF (tu.related_shape_aspect)) AND
+       (tu.related_shape_aspect\shape_aspect.description = 'default via definition'))) 
+       = 1));
+ WR12: NOT(EXISTS(SELF\shape_aspect.description)) OR
+       ((NOT (SELF\shape_aspect.description = 'default unsupported passage')) OR
+       (SIZEOF (QUERY (tu <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'technology usage') |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'PASSAGE_TECHNOLOGY' IN
+       TYPEOF (tu.related_shape_aspect)) AND
+       (tu.related_shape_aspect\shape_aspect.description = 
+       'default unsupported passage definition'))) = 1));
+END_ENTITY;
+
+ENTITY land_template_terminal
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SELF\shape_aspect.description IN ['interface terminal', 'join terminal'];
+  WR2: SIZEOF (QUERY (tcz <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       (sar\shape_aspect_relationship.name = 'terminal connection zone') AND
+       (sar\shape_aspect_relationship.description IN ['edge curve', 'edge point', 
+       'surface area', 'surface point'])) |
+       tcz.related_shape_aspect\shape_aspect.description = 'connection zone')) >= 0;
+END_ENTITY;
+
+ENTITY stratum_technology
+  SUBTYPE OF (characterized_object);
+UNIQUE
+  UR1: SELF\characterized_object.name;
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 
+        'FABRICATION_TECHNOLOGY_MIM.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1;
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'stiffness class representation')) <= 1))) = 0;
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation')) = 1))) = 1;
+  WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (scr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 'stratum class representation') |
+       NOT (SIZEOF (QUERY (it <* scr.used_representation.items | 
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'laminate stiffness class') AND
+       (it\descriptive_representation_item.description IN ['fluid like', 'conformal coat', 
+       'stiff laminate']))) = 1))) = 0))) = 0;
+  WR5: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT ({2 <= SIZEOF (pcr.used_representation.items) 
+        <= 8}))) = 0))) = 0;
+  WR6: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items | 
+       NOT (it\representation_item.name IN ['layer purpose', 
+       'layer position', 
+       'maximum feature size requirement', 
+       'minimum finished feature spacing', 
+       'minimum finished feature size', 
+       'maximum thickness',  
+       'minimum thickness']))) = 0))) = 0))) = 0;
+  WR7: NOT(EXISTS(SELF\characterized_object.description)) OR
+       (NOT (SELF\characterized_object.description = 'design layer') OR 
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2) AND
+       (it\representation_item.name = 'minimum finished feature size'))) = 1))) = 0))) = 0));
+  WR8: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2) AND
+       (it\representation_item.name = 'maximum thickness'))) = 1))) = 0))) = 0;
+  WR9: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2) AND
+       (it\representation_item.name = 'minimum thickness'))) = 1))) = 0))) = 0;
+ WR10: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2) AND
+       (it\representation_item.name = 'maximum feature size requirement'))) <= 1))) = 0))) = 0;
+ WR11: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2) AND
+       (it\representation_item.name = 'minimum finished feature spacing'))) <= 1))) = 0))) = 0;
+ WR12: NOT(EXISTS(SELF\characterized_object.description)) OR
+       ((NOT (SELF\characterized_object.description = 'documentation layer')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM' IN
+       TYPEOF (it)) AND
+       (it\representation_item.name = 'layer purpose'))) = 1))) = 0))) = 0));
+ WR13: NOT(EXISTS(SELF\characterized_object.description)) OR
+       ((NOT (SELF\characterized_object.description = 'design layer')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       (SIZEOF (
+       ['FABRICATION_TECHNOLOGY_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2) AND
+       (it\representation_item.name = 'minimum finished feature spacing'))) = 1))) = 0))) = 0));
+ WR14: NOT(EXISTS(SELF\characterized_object.description)) OR
+       ((NOT (SELF\characterized_object.description = 'design layer')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM' IN
+       TYPEOF (it)) AND
+       (it\representation_item.name = 'layer purpose') AND
+       (it\descriptive_representation_item.description IN ['power or ground', 'other signal', 
+       'lands only']))) = 1))) = 0))) = 0));
+ WR15:  SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       pdr.used_representation\representation.name = 
+       'physical characteristics representation') |
+       NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
+       ('FABRICATION_TECHNOLOGY_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM' IN
+       TYPEOF (it)) AND
+       (it\representation_item.name = 'layer position') AND
+       (it\descriptive_representation_item.description IN [
+        'primary', 
+        'secondary', 
+        'internal', 
+        'external', 
+        'all']))) = 1))) = 0))) = 0;
+ WR16: NOT(EXISTS(SELF\characterized_object.description)) OR
+        (SELF\characterized_object.description IN [
+         'design layer',
+         'documentation layer']);
+END_ENTITY;
+
+ENTITY stratum_technology_link
+  SUBTYPE OF (property_definition, property_definition_relationship);
+WHERE
+  WR1: SELF\property_definition_relationship.related_property_definition.definition :<>:
+       SELF\property_definition_relationship.relating_property_definition.definition;
+(** Need to likely move to subtype       
+  WR2: (SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\property_definition_relationship ||
+       SELF\stratum_technology_link || SELF\property_definition)) = 0) OR
+        ('FABRICATION_TECHNOLOGY_MIM.' +
+       'PRINTED_PART_TEMPLATE_LINK' IN TYPEOF(SELF)); *)
+  WR3: 'FABRICATION_TECHNOLOGY_MIM.' +
+       'STRATUM_TECHNOLOGY' IN 
+    TYPEOF(SELF\property_definition_relationship.related_property_definition.definition);
+  WR4: 'FABRICATION_TECHNOLOGY_MIM.' +
+       'STRATUM_TECHNOLOGY' IN 
+    TYPEOF(SELF\property_definition_relationship.relating_property_definition.definition);
+  WR5: SELF\property_definition.name = '';
+  WR6: SELF\property_definition.description = '';
+  WR7: SELF\property_definition_relationship.name = '';
+  WR8: SELF\property_definition_relationship.description = '';
+  WR9: ('FABRICATION_TECHNOLOGY_MIM.' +
+       'PART_TEMPLATE_DEFINITION' IN TYPEOF(SELF\property_definition.definition)) AND
+       (SELF\property_definition.definition.description = 'printed part template');
+ WR10: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       pdr.name = 'precedent stratum technology link')) <= 1; 
+ WR11: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'FABRICATION_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr.name = 'precedent stratum technology link')) <= 1; 
+END_ENTITY;
+
+RULE layout_spacing_requirement_occurrence_unique_constraint FOR
+ ( grouped_requirements_property, characterized_object );
+LOCAL
+  lsro : BAG OF grouped_requirements_property := QUERY( grp <*
+grouped_requirements_property | 
+(grp\group.name = 'layout spacing requirements property') );
+  ddo : BAG OF characterized_object := QUERY( co <* characterized_object |
+(co\characterized_object.description = 'dependent design object category') );
+  ga_bag : BAG OF group_assignment := [];
+  ddname_bag : BAG OF STRING := [];
+  co_bag : BAG OF characterized_object := [];
+  pdb : LIST OF property_definition := [];
+  pd_bag : BAG OF property_definition := [];
+  grp_bag : BAG OF grouped_requirements_property := [];
+  rga_bag : BAG OF group_assignment := [];
+  pass : BOOLEAN := TRUE;
+  rdname_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(lsro) by 1;
+  ga_bag := QUERY( aga <* USEDIN(lsro[i],
+'FABRICATION_TECHNOLOGY_MIM.' +
+'GROUP_ASSIGNMENT.ASSIGNED_GROUP') | 
+'FABRICATION_TECHNOLOGY_MIM.' +
+'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(aga));
+  REPEAT j := 1 to SIZEOF(ga_bag) by 1;
+    REPEAT k := 1 to SIZEOF(ga_bag[j].items) by 1;
+      IF ( 'FABRICATION_TECHNOLOGY_MIM.' +
+           'PROPERTY_DEFINITION' IN TYPEOF(ga_bag[j].items[k])) 
+     THEN pdb[i] := ga_bag[j].items[k];
+     ELSE pdb := [];
+     END_IF; 
+
+    IF ( (pdb :<>: []) AND
+        ('FABRICATION_TECHNOLOGY_MIM.' +
+        'CHARACTERIZED_OBJECT' IN TYPEOF(pdb[1]\property_definition.definition)) AND
+        (pdb[1]\property_definition.definition\characterized_object.description = 
+        'dependent design object category') ) THEN
+      IF EXISTS( pdb[1]\property_definition.definition\characterized_object.name ) THEN
+        IF( NOT( pdb[1]\property_definition.definition\characterized_object.name IN ddname_bag ) ) THEN
+          ddname_bag := ddname_bag + pdb[1]\property_definition.definition\characterized_object.name;
+        END_IF;
+      END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(ddname_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  rdname_bag := [];
+  co_bag := QUERY( co <* ddo | (co\characterized_object.name = ddname_bag[i]) );
+  REPEAT j := 1 to SIZEOF(co_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pd_bag := USEDIN( co_bag[j], 
+'FABRICATION_TECHNOLOGY_MIM.'
++ 'PROPERTY_DEFINITION.DEFINITION');
+    REPEAT k := 1 to SIZEOF(pd_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      ga_bag := QUERY( ga <* USEDIN(pd_bag[k], 
+'FABRICATION_TECHNOLOGY_MIM.' +
+'APPLIED_GROUP_ASSIGNMENT.ITEMS') | 
+('FABRICATION_TECHNOLOGY_MIM.' +
+'GROUPED_REQUIREMENTS_PROPERTY' IN TYPEOF(ga.assigned_group)) );
+      REPEAT l := 1 to SIZEOF(ga_bag) by 1;
+        IF ( NOT pass ) THEN ESCAPE;
+        END_IF;
+        IF( NOT( ga_bag[l].assigned_group IN grp_bag ) ) THEN
+          grp_bag := grp_bag + ga_bag[l].assigned_group;
+        END_IF;
+      END_REPEAT;
+      REPEAT l := 1 to SIZEOF(grp_bag) by 1;
+        IF ( NOT pass ) THEN ESCAPE;
+        END_IF;
+        rga_bag := USEDIN(grp_bag[l], 
+'FABRICATION_TECHNOLOGY_MIM.' +
+'GROUP_ASSIGNMENT.ASSIGNED_GROUP');
+        REPEAT m := 1 to SIZEOF(rga_bag) by 1;
+          IF ( NOT pass ) THEN ESCAPE;
+          END_IF;
+          REPEAT n:= 1 TO SIZEOF(rga_bag[m].items) by 1;
+      IF ( 'FABRICATION_TECHNOLOGY_MIM.' +
+           'PROPERTY_DEFINITION' IN TYPEOF(rga_bag[n].items[m]))
+     THEN pdb[1] := rga_bag[n].items[m];
+     ELSE pdb := [];
+     END_IF;
+
+    IF ( (pdb :<>: []) AND
+         ('FABRICATION_TECHNOLOGY_MIM.' +
+          'CHARACTERIZED_OBJECT' IN 
+         TYPEOF(pdb[1]\property_definition.definition)) AND
+(pdb[1]\property_definition.definition\characterized_object.description = 
+'reference design object category') ) THEN
+              IF EXISTS( pdb[1]\property_definition.definition\characterized_object.name ) THEN
+                IF( pdb[1]\property_definition.definition\characterized_object.name IN rdname_bag ) THEN
+                  pass := FALSE;
+                  ESCAPE;
+                ELSE
+                  rdname_bag := rdname_bag + 
+                          pdb[1]\property_definition.definition\characterized_object.name;
+                END_IF;
+              END_IF;
+            END_IF;
+          END_REPEAT;
+        END_REPEAT;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;

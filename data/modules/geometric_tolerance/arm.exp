@@ -7,6 +7,8 @@ USE FROM Elemental_geometric_shape_arm;
 
 USE FROM Shape_property_assignment_arm;
 
+USE FROM Value_with_unit_arm;
+
 TYPE datum_representation_select = SELECT 
   (Datum_target,
    Shape_element);
@@ -47,6 +49,12 @@ ENTITY Datum ABSTRACT SUPERTYPE;
 END_ENTITY;
 
 ENTITY Datum_target;
+  id : STRING;
+END_ENTITY;
+
+ENTITY Datum_target_set;
+  rule_description : STRING;
+  target : SET [1 : ?] OF Datum_target;
 END_ENTITY;
 
 ENTITY Flatness_tolerance
@@ -98,6 +106,12 @@ ENTITY Position_tolerance
 SUBTYPE OF (Geometric_tolerance);
   affected_plane : Reference_plane;
   reference_datum : SET [0 : 3] OF Datum;
+END_ENTITY;
+
+ENTITY Projection
+SUBTYPE OF (Tolerance_zone_definition);
+  projection_end : Shape_element;
+  projection_length : Value_with_unit;
 END_ENTITY;
 
 ENTITY Reference_plane;
@@ -158,13 +172,13 @@ ENTITY Tolerance_condition;
   condition : STRING;
 END_ENTITY;
 
-ENTITY tolerance_zone;
+ENTITY Tolerance_zone;
   form_type : STRING;
   zone_for : SET [1 : ?] OF Geometric_tolerance;
 END_ENTITY;
 
 ENTITY Tolerance_zone_definition;
-  defining : tolerance_zone;
+  defining : Tolerance_zone;
   first_element : Shape_element;
   second_element : Shape_element;
 END_ENTITY;

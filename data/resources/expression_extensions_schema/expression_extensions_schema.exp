@@ -1,0 +1,111 @@
+(******************************************************************************)
+(*                                                                            *)
+(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* Original model: expression_extensions_schema.vsd *)
+(* Title: expression_extensions_schema *)
+(* Author: Shiang-yu Lee, Ph. D. *)
+(* Comments :
+ *)
+
+SCHEMA expression_extensions_schema;
+
+REFERENCE FROM iso_13584_generic_expressions_schema
+(generic_literal,
+ generic_variable);
+
+REFERENCE FROM iso13584_expressions_schema
+(defined_function,
+ expression_X);
+
+REFERENCE FROM iso13584_iec61360_dictionary_schema
+(entity_instance_type);
+
+TYPE assignment_target_select = SELECT ;
+END_TYPE;
+
+TYPE entity_instance_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+ENTITY entity_expression
+SUBTYPE OF (entity_instance_type, expression_X);
+SELF\entity_instance_type.type_names RENAMED entity_name : STRING;
+END_ENTITY;
+
+ENTITY entity_instance
+SUBTYPE OF (generic_literal);
+entity_definition : entity_expression;
+the_instance : entity_instance_select;
+END_ENTITY;
+
+ENTITY expression_assignment;
+assigned_expression : expression_X;
+assigned_to_object : assignment_target_select;
+role : STRING;
+END_ENTITY;
+
+ENTITY expression_relationship;
+description : OPTIONAL STRING;
+name : OPTIONAL STRING;
+related : expression_X;
+relating : expression_X;
+role : STRING;
+END_ENTITY;
+
+ENTITY literal_assignment;
+base : expression_X;
+context : OPTIONAL entity_instance;
+literal_value : generic_literal;
+END_ENTITY;
+
+ENTITY named_fucntion
+SUBTYPE OF (defined_function);
+name : STRING;
+END_ENTITY;
+
+ENTITY named_variable
+SUBTYPE OF (generic_variable);
+name : STRING;
+END_ENTITY;
+
+ENTITY variable_assignment;
+the_function : defined_function;
+the_variable : generic_variable;
+END_ENTITY;
+
+ENTITY variable_entity_type
+SUBTYPE OF (entity_expression, generic_variable);
+END_ENTITY;
+
+END_SCHEMA;
+
+SCHEMA iso13584_expressions_schema;
+
+ENTITY defined_function ABSTRACT SUPERTYPE;
+END_ENTITY;
+
+ENTITY expression_X ABSTRACT SUPERTYPE;
+END_ENTITY;
+
+END_SCHEMA;
+
+SCHEMA iso_13584_generic_expressions_schema;
+
+ENTITY generic_literal;
+END_ENTITY;
+
+ENTITY generic_variable;
+END_ENTITY;
+
+END_SCHEMA;
+
+SCHEMA iso13584_iec61360_dictionary_schema;
+
+ENTITY entity_instance_type;
+type_names : SET [1 : ?] OF STRING;
+END_ENTITY;
+
+END_SCHEMA;
+

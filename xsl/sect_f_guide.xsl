@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_f_guide.xsl,v 1.2 2001/12/21 09:38:46 robbod Exp $
+$Id: sect_f_guide.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -26,7 +26,7 @@ $Id: sect_f_guide.xsl,v 1.2 2001/12/21 09:38:46 robbod Exp $
   <xsl:call-template name="annex_header">
     <xsl:with-param name="annex_no" select="'F'"/>
     <xsl:with-param name="heading" 
-      select="'Application module implementation guide'"/>
+      select="'Application module implementation and usage guide'"/>
     <xsl:with-param name="aname" select="'annexf'"/>
   </xsl:call-template>
 

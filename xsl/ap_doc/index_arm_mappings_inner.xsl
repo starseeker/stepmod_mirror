@@ -2,12 +2,15 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
-  Owner:   Developed by Eurostep Limited
+  Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
-  	1) To display a matrix showing which entities are included 
-	(either directly or via inheritance) in extensible select types
+  	1) To display a complete index of mappings from the ARM level model of the AP
+	2) To check that the index mappings exist. 
+	NOTE: Mappings are indexed by examining the ARM EXPRESS and deriving the list of mappings,
+	not by reading the list of mappings that are existant.
+	
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -210,7 +213,16 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 
 <!-- check that mapping exists -->
 		<xsl:if test="not($called-modules//module[@name=$mod-name]//ae[@entity=$ent-name])" >
-			Mapping NOT found
+<!--			Mapping NOT found -->
+			<xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+		            select="concat('Error APmapindex1: Unable to locate mapping for entity ',
+			    $ent-name,' in module ',$mod-name)"/>
+			</xsl:call-template>    	
+
 		</xsl:if>
 		
 <!-- are there any attributes? -->
@@ -257,6 +269,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 <!-- if attribute points to an extensible select then may have further mappings in other modules -->
 		
 		<xsl:variable name="attr-name" select="@name" />
+		<xsl:variable name="lc-attr" select="@name"/>
 		<xsl:variable name="attr-type-name" select="./typename/@name" />
 		<xsl:variable name="lc-typename" select="translate(./typename/@name,$UPPER,$LOWER)" />
 		<xsl:variable name="found-type" 
@@ -290,7 +303,6 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 			<small>
 			EXTENDED BY:
 			<br/>
-			<xsl:variable name="lc-attr" select="@name"/>
 			
 			<xsl:for-each select="$called-schemas//type[select]
 				[contains($extensions,concat(' ',@name,' '))][string-length(select/@selectitems) > 0] " >
@@ -316,7 +328,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 				<xsl:call-template name="assertion-links-for-select">
 					<xsl:with-param name="select-items" select="./select/@selectitems" />
 					<xsl:with-param name="this-select" select="." />
-					<xsl:with-param name="this-select-mod" select="../@name" />
+<!--					<xsl:with-param name="this-select-mod" select="../@name" /> -->
 					<xsl:with-param name="this-attribute" select="$lc-attr" />
 					<xsl:with-param name="this-entity" select="$lc-ent" />
 					<xsl:with-param name="this-module" select="$the-mod-name" />
@@ -335,38 +347,92 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 			</TD>
 			</TR>
 		</TABLE>
+		</xsl:when>
+		<xsl:when test="./typename and $called-schemas//type[@name=$attr-type-name][select]" >
+		<!-- non extensible select case so multiple mappings -->
+			<xsl:value-of select="concat(../@name,'.',@name)" />
+			<br/>
+			Select items:
+			<br/>
 			
+			<xsl:variable name="this-select" select="$called-schemas//type[@name=$attr-type-name][select]" />
+<!--			<xsl:variable name="this-select-mod" select="$this-select/ancestor::schema/@name" /> -->
+
+				<xsl:call-template name="assertion-links-for-select">
+					<xsl:with-param name="select-items" select="$this-select/select/@selectitems" />
+					<xsl:with-param name="this-select" select="$this-select" />
+<!--					<xsl:with-param name="this-select-mod" select="$this-select-mod" /> -->
+					<xsl:with-param name="this-attribute" select="$lc-attr" />
+					<xsl:with-param name="this-entity" select="$lc-ent" />
+					<xsl:with-param name="this-module" select="$mod-name" />
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="called-modules" select="$called-modules" />
+				</xsl:call-template>
+
+			<br/>
 		</xsl:when>
 		<xsl:when test="./typename">
-		
+<!--		
 			<A 
 			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}assertion_to{$lc-typename}" 
 			TARGET="content">
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 			</A>
-
+-->
 			<!-- check that mapping exists -->
 			<xsl:choose>
 			<xsl:when test="$called-modules//module[@name=$mod-name]//ae[@entity=$ent-name]//aa[@attribute=$attr-name][@assertion_to=$attr-type-name]">
 				<!-- Mapping found q -->
+				<A 
+			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}assertion_to{$lc-typename}" 
+				TARGET="content">
+				<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+				</A>
 			</xsl:when>
 			<xsl:when 
 			  test="$called-modules//module[@name=$mod-name]//ae[@entity=$ent-name]//aa[@attribute=$attr-name]">
-				<br/>WARNING: Missing assertion_to="<xsl:value-of select="$attr-type-name" />" in mapping
+				<!-- Mapping found q -->
+				<!-- may be a locally declared select type in which case multiple mappings defined here 
+					with different assertion to values -->
+
+				
+				<A 
+			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" 
+				TARGET="content">
+				<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+				</A>
+				<br/>
+				<xsl:if test="not($called-schemas//type[@name=$attr-type-name]
+								[enumeration or typename or builtintype])" >
+					WARNING: Missing assertion_to="<xsl:value-of select="$attr-type-name" />" in mapping
+				</xsl:if>
 			</xsl:when>
 			<xsl:when 
 			  test="$called-modules//module[@name=$mod-name]//ae[@entity=$ent-name]//aa
 			  	[contains(@attribute,$attr-name) and starts-with(@attribute,'SELF')]">
-				<br/>WARNING: Attribute in mapping contains SELF !!!
+				<!-- Mapping found q -->
+
+				<xsl:variable name="redeclared-from" 
+				  select="translate(./redeclaration/@entity-ref,$UPPER,$LOWER)" />
+				
+				<A 
+			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattributeself\{$redeclared-from}.{@name}assertion_to{$lc-typename}" 
+				TARGET="content">
+				<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+				</A>
+<!--				<br/>WARNING: Attribute in mapping contains SELF !!! -->
 			</xsl:when>
 			<xsl:otherwise>
 <!--				Mapping NOT found q -->
+				<!-- Mapping found q -->
+				<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+
 				<xsl:call-template name="error_message">
 				  <xsl:with-param name="inline" select="'yes'"/>
 				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 			          <xsl:with-param 
 			            name="message" 
-			            select="concat('Error APmapindex1: Unable to locate mapping for entity ',
+			            select="concat('Error APmapindex1: Unable to locate mapping for attribute ',
 				    ../@name,'.',@name)"/>
 				</xsl:call-template>    	
 			</xsl:otherwise>
@@ -387,7 +453,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 			          <xsl:with-param 
 			            name="message" 
-			            select="concat('Error APmapindex2: Unable to locate mapping for entity ',
+			            select="concat('Error APmapindex2: Unable to locate mapping for attribute ',
 				    $ent-name,'.',$attr-name)"/>
 				</xsl:call-template>    	
 			</xsl:if>
@@ -402,7 +468,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 <xsl:template name="assertion-links-for-select" >
 	<xsl:param name="select-items" />
 	<xsl:param name="this-select" />
-	<xsl:param name="this-select-mod" />
+<!--	<xsl:param name="this-select-mod" /> -->
 	<xsl:param name="this-attribute" />
 	<xsl:param name="this-entity" />
 	<xsl:param name="this-module" />
@@ -443,7 +509,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 				<xsl:variable name="the-mod-dir" 
 					select="concat('../../../../../stepmod/data/modules/',$this-module)" />
 				<br/>&#160;&#160;
-				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$this-item}" TARGET="content">map</A>
+				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$lc-this-item}" TARGET="content">map</A>
 				<xsl:text> </xsl:text>
 
 				<!-- check that mapping exists -->
@@ -455,7 +521,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 			          <xsl:with-param 
 			            name="message" 
-			            select="concat('Error APmapindex1: Unable to locate mapping for select extension to entity ',
+			            select="concat('Error APmapindex3: Unable to locate mapping for select extension to entity ',
 				 	$this-item)"/>
 				</xsl:call-template>    	
 				</xsl:if>
@@ -476,7 +542,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.8 2003/06/06 16:16:57 nigelshaw Exp $
 		<xsl:call-template name="assertion-links-for-select" >
 			<xsl:with-param name="select-items" select="substring-after(normalize-space($select-items),' ')" />
 			<xsl:with-param name="this-select" select="$this-select"/>
-			<xsl:with-param name="this-select-mod" select="$this-select-mod" />
+<!--			<xsl:with-param name="this-select-mod" select="$this-select-mod" /> -->
 			<xsl:with-param name="this-attribute" select="$this-attribute" />
 			<xsl:with-param name="this-entity" select="$this-entity" />
 			<xsl:with-param name="this-module" select="$this-module" />

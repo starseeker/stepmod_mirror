@@ -1,4 +1,4 @@
-//$Id: xml2html.js,v 1.2 2002/01/03 10:35:42 robbod Exp $
+//$Id: xml2html.js,v 1.3 2002/01/03 11:20:07 robbod Exp $
 // JScript to convert the module XML to HTML
 //
 // This script uses The Saxon XSLT processor:
@@ -25,10 +25,10 @@
 // -----------------------------------------------------------
 
 // change to point to local installation of saxon
-var saxonExe = "z:/apps/instant-saxon/saxon.exe";
+var saxonExe = "e:/apps/instant-saxon/saxon.exe";
 
 // change to point to root diectory of module repository
-var stepmodHome = "Z:/My Documents/projects/nist_module_repo/stepmod";
+var stepmodHome = "e:/My Documents/projects/nist_module_repo/stepmod";
 
 var ForReading = 1, ForWriting = 2, ForAppending = 8;
 var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
@@ -57,6 +57,24 @@ function ErrorMessage(msg){
 
 function userMessage(msg) {
     WScript.Echo(msg);
+}
+
+function CheckSaxon() {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (!fso.FileExists(saxonExe)) {
+	ErrorMessage("The SAXON executable is incorrectly set in xml2html.js\n"+ saxonExe);
+	return(false);
+    } 
+    return(true);
+}
+
+function CheckStepHome() {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (!fso.FolderExists(stepmodHome)) {
+	ErrorMessage("The variable stepmodHome is incorrectly set in xml2html.js\n"+ stepmodHome);
+	return(false);
+    } 
+    return(true);
 }
 
 function CheckArgs() {
@@ -254,7 +272,7 @@ function makeHtmlAll() {
 
 function Main() {
     var cArgs = WScript.Arguments;
-    if (CheckArgs() == 1) {
+    if ( CheckArgs() && CheckSaxon() && CheckStepHome()) {
 	var cArgs = WScript.Arguments;
 	var mode=cArgs(0);
 	switch(mode) {

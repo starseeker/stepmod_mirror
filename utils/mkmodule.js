@@ -1,7 +1,5 @@
-//$Id: mkmodule.js,v 1.3 2002/01/07 10:22:56 robbod Exp $
+//$Id: mkmodule.js,v 1.4 2002/01/12 08:49:41 robbod Exp $
 // JScript to generate the deafault XML for the module.
-// This script uses The Saxon XSLT processor:
-//  http://sourceforge.net/projects/saxon
 // cscript mkmodule.js <module> 
 // e.g.
 // cscript mkmodule.js person
@@ -85,7 +83,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.3 2002/01/07 10:22:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.4 2002/01/12 08:49:41 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -108,7 +106,7 @@ function MakeModuleXML(module) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.3 2002/01/07 10:22:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.4 2002/01/12 08:49:41 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -172,7 +170,7 @@ function MakeExpressG(module, expgfile, title, gif) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.3 2002/01/07 10:22:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.4 2002/01/12 08:49:41 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("    href=\"../../../xsl/imgfile.xsl\"?>");
@@ -199,7 +197,7 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.3 2002/01/07 10:22:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.4 2002/01/12 08:49:41 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");

@@ -17,10 +17,11 @@ USE FROM Network_functional_usage_view_arm (functional_unit_usage_view_terminal_
   ENTITY Test_requirement_allocation
     SUBTYPE OF (requirement_assignment);
       SELF\requirement_assignment.assigned_to : product_version;
-      SELF\requirement_assignment.assigned_requirement : test_requirement_occurrence;
       (** Need a rule to capture particular type for analytical_model_based_test_access *)
       analytical_model_based_test_access                : OPTIONAL SET[1:?] OF Analytical_model_port_assignment; --part_feature_model_port_assignment;
       functional_specification_based_test_access        : OPTIONAL SET[1:?] OF functional_usage_view_to_part_terminal_assignment;
+    DERIVE
+    	assigned_requirement_property :  requirement_definition_property := get_requirement_definition_property(SELF, 'REQUIREMENT_DECOMPOSITION_ARM.'+'TEST_REQUIREMENT_OCCURRENCE');
     WHERE
       WR1 : NOT (EXISTS(analytical_model_based_test_access)) OR (SIZEOF(QUERY(ta <* analytical_model_based_test_access | NOT (ta.source.associated_definition.defined_version = SELF\requirement_assignment.assigned_to))) = 0);
       WR2 : NOT (EXISTS(analytical_model_based_test_access)) OR (SIZEOF(QUERY(ta <* analytical_model_based_test_access | NOT (ta.target.accessed_analytical_model = SELF\requirement_assignment.assigned_requirement.required_analytical_representation[1].model_representation))) = 0);

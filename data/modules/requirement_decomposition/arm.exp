@@ -15,6 +15,8 @@ USE FROM Product_rule_arm;
 
 USE FROM Part_and_version_identification_arm;
 
+USE FROM Requirement_assignment_arm;	
+
 USE FROM Requirement_view_definition_arm;
 
 USE FROM Analytical_model_arm;
@@ -137,6 +139,21 @@ USE FROM Pdm_material_aspects_arm;
 	 constraint_occurrence,
 	 design_characteristic_occurrence)));
 	END_SUBTYPE_CONSTRAINT;
+
+FUNCTION get_requirement_definition_property
+  (ra : requirement_assignment;
+  req_type : STRING) : requirement_definition_property;
+  LOCAL
+    requirements : SET[0:?] OF requirement_definition_property;
+  END_LOCAL;
+	requirements := USEDIN (ra.assigned_requirement, 'REQUIREMENT_DECOMPOSITION.' + 'REQUIREMENT_DEFINTION_PROPERTY.ASSOCIATED_DEFINITION') ;
+	REPEAT i := 1 to SIZEOF(requirements) by 1;
+	  IF (requirements[i] IN TYPEOF (req_type)) THEN
+	  	RETURN (requirements[i]);
+	  END_IF;
+	END_REPEAT;
+	RETURN (?);
+END_FUNCTION;
 
   FUNCTION valid_constraining_shape(
     sd   : SET OF geometric_model ;

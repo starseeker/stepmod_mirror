@@ -11,12 +11,13 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-		xmlns:saxon="http://icl.com/saxon"
+		xmlns:exslt="http://exslt.org/common"
                 version="1.0">
 
   <xsl:import href="../../xsl/express.xsl"/> 
 
   <xsl:import href="mapping_parse.xsl"/>
+  <xsl:import href="mim_tree.xsl"/>
 
 
 <!--  <xsl:import href="../../xsl/common.xsl"/>
@@ -40,6 +41,30 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
               <xsl:call-template name="mapping-full-parse"/>
   </xsl:variable>
 
+<!-- need to check that the schema-name is x_mim - to prevent missing file message -->
+
+  <xsl:variable name="mim_file" 
+                select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/mim.xml')"/>
+
+  <xsl:variable name="mim_node" select="document($mim_file)/express"/>
+
+  <xsl:variable name="mim_schema_name" select="$mim_node//schema/@name"/>
+
+  <xsl:variable name="schema-name" select="concat(/stylesheet_application[1]/@directory,'_mim')"/>
+
+  <xsl:variable name="schemas" >
+	<xsl:choose>
+		<xsl:when test="$schema-name = translate($mim_schema_name,$UPPER,$LOWER)" >
+	  		<xsl:call-template name="depends-on-recurse-mim-x">
+				<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')" />
+<!--				<xsl:with-param name="done" select="concat(' ',$schema-name,' ')" />
+-->
+				<xsl:with-param name="done" select="' '" />
+			</xsl:call-template>
+		</xsl:when>
+		<xsl:otherwise>BAD MIM SCHEMA NAME</xsl:otherwise>
+	</xsl:choose>
+  </xsl:variable>
 
 
   <xsl:template match="/" >
@@ -61,23 +86,83 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 <H1> Mapping analysis </H1>
 
       <xsl:choose>
+	<xsl:when test="$schemas='BAD MIM SCHEMA NAME'" >
+		<xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+		            select="concat('Error Map19: MIM schema name (',$mim_schema_name,') not correct. Should be ',
+			    			$schema-name)"/>
+		</xsl:call-template>    	
+	</xsl:when>
+
 	<xsl:when test="function-available('msxsl:node-set')">
-	  <xsl:apply-templates select="msxsl:node-set($mappings-result)/module" mode="output-list"/>
+
+        	<xsl:variable name="schemas-node-set" select="msxsl:node-set($schemas)" />
+
+		<xsl:variable name="dep-schemas3">
+			<xsl:for-each select="$schemas-node-set//x" >
+				<xsl:copy-of select="document(.)" />
+			</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:variable name="dep-schemas" 
+			  	select="msxsl:node-set($dep-schemas3)" />
+
+	
+		  <xsl:apply-templates select="msxsl:node-set($mappings-result)/module/mapping" mode="output-list">
+			<xsl:with-param name="schemas" select="$dep-schemas" />
+			<xsl:sort select="@entity" />
+			<xsl:sort select="@attribute" />
+		  </xsl:apply-templates>
+
+		<xsl:call-template name="mim-schema-list" >
+			<xsl:with-param name="schemas" select="$dep-schemas" />			
+		</xsl:call-template>
+
 
 	</xsl:when>
 	
-	<xsl:when test="function-available('saxon:node-set')">
-	  <xsl:apply-templates select="saxon:node-set($mappings-result)/module" mode="output-list"/>
-	</xsl:when>
+	<xsl:when test="function-available('exslt:node-set')">
+
+		  <xsl:variable name="schemas-node-set2">
+		      <xsl:choose>
+			<xsl:when test="2 > string-length($schemas)" >
+		        </xsl:when>
+		        <xsl:otherwise>
+		          <xsl:copy-of select="exslt:node-set($schemas)"/>
+		        </xsl:otherwise>
+		      </xsl:choose>
+		    </xsl:variable>
+
+		<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" />
+
+
+
+		<xsl:apply-templates select="exslt:node-set($mappings-result)/module/mapping" mode="output-list">
+			<xsl:with-param name="schemas" select="$dep-schemas" />
+			<xsl:sort select="@entity" />
+			<xsl:sort select="@attribute" />
+		  </xsl:apply-templates>
+
+		<xsl:call-template name="mim-schema-list" >
+			<xsl:with-param name="schemas" select="$dep-schemas" />			
+		</xsl:call-template>
+
+
+
+	  </xsl:when>
 
 	<xsl:otherwise>
 		<br/>
-		STYLESHEET set up to work with msxsl: and saxon:. Neither is available.
+		STYLESHEET set up to work with msxsl: and exslt:. Neither is available.
 		<br/>
 	</xsl:otherwise>
 
 
       </xsl:choose>	
+
 
   </body>
 </HTML>
@@ -100,41 +185,19 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 </xsl:template>
 
 
-<xsl:template match="module" mode="output" >
-	
-	<blockquote>
-	<TABLE Width="95%" border="3">
-	<TR>
-		<TD>Target</TD>
-		<TD>AIM element</TD>
-		<TD> Source</TD>
-		<TD> Reference Path</TD>
-	</TR>
-
-	<xsl:apply-templates select="mapping" mode="output">
-		<xsl:sort select="@entity" />
-		<xsl:sort select="@attribute" />
-	</xsl:apply-templates>
-	</TABLE>
-	</blockquote>
-
-
-
-</xsl:template>
-
+<!--
 <xsl:template match="module" mode="output-list" >
-	
+	<xsl:param name="schemas" />	
 	<xsl:apply-templates select="mapping" mode="output-list">
 		<xsl:sort select="@entity" />
 		<xsl:sort select="@attribute" />
 	</xsl:apply-templates>
 
-
-
 </xsl:template>
-
+-->
 
 <xsl:template match="mapping" mode="output-list" >
+	<xsl:param name="schemas" />	
 
 	<H3>
 		<xsl:value-of select="@entity" />
@@ -154,6 +217,129 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 		<xsl:otherwise>
 			MIM element: <xsl:apply-templates select="aimelt" />
 			<br/>
+		<xsl:if test="string-length(aimelt) > 2" >
+
+			<xsl:choose>
+				<xsl:when test="normalize-space(aimelt) = 'PATH'" >
+				<!-- do nothing - except check that a refpath exists -->
+					<xsl:if test="not( refpath/word | alt-map/refpath/word )" >
+						<xsl:call-template name="error_message">
+							  <xsl:with-param name="inline" select="'yes'"/>
+							  <xsl:with-param name="warning_gif" 
+							    select="'../../../../images/warning.gif'"/>
+						          <xsl:with-param 
+						            name="message" 
+						            select="'Error Map20: MIM element specified as PATH but no path given'"/>
+						</xsl:call-template>    
+					</xsl:if>
+				</xsl:when>			
+				<xsl:when test="normalize-space(aimelt) = 'IDENTICAL MAPPING'" >
+				<!-- do nothing - except check that a refpath exists ???? to do ????-->
+				</xsl:when>			
+				<xsl:when test="contains(aimelt,'&#x0A;')" >
+				<!-- multi-line mapping case ???? to do ????-->
+				
+				</xsl:when>
+				<xsl:when test="contains(aimelt,'.')" >
+				<!-- attribute mapping case -->
+					<xsl:variable name="find-ent" 
+						select="substring-before(normalize-space(aimelt),'.')" />
+					<xsl:variable name="find-attr" 
+						select="substring-after(normalize-space(aimelt),'.')" />
+					<xsl:variable name="found-ent" 
+						select="$schemas//entity[@name=$find-ent][explicit/@name=$find-attr]" />
+					<blockquote>
+					<xsl:choose>
+						<xsl:when test="$found-ent" >
+							MIM element found in schema 
+							<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+							<br/>
+						</xsl:when>
+						<xsl:when test="$found-ent" >
+						<!-- could be derived -->
+							<xsl:variable name="found-der" 
+								select="$schemas//entity[@name=$find-ent][derived/@name=$find-attr]" />
+							<xsl:choose>
+								<xsl:when test="$found-der">
+							
+								</xsl:when>
+								<xsl:otherwise>
+									MIM element found as DERIVE in schema 
+									<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+									<br/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:when>
+						<xsl:otherwise>
+							!!! MIM element not found in relevant schemas !!! 
+							<br/>
+						</xsl:otherwise>
+					</xsl:choose>
+					</blockquote>
+				
+				</xsl:when>
+				<xsl:otherwise>
+				<!--  should be a single entity name but may be delimited by || -->
+
+					<xsl:choose>
+
+						<xsl:when test="contains(aimelt,'|')" >
+							<xsl:variable name="this-aimelt" 
+								select="substring-before(substring-after(aimelt,'|'),'|')" />
+								<xsl:if test="not($this-aimelt)" >
+
+									<!-- !! MISMATCH in || !! -->
+		<xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+		            select="'Error Map23: MISMATCH in | in MIM element '"/>
+		</xsl:call-template>    
+		
+								
+								</xsl:if>
+						
+							<xsl:variable name="found-ent" select="$schemas//entity[@name=$this-aimelt]" />
+							<blockquote>
+							<xsl:choose>
+								<xsl:when test="$found-ent" >
+									MIM element found in schema 
+									<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+									<br/>
+								</xsl:when>
+								<xsl:otherwise>
+									!!! MIM element not found in relevant schemas !!! 
+									<br/>
+								</xsl:otherwise>
+							</xsl:choose>
+							</blockquote>
+						</xsl:when>
+					
+					<xsl:otherwise>
+						<xsl:variable name="found-ent" select="$schemas//entity[@name=current()/aimelt]" />
+						<blockquote>
+						<xsl:choose>
+							<xsl:when test="$found-ent" >
+								MIM element found in schema 
+								<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+								<br/>
+							</xsl:when>
+							<xsl:otherwise>
+								!!! MIM element not found in relevant schemas !!! 
+								<br/>
+							</xsl:otherwise>
+						</xsl:choose>
+						</blockquote>
+						</xsl:otherwise>
+
+					</xsl:choose>
+
+				</xsl:otherwise>
+			</xsl:choose>
+
+		</xsl:if>
+
 			Source: <xsl:apply-templates select="source" />
 		
 			<hr/>
@@ -163,14 +349,18 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 
 		<xsl:choose>
 			<xsl:when test="alt-map" >
-				<xsl:apply-templates select="alt-map" />
+				<xsl:apply-templates select="alt-map" >
+					<xsl:with-param name="schemas" select="$schemas" />
+		  		</xsl:apply-templates>
 				
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:apply-templates select="refpath" />
 				<hr/>
 
-				<xsl:apply-templates select="refpath" mode="test"/>
+				<xsl:apply-templates select="refpath" mode="test" >
+					<xsl:with-param name="schemas" select="$schemas" />
+		  		</xsl:apply-templates>
 
 			</xsl:otherwise>
 		
@@ -178,7 +368,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 
 		<xsl:if test="@assertion_to" >
 			<xsl:if test="@assertion_to = translate(@assertion_to,$UPPER,'')" >
-			!! <xsl:value-of select="@assertion_to" /> must be a SELECT type !!<br/>
+			!! <xsl:value-of select="@assertion_to" /> must be an ARM SELECT type !!<br/>
 			</xsl:if>
 		
 		</xsl:if>
@@ -189,51 +379,123 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 </xsl:template>
 
 
-<xsl:template match="mapping" mode="output" >
-
-
-	<TR>
-		<TD>
-		<xsl:value-of select="@entity" />
-		<xsl:if test="@attribute" >.<br/><xsl:value-of select="@attribute" />
-		</xsl:if>
-		<xsl:if test="@assertion_to" ><br/>Assertion to: <xsl:value-of select="@assertion_to" />
-		</xsl:if>
-	
-		</TD>
-		<TD>
-			<xsl:apply-templates select="aimelt" />
-
-		</TD>
-		<TD>
-			<xsl:apply-templates select="source" />
-
-		</TD>
-<!--		<TD>
-			<xsl:apply-templates select="refpath" mode="test"/>
-
-		</TD>
--->
-		<TD>
-			<xsl:apply-templates select="refpath" />
-
-		</TD>
-	</TR>
-</xsl:template>
 
 <xsl:template match="alt-map" >
+	<xsl:param name="schemas" />	
 
 	<h4> Alternative #<xsl:value-of select="@id" /></h4>
 	<p><xsl:value-of select="description" /></p>
 	<blockquote>
 	
 		MIM element: <xsl:apply-templates select="aimelt" />
+
+		<xsl:if test="string-length(aimelt) > 2" >
+
+			<xsl:choose>
+				<xsl:when test="normalize-space(aimelt) = 'PATH'" >
+				<!-- do nothing - except check that a refpath exists ???? to do ????-->
+				</xsl:when>			
+				<xsl:when test="normalize-space(aimelt) = 'IDENTICAL MAPPING'" >
+				<!-- do nothing -->
+				</xsl:when>			
+				<xsl:when test="contains(aimelt,'&#x0A;')" >
+				<!-- multi-line mapping case ???? to do ????-->
+				
+				</xsl:when>
+				<xsl:when test="contains(aimelt,'.')" >
+				<!-- attribute mapping case -->
+					<xsl:variable name="find-ent" 
+						select="substring-before(normalize-space(aimelt),'.')" />
+					<xsl:variable name="find-attr" 
+						select="substring-after(normalize-space(aimelt),'.')" />
+					<xsl:variable name="found-ent" 
+						select="$schemas//entity[@name=$find-ent][explicit/@name=$find-attr]" />
+					<blockquote>
+					<xsl:choose>
+						<xsl:when test="$found-ent" >
+							MIM element found in schema 
+							<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+							<br/>
+						</xsl:when>
+						<xsl:otherwise>
+							!!! MIM element not found in relevant schemas !!! 
+							<br/>
+						</xsl:otherwise>
+					</xsl:choose>
+					</blockquote>
+				
+				</xsl:when>
+				<xsl:otherwise>
+				<!--  should be a single entity name but may be delimited by || -->
+
+					<xsl:choose>
+
+						<xsl:when test="contains(aimelt,'|')" >
+							<xsl:variable name="this-aimelt" 
+								select="substring-before(substring-after(aimelt,'|'),'|')" />
+								<xsl:if test="not($this-aimelt)" >
+
+									<!-- !! MISMATCH in || !! -->
+		<xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+		            select="'Error Map23: MISMATCH in | in MIM element '"/>
+		</xsl:call-template>    
+		
+								
+								</xsl:if>
+						
+							<xsl:variable name="found-ent" select="$schemas//entity[@name=$this-aimelt]" />
+							<blockquote>
+							<xsl:choose>
+								<xsl:when test="$found-ent" >
+									MIM element found in schema 
+									<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+									<br/>
+								</xsl:when>
+								<xsl:otherwise>
+									!!! MIM element not found in relevant schemas !!! 
+									<br/>
+								</xsl:otherwise>
+							</xsl:choose>
+							</blockquote>
+						</xsl:when>
+					
+					<xsl:otherwise>
+						<xsl:variable name="found-ent" select="$schemas//entity[@name=current()/aimelt]" />
+						<blockquote>
+						<xsl:choose>
+							<xsl:when test="$found-ent" >
+								MIM element found in schema 
+								<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+								<br/>
+							</xsl:when>
+							<xsl:otherwise>
+								!!! MIM element not found in relevant schemas !!! 
+								<br/>
+							</xsl:otherwise>
+						</xsl:choose>
+						</blockquote>
+						</xsl:otherwise>
+
+					</xsl:choose>
+
+				</xsl:otherwise>
+			</xsl:choose>
+
+		</xsl:if>
+
+		
 		<br/>
 		Source: <xsl:apply-templates select="source" />
 		<hr/>
 		<xsl:apply-templates select="refpath" />
 		<hr/>
-		<xsl:apply-templates select="refpath" mode="test"/>
+		<xsl:apply-templates select="refpath" mode="test" >
+			<xsl:with-param name="schemas" select="$schemas" />
+  		</xsl:apply-templates>
 		<hr/>
 	</blockquote>
 	
@@ -242,7 +504,10 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 
 
 <xsl:template match="refpath" >
-	<xsl:apply-templates select="./*" />	
+	<B>Reference Path:</B>
+		<blockquote>
+			<xsl:apply-templates select="./*" />	
+		</blockquote>
 </xsl:template>
 
 <xsl:template match="new-line" >
@@ -310,6 +575,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 	<xsl:text> *&gt; </xsl:text>
 </xsl:template>
 
+
 <xsl:template match="subtype-template" >
 	<xsl:text> /SUBTYPE </xsl:text>
 </xsl:template>
@@ -317,6 +583,32 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 <xsl:template match="supertype-template" >
 	<xsl:text> /SUPERTYPE </xsl:text>
 </xsl:template>
+
+<xsl:template match="quote" >
+	<xsl:choose>
+		<xsl:when test="@match='GOOD'" >
+<!--			Z<xsl:value-of select="@length" />Z -->
+				<xsl:text> '</xsl:text>
+				<xsl:value-of select="."/>
+				<xsl:text>' </xsl:text>
+<!--			V<xsl:value-of select="@rest" />V -->
+		</xsl:when>
+		<xsl:otherwise>
+				<xsl:text> '</xsl:text>
+				<xsl:value-of select="."/>
+				<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+				            select="'Error Map24: End-Quote missing'"/>
+				</xsl:call-template>    
+
+		</xsl:otherwise>
+	
+	</xsl:choose>
+</xsl:template>
+
 
 
 <!-- <xsl:template match="SELF" >
@@ -330,12 +622,32 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 -->
 	<xsl:choose>
 		<xsl:when test="contains(.,'&#x0A;')" >
-		<!-- more than one MIM element - separate by <br/>  ???TO-DO??? -->
-				<xsl:value-of select="." />
+		<!-- more than one MIM element - separate by <br/>  -->
+				<xsl:call-template name="linespaced-text" >
+					<xsl:with-param name="text" select="." />
+				</xsl:call-template>
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:value-of select="." />
 			</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template  name="linespaced-text" >
+	<xsl:param name="text" />
+
+	<xsl:value-of select="substring-before($text,'&#x0A;')" />
+	<br/>
+	<xsl:variable name="rest" select="substring-after($text,'&#x0A;')" />
+	<xsl:choose>
+		<xsl:when test="contains($rest, '&#x0A;')" >
+			<xsl:call-template name="linespaced-text" >
+				<xsl:with-param name="text" select="$rest" />
+			</xsl:call-template>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:value-of select="$rest" />
+		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
 
@@ -347,7 +659,11 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 </xsl:template>
 
 <xsl:template match="refpath" mode="test">
+	<xsl:param name="schemas" />	
 
+	<B>Reference Path analysis:</B>
+	<blockquote>
+	
 	<xsl:if test="count(./start-paren) != count(./end-paren)" >
 		
 		<!-- !! MISMATCH in () !! -->
@@ -367,7 +683,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map3: MISMATCH in {} '"/>
+		            select="'Error Map4: MISMATCH in {} '"/>
 		</xsl:call-template>    
 	</xsl:if>
 
@@ -378,7 +694,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map3: MISMATCH in [] '"/>
+		            select="'Error Map5: MISMATCH in [] '"/>
 		</xsl:call-template>    
 	</xsl:if>
 
@@ -389,7 +705,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map4: Newline missing following =&gt;'"/>
+		            select="'Error Map6: Newline missing following =&gt;'"/>
 		</xsl:call-template>    
 	</xsl:if>
 -->
@@ -400,7 +716,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map5: Newline missing following &lt;='"/>
+		            select="'Error Map7: Newline missing following &lt;='"/>
 		</xsl:call-template>    
 	</xsl:if>
 -->
@@ -412,7 +728,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map6: Newline missing following -&gt;'"/>
+		            select="'Error Map8: Newline missing following -&gt;'"/>
 		</xsl:call-template>    
 	</xsl:if>
 -->
@@ -424,7 +740,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map7: Newline missing following &lt;-'"/>
+		            select="'Error Map9: Newline missing following &lt;-'"/>
 		</xsl:call-template>    
 	</xsl:if>
 -->
@@ -435,7 +751,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Warning Map8: Possible wrong item preceding &lt;-'"/>
+		            select="'Warning Map10: Possible wrong item preceding &lt;-'"/>
 		</xsl:call-template>    
 	</xsl:if>
 
@@ -446,7 +762,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map9: !! Entity.Attribute should not precede &lt;-'"/>
+		            select="'Error Map11: !! Entity.Attribute should not precede &lt;-'"/>
 		</xsl:call-template>    
 	</xsl:if>
 
@@ -457,7 +773,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map10: !! Entity.Attribute should not precede &lt;='"/>
+		            select="'Error Map12: !! Entity.Attribute should not precede &lt;='"/>
 		</xsl:call-template>    
 	</xsl:if>
 
@@ -469,7 +785,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="'Error Map11: Repeat * not preceded by ) '"/>
+		            select="'Error Map13: Repeat * not preceded by ) '"/>
 		</xsl:call-template>    
 	</xsl:if>
 
@@ -480,7 +796,7 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="concat('Error Map12: Only 1 Uppercase character expected in Entity name: ',../@entity)"/>
+		            select="concat('Error Map14: Only 1 Uppercase character expected in Entity name: ',../@entity)"/>
 		</xsl:call-template>    
 	</xsl:if>
 
@@ -491,54 +807,214 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="concat('Error Map13: Spaces not expected in attribute name: [',../@attribute,']')"/>
+		            select="concat('Error Map15: Spaces not expected in attribute name: [',../@attribute,']')"/>
 		</xsl:call-template>    
 	</xsl:if>
 
-	<xsl:if test="string-length(../@attribute) != string-length(translate(../@attribute,$UPPER,''))" >
+	<xsl:if test="string-length(../@attribute) != string-length(translate(../@attribute,$UPPER,''))
+			and not(contains(../@attribute,'SELF'))" >
 		<!-- !! Uppercase characters not expected in "attribute" name !! -->
 		<xsl:call-template name="error_message">
 			  <xsl:with-param name="inline" select="'yes'"/>
 			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 		          <xsl:with-param 
 		            name="message" 
-		            select="concat('Error Map14: Uppercase characters not expected in attribute name: ',
+		            select="concat('Error Map16: Uppercase characters not expected in attribute name: ',
 			    		../@attribute)"/>
 		</xsl:call-template>    
 	</xsl:if>
 
 
-	<xsl:apply-templates select="word" mode="test" />
+	<xsl:apply-templates select="word" mode="test" >
+		<xsl:with-param name="schemas" select="$schemas" />
+	</xsl:apply-templates>
 
+	</blockquote>
 
 </xsl:template>
 
 <xsl:template match="word" mode="test">
-	<xsl:if test="string-length(.) != string-length(translate(.,$UPPER,''))" >
+	<xsl:param name="schemas" />	
+
+
+
+	<xsl:if test="string-length(.) != string-length(translate(.,$UPPER,'')) and 
+		not(name(preceding-sibling::*[2]) ='subtype-template' or  
+		name(preceding-sibling::*[2]) ='supertype-template') ">
 		!! UPPERCASE Not expected: <xsl:value-of select="." /> !!<br/>
 	</xsl:if>
-	<xsl:if test="string-length(.) = 1 and not (contains($NUMBERS,.))" >
-		<xsl:choose>
-			<xsl:when test="name(preceding-sibling::*[1]) ='start-bracket' and 
+	
+	<xsl:choose>
+
+		<xsl:when test="string-length(.) = 1 and not (contains($NUMBERS,.))" >
+			<xsl:choose>
+				<xsl:when test="name(preceding-sibling::*[1]) ='start-bracket' and 
 					name(following-sibling::*[1]) ='end-bracket' ">
-			</xsl:when>
-			<xsl:when test=".='/'">
+				</xsl:when>
+				<xsl:when test=".='/' and name(preceding-sibling::*[1]) ='end-paren' and 
+					contains('ABCDEFGHIJKLMNOPQRSTUVWXYZ', substring(preceding-sibling::*[2],1,1))" >
+					<!-- matches preceding SUPERTYPE() or SUBTYPE template -->
+				</xsl:when>
+				<xsl:otherwise>
+				<!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
+					<xsl:call-template name="error_message">
+			
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+			        	    name="message" 
+				            select="concat('Error Map17: Possible syntax ERROR: ',.)"/>
+					</xsl:call-template>    
+				</xsl:otherwise>
+			</xsl:choose>
+	
+		</xsl:when>
+
+		<xsl:when test="string-length(.) != string-length(translate(.,'&gt;&lt;-',''))" >
+				<!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
+					<xsl:call-template name="error_message">
+			
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+			        	    name="message" 
+				            select="concat('Error Map24: Possible syntax ERROR: ',.)"/>
+					</xsl:call-template>    
+	
+		</xsl:when>
+
+
+		<xsl:when test="contains($LOWER,substring(.,1,1)) and contains(.,'.')" >
+
+	<!-- most likely an attribute reference so check for existence 
+	Could check for preceding and following symbols   ???? to do ????-->
+
+		<xsl:variable name="find-ent" 
+			select="substring-before(normalize-space(.),'.')" />
+		<xsl:variable name="find-attr" 
+			select="substring-after(normalize-space(.),'.')" />
+		<xsl:variable name="found-ent" 
+			select="$schemas//entity[@name=$find-ent][explicit/@name=$find-attr]" />
+		<xsl:choose>
+			<xsl:when test="$found-ent" >
+				<xsl:value-of select="." /> found in schema 
+				<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+				<br/>
 			</xsl:when>
 			<xsl:otherwise>
-				<!-- ?? Possible syntax ERROR: <xsl:value-of select="." /> !! -->
-				<xsl:call-template name="error_message">
-				  <xsl:with-param name="inline" select="'yes'"/>
-				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-			          <xsl:with-param 
-			            name="message" 
-			            select="concat('Error Map15: Possible syntax ERROR: ',.)"/>
-				</xsl:call-template>    
+
+			<!-- check for derived attribute -->
+
+				<xsl:variable name="found-derived" 
+				select="$schemas//entity[@name=$find-ent][derived/@name=$find-attr]" />
+
+			
+				<xsl:choose>
+					<xsl:when test="$found-derived" >
+					<xsl:value-of select="." /> found as derived attribute in schema 
+					<xsl:value-of select="$found-derived/ancestor::schema/@name" />
+					<br/>
+					</xsl:when>
+					<xsl:otherwise>
+					<!--	!!! <xsl:value-of select="." /> not found in relevant schemas !!! -->
+
+					<xsl:call-template name="error_message">
+			
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+			        	    name="message" 
+				            select="concat('Error Map25: ',.,' not found in relevant schemas')"/>
+					</xsl:call-template>    
+
+
+				</xsl:otherwise>
+				</xsl:choose>
+
+
 			</xsl:otherwise>
 		</xsl:choose>
-	
-	</xsl:if>
+
+		</xsl:when>
+
+<!--		<xsl:when test="not(preceding-sibling::word) or
+				(not(contains(.,'.'))) and (
+							name(./preceding-sibling::*[name()!='newline'][1])='is-supertype-of' or
+							name(./following-sibling::*[1])='is-subtype-of' or
+							name(./preceding-sibling::*[name()!='newline'][1])='is-subtype-of' or
+							name(./following-sibling::*[1])='is-supertype-of'
+							)" >
+-->
+		<xsl:when test="not(preceding-sibling::word) or
+				(not(contains(.,'.'))) and string-length(translate(.,'1234567890. ',''))>0 " >
+
+		<!-- most likely an entity reference so check for existence -->
+
+		<xsl:variable name="find-ent" 
+			select="normalize-space(.)" />
+		<xsl:variable name="found-ent" 
+			select="$schemas//*[@name=$find-ent][contains('entity type',name())]" />
+		<br/>
+		<xsl:choose>
+			<xsl:when test="$found-ent" >
+				<xsl:value-of select="concat(.,' ',name($found-ent),' ')" /> found in schema 
+				<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+				<br/>
+			</xsl:when>
+			<xsl:otherwise>
+<!--			!!! <xsl:value-of select="." /> not found in relevant schemas !!! -->
+					<xsl:call-template name="error_message">
+			
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+			        	    name="message" 
+				            select="concat('Error Map26: ',.,' not found in relevant schemas')"/>
+					</xsl:call-template>    
+			</xsl:otherwise>
+		</xsl:choose>
+
+		</xsl:when>
+
+	</xsl:choose>
+
 
 </xsl:template>
+
+
+<xsl:template name="mim-schema-list" >
+	<xsl:param name="schemas" />
+
+	<h2>Schemas on which the MIM depends are:</h2>
+	
+	<p>Note: This is the list of schemas which are referenced. 
+	In many cases, USE and REFERENCE statements call out specific entities and not the complete schema.
+	</p>
+
+	<blockquote>
+		<xsl:apply-templates select="$schemas//schema" mode="name-only">
+			<xsl:sort select="@name" />
+		</xsl:apply-templates>
+	</blockquote>
+
+</xsl:template>
+
+
+<xsl:template match="schema | entity | type " mode="name-only" >
+	<br/><xsl:value-of select="@name" />
+</xsl:template>
+
+<xsl:template match="schema | entity | type " mode="schema-name" >
+	<br/><xsl:value-of select="translate(concat('  ',../@name,'.',@name,' '),$UPPER,$LOWER)" />
+</xsl:template>
+
+
+
+
+
+
+
+
 
 
 

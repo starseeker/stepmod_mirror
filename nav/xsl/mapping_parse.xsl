@@ -13,6 +13,9 @@
   <xsl:variable name="rep_index"
     select="document('../repository_index.xml')"/>
 
+  <xsl:variable name="apos"><xsl:text>'</xsl:text></xsl:variable>
+  <xsl:variable name="aposlong"><xsl:text>''''''</xsl:text></xsl:variable>
+
 
 <xsl:output method="xml" indent="yes" />
 
@@ -87,7 +90,7 @@
 		<xsl:value-of select="source" />
 	</xsl:element>
 
-	<xsl:apply-templates select="./refpath" />
+	<xsl:apply-templates select="./refpath" mode="parse" />
 	<xsl:apply-templates select="alt_map" mode="parse"/>
 
 		
@@ -121,7 +124,7 @@
 		<xsl:value-of select="source" />
 	</xsl:element>
 
-	<xsl:apply-templates select="refpath" />
+	<xsl:apply-templates select="refpath" mode="parse"/>
 
    </alt-map>
 
@@ -182,7 +185,7 @@
 	</xsl:element>
 
 	<xsl:apply-templates select="refpath" mode="parse"  />
-	<xsl:apply-templates select="alt_map" />
+	<xsl:apply-templates select="alt_map" mode="parse"/>
 
    </mapping>
    
@@ -195,21 +198,80 @@
 	<xsl:param name="previous" />
 
 	<xsl:choose>
+
+	
 		<xsl:when test="contains($path,' ')">
-		<!-- get first word and process -->
-
-			<xsl:call-template name="process-word" >
-				<xsl:with-param name="word" select="substring-before($path,' ')" />
-				<xsl:with-param name="previous" select="$previous" />
-			</xsl:call-template>
 
 
-		<!-- recurse using remainder of string -->
+			<xsl:choose>
+				<xsl:when test="contains($aposlong,substring($path,1,1)) and substring($path,2,1)=' '" >
 
-			<xsl:call-template name="parse-refpath">
-				<xsl:with-param name="path" select="substring-after($path,' ')" />
-				<xsl:with-param name="previous" select="substring-before($path,' ')" />
-			</xsl:call-template>
+					<!-- start of quoted string -->
+
+					<xsl:choose>
+
+						<xsl:when test='contains(substring($path,3)," &#x27;")'>
+
+
+						<xsl:variable name="temp" 
+							select='substring-before(substring($path,3)," &#x27;")' />
+
+							<xsl:element name="quote" >
+								<xsl:attribute name="match" >GOOD</xsl:attribute>
+								<xsl:attribute name="length" >
+									<xsl:value-of select="string-length($temp)" />
+								</xsl:attribute>
+								<xsl:attribute name="rest" >
+									<xsl:value-of 
+								select="substring(substring-after( substring($path,3),$temp),3)" />
+								</xsl:attribute>
+
+
+								<xsl:value-of 
+								select='substring-before(substring($path,3)," &#x27;")'
+								/></xsl:element>
+	
+						<!-- recurse using remainder of string -->
+
+						<xsl:call-template name="parse-refpath">
+						<xsl:with-param name="path" 
+							select="substring(substring-after( substring($path,3),$temp),3)" />
+						<xsl:with-param name="previous" select="'quote'" />
+						</xsl:call-template>
+
+
+						</xsl:when>
+						<xsl:otherwise>
+
+							<xsl:element name="quote" >
+								<xsl:attribute name="match" >BAD</xsl:attribute>
+								<xsl:value-of 
+								select="substring($path,3)"
+								/>
+							</xsl:element>
+
+						</xsl:otherwise>
+					</xsl:choose>
+
+				</xsl:when>
+				<xsl:otherwise>
+
+				<!-- get first word and process -->
+
+					<xsl:call-template name="process-word" >
+						<xsl:with-param name="word" select="substring-before($path,' ')" />
+						<xsl:with-param name="previous" select="$previous" />
+					</xsl:call-template>
+
+
+				<!-- recurse using remainder of string -->
+
+					<xsl:call-template name="parse-refpath">
+						<xsl:with-param name="path" select="substring-after($path,' ')" />
+						<xsl:with-param name="previous" select="substring-before($path,' ')" />
+					</xsl:call-template>
+				</xsl:otherwise>
+			</xsl:choose>
 		
 		</xsl:when>
 		<xsl:otherwise>
@@ -293,20 +355,11 @@
 			<!-- continuation line, so do nothing -->
 		</xsl:when>
 
-<!--		<xsl:when test="$first-char='&amp;apos;'">
-			<xsl:choose>
-				<xsl:when test="$last='&amp;apos;'">
-					<xsl:text>&apos;</xsl:text>
-				</xsl:when>
-				<xsl:when test="substring($path,2,1)='&amp;apos;'">
-					<xsl:text>&apos;</xsl:text>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:text> &apos; </xsl:text>
-				</xsl:otherwise>
-			</xsl:choose>
+		<xsl:when test="contains($aposlong,$first-char) and string-length($first-char)=1 ">
+					<xsl:text> ' </xsl:text>
 		</xsl:when>
--->
+
+
 
 		<xsl:otherwise>
 			<xsl:value-of select="$first-char" />
@@ -384,6 +437,7 @@
 			<xsl:when test="$word='/SUPERTYPE'">
 				<xsl:element name="supertype-template" />
 			</xsl:when>
+
 
 <!--			<xsl:when test="substring($word,1,5)='SELF\'">
 				<xsl:element name="SELF" />

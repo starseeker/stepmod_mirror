@@ -1,87 +1,119 @@
 (*
-ISO TC184/SC4/WG12 N2130 - ISO/TS 10303-1032 Shape property assignment - EXPRESS ARM
+ISO TC184/SC4/WG12 N1301 - ISO/TS 10303-1054 Value with unit - EXPRESS ARM
 *) 
 
 
-SCHEMA Shape_property_assignment_arm; 
-
-USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
-
-USE FROM External_model_arm;    -- ISO/TS 10303-1033
-
-USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
-
-USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
-
-USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
+SCHEMA Value_with_unit_arm; 
 
 
-TYPE shape_dependent_select = SELECT
-   (Item_shape, 
-    Shape_element);
+TYPE any_number_value = NUMBER;
 END_TYPE; 
 
-TYPE shape_model = SELECT
-   (External_geometric_model, 
-    Geometric_model);
+TYPE any_string_value = STRING;
 END_TYPE; 
 
-TYPE shape_select = SELECT
-   (Item_shape, 
-    Shape_element, 
-    Shape_element_relationship);
+TYPE length_measure = NUMBER;
 END_TYPE; 
 
-TYPE shapeable_item = SELECT
-   (Characterizable_object, 
-    Product_view_definition, 
-    View_definition_usage);
+TYPE measure_value = EXTENSIBLE SELECT
+   (any_number_value, 
+    any_string_value, 
+    length_measure);
 END_TYPE; 
 
-ENTITY Characterizable_object;
+ENTITY Amount_of_substance_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Context_dependent_unit
+  SUBTYPE OF (Unit);
+WHERE
+  WR1: EXISTS(SELF\Unit.name);
+END_ENTITY;
+
+ENTITY Conversion_based_unit
+  SUBTYPE OF (Unit);
+  conversion_factor : Value_with_unit;
+WHERE
+  WR1: EXISTS(SELF\Unit.name);
+END_ENTITY;
+
+ENTITY Derived_unit
+  SUBTYPE OF (Unit);
+  elements : SET[1:?] OF Derived_unit_element;
+END_ENTITY;
+
+ENTITY Derived_unit_element;
+  base_unit : Unit;
+  exponent : REAL;
+END_ENTITY;
+
+ENTITY Duration
+  SUBTYPE OF (Value_with_unit);
+WHERE
+  WR1: 'VALUE_WITH_UNIT_ARM.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
+END_ENTITY;
+
+ENTITY Electric_current_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Length_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Luminous_intensity_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Mass_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Plane_angle_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Ratio_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Solid_angle_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Thermodynamic_temperature_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Time_unit
+  SUBTYPE OF (Unit);
+END_ENTITY;
+
+ENTITY Uncertainty_with_unit
+  SUBTYPE OF (Value_with_unit);
   name : STRING;
   description : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY Contextual_item_shape
-  SUBTYPE OF (Item_shape);
-  SELF\Item_shape.described_element : View_definition_usage;
-DERIVE
-  shaped_product : Product_view_definition := described_element\View_definition_relationship.related_view;
+ENTITY Unit
+  SUPERTYPE OF (ONEOF (Amount_of_substance_unit,
+                       Electric_current_unit,
+                       Length_unit,
+                       Luminous_intensity_unit,
+                       Mass_unit,
+                       Plane_angle_unit,
+                       Ratio_unit,
+                       Solid_angle_unit,
+                       Thermodynamic_temperature_unit,
+                       Time_unit));
+  name : OPTIONAL STRING;
+  si_unit : BOOLEAN;
 END_ENTITY;
 
-ENTITY Item_shape;
-  id : OPTIONAL STRING;
-  description : OPTIONAL STRING;
-  described_element : shapeable_item;
+ENTITY Value_with_unit;
+  unit : Unit;
+  value_component : measure_value;
 END_ENTITY;
 
-ENTITY Shape_dependent_property_representation;
-  characteristic_type : STRING;
-  description : OPTIONAL STRING;
-  described_element : shape_dependent_select;
-  property_representation : Representation;
-END_ENTITY;
-
-ENTITY Shape_description_association;
-  represented_characteristic : shape_select;
-  representation : shape_model;
-  role : OPTIONAL STRING;
-  description : OPTIONAL STRING;
-END_ENTITY;
-
-ENTITY Shape_element;
-  id : OPTIONAL STRING;
-  element_name : STRING;
-  description : OPTIONAL STRING;
-  containing_shape : Item_shape;
-END_ENTITY;
-
-ENTITY Shape_element_relationship;
-  relation_type : STRING;
-  description : OPTIONAL STRING;
-  relating : Shape_element;
-  related : Shape_element;
-END_ENTITY;
-
-END_SCHEMA;  -- Shape_property_assignment_arm
+END_SCHEMA;  -- Value_with_unit_arm

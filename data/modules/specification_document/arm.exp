@@ -2,6 +2,87 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Specification document - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Specification_document_arm;
-END_SCHEMA;
+
+USE FROM Document_definition_arm;
+
+USE FROM Person_organization_arm;
+
+USE FROM Characteristic_arm;
+
+	TYPE specification_product_object_select = 
+		EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Specification_allocation;
+      allocated_specification      : specification_definition;
+      target_product_object        : SET[1:?] OF specification_product_object_select;
+      purpose                      : STRING; --ee_name;
+      identifier_in_target_context : OPTIONAL STRING; --ee_name;
+    DERIVE
+      the_context : specification_product_object_select := target_product_object[1];
+    UNIQUE
+      UR1 : identifier_in_target_context,
+ the_context;
+    WHERE
+      WR1 : NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1);
+  END_ENTITY; -- specification_allocation
+
+  ENTITY Specification_definition
+  	SUPERTYPE OF(ONEOF (design_specification,
+	 process_specification,
+	 material_specification,
+	 test_specification,
+	 language_reference_manual))
+    SUBTYPE OF (Document_definition);
+      source : organization_or_person_in_organization_select;
+  END_ENTITY; -- specification_definition
+
+  ENTITY Design_specification
+    SUPERTYPE OF (interface_specification)
+    SUBTYPE OF (specification_definition);
+  END_ENTITY; -- design_specification
+
+  ENTITY Fabrication_technology_specification
+    SUBTYPE OF (process_specification);
+  END_ENTITY; -- fabrication_technology_specification
+
+  ENTITY Interface_specification
+    SUBTYPE OF (Design_specification);
+  END_ENTITY; -- interface_specification
+
+  ENTITY Language_reference_manual
+    SUBTYPE OF (specification_definition);
+  END_ENTITY; -- language_reference_manual
+
+  ENTITY Material_specification
+    SUBTYPE OF (specification_definition);
+  END_ENTITY; -- material_specification
+
+  ENTITY Process_specification
+    SUBTYPE OF (specification_definition);
+  END_ENTITY; -- process_specification
+
+ 	TYPE sd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Structured_text);
+	END_TYPE;
+
+  ENTITY Structured_text
+  	SUBTYPE OF (Document_definition);
+      plain_text_content        : OPTIONAL text_representation_item;
+      precedent_structured_text : OPTIONAL structured_text;
+      structured_text_content   : OPTIONAL SET[1:?] OF structured_text;
+    INVERSE
+      content_markup						: External_source_identification FOR item;
+  END_ENTITY; -- structured_text
+
+  ENTITY Surface_finish_specification
+    SUBTYPE OF (Material_specification);
+  END_ENTITY; -- surface_finish_specification
+
+  ENTITY Test_specification
+    SUBTYPE OF (specification_definition);
+  END_ENTITY; -- test_specification
+
+END_SCHEMA; -- Specification_document_arm

@@ -2,6 +2,35 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Fabrication joint - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Fabrication_joint_arm;
-END_SCHEMA;
+
+USE FROM Layered_interconnect_module_with_printed_component_design_arm;
+
+USE FROM Sequential_laminate_assembly_design_arm (
+	interconnect_module_component_stratum_based_terminal);
+
+ 	TYPE fabricated_feature_select = EXTENSIBLE GENERIC_ENTITY SELECT(
+ 		component_termination_passage_join_terminal,
+    via_terminal,
+    printed_component_join_terminal,
+    conductive_interconnect_element_terminal,
+    embedded_component_terminal);
+	END_TYPE;
+
+  ENTITY Fabrication_joint;
+      fabrication_features_1         : fabricated_feature_select;
+      fabrication_features_2         : fabricated_feature_select;
+      auxiliary_joint_material       : OPTIONAL stratum_feature_template_component;
+      associated_interconnect_module : interconnect_module;
+  END_ENTITY; -- fabrication_joint
+
+  ENTITY Connection_zone_based_fabrication_joint
+    SUBTYPE OF (Fabrication_joint);
+      zone_1 : connection_zone_in_design_view;
+      zone_2 : connection_zone_in_design_view;
+    WHERE
+      WR1 : zone_1 :<>: zone_2;
+  END_ENTITY; -- connection_zone_based_fabrication_joint
+
+END_SCHEMA; -- Fabrication_joint_arm

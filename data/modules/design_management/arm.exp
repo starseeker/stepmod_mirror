@@ -2,6 +2,75 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Design management - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Design_management_arm;
-END_SCHEMA;
+
+USE FROM Approval_arm;
+
+USE FROM Work_order_arm;
+
+USE FROM Work_request_arm;
+
+USE FROM Product_view_definition_arm;
+
+  TYPE design_object_management_relationship_item = SELECT (
+		work_request, 
+		work_order);
+  END_TYPE; -- design_object_management_relationship_item
+
+	TYPE dm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
+   (frozen_assignment);
+	END_TYPE; 
+
+ 	TYPE managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Add_design_object_management_relationship
+    SUBTYPE OF (Design_object_management_relationship);
+      current_design_object : managed_design_object;
+    UNIQUE
+      ur1 : current_design_object;
+  END_ENTITY; -- add_design_object_management_relationship
+
+  ENTITY Change_design_object_management_relationship
+    SUBTYPE OF (Design_object_management_relationship);
+      current_design_object  : managed_design_object;
+      previous_design_object : managed_design_object;
+    UNIQUE
+      ur1 : current_design_object;
+      ur2 : previous_design_object;
+  END_ENTITY; -- change_design_object_management_relationship
+
+  ENTITY Delete_design_object_management_relationship
+    SUBTYPE OF (Design_object_management_relationship);
+      previous_design_object : managed_design_object;
+    UNIQUE
+      ur1 : previous_design_object;
+  END_ENTITY; -- delete_design_object_management_relationship
+
+  ENTITY Design_object_management_relationship
+    ABSTRACT SUPERTYPE OF (ONEOF (change_design_object_management_relationship,
+ delete_design_object_management_relationship,
+ add_design_object_management_relationship)ANDOR(view_dependent_design_object_management_relationship));
+  END_ENTITY; -- design_object_management_relationship
+
+  ENTITY View_dependent_design_object_management_relationship
+    SUBTYPE OF (Design_object_management_relationship);
+      previous_design : product_view_definition;
+      current_design  : product_view_definition;
+  END_ENTITY; -- view_dependent_design_object_management_relationship
+
+
+  ENTITY Design_object_management_relationship_assignment;
+      changes: SET[1:?] OF design_object_management_relationship;
+      items : SET[1:?] OF design_object_management_relationship_item;
+  END_ENTITY;
+
+  ENTITY Frozen_assignment;
+      frozen_item       : SET[1:?] OF managed_design_object;
+(** Need a global rule to capture cardinality      
+      assigned_approval : approval;
+*)      
+  END_ENTITY; -- frozen_assignment
+
+END_SCHEMA; -- Design_management_arm

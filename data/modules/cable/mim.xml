@@ -2,15 +2,22 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:32" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:44" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="cable_mim schema_instance"/>
    <schema name="Cable_mim">
-      <interface kind="use" schema="Assembly_module_with_packaged_connector_component_mim"/>
-      <interface kind="use" schema="Component_feature_mim"/>
-      <interface kind="use" schema="Item_definition_structure_mim"/>
-      <interface kind="use" schema="Part_terminal_mim"/>
-      <interface kind="use" schema="Physical_unit_design_view_mim"/>
-      <interface kind="use" schema="Physical_unit_usage_view_mim"/>
-      <interface kind="use" schema="Part_occurrence_mim"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_USAGE_VIEW_MIM"/>
+      <interface kind="use" schema="PART_TERMINAL_MIM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_DESIGN_VIEW_MIM"/>
+      <interface kind="use" schema="ITEM_DEFINITION_STRUCTURE_MIM"/>
+      <interface kind="use" schema="ASSEMBLY_MODULE_WITH_PACKAGED_CONNECTOR_COMPONENT_MIM"/>
+      <interface kind="use" schema="COMPONENT_FEATURE_MIM"/>
+      <interface kind="use" schema="PART_OCCURRENCE_MIM"/>
+      <entity name="cable_terminal" supertypes="shape_aspect">
+         <where label="wr1" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'cable_usage_view' in typeof ( self . of_shape . definition ) "/>
+      </entity>
+      <entity name="cable_usage_view" supertypes="physical_unit">
+         <where label="wr1" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( sa &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect.of_shape' ) | 'electronic_assembly_interconnect_and_packaging_design.' + 'cable_terminal' in typeof ( sa ) ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="wr2" expression=" self . frame_of_reference . name in [ 'physical design usage' ] "/>
+      </entity>
    </schema>
 </express>

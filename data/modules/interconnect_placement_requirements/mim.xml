@@ -2,14 +2,25 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:34" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:46" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_placement_requirements_mim schema_instance"/>
    <schema name="Interconnect_placement_requirements_mim">
-      <interface kind="use" schema="Assembly_component_placement_requirements_mim"/>
-      <interface kind="use" schema="Characteristic_mim"/>
-      <interface kind="use" schema="Layered_interconnect_module_design_mim"/>
-      <interface kind="use" schema="Non_feature_shape_element_mim"/>
-      <interface kind="use" schema="Part_template_extension_mim"/>
-      <interface kind="use" schema="Requirement_decomposition_mim"/>
+      <interface kind="use" schema="ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM"/>
+      <interface kind="use" schema="CHARACTERISTIC_MIM"/>
+      <interface kind="use" schema="LAYERED_INTERCONNECT_MODULE_DESIGN_MIM"/>
+      <interface kind="use" schema="NON_FEATURE_SHAPE_ELEMENT_MIM"/>
+      <interface kind="use" schema="PART_TEMPLATE_EXTENSION_MIM"/>
+      <interface kind="use" schema="REQUIREMENT_DECOMPOSITION_MIM"/>
+      <entity name="interconnect_module_design_object_category" supertypes="characterized_object">
+         <where label="wr1" expression=" self \ characterized_object . description in [ 'cutout category' , 'fill area category' , 'inter stratum feature category' , 'stratum feature category' , 'via category' ] "/>
+      </entity>
+      <rule name="interconnect_module_constraint_region_constraint" appliesto="group_shape_aspect">
+         <where label="wr1" expression=" sizeof ( query ( gsa &lt;* group_shape_aspect | not ( gsa \ shape_aspect . description = 'interconnect module constraint region' ) or not ( sizeof ( query ( pd &lt;* usedin ( gsa , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_representation' in typeof ( pdr . used_representation ) ) and ( ( 'electronic_assembly_interconnect_and_packaging_design.' + 'csg_2d_shape_representation' in typeof ( pdr . used_representation ) ) or ( pdr . used_representation . context_of_items \ geometric_representation_context . coordinate_space_dimension = 3 ) ) ) ) = 1 ) ) ) = 0 ) ) ) = 0 "/>
+      </rule>
+      <rule name="layout_spacing_requirement_non_conforming_design_object_constraint" appliesto="shape_aspect_relationship">
+         <where label="wr1" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'layout spacing requirement violation' ) and ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'component_shape_aspect' , 'electronic_assembly_interconnect_and_packaging_design.' + 'component_terminal' , 'electronic_assembly_interconnect_and_packaging_design.' + 'component_interface_terminal' , 'electronic_assembly_interconnect_and_packaging_design.' + 'stratum_feature' ] * typeof ( sar . related_shape_aspect ) ) = 0 ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'layout spacing requirement violation' ) and ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'component_shape_aspect' , 'electronic_assembly_interconnect_and_packaging_design.' + 'component_terminal' , 'electronic_assembly_interconnect_and_packaging_design.' + 'component_interface_terminal' , 'electronic_assembly_interconnect_and_packaging_design.' + 'stratum_feature' ] * typeof ( sar . relating_shape_aspect ) ) = 0 ) ) ) = 0 "/>
+         <where label="wr3" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'layout spacing requirement violation' ) and not ( sizeof ( query ( grp &lt;* usedin ( sar , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'group' in typeof ( grp ) ) and ( grp \ group . name = 'layout spacing requirements property' ) ) ) = 1 ) ) ) = 0 "/>
+      </rule>
    </schema>
 </express>

@@ -2,12 +2,37 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:47" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layout_macro_definition_mim schema_instance"/>
    <schema name="Layout_macro_definition_mim">
-      <interface kind="use" schema="Fabrication_joint_mim"/>
-      <interface kind="use" schema="Layered_interconnect_module_with_printed_component_design_mim"/>
-      <interface kind="use" schema="Physical_unit_design_view_mim"/>
-      <interface kind="use" schema="Printed_physical_layout_template_mim"/>
+      <interface kind="use" schema="FABRICATION_JOINT_MIM"/>
+      <interface kind="use" schema="LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_DESIGN_VIEW_MIM"/>
+      <interface kind="use" schema="PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM"/>
+      <interface kind="use" schema="APPLICATION_CONTEXT_SCHEMA"/>
+      <entity name="layout_macro_component" supertypes="printed_component">
+         <where label="wr1" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pt_occ &lt;* query ( sa &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect.of_shape' ) | sa \ shape_aspect . description = 'layout macro component shape aspect' ) | sizeof ( query ( it &lt;* query ( sar &lt;* usedin ( pt_occ , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'instantiated template' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'layout_macro_floor_plan_template' in typeof ( it . relating_shape_aspect ) ) ) ) = 1 ) ) = 1 ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( ip &lt;* query ( pdr &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'design definition' ) | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'layout_macro_definition' ] * typeof ( ip . relating_product_definition ) ) = 1 ) ) ) = 1 "/>
+         <where label="wr3" expression=" self \ product_definition . description &lt;&gt; 'printed connector component' "/>
+      </entity>
+      <entity name="layout_macro_definition" supertypes="interconnect_definition">
+         <where label="wr1" expression=" exists ( self \ product_definition . name ) "/>
+         <where label="wr2" expression=" sizeof ( query ( du &lt;* query ( pdr &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'product_definition_relationship.' + 'related_product_definition' ) | pdr \ product_definition_relationship . name = 'design usage' ) | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'interconnect_definition' , 'electronic_assembly_interconnect_and_packaging_design.' + 'externally_defined_interconnect_definition' , 'electronic_assembly_interconnect_and_packaging_design.' + 'library_defined_interconnect_definition' ] * typeof ( du . relating_product_definition ) ) = 1 ) and ( du . relating_product_definition . frame_of_reference . name = 'physical design usage' ) and ( du . relating_product_definition \ product_definition . name = 'interconnect module' ) ) ) = 0 "/>
+         <where label="wr3" expression=" self . frame_of_reference \ application_context_element . name = 'physical design' "/>
+         <where label="wr4" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pt_occ &lt;* query ( sa &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect.of_shape' ) | sa \ shape_aspect . description = 'layout macro definition shape aspect' ) | sizeof ( query ( it &lt;* query ( sar &lt;* usedin ( pt_occ , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'floor layout view' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'layout_macro_floor_plan_template' in typeof ( it . relating_shape_aspect ) ) ) ) = 1 ) ) = 1 ) ) ) = 0 "/>
+      </entity>
+      <entity name="layout_macro_definition_terminal_to_usage_terminal_assignment" supertypes="shape_aspect shape_aspect_relationship">
+         <unique label="ur1">
+            <unique.attribute entity-ref="layout_macro_definition_terminal_to_usage_terminal_assignment" attribute="name"/>
+         </unique>
+         <where label="wr1" expression=" sizeof ( typeof ( self ) - typeof ( self \ shape_aspect_relationship || self \ layout_macro_definition_terminal_to_usage_terminal_assignment || self \ shape_aspect ) ) = 0 "/>
+         <where label="wr2" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'printed_part_template_terminal' in typeof ( self \ shape_aspect_relationship . relating_shape_aspect ) "/>
+         <where label="wr3" expression=" self \ shape_aspect_relationship . related_shape_aspect \ shape_aspect . description in [ 'component termination passage join terminal' , 'conductive interconnect element terminal' , 'land join terminal' , 'non functional land join terminal' , 'printed component join terminal' , 'via terminal' ] "/>
+         <where label="wr4" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.relating_shape_aspect' ) ) &lt;= 1 "/>
+      </entity>
+      <entity name="layout_macro_floor_plan_template" supertypes="part_template_definition">
+         <where label="wr1" expression=" not ( self \ shape_aspect . description in [ 'component termination passage template' , 'component termination passage template' , 'default trace template' , 'inter stratum feature template' , 'printed connector template' , 'printed part cross section template' , 'printed part template' , 'trace template' , 'unsupported passage template' , 'via template' , 'non conductive cross section template' ] ) "/>
+         <where label="wr2" expression=" sizeof ( query ( sar &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.related_shape_aspect' ) | ( ( sar \ shape_aspect_relationship . name = 'access maps' ) and ( 'electronic_assembly_interconnect_and_packaging_design.' + 'layout_macro_definition_terminal_to_usage_terminal_assignment' in typeof ( sar . relating_shape_aspect ) ) ) ) ) &gt;= 1 "/>
+      </entity>
    </schema>
 </express>

@@ -2,10 +2,16 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:31" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:42" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_module_macro_definition_mim schema_instance"/>
    <schema name="Assembly_module_macro_definition_mim">
-      <interface kind="use" schema="Assembly_module_design_mim"/>
-      <interface kind="use" schema="Interconnect_module_with_macros_mim"/>
+      <interface kind="use" schema="ASSEMBLY_MODULE_DESIGN_MIM"/>
+      <interface kind="use" schema="INTERCONNECT_MODULE_WITH_MACROS_MIM"/>
+      <entity name="assembly_module_join_terminal" supertypes="assembly_module_terminal"/>
+      <subtype.constraint name="assembly_module_terminal_subtypes" entity="assembly_module_terminal" super.expression="ONEOF (assembly_module_interface_terminal, assembly_module_join_terminal)"/>
+      <rule name="component_terminal_to_assembly_module_join_terminal_assignment_unique_constraint" appliesto="shape_aspect_relationship">
+         <algorithm> local cttamta : bag of shape_aspect_relationship := query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'component feature to physical usage view assignment' ) ) ; pass : boolean := true ; amt_bag : bag of assembly_module_join_terminal := [ ] ; end_local ; repeat i := 1 to sizeof ( cttamta ) by 1 ; if exists ( cttamta [ i ] . relating_shape_aspect ) then if ( 'electronic_assembly_interconnect_and_packaging_design.' + 'assembly_module_join_terminal' in typeof ( cttamta [ i ] . relating_shape_aspect ) ) then if ( cttamta [ i ] . relating_shape_aspect in amt_bag ) then pass := false ; escape ; else amt_bag := amt_bag + cttamta [ i ] . relating_shape_aspect ; end_if ; end_if ; end_if ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
+      </rule>
    </schema>
 </express>

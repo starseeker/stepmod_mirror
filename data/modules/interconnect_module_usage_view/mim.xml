@@ -2,15 +2,56 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:34" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:45" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_module_usage_view_mim schema_instance"/>
    <schema name="Interconnect_module_usage_view_mim">
-      <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
-      <interface kind="use" schema="Network_functional_usage_view_mim"/>
-      <interface kind="use" schema="Part_feature_location_mim"/>
-      <interface kind="use" schema="Part_terminal_mim"/>
-      <interface kind="use" schema="Physical_unit_usage_view_mim"/>
-      <interface kind="use" schema="Shape_composition_mim"/>
-      <interface kind="use" schema="Value_with_unit_extension_mim"/>
+      <interface kind="use" schema="EXTENDED_GEOMETRIC_TOLERANCE_MIM"/>
+      <interface kind="use" schema="NETWORK_FUNCTIONAL_USAGE_VIEW_MIM"/>
+      <interface kind="use" schema="PART_FEATURE_LOCATION_MIM"/>
+      <interface kind="use" schema="PART_TERMINAL_MIM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_USAGE_VIEW_MIM"/>
+      <interface kind="use" schema="SHAPE_COMPOSITION_MIM"/>
+      <interface kind="use" schema="VALUE_WITH_UNIT_EXTENSION_MIM"/>
+      <entity name="interconnect_definition" supertypes="physical_unit">
+         <where label="wr1" expression=" exists ( self \ product_definition . name ) "/>
+         <where label="wr2" expression=" not exists ( self \ product_definition . name ) or ( self \ product_definition . name = 'interconnect module' ) "/>
+         <where label="wr3" expression=" ( not ( self . frame_of_reference . name = 'physical design' ) ) or ( sizeof ( query ( du &lt;* query ( pdr &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'product_definition_relationship.' + 'related_product_definition' ) | pdr \ product_definition_relationship . name = 'design usage' ) | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'interconnect_definition' , 'electronic_assembly_interconnect_and_packaging_design.' + 'externally_defined_interconnect_definition' , 'electronic_assembly_interconnect_and_packaging_design.' + 'library_defined_interconnect_definition' ] * typeof ( du . relating_product_definition ) ) = 1 ) and ( du . relating_product_definition . frame_of_reference . name = 'physical design usage' ) and ( du . relating_product_definition \ product_definition . name = 'interconnect module' ) ) ) = 1 ) "/>
+      </entity>
+      <entity name="interconnect_module_cutout_segment_surface" supertypes="shape_aspect shape_aspect_relationship">
+         <where label="wr1" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'edge_segment_vertex' in typeof ( self \ shape_aspect_relationship . related_shape_aspect ) "/>
+         <where label="wr2" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'edge_segment_vertex' in typeof ( self \ shape_aspect_relationship . relating_shape_aspect ) "/>
+         <where label="wr3" expression=" self \ shape_aspect_relationship . relating_shape_aspect :&lt;&gt;: self \ shape_aspect_relationship . related_shape_aspect "/>
+         <where label="wr4" expression=" sizeof ( query ( ce &lt;* query ( sar &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'composed surface' ) | ( 'interconnect module cutout surface' = ce . relating_shape_aspect \ shape_aspect . description ) ) ) = 1 "/>
+         <where label="wr5" expression=" sizeof ( typeof ( self ) - typeof ( self \ shape_aspect || self \ shape_aspect_relationship || self \ interconnect_module_cutout_segment_surface ) ) = 0 "/>
+      </entity>
+      <entity name="interconnect_module_edge_segment_surface" supertypes="shape_aspect shape_aspect_relationship">
+         <where label="wr1" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'edge_segment_vertex' in typeof ( self \ shape_aspect_relationship . related_shape_aspect ) "/>
+         <where label="wr2" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'edge_segment_vertex' in typeof ( self \ shape_aspect_relationship . relating_shape_aspect ) "/>
+         <where label="wr3" expression=" self \ shape_aspect_relationship . relating_shape_aspect :&lt;&gt;: self \ shape_aspect_relationship . related_shape_aspect "/>
+         <where label="wr4" expression=" sizeof ( query ( ce &lt;* query ( sar &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'composed surface' ) | ( 'interconnect module edge surface' = ce . relating_shape_aspect \ shape_aspect . description ) ) ) = 1 "/>
+         <where label="wr5" expression=" sizeof ( typeof ( self ) - typeof ( self \ shape_aspect || self \ shape_aspect_relationship || self \ interconnect_module_edge_segment_surface ) ) = 0 "/>
+      </entity>
+      <entity name="interconnect_module_interface_terminal" supertypes="interconnect_module_terminal"/>
+      <entity name="interconnect_module_terminal" supertypes="shape_aspect" super.expression="interconnect_module_interface_terminal">
+         <where label="wr1" expression=" exists ( self . of_shape . definition \ product_definition . name ) "/>
+         <where label="wr2" expression=" ( 'electronic_assembly_interconnect_and_packaging_design.' + 'physical_unit' in typeof ( self . of_shape . definition ) ) and ( self . of_shape . definition \ product_definition . frame_of_reference . name = 'physical design usage' ) and ( self . of_shape . definition \ product_definition . name = 'interconnect module' ) "/>
+         <where label="wr3" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_representation' in typeof ( pdr . used_representation ) ) ) &gt;= 1 ) ) &gt;= 1 "/>
+         <where label="wr4" expression=" sizeof ( query ( mct &lt;* query ( sar &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'member connected terminal' ) | 'electronic_assembly_interconnect_and_packaging_design.' + 'part_connected_terminals_definition' in typeof ( mct . relating_shape_aspect ) ) ) &lt;= 1 "/>
+         <where label="wr5" expression=" sizeof ( query ( sar &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.relating_shape_aspect' ) | sar . related_shape_aspect \ shape_aspect . description = 'connection zone' ) ) &lt;= 1 "/>
+      </entity>
+      <rule name="interconnect_module_surface_feature_constraint" appliesto="shape_aspect">
+         <where label="wr1" expression=" sizeof ( query ( sa &lt;* shape_aspect | ( ( sa \ shape_aspect . description = 'interconnect module edge segment surface' ) or ( sa \ shape_aspect . description = 'interconnect module cavity surface' ) or ( sa \ shape_aspect . description = 'interconnect module cutout surface' ) or ( sa \ shape_aspect . description = 'interconnect module edge surface' ) or ( sa \ shape_aspect . description = 'interconnect module primary surface' ) or ( sa \ shape_aspect . description = 'interconnect module secondary surface' ) or ( sa \ shape_aspect . description = 'interconnect module surface feature' ) ) and not ( ( sa . of_shape . definition \ product_definition . name = 'interconnect module' ) and ( sa . of_shape . definition . frame_of_reference . name = 'physical design usage' ) and ( ( 'electronic_assembly_interconnect_and_packaging_design.' + 'physical_unit' in typeof ( sa . of_shape . definition ) ) or ( 'electronic_assembly_interconnect_and_packaging_design.' + 'externally_defined_physical_unit' in typeof ( sa . of_shape . definition ) ) or ( 'electronic_assembly_interconnect_and_packaging_design.' + 'library_defined_physical_unit' in typeof ( sa . of_shape . definition ) ) ) ) ) ) = 0 "/>
+      </rule>
+      <rule name="located_interconnect_module_thickness_requirement_unique_constraint" appliesto="property_definition_representation">
+         <algorithm> local limrt : bag of property_definition_representation := query ( pdr &lt;* property_definition_representation | ( pdr . definition \ property_definition . name = 'located interconnect module thickness' ) and ( 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect' in typeof ( pdr . definition . definition ) ) ) ; pu_bag : bag of physical_unit := [ ] ; pdr_bag : bag of property_definition_representation ; rr_bag : bag of representation_relationship ; pass : boolean := true ; ri_bag : bag of representation_item ; end_local ; repeat i := 1 to sizeof ( limrt ) by 1 ; if exists ( limrt [ i ] . definition . definition . of_shape . definition ) then if ( ( 'electronic_assembly_interconnect_and_packaging_design.' + 'physical_unit' in typeof ( limrt [ i ] . definition . definition . of_shape . definition ) ) ) then if ( not ( limrt [ i ] . definition . definition . of_shape . definition in pu_bag ) ) then pu_bag := pu_bag + limrt [ i ] . definition . definition . of_shape . definition ; end_if ; end_if ; end_if ; end_repeat ; repeat i := 1 to sizeof ( pu_bag ) by 1 ; if ( not pass ) then escape ; end_if ; ri_bag := [ ] ; pdr_bag := query ( pdr &lt;* limrt | ( pdr . definition . definition . of_shape . definition :=: pu_bag [ i ] ) ) ; repeat j := 1 to sizeof ( pdr_bag ) by 1 ; if ( not pass ) then escape ; end_if ; rr_bag := query ( rr &lt;* usedin ( pdr_bag [ j ] . used_representation , 'electronic_assembly_interconnect_and_packaging_design.' + 'representation_relationship.rep_2' ) | ( rr \ representation_relationship . name = 'reference location' ) ) ; repeat k := 1 to sizeof ( rr_bag ) by 1 ; if ( not pass ) then escape ; end_if ; repeat l := 1 to sizeof ( rr_bag [ k ] . rep_1 . items ) by 1 ; if ( ( 'electronic_assembly_interconnect_and_packaging_design.' + 'axis2_placement_2d' in typeof ( rr_bag [ k ] . rep_1 . items [ l ] ) ) or ( 'electronic_assembly_interconnect_and_packaging_design.' + 'axis2_placement_3d' in typeof ( rr_bag [ k ] . rep_1 . items [ l ] ) ) ) then if exists ( rr_bag [ k ] . rep_1 . items [ l ] ) then if ( rr_bag [ k ] . rep_1 . items [ l ] in ri_bag ) then pass := false ; escape ; else ri_bag := ri_bag + rr_bag [ k ] . rep_1 . items [ l ] ; end_if ; end_if ; end_if ; end_repeat ; end_repeat ; end_repeat ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
+      </rule>
+      <function name="is_interconnect_module_usage">
+         <parameter name="pd">
+            <typename name="product_definition"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> local pass : boolean := false ; end_local ; if not ( exists ( pd \ product_definition . name ) ) then return ( false ) ; end_if ; if ( ( pd \ product_definition . name = 'interconnect module' ) and ( pd . frame_of_reference \ application_context_element . name = 'physical design usage' ) ) then return ( true ) ; end_if ; return ( pass ) ; </algorithm>
+      </function>
    </schema>
 </express>

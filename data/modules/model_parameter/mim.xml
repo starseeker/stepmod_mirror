@@ -1,12 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2004/10/11 20:17:49 $"
-   rcs.revision="$Revision: 1.41 $">
-  <schema name="Model_parameter_mim">
-  </schema>
+
+<express language_version="2" rcs.date="2004-12-14T12:55:47" rcs.revision="1.0" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="model_parameter_mim schema_instance"/>
+   <schema name="Model_parameter_mim">
+      <interface kind="use" schema="CHARACTERISTIC_MIM"/>
+      <interface kind="use" schema="CLASSIFICATION_WITH_ATTRIBUTES_MIM"/>
+      <interface kind="use" schema="DOCUMENT_DEFINITION_MIM"/>
+      <interface kind="use" schema="INDEPENDENT_PROPERTY_MIM"/>
+      <interface kind="use" schema="INDEPENDENT_PROPERTY_REPRESENTATION_MIM"/>
+      <interface kind="use" schema="PRODUCT_IDENTIFICATION_MIM"/>
+      <type name="model_parameter_assigned_item">
+         <select selectitems="unit"/>
+      </type>
+      <entity name="category_model_parameter" supertypes="model_parameter"/>
+      <entity name="model_parameter" supertypes="descriptive_representation_item group_assignment general_property">
+         <explicit name="items" optional="YES">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="model_parameter_assigned_item"/>
+         </explicit>
+         <where label="wr1" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_document_reference.items' ) ) = 1 "/>
+         <where label="wr2" expression=" sizeof ( query ( aga &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_group_assignment.items' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'parameter_type' in typeof ( aga . assigned_group ) ) and ( aga . assigned_group \ group . name in [ 'string property type' , 'logical property type' , 'physical property type' , 'boolean property type' ] ) ) ) = 1 "/>
+      </entity>
+      <entity name="parameter_assignment_override" supertypes="representation representation_relationship">
+         <unique label="ur1">
+            <unique.attribute entity-ref="parameter_assignment_override" attribute="rep_1"/>
+            <unique.attribute entity-ref="parameter_assignment_override" attribute="rep_2"/>
+         </unique>
+         <where label="wr1" expression=" sizeof ( typeof ( self ) - ( typeof ( self \ representation || self \ representation_relationship || self \ parameter_assignment_override ) ) ) = 0 "/>
+         <where label="wr2" expression=" self \ representation_relationship . rep_1 &lt;&gt; self \ representation_relationship . rep_2 "/>
+         <where label="wr3" expression=" self \ representation_relationship . name = '' "/>
+         <where label="wr4" expression=" self \ representation . name = '' "/>
+         <where label="wr5" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'parameter_assignment_representation' in typeof ( self \ representation_relationship . rep_1 ) "/>
+         <where label="wr6" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'parameter_assignment_representation' in typeof ( self \ representation_relationship . rep_2 ) "/>
+      </entity>
+      <entity name="parameter_assignment_representation" supertypes="representation">
+         <where label="wr1" expression=" sizeof ( self . items ) = 2 "/>
+         <where label="wr2" expression=" sizeof ( query ( it &lt;* self . items | ( sizeof ( typeof ( it ) * [ 'electronic_assembly_interconnect_and_packaging_design.' + 'model_parameter' ] ) = 1 ) ) ) = 1 "/>
+         <where label="wr3" expression=" sizeof ( query ( it &lt;* self . items | ( sizeof ( typeof ( it ) * [ 'electronic_assembly_interconnect_and_packaging_design.' + 'coordinated_representation_item' ] ) = 1 ) ) ) &lt;= 1 "/>
+         <where label="wr4" expression=" sizeof ( query ( it &lt;* self . items | ( sizeof ( query ( aga &lt;* usedin ( it , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_group_assignment.items' ) | ( sizeof ( typeof ( aga \ group_assignment . assigned_group ) * [ 'electronic_assembly_interconnect_and_packaging_design.' + 'characteristic_type' ] ) = 1 ) ) ) = 1 ) ) ) &lt;= 1 "/>
+         <where label="wr5" expression=" sizeof ( typeof ( self ) - typeof ( self \ representation || self \ parameter_assignment_representation ) ) = 0 "/>
+      </entity>
+      <entity name="product_specific_parameter_value_assignment" supertypes="characterized_object product_related_product_category">
+         <where label="wr1" expression=" sizeof ( self \ product_related_product_category . products ) = 1 "/>
+         <where label="wr2" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | ( pd \ property_definition . description = 'assigned parameter' ) and ( sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'parameter_assignment_representation' ] * typeof ( pdr . used_representation ) ) = 1 ) ) ) = 1 ) ) ) = 1 "/>
+         <where label="wr3" expression=" not ( 'electronic_assembly_interconnect_and_packaging_design.' + 'characterized_product_category' in typeof ( self ) ) "/>
+         <where label="wr4" expression=" self \ characterized_object . name = self \ product_category . name "/>
+      </entity>
+      <entity name="schema_based_model_parameter" supertypes="model_parameter"/>
+   </schema>
 </express>

@@ -2,9 +2,19 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:47" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_connector_model_mim schema_instance"/>
    <schema name="Packaged_connector_model_mim">
-      <interface kind="use" schema="Packaged_part_black_box_model_mim"/>
+      <interface kind="use" schema="PACKAGED_PART_BLACK_BOX_MODEL_MIM"/>
+      <entity name="packaged_connector" supertypes="packaged_part">
+         <where label="wr1" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | ( sizeof ( query ( sa &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect.of_shape' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'packaged_connector_terminal_relationship' in typeof ( sa ) ) ) ) = 1 ) ) ) &gt;= 1 "/>
+         <where label="wr2" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | ( sizeof ( query ( sa &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect.of_shape' ) | ( sizeof ( query ( sar &lt;* usedin ( sa , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'interface plane' ) ) = 1 ) ) ) = 1 ) ) ) &lt;= 1 "/>
+         <where label="wr3" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | ( sizeof ( query ( sa &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect.of_shape' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'seating_plane' in typeof ( sa ) ) ) ) = 1 ) ) ) &lt;= 1 "/>
+      </entity>
+      <entity name="packaged_connector_terminal_relationship" supertypes="shape_aspect shape_aspect_relationship">
+         <where label="wr1" expression=" ( sizeof ( typeof ( self . of_shape . definition ) * [ 'electronic_assembly_interconnect_and_packaging_design.' + 'packaged_part' , 'electronic_assembly_interconnect_and_packaging_design.' + 'externally_defined_packaged_part' , 'electronic_assembly_interconnect_and_packaging_design.' + 'library_defined_packaged_part' ] ) = 1 ) and ( self . of_shape . definition \ product_definition . description = 'packaged connector' ) "/>
+         <where label="wr2" expression=" ( ( 'electronic_assembly_interconnect_and_packaging_design.' + 'packaged_part_terminal' in typeof ( self \ shape_aspect_relationship . related_shape_aspect ) ) and ( self \ shape_aspect_relationship . related_shape_aspect \ shape_aspect . description = 'interface terminal' ) ) "/>
+         <where label="wr3" expression=" ( ( 'electronic_assembly_interconnect_and_packaging_design.' + 'packaged_part_terminal' in typeof ( self \ shape_aspect_relationship . related_shape_aspect ) ) and ( self \ shape_aspect_relationship . related_shape_aspect \ shape_aspect . description = 'join terminal' ) ) "/>
+      </entity>
    </schema>
 </express>

@@ -2,14 +2,25 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:47" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_part_white_box_model_mim schema_instance"/>
    <schema name="Packaged_part_white_box_model_mim">
-      <interface kind="use" schema="Bare_die_mim"/>
-      <interface kind="use" schema="Contextual_shape_positioning_mim"/>
-      <interface kind="use" schema="Feature_and_connection_zone_mim"/>
-      <interface kind="use" schema="Packaged_part_black_box_model_mim"/>
-      <interface kind="use" schema="Physical_unit_2d_shape_mim"/>
-      <interface kind="use" schema="Physical_unit_3d_shape_mim"/>
+      <interface kind="use" schema="BARE_DIE_MIM"/>
+      <interface kind="use" schema="CONTEXTUAL_SHAPE_POSITIONING_MIM"/>
+      <interface kind="use" schema="FEATURE_AND_CONNECTION_ZONE_MIM"/>
+      <interface kind="use" schema="PACKAGED_PART_BLACK_BOX_MODEL_MIM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_2D_SHAPE_MIM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_3D_SHAPE_MIM"/>
+      <entity name="device_terminal_map" supertypes="shape_aspect shape_aspect_relationship">
+         <unique label="ur1">
+            <unique.attribute entity-ref="device_terminal_map" attribute="related_shape_aspect"/>
+            <unique.attribute entity-ref="device_terminal_map" attribute="relating_shape_aspect"/>
+         </unique>
+         <where label="wr1" expression=" 'electronic_assembly_interconnect_and_packaging_design.' + 'packaged_part_terminal' in typeof ( self . relating_shape_aspect ) "/>
+      </entity>
+      <rule name="device_terminal_map_relationship_constraint" appliesto="shape_aspect_relationship">
+         <where label="wr1" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'device terminal map relationship' ) and ( not ( 'electronic_assembly_interconnect_and_packaging_design.' + 'device_terminal_map' in typeof ( sar . relating_shape_aspect ) ) ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'device terminal map relationship' ) and ( not ( 'electronic_assembly_interconnect_and_packaging_design.' + 'device_terminal_map' in typeof ( sar . related_shape_aspect ) ) ) ) ) = 0 "/>
+      </rule>
    </schema>
 </express>

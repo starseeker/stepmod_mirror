@@ -2,14 +2,20 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:32" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:43" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_physical_requirement_allocation_mim schema_instance"/>
    <schema name="Assembly_physical_requirement_allocation_mim">
-      <interface kind="use" schema="Assembly_physical_interface_requirement_mim"/>
-      <interface kind="use" schema="Interface_component_mim"/>
-      <interface kind="use" schema="Physical_unit_design_view_mim"/>
-      <interface kind="use" schema="Requirement_assignment_mim"/>
-      <interface kind="use" schema="Requirement_decomposition_mim"/>
-      <interface kind="use" schema="Shield_mim"/>
+      <interface kind="use" schema="REQUIREMENT_ASSIGNMENT_MIM"/>
+      <interface kind="use" schema="REQUIREMENT_DECOMPOSITION_MIM"/>
+      <interface kind="use" schema="INTERFACE_COMPONENT_MIM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_DESIGN_VIEW_MIM"/>
+      <interface kind="use" schema="ASSEMBLY_PHYSICAL_INTERFACE_REQUIREMENT_MIM"/>
+      <interface kind="use" schema="SHIELD_MIM"/>
+      <entity name="electromagnetic_compatibility_requirement_allocation" supertypes="requirement_assignment" super.expression="shield_allocation"/>
+      <entity name="shield_allocation" supertypes="electromagnetic_compatibility_requirement_allocation"/>
+      <entity name="thermal_requirement_allocation" supertypes="requirement_assignment"/>
+      <rule name="interface_component_allocation_constraint" appliesto="product_definition_relationship">
+         <where label="wr1" expression=" sizeof ( query ( pdr &lt;* product_definition_relationship | ( pdr \ product_definition_relationship . name = 'interface component allocation' ) and not ( ( 'electronic_assembly_interconnect_and_packaging_design.' + 'component_definition' in typeof ( pdr . relating_product_definition ) ) and ( pdr . relating_product_definition \ product_definition . description = 'mating connector' ) ) ) ) = 0 "/>
+      </rule>
    </schema>
 </express>

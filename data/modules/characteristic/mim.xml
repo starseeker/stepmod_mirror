@@ -2,10 +2,26 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:32" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:44" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="characteristic_mim schema_instance"/>
    <schema name="Characteristic_mim">
-      <interface kind="use" schema="Extended_measure_representation_mim"/>
-      <interface kind="use" schema="Value_with_unit_extension_mim"/>
+      <interface kind="use" schema="VALUE_WITH_UNIT_EXTENSION_MIM"/>
+      <interface kind="use" schema="EXTENDED_MEASURE_REPRESENTATION_MIM"/>
+      <interface kind="use" schema="GROUP_SCHEMA"/>
+      <entity name="characteristic_type" supertypes="group">
+         <where label="wr1" expression=" self \ group . name in [ 'string property' , 'logical property' , 'boolean property' , 'numeric property' , 'physical property' , 'externally defined property' , 'polar complex numeric property' , 'compound characteristic' ] "/>
+      </entity>
+      <entity name="coordinated_representation_item" supertypes="representation representation_item">
+         <where label="wr1" expression=" sizeof ( query ( pdr &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.used_representation' ) | sizeof ( usedin ( pdr , 'electronic_assembly_interconnect_and_packaging_design.' + 'data_environment.elements' ) ) &lt;= 1 ) ) &lt;= 1 "/>
+         <where label="wr2" expression=" sizeof ( usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_document_reference.items' ) ) = 1 "/>
+         <where label="wr3" expression=" ( not ( self \ representation_item . name = 'tolerance' ) ) or ( sizeof ( query ( it &lt;* self . items | 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' in typeof ( it ) ) ) &gt;= 1 ) "/>
+         <where label="wr4" expression=" ( not ( self \ representation_item . name = 'plus minus tolerance' ) ) or ( sizeof ( query ( it &lt;* self . items | 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' in typeof ( it ) ) ) = 3 ) "/>
+         <where label="wr5" expression=" ( not ( self \ representation_item . name = 'symmetrical tolerance' ) ) or ( sizeof ( query ( it &lt;* self . items | 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' in typeof ( it ) ) ) = 2 ) "/>
+         <where label="wr6" expression=" ( not ( self \ representation_item . name = 'plus minus tolerance' ) ) or ( ( sizeof ( query ( it &lt;* self . items | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' in typeof ( it ) ) and ( it \ representation_item . name = 'basic value' ) ) ) = 1 ) and ( sizeof ( query ( it &lt;* self . items | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' in typeof ( it ) ) and ( it \ representation_item . name = 'plus value' ) ) ) = 1 ) and ( sizeof ( query ( it &lt;* self . items | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' in typeof ( it ) ) and ( it \ representation_item . name = 'minus value' ) ) ) = 1 ) ) "/>
+         <where label="wr7" expression=" ( not ( self \ representation_item . name = 'symmetrical tolerance' ) ) or ( ( sizeof ( query ( it &lt;* self . items | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' in typeof ( it ) ) and ( it \ representation_item . name = 'basic value' ) ) ) = 1 ) and ( sizeof ( query ( it &lt;* self . items | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' in typeof ( it ) ) and ( it \ representation_item . name = 'deviation value' ) ) ) = 1 ) ) "/>
+      </entity>
+      <entity name="parameter_type" supertypes="group">
+         <where label="wr1" expression=" self \ group . name in [ 'string property type' , 'logical property type' , 'physical property type' , 'boolean property type' ] "/>
+      </entity>
    </schema>
 </express>

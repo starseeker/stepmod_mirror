@@ -2,9 +2,20 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:36" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:55:48" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="shape_composition_mim schema_instance"/>
    <schema name="Shape_composition_mim">
-      <interface kind="use" schema="Shape_property_assignment_mim"/>
+      <interface kind="use" schema="SHAPE_PROPERTY_ASSIGNMENT_MIM"/>
+      <interface kind="use" schema="SHAPE_ASPECT_DEFINITION_SCHEMA"/>
+      <interface kind="use" schema="PRODUCT_PROPERTY_DEFINITION_SCHEMA"/>
+      <entity name="composite_group_shape_aspect" supertypes="composite_shape_aspect"/>
+      <entity name="composite_unit_shape_aspect" supertypes="composite_shape_aspect"/>
+      <rule name="composite_shape_element_constraint" appliesto="composite_shape_aspect">
+         <where label="wr1" expression=" sizeof ( query ( csa &lt;* composite_shape_aspect | sizeof ( query ( sar &lt;* usedin ( csa , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.relating_shape_aspect' ) | ( sar \ shape_aspect_relationship . name = 'composing' ) ) ) &lt; 2 ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( csa &lt;* composite_shape_aspect | not ( ( sizeof ( typeof ( csa ) ) &gt; 2 ) or ( csa \ shape_aspect . description &lt;&gt; '' ) or ( csa \ shape_aspect . name &lt;&gt; '' ) ) ) ) = 0 "/>
+      </rule>
+      <rule name="shape_element_composing_relationship_constraint" appliesto="shape_aspect_relationship">
+         <where label="wr1" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'composing' ) and ( 'electronic_assembly_interconnect_and_packaging_design.' + 'composite_shape_aspect' in typeof ( sar . relating_shape_aspect ) ) ) ) = 0 "/>
+      </rule>
    </schema>
 </express>

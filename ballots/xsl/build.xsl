@@ -121,6 +121,13 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
           </xsl:attribute>
         </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">DATE</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="'${DSTAMP}'"/>
+          </xsl:attribute>
+        </xsl:element>
   
         <xsl:element name="property">
           <xsl:attribute name="name">EXPRESS</xsl:attribute>
@@ -972,30 +979,18 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <param name="stepmodhome" expression="."/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'date'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DATE}'"/>
+          </xsl:attribute>
+        </xsl:element>
+
       </xsl:element>
 
-      <xsl:if test="ballot_package/module">
-        <xsl:element name="style">
-          <xsl:attribute name="in">
-            <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
-          </xsl:attribute>
-          <xsl:attribute name="out">
-            <xsl:value-of select="'${ISODIR}/module_index.htm'"/>
-          </xsl:attribute>
-          <xsl:attribute name="destdir">
-            <xsl:value-of select="'${ISODIR}'"/>
-          </xsl:attribute>
-          <xsl:attribute name="extension">
-            <xsl:value-of select="'.htm'"/>
-          </xsl:attribute>
-          <xsl:attribute name="style">
-            <xsl:value-of select="'${BALLLOTSTYLES}/ballot_summary.xsl'"/>
-          </xsl:attribute>
-          <param name="output_type" expression="HTM"/>
-          <param name="stepmodhome" expression="."/>
-        </xsl:element>
-      </xsl:if>
-            
+      <!--
       <xsl:if test="./@wg.number.ballot_package">
         <xsl:variable name="wgno" 
           select="translate(normalize-space(translate(./@wg.number.ballot_package,$UPPER,$LOWER)),' ','')"/>
@@ -1019,6 +1014,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <param name="stepmodhome" expression="."/>
         </xsl:element>
       </xsl:if>
+-->
     </target>
     
     <xsl:text>
@@ -2047,6 +2043,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_cover.xsl'"/>
         </xsl:attribute>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'coverpage_date'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DATE}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">

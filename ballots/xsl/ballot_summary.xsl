@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.13 2003/03/10 01:29:11 robbod Exp $
+$Id: ballot_summary.xsl,v 1.14 2003/03/21 10:06:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -14,7 +14,6 @@ $Id: ballot_summary.xsl,v 1.13 2003/03/10 01:29:11 robbod Exp $
   <xsl:import href="../../xsl/common.xsl"/>
 
 
-
   <xsl:output 
     method="html"
     doctype-system="http://www.w3.org/TR/html4/loose.dtd"
@@ -23,6 +22,9 @@ $Id: ballot_summary.xsl,v 1.13 2003/03/10 01:29:11 robbod Exp $
     />
 
     <xsl:param name="stepmodhome" select="'../../..'"/>
+    <xsl:param name="date" select="''"/>
+    <xsl:variable name="formatted_date"
+      select="concat(substring($date,1,4),'-',substring($date,5,2),'-',substring($date,7,2) )"/>
 
 
     <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
@@ -42,7 +44,13 @@ $Id: ballot_summary.xsl,v 1.13 2003/03/10 01:29:11 robbod Exp $
   <HTML>
     <head>
       <title>
-        <xsl:value-of select="@name"/>
+            <xsl:choose>
+              <xsl:when test="@title or ./title">
+                <xsl:value-of select="@title"/><xsl:value-of select="./title"/>              </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="@name"/>
+                </xsl:otherwise>
+            </xsl:choose>
       </title>
     </head>
     <body>
@@ -57,8 +65,24 @@ $Id: ballot_summary.xsl,v 1.13 2003/03/10 01:29:11 robbod Exp $
       <hr/>
       <table>
         <tr>
-          <td>Ballot package:</td>
+          <td>Ballot package name:</td>
           <td><xsl:value-of select="@name"/></td>
+        </tr>
+        <tr>
+          <td>Title:</td>
+          <td>
+            <xsl:choose>
+              <xsl:when test="@title or ./title">
+                <xsl:value-of select="@title"/><xsl:value-of select="./title"/>              </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="@name"/>
+                </xsl:otherwise>
+            </xsl:choose>
+          </td>
+        </tr>
+        <tr>
+          <td>Date:</td>
+<td><xsl:value-of select="$formatted_date"/></td>
         </tr>
         <tr>
           <td>Description:</td>
@@ -68,6 +92,14 @@ $Id: ballot_summary.xsl,v 1.13 2003/03/10 01:29:11 robbod Exp $
           <td>Ballot package WG number:</td>
           <td><xsl:value-of select="@wg.number.ballot_package"/></td>
         </tr>
+        <tr>
+          <td>Ballot package project leader:</td>
+          <td>
+              <xsl:apply-templates select="./contacts/projlead"
+                mode="no_address"/>
+          </td>
+        </tr>
+
         <tr>
           <td>Ballot package comments:</td>
           <td><xsl:value-of select="@wg.number.ballot_package_comment"/></td>

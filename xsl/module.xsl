@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.148 2003/05/29 17:48:26 robbod Exp $
+$Id: module.xsl,v 1.149 2003/06/01 13:59:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -469,7 +469,7 @@ o=isocs; s=central<br/>
         </p>
       </xsl:if>
       and is ready for 
-      <xsl:value-of select="$ballot_cycle_or_pub"/>.
+      <xsl:value-of select="normalize-space($ballot_cycle_or_pub)"/>.
 
 
       <xsl:variable name="dvlp_fldr" select="@development.folder"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.21 2003/05/28 14:34:04 robbod Exp $
+$Id: application_protocol_toc.xsl,v 1.22 2003/06/06 09:07:12 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -90,7 +90,7 @@ $Id: application_protocol_toc.xsl,v 1.21 2003/05/28 14:34:04 robbod Exp $
           <td valign="TOP">
             <p class="toc">
               <a href="{$application_protocol_root}/sys/annex_exp_lf{$FILE_EXT}">
-                A EXPRESS expanded listing
+                A EXPRESS expanded listings
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_shortnames{$FILE_EXT}">

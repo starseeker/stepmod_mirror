@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_aam.xsl,v 1.2 2003/06/01 13:56:35 robbod Exp $
+$Id: sect_annex_aam.xsl,v 1.3 2003/06/03 13:38:40 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -20,7 +20,13 @@ $Id: sect_annex_aam.xsl,v 1.2 2003/06/01 13:56:35 robbod Exp $
     			<xsl:with-param name="heading" select="'Application activity model'"/>
     			<xsl:with-param name="aname" select="'annexf'"/>
 		</xsl:call-template>
- 		The application activity model (AAM) is provided as an aid to understanding the scope and information requirements defined in this part of ISO 10303.  The model is presented as a set of figures that contain the activity diagrams and a set of definitions of the activities and their data. Activities and data flows that are out of scope are marked with an asterisk.
+                The application activity model (AAM) is provided as an aid
+                to understanding the scope and information requirements defined in this
+                application protocol.
+                The model is presented as a set of figures that contain the
+                activity diagrams and a set of definitions of the activities and their
+                data. Activities and data flows that are out of scope are marked with an
+                asterisk. 
 		<xsl:variable name="ap_dir">
 			<xsl:value-of select="@name"/>
 		</xsl:variable>

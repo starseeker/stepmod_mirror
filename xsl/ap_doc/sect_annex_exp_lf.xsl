@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_exp_lf.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
+$Id: sect_annex_exp_lf.xsl,v 1.2 2003/06/09 10:57:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -57,7 +57,7 @@ $Id: sect_annex_exp_lf.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
 
     <xsl:call-template name="annex_header">
       <xsl:with-param name="annex_no" select="'A'"/>
-      <xsl:with-param name="heading" select="'EXPRESS expanded listing'"/>
+      <xsl:with-param name="heading" select="'EXPRESS expanded listings'"/>
       <xsl:with-param name="aname" select="'annexa_lf'"/>
       <xsl:with-param name="informative" select="'normative'"/>
     </xsl:call-template>
@@ -68,26 +68,28 @@ $Id: sect_annex_exp_lf.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
     </xsl:call-template>
     <xsl:variable name="arm_lf_href" 
       select="concat('../../../modules/',$module,'/sys/e_exp_arm_lf',$FILE_EXT)"/>
+
     <p>
-      The EXPRESS expanded listing provided in      
-      annex <a href="{$arm_lf_href}">E</a> of the AP module, 
-    <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>
-      shall be used as the expanded listing for this part of
-      ISO-10303. 
+      The ARM EXPRESS expanded listing for this part of ISO 10303 is
+      provided in annex
+      <a href="{$arm_lf_href}">E</a>
+      of the AP module, 
+      <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>
 
     <xsl:call-template name="clause_header">
-      <xsl:with-param name="heading" select="'A.2 AIM  EXPRESS expanded listing'"/>
+      <xsl:with-param name="heading" select="'A.2 MIM  EXPRESS expanded listing'"/>
       <xsl:with-param name="aname" select="'annexa2'"/>
     </xsl:call-template>
     <xsl:variable name="mim_lf_href" 
       select="concat('../../../modules/',$module,'/sys/e_exp_mim_lf',$FILE_EXT)"/>
+
     <p>
-      The EXPRESS expanded listing provided in      
-      annex <a href="{$mim_lf_href}">E</a> of the AP module, 
-    <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>
-      shall be used as the expanded listing for this part of
-      ISO-10303. 
+      The MIM EXPRESS expanded listing for this part of ISO 10303 is
+      provided in annex
+      <a href="{$arm_lf_href}">E</a>
+      of the AP module, 
+      <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>
   </xsl:template> 
 

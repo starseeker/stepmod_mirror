@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.19 2003/06/06 10:28:22 robbod Exp $
+$Id: sect_contents.xsl,v 1.20 2003/06/06 16:45:28 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -94,7 +94,7 @@ $Id: sect_contents.xsl,v 1.19 2003/06/06 10:28:22 robbod Exp $
     <br/>
     <a href="./6_ccs{$FILE_EXT}" target="{$target}">6 Conformance requirements</a>
     <br/>
-    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">A EXPRESS expanded listing</a>
+    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">A EXPRESS expanded listings</a>
     <br/>
     <a href="./annex_shortnames{$FILE_EXT}" target="{$target}">
       B AIM short names

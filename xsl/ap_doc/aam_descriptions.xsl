@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.7 2003/06/03 18:20:00 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.8 2003/06/04 09:50:16 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -43,7 +43,15 @@ $Id: aam_descriptions.xsl,v 1.7 2003/06/03 18:20:00 robbod Exp $
 
     <p>The viewpoint is that of <xsl:value-of select="viewpoint"/>.</p>    
     <h2>F.1 Application activity model definitions</h2>
-        
+    <p>
+      The following terms are used in the application activity model.  Terms
+      marked with an asterisk are outside the scope of this application
+      protocol.
+    </p>
+    <p>
+      The definitions given in this annex do not supersede the definitions
+      given in the main body of the text.
+    </p>
     <xsl:for-each select="./*/*">
       <xsl:sort select="normalize-space(./name)"/>
       <xsl:variable name="asterisk">

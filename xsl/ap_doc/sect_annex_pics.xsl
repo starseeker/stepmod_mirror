@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_pics.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
+$Id: sect_annex_pics.xsl,v 1.2 2003/06/06 16:45:28 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -30,7 +30,7 @@ $Id: sect_annex_pics.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
 		</p>
 		<p>
 			This annex is in the form of a questionnaire. 
-			This  questionnaire is intended to be filled in by an implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS form is referred to as a "PICS".
+			This  questionnaire is intended to be filled out by an implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS form is referred to as a "PICS".
 		</p>
 		<h2>D.1 Protocol implementation identification</h2>
 		<table border="1">

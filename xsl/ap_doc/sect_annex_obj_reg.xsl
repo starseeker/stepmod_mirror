@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_obj_reg.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
+$Id: sect_annex_obj_reg.xsl,v 1.2 2003/05/29 21:29:06 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -60,7 +60,7 @@ $Id: sect_annex_obj_reg.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
 		</p>
 		<xsl:variable name="aim_schema" select="document($aim_xml)/express/schema/@name"/>
 		<xsl:variable name="aim_schema_reg" select="translate($aim_schema,$UPPER, $LOWER)"/>
-		<h2>E.2.2 <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_aim schema identification</h2>
+		<h2>E.2.2 <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_mim schema identification</h2>
 		<p>
 			To provide for unambiguous identification of the schema specifications given in this application module in an open information system, the object identifiers are assigned as follows:
 		</p>
@@ -68,7 +68,7 @@ $Id: sect_annex_obj_reg.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
 			<xsl:value-of select="concat($object_reg,' schema(1) ', $aim_schema_reg,'(2) }' )"/>
 		</p>
 		<p>
-			is assigned to the <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_aim schema. The meaning of this value is defined in ISO 8824-1, and is described in
+			is assigned to the <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_mim schema. The meaning of this value is defined in ISO 8824-1, and is described in
     ISO 10303-1.
 		</p>
 	</xsl:template>

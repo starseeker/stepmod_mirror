@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.2 2003/06/02 14:12:49 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.3 2003/06/06 09:07:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -201,14 +201,11 @@ $Id: sect_annex_shortnames.xsl,v 1.2 2003/06/02 14:12:49 robbod Exp $
           mode="output_shortnames_error">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-        
         <p>
-          Table B.1 provides the short names for entities defined in the MIMs of
-          modules used in this part of ISO 10303.
-        </p>
-        <p>
+          Table B.1 provides the short names of entities defined in the MIMs of
+          modules used in this part of ISO 10303. 
           Requirements on the use of the short names are found in the
-          implementation methods included in ISO 10303. 
+          implementation methods included in ISO 10303.
         </p>
         <p class="note">
           <small>

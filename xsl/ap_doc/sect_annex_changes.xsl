@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_1_scope.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
+$Id: sect_annex_changes.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -33,6 +33,20 @@ $Id: sect_1_scope.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
     </xsl:call-template>
 
     <xsl:apply-templates select="./changes/change_detail"/>
+  </xsl:template>
+
+  <xsl:template match="change_detail">
+    This annex provides a description of the technical changes from the
+    previous version of 
+    ISO 10303-203 
+
+    <xsl:variable name="prev_edition">
+      <xsl:apply-templates select="/application_protocol" mode="previous_edition"/>
+    </xsl:variable>
+
+    (<xsl:value-of 
+    select="concat(/application_protocol/@previous.revision.number,' : ', /application_protocol/@previous.revision.year)"/>).
+    <xsl:apply-templates/>
   </xsl:template>
 
 </xsl:stylesheet>

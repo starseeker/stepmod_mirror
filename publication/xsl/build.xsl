@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+<!--  $Id: build.xsl,v 1.5 2004/07/19 17:15:05 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -135,6 +135,10 @@
         ------------------------------------------------------------
       </fail>
 
+        <xsl:element name="property">
+          <xsl:attribute name="name">PUBLICATION</xsl:attribute>
+          <xsl:attribute name="value">YES</xsl:attribute>            
+        </xsl:element>
 
       <xsl:element name="property">
         <xsl:attribute name="name">PUBDIR</xsl:attribute>
@@ -433,6 +437,28 @@
           </xsl:apply-templates>
         </xsl:attribute>
       </xsl:element>
+
+      
+      <xsl:element name="property">
+        <xsl:attribute name="name">ISOCOVERXML</xsl:attribute>
+        <xsl:attribute name="value">
+          <xsl:apply-templates select="modules/module" mode="list">
+            <xsl:with-param name="prefix" select="'data/modules/'"/>
+            <xsl:with-param name="suffix" select="'/sys/isocover.xml'"/>
+          </xsl:apply-templates>
+        </xsl:attribute>
+      </xsl:element>
+
+      <xsl:element name="property">
+        <xsl:attribute name="name">ISOCOVERHTM</xsl:attribute>
+        <xsl:attribute name="value">
+          <xsl:apply-templates select="modules/module" mode="list">
+            <xsl:with-param name="prefix" select="'data/modules/'"/>
+            <xsl:with-param name="suffix" select="'/sys/isocover.htm'"/>
+          </xsl:apply-templates>
+        </xsl:attribute>
+      </xsl:element>
+
       
       <xsl:element name="property">
         <xsl:attribute name="name">DMIMEXPGXML</xsl:attribute>
@@ -784,7 +810,7 @@
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCCOVERXML</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/cover.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/isocover.xml</xsl:attribute>
     </xsl:element>
 
     <xsl:element name="property">
@@ -1101,7 +1127,7 @@
       <xsl:attribute name="value">
         <xsl:apply-templates select="resource_docs/res_doc" mode="list">
           <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-          <xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
+          <xsl:with-param name="suffix" select="'/sys/isocover.xml'"/>
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
@@ -1619,7 +1645,7 @@
       <xsl:attribute name="value">
         <xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
-          <xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
+          <xsl:with-param name="suffix" select="'/sys/isocover.xml'"/>
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
@@ -2047,7 +2073,7 @@
         </xsl:element>
       </xsl:element>
 
-      <!-- move the cover page to SC4 cover page  -->
+      <!-- move the cover page to SC4 cover page -->
       <xsl:element name="move">
         <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
         <xsl:element name="fileset">
@@ -2057,18 +2083,36 @@
         <mapper type="glob" from="*.htm" to="*_sc4.htm"/>
       </xsl:element> 
 
-      <!-- generate the ISO cover page  -->
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${COVERXML}'"/>
+          <xsl:value-of select="'${ISOCOVERXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_isocover.xsl'"/>
-        </xsl:attribute>        
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_isocover.xsl'"/>
+        </xsl:attribute>
         <xsl:apply-templates select="." mode="modules_target_style_attributes">
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'coverpage_date'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DATE}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
+      <!-- move the ISO cover page to cover page -->
+      <xsl:element name="move">
+        <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">${TMPDIR}</xsl:attribute>
+          <xsl:attribute name="includes">${ISOCOVERHTM}</xsl:attribute>
+        </xsl:element>
+        <mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
+      </xsl:element> 
 
       
       <xsl:element name="style">
@@ -2842,6 +2886,14 @@
     </xsl:element>
     <xsl:element name="param">
       <xsl:attribute name="name">
+        <xsl:value-of select="'publication'"/>
+      </xsl:attribute>
+      <xsl:attribute name="expression">
+        <xsl:value-of select="'${PUBLICATION}'"/>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="param">
+      <xsl:attribute name="name">
         <xsl:value-of select="'output_rcs'"/>
       </xsl:attribute>
       <xsl:attribute name="expression">
@@ -2927,6 +2979,14 @@
     </xsl:element>
     <xsl:element name="param">
       <xsl:attribute name="name">
+        <xsl:value-of select="'publication'"/>
+      </xsl:attribute>
+      <xsl:attribute name="expression">
+        <xsl:value-of select="'${PUBLICATION}'"/>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="param">
+      <xsl:attribute name="name">
         <xsl:value-of select="'output_rcs'"/>
       </xsl:attribute>
       <xsl:attribute name="expression">
@@ -2992,6 +3052,14 @@
       </xsl:attribute>
       <xsl:attribute name="expression">
         <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="param">
+      <xsl:attribute name="name">
+        <xsl:value-of select="'publication'"/>
+      </xsl:attribute>
+      <xsl:attribute name="expression">
+        <xsl:value-of select="'${PUBLICATION}'"/>
       </xsl:attribute>
     </xsl:element>
     <xsl:element name="param">
@@ -4224,6 +4292,14 @@
       <xsl:value-of select="'.htm'"/>
     </xsl:attribute>
     <param name="output_type" expression="HTM"/>
+    <xsl:element name="param">
+      <xsl:attribute name="name">
+        <xsl:value-of select="'publication'"/>
+      </xsl:attribute>
+      <xsl:attribute name="expression">
+        <xsl:value-of select="'${PUBLICATION}'"/>
+      </xsl:attribute>
+    </xsl:element>
     <xsl:element name="param">
       <xsl:attribute name="name">
         <xsl:value-of select="'output_rcs'"/>

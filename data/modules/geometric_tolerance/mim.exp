@@ -13,11 +13,17 @@ USE FROM Elemental_geometric_shape_mim;    -- ISO/TS 10303-1004
 
 USE FROM Measure_representation_mim;    -- ISO/TS 10303-1118
 
+USE FROM product_property_representation_schema   -- ISO 10303-41
+  (shape_representation); 
+
 USE FROM qualified_measure_schema   -- ISO 10303-45
   (measure_qualification,
    precision_qualifier,
    type_qualifier,
    value_qualifier); 
+
+USE FROM shape_aspect_definition_schema   -- ISO 10303-47
+  (datum_target); 
 
 USE FROM Shape_property_assignment_mim;    -- ISO/TS 10303-1032
 
@@ -31,14 +37,14 @@ ENTITY placed_datum_target_feature
   SUBTYPE OF (datum_target);
 WHERE
   WR1: SELF.description IN ['point','line','rectangle','circle', 'circular line'];
-  WR2: SIZEOF (QUERY (pdr <* representation_associations | 'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF (pdr.used_representation))) = 1;
+  WR2: SIZEOF (QUERY (pdr <* representation_associations | 'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF (pdr.used_representation) )) = 1;
   WR3: valid_datum_target_parameters(SELF);
 END_ENTITY;
 
 ENTITY shape_representation_with_parameters
   SUBTYPE OF (shape_representation);
 WHERE
-  WR1: SIZEOF(QUERY(i <* SELF.items | SIZEOF(['GEOMETRIC_TOLERANCE_MIM.PLACEMENT', 'GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM', 'GEOMETRIC_TOLERANCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM'] * TYPEOF(i)) = 1)) = SIZEOF(SELF.items);
+  WR1: SIZEOF( QUERY( i <* SELF.items | SIZEOF(['GEOMETRIC_TOLERANCE_MIM.PLACEMENT', 'GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM', 'GEOMETRIC_TOLERANCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM'] * TYPEOF(i)) = 1 )) = SIZEOF(SELF.items);
 END_ENTITY;
 
 RULE subtype_exclusiveness_geometric_tolerance FOR 
@@ -133,3 +139,4 @@ OTHERWISE : RETURN(FALSE);
 END_CASE;      END_FUNCTION; 
 
 END_SCHEMA;  -- Geometric_tolerance_mim
+

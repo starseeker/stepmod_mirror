@@ -1,6 +1,56 @@
 (*
-   $Id: mkmodule.js,v 1.33 2003/03/12 00:24:33 robbod Exp $
-   N - ISO/CD-TS - 10303- selected_item - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
-SCHEMA Selected_item_mim;
-END_SCHEMA;
+ $Id: mim.exp,v 1.1 2003/03/17 07:11:50 robbod Exp $
+ ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Selected item - EXPRESS MIM
+*) 
+
+
+SCHEMA Selected_item_mim; 
+
+USE FROM Class_mim;    -- ISO/CD-TS 10303-1070
+
+USE FROM Classification_assignment_mim;    -- ISO/CD-TS 10303-1114
+
+USE FROM classification_schema   -- ISO/CD 10303-54
+  (class); 
+
+USE FROM group_schema   -- ISO 10303-41
+  (group); 
+
+USE FROM management_resources_schema   -- ISO 10303-41
+  (group_assignment); 
+
+
+TYPE selected_item_context_items = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+TYPE selected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+ENTITY selected_item
+  SUBTYPE OF (class);
+END_ENTITY;
+
+ENTITY selected_item_assignment
+  SUBTYPE OF (applied_classification_assignment);
+  SELF\classification_assignment.assigned_class : selected_item;
+  SELF\applied_classification_assignment.items : selected_item_select;
+END_ENTITY;
+
+ENTITY selected_items_assignment_in_context_group
+  SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : selected_items_context_group;
+  selected_item_assignment : SET[1:1] OF selected_item_assignment;
+END_ENTITY;
+
+ENTITY selected_items_context_group
+  SUBTYPE OF (group);
+END_ENTITY;
+
+ENTITY selected_items_context_group_to_context
+  SUBTYPE OF (group_assignment);
+  SELF\group_assignment.assigned_group : selected_items_context_group;
+  item_context : SET[1:?] OF selected_item_context_items;
+END_ENTITY;
+
+END_SCHEMA;  -- Selected_item_mim
+

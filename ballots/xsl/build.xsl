@@ -161,6 +161,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+          <xsl:attribute name="name">RESDOCINDEXXML</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:apply-templates select="ballot_package/resource">
+              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
+              <xsl:with-param name="suffix" select="'/index.xml'"/>
+            </xsl:apply-templates>
+          </xsl:attribute>
+        </xsl:element>
+
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESDOCABSTRACTXML</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:apply-templates select="ballot_package/resource">
+              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
+              <xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
+            </xsl:apply-templates>
+          </xsl:attribute>
+        </xsl:element>
+
+
+        <xsl:element name="property">
           <xsl:attribute name="name">RESDOCCONTENTSXML</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:apply-templates select="ballot_package/resource">
@@ -2448,6 +2470,103 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
+          <xsl:value-of select="'${RESDOCINDEXXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/index.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${RESDOCABSTRACTXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_abstract.xsl'"/>
+        </xsl:attribut e>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${RESDOCABSTRACTXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_abstract.xsl'"/>
+        </xsl:attribut e>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCCONTENTSXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
@@ -3046,8 +3165,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${ISOMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-      </xsl:element>
-      
+      </xsl:element>      
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3170,7 +3288,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>
       
-
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCINTRODUCTIONXML}'"/>

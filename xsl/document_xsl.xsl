@@ -2,7 +2,7 @@
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 <!--
-$Id: document_xsl.xsl,v 1.3 2002/09/03 10:37:56 nigelshaw Exp $
+$Id: document_xsl.xsl,v 1.4 2003/05/19 08:45:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
      Purpose: To display the import/includes in stylesheets
@@ -57,8 +57,8 @@ $Id: document_xsl.xsl,v 1.3 2002/09/03 10:37:56 nigelshaw Exp $
   <xsl:variable name="cmt1"
     select="substring(substring-after
             (substring-after
-            (substring-before(substring-after($cmt,'$Id: '),'$'),
-            ' '),' '),1,19)"/>
+            (substring-before(substring-after($cmt,'$Id: '),
+            ' '),' '),1),19)"/>
   CVS Date: <xsl:value-of select="$cmt1"/>
 </xsl:template>
 

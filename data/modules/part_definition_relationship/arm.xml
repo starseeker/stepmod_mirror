@@ -23,21 +23,26 @@
 
     <interface
       kind="use"
+      schema="Part_view_definition_arm">
+    </interface>
+
+    <interface
+      kind="use"
       schema="Value_with_unit_arm">
     </interface>
 
     <entity
-      name="Make_from"
+      name="Make_from_relationship"
       supertypes="View_definition_usage">
       <explicit
-        name="view1">
+        name="relating_view">
         <redeclaration
           entity-ref="Product_view_definition_relationship"/>
           <typename
             name="Part_view_definition"/>
         </explicit>
         <explicit
-          name="view2">
+          name="related_view">
           <redeclaration
             entity-ref="Product_view_definition_relationship"/>
             <typename
@@ -53,11 +58,15 @@
             name="priority"
             optional="YES">
             <builtintype
-              type="STRING"/>
+              type="INTEGER"/>
           </explicit>
           <where
             label="WR1"
-            expression="SELF\Product_view_definition_relationship.view1 :&lt;&gt;: SELF\Product_view_definition_relationship.view2">
+            expression="SELF\Product_view_definition_relationship.relating_view :&lt;&gt;:   SELF\Product_view_definition_relationship.related_view ">
+          </where>
+          <where
+            label="WR2"
+            expression="NOT(EXISTS(quantity)) XOR 	((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component &gt; 0))">
           </where>
         </entity>
 

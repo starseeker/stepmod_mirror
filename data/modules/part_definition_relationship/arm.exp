@@ -1,20 +1,22 @@
-(* N 1326 - ISO/TS - 10303-1055 Part definition relationship - EXPRESS ARM *)
+(* N1326 - ISO/TS - 10303-1055 Part definition relationship - EXPRESS ARM *)
    
 SCHEMA Part_definition_relationship_arm;
-
-   
-USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1019
-USE FROM Value_with_unit_arm; -- ISO/TS 10303-1054
+ 
+USE FROM Product_view_definition_relationship_arm;
+USE FROM Part_view_definition_arm;
+USE FROM Value_with_unit_arm;
       
-ENTITY Make_from
+ENTITY Make_from_relationship
   SUBTYPE OF (View_definition_usage);
-  SELF\Product_view_definition_relationship.view1: Part_view_definition;
-  SELF\Product_view_definition_relationship.view2: Part_view_definition;
+  SELF\Product_view_definition_relationship.relating_view: Part_view_definition;
+  SELF\Product_view_definition_relationship.related_view: Part_view_definition;
   quantity  : OPTIONAL Value_with_unit;
-  priority  : OPTIONAL STRING;
+  priority  : OPTIONAL INTEGER;
 WHERE
-  WR1: SELF\Product_view_definition_relationship.view1 :<>: SELF\Product_view_definition_relationship.view2;
+WR1: SELF\Product_view_definition_relationship.relating_view :<>: 
+  SELF\Product_view_definition_relationship.related_view ;
+WR2: NOT(EXISTS(quantity)) XOR 
+	((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component > 0));
 END_ENTITY;
 
-   
 END_SCHEMA;

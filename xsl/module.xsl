@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.78 2002/07/27 07:42:56 robbod Exp $
+$Id: module.xsl,v 1.79 2002/08/01 16:37:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -768,8 +768,7 @@ o=isocs; s=central<br/>
     The following typographical convention is used to distinguish between
     these. If a word or phrase occurs in the same typeface as narrative
     text, the referent is the object or concept. If the word or phrase
-    occurs in a bold typeface, the referent is the EXPRESS data type. Names of
-    EXPRESS schemas also occur in a bold typeface.
+    occurs in a bold typeface or as an hyperlink, the referent is the EXPRESS data type. 
   </p>
   <p>
     The name of an EXPRESS data type may be used to refer to the data type

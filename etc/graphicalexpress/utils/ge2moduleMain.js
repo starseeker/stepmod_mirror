@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.2 2002/12/14 15:46:03 robbod Exp $
+//$Id: ge2moduleMain.js,v 1.3 2002/12/19 23:11:45 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -740,16 +740,19 @@ function copyToModuleDir(geDir, schemaName) {
 	userMessage("Cp: "+f1+" to "+ toModuleDir);
     }
     filesC = new Enumerator(schFldr.files);
+    var fileCount = 1;
     for (; !filesC.atEnd(); filesC.moveNext()) {
 	var f1 = filesC.item();
 	var fName = fso.GetFileName(f1);
 	if (fName != "module.xml") {
+	    fileCount++;
 	    fso.CopyFile(f1,toModuleDir);
 	    userMessage("Cp: "+f1+" to "+ toModuleDir);
 	}
     }
     var modPath = getModulePath(schemaName);
-    popupInform("Extracted schema: "+schemaName+"\nto "+modPath);
+    popupInform("Extracted schema: "+schemaName+"\nto "+modPath+"\n\n"+fileCount/2+
+		" Express-G files copied.\nUpdate <express-g> in module.xml accordingly");
 }
 
 // ------------------------------------------------------------
@@ -782,4 +785,5 @@ function Main() {
 //copyToModuleDir("E:\\rbn\\1export","External_class_mim");
 
 
-//convertSchema("d:\\rbn\\1export", "Interface_arm");
+//getModulePath("Product_group_arm");
+//convertSchema("d:\\rbn\\1export", "Product_group_arm");

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.22 2004/02/23 18:55:49 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.23 2004/02/23 20:55:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -10,9 +10,9 @@ $Id: ballot_summary.xsl,v 1.22 2004/02/23 18:55:49 thendrix Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-  <xsl:import href="../../xsl/res_doc/common.xsl"/>
-  <xsl:import href="../../xsl/common.xsl"/>
-
+ <xsl:import href="../../xsl/common.xsl"/> 
+ <xsl:import href="../../xsl/res_doc/common.xsl"/>     
+ 
 
   <xsl:output 
     method="html"
@@ -38,9 +38,10 @@ $Id: ballot_summary.xsl,v 1.22 2004/02/23 18:55:49 thendrix Exp $
 
 
   <xsl:template match="/">
-
+ 
     <xsl:variable name="ballot_index" 
       select="concat('../ballots/',./ballot/@directory,'/ballot_index.xml')"/>
+
     <xsl:apply-templates select="document($ballot_index)/ballot_index"/>
   </xsl:template>
 
@@ -722,8 +723,7 @@ $Id: ballot_summary.xsl,v 1.22 2004/02/23 18:55:49 thendrix Exp $
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Description'"/>
     <xsl:with-param name="content">
-      <xsl:value-of select="@description"/><xsl:value-of select="./description"/>
-    </xsl:with-param>
+      <xsl:value-of select="@description"/><xsl:value-of select="./description"/></xsl:with-param>
   </xsl:call-template>
 
   <xsl:variable name="keywords">

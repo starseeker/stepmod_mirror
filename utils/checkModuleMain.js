@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.2 2003/02/18 08:10:46 robbod Exp $
+//$Id: checkModuleMain.js,v 1.3 2003/03/10 01:27:38 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -150,6 +150,32 @@ function NameModule(module) {
     return(modName);
 } 
 
+function normalizeSpace(str) {
+    // Use a regular expression to replace leading and trailing 
+    // spaces with the empty string
+    var strN = str.replace(/(^\s*)|(\s*$)/g, "");
+    // no whitespace replace with  _
+    re = / /g;
+    strN = strN.replace(re, "_");
+    return(strN);
+}
+
+function isoNameModule(module) {
+    var modName = NameModule(module);
+    re = /_/g;
+    modName = modName.replace(re, " ");
+    var char1 = modName.substr(0,1);
+    var char2 = modName.substr(1,1);
+    var char3 = modName.substr(2,1);
+    char1 = char1.toUpperCase();
+
+    if (char1=="A" && char2=="p" && char3=="2") {
+	modName = "AP"+ modName.substr(2,modName.length);
+    } else {
+	modName = char1+modName.substr(1,modName.length);
+    }
+    return(modName);
+}
 
 
 function getDate(dateStr) {
@@ -191,12 +217,20 @@ function getExpId(moduleName,armmim) {
 	while (!expTs.AtEndOfStream)
 	    {
 		var l = expTs.ReadLine();
-		// find $Id:, then read the next two lines
-		// if reached Schema, gone to far
-		var reg = /\$Id:/;
+		// find (* then read the next three lines
+		var reg = /\(\*/;
 		if (l.match(reg)) {
-		    return(l);
-	       }
+		    
+		    var l1 = expTs.ReadLine(); //ID
+		    var l2 = expTs.ReadLine(); // Number
+		    var l3 = expTs.ReadLine(); // *) or Supersedes
+		    reg = /\*\)/;
+		    if (l3.match(reg)) {
+			return(normalizeSpace(l2));
+		    } else {
+			return(normalizeSpace(l2)+normalizeSpace(l3));
+		    }
+		}
 	    }
     } else {
 	errorMessage(expFileName+" does not exist");
@@ -340,7 +374,7 @@ function checkExpress(moduleName,expressXml) {
 // check that the arm.exp and mim.exp file have the same WG Numbers as 
 // arm.xml and mim.xml
 // NOT FINISHED
-function checkExpressFiles(moduleName,armmim) {
+function checkExpressFile(moduleName,armmim) {
     var xmlFile = "../data/modules/"+moduleName+"/module.xml";
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
     xml.async = false;
@@ -350,13 +384,44 @@ function checkExpressFiles(moduleName,armmim) {
 	var moduleNodes = xml.selectNodes(expr);
 	var members = moduleNodes.length;
 	var moduleNode = moduleNodes(0);
+	var part = moduleNode.attributes.getNamedItem("part").nodeValue;
+	var name = moduleNode.attributes.getNamedItem("name").nodeValue;
+	name = isoNameModule(name);
+	var sc4wg = moduleNode.attributes.getNamedItem("sc4.working_group");
+	if (sc4wg) {
+	    sc4wg = sc4wg.nodeValue;
+	} else {
+	    sc4wg = 12;
+	}
+
 	var wgnAttr = "wg.number."+armmim;
-	userMessage(wgnAttr);
 	var wgn = moduleNode.attributes.getNamedItem(wgnAttr);
 	if (wgn) {
 	    wgn = wgn.nodeValue;
 	} else {
 	    wgn = "";
+	}
+	var header = "ISO TC184/SC4/WG"+sc4wg+" N"+wgn+" - ISO/CD-TS 10303-"+part+" "+name+" - EXPRESS "+armmim.toUpperCase();
+	var line1 = normalizeSpace(header);
+	var supersedes = "";
+
+	var wgn_supersedes = moduleNode.attributes.getNamedItem(wgnAttr+".supersedes");
+	if (wgn_supersedes) {
+	    wgn_supersedes = wgn_supersedes.nodeValue;
+	    supersedes = "Supersedes ISO TC184/SC4/WG"+sc4wg+" N"+wgn_supersedes;
+	    line1 = line1 + normalizeSpace(supersedes);
+	}
+	var line2 = normalizeSpace(getExpId(moduleName,armmim));
+	
+	if (line1 != line2) {
+	    var id = "$Id: "+"$";
+	    var msg = "Error. Header of "+armmim+".exp is incorect. It should be\n(*";
+	    if (wgn_supersedes) {
+		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";
+	    } else {
+		msg = msg+"\n "+id+"\n "+header+"\n*)\n";
+	    }
+	    errorMessage(msg);
 	}
 	// Now open arm.exp and make sure that:
 	// - there is one schema and it is the correct name
@@ -373,6 +438,9 @@ function testModule(moduleName) {
     checkModule(moduleName);
     checkExpress(moduleName,"arm.xml");
     checkExpress(moduleName,"mim.xml");
+    checkExpressFile(moduleName,"arm");
+    checkExpressFile(moduleName,"mim");
+
     if (errorCount > 0) {
 	userMessage("There are "+errorCount+" errors in the module files\n");
     } else {
@@ -431,7 +499,10 @@ function Main() {
 //Main();
 
 //MainWindow("ap239_management_resource_information");
-//testModule("approval");
-
+//testModule("condition");
+//testModule("ap239_product_definition_information");
+//checkExpressFile("condition", "arm");
+//checkExpressFile("ap239_product_definition_information", "arm");
 
 //testRepository();
+

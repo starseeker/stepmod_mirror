@@ -38,11 +38,6 @@ USE FROM Part_view_definition_arm;
      is_unknown);
   END_TYPE; -- shape_class
 
-  TYPE three_d_purpose = SELECT
-    (predefined_3d_purpose,
-     external_item_identification);
-  END_TYPE; -- three_d_purpose
-
   ENTITY Physical_unit_3d_keepout_shape   
     SUBTYPE OF (View_level_non_feature_shape_definition, Physical_unit_keepout_shape);
 (** Need a WR to constrain the cardinality
@@ -56,8 +51,12 @@ USE FROM Part_view_definition_arm;
 (** Need a WR to constrain the cardinality    
       application_technology_constraint : OPTIONAL Requirement_definition_property;
 *)      
-      shape_purpose                     : three_d_purpose;
+      shape_purpose                     : OPTIONAL predefined_3d_purpose;
       shape_classification              : shape_class;
+    INVERSE
+	  external_shape_purpose : SET [0:1] OF External_source_identification FOR item;      
+	WHERE
+	  WR1: (EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1);
   END_ENTITY; -- physical_unit_3d_shape
 
 END_SCHEMA;

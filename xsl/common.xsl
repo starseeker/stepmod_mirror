@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.81 2002/12/12 15:17:21 robbod Exp $
+$Id: common.xsl,v 1.82 2002/12/24 09:56:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -889,6 +889,27 @@ $Id: common.xsl,v 1.81 2002/12/12 15:17:21 robbod Exp $
     <xsl:variable name="module_name"
       select="concat($first_char,
               translate(substring($module,2),'_',' '))"/>
+    <xsl:value-of select="$module_name"/>
+
+  </xsl:template>
+
+	<xsl:template name="protocol_display_name">
+    <xsl:param name="application_protocol"/>
+
+    <xsl:variable name="mod_dir">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="application_protocol" select="$application_protocol"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+
+    <xsl:variable name="first_char"
+      select="substring(translate($application_protocol,$LOWER,$UPPER),1,1)"/>
+
+    <xsl:variable name="module_name"
+      select="concat($first_char,
+              translate(substring($application_protocol,2),'_',' '))"/>
     <xsl:value-of select="$module_name"/>
 
   </xsl:template>
@@ -1965,6 +1986,54 @@ $Id: common.xsl,v 1.81 2002/12/12 15:17:21 robbod Exp $
 
     <xsl:value-of 
       select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
+			
+</xsl:template>
+
+<xsl:template name="get_protocol_stdnumber">
+  <xsl:param name="application_protocol"/>
+  <xsl:variable name="part">
+    <xsl:choose>
+      <xsl:when test="string-length($application_protocol/@part)>0">
+        <xsl:value-of select="$application_protocol/@part"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;part&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+   <xsl:variable name="status">
+    <xsl:choose>
+      <xsl:when test="string-length($application_protocol/@status)>0">
+        <xsl:value-of select="string($application_protocol/@status)"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;status&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- 
+         Note, if the standard has a status of CD or CD-TS it has not been
+         published - so overide what ever is the @publication.year 
+         -->
+    <xsl:variable name="pub_year">
+      <xsl:choose>
+        <xsl:when test="$status='CD' or $status='CD-TS'">-</xsl:when>
+        <xsl:when test="string-length($application_protocol/@publication.year)">
+          <xsl:value-of select="$application_protocol/@publication.year"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;publication.year&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="orgname" select="'ISO'"/>
+
+    <xsl:value-of 
+      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
+			
 </xsl:template>
 
 <!-- the number of the document for display as a page heaer.
@@ -2039,6 +2108,75 @@ $Id: common.xsl,v 1.81 2002/12/12 15:17:21 robbod Exp $
 
 </xsl:template>
 
+<xsl:template name="get_protocol_pageheader">
+  <xsl:param name="application_protocol"/>
+  <xsl:variable name="part">
+    <xsl:choose>
+      <xsl:when test="string-length($application_protocol/@part)>0">
+        <xsl:value-of select="$application_protocol/@part"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;part&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+   <xsl:variable name="status">
+    <xsl:choose>
+      <xsl:when test="string-length($application_protocol/@status)>0">
+        <xsl:value-of select="string($application_protocol/@status)"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;status&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="language">
+      <xsl:choose>
+        <xsl:when test="string-length($application_protocol/@language)">
+          <xsl:value-of select="$application_protocol/@language"/>
+        </xsl:when>
+        <xsl:otherwise>
+          E
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- 
+         Note, if the standard has a status of CD or CD-TS it has not been
+         published - so overide what ever is the @publication.year 
+         -->
+    <xsl:variable name="pub_year">
+      <xsl:choose>
+        <xsl:when test="$status='CD' or $status='CD-TS'">-</xsl:when>
+        <xsl:when test="string-length($application_protocol/@publication.year)">
+          <xsl:value-of select="$application_protocol/@publication.year"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;publication.year&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="orgname" select="'ISO'"/>
+
+    <xsl:variable name="stdnumber">
+      <xsl:choose>
+        <xsl:when test="$status='IS' or $status='TS'">
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:value-of select="$stdnumber"/>
+
+</xsl:template>
 
 <xsl:template name="get_module_iso_number">
   <xsl:param name="module"/>

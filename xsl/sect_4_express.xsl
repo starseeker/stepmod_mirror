@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.91 2003/05/04 07:51:15 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.92 2003/05/06 12:48:10 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1318,9 +1318,6 @@
 
 <xsl:template match="inverse.aggregate" mode="code">
   <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
-  <xsl:if test="@unique='YES'">
-    UNIQUE
-  </xsl:if>
 </xsl:template>
 
 <xsl:template match="unique" mode="code">

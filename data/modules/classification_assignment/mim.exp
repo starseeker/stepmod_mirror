@@ -1,0 +1,25 @@
+(* $Id: mim.exp,v 1.2 2002/09/04 13:39:30 goset1 Exp $
+N	ISO/WD 10303-1xxx	Classification assignment - Express MIM 
+*)
+
+SCHEMA Classification_assignment_mim;
+
+USE FROM Classification_with_attributes_mim;
+
+USE FROM Group_mim;
+
+USE FROM management_resources_schema (
+	classification_assignment);
+
+TYPE classification_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+ENTITY applied_classification_assignment
+SUBTYPE of (classification_assignment);
+   items : SET [1:?] OF classification_item; 
+WHERE
+WR1: SIZEOF(['CLASSIFICATION_ASSIGNMENT_MIM.' + 'GROUP', 'CLASSIFICATION_ASSIGNMENT_MIM.' + 'CHARACTERIZED_CLASS']
+	* TYPEOF(SELF\classification_assignment.assigned_class))=1;
+END_ENTITY;
+
+END_SCHEMA;

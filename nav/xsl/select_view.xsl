@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.12 2003/02/06 09:39:23 nigelshaw Exp $
+$Id: select_view.xsl,v 1.13 2003/02/09 22:42:17 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -903,6 +903,8 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 					<xsl:with-param name="this-entity" select="../@name" />
 					<xsl:with-param name="this-module" select="$this-mod" />
 					<xsl:with-param name="extended-select" select="$this-type" />
+					<xsl:with-param name="extensible" 
+						select="$top-schema//type[select][contains($top-selects,@name)]" />
 				</xsl:call-template>
 				<br/>
 				&lt;/ae&gt;

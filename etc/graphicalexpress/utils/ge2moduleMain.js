@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.1 2002/10/22 08:12:32 robbod Exp $
+//$Id: ge2moduleMain.js,v 1.2 2002/12/14 15:46:03 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -9,6 +9,8 @@
 //      Extract the Schema for the module
 //      e.g.
 //      cscript ge2moduleMain.js "e:\My Documents\Models\1export_arm\" Work_order_arm 
+
+//      e.g. for resource cscript ge2moduleMain.js "C:\Documents and Settings\thendrix\My Documents\Repository\stepmod\data\resources\expression_extensions_schema\dvlp\" expression_extensions_schema
 
 // ------------------------------------------------------------
 // Global variables
@@ -21,7 +23,7 @@ var indent = "";
 var overwrite = -1;
 
 // If 1 then output user messages
-var outputUsermessage = 1;
+var outputUsermessage = -1;
 
 
 // If you do not run mkmodule from this directory
@@ -73,10 +75,17 @@ function yesOrNo(msg,title) {
 
 function getModulePath(schemaName) {
     var module = getModuleName(schemaName);
-    var dir = stepmodHome+"\\data\\modules\\"+module;
+    if (module == schemaName){
+       var dir = stepmodHome+"\\data\\resources\\"+module;
+    }else {
+       var dir = stepmodHome+"\\data\\modules\\"+module;
+    }
+
+
     userMessage(dir);
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var fldr = fso.GetFolder(dir);
+    userMessage(dir);
     return(fldr.Path);
 }
 
@@ -701,8 +710,13 @@ function copyToModuleDir(geDir, schemaName) {
 
 
     var moduleName = getModuleName(schemaName);
-    var toModuleDir = stepmodHome+"\\data\\modules\\"+moduleName+"\\";
-
+    userMessage("modulename: "+moduleName);
+    userMessage("schemaname: "+schemaName);
+	if (moduleName == schemaName){
+		var toModuleDir = stepmodHome+"\\data\\resources\\"+moduleName+"\\";
+        }else {
+		var toModuleDir = stepmodHome+"\\data\\modules\\"+moduleName+"\\";
+	}
     if (!fso.FolderExists(toModuleDir)) {
 	toModuleDir = geDir+"\\tomodule\\";	
 	userMessage("Module "+toModuleDir+
@@ -769,4 +783,3 @@ function Main() {
 
 
 //convertSchema("d:\\rbn\\1export", "Interface_arm");
-

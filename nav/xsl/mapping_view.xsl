@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.4 2002/11/25 17:38:11 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.5 2002/11/26 11:14:26 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -284,9 +284,36 @@ $Id: mapping_view.xsl,v 1.4 2002/11/25 17:38:11 nigelshaw Exp $
 									<br/>						
 								</xsl:when>
 								<xsl:otherwise>
-								!!! MIM element not found in relevant schemas !!! 
-								<br/>
+									<!-- check for inverse attribute -->
+									<xsl:variable name="found-inverse" 
+							select="$schemas//entity[@name=$find-ent][inverse/@name=$find-attr]" />
+
+			
+									<xsl:choose>
+									<xsl:when test="$found-inverse" >
+									<xsl:value-of select="." /> found as inverse attribute in relevant schemas 
+									<xsl:value-of select="$found-inverse/ancestor::schema/@name" />
+									<br/>
+									</xsl:when>
+								<xsl:otherwise>
+				<!--	!!! <xsl:value-of select="." /> not found in relevant schemas !!! -->
+
+		<xsl:call-template name="error_message">
+			
+		  <xsl:with-param name="inline" select="'yes'"/>
+		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		  <xsl:with-param 
+		       	    name="message" 
+		            select="concat('Error Map25: ',.,' not found in relevant schemas')"/>
+		</xsl:call-template>    
+
+
 								</xsl:otherwise>
+							</xsl:choose>
+
+
+
+							</xsl:otherwise>
 							</xsl:choose>
 						</xsl:otherwise>
 					</xsl:choose>
@@ -438,7 +465,9 @@ $Id: mapping_view.xsl,v 1.4 2002/11/25 17:38:11 nigelshaw Exp $
 
 				<xsl:variable name="this_ent" select="@assertion_to" />
 
-				<xsl:if test="not($arm_node//entity[@name=$this_ent] | $arm_node//typename[@name=$this_ent])" >
+				<xsl:if test="not($arm_node//entity[@name=$this_ent] | $arm_node//typename[@name=$this_ent] 
+				 | $arm_node//type/select[contains(concat(' ',@selectitems,' '),concat(' ',$this_ent,' '))]
+				 )" >
 					<xsl:call-template name="error_message">
 					  <xsl:with-param name="inline" select="'yes'"/>
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -1023,27 +1052,40 @@ $Id: mapping_view.xsl,v 1.4 2002/11/25 17:38:11 nigelshaw Exp $
 			
 				<xsl:choose>
 					<xsl:when test="$found-derived" >
-					<xsl:value-of select="." /> found as derived attribute in schema 
+					<xsl:value-of select="." /> found as derived attribute in relevant schemas
 					<xsl:value-of select="$found-derived/ancestor::schema/@name" />
 					<br/>
 					</xsl:when>
 					<xsl:otherwise>
-					<!--	!!! <xsl:value-of select="." /> not found in relevant schemas !!! -->
 
-					<xsl:call-template name="error_message">
+						<!-- check for inverse attribute -->
+						<xsl:variable name="found-inverse" 
+						select="$schemas//entity[@name=$find-ent][inverse/@name=$find-attr]" />
+
 			
-					  <xsl:with-param name="inline" select="'yes'"/>
-					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-				          <xsl:with-param 
-			        	    name="message" 
-				            select="concat('Error Map25: ',.,' not found in relevant schemas')"/>
-					</xsl:call-template>    
+						<xsl:choose>
+							<xsl:when test="$found-inverse" >
+							<xsl:value-of select="." /> found as inverse attribute in relevant schemas 
+							<xsl:value-of select="$found-inverse/ancestor::schema/@name" />
+							<br/>
+							</xsl:when>
+							<xsl:otherwise>
+						<!--	!!! <xsl:value-of select="." /> not found in relevant schemas !!! -->
+
+		<xsl:call-template name="error_message">
+			
+		  <xsl:with-param name="inline" select="'yes'"/>
+		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		  <xsl:with-param 
+		       	    name="message" 
+		            select="concat('Error Map25: ',.,' not found in relevant schemas')"/>
+		</xsl:call-template>    
 
 
-				</xsl:otherwise>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:otherwise>
 				</xsl:choose>
-
-
 			</xsl:otherwise>
 		</xsl:choose>
 

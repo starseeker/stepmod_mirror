@@ -29,6 +29,13 @@
        Optional parameter -->
   <xsl:param name="entity" select="''"/>
   
+
+  
+  <!-- if a type, the name of a type 
+       Optional parameter -->
+  <xsl:param name="type" select="''"/>
+  
+
   <!-- if an entity, the name of an attribute 
        Optional exclusive parameter -->
   <xsl:param name="attribute" select="''"/>
@@ -97,7 +104,8 @@
       </xsl:if>
 
     </xsl:if>
-    <!--
+
+    <!-- this test is not commmitted, as it does not apply to all projects
     <xsl:if test="$description/@linkend and contains($schema,$description/@linkend) and string-length(normalize-space($description)) > 1">
       <xsl:call-template name="error_message">
           <xsl:with-param 
@@ -107,14 +115,15 @@
 
 
     </xsl:if>
--->
+ -->
 
       <xsl:variable name="ent_start_char"
         select="substring(normalize-space($entity),1,1)"/>
       <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+      
+<!-- -->
 
-
-    <xsl:if test="contains($UPPER,$ent_start_char) and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
+    <xsl:if test="string-length($type)=0 and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
 
 
       <xsl:if test="not($description/b/text()) and not($description/express_ref)">
@@ -137,7 +146,7 @@
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent2: should be at least one bold text in the entity description that contains the entity name ', $description/@linkend)"/>
+            select="concat('Warning Ent3: should be at least one bold text in the entity description that contains the entity name ', $description/@linkend)"/>
         </xsl:call-template>
         
       </xsl:if>
@@ -159,6 +168,10 @@
   <!-- the name of the entity, type, function, rule, procedure, constant 
        Optional parameter -->
   <xsl:param name="entity" select="''"/>
+
+  <!-- if a type, the name of the type 
+       Optional parameter -->
+  <xsl:param name="type" select="''"/>
   
   <!-- if an entity, the name of an attribute 
        Optional exclusive parameter -->

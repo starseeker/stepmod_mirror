@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-$Id: express_index.xsl,v 1.3 2002/09/11 08:26:07 robbod Exp $
+$Id: express_index.xsl,v 1.4 2005/03/05 00:01:21 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -143,6 +143,12 @@ $Id: express_index.xsl,v 1.3 2002/09/11 08:26:07 robbod Exp $
         </xsl:apply-templates>
       </dl>
 
+      <dl>
+        <xsl:apply-templates
+          select="$objects-node-set/objects/schema_object/constant_object">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+      </dl>
       <dl>
         <xsl:apply-templates
           select="$objects-node-set/objects/schema_object/entity_object">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: common.xsl,v 1.2 2002/10/20 06:45:17 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2831,7 +2831,7 @@ ZZZZZZZZZ should not get here.
 <xsl:template match="projlead">
   <xsl:variable name="ref" select="@ref"/>
   <xsl:variable name="projlead"
-    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
   <b>Project leader: </b>
   <xsl:choose>
     <xsl:when test="$projlead">
@@ -2868,7 +2868,7 @@ ZZZZZZZZZ should not get here.
 <xsl:template match="editor">
   <xsl:variable name="ref" select="@ref"/>
   <xsl:variable name="editor"
-    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
   <b>Project editor: </b>
   <xsl:choose>
     <xsl:when test="$editor">

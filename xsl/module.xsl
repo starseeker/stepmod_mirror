@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.169 2004/11/02 17:02:20 thendrix Exp $
+$Id: module.xsl,v 1.170 2004/11/03 10:47:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1358,9 +1358,9 @@ o=isocs; s=central<br/>
   <!-- it has been decided that for WG3 modules, a place for additional rules will be
 provided  that links throught SC4ONLINE to a new repository --> 
 
-  <!-- <xsl:variable name="information_url" -->
-    select="'http://www.tc184-sc4.org/implementation_information/'"/>
-<xsl:variable name="information_url"
+  <!-- <xsl:variable name="information_url"
+  select="'http://www.tc184-sc4.org/implementation_information/'"/> -->
+  <xsl:variable name="information_url"
        select="concat('http://www.tc184-sc4.org/implementation_information/10303/',@part)"/>
   <p>
     This annex references a listing of the EXPRESS entity names and
@@ -1383,7 +1383,7 @@ provided  that links throught SC4ONLINE to a new repository -->
    </tr>
   </table>
 
-  <xsl:if test="@sc4.working_group=3 and   string-length(@wg.number.mim_lf) > 0" >
+  <xsl:if test="@sc4.working_group='3' and string-length(@wg.number.mim_lf) > 0" >
     <p>Additional information, such as 
 computer-interpretable rules derived from normative text or mappings in 
 this part of ISO 10303,  may be provided to support implementations.  If the information is  provided it can be found at the following URL:</p>

@@ -1,5 +1,6 @@
 (*
-ISO TC184/SC4/WG12 N1547 - ISO/CD-TS 10303-1050 Dimension tolerance - EXPRESS ARM
+ISO TC184/SC4/WG12 N2873 - ISO/CD-TS 10303-1050 Dimension tolerance - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N1547
 *) 
 
 
@@ -42,13 +43,6 @@ TYPE limitation_definition_select = SELECT
     Plus_minus_bounds);
 END_TYPE; 
 
-TYPE origin_enumeration = ENUMERATION OF 
-   (unchanged,
-    mirror,
-    normal_positive,
-    normal_negative);
-END_TYPE; 
-
 TYPE placed_element_select = EXTENSIBLE SELECT
    (constructive_element_select, 
     Derived_geometry, 
@@ -57,9 +51,7 @@ END_TYPE;
 
 ENTITY Angular_location_dimension
   SUBTYPE OF (Location_dimension);
-  major_angle : BOOLEAN;
-  mirror_target : BOOLEAN;
-  origin_determination : origin_enumeration;
+  orientation : OPTIONAL Axis_placement;
 END_ENTITY;
 
 ENTITY Angular_size_dimension
@@ -84,12 +76,12 @@ END_ENTITY;
 
 ENTITY Dimension_value_with_limitation;
   defined_by : limitation_definition_select;
-  envelope_principle : OPTIONAL BOOLEAN;
   limited_value : Numerical_item_with_unit;
 END_ENTITY;
 
 ENTITY Externally_defined_size_dimension
   SUBTYPE OF (Size_dimension);
+  name : STRING;
   used_path : OPTIONAL Measurement_path;
 END_ENTITY;
 
@@ -98,6 +90,7 @@ ENTITY Geometric_dimension
                                 Size_dimension));
   id : STRING;
   dimension_value : dimension_value_select;
+  notes : SET[0:?] OF STRING;
 END_ENTITY;
 
 ENTITY Height_size_dimension
@@ -118,8 +111,7 @@ END_ENTITY;
 
 ENTITY Linear_distance_dimension
   SUBTYPE OF (Location_dimension);
-  directed : BOOLEAN;
-  orientation : OPTIONAL Line;
+  orientation : OPTIONAL Axis_placement;
 END_ENTITY;
 
 ENTITY Location_dimension
@@ -128,6 +120,7 @@ ENTITY Location_dimension
                                 Linear_distance_dimension))
   SUBTYPE OF (Geometric_dimension);
   description : OPTIONAL STRING;
+  directed : OPTIONAL BOOLEAN;
   origin : placed_element_select;
   target : placed_element_select;
 END_ENTITY;
@@ -175,4 +168,3 @@ ENTITY Width_size_dimension
 END_ENTITY;
 
 END_SCHEMA;  -- Dimension_tolerance_arm
-

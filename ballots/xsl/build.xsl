@@ -211,7 +211,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:attribute name="value">
             <xsl:apply-templates select="ballot_package/resource">
               <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/index.xml'"/>
+              <xsl:with-param name="suffix" select="'/sys/resdocindex.xml'"/>
             </xsl:apply-templates>
           </xsl:attribute>
         </xsl:element>
@@ -3271,7 +3271,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/index.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_resdocindex.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">

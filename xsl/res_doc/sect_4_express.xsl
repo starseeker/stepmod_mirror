@@ -2015,8 +2015,7 @@
       <xsl:with-param name="section3" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-  <!--
-  <p class="expressdescription">
+  <!--  <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="@name"/>:
@@ -2028,6 +2027,8 @@
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
+    <xsl:with-param name="inline_aname" select="$aname"/>
+    <xsl:with-param name="inline_name" select="@name"/>
   </xsl:call-template>
   
   <!-- output description from express -->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.8 2003/06/04 09:50:16 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.9 2003/06/11 08:26:53 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -31,6 +31,10 @@ $Id: aam_descriptions.xsl,v 1.8 2003/06/04 09:50:16 robbod Exp $
         <xsl:with-param name="application_protocol" select="@application_protocol"/>
       </xsl:call-template>
     </xsl:variable>
+
+
+    <xsl:variable name="application_protocol_xml" 
+      select="document($application_protocol_xml_file)"/>
 
     <xsl:if test="$apdoc_ok!='true'">
       <xsl:call-template name="error_message">
@@ -73,7 +77,7 @@ $Id: aam_descriptions.xsl,v 1.8 2003/06/04 09:50:16 robbod Exp $
             <xsl:variable name="page" select="number(../@number)"/>
             <xsl:variable name="imgfile">
               <xsl:value-of 
-                select="document($application_protocol_xml_file)/application_protocol/aam/idef0/imgfile[$page]/@file"/>
+                select="$application_protocol_xml/application_protocol/aam/idef0/imgfile[$page]/@file"/>
             </xsl:variable>
             <xsl:variable name="href">
               <xsl:call-template name="set_file_ext">

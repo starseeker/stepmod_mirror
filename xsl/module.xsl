@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.150 2003/06/02 10:13:06 robbod Exp $
+$Id: module.xsl,v 1.151 2003/07/02 16:25:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -885,7 +885,7 @@ o=isocs; s=central<br/>
   </p>
   <blockquote>
     &lt;
-    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf">
+    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf" target="_blank">
       http://www.tc184-sc4.org/titles/STEP_Titles.rtf
     </A>&gt;.
   </blockquote>
@@ -1112,12 +1112,12 @@ o=isocs; s=central<br/>
     <tr>
       <td>&#160;&#160;</td>
       <td>Short names:</td>
-      <td>&lt;<a href="{$names_url}"><xsl:value-of select="$names_url"/></a>&gt;</td>
+      <td>&lt;<a href="{$names_url}"  target="_blank"><xsl:value-of select="$names_url"/></a>&gt;</td>
   </tr>
   <tr>
     <td>&#160;&#160;</td>
     <td>EXPRESS:</td>
-     <td>&lt;<a href="{$parts_url}"><xsl:value-of select="$parts_url"/></a>&gt;</td>
+     <td>&lt;<a href="{$parts_url}" target="_blank" ><xsl:value-of select="$parts_url"/></a>&gt;</td>
    </tr>
   </table>
   <p/>

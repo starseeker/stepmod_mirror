@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.36 2002/08/07 06:37:49 robbod Exp $
+     $Id: express_code.xsl,v 1.37 2002/08/07 09:40:47 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -39,7 +39,7 @@
 
   <code>
     <br/><br/>
-    <a name="$aname">
+    <a name="{$aname}">
       SCHEMA <b><xsl:value-of select="@name"/></b>;
   </a>
   <br/>    <br/>

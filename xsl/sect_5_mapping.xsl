@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.41 2002/08/02 16:31:15 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.42 2002/08/05 09:41:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -547,6 +547,7 @@ $Id: sect_5_mapping.xsl,v 1.41 2002/08/02 16:31:15 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
+  <!-- attribute Xref -->
   <xsl:variable name="aa_xref">
     <xsl:choose>
       <!-- original_module specified then the ARM object is declared in
@@ -556,11 +557,19 @@ $Id: sect_5_mapping.xsl,v 1.41 2002/08/02 16:31:15 robbod Exp $
           select="concat('../../',../@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
 
       </xsl:when>
-      <!-- inherited_from_module specified then the ARM object is declared in
-           another module -->
+      <!-- inherited_from_module specified then the ARM attribute is
+           declared in another module -->
       <xsl:when test="@inherited_from_module">
+        <xsl:variable name="aa_inh_aname">
+          <xsl:call-template name="express_a_name">
+            <xsl:with-param name="section1" select="concat(@inherited_from_module,'_arm')"/>
+            <xsl:with-param name="section2" select="@inherited_from_entity"/>
+            <xsl:with-param name="section3" select="$attr"/>
+          </xsl:call-template>
+        </xsl:variable>
+
         <xsl:value-of 
-          select="concat('../../',@inherited_from_module,'/sys/4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
+          select="concat('../../',@inherited_from_module,'/sys/4_info_reqs',$FILE_EXT,'#',$aa_inh_aname)"/>
 
       </xsl:when>
       <xsl:otherwise>
@@ -642,12 +651,6 @@ $Id: sect_5_mapping.xsl,v 1.41 2002/08/02 16:31:15 robbod Exp $
             <xsl:when test="../@original_module">
               <xsl:value-of 
                 select="concat('../../',../@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
-            </xsl:when>
-            <!-- inherited_from_module specified then the ARM object is 
-                 declared in another module -->
-            <xsl:when test="@inherited_from_module">
-              <xsl:value-of 
-                select="concat('../../',@inherited_from_module,'/sys/4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of 

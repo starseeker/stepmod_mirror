@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.5 2002/08/07 06:37:49 robbod Exp $
+$Id: sect_contents.xsl,v 1.6 2002/08/07 07:59:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -823,12 +823,16 @@ $Id: sect_contents.xsl,v 1.5 2002/08/07 06:37:49 robbod Exp $
     </a>
   </p>
 
+  <!-- no need to go to this depth - there is a bug in the link with
+       inherited attributes as well 
   <xsl:apply-templates select="aa" mode="toc">
     <xsl:with-param name="sect" select="concat('5.1.',$sect_no)"/>
   </xsl:apply-templates>
-
+  -->
 </xsl:template>
 
+<!-- no need to go to this depth - there is a bug in the link with
+       inherited attributes as well 
 <xsl:template match="aa" mode="toc">
   <xsl:param name="sect"/>
   <xsl:variable 
@@ -865,5 +869,6 @@ $Id: sect_contents.xsl,v 1.5 2002/08/07 06:37:49 robbod Exp $
     </xsl:choose>
   </p>
 </xsl:template>
+-->
 
 </xsl:stylesheet>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_summary.xsl,v 1.3 2004/09/22 07:47:34 robbod Exp $
+$Id: ballot_issues_summary.xsl,v 1.4 2004/09/24 06:02:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -368,7 +368,7 @@ $Id: ballot_issues_summary.xsl,v 1.3 2004/09/22 07:47:34 robbod Exp $
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-        <xsl:apply-templates select="./*/resource">
+        <xsl:apply-templates select="./*/res_doc">
           <xsl:with-param name="content" select="$content"/>
           <xsl:with-param name="id_mode" select="$id_mode"/>
           <xsl:with-param name="filter_operator" select="$filter_operator"/>
@@ -485,7 +485,8 @@ $Id: ballot_issues_summary.xsl,v 1.3 2004/09/22 07:47:34 robbod Exp $
 </xsl:template>
 
 
-<xsl:template match="resource">
+<xsl:template match="res_doc">
+
   <xsl:param name="content"/>
   <xsl:param name="id_mode"/>
   <xsl:param name="filter_operator"/>

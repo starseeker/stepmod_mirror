@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_list.xsl,v 1.7 2003/07/25 00:33:31 thendrix Exp $
+$Id: ballot_list.xsl,v 1.8 2004/08/31 07:16:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -118,15 +118,15 @@ Ballot package:
               </xsl:apply-templates>
             </td>
           </xsl:when> 
-          <xsl:when test="./resource">
+          <xsl:when test="./res_doc">
             <td align="left" valign="top">
-              <xsl:apply-templates select="./resource" mode="col1">
+              <xsl:apply-templates select="./res_doc" mode="col1">
                 <xsl:with-param name="mid_point" select="$module_mid_point"/>
                 <xsl:sort select="@name"/>
               </xsl:apply-templates>
             </td>
             <td align="left" valign="top">
-              <xsl:apply-templates select="./resource" mode="col2">
+              <xsl:apply-templates select="./res_doc" mode="col2">
                 <xsl:with-param name="mid_point" select="$module_mid_point"/>
                 <xsl:sort select="@name"/>
               </xsl:apply-templates>
@@ -218,14 +218,16 @@ Ballot package:
 </xsl:template>
 
 
-<xsl:template match="resource" mode="col1">
+<xsl:template match="res_doc" mode="col1">
+
   <xsl:param name="mid_point"/>
   <xsl:if test="not(position()>$mid_point)">
     <xsl:apply-templates select="." mode="output"/>
   </xsl:if>
 </xsl:template>
 
-<xsl:template match="resource" mode="col2">
+<xsl:template match="res_doc" mode="col2">
+
   <xsl:param name="mid_point"/>
   <xsl:if test="position()>$mid_point">
     <xsl:apply-templates select="."  mode="output"/>
@@ -233,7 +235,8 @@ Ballot package:
 </xsl:template>
 
 
-<xsl:template match="resource" mode="output">
+<xsl:template match="res_doc" mode="output">
+
   <xsl:variable name="xref"
     select="concat('../../../data/resource_docs/',@name,'/sys/introduction',$FILE_EXT)"/>
   <a href="{$xref}">

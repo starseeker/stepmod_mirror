@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.30 2005/02/08 00:29:45 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.31 2005/02/17 01:08:10 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -66,11 +66,6 @@ $Id: ballot_summary.xsl,v 1.30 2005/02/08 00:29:45 thendrix Exp $
 
   <HTML>
     <head>
-      <!-- removed at request of wg12 convener.
-      <xsl:if test="./ballot_package/resource">
-          <meta http-equiv="Refresh" content="0;URL={$resdoc_xref}"/>
-      </xsl:if>
--->
       <xsl:call-template name="meta_data">
         <xsl:with-param name="clause" select="$ballot_title"/>
       </xsl:call-template>

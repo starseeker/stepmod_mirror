@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues.xsl,v 1.1 2003/01/20 12:08:11 robbod Exp $
+$Id: ballot_issues.xsl,v 1.2 2003/09/22 10:34:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -61,6 +61,9 @@ $Id: ballot_issues.xsl,v 1.1 2003/01/20 12:08:11 robbod Exp $
           <td><b>Developer</b></td>
         </tr>
         <xsl:apply-templates select="./*/module">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="./*/res_doc">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
       </table>
@@ -184,6 +187,131 @@ $Id: ballot_issues.xsl,v 1.1 2003/01/20 12:08:11 robbod Exp $
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
               <xsl:value-of select="concat('Error ballot1: ', $module_ok)"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </td>
+      </xsl:otherwise>
+    </xsl:choose>
+  </tr>
+
+</xsl:template>
+
+<xsl:template match="res_doc">
+  <xsl:variable name="resdoc_ok">
+    <xsl:call-template name="check_resdoc_exists">
+      <xsl:with-param name="resdoc" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <tr>
+    <xsl:choose>
+      <xsl:when test="$resdoc_ok='true'">
+        
+        <xsl:variable name="resdoc_dir">
+          <xsl:call-template name="resdoc_directory">
+            <xsl:with-param name="resdoc" select="@name"/>
+          </xsl:call-template>
+        </xsl:variable>
+
+        <xsl:variable name="resdoc"
+          select="document(concat('../../data/resource_docs/',@name,'/resource.xml'))/resource"/>
+
+        <xsl:choose>
+          <xsl:when test="$resdoc/@development.folder">
+
+            <xsl:variable name="projmg_file" 
+              select="concat('../../data/resource_docs/',$resdoc/@name,'/',$resdoc/@development.folder,'/projmg.xml')"/>
+            
+            <xsl:variable name="developer" 
+              select="document($projmg_file)/management/developers/developer[1]"/>
+
+            <xsl:variable name="issues_file" 
+              select="concat('../../data/resource_docs/',$resdoc/@name,'/',$resdoc/@development.folder,'/issues.xml')"/>
+            
+            <xsl:variable name="issue_href"
+              select="concat('../../../data/resource_docs/',$resdoc/@name,'/',$resdoc/@development.folder,'/issues',$FILE_EXT)"/>
+
+            <xsl:variable name="open_issues"
+              select="count(document($issues_file)/issues/issue[@status!='closed'])"/>
+            
+            <xsl:variable name="total_issues"
+              select="count(document($issues_file)/issues/issue)"/>
+            <xsl:choose>
+              <xsl:when test="$open_issues>0">
+                <td bgcolor="#FFFF99">
+                  <xsl:value-of select="$resdoc/@part"/>
+                </td>
+                <td bgcolor="#FFFF99">
+                  <a href="../../../data/resource_docs/{$resdoc/@name}/sys/introduction{$FILE_EXT}">
+                    <xsl:value-of select="$resdoc/@name"/>
+                  </a>
+                </td>           
+                <td bgcolor="#FFFF99">
+                  <a href="{$issue_href}">
+                    <xsl:value-of select="$total_issues"/>
+                  </a>
+                </td>
+                <td bgcolor="#FFFF99">
+                  <a href="{$issue_href}">
+                    <xsl:value-of select="$open_issues"/>
+                  </a>
+                </td>          
+                <td bgcolor="#FFFF99">
+                  <xsl:apply-templates select="$resdoc/contacts/projlead" mode="name"/>
+                </td>
+                <td bgcolor="#FFFF99">
+                  <xsl:apply-templates select="$resdoc/contacts/editor" mode="name"/> 
+                </td>
+                <td bgcolor="#FFFF99">
+                  <xsl:apply-templates select="$developer" mode="name"/>
+                </td>
+              </xsl:when>
+
+              <xsl:otherwise>
+                <td>
+                  <xsl:value-of select="$resdoc/@part"/>
+                </td>
+                <td>
+                  <a href="../../../data/resource_docs/{$resdoc/@name}/sys/introduction{$FILE_EXT}">
+                    <xsl:value-of select="$resdoc/@name"/>
+                  </a>
+                </td>           
+                <td>
+                  <a href="{$issue_href}">
+                    <xsl:value-of select="$total_issues"/>
+                  </a>
+                </td>
+                <td>
+                  <a href="{$issue_href}">
+                    <xsl:value-of select="$open_issues"/>
+                  </a>
+                </td>
+                <td>
+                  <xsl:apply-templates select="$resdoc/contacts/projlead" mode="name"/> 
+                </td>
+                <td>
+                  <xsl:apply-templates select="$resdoc/contacts/editor" mode="name"/>
+                </td>
+                <td>
+                  <xsl:apply-templates select="$developer" mode="name"/>
+                </td>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>no issue log</td>
+            <td>no issue log</td>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <!-- resdoc does not exist in repository index -->
+      <xsl:otherwise>
+        <td>-</td>
+        <td>
+          <xsl:value-of select="../@name"/>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error ballot1: ', $resdoc_ok)"/>
             </xsl:with-param>
           </xsl:call-template>
         </td>

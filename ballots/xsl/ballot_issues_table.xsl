@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_table.xsl,v 1.5 2004/09/16 23:13:14 thendrix Exp $
+$Id: ballot_issues_table.xsl,v 1.6 2004/10/12 23:15:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -184,7 +184,7 @@ $Id: ballot_issues_table.xsl,v 1.5 2004/09/16 23:13:14 thendrix Exp $
           <xsl:with-param name="filter_by" select="$filter_by"/>
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
-        <xsl:apply-templates select="./*/resource">
+        <xsl:apply-templates select="./*/res_doc">
           <xsl:with-param name="content" select="$content"/>
           <xsl:with-param name="id_mode" select="$id_mode"/>
           <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
@@ -282,7 +282,8 @@ $Id: ballot_issues_table.xsl,v 1.5 2004/09/16 23:13:14 thendrix Exp $
 </xsl:template>
 
 
-<xsl:template match="resource">
+<xsl:template match="res_doc">
+
   <xsl:param name="content"/>
   <xsl:param name="id_mode"/>
   <xsl:param name="filter_member_body"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.6 2002/08/04 08:09:18 robbod Exp $
+$Id: ballot_summary_resdoc.xsl,v 1.1 2003/01/20 05:14:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -103,7 +103,8 @@ $Id: ballot_summary.xsl,v 1.6 2002/08/04 08:09:18 robbod Exp $
   </HTML>
 </xsl:template>
 
-<xsl:template match="resource">
+<xsl:template match="res_doc">
+
 
   <xsl:variable name="resdoc_ok">
     <xsl:call-template name="check_resdoc_exists">

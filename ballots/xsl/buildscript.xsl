@@ -83,8 +83,20 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+          <xsl:attribute name="name">STEPMODDIR</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="'../../../'"/>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
           <xsl:attribute name="name">CHECKDIR</xsl:attribute>
           <xsl:attribute name="value">${BALLOTDIR}\check_${BALLOTNAME}_${DSTAMP}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">TMPDIR</xsl:attribute>
+          <xsl:attribute name="value">${BALLOTDIR}\tmp</xsl:attribute>
         </xsl:element>
 
         <xsl:element name="property">
@@ -168,6 +180,13 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:element name="mkdir">
           <xsl:attribute name="dir">${CHECKDIR}</xsl:attribute>
         </xsl:element>
+
+      <xsl:element name="mkdir">
+        <xsl:attribute name="dir">
+          <xsl:value-of select="'${TMPDIR}'"/>
+        </xsl:attribute>          
+      </xsl:element>
+
       </target>
       <xsl:text>
       </xsl:text>
@@ -182,7 +201,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
 
-      <xsl:apply-templates select="ballot_package/resource">
+      <xsl:apply-templates select="ballot_package/res_doc">
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
       
@@ -198,7 +217,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
 
-      <xsl:apply-templates select="ballot_package/resource" mode="getexpress">
+      <xsl:apply-templates select="ballot_package/res_doc" mode="getexpress">
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
 
@@ -206,7 +225,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
       <target name="compileexpress" depends="getexpress">
         <xsl:apply-templates select="ballot_package/module" mode="compileexpress"/>
-        <xsl:apply-templates select="ballot_package/resource" mode="compileexpress"/>
+        <xsl:apply-templates select="ballot_package/res_doc" mode="compileexpress"/>
       </target>
     
       <xsl:text>
@@ -235,45 +254,39 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
   <xsl:template match="module">
     <xsl:param name="outfile"/>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
-      <arg value="clean_module"/>
-    </exec>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
-      <arg value="modules"/>
-    </exec>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
-      <arg value="mapping"/>
-    </exec>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DMODULESDIR=${{MODULESDIR}}{@name}"/>
-      <arg value="valid_modules"/>
-    </exec>
-  </xsl:template>
 
-  <xsl:template match="resource">
+    <xsl:variable name="tmpdirmod" select="concat('${TMPDIR}','\',@name)" />
+
+      <xsl:element name="mkdir">
+        <xsl:attribute name="dir">
+          <xsl:value-of select="$tmpdirmod"/>
+        </xsl:attribute>         
+      </xsl:element>
+
+      <ant antfile="utils\build.xml" target="clean_module"  inheritAll="false" dir="${{STEPMODDIR}}" 
+        output="${{TMPDIR}}\{@name}\clean_before.txt">
+        <property name="MODULES"  value="${{MODULESDIR}}{@name}"/>
+      </ant>
+      <ant antfile="utils\build.xml" target="modules"   inheritAll="false"  dir="${{STEPMODDIR}}"  
+        output="${{TMPDIR}}\{@name}\modules.txt">
+        <property name="MODULES" value="${{MODULESDIR}}{@name}"/>
+      </ant>
+      <ant antfile="utils\build.xml" target="mapping"   inheritAll="false"   dir="${{STEPMODDIR}}"  
+        output="${{TMPDIR}}\{@name}\mapping.txt">
+        <property name="MODULES" value="${{MODULESDIR}}{@name}"/>
+      </ant>
+      <ant antfile="utils\build.xml" target="valid_modules"  inheritAll="false"   dir="${{STEPMODDIR}}"
+        output="${{TMPDIR}}\{@name}\valid_modules.txt">
+        <property name="MODULESDIR" value="${{MODULESDIR}}{@name}"/> 
+      </ant>    
+      <ant antfile="utils\build.xml" target="clean_module"    inheritAll="false"   dir="${{STEPMODDIR}}"
+        output="${{TMPDIR}}\{@name}\clean_after.txt">
+        <property name="MODULES" value="${{MODULESDIR}}{@name}"/>
+      </ant>
+
+    </xsl:template>
+
+  <xsl:template match="res_doc">
     <xsl:param name="outfile"/>
 
     <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
@@ -303,10 +316,19 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <arg value="-DRESDIR=${{RESDIR}}{@name}"/>
       <arg value="valid_resdocs"/>
     </exec>        
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
+      <arg value="clean_resdocs"/>
+    </exec>
 
   </xsl:template>
 
-  <xsl:template match="resource" mode="getexpress">
+  <xsl:template match="res_doc" mode="getexpress">
 
 
     <xsl:element name="mkdir">
@@ -405,7 +427,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
   </xsl:template>
 
-  <xsl:template match="resource" mode="compileexpress">
+  <xsl:template match="res_doc" mode="compileexpress">
 
         <echo>Compiling EXPRESS: RESOURCE PART</echo>
         <xsl:element name="exec">
@@ -626,7 +648,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:value-of select="$schema"/> 
   </xsl:if>
 </xsl:template>
-  <xsl:template match="resource|module|application_protocol|res_doc" mode="list">
+  <xsl:template match="res_doc|module|application_protocol|resource" mode="list">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
     <xsl:param name="terminate" select="'YES'"/>

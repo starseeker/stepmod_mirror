@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.8 2003/09/22 16:08:41 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.9 2003/10/01 16:26:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -13,6 +13,7 @@ $Id: ballot_checklist.xsl,v 1.8 2003/09/22 16:08:41 robbod Exp $
 
   <xsl:import href="./common.xsl"/>
   <xsl:import href="../../xsl/common.xsl"/>
+
 
 
   <xsl:output 
@@ -278,6 +279,7 @@ $Id: ballot_checklist.xsl,v 1.8 2003/09/22 16:08:41 robbod Exp $
 
         </tr>
         <xsl:apply-templates select="./*/module"/>
+        <xsl:apply-templates select="./*/res_doc"/>
       </table>
       <br/>
     </body>
@@ -705,6 +707,326 @@ $Id: ballot_checklist.xsl,v 1.8 2003/09/22 16:08:41 robbod Exp $
   </xsl:choose>
 </xsl:template>
 
+<xsl:template match="res_doc">
+
+  <xsl:variable name="resdoc_ok">
+    <xsl:call-template name="check_resdoc_exists">
+      <xsl:with-param name="resdoc" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="$resdoc_ok='true'">
+
+      <xsl:variable name="resdoc_file"
+        select="concat('../../data/resource_docs/',@name,'/resource.xml')"/>
+      <xsl:variable name="resdoc_node"
+        select="document($resdoc_file)/resource"/>
+      <tr>
+        <!-- Ballot package -->
+        <td>
+          <xsl:value-of select="../../@name"/>    
+        </td>
+
+        <!-- Ballot cycle -->
+        <td>
+          <xsl:value-of select="../@name"/> 
+        </td>
+
+        <!-- Module -->
+        <td>
+          <xsl:value-of select="@name"/>
+        </td>
+
+        <!-- WG group -->
+        <xsl:variable name="wg_group">
+            <xsl:choose>
+              <xsl:when test="string-length($resdoc_node/@sc4.working_group)>0">
+                <xsl:value-of select="concat('WG',normalize-space($resdoc_node/@sc4.working_group))"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="string('WG12')"/>
+              </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <td>
+          <xsl:value-of select="$wg_group"/>
+        </td>
+
+        <!-- URL 
+        <xsl:variable name="mod_xref"
+          select="concat('../../../data/modules/',@name,'/sys/1_scope',$FILE_EXT)"/>
+        <td>
+          <a href="{$mod_xref}">
+            <img align="middle" border="0" 
+              alt="URL" src="../../../images/url.gif"/>
+          </a>
+        </td> -->
+
+        <!-- Part -->
+        <td>
+          <xsl:choose>
+            <xsl:when test="$resdoc_node/@part">
+              <xsl:value-of select="concat('10303-',$resdoc_node/@part)"/>
+
+              <!-- check that the part number in repository_index - that in
+                   module -->
+              <xsl:variable name="resdoc" select="@name"/>
+              <xsl:variable name="repo_mod_number"
+                select="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc]/@part"/>
+              <xsl:if test="$repo_mod_number != $resdoc_node/@part">
+                <br/>
+                <font color="#FF0000" size="-1">
+                  The part number in repository_index
+                  (<xsl:value-of select="$repo_mod_number"/>)
+                does not equal that in module 
+                (<xsl:value-of select="$resdoc_node/@part"/>).
+              </font>
+              </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Version -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@version))>0">
+              <xsl:value-of select="$resdoc_node/@version"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Status -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@status))>0">
+              <xsl:value-of select="$resdoc_node/@status"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Year -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@publication.year))>0">
+              <xsl:value-of select="$resdoc_node/@publication.year"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Published -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@published))>0">
+              <xsl:value-of select="$resdoc_node/@published"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Doc WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@wg.number))>0">
+              <xsl:value-of select="$resdoc_node/@wg.number"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Superceded Doc WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@wg.number.supersedes))>0">
+              <xsl:value-of select="$resdoc_node/@wg.number.supersedes"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+        <!-- EXPRESS WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@wg.number.express))>0">
+              <xsl:value-of select="$resdoc_node/@wg.number.express"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Supersedes EXPRESS WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@wg.number.express.supersedes))>0">
+              <xsl:value-of select="$resdoc_node/@wg.number.express.supersedes"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+       <!-- Internal checklist WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@checklist.internal_review))>0">
+              <xsl:value-of select="$resdoc_node/@checklist.internal_review"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+        <!-- Project leader checklist WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@checklist.project_leader))>0">
+              <xsl:value-of select="$resdoc_node/@checklist.project_leader"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Convener leader checklist WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@checklist.convener))>0">
+              <xsl:value-of select="$resdoc_node/@checklist.convener"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+        <!-- Project leader -->
+        <xsl:variable name="projlead_ref" 
+          select="$resdoc_node/contacts/projlead/@ref"/>        
+        <td>
+          <xsl:call-template name="get_contact_name">
+            <xsl:with-param name="ref" select="$projlead_ref"/>
+          </xsl:call-template>
+        </td>
+
+        <!-- Project editor -->
+        <xsl:variable name="projed_ref" 
+          select="$resdoc_node/contacts/editor/@ref"/>
+        <td>
+          <xsl:call-template name="get_contact_name">
+            <xsl:with-param name="ref" select="$projed_ref"/>
+          </xsl:call-template>
+        </td>
+
+        <!-- Scope -->
+        <td>&#160;</td>
+        
+        <!-- Introduction -->
+        <td>&#160;</td>
+
+        <!-- Normrefs -->
+        <td>&#160;</td>
+        
+        <!-- Bibliography -->
+        <td>&#160;</td>
+        
+      <!-- QC complete -->
+        <td>&#160;</td>
+      </tr>
+    </xsl:when>
+
+    <!-- module does not exist in repository index -->
+    <xsl:otherwise>
+      <tr>
+        <!-- Ballot package -->
+        <td>
+          <xsl:value-of select="../../@name"/>    
+        </td>
+
+        <!-- Ballot cycle -->
+        <td>
+          <xsl:value-of select="../@name"/> 
+        </td>
+
+        <!-- Module -->
+        <td>
+          <xsl:value-of select="@name"/>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error ballot1: ', $resdoc_ok)"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <!-- Scope -->
+        <td>&#160;</td>
+        
+        <!-- Introduction -->
+        <td>&#160;</td>
+
+        <!-- Normrefs -->
+        <td>&#160;</td>
+        
+        <!-- Bibliography -->
+        <td>&#160;</td>
+        
+        <!-- EXPRESS -->
+        <td>&#160;</td>
+
+         <!-- QC complete -->
+        <td>&#160;</td>
+      </tr>      
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 
 <xsl:template name="get_contact_name">
   <xsl:param name="ref"/>
@@ -720,5 +1042,29 @@ $Id: ballot_checklist.xsl,v 1.8 2003/09/22 16:08:41 robbod Exp $
   </xsl:choose>
 </xsl:template>
 
+  <xsl:template name="check_resdoc_exists">
+    <xsl:param name="resdoc"/>
 
+    <xsl:variable name="resdoc_name">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$resdoc"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="ret_val">
+        <xsl:choose>
+          <xsl:when
+            test="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc_name]">
+            <xsl:value-of select="'true'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of
+              select="concat(' The resource document ', $resdoc_name,
+                      ' is not identified as a resource document  in repository_index.xml')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+
+  
 </xsl:stylesheet>

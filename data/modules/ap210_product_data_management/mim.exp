@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.11 2005/01/05 07:41:29 kovaliovas Exp $
+   $Id: mim.exp,v 1.12 2005/01/06 07:33:36 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx AP210 product data management - EXPRESS MIM
 *)
 
@@ -12,7 +12,6 @@ USE FROM Approval_mim;    -- ISO/TS 10303-1012
 USE FROM Certification_mim;    -- ISO/TS 10303-1044
 USE FROM Class_mim;    -- ISO/TS 10303-1070
 USE FROM Classification_assignment_mim;    -- ISO/TS 10303-1114
-USE FROM Classification_with_attributes_mim;
 USE FROM Configuration_effectivity_mim;    -- ISO/TS 10303-1058
 USE FROM Contract_mim;    -- ISO/TS 10303-1062
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
@@ -25,12 +24,12 @@ USE FROM External_item_identification_assignment_mim;    -- ISO/TS 10303-1128
 USE FROM File_identification_mim;    -- ISO/TS 10303-1127
 USE FROM Independent_property_representation_mim;    -- ISO/TS 10303-1038 ??
 USE FROM Multi_linguism_mim;    -- ISO/TS 10303-1105
-USE FROM Pdm_material_aspects_mim;
+USE FROM Generic_material_aspects_mim;
+USE FROM Group_mim; -- ISO/TS 10303-1113
 USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
 USE FROM Process_property_assignment_mim;    -- ISO/TS 10303-1040 ??
 USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
 USE FROM Part_occurrence_mim;  -- ISO/TS 10303-1063
-USE FROM Product_structure_mim;
 USE FROM Plib_class_reference_mim;
 USE FROM Product_replacement_mim;    -- ISO/TS 10303-1046
 USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
@@ -100,7 +99,6 @@ TYPE pdm_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON doc
      (action_method,
       assembly_component_usage,
       characterized_object,
-      coordinated_representation_item,
       configuration_item,
       descriptive_representation_item,
       externally_defined_item,
@@ -277,56 +275,6 @@ WHERE
   WR1: SIZEOF (QUERY (app <* approval |
        NOT (SIZEOF (QUERY (aa <* approval_assignment |
        app :=: aa.assigned_approval )) >= 1 ))) = 0;
-END_RULE;
-
-RULE assembly_composition_relationship_unique_constraint FOR
- ( assembly_component_usage );
-LOCAL
-  acr : BAG OF assembly_component_usage := 
- QUERY( acu <* assembly_component_usage |
-(acu\product_definition_relationship.name = 'assembly composition') );
-  pu_bag : BAG OF physical_unit := [];
-  acu_bag : BAG OF assembly_component_usage;
-  pass : BOOLEAN := TRUE;
-  cd_bag : BAG OF component_definition;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(acr) by 1;
-  IF EXISTS( acr[i].relating_product_definition ) THEN
-    IF( (acr[i].relating_product_definition.frame_of_reference.name = 
-         'physical design')
-AND ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
-'PHYSICAL_UNIT' IN TYPEOF(acr[i].relating_product_definition)) ) THEN
-      IF ( NOT ( acr[i].relating_product_definition IN pu_bag )) THEN
-        pu_bag := pu_bag + acr[i].relating_product_definition;
-      END_IF;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(pu_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  cd_bag := [];
-  acu_bag := QUERY( acu <* acr | (acu.relating_product_definition :=: 
-                               pu_bag[i]) );
-  REPEAT j := 1 to SIZEOF(acu_bag) by 1;
-    IF EXISTS( acu_bag[j].related_product_definition ) THEN
-      IF ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
-'COMPONENT_DEFINITION' IN 
-             TYPEOF(acu_bag[j].related_product_definition) ) THEN
-        IF ( acu_bag[j].related_product_definition IN cd_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          cd_bag := cd_bag + acu_bag[j].related_product_definition;
-        END_IF;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass;
 END_RULE;
 
 RULE certification_requires_date_or_date_and_time FOR
@@ -798,53 +746,6 @@ WHERE
        )) = 0;
 END_RULE;
 
-RULE ee_material_unique_constraint FOR
- ( material_designation );
-LOCAL
-  name_bag : BAG OF STRING := [];
-  md_bag : BAG OF material_designation;
-  adr_bag : BAG OF applied_document_reference;
-  pass : BOOLEAN := TRUE;
-  doc_bag : BAG OF ee_specification;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(material_designation) by 1;
-  IF EXISTS( material_designation[i].name ) THEN
-    IF( NOT( material_designation[i].name IN name_bag ) ) THEN
-      name_bag := name_bag + material_designation[i].name;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(name_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  md_bag := QUERY( md <* material_designation | (md\material_designation.name = name_bag[i]) );
-  doc_bag := [];
-  REPEAT j := 1 to SIZEOF(md_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    adr_bag := QUERY( adr <* USEDIN( md_bag[j], 
-('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
-+ 'APPLIED_DOCUMENT_REFERENCE.ITEMS')) | 
-(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
-'DOCUMENT') IN TYPEOF(adr.assigned_document)) );
-    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
-      IF EXISTS( adr_bag[k].assigned_document ) THEN
-        IF ( adr_bag[k].assigned_document IN doc_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          doc_bag := doc_bag + adr_bag[k].assigned_document;
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass;
-END_RULE;
-
 RULE next_higher_assembly_relationship_constraint FOR
 ( next_assembly_usage_occurrence );
 WHERE
@@ -873,57 +774,6 @@ WHERE
        )) <= 1))
        )) <= 1)
        )) = 0;
-END_RULE;
-
-RULE next_higher_assembly_relationship_unique_constraint FOR
- ( next_assembly_usage_occurrence );
-LOCAL
-  pu_bag : BAG OF physical_unit := [];
-  nauo_bag : BAG OF next_assembly_usage_occurrence;
-  pass : BOOLEAN := TRUE;
-  refdes_bag : BAG OF STRING;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(next_assembly_usage_occurrence) by 1;
-  IF EXISTS( next_assembly_usage_occurrence[i].relating_product_definition )
-                                                               THEN
-    IF( 
-(next_assembly_usage_occurrence[i].
-                relating_product_definition.frame_of_reference.name 
-                                                  = 'physical design')
-AND ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
-'PHYSICAL_UNIT' 
-     IN TYPEOF(next_assembly_usage_occurrence[i].
-                                relating_product_definition)) ) THEN
-      IF ( NOT ( next_assembly_usage_occurrence[i].
-                                  relating_product_definition 
-                                              IN pu_bag )) THEN
-        pu_bag := pu_bag + 
-             next_assembly_usage_occurrence[i].relating_product_definition;
-      END_IF;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(pu_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  refdes_bag := [];
-  nauo_bag := QUERY( nauo <* next_assembly_usage_occurrence | 
-                  (nauo.relating_product_definition :=: pu_bag[i]) );
-  REPEAT j := 1 to SIZEOF(nauo_bag) by 1;
-    IF EXISTS( nauo_bag[j].reference_designator ) THEN
-      IF ( nauo_bag[j].reference_designator IN refdes_bag ) THEN
-        pass := FALSE;
-        ESCAPE;
-      ELSE
-        refdes_bag := refdes_bag + nauo_bag[j].reference_designator;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass;
 END_RULE;
 
 RULE organization_unique_constraint FOR (organization);
@@ -1007,19 +857,6 @@ WHERE
   WR1: pass;
 END_RULE;
 
-RULE product_association_constraint FOR 
-( product_definition_formation_relationship );
-WHERE
-  WR1: SIZEOF(QUERY(pdfr <* product_definition_formation_relationship |
-       (pdfr\product_definition_formation_relationship.name = 'product association')
-       AND (SIZEOF(QUERY(adr <* USEDIN(pdfr,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
-       + 'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
-       ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
-       + 'EE_SPECIFICATION' IN TYPEOF(adr.assigned_document))
-       )) = 0))) = 0;
-END_RULE;
-
 RULE product_association_unique_constraint FOR
  ( product_definition_formation_relationship );
 LOCAL
@@ -1079,17 +916,6 @@ WHERE
   WR1: SIZEOF (QUERY (pc <* product_concept |
        NOT (SIZEOF (QUERY (ci <* configuration_item |
        pc :=: ci.item_concept)) >=1 ))) = 0;
-END_RULE;
-
-RULE product_definition_formation_requires_approval FOR
-(product_definition,
-  applied_approval_assignment);
-WHERE
-  WR1: SIZEOF (QUERY (pd <* product_definition |
-       (NOT('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
-       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF(pd))) AND
-       (NOT (SIZEOF (QUERY (aaa <* applied_approval_assignment |
-       pd.formation IN aaa.items )) = 1 )))) = 0;
 END_RULE;
 
 RULE product_definition_formation_requires_person_organization FOR

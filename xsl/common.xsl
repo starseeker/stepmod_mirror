@@ -117,6 +117,7 @@ $Id: common.xsl,v 1.85 2003/03/13 19:16:51 robbod Exp $
   </xsl:choose> 
 </xsl:template>
 
+
 <xsl:template match="module" mode="meta_data">
   <xsl:param name="clause"/>
   <link rel = "schema.DC"
@@ -124,7 +125,7 @@ $Id: common.xsl,v 1.85 2003/03/13 19:16:51 robbod Exp $
 
   <xsl:variable name="module_name">
     <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="value-of(./@name)"/>
+      <xsl:with-param name="module" select="./@name"/>
     </xsl:call-template>           
   </xsl:variable>
     

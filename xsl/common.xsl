@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
+$Id: common.xsl,v 1.24 2002/02/22 17:43:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -581,6 +581,8 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
 
   <!-- output a warning message. If $inline is yes then the error message
        will be included  in the HTML output.
+       NOTE - this gets overridden if $INLINE_ERRORS defined in
+       parameters.xsl is 'no'
        -->
   <xsl:template name="error_message">
     <xsl:param name="message"/>
@@ -588,22 +590,24 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
     <xsl:param name="warning_gif"
       select="'../../../../images/warning.gif'"/>
       
-    <xsl:if test="contains($inline,'yes')">
-      <br/> 
-      <IMG 
-        SRC="{$warning_gif}" ALT="[warning:]" 
-        align="absbottom" border="0"
-        width="20" height="20"/>
-      <font color="#FF0000" size="-1">
-        <i>
-          <xsl:value-of select="$message"/>
-        </i>
-      </font>
-      <br/>
-    </xsl:if>
     <xsl:message>
       <xsl:value-of select="$message"/>
     </xsl:message>
+    <xsl:if test="contains($INLINE_ERRORS,'yes')">
+      <xsl:if test="contains($inline,'yes')">
+        <br/> 
+        <IMG 
+          SRC="{$warning_gif}" ALT="[warning:]" 
+          align="absbottom" border="0"
+          width="20" height="20"/>
+        <font color="#FF0000" size="-1">
+          <i>
+            <xsl:value-of select="$message"/>
+          </i>
+        </font>
+        <br/>
+      </xsl:if>
+    </xsl:if>
   </xsl:template>
 
   <!-- given the name of a module, or module arm or mim schema

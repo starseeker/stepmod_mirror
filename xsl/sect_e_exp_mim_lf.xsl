@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_e_exp.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
+$Id: sect_e_exp_mim_lf.xsl,v 1.1 2001/11/22 12:37:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the MIM long form express 
@@ -79,7 +79,7 @@ $Id: sect_e_exp.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-  <!-- debug --><xsl:value-of select="$global_xref_list"/> 
+  <!-- debug <xsl:value-of select="$global_xref_list"/> -->
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="'Annex E - MIM Long form EXPRESS'"/>
     <xsl:with-param name="aname" select="'annexe-mim_lf-express'"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_code.xsl,v 1.6 2002/02/08 08:19:15 robbod Exp $
+     $Id: express_code.xsl,v 1.7 2002/02/13 11:44:42 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -183,10 +183,9 @@
           select="../../@name"/>
         <xsl:with-param name="clause" select="'annexe'"/>
       </xsl:call-template>  
-      WITH 
   </xsl:if>
   <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
-  (<xsl:call-template name="link_list">
+    WITH (<xsl:call-template name="link_list">
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="list" select="@selectitems"/>
     <xsl:with-param name="object_used_in_schema_name"

@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.32 2002/02/13 17:37:49 robbod Exp $
+$Id: module.xsl,v 1.33 2002/02/22 17:43:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -512,6 +512,20 @@ $Id: module.xsl,v 1.32 2002/02/13 17:37:49 robbod Exp $
     </xsl:choose>
   </xsl:variable>
 
+  <xsl:variable name="UPPER"
+    select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER"
+    select="'abcdefghijklmnopqrstuvwxyz'"/>
+  <xsl:variable name="mim_schema"
+    select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
+    
+  <xsl:variable name="names_url"
+      select="concat('http://www.steptools.com/cgi-bin/getnames.cgi?schema=',
+              $mim_schema)"/>
+  
+  <xsl:variable name="parts_url"
+    select="concat('http://www.mel.nist.gov/step/parts/part',@part,'/TS')"/>
+  
   <p>
     This annex references a listing of the EXPRESS entity names and
     corresponding short names as specified or referenced in this part of ISO
@@ -522,13 +536,14 @@ $Id: module.xsl,v 1.32 2002/02/13 17:37:49 robbod Exp $
   </p>
   <blockquote>
     Short names:
-    <a href="http://www.mel.nist.gov/div826/subject/apde/snr">
-      http://www.mel.nist.gov/div826/subject/apde/snr
+    <a href="{$names_url}">
+      <xsl:value-of select="$names_url"/>
     </a>
+
     <br/>
     EXPRESS: 
-    <a href="http://www.mel.nist.gov/step/parts/part1006/TS/">
-      http://www.mel.nist.gov/step/parts/part1006/TS/
+    <a href="{$parts_url}">
+      <xsl:value-of select="$parts_url"/>
     </a>
   </blockquote>
   
@@ -569,10 +584,6 @@ $Id: module.xsl,v 1.32 2002/02/13 17:37:49 robbod Exp $
         </TR>
       </TABLE>
     </CENTER>
-
-    <UL>
-      <LI><A HREF="short_names.txt">Short Names</A></LI>
-    </UL>
 
     <P>
       If there is difficulty accessing these sites, contact ISO Central
@@ -790,7 +801,7 @@ $Id: module.xsl,v 1.32 2002/02/13 17:37:49 robbod Exp $
   </h3>
   <!-- The <xsl:value-of select="@name"/> UoF specifies -->
   <xsl:choose>
-    <xsl:when test="description">
+    <xsl:when test="string-length(./description) > 0">
       <xsl:apply-templates select="description"/>
     </xsl:when>
     <xsl:otherwise>
@@ -930,7 +941,7 @@ found in module ',$module )"/>
     <a name="mapping">5.1 Mapping specification</a>
   </h3>
   <xsl:choose>
-    <xsl:when test="../mapping_table">
+    <xsl:when test="string-length(../mapping_table)>0">
       <xsl:apply-templates select="../mapping_table" mode="toc"/>
     </xsl:when>
     <xsl:otherwise>
@@ -2230,7 +2241,6 @@ defines it. Use: normref.inc')"/>
   </xsl:template>
 
   <xsl:template match="term.ref"  mode="normref">
-    
     <xsl:variable 
       name="ref"
       select="@linkend"/>
@@ -2249,8 +2259,7 @@ defines it. Use: normref.inc')"/>
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <li>
-          <xsl:call-template name="error_message">
+        <li><xsl:call-template name="error_message">
             <xsl:with-param 
               name="message"
               select="concat('Can not find term referenced by: ',$ref)"/>

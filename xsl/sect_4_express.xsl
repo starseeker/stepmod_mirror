@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.15 2002/02/13 11:44:42 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.16 2002/02/15 12:24:15 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -459,10 +459,9 @@
           select="../../@name"/>
         <xsl:with-param name="clause" select="'section'"/>
       </xsl:call-template>  
-      WITH 
   </xsl:if>
   <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
-  (<xsl:call-template name="link_list">
+    WITH (<xsl:call-template name="link_list">
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="list" select="@selectitems"/>
     <xsl:with-param name="object_used_in_schema_name"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.11 2002/02/07 11:29:01 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.12 2002/02/18 13:17:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -344,14 +344,11 @@ NOT USED
 </xsl:template>
 
 <xsl:template match="refpath">
-
-  <center>
     <font size="-1">
       <xsl:call-template name="output_string_with_linebreaks">
         <xsl:with-param name="string" select="string(.)"/>
       </xsl:call-template>
     </font>  
-  </center>
 </xsl:template>
 
 

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.26 2002/12/02 16:20:14 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.27 2002/12/10 10:47:55 robbod Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -38,9 +38,6 @@ generates HTML for everything in the module repository
 "ant clean" 
 deletes all generated HTML files
 
-"ant -DMODULES=data/modules/[module-name] clean_module" 
-deletes all HTML generated for a single module
-
 "ant wf"
 checks all XML documents for well-formedness
 
@@ -69,6 +66,16 @@ checks navigation XML and XSL files for well-formedness
 "ant index" 
 generates HTML for repository_index.xml
 
+
+"ant modules" 
+generates HTML for all the modules
+
+"ant -DMODULES=data/modules/[module-name] modules" 
+generates HTML for a single module
+
+"ant -DMODULES=data/modules/[module-name] clean_module" 
+deletes all HTML generated for a single module
+
 "ant resources" 
 generates HTML for all the resource schemas
 
@@ -76,13 +83,7 @@ generates HTML for all the resource schemas
 generates HTML for a single resource schema
 
 "ant -DRESOURCES=data/resources/[schema-name] clean_resource" 
-deletes all HTML generated for a single module
-
-"ant modules" 
-generates HTML for all the modules
-
-"ant -DMODULES=data/modules/[module-name] modules" 
-generates HTML for a single module
+deletes all HTML generated for a single resource
 
 "ant aps"
 generate Application protocol documents
@@ -92,6 +93,15 @@ deletes all HTML generated for a single application protocol
 
 "ant -DAPDOCS=data/application_protocols/[ap-name] clean_aps" 
 deletes all HTML generated for a single application protocol
+
+"ant "resdocs"
+generate resource documents
+
+"ant -DRESDOCS=data/resource_docs/[resdoc-name] resdocs" 
+deletes all HTML generated for a single resource documents
+
+"ant -DRESDOCS=data/resource_docs/[resdoc-name] clean_resdoc" 
+deletes all HTML generated for a single resource documents
 
 
 "ant nav"
@@ -141,6 +151,10 @@ tar.gz format)
     <property name="APDOCS" value="${APDIR}/**"/>
     <property name="APXSL" value="xsl/ap_doc"/>
 
+    <property name="RESDIR" value="data/resource_docs"/>
+    <property name="RESDOCS" value="${RESDIR}/**"/>
+    <property name="RESXSL" value="xsl/res_doc"/>
+
     <property name="NAVDIR" value="nav"/>
     <property name="NAV" value="${NAVDIR}/**"/>
     <property name="NAVXSL" value="nav/xsl"/>
@@ -166,6 +180,7 @@ tar.gz format)
       <fileset dir="${RESOURCESDIR}" includes="**/*.htm*"/>
       <fileset dir="${MODULESDIR}" includes="**/*.htm*"/>
       <fileset dir="${APDIR}" includes="**/*.htm*"/>
+      <fileset dir="${RESDIR}" includes="**/*.htm*"/>
       <fileset dir="${NAVDIR}" includes="**/*.htm*"/>
       <fileset dir="ballots" includes="**/*.htm*"/>
     </delete>
@@ -189,6 +204,13 @@ tar.gz format)
     description="delete generated files">
     <delete>
       <fileset dir="${APDOCS}" includes="**/*.htm*"/>
+    </delete>
+  </target>
+
+  <target name="clean_resdocs" depends="init" 
+    description="delete generated files">
+    <delete>
+      <fileset dir="${RESDOCS}" includes="**/*.htm*"/>
     </delete>
   </target>
 
@@ -944,6 +966,173 @@ tar.gz format)
       <param name="output_rcs" expression="${OUTPUT_RCS}"/>
     </style>
     -->
+  </target>
+
+  <target name="resdocs" depends="init" 
+          description="generate resource  documents">
+    <dependset>
+
+      <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="${RESDOCS}/*.htm*"/>
+    </dependset>
+
+
+    <style includes="${RESDOCS}/sys/introduction.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_introduction.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/foreword.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_foreword.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/1_scope.xml" destdir="."
+      extension=".htm"
+      style="${RESXSL}/sect_1_scope.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+
+    <style includes="${RESDOCS}/sys/2_refs.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_2_refs.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/3_defs.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_3_defs.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/4_schema.xml" destdir="."
+      extension=".htm"
+      style="${RESXSL}/sect_schema.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/5_schema.xml" destdir="."
+      extension=".htm"
+      style="${RESXSL}/sect_schema.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/6_schema.xml" destdir="."
+      extension=".htm"
+      style="${RESXSL}/sect_schema.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/a_short_names.xml" destdir="."
+      extension=".htm"
+      style="${RESXSL}/sect_a_short_names.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/add_scope.xml" destdir="."
+      extension=".htm"
+      style="${RESXSL}/sect_g_add_scope.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/b_obj_reg.xml" destdir="."
+      extension=".htm"
+	   style="${RESXSL}/sect_b_obj_reg.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/c_exp.xml" destdir="."
+      extension=".htm"
+	   style="${RESXSL}/sect_c_exp.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/c_exp_schema_4.xml" destdir="."
+      extension=".htm"
+	   style="${RESXSL}/sect_c_exp_schema.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/c_exp_schema_5.xml" destdir="."
+      extension=".htm"
+	   style="${RESXSL}/sect_c_exp_schema.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/c_exp_schema_6.xml" destdir="."
+      extension=".htm"
+	   style="${RESXSL}/sect_c_exp_schema.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/biblio.xml" destdir="."
+      extension=".htm"
+      style="${RESXSL}/sect_biblio.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+
+    <style includes="${RESDOCS}/sys/contents.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_contents.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+    
+    <style includes="${RESDOCS}/sys/cover.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_cover.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${RESDOCS}/sys/d_expg.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_d_expg.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+<!-- not sure if this is needed
+    <style includes="${RESDOCS}/sys/e_guide.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_e_guide.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+-->
+    <style includes="${RESDOCS}/sys/tech_discussion.xml" destdir="."
+	   extension=".htm"
+	   style="${RESXSL}/sect_tech_discussion.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+
+
+
+
+
   </target>
 
 

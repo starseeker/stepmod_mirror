@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.150 2005/01/18 09:42:35 robbod Exp $
+$Id: common.xsl,v 1.151 2005/01/28 23:45:53 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3036,10 +3036,13 @@ is case sensitive.')"/>
 
         <xsl:when test="string-length($entity_type) != 0">
           <xsl:if
-            test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]
-                  or 
+            test="not(
+                  $express_nodes/express/schema[@name=$schema]/constant[@name=$entity_type]
+                  or
                   $express_nodes/express/schema[@name=$schema]/type[@name=$entity_type]
                   or
+		  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]
+                  or 
                   $express_nodes/express/schema[@name=$schema]/subtype.constraint[@name=$entity_type]
                   or
                   $express_nodes/express/schema[@name=$schema]/rule[@name=$entity_type]

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.3 2004/02/10 22:10:40 mikeward Exp $
+$Id: p28xsd.xsl,v 1.4 2004/02/11 10:47:22 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -93,13 +93,15 @@ $Id: p28xsd.xsl,v 1.3 2004/02/10 22:10:40 mikeward Exp $
 			<xsl:value-of select="$indent_param"/>&lt;<xsl:value-of select="$element_name"/>
 			<xsl:for-each select="namespace::*">
 				<xsl:value-of select="string(' ')"/>
-				<xsl:if test=".!='http://www.w3.org/XML/1998/namespace'">
-					<xsl:choose>
-						<xsl:when test="name()">xmlns:<xsl:value-of select="name()" /></xsl:when>
-            					<xsl:otherwise>xmlns</xsl:otherwise>
-            				</xsl:choose>
-            				<xsl:text />=&quot;<xsl:value-of select="." />&quot;<xsl:text />
-            			</xsl:if>
+				<xsl:if test="not(../ancestor::*[namespace::*[name() = name(current()) and . = current()]][last()])">
+					<xsl:if test=".!='http://www.w3.org/XML/1998/namespace'">
+						<xsl:choose>
+							<xsl:when test="name()">xmlns:<xsl:value-of select="name()" /></xsl:when>
+	            					<xsl:otherwise>xmlns</xsl:otherwise>
+	            				</xsl:choose>
+	            				<xsl:text />=&quot;<xsl:value-of select="." />&quot;<xsl:text />
+	            			</xsl:if>
+	            		</xsl:if>
 			</xsl:for-each>
 			<xsl:for-each select="./@*">
 				<xsl:value-of select="string(' ')"/>

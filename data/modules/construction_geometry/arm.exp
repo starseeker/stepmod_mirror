@@ -1,0 +1,64 @@
+(*
+  $Id: $
+  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-ZZZZ Construction_geometry
+*)
+SCHEMA Construction_geometry_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+TYPE constructive_element_select = EXTENSIBLE SELECT 
+  (Curve,
+   Point,
+   Surface);
+END_TYPE;
+
+TYPE constructive_geometry_select = SELECT 
+  (Constructive_geometry,
+   Geometric_model);
+END_TYPE;
+
+ENTITY Constructive_geometric_element;
+  description : OPTIONAL STRING;
+  (* geometry *)
+  element : constructive_element_select;
+END_ENTITY;
+
+ENTITY Constructive_geometry;
+  element : SET [0 : ?] OF Constructive_geometric_element;
+END_ENTITY;
+
+ENTITY Constructive_geometry_association;
+  auxiliary_geometry : Constructive_geometry;
+  base_geometry : constructive_geometry_select;
+END_ENTITY;
+
+ENTITY Curve
+SUBTYPE OF (Detailed_geometric_model_element);
+END_ENTITY;
+
+ENTITY Line
+SUBTYPE OF (Curve);
+END_ENTITY;
+
+ENTITY Measurement_path;
+  defined_by : Curve;
+  defined_in : Geometric_coordinate_space;
+END_ENTITY;
+
+ENTITY Plane
+SUBTYPE OF (Surface);
+END_ENTITY;
+
+ENTITY Point
+SUBTYPE OF (Detailed_geometric_model_element);
+END_ENTITY;
+
+ENTITY Surface
+SUBTYPE OF (Detailed_geometric_model_element);
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT alternate_geometry_items FOR Detailed_geometric_model_element;
+  ONEOF(Curve, Point, Surface);
+END_SUBTYPE_CONSTRAINT;
+
+END_SCHEMA;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: arm_long_form.xsl,v 1.5 2003/07/07 10:09:35 robbod Exp $
+$Id: arm_long_form.xsl,v 1.6 2003/07/07 11:12:46 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -358,8 +358,20 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
         <xsl:variable name="this_select" select="@name"/>
         <xsl:variable name="this_base" select="select/@basedon"/>
         <br/>    
+
+
         TYPE <b><xsl:value-of select="@name"/></b> = SELECT
           
+        <xsl:variable name="sel-items">
+          <xsl:if test="./select[@extensible='YES']">
+            <xsl:apply-templates select="." mode="basedon">
+              <xsl:with-param name="this-schema" select="$this-schema"/>
+              <xsl:with-param name="called-schemas" select="$called-schemas"/>
+              <xsl:with-param name="done" select="' '"/>
+            </xsl:apply-templates>
+          </xsl:if>
+        </xsl:variable>
+
         <xsl:variable name="based-on-down">
           <xsl:apply-templates select="$this-schema//type[@name=$this_base] 
                                        | $called-schemas//type[@name=$this_base]"
@@ -389,13 +401,14 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
           </xsl:call-template>               
         </xsl:if>
         
+        <xsl:variable name="based-items" select="concat($based-on-down,' ',$sel-items)"/>
         <xsl:variable name="select-items1">
           <xsl:choose>
             <xsl:when test="select/@selectitems">
-              <xsl:value-of select="concat(select/@selectitems,' ',$based-on-down)"/>
+              <xsl:value-of select="concat(select/@selectitems,' ',$based-items)"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of select="$based-on-down"/>
+              <xsl:value-of select="$based-items"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:variable>

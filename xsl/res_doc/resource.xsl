@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.40 2004/04/19 23:33:56 thendrix Exp $
+$Id: resource.xsl,v 1.41 2004/04/22 17:35:40 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -246,7 +246,7 @@ $Id: resource.xsl,v 1.40 2004/04/19 23:33:56 thendrix Exp $
     <tr>
       <td valign="TOP" colspan="2" height="26">
         <h3>COPYRIGHT NOTICE:</h3>
-
+        <a name="copyright"/>
         <xsl:choose>
           <xsl:when test="$status='CD'">
             <p>
@@ -1832,7 +1832,7 @@ defined in Annex D of ISO 10303-11.
             
             <xsl:variable name="resource_ok">
               <xsl:call-template name="check_resource_exists">
-                <xsl:with-param name="resource" select="$resource"/>
+                <xsl:with-param name="schema" select="$resource"/>
               </xsl:call-template>
             </xsl:variable>
             
@@ -2394,7 +2394,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 
     <xsl:variable name="stdnumber">
       <xsl:call-template name="get_resdoc_stdnumber">
-        <xsl:with-param name="resource" select="."/>
+        <xsl:with-param name="resdoc" select="."/>
       </xsl:call-template>
     </xsl:variable>
 
@@ -2764,7 +2764,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 
           <xsl:variable name="resource_ok">
             <xsl:call-template name="check_resource_exists">
-              <xsl:with-param name="resource" select="$resource"/>
+              <xsl:with-param name="schema" select="$resource"/>
             </xsl:call-template>
           </xsl:variable>
 
@@ -3043,7 +3043,7 @@ $resource_ok,' Check the normatives references')"/>
 
     <xsl:variable name="resource_ok">
       <xsl:call-template name="check_resource_exists">
-        <xsl:with-param name="resource" select="$resource"/>
+        <xsl:with-param name="schema" select="$resource"/>
       </xsl:call-template>
     </xsl:variable>
 
@@ -3101,7 +3101,7 @@ $resource_ok,' Check the normatives references')"/>
     <xsl:if test="string-length($resource)>0">
       <xsl:variable name="resource_ok">
         <xsl:call-template name="check_resource_exists">
-          <xsl:with-param name="resource" select="$resource"/>
+          <xsl:with-param name="schema" select="$resource"/>
         </xsl:call-template>
       </xsl:variable>
       

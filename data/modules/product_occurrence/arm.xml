@@ -1,273 +1,103 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
+<!-- $Id: arm.xml,v 1.11 2003/01/30 08:10:19 rugarcia Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.26"
-    source="../data/modules/product_occurrence/arm.exp"/>
-
-  <schema name="Product_occurrence_arm">
-    <interface
-      kind="use"
-      schema="Extended_measure_representation_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Functional_breakdown_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Measure_representation_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Part_view_definition_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Product_view_definition_relationship_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Specified_product_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Value_with_unit_arm">
-    </interface>
-
-    <type name="extended_value_with_unit">
-      <select
-        selectitems="Value_with_unit Value_limit Value_range">
-      </select>
-
-    </type>
-    <type name="function_occurrence_select">
-      <select
-        selectitems="Definition_based_function_occurrence Specification_based_function_occurrence">
-      </select>
-
-    </type>
-    <type name="part_occurrence_select">
-      <select
-        selectitems="Definition_based_part_occurrence Specification_based_part_occurrence">
-      </select>
-
-    </type>
-    <entity
-      name="Definition_based_function_occurrence"
-      abstract.supertype="YES"
-      supertypes="Definition_based_product_occurrence">
-      <explicit
-        name="derived_from">
-        <redeclaration
-          entity-ref="Definition_based_product_occurrence"/>
-          <typename
-            name="Functional_element_definition"/>
-        </explicit>
-      </entity>
-
-      <entity
-        name="Definition_based_part_occurrence"
-        abstract.supertype="YES"
-        supertypes="Definition_based_product_occurrence">
-        <explicit
-          name="derived_from">
-          <redeclaration
-            entity-ref="Definition_based_product_occurrence"/>
-            <typename
-              name="Part_view_definition"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="Definition_based_product_occurrence"
-          abstract.supertype="YES"
-          super.expression="(ONEOF(Definition_based_function_occurrence, Definition_based_part_occurrence))"
-          supertypes="Product_occurrence">
-          <explicit
-            name="derived_from">
-            <typename
-              name="Product_view_definition"/>
-          </explicit>
-          <derived
-            name="SELF\Product_view_definition.defined_version"
-            expression="derived_from.defined_version">
-            <typename
-              name="Product_version"/>
-          </derived>
-        </entity>
-
-        <entity
-          name="Part_occurrence_definition_relationship"
-          supertypes="View_definition_relationship">
-          <explicit
-            name="relating_view">
-            <redeclaration
-              entity-ref="View_definition_relationship"/>
-              <typename
-                name="Part_view_definition"/>
-            </explicit>
-            <explicit
-              name="related_view">
-              <redeclaration
-                entity-ref="View_definition_relationship"/>
-                <typename
-                  name="part_occurrence_select"/>
-              </explicit>
-              <derived
-                name="SELF\View_definition_relationship.id"
-                expression="SELF\View_definition_relationship.related_view\Product_view_definition.id">
-                <builtintype
-                  type="STRING"/>
-              </derived>
-              <where
-                label="WR1"
-                expression="NOT (('PRODUCT_OCCURRENCE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(SELF))AND (EXISTS(SELF\Assembly_component_relationship.quantity)))">
-              </where>
-            </entity>
-
-            <entity
-              name="Product_occurrence"
-              abstract.supertype="YES"
-              super.expression="(ONEOF (Definition_based_product_occurrence, Specification_based_product_occurrence))"
-              supertypes="Product_view_definition">
-              <explicit
-                name="occurrence_quantity"
-                optional="YES">
-                <typename
-                  name="extended_value_with_unit"/>
-              </explicit>
-              <explicit
-                name="quantity_criterion"
-                optional="YES">
-                <builtintype
-                  type="STRING"/>
-              </explicit>
-              <inverse
-                name="occurrence_contexts"
-                entity="View_definition_relationship"
-                attribute="related_view">
-                <inverse.aggregate
-                  type="SET"
-                  lower="1"
-                  upper="?"/>
-              </inverse>
-            </entity>
-
-            <entity
-              name="Quantified_instance"
-              supertypes="Product_occurrence">
-              <explicit
-                name="occurrence_quantity">
-                <redeclaration
-                  entity-ref="Product_occurrence"/>
-                  <typename
-                    name="Value_with_unit"/>
-                </explicit>
-                <where
-                  label="WR1"
-                  expression="SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_PART_OCCURRENCE']*TYPEOF(SELF))=1">
-                </where>
-                <where
-                  label="WR2"
-                  expression="NOT (EXISTS(SELF\Product_occurrence.quantity_criterion))">
-                </where>
-              </entity>
-
-              <entity
-                name="Selected_instance"
-                supertypes="Product_occurrence">
-                <where
-                  label="WR1"
-                  expression="SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_PART_OCCURRENCE']*TYPEOF(SELF))=1">
-                </where>
-                <where
-                  label="WR2"
-                  expression="(EXISTS(SELF\Product_occurrence.quantity_criterion)) OR     (NOT('PRODUCT_OCCURRENCE_ARM.VALUE_WITH_UNIT' IN TYPEOF(SELF\Product_occurrence.occurrence_quantity)))">
-                </where>
-              </entity>
-
-              <entity
-                name="Single_function_unit"
-                supertypes="Product_occurrence">
-                <where
-                  label="WR1"
-                  expression="SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_FUNCTION_OCCURRENCE',		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_FUNCTION_OCCURRENCE']*TYPEOF(SELF))=1">
-                </where>
-                <where
-                  label="WR2"
-                  expression="NOT (EXISTS(SELF\Product_occurrence.occurrence_quantity) OR EXISTS(SELF\Product_occurrence.quantity_criterion))">
-                </where>
-              </entity>
-
-              <entity
-                name="Single_instance"
-                supertypes="Product_occurrence">
-                <where
-                  label="WR1"
-                  expression="SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_PART_OCCURRENCE']*TYPEOF(SELF))=1">
-                </where>
-                <where
-                  label="WR2"
-                  expression="NOT (EXISTS(SELF\Product_occurrence.occurrence_quantity) OR EXISTS(SELF\Product_occurrence.quantity_criterion))">
-                </where>
-              </entity>
-
-              <entity
-                name="Specification_based_function_occurrence"
-                abstract.supertype="YES"
-                supertypes="Specification_based_product_occurrence">
-                <where
-                  label="WR1"
-                  expression="'PRODUCT_OCCURRENCE_ARM.FUNCTIONAL_ELEMENT_VERSION' IN TYPEOF(SELF\Product_view_definition.defined_version)">
-                </where>
-              </entity>
-
-              <entity
-                name="Specification_based_part_occurrence"
-                abstract.supertype="YES"
-                supertypes="Specification_based_product_occurrence">
-                <where
-                  label="WR1"
-                  expression="'PRODUCT_OCCURRENCE_ARM.PART_VERSION' IN TYPEOF(SELF\Product_view_definition.defined_version)">
-                </where>
-              </entity>
-
-              <entity
-                name="Specification_based_product_occurrence"
-                abstract.supertype="YES"
-                super.expression="(ONEOF(Specification_based_function_occurrence, Specification_based_part_occurrence))"
-                supertypes="Product_occurrence">
-                <explicit
-                  name="defined_version">
-                  <redeclaration
-                    entity-ref="Product_view_definition"/>
-                    <typename
-                      name="Specification_based_product_version"/>
-                  </explicit>
-                </entity>
-
-                <subtype.constraint name="alternate_part_instance"
-                  entity="Product_occurrence"
-                  super.expression="  ONEOF(Single_instance, Quantified_instance, Selected_instance)">
-                </subtype.constraint>
-
-              </schema>
-
-            </express>
+<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/01/30 08:10:19 $" rcs.revision="$Revision: 1.11 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.26" source="../data/modules/product_occurrence/arm.exp"/>
+	<schema name="Product_occurrence_arm">
+		<interface kind="use" schema="Extended_measure_representation_arm"/>
+		<interface kind="use" schema="Functional_breakdown_arm"/>
+		<interface kind="use" schema="Measure_representation_arm"/>
+		<interface kind="use" schema="Part_view_definition_arm"/>
+		<interface kind="use" schema="Product_view_definition_relationship_arm"/>
+		<interface kind="use" schema="Specified_product_arm"/>
+		<interface kind="use" schema="Value_with_unit_arm"/>
+		<type name="extended_value_with_unit">
+			<select selectitems="Value_with_unit Value_limit Value_range"/>
+		</type>
+		<type name="function_occurrence_select">
+			<select selectitems="Definition_based_function_occurrence Specification_based_function_occurrence"/>
+		</type>
+		<type name="part_occurrence_select">
+			<select selectitems="Definition_based_part_occurrence Specification_based_part_occurrence"/>
+		</type>
+		<entity name="Definition_based_function_occurrence" abstract.supertype="YES" supertypes="Definition_based_product_occurrence">
+			<explicit name="derived_from">
+				<typename name="Functional_element_definition"/>
+				<redeclaration entity-ref="Definition_based_product_occurrence"/>
+			</explicit>
+		</entity>
+		<entity name="Definition_based_part_occurrence" abstract.supertype="YES" supertypes="Definition_based_product_occurrence">
+			<explicit name="derived_from">
+				<typename name="Part_view_definition"/>
+				<redeclaration entity-ref="Definition_based_product_occurrence"/>
+			</explicit>
+		</entity>
+		<entity name="Definition_based_product_occurrence" abstract.supertype="YES" super.expression="(ONEOF(Definition_based_function_occurrence, Definition_based_part_occurrence))" supertypes="Product_occurrence">
+			<explicit name="derived_from">
+				<typename name="Product_view_definition"/>
+			</explicit>
+			<derived name="Product_view_definition.defined_version" expression="SELF\derived_from.defined_version">
+				<typename name="Product_version"/>
+			</derived>
+		</entity>
+		<entity name="Part_occurrence_definition_relationship" supertypes="View_definition_relationship">
+			<explicit name="relating_view">
+				<typename name="Part_view_definition"/>
+				<redeclaration entity-ref="View_definition_relationship"/>
+			</explicit>
+			<explicit name="related_view">
+				<typename name="part_occurrence_select"/>
+				<redeclaration entity-ref="View_definition_relationship"/>
+			</explicit>
+			<derived name="View_definition_relationship.id" expression="SELF\View_definition_relationship.related_view\Product_view_definition.id">
+				<builtintype type="STRING"/>
+			</derived>
+			<where label="WR1" expression="NOT (('PRODUCT_OCCURRENCE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(SELF))AND (EXISTS(SELF\Assembly_component_relationship.quantity)))"/>
+		</entity>
+		<entity name="Product_occurrence" abstract.supertype="YES" super.expression="(ONEOF (Definition_based_product_occurrence, Specification_based_product_occurrence))" supertypes="Product_view_definition">
+			<explicit name="occurrence_quantity" optional="YES">
+				<typename name="extended_value_with_unit"/>
+			</explicit>
+			<explicit name="quantity_criterion" optional="YES">
+				<builtintype type="STRING"/>
+			</explicit>
+			<inverse name="occurrence_contexts" entity="View_definition_relationship" attribute="related_view">
+				<inverse.aggregate type="SET" lower="1" upper="?"/>
+			</inverse>
+		</entity>
+		<entity name="Quantified_instance" supertypes="Product_occurrence">
+			<explicit name="occurrence_quantity">
+				<typename name="Value_with_unit"/>
+				<redeclaration entity-ref="Product_occurrence"/>
+			</explicit>
+			<where label="WR1" expression="SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_PART_OCCURRENCE']*TYPEOF(SELF))=1"/>
+			<where label="WR2" expression="NOT (EXISTS(SELF\Product_occurrence.quantity_criterion))"/>
+		</entity>
+		<entity name="Selected_instance" supertypes="Product_occurrence">
+			<where label="WR1" expression="SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_PART_OCCURRENCE']*TYPEOF(SELF))=1"/>
+			<where label="WR2" expression="(EXISTS(SELF\Product_occurrence.quantity_criterion)) OR     (NOT('PRODUCT_OCCURRENCE_ARM.VALUE_WITH_UNIT' IN TYPEOF(SELF\Product_occurrence.occurrence_quantity)))"/>
+		</entity>
+		<entity name="Single_function_unit" supertypes="Product_occurrence">
+			<where label="WR1" expression="SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_FUNCTION_OCCURRENCE',		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_FUNCTION_OCCURRENCE']*TYPEOF(SELF))=1"/>
+			<where label="WR2" expression="NOT (EXISTS(SELF\Product_occurrence.occurrence_quantity) OR EXISTS(SELF\Product_occurrence.quantity_criterion))"/>
+		</entity>
+		<entity name="Single_instance" supertypes="Product_occurrence">
+			<where label="WR1" expression="SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_PART_OCCURRENCE']*TYPEOF(SELF))=1"/>
+			<where label="WR2" expression="NOT (EXISTS(SELF\Product_occurrence.occurrence_quantity) OR EXISTS(SELF\Product_occurrence.quantity_criterion))"/>
+		</entity>
+		<entity name="Specification_based_function_occurrence" abstract.supertype="YES" supertypes="Specification_based_product_occurrence">
+			<where label="WR1" expression="'PRODUCT_OCCURRENCE_ARM.FUNCTIONAL_ELEMENT_VERSION' IN TYPEOF(SELF\Product_view_definition.defined_version)"/>
+		</entity>
+		<entity name="Specification_based_part_occurrence" abstract.supertype="YES" supertypes="Specification_based_product_occurrence">
+			<where label="WR1" expression="'PRODUCT_OCCURRENCE_ARM.PART_VERSION' IN TYPEOF(SELF\Product_view_definition.defined_version)"/>
+		</entity>
+		<entity name="Specification_based_product_occurrence" abstract.supertype="YES" super.expression="(ONEOF(Specification_based_function_occurrence, Specification_based_part_occurrence))" supertypes="Product_occurrence">
+			<explicit name="defined_version">
+				<typename name="Specification_based_product_version"/>
+				<redeclaration entity-ref="Product_view_definition"/>
+			</explicit>
+		</entity>
+		<subtype.constraint name="alternate_part_instance" entity="Product_occurrence" super.expression="  ONEOF(Single_instance, Quantified_instance, Selected_instance)"/>
+	</schema>
+</express>

@@ -27,6 +27,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <project name="ballothtml" default="all" basedir="../../..">
       <xsl:text>
       </xsl:text>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">BALLOT</xsl:attribute>
+          <xsl:attribute name="value">YES</xsl:attribute>            
+        </xsl:element>
+
       <xsl:element name="target">
         <xsl:attribute name="name">variables</xsl:attribute>
         <xsl:attribute name="description">initialize variables</xsl:attribute>
@@ -67,7 +73,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:otherwise>
           </xsl:choose>
         </xsl:element>
-
 
         <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_RESOURCES_BACKGROUND</xsl:attribute>
@@ -1324,6 +1329,15 @@ utable as in buildscript -->
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+
 
         <xsl:element name="param">
           <xsl:attribute name="name">
@@ -1391,6 +1405,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1469,6 +1491,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1539,6 +1569,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1617,6 +1655,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1687,6 +1733,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1765,6 +1819,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1835,6 +1897,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1913,6 +1983,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1949,6 +2027,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -1990,6 +2076,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2068,6 +2162,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2142,6 +2244,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2204,6 +2314,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2278,6 +2396,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2364,6 +2490,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2434,6 +2568,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
        <xsl:element name="param">
@@ -2512,6 +2654,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2582,6 +2732,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2660,6 +2818,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2713,6 +2879,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2791,6 +2965,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2861,6 +3043,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -2939,6 +3129,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3013,6 +3211,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3083,6 +3289,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3163,6 +3377,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3232,6 +3454,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3420,6 +3650,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3449,6 +3687,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3533,6 +3779,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3577,6 +3831,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3630,6 +3892,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3674,6 +3944,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3726,6 +4004,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3770,6 +4056,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3822,6 +4116,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3866,6 +4168,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -3918,6 +4228,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3962,6 +4280,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -4011,6 +4337,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -4071,6 +4405,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -4116,6 +4458,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -4168,6 +4518,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -4216,6 +4574,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -4260,6 +4626,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -4313,6 +4687,14 @@ utable as in buildscript -->
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -4357,6 +4739,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -4406,6 +4796,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">

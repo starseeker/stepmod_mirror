@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.9 2002/09/13 12:06:59 robbod Exp $
+$Id: banner.xsl,v 1.10 2002/09/29 08:46:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -54,7 +54,7 @@ $Id: banner.xsl,v 1.9 2002/09/13 12:06:59 robbod Exp $
                 <p class="bannermenu">Modules</p>
                 <p class="bannermenuitem">
                   <a href="modules_alpha{$FILE_EXT}" target="index">
-                    Alphabetical
+                    Alphabetical,
                   </a>
                   <a href="modules_project{$FILE_EXT}" target="index">
                     Project
@@ -62,7 +62,7 @@ $Id: banner.xsl,v 1.9 2002/09/13 12:06:59 robbod Exp $
                 </p>
                 <p class="bannermenuitem">
                   <a href="modules_numbers{$FILE_EXT}" target="index">
-                    Parts
+                    Parts,
                   </a>
                   <a href="modules_project_lead{$FILE_EXT}" target="index">
                     Leader
@@ -98,14 +98,13 @@ $Id: banner.xsl,v 1.9 2002/09/13 12:06:59 robbod Exp $
                 <p class="bannermenu">Application Protocols</p>
                 <p class="bannermenuitem">
                   <a href="ap_alpha{$FILE_EXT}" target="index">
-                    Alphabetical list
+                    Alphabetical,
                   </a>
+                  Project,
                 </p>
                 <p class="bannermenuitem">
-                  Project leader list
-                </p>
-                <p class="bannermenuitem">
-                  Part number list
+                  Parts,
+                  Leader
                 </p>
               </td>
 
@@ -113,11 +112,9 @@ $Id: banner.xsl,v 1.9 2002/09/13 12:06:59 robbod Exp $
                 <p class="bannermenu">Common resources</p>
                 <p class="bannermenuitem">
                   <a href="resource_schema_alpha{$FILE_EXT}" target="index">
-                    Alphabetical list
+                    Alphabetical,
                   </a>
-                </p>
-                <p class="bannermenuitem">
-                  Part number list
+                  Parts
                 </p>
                 <p class="bannermenuitem">
                   <a href="resource_mappings{$FILE_EXT}" target="_blank">

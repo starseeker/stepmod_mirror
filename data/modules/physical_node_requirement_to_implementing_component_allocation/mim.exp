@@ -13,5 +13,30 @@ SCHEMA Physical_node_requirement_to_implementing_component_allocation_mim;
 	USE FROM Packaged_connector_model_mim;
 	USE FROM Part_terminal_mim;
 	USE FROM Physical_unit_design_view_mim;
+	
+ENTITY physical_node_requirement_to_implementing_component_allocation
+  SUBTYPE OF (shape_aspect_relationship, shape_aspect);
+WHERE
+  WR1: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (SELF.related_shape_aspect.of_shape\property_definition.definition)) AND
+       (NOT (SELF.related_shape_aspect.of_shape\property_definition.definition\product_definition.description IN 
+       ['laminate component']));
+  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_CONNECTIVITY_DEFINITION' IN
+       TYPEOF (SELF.relating_shape_aspect);
+  WR3: acyclic_shape_aspect_relationship(SELF,
+       [SELF\shape_aspect_relationship.related_shape_aspect],
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'+
+       'PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION');
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\physical_node_requirement_to_implementing_component_allocation)) = 0;
+(*
+  WR5: SIZEOF(terminal_of_implementing_component(SELF,SELF.relating_shape_aspect)) = 0;
+*)
+END_ENTITY; -- physical_node_requirement_to_implementing_component_allocation
+	
+	
 END_SCHEMA;
 

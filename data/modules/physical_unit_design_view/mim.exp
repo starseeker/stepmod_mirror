@@ -9,11 +9,9 @@ SCHEMA Physical_unit_design_view_mim;
 	USE FROM Item_definition_structure_mim;
 	USE FROM Part_view_definition_mim;
 	USE FROM Physical_unit_usage_view_mim;
-	USE FROM Product_occurrence_mim;
+	USE FROM Part_occurrence_mim;
 	
 ENTITY component_definition
-  SUPERTYPE OF (ONEOF (printed_component, packaged_component, routed_physical_component)
-                ANDOR (thermal_component) ANDOR (cable_component))
   SUBTYPE OF (product_definition);
 WHERE
   WR1: SIZEOF (QUERY (pd <* USEDIN (SELF,
@@ -176,6 +174,7 @@ WHERE
        (sr_pdr.used_representation\representation.name = 
         'open shell based surface'))) 
        <= 1))) = 0;
+(** Wrong back dependence        
  WR12: NOT((SELF.frame_of_reference.name = 'layout occurrence') 
           AND
        NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -190,7 +189,7 @@ WHERE
        'COMPONENT_SHAPE_ASPECT'] *
        TYPEOF (sa)) >= 1)) 
         )) = 1))) = 0);
-
+*)
  WR13: NOT(is_assembly_module_macro_occurrence(SELF))
        OR
        (SIZEOF (QUERY (ip <* QUERY (pdr <* USEDIN (SELF,
@@ -240,7 +239,14 @@ WHERE
        'physical design usage'))) = 1) AND
        (SELF.frame_of_reference.name = 'physical occurrence'));
 END_ENTITY; -- component_definition
-	
+
+ENTITY thermal_component
+  SUBTYPE OF (component_definition);
+END_ENTITY; -- thermal_component
+
+ENTITY thermal_component_shape_aspect
+  SUBTYPE OF (component_shape_aspect);
+END_ENTITY; -- thermal_component_shape_aspect
 	
 END_SCHEMA;
 

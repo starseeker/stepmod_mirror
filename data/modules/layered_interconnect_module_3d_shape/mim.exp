@@ -123,5 +123,57 @@ WHERE
        'inter stratum feature edge template';
 END_ENTITY; -- inter_stratum_feature_edge_template
 
+ENTITY plated_cutout_edge_segment
+  SUBTYPE OF (cutout_edge_segment,plated_inter_stratum_feature);
+WHERE
+  WR1: SELF\shape_aspect.description IN ['plated cutout edge segment'];
+  WR2: SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'join implementation') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'JOIN_SHAPE_ASPECT' IN
+       TYPEOF (ji.relating_shape_aspect)) AND
+       (ji.relating_shape_aspect\shape_aspect.name =
+       'inter stratum join'))) <= 1;
+  WR3: (NOT (SELF\shape_aspect.description = 'plated cutout edge segment')) OR
+       (SIZEOF (QUERY (cc <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'composed cutout') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PLATED_INTER_STRATUM_FEATURE' IN
+       TYPEOF (cc.relating_shape_aspect)) AND
+       (cc.relating_shape_aspect\shape_aspect.description =
+       'plated cutout'))) = 1);
+END_ENTITY; -- plated_cutout_edge_segment
+
+ENTITY plated_interconnect_module_edge_segment
+  SUBTYPE OF (interconnect_module_edge_segment,
+              plated_inter_stratum_feature);
+WHERE
+  WR1: SELF\shape_aspect.description IN ['plated interconnect module edge segment'];
+  WR2: SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'join implementation') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'JOIN_SHAPE_ASPECT' IN
+       TYPEOF (ji.relating_shape_aspect)) AND
+       (ji.relating_shape_aspect\shape_aspect.name =
+       'inter stratum join'))) <= 1;
+  WR3: (NOT (SELF\shape_aspect.description = 
+          'plated interconnect module edge segment')) OR
+       (SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'composed edge') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PLATED_INTER_STRATUM_FEATURE' IN
+       TYPEOF (ce.relating_shape_aspect)) AND
+       (ce.relating_shape_aspect\shape_aspect.description =
+       'plated interconnect module edge'))) = 1);
+END_ENTITY; -- plated_interconnect_module_edge_segment
+
 END_SCHEMA;
 

@@ -5,7 +5,78 @@
 
 
 SCHEMA Styled_curve_mim;
-	USE FROM Construction_geometry_mim;
+	USE FROM Basic_curve_mim;
 	USE FROM Value_with_unit_extension_mim;
+
+ENTITY solid_curve_font
+ SUBTYPE OF (pre_defined_curve_font);
+END_ENTITY; -- solid_curve_font
+
+RULE curve_style_font_and_scaling_unique_constraint 
+   FOR (curve_style_font_and_scaling);
+
+LOCAL
+  r : BAG OF curve_style_font_and_scaling := 
+                         QUERY (r <* curve_style_font_and_scaling | TRUE);
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i]\curve_style_font_and_scaling.name ) THEN
+    IF (r[i]\curve_style_font_and_scaling.name IN name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + r[i]\curve_style_font_and_scaling.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+WHERE
+WR1 : pass;
+
+END_RULE; -- curve_style_font_and_scaling_unique_constraint
+
+RULE curve_style_requires_length_measure_with_unit FOR ( curve_style );
+WHERE
+  WR1: SIZEOF(QUERY(cs <* curve_style |
+       NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+        + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(cs))
+       )) = 0;
+END_RULE; -- curve_style_requires_length_measure_with_unit
+
+RULE curve_style_unique_constraint FOR
+ ( representation );
+LOCAL
+  cs : BAG OF representation := QUERY( r <* representation |
+((r\representation.name = 'curve style parameters') AND (r.context_of_items\representation_context.context_type =
+'curve style parametric context')) );
+  pass : BOOLEAN := TRUE;
+  desc_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(cs) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  REPEAT j := 1 to SIZEOF(cs[i].items) by 1;
+    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(cs[i].items[j])) AND
+(cs[i].items[j]\representation_item.name = 'curve style name') ) THEN
+      IF EXISTS( cs[i].items[j]\descriptive_representation_item.description ) THEN
+        IF ( cs[i].items[j]\descriptive_representation_item.description IN desc_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          desc_bag := desc_bag + cs[i].items[j]\descriptive_representation_item.description;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- curve_style_unique_constraint
+	
 END_SCHEMA;
 

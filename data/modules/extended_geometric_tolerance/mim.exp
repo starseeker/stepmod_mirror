@@ -167,6 +167,326 @@ ENTITY opposing_boundary_dimensional_size
 WHERE
     wr1: SELF\dimensional_size.name  IN ['angular', 'linear'];
 END_ENTITY; -- opposing_boundary_dimensional_size
+
+ENTITY physical_unit_datum
+  SUPERTYPE OF (edge_segment_vertex)
+  SUBTYPE OF (shape_aspect);
+WHERE
+    WR1: SELF\shape_aspect.description IN ['axis', 'plane', 'point', ''];
+    WR2: SELF\shape_aspect.product_definitional = False;
+    WR3: SELF\shape_aspect.name IN ['single datum', 'common datum', ''];
+    WR4: (NOT (SELF\shape_aspect.name = 'common datum')) OR
+         (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+         (sar\shape_aspect_relationship.name = 'datum feature usage in datum system') AND
+         ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'DATUM_SYSTEM' IN TYPEOF(SAR)))) >= 1);
+    WR5: (NOT (SELF\shape_aspect.name = 'common datum')) OR
+         (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+         (sar\shape_aspect_relationship.name = 'datum feature usage in common datum') AND
+         ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'DATUM_SYSTEM' IN TYPEOF(SAR)))) >= 2);
+    WR6: (NOT ((SELF\shape_aspect.description = 'axis') AND
+         (SELF\shape_aspect.name IN ['common datum', 'single datum']))) OR
+         (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+         NOT(sar\shape_aspect_relationship.name = 'reference axis') AND
+         ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'DATUM_REFERENCE_FRAME' IN TYPEOF(SAR)))) = 1);
+    WR7: (NOT ((SELF\shape_aspect.description = 'plane') AND
+         (SELF\shape_aspect.name IN ['common datum', 'single datum']))) OR
+         (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+         NOT(sar\shape_aspect_relationship.name = 'reference plane') AND
+         ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'DATUM_REFERENCE_FRAME' IN TYPEOF(SAR)))) = 1);
+    WR8: (NOT ((SELF\shape_aspect.description = 'point') AND
+         (SELF\shape_aspect.name IN ['common datum', 'single datum']))) OR
+         (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+         NOT(sar\shape_aspect_relationship.name = 'reference origin') AND
+         ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'DATUM_REFERENCE_FRAME' IN TYPEOF(SAR)))) = 1);
+    WR9: (NOT (SELF\shape_aspect.name = 'single datum')) OR
+         (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+         (sar\shape_aspect_relationship.name = 'datum usage in datum system') AND
+         ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'DATUM_SYSTEM' IN TYPEOF(SAR)))) >= 1);
+   WR10: (NOT (SELF\shape_aspect.name = 'single datum')) OR
+         (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+         (sar\shape_aspect_relationship.name = 'datum feature usage in single datum') AND
+         (TRUE))) <= 1);
+   WR11: NOT ((SELF\shape_aspect.name IN [''])
+         AND (SELF\shape_aspect.description IN ['']));
+   WR12: (NOT(SELF\shape_aspect.description = 'plane')) OR
+         (SIZEOF(QUERY ( pd <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'PROPERTY_DEFINITION.DEFINITION') |
+         pd\property_definition.description = 'datum direction property')) <= 2);
+END_ENTITY; -- physical_unit_datum
+
+ENTITY physical_unit_datum_feature
+  SUBTYPE OF (shape_aspect);
+WHERE
+    WR1: (SIZEOF(QUERY ( pd <* USEDIN(SELF,
+             'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+             'PROPERTY_DEFINITION.' + 'DEFINITION') | 
+             (pd\property_definition.description = 'datum feature identification')))) = 1;
+    WR2: (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+         sar\shape_aspect_relationship.name IN ['datum feature usage in common datum',
+         'datum feature usage in single datum'])) >= 1);
+    WR3: (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+         sar\shape_aspect_relationship.name = 'datum feature usage in single datum')) <= 1);
+END_ENTITY; -- physical_unit_datum_feature
+
+ENTITY physical_unit_datum_target_set
+  SUBTYPE OF (physical_unit_datum_feature);
+WHERE
+    WR1: (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+         sar\shape_aspect_relationship.name = 'datum target usage')) >= 1);
+    WR2: (SIZEOF (QUERY ( sar <* USEDIN(SELF,
+         'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+         sar\shape_aspect_relationship.name = 'constituent')) = 0);
+END_ENTITY; -- physical_unit_datum_target_set
+
+ENTITY positional_boundary
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SELF\shape_aspect.description IN 
+    ['dimension related positional boundary',
+  'profile related positional boundary'];
+
+  WR2: SELF\shape_aspect.product_definitional = False;
+
+  WR3: (NOT(SELF\shape_aspect.description = 
+           'dimension related positional boundary'))
+       OR (SIZEOF(QUERY(sar <* USEDIN(SELF, 
+          'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') 
+          | ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+             'POSITIONAL_BOUNDARY_MEMBER' IN 
+               TYPEOF(sar.related_shape_aspect))
+            AND (sar\shape_aspect_relationship.name = 'boundary member'))) >= 1);
+
+  WR4: (NOT(SELF\shape_aspect.description = 
+         'dimension related positional boundary'))
+       OR (SIZEOF(QUERY(sar <*USEDIN(SELF, 
+          'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') 
+          | (sar.related_shape_aspect.product_definitional = True) AND
+            (sar\shape_aspect_relationship.name = 'constrained feature'))) +
+           SIZEOF(QUERY(sar <*USEDIN(SELF, 
+          'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') 
+          | ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'PART_TEMPLATE_DEFINITION' IN TYPEOF(sar.related_shape_aspect))
+            AND (sar\shape_aspect_relationship.name = 'constrained feature'))
+           ) = 1);     
+
+  WR5: (NOT(SELF\shape_aspect.description = 
+              'dimension related positional boundary'))
+       OR (SIZEOF(QUERY(pd <* USEDIN(SELF,
+          'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'PROPERTY_DEFINITION.DEFINITION')        
+          | (pd\property_definition.description = 
+                'dimension related positional boundary property'))) = 1);
+
+  WR6: (NOT(SELF\shape_aspect.description = 
+                  'profile related positional boundary'))
+       OR (SIZEOF(QUERY(pd <* USEDIN(SELF,
+          'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'PROPERTY_DEFINITION.DEFINITION')        
+          | (pd\property_definition.description = 
+                  'profile related positional boundary property'))) = 1);
+   
+  WR7: (NOT(SELF\shape_aspect.description = 
+                     'profile related positional boundary'))
+       OR (SIZEOF(QUERY(sar <* USEDIN(SELF, 
+          'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') 
+          | ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'POSITIONAL_BOUNDARY_MEMBER' IN TYPEOF(sar.related_shape_aspect))
+            AND (sar\shape_aspect_relationship.name = 
+               'positional boundary and profile boundary member'))) = 1);
+END_ENTITY; -- positional_boundary
+
+ENTITY positional_boundary_member
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SELF\shape_aspect.product_definitional = False;
+
+  WR2: SIZEOF(QUERY(pd <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION')        
+       | (pd\property_definition.description = 'positional boundary member property'))
+       ) = 1;
+  WR3: SIZEOF(QUERY(sar <* USEDIN(SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') 
+       | (sar\shape_aspect_relationship.name = 'boundary member') AND
+         ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          'POSITIONAL_BOUNDARY' IN TYPEOF(sar.relating_shape_aspect))
+         AND (sar.relating_shape_aspect\shape_aspect.description =
+         'dimension related positional boundary'))) = 1;
+END_ENTITY; -- positional_boundary_member
+
+ENTITY statistical_dimensional_location
+ SUBTYPE OF (dimensional_location);
+END_ENTITY; -- statistical_dimensional_location
+
+ENTITY statistical_dimensional_size
+ SUBTYPE OF (dimensional_size_property);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DIMENSIONAL_SIZE' IN 
+       TYPEOF (pdr.related_property_definition)) AND
+       (pdr\property_definition_relationship.name = 'substitutable dimension'))) 
+       <= 1))) <= 1;       
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REQUIREMENTS_PROPERTY' IN 
+       TYPEOF (pdr.related_property_definition)) AND
+       (pdr\property_definition_relationship.name = 
+        'dimensional tolerance statistical control requirement')))
+       <= 1))) <= 1;       
+  WR3: (NOT(SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DIMENSIONAL_SIZE' IN 
+       TYPEOF (pdr.related_property_definition)) AND
+       (pdr\property_definition_relationship.name = 'substitutable dimension'))) 
+       <= 1))) <= 1))
+       OR (NOT(SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DIMENSIONAL_SIZE' IN 
+       TYPEOF (pdr.related_property_definition)) AND
+       (NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STATISTICAL_DIMENSIONAL_SIZE' IN 
+       TYPEOF (pdr.related_property_definition))) AND
+       (pdr\property_definition_relationship.name = 'substitutable dimension'))) 
+       <= 1))) <= 1));     
+END_ENTITY; -- statistical_dimensional_size
+
+ENTITY statistical_geometric_tolerance
+  SUBTYPE OF (physical_unit_geometric_tolerance);
+WHERE
+  WR1: SIZEOF(QUERY(gtr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GEOMETRIC_TOLERANCE_RELATIONSHIP.RELATED_GEOMETRIC_TOLERANCE') | 
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT_GEOMETRIC_TOLERANCE' IN
+       TYPEOF(gtr.relating_geometric_tolerance)) AND
+       (gtr\geometric_tolerance_relationship.name = 'substitutable geometric tolerance')
+       )) <= 1;
+  WR2: SIZEOF(QUERY(pdr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') | 
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REQUIREMENTS_PROPERTY' IN
+       TYPEOF(pdr.related_property_definition)) AND
+       (pdr\property_definition_relationship.name = 'geometric tolerance statistical control requirement')
+       )) = 1;
+  WR3: SIZEOF(QUERY(gtr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GEOMETRIC_TOLERANCE_RELATIONSHIP.RELATED_GEOMETRIC_TOLERANCE') | 
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STATISTICAL_GEOMETRIC_TOLERANCE' IN
+       TYPEOF(gtr.relating_geometric_tolerance)) AND
+       (gtr\geometric_tolerance_relationship.name = 'substitutable geometric tolerance')
+       )) <= 0;
+END_ENTITY; -- statistical_geometric_tolerance
+
+ENTITY tolerance_zone_boundary
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: (NOT(SELF\shape_aspect.description = 'conical'))
+       OR (NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                'TOLERANCE_ZONE_EXPLICIT_OPPOSING_BOUNDARY_SET'
+                IN TYPEOF(SELF))
+           OR('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+               'TOLERANCE_ZONE_IMPLICIT_OPPOSING_BOUNDARY_SET'
+               IN TYPEOF(SELF))));
+  WR2: (NOT(SELF\shape_aspect.description = 
+                 'circular or cylindrical or spherical'))
+       OR (NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+                'TOLERANCE_ZONE_EXPLICIT_OPPOSING_BOUNDARY_SET'
+                IN TYPEOF(SELF))
+           OR('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+               'TOLERANCE_ZONE_IMPLICIT_OPPOSING_BOUNDARY_SET'
+               IN TYPEOF(SELF))));
+  WR3: SELF\shape_aspect.product_definitional = False;
+  WR4: NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+           'TOLERANCE_ZONE_EXPLICIT_OPPOSING_BOUNDARY_SET'
+           IN TYPEOF(SELF))
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+           'TOLERANCE_ZONE_IMPLICIT_OPPOSING_BOUNDARY_SET'
+           IN TYPEOF(SELF)));
+    WR5: SIZEOF(QUERY(pd <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') | (pd\property_definition.description = 
+       'boundary zone definition with specified size') OR 
+       (pd\property_definition.description = 'conical tolerance zone boundary')
+       )) = 1;
+  WR6: SIZEOF(USEDIN(SELF, 
+            'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'TOLERANCE_ZONE_DEFINITION.BOUNDARIES')) = 1;
+END_ENTITY; -- tolerance_zone_boundary
+
+ENTITY tolerance_zone_explicit_opposing_boundary_set
+  SUBTYPE OF (tolerance_zone_boundary);
+END_ENTITY; -- tolerance_zone_explicit_opposing_boundary_set
+
+ENTITY tolerance_zone_implicit_opposing_boundary_set
+  SUBTYPE OF (tolerance_zone_boundary);
+END_ENTITY; -- tolerance_zone_implicit_opposing_boundary_set
+
+ENTITY viewing_plane
+  SUBTYPE OF (shape_aspect);
+  WHERE
+    wr1: SELF\shape_aspect.description = 'affected plane';
+    wr2: (SIZEOF(QUERY ( pd <* USEDIN (SELF,
+             'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+             'PROPERTY_DEFINITION.' + 'DEFINITION') | (pd\property_definition.description = 
+             'viewing plane property')))) =1;
+    wr3: NOT SELF\shape_aspect.product_definitional;
+END_ENTITY; -- viewing_plane
 	
 END_SCHEMA;
 

@@ -14,5 +14,176 @@ SCHEMA Requirement_decomposition_mim;
 	USE FROM Product_rule_mim;
 	USE FROM Requirement_view_definition_mim;
 	USE FROM Specification_document_mim;
+	
+ENTITY material_electrical_conductivity_category
+  SUBTYPE OF (group);
+WHERE
+  WR1: SELF\group.name IN ['conductive', 'non conductive', 'resistive',  
+       'semi conductive'];
+END_ENTITY; -- material_electrical_conductivity_category
+
+ENTITY requirements_property
+  SUBTYPE OF (property_definition);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'requirements property composition')) <= 1;
+  WR2: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM' IN
+       TYPEOF (it)) AND
+       (it\representation_item.name = 'requirements description'))) = 1)) <= 1;
+  WR3: SIZEOF (QUERY (dr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EE_SPECIFICATION' IN 
+       TYPEOF (dr.assigned_document))) >= 1;
+  WR4: NOT(EXISTS(SELF\property_definition.description)) OR
+       (NOT (SELF\property_definition.description IN ['constraint', 
+        'part based constraint']) OR
+       (SIZEOF (QUERY (dc <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'design constraint') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'RULE_DEFINITION' IN 
+       TYPEOF (dc.relating_property_definition.definition))) = 1));
+  WR5: NOT(EXISTS(SELF\property_definition.description)) OR
+       (NOT (SELF\property_definition.description = 
+          'part based constraint') OR
+       (SIZEOF (QUERY (cp <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'constraining part') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP' IN
+       TYPEOF (cp.relating_property_definition.definition)) AND
+       (cp.relating_property_definition.definition\product_definition_relationship.name = 
+       'constraining part') AND
+   (cp.relating_property_definition.definition.related_product_definition.
+       frame_of_reference.name = 'design requirement'))) = 1));
+  WR6: NOT(EXISTS(SELF\property_definition.description)) OR
+       (NOT (SELF\property_definition.description = 
+         'interface requirement') OR
+       (SIZEOF (QUERY (itnha <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'interface to next higher assembly') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION' IN
+       TYPEOF (itnha.relating_property_definition.definition)) AND
+    (itnha.relating_property_definition.definition.frame_of_reference.name
+       = 'design requirement') AND
+       (SIZEOF (QUERY (hai <* QUERY (pdr <* 
+       USEDIN (itnha.relating_property_definition.definition,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'higher assembly interface') |
+       SIZEOF (QUERY (pdr <* USEDIN (hai,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SPECIFIED_HIGHER_USAGE_OCCURRENCE'  
+       IN TYPEOF (pdr))) = 1)) = 1))) = 1));
+END_ENTITY; -- requirements_property
+
+(** It is declared as used for ARM concept Requirement_allocation, which is now substituted by requirement_assignment.
+Need to analyse more on this *)
+ENTITY requirement_allocation_group
+  SUBTYPE OF (group, property_definition_relationship);
+WHERE
+  WR1: (SIZEOF (QUERY (aga <* QUERY (ga <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_GROUP_ASSIGNMENT' IN
+       TYPEOF (ga)) |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_FORMATION',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CONFIGURATION_ITEM'] * TYPEOF (aga.items)) = 1))) = 1);
+
+  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REQUIREMENTS_PROPERTY' IN TYPEOF 
+   (SELF\property_definition_relationship.relating_property_definition);
+
+  WR4: NOT(SELF\property_definition_relationship.related_property_definition.description = 'test requirement') OR
+       (SIZEOF (QUERY (aga <* QUERY (ga <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_GROUP_ASSIGNMENT' IN
+       TYPEOF (ga)) |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION'] * TYPEOF (aga.items)) = 1))) >= 1);
+END_ENTITY; -- requirement_allocation_group
+
+ENTITY requirement_definition
+ SUBTYPE OF (product_definition);
+WHERE
+  WR1: (NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
+       TYPEOF (SELF))) OR
+       (SIZEOF (QUERY (docs <* 
+       SELF\product_definition_with_associated_documents.
+        documentation_ids |
+       docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
+  WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
+       adta.role\date_time_role.name = 'creation date')) + 
+       SIZEOF (QUERY (ada <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'APPLIED_DATE_ASSIGNMENT.ITEMS') |
+       ada.role\date_role.name = 'creation date')) = 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
+  WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'creator')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'creator')) >= 1;
+  WR5: SIZEOF (USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
+       SELF\requirement_definition))) = 0;
+  WR7: SIZEOF (QUERY (prpc <* USEDIN (SELF.formation.of_product,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +
+       'PRODUCTS') |
+       prpc\product_category.name = 'requirements model')) >= 1;
+END_ENTITY; -- requirement_definition
+
+RULE operational_requirement_occurrence_relationship_constraint FOR
+( property_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdr <* property_definition_relationship |
+       ((pdr\property_definition_relationship.name = 'and operation')
+        OR (pdr\property_definition_relationship.name = 'or operation'))
+       AND NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+        + 'REQUIREMENTS_PROPERTY' IN 
+                             TYPEOF(pdr.related_property_definition))
+       )) = 0;
+  WR2: SIZEOF(QUERY(pdr <* property_definition_relationship |
+       ((pdr\property_definition_relationship.name = 'and operation')
+        OR (pdr\property_definition_relationship.name = 'or operation'))
+       AND NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+        + 'REQUIREMENTS_PROPERTY' IN 
+                           TYPEOF(pdr.relating_property_definition))
+       )) = 0;
+END_RULE; -- operational_requirement_occurrence_relationship_constraint
+	
 END_SCHEMA;
 

@@ -8,5 +8,73 @@ SCHEMA Specification_document_mim;
 	USE FROM Characteristic_mim;
 	USE FROM Document_definition_mim;
 	USE FROM Person_organization_mim;
+	
+ENTITY document_identifier
+  SUBTYPE OF (group);
+UNIQUE
+  UR1: SELF\group.name, SELF\group.description;
+WHERE
+  WR1: SIZEOF (USEDIN(SELF,
+                     'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING.' +
+                     'DOCUMENT_IDENTIFIER_ASSIGNMENT')) > 0;
+END_ENTITY; -- document_identifier
+
+ENTITY document_identifier_assignment
+ SUBTYPE OF (group_assignment);
+   SELF\group_assignment.assigned_group : document_identifier;
+     items : SET [1:?] OF document_identifier_assigned_item;
+END_ENTITY; -- document_identifier_assignment
+
+ENTITY ee_specification 
+ SUBTYPE OF (document);
+WHERE
+  WR1: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'document source')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'document source')) >= 1;
+  WR2: SELF\document.kind\document_type.product_data_type IN 
+       ['assembly technology specification',
+       'design specification', 'fabrication technology specification',
+       'interface specification', 'language reference manual',
+       'lead form specification', 'material specification',
+       'reference document', 'source code',
+       'font registration document',
+       'process specification', 'surface finish specification',
+       'test specification'];
+END_ENTITY; -- ee_specification
+
+ENTITY structured_text_representation_context
+  SUBTYPE OF (representation_context);
+WHERE
+  WR1: SIZEOF (QUERY (rep <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REPRESENTATION.CONTEXT_OF_ITEMS') | NOT (
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN
+       TYPEOF (rep)))) = 0;
+END_ENTITY; -- structured_text_representation_context
+
+ENTITY structured_text_representation_item
+  SUBTYPE OF (representation, descriptive_representation_item);
+WHERE
+  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN
+       TYPEOF (rr.rep_1) ))<= 1;
+  WR2: SIZEOF (USEDIN (SELF, 
+        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) >= 1;
+  WR3: (SIZEOF (QUERY (it <* SELF\representation.items |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNALLY_DEFINED_REPRESENTATION_ITEM' IN 
+       TYPEOF (it))) = 1); 
+END_ENTITY; -- structured_text_representation_item
+	
 END_SCHEMA;
 

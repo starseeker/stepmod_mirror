@@ -1129,6 +1129,129 @@ WHERE
        'inter stratum extent')))) = 1;
 END_ENTITY; -- passage_technology
 
+ENTITY physical_network
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SIZEOF (QUERY (cr <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'connectivity requirement') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (cr.related_shape_aspect)) AND
+((cr.related_shape_aspect\shape_aspect.description = 
+     'component termination passage join terminal') OR
+(cr.related_shape_aspect\shape_aspect.description = 
+                              'land join terminal') OR
+(cr.related_shape_aspect\shape_aspect.description = 
+               'non functional land join terminal') OR
+(cr.related_shape_aspect\shape_aspect.description = 
+                 'printed component join terminal'))
+)) >= 2;
+  WR2: SIZEOF (QUERY (nt <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'network topology') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'JOIN_SHAPE_ASPECT' IN
+       TYPEOF (nt.related_shape_aspect))) >= 1;
+  WR3: SIZEOF (QUERY (nt <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'reference connected terminals') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PART_CONNECTED_TERMINALS_DEFINITION' IN
+       TYPEOF (nt.relating_shape_aspect))) <= 1;
+END_ENTITY; -- physical_network
+
+ENTITY plated_inter_stratum_feature
+  SUPERTYPE OF (ONEOF(plated_passage,plated_cutout_edge_segment, 
+ plated_interconnect_module_edge_segment))
+  SUBTYPE OF (inter_stratum_feature);
+WHERE
+  WR1: (SELF\shape_aspect.description IN ['bonded conductive base blind via', 
+        'buried via',
+       'component termination passage', 'interfacial connection', 
+       'non conductive base blind via', 
+       'join two physical connectivity definition supporting inter stratum feature', 
+       'plated conductive base blind via', 
+       'plated cutout', 'plated interconnect module edge']) OR 
+       (SIZEOF 
+       (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+	'PLATED_CUTOUT_EDGE_SEGMENT',
+	'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+	'PLATED_INTERCONNECT_MODULE_EDGE_SEGMENT'] * TYPEOF (SELF)) = 1 );
+  WR2: SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'join implementation') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'JOIN_SHAPE_ASPECT' IN
+       TYPEOF (ji.relating_shape_aspect)) AND
+       (ji.relating_shape_aspect\shape_aspect.name =
+       'inter stratum join'))) <= 1;
+END_ENTITY; -- plated_inter_stratum_feature
+
+ENTITY plated_passage 
+  SUBTYPE OF (plated_inter_stratum_feature);
+WHERE
+  WR1: SELF\shape_aspect.description IN ['bonded conductive base blind via', 
+       'buried via', 'component termination passage', 
+       'interfacial connection', 'non conductive base blind via',
+       'plated conductive base blind via'];
+  WR2: (NOT (SELF\shape_aspect.description = 'bonded conductive base blind via')) OR
+       (SIZEOF (QUERY (fj <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'features join') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM_CONCEPT_RELATIONSHIP' IN
+       TYPEOF (fj.relating_shape_aspect)) AND
+       (fj.relating_shape_aspect\shape_aspect.name =
+       'stratum feature conductive join'))) = 1);
+  WR3: (NOT (SELF\shape_aspect.description = 'component termination passage')) OR
+       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PART_TEMPLATE_DEFINITION' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description =
+       'component termination passage template'))) = 1);
+(*
+  WR4: (NOT (SELF\shape_aspect.description = 'component termination passage')) OR
+       (SIZEOF (QUERY (at <* associated_terminals(SELF) |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT' IN
+       TYPEOF (at)) AND
+       (at\shape_aspect.description =
+       'component termination passage interface terminal')))) >= 0);
+  WR5: (NOT (SELF\shape_aspect.description = 'component termination passage')) OR
+       (SIZEOF (QUERY (at <* associated_terminals(SELF)|
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (at)) AND
+       (at\shape_aspect.description =
+       'component termination passage join terminal')))) >= 1);
+*)
+  WR6: (NOT (SELF\shape_aspect.description IN
+       ['bonded conductive base blind via',
+       'buried via',
+       'interfacial connection',
+       'non conductive base blind via',
+       'plated conductive base blind via'])) OR
+       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PART_TEMPLATE_DEFINITION' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description =
+       'via template'))) = 1);
+END_ENTITY; -- plated_passage
+
 ENTITY probe_access_area
   SUBTYPE OF (component_shape_aspect);
 WHERE
@@ -1159,6 +1282,293 @@ WHERE
        'STRATUM_FEATURE' IN
        TYPEOF (i.relating_shape_aspect)))) = 1);
 END_ENTITY; -- probe_access_area
-	
+
+ENTITY stratum
+ SUBTYPE OF (product_definition);
+UNIQUE
+  UR1: SELF\product_definition.id, SELF\product_definition.formation;
+WHERE
+  WR1: EXISTS(SELF\product_definition.name);
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (tu <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'technology usage') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM_TECHNOLOGY' IN 
+       TYPEOF (tu.relating_property_definition.definition))) = 1)) = 1;
+  WR3: (SIZEOF (QUERY (ada <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       SIZEOF (QUERY (duc <* USEDIN (ada.assigned_document,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |
+       duc\document_usage_constraint.subject_element = 'attachment region size')) = 1)) <= 1) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (tu <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'stratum usage') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'EXTERNAL_DEFINITION' IN 
+       TYPEOF (tu.relating_property_definition))) = 1)) <= 1);
+  WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)) |
+       sr_pdr.used_representation\representation.name = '3d bound volume shape')) <= 1))) 
+       = 0;
+  WR5: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)) |
+       sr_pdr.used_representation\representation.name = 
+                  'planar projected shape')) <= 1))) = 0;
+  WR6: SIZEOF (QUERY (acu <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_COMPONENT_USAGE' IN
+       TYPEOF (pdr)) |
+       acu\product_definition_relationship.name = 'interconnect module stratum assembly relationship'
+       )) >= 1;
+  WR7: NOT(SELF\product_definition.name = 'design layer') OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (tu <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'technology usage') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM_TECHNOLOGY' IN 
+       TYPEOF (tu.relating_property_definition.definition)) AND
+       (tu.relating_property_definition.definition\characterized_object.description =
+       'design layer'))) = 1)) = 1);
+  WR8: NOT(SELF\product_definition.name = 'design layer') OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYER_CONNECTION_POINT' IN
+       TYPEOF (sa))) >= 1)) >= 1);
+  WR9: NOT(SELF\product_definition.name = 'documentation layer') OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (tu <* QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'technology usage') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM_TECHNOLOGY' IN 
+       TYPEOF (tu.relating_property_definition.definition)) AND
+       (tu.relating_property_definition.definition\characterized_object.description =
+       'documentation layer'))) = 1)) = 1);
+  WR10: NOT(SELF\product_definition.name = 'design layer') OR
+       ((NOT(SELF\product_definition.description = 'primary design layer stratum') OR 
+       (SIZEOF(QUERY(imps <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (sa <* USEDIN (imps,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       SIZEOF (QUERY (sar <* USEDIN (sa,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT' IN
+       TYPEOF (sar.relating_shape_aspect)) AND 
+        (sar.relating_shape_aspect\shape_aspect.description = 
+       'interconnect module primary surface'))) >= 0)) >= 0)) = 1)) OR 
+       (NOT (SELF\product_definition.description = 'non primary design layer stratum') OR
+       (SIZEOF(QUERY(imps <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (sa <* USEDIN (imps,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       SIZEOF(QUERY (sar <* USEDIN (sa,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT' IN
+       TYPEOF (sar.relating_shape_aspect)) AND
+        (sar.relating_shape_aspect\shape_aspect.description =
+       'interconnect module primary surface'))) >= 0)) >= 0)) = 0)));
+END_ENTITY; -- stratum	
+
+ENTITY stratum_concept_relationship
+  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'REQUIREMENTS_PROPERTY' IN
+       TYPEOF (pd))) >= 1; 
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (USEDIN (pd, 
+        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) = 1)) = 1;
+  WR3: (NOT (SELF\shape_aspect_relationship.name = 
+       'dielectric crossover area')) OR
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM_FEATURE' IN 
+       TYPEOF (SELF.relating_shape_aspect)) AND
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM_FEATURE' IN
+       TYPEOF (SELF.related_shape_aspect)));
+  WR4: (NOT (SELF\shape_aspect_relationship.name = 
+       'dielectric crossover area')) OR
+       (SIZEOF (QUERY (rdc <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'resulting dielectric crossover') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM_FEATURE' IN
+       TYPEOF (rdc.relating_shape_aspect)))) = 1);
+  WR5: (NOT (SELF\shape_aspect_relationship.name = 
+       'stratum feature conductive join')) OR
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND' IN 
+       TYPEOF (SELF.relating_shape_aspect)) OR
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (SELF.relating_shape_aspect)) AND
+       (SELF.relating_shape_aspect\shape_aspect.description = 
+       'stratum feature template component')));
+  WR6: (NOT (SELF\shape_aspect_relationship.name = 
+       'stratum feature conductive join')) OR
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAND' IN 
+       TYPEOF (SELF.related_shape_aspect)) OR
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (SELF.related_shape_aspect)) AND
+       (SELF.related_shape_aspect\shape_aspect.description = 
+       'stratum feature template component')));
+  WR7: (NOT (SELF\shape_aspect_relationship.name =
+       'stratum feature conductive join')) OR
+       (SIZEOF (QUERY (fj <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'features join') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PLATED_PASSAGE' IN
+       TYPEOF (fj.related_shape_aspect)) AND
+       (fj.related_shape_aspect\shape_aspect.description =
+       'bonded conductive base blind via'))) <= 1);
+  WR8: (NOT ((SELF\shape_aspect.description =
+       'physical network supporting stratum feature conductive join') AND
+       (SELF\shape_aspect_relationship.name =
+       'stratum feature conductive join'))) OR
+       (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'join implementation') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'JOIN_SHAPE_ASPECT' IN
+       TYPEOF (ji.relating_shape_aspect)) AND
+       (ji.relating_shape_aspect\shape_aspect.name =
+       'inter stratum join'))) = 1);
+END_ENTITY; -- stratum_concept_relationship
+
+ENTITY stratum_feature
+  SUPERTYPE OF (fiducial_stratum_feature)
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'STRATUM' IN
+       TYPEOF (SELF.of_shape.definition);
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'feature of size') AND
+       (it\descriptive_representation_item.description IN 
+             ['true', 'false']))) = 1)) = 1))) = 0;
+  WR3: (NOT(EXISTS(SELF\shape_aspect.description))) OR
+       (NOT (SELF\shape_aspect.description = 'conductor') OR
+       (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'join implementation') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'JOIN_SHAPE_ASPECT' IN
+       TYPEOF (ji.relating_shape_aspect)) AND
+       (ji.relating_shape_aspect\shape_aspect.name = 
+       'intra stratum join'))) = 1));
+  WR4: (NOT(EXISTS(SELF\shape_aspect.description))) OR
+       (NOT (SELF\shape_aspect.description = 'connected filled area') OR
+       (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'join implementation') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'JOIN_SHAPE_ASPECT' IN
+       TYPEOF (ji.relating_shape_aspect)) AND
+       (ji.relating_shape_aspect\shape_aspect.name = 
+       'intra stratum join'))) = 1));
+  WR5: (NOT(EXISTS(SELF\shape_aspect.description))) OR
+       (NOT (SELF\shape_aspect.description = 'conductor') OR
+       (SELF\shape_aspect.of_shape.definition.name = 'design layer'));
+  WR6: (NOT(EXISTS(SELF\shape_aspect.description))) OR
+       (NOT (SELF\shape_aspect.description = 'connected filled area') OR
+       (SELF\shape_aspect.of_shape.definition.name = 'design layer'));
+END_ENTITY; -- stratum_feature
+
+ENTITY stratum_specific_part_template_location_in_padstack_definition
+  SUBTYPE OF (assembly_component_usage, property_definition);
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\assembly_component_usage ||
+       SELF\product_definition_usage ||
+       SELF\product_definition_relationship ||
+       SELF\stratum_specific_part_template_location_in_padstack_definition || 
+       SELF\property_definition)) = 0;
+  WR2: SELF\property_definition.name = '';
+  WR3: SELF\property_definition.description = '';
+  WR4: SELF\product_definition_relationship.name = 'part template location in padstack definition';
+  WR5: SELF\product_definition_relationship.description = '';
+END_ENTITY; -- stratum_specific_part_template_location_in_padstack_definition
+
+ENTITY stratum_surface
+  SUBTYPE OF (shape_aspect);
+WHERE
+    WR1: SELF\shape_aspect.description IN ['primary surface',
+         'secondary surface', 'average surface']; 
+    WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'STRATUM' IN TYPEOF(SELF\shape_aspect.of_shape.definition);
+END_ENTITY; -- stratum_surface
+
+ENTITY thermal_isolation_component_shape_aspect
+  SUBTYPE OF (filled_area_material_removal_component_shape_aspect);
+END_ENTITY; -- thermal_isolation_component_shape_aspect
+
 END_SCHEMA;
 

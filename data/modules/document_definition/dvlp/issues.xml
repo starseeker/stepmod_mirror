@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.31 2003/02/24 10:09:27 robbod Exp $ -->
+<!-- $Id: issues.xml,v 1.1 2003/03/17 07:47:21 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="document_definition">
@@ -46,5 +46,51 @@ Comment - is a comment raised by someone about the issue
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <!-- +++++++++++++++++++   ISSUES                  ++++++++++++++ -->
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+  id="828"
+  type="mim"
+  linkend=""
+  category="major technical"
+  by="Pascal Huau"
+  date="2002/10/4"
+  seds="yes"
+  status="open">
+  <description>
+Add the following rule:
 
+The restrict_document_definition_category rule constrains every instance of 
+product_definition of type 'digital documentdefinition' or 'physical document 
+definition' to be a definition of a product of category 'document'.
+
+
+RULE restrict_document_definition_category FOR (product_definition);
+LOCAL
+  document_definitions: SET OF product_definition: := [];
+END_LOCAL;
+  document_definitions :=  QUERY( pd &lt;* product_definition | 
+  (pd.frame_of_reference.name IN ['digital document definition', 'physical document 
+definition']));
+WHERE
+WR1: SIZEOF( QUERY( pd &lt;* document_definitions | 
+(SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'PART_VIEW_DEFINITION_MIM.
+PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+  prpc.name IN ['document'] )) = 0 ) )) = 0;
+END_RULE;
+
+
+Add a Rules element in the mapping specification of Document_definition, referring 
+to restrict_document_definition_category
+
+
+   </description>
+
+<comment
+   by="Howard Mason" 
+   date="2002-11-15">
+<description>
+Closed 2002-10-04.  per HM e-mail of 2002-11-15.
+
+</description>
+</comment>
+ </issue>
 </issues>

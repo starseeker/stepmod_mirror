@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+     $Id: parameters.xsl,v 1.2 2003/04/11 23:34:37 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -53,5 +53,11 @@
   <!-- when YES issues will be read from the issues.xml file stored in the
        resource directory -->
   <xsl:param name="output_issues" select="'YES'"/>
+
+  <!-- when repository then accessing from repository xml 
+       when other, then accessing from ballot or publication build -->
+  <xsl:param name="view" select="'repository'"/>
+
+
 
 </xsl:stylesheet>

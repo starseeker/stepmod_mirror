@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_abstract.xsl,v 1.1 2003/03/27 15:36:12 thendrix Exp $
+$Id: sect_abstract.xsl,v 1.2 2004/01/28 23:37:07 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -40,6 +40,9 @@ $Id: sect_abstract.xsl,v 1.1 2003/03/27 15:36:12 thendrix Exp $
 
     <HTML>
       <HEAD>
+
+        <xsl:apply-templates select="$resource_xml" mode="meta_data"/>
+
       <TITLE>
         <!-- output the resource page title -->
         <xsl:apply-templates select="." mode="title">
@@ -88,6 +91,8 @@ $Id: sect_abstract.xsl,v 1.1 2003/03/27 15:36:12 thendrix Exp $
 
 
 </xsl:template>
+
+
 
 
 </xsl:stylesheet>

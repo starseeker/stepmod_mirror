@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.10 2003/08/24 22:10:35 thendrix Exp $
+$Id: common.xsl,v 1.11 2003/09/06 00:16:08 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2290,10 +2290,20 @@ is case sensitive.')"/>
     <xsl:param name="resdoc_root"/>
     <xsl:param name="resdoc_name"/>
     <small>
-      <xsl:apply-templates select="menuitem|menubreak|menuspace">
-        <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
-        <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
-    </xsl:apply-templates>
+      <xsl:choose>
+      <xsl:when test="$view='repository'" >
+        <xsl:apply-templates select="menuitem|menubreak|menuspace">
+          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
+          <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="menuitem|menubreak|menuspace">
+          <xsl:with-param name="resdoc_root" select="''"/>
+          <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
+        </xsl:apply-templates>
+      </xsl:otherwise>
+    </xsl:choose>
     </small>
   </xsl:template>
 
@@ -2313,7 +2323,7 @@ is case sensitive.')"/>
         <xsl:when test="@relative.url">
           <xsl:variable name="relurl">
             <xsl:choose>
-              <xsl:when test="starts-with(@relative.url,'..')">
+              <xsl:when test="starts-with(@relative.url,'..') and string-length($resdoc_root)> 0">
                 <xsl:value-of select="concat('/',@relative.url)"/>
               </xsl:when>
               <xsl:otherwise>
@@ -2324,7 +2334,13 @@ is case sensitive.')"/>
 
           <xsl:choose>
             <xsl:when test="contains($relurl,'.xml')">
-              <xsl:value-of 
+              <xsl:message >
+                resdoc_root:<xsl:value-of select="$resdoc_root"/>:resdoc_root                
+                view:<xsl:value-of select="$view"/>:view                
+              </xsl:message>
+
+ 
+             <xsl:value-of 
                 select="concat($resdoc_root,
                         substring-before($relurl,'.xml'),
                         $FILE_EXT,

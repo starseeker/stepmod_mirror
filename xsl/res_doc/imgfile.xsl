@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.12 2003/11/12 06:36:25 thendrix Exp $
+$Id: imgfile.xsl,v 1.13 2004/01/27 00:06:29 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -44,7 +44,6 @@ $Id: imgfile.xsl,v 1.12 2003/11/12 06:36:25 thendrix Exp $
 
 <xsl:template match="imgfile.content">
   
-
                  
   <!-- if a file is specified then might be able to deduce the figure title -->
   <xsl:variable name="fig_title">
@@ -76,6 +75,9 @@ $Id: imgfile.xsl,v 1.12 2003/11/12 06:36:25 thendrix Exp $
 
   <HTML>
     <HEAD>
+ 
+      <xsl:apply-templates select="$resdoc_xml/resource" mode="meta_data"/>
+
       <TITLE>
         <xsl:choose>
           <xsl:when test="@module">

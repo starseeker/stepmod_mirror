@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.13 2002/06/13 06:13:52 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.20 2002/07/30 10:44:41 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,7 +12,7 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.13"
+    version="1.20"
     source="../data/modules/person_organization/mim.exp"/>
 
   <schema name="Person_organization_mim">
@@ -37,29 +37,33 @@
       name="person_and_organization_address"
       supertypes="organizational_address personal_address">
       <explicit
-        name="SELF\personal_address.people">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="1"/>
-        <typename
-          name="person"/>
-      </explicit>
-      <explicit
-        name="SELF\organizational_address.organizations">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="1"/>
-        <typename
-          name="organization"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(pao &lt;* USEDIN (SELF\personal_address.people[1], 'PERSON_ORGANIZATION_MIM.PERSON_AND_ORGANIZATION.THE_PERSON') |    pao.the_organization :=: SELF\organizational_address.organizations[1])) = 1">
-      </where>
-    </entity>
+        name="people">
+        <redeclaration
+          entity-ref="personal_address"/>
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="1"/>
+          <typename
+            name="person"/>
+        </explicit>
+        <explicit
+          name="organizations">
+          <redeclaration
+            entity-ref="organizational_address"/>
+            <aggregate
+              type="SET"
+              lower="1"
+              upper="1"/>
+            <typename
+              name="organization"/>
+          </explicit>
+          <where
+            label="WR1"
+            expression="SIZEOF(QUERY(pao &lt;* USEDIN (SELF\personal_address.people[1], 'PERSON_ORGANIZATION_MIM.PERSON_AND_ORGANIZATION.THE_PERSON') |    pao.the_organization :=: SELF\organizational_address.organizations[1])) = 1">
+          </where>
+        </entity>
 
-  </schema>
+      </schema>
 
-</express>
+    </express>

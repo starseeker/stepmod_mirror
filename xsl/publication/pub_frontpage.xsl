@@ -14,7 +14,11 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   
   <xsl:import href="../file_ext.xsl"/>
 
-  <xsl:output method="html"/>
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
+    indent="yes"
+    />
 
   <xsl:template match="module">
     <xsl:variable name="new_page" select="concat('data/modules/',@name,'/sys/cover',$FILE_EXT)"/>
@@ -68,6 +72,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
               <xsl:value-of select="concat('0; URL=',$new_page)"/>
             </xsl:attribute>
           </xsl:element>
+          <title></title>
       </head>
       <body>
         <xsl:value-of select="concat('You will be redirected to ',$new_page,' in 0 seconds')"/><br/>

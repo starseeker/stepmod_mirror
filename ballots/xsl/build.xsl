@@ -82,7 +82,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
 
-
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMODSTYLES</xsl:attribute>
           <xsl:attribute name="value">xsl</xsl:attribute>
@@ -141,6 +140,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${DSTAMP}'"/>
           </xsl:attribute>
         </xsl:element>
+
   
         <xsl:element name="property">
           <xsl:attribute name="name">EXPRESS</xsl:attribute>
@@ -954,6 +954,83 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:attribute>
       </xsl:element>
     </target>
+
+
+    <target name="validhtml" depends="variables" description="validate html">
+      <property name="HTMLDTDCAT" value="../../../etc/html/dtds/HTML4.cat"/>
+      <property name="HTMLVALID" value="&quot;C:/sp1.3.4/bin/nsgmls.exe&quot;"/>   
+      <property name="HTMLNAME" value="&quot;*.htm&quot;" />
+      <xsl:element name="property">
+        <xsl:attribute name="name">HTMLVALIDERR</xsl:attribute>
+        <xsl:attribute name="value">${BALLOTDIR}/<xsl:value-of select="concat(@name,'-${DSTAMP}')"/>-html-valid-errors.txt</xsl:attribute>
+      </xsl:element>
+
+      <echo>Validating HTML ISODIR ${ISODIR}</echo> 
+      <echo> HTMLVALID ${HTMLVALID}</echo>
+      <echo> HTMLDTDCAT ${HTMLDTDCAT}</echo>
+      <echo> HTMLVALIDERR ${HTMLVALIDERR}</echo>
+
+        <xsl:element name="exec">
+          <xsl:attribute name="executable">c:/cygwin/bin/find</xsl:attribute>
+          <xsl:attribute name="dir">${ISODIR}</xsl:attribute>
+
+          <xsl:attribute name="output">${HTMLVALIDERR}</xsl:attribute>
+          <!-- this works interactively in bash 
+/bin/find . -name "*.htm" -exec "c:/sp1.3.4/bin/nsgmls" -c"C:/Documents and Settings/thendrix/My Documents/Repository/my_dtds/html4/html4.cat"  -s  {} \; 
+-->
+<!-- quotes dont escape blanks
+-->
+
+          <xsl:element name="arg">
+            <xsl:attribute name="value">.</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">-name</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${HTMLNAME}</xsl:attribute>
+          </xsl:element>
+               <xsl:element name="arg">
+                 <xsl:attribute name="value">-exec</xsl:attribute>
+               </xsl:element> 
+               <!--
+          <xsl:element name="arg">
+            <xsl:attribute name="value">-ls</xsl:attribute>
+          </xsl:element>
+          -->
+               <xsl:element name="arg">
+                 <xsl:attribute name="value">${HTMLVALID}</xsl:attribute>
+               </xsl:element>
+               <xsl:element name="arg">
+            <xsl:attribute name="value">-c${HTMLDTDCAT}</xsl:attribute>
+          </xsl:element>
+          
+          <xsl:element name="arg">
+            <xsl:attribute name="value">-s</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">&#x7B;&#x7D;</xsl:attribute>
+          </xsl:element>
+<!-- must escape semicolon with quotes rather than slash,  could try with bash as exec
+utable as in buildscript -->
+          <xsl:element name="arg">
+            <xsl:attribute name="value">&quot;&#x3B;&quot;</xsl:attribute>
+          </xsl:element>
+	</xsl:element>
+
+
+        <xsl:text>
+        </xsl:text>
+
+<!--
+        <xsl:element name="fixcrlf">
+          <xsl:attribute name="srcdir">${CHECKDIR}</xsl:attribute>
+          <xsl:attribute name="includes">*.txt, **/*.exp</xsl:attribute>
+        </xsl:element>
+-->
+      </target>
+
+
 
     <xsl:text>
     </xsl:text>
@@ -4694,7 +4771,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
  <xsl:template name="check_resdoc_exists">
     <xsl:param name="resdoc"/>
-
     <xsl:variable name="ret_val">
         <xsl:choose>
           <xsl:when
@@ -4711,17 +4787,4 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:value-of select="$ret_val"/>
   </xsl:template>
 
-
 </xsl:stylesheet>
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1046,6 +1046,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       </xsl:attribute>
     </xsl:element>
         
+
     <xsl:element name="property">
       <xsl:attribute name="name">RESDOCMAINXML</xsl:attribute>
       <xsl:attribute name="value">
@@ -1055,7 +1056,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
-    
+
     <xsl:element name="property">
       <xsl:attribute name="name">RESDOCSCHEMAXML</xsl:attribute>
       <xsl:attribute name="value">
@@ -4029,6 +4030,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
       </xsl:element>
       
+      <!--
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCMAINXML}'"/>
@@ -4038,7 +4040,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:attribute>
         <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
       </xsl:element>
-      
+      -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${RESDOCASHORTNAMESXML}'"/>

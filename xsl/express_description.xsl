@@ -117,7 +117,7 @@
     <xsl:if test="contains($UPPER,$ent_start_char) and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
 
 
-      <xsl:if test="not($description/b/text())">
+      <xsl:if test="not($description/b/text()) and not($description/express_ref)">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
@@ -129,7 +129,7 @@
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent2: check that description starts with is ', $description/@linkend)"/>
+            select="concat('Warning Ent2: check that description starts with is or represents ', $description/@linkend)"/>
         </xsl:call-template>        
       </xsl:if>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.18 2003/07/04 20:39:26 nigelshaw Exp $
+$Id: select_view.xsl,v 1.19 2003/07/28 07:29:58 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -378,6 +378,7 @@ $Id: select_view.xsl,v 1.18 2003/07/04 20:39:26 nigelshaw Exp $
 				<xsl:when test="$this-schema//type[select][@name= $this-type/@name]" >
 
 			<!-- note this will only deal with one layer of extension of the select type in the top schema -->
+
 					<xsl:variable name="extensions" >
 						<xsl:value-of select="concat(' ',
 						  $this-schema//type[@name=$this-type-name]/select/@selectitems,' ')" />
@@ -403,9 +404,18 @@ $Id: select_view.xsl,v 1.18 2003/07/04 20:39:26 nigelshaw Exp $
 						</xsl:call-template>
 					</xsl:variable>
 
+<!-- filter out any non entity names from the list -->
+
+					<xsl:variable name="not-found-assertions2" >
+						<xsl:call-template name="filter-found-assertions" >
+							<xsl:with-param name="list" select="$not-found-assertions" />
+							<xsl:with-param name="called-schemas" select="$this-schema | $called-schemas" />						     </xsl:call-template>
+					</xsl:variable>
+
+
 <!--		FFFF<xsl:value-of select="concat($extensions,' XX ',$the-assertions-mapped,' YY ',$this-type-name)" />FFFF<br/> -->
 
-					<xsl:if test="string-length($not-found-assertions) > 3" >
+					<xsl:if test="string-length($not-found-assertions2) > 3" >
 		        			<xsl:call-template name="error_message">
 						  <xsl:with-param name="inline" select="'yes'"/>
 						  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -413,7 +423,7 @@ $Id: select_view.xsl,v 1.18 2003/07/04 20:39:26 nigelshaw Exp $
 				        	    name="message" 
 				        	    select="concat('Error Sel8: Mapping not defined in this module for ',
 					    		../@name,'.',@name,
-							    ' for SELECT items: ',$not-found-assertions)"/>
+							    ' for SELECT items: ',$not-found-assertions2)"/>
 				        	</xsl:call-template>    
 	
 				<br/>
@@ -426,7 +436,7 @@ $Id: select_view.xsl,v 1.18 2003/07/04 20:39:26 nigelshaw Exp $
 				  &gt;
 				  <br/>
 				<xsl:call-template name="select-attribute-mappings" >
-					<xsl:with-param name="select-items" select="$not-found-assertions" />
+					<xsl:with-param name="select-items" select="$not-found-assertions2" />
 					<xsl:with-param name="this-attribute" select="@name" />
 					<xsl:with-param name="this-entity" select="../@name" />
 					<xsl:with-param name="this-module" select="//stylesheet_application[1]/@directory" />
@@ -1198,5 +1208,29 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 	</xsl:if>
 
 </xsl:template>
+
+<xsl:template name="filter-found-assertions" >
+	<xsl:param name="list"  />
+	<xsl:param name="called-schemas" />
+
+	<!-- get first item in list -->
+
+	<xsl:variable name="first" select="substring-before(concat(normalize-space($list),' '),' ')" />
+	<xsl:variable name="rest" select="substring-after($list,$first)" />
+
+	<xsl:if test="$first" >
+
+		<xsl:if test="$called-schemas//entity[@name='$first']" >
+			<xsl:value-of select="concat(' ',$first,' ')" />
+		</xsl:if>
+
+		<xsl:call-template name="filter-found-assertions">
+			<xsl:with-param name="list" select="$rest" />
+			<xsl:with-param name="called-schemas" select="$called-schemas"/>
+		</xsl:call-template>
+
+	</xsl:if>
+</xsl:template>
+
 
 </xsl:stylesheet>

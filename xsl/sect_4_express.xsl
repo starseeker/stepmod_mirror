@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.115 2004/08/31 10:59:16 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.116 2004/08/31 11:04:30 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1051,10 +1051,10 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <!-- only output <p> if description starts with text, otherwsie
+        <!-- only output <p> if description starts with text, otherwise
              assume that the description sarts with <p> -->
         <xsl:choose>          
-          <xsl:when test="string-length(./description/text())=0">
+          <xsl:when test="string-length(normalize-space(./description/text()))=0">
             <xsl:apply-templates select="./description" mode="exp_description"/>
           </xsl:when>
           <xsl:otherwise>
@@ -1476,10 +1476,10 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   <!-- output description from express -->
   <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <!-- only output <p> if description starts with text, otherwsie
+        <!-- only output <p> if description starts with text, otherwise
              assume that the description sarts with <p> -->
         <xsl:choose>
-          <xsl:when test="string-length(./description/text())=0">
+          <xsl:when test="string-length(normalize-space(./description/text()))=0">
             <xsl:apply-templates select="./description" mode="exp_description"/>
           </xsl:when>
           <xsl:otherwise>

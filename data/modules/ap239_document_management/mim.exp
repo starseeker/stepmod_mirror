@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.2 2003/01/08 12:01:25 robbod Exp $
+   $Id: mim.exp,v 1.3 2003/01/15 09:55:49 robbod Exp $
    ISO TC184/SC4/WG12 N1720 - ISO/CD-TS 10303-1297 Ap239 document management - EXPRESS MIM
 *) 
 
@@ -7,7 +7,16 @@ SCHEMA Ap239_document_management_mim;
 
 USE FROM Ap239_management_resource_information_mim;    -- ISO/CD-TS 10303-1289
 
-USE FROM basic_attribute_schema;    -- ISO 10303-41
+USE FROM basic_attribute_schema   -- ISO 10303-41
+  (object_role); 
+
+USE FROM certification_schema   -- ISO 10303-41
+  (certification); 
+
+USE FROM Contract_mim;    -- ISO/TS 10303-1062
+
+USE FROM contract_schema   -- ISO 10303-41
+  (contract); 
 
 USE FROM Document_and_version_identification_mim;    -- ISO/TS 10303-1121
 
@@ -19,21 +28,55 @@ USE FROM Document_management_mim;    -- ISO/CD-TS 10303-1290
 
 USE FROM Document_properties_mim;    -- ISO/TS 10303-1126
 
-USE FROM document_schema;    -- ISO 10303-41
+USE FROM document_schema   -- ISO 10303-41
+  (document_relationship,
+   document_type); 
 
 USE FROM Document_structure_mim;    -- ISO/TS 10303-1124
+
+USE FROM Envelope_mim;    -- ISO/CD-TS 10303-1265
 
 USE FROM External_item_identification_assignment_mim;    -- ISO/TS 10303-1128
 
 USE FROM File_identification_mim;    -- ISO/TS 10303-1127
 
-USE FROM management_resources_schema;    -- ISO 10303-41
+USE FROM Identification_assignment_mim   -- ISO/TS 10303-1021
+  (applied_identification_assignment); 
 
-USE FROM product_definition_schema;    -- ISO 10303-41
+USE FROM Information_rights_mim;    -- ISO/CD-TS 10303-1241
 
-USE FROM qualified_measure_schema;    -- ISO 10303-45
+USE FROM management_resources_schema   -- ISO 10303-41
+  (document_usage_role,
+   identification_role,
+   mri_attribute_language_item,
+   mri_multi_language_attribute_item); 
 
-USE FROM representation_schema;    -- ISO 10303-43
+USE FROM Message_mim;    -- ISO/CD-TS 10303-1270
+
+USE FROM person_organization_schema   -- ISO 10303-41
+  (organization,
+   person); 
+
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product,
+   product_definition,
+   product_definition_formation,
+   product_definition_relationship); 
+
+USE FROM qualified_measure_schema   -- ISO 10303-45
+  (descriptive_representation_item,
+   measure_representation_item); 
+
+USE FROM representation_schema   -- ISO 10303-43
+  (representation); 
+
+USE FROM State_definition_mim;    -- ISO/CD-TS 10303-1255
+
+USE FROM State_observed_mim;    -- ISO/CD-TS 10303-1256
+
+USE FROM state_observed_schema;    -- ISO 10303-56
+
+USE FROM state_type_schema; 
 
 
 TYPE ap239_dm_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ap239_mri_attribute_classification_item WITH 
@@ -41,23 +84,97 @@ TYPE ap239_dm_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT B
     document_relationship, 
     document_type, 
     document_usage_role, 
+    envelope, 
+    envelope_relationship, 
     identification_role, 
+    information_right, 
+    information_usage_right, 
     measure_representation_item, 
+    message_relationship, 
     object_role, 
     product_definition_relationship, 
-    representation);
+    representation, 
+    structured_message, 
+    usage_association);
+END_TYPE; 
+
+TYPE ap239_dm_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON mri_attribute_language_item WITH 
+   (envelope, 
+    envelope_relationship, 
+    information_right, 
+    information_usage_right, 
+    message_relationship, 
+    structured_message);
 END_TYPE; 
 
 TYPE ap239_dm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ap239_mri_classification_item WITH 
    (applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_external_identification_assignment, 
+    applied_usage_right, 
     descriptive_representation_item, 
     document_file, 
     document_relationship, 
+    envelope, 
+    envelope_relationship, 
+    information_right, 
+    information_usage_right, 
     measure_representation_item, 
+    message_relationship, 
+    product, 
+    product_definition, 
     product_definition_relationship, 
-    representation);
+    representation, 
+    structured_message);
+END_TYPE; 
+
+TYPE ap239_dm_contents_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contents_item WITH 
+   (document_file, 
+    product, 
+    product_definition, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE ap239_dm_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH 
+   (structured_message);
+END_TYPE; 
+
+TYPE ap239_dm_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+   (applied_identification_assignment, 
+    certification, 
+    contract, 
+    organization, 
+    person);
+END_TYPE; 
+
+TYPE ap239_dm_ir_usage_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usage_item WITH 
+   (document_file, 
+    document_relationship, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    product_definition_relationship);
+END_TYPE; 
+
+TYPE ap239_dm_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_of_item WITH 
+   (product, 
+    product_definition, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE ap239_dm_state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_type_of_item WITH 
+   (product, 
+    product_definition, 
+    product_definition_formation);
+END_TYPE; 
+
+TYPE ap239_dmi_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON mri_multi_language_attribute_item WITH 
+   (envelope, 
+    envelope_relationship, 
+    information_right, 
+    information_usage_right, 
+    message_relationship, 
+    structured_message);
 END_TYPE; 
 
 END_SCHEMA;  -- Ap239_document_management_mim

@@ -1,16 +1,88 @@
-(* N	ISO/CD-TS 10303-	Extended measure representation	Express MIM *)
-
+(*  $Id: $ *) 
 SCHEMA Extended_measure_representation_mim;
 
 USE FROM Measure_representation_mim;
 
-USE FROM representation_schema(
-	compound_representation_item,
-	list_representation_item);
+USE FROM qualified_measure_schema
+(precision_qualifier,
+ qualified_representation_item);
 
-USE FROM qualified_measure_schema(
-      precision_qualifier,
-	qualified_representation_item,
-	type_qualifier);
+USE FROM representation_schema
+(compound_representation_item,
+ list_representation_item);
+
+USE FROM shape_tolerance_schema
+(limits_and_fits,
+ plus_minus_tolerance,
+ tolerance_value);
+
+USE FROM Value_with_unit_mim;
+
+ENTITY value_range
+SUBTYPE OF (compound_representation_item);
+WHERE
+  WR1: ( 'value_with_unit_mim.'+ 'SET_REPRESENTATION_ITEM' IN
+     TYPEOF ( item_element ) ) AND value_range_wr1 (
+     item_element );
+  WR2: value_range_wr2 ( item_element );
+  WR3: value_range_wr3 ( item_element );
+END_ENTITY;
+
+FUNCTION value_range_wr1(
+     agg: AGGREGATE OF representation_item): BOOLEAN;
+  BEGIN
+    IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY ( i1 <* agg | (
+    'value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
+    (i1)) ))
+    = 2) OR (SIZEOF(QUERY ( i2 <* agg | (
+    'value_with_unit_mim.VALUE_REPRESENTATION_ITEM' IN TYPEOF
+    (i2)) ))
+    = 2)) THEN
+      RETURN(TRUE);
+    ELSE
+      RETURN(FALSE);
+    END_IF;
+  END;
+END_FUNCTION;
+
+   
+FUNCTION value_range_wr2(
+      agg: AGGREGATE OF representation_item): BOOLEAN;
+  BEGIN
+    IF (SIZEOF(QUERY ( i <* agg | (i.name = 'upper limit')
+        )) = 1)
+    AND (SIZEOF(QUERY ( i <* agg | (i.name = 'lower limit')
+         )) = 1)
+     THEN
+      RETURN(TRUE);
+    ELSE
+      RETURN(FALSE);
+    END_IF;
+  END;
+END_FUNCTION;
+
+   
+FUNCTION value_range_wr3(
+    agg: AGGREGATE OF representation_item): BOOLEAN;
+  BEGIN
+    IF (SIZEOF(QUERY ( i <* agg | (
+    'value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' IN 
+    TYPEOF(i)) ))
+    <> 2) OR (SIZEOF(QUERY ( i1 <* agg | 
+     ('value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' 
+     IN TYPEOF (i1))
+     AND
+     (SIZEOF(QUERY ( i2 <* agg
+     | ((i1\measure_with_unit.unit_component
+    :=: i2\measure_with_unit.unit_component) OR
+     (i1\measure_with_unit.unit_component :=:
+     i2\measure_with_unit.unit_component)) ))
+    = 2) )) = 2) THEN
+      RETURN(TRUE);
+    ELSE
+      RETURN(FALSE);
+    END_IF;
+  END;
+END_FUNCTION;
 
 END_SCHEMA;

@@ -1,0 +1,41 @@
+(*
+$ID: $
+ISO TC184/SC4/WG12 N1430 - ISO/CD-TS 10303-1254 Condition evaluation - EXPRESS ARM
+*) 
+
+
+SCHEMA Condition_evaluation_arm; 
+
+USE FROM Condition_arm;    -- ISO/CD-TS 10303-1253
+
+USE FROM Condition_criteria_arm;    -- ISO/CD-TS 10303-1296
+
+USE FROM Expression_applications_arm;    -- ISO/CD-TS 10303-1273
+
+
+ENTITY Condition_assertion
+  SUBTYPE OF (Evaluation_record);
+  SELF\Value_record.value_recorded RENAMED assertion : Logical_assertion;
+  SELF\Value_record.expression_evaluated RENAMED condition : Condition;
+  SELF\Value_record.context RENAMED object_evaluated : OPTIONAL Entity_instance_reference;
+END_ENTITY;
+
+ENTITY Criterion_evaluation_result
+  SUBTYPE OF (Evaluation_record);
+  SELF\Value_record.expression_evaluated RENAMED criterion : Criterion;
+  SELF\Value_record.value_recorded RENAMED evaluation_result : Logical_assertion;
+END_ENTITY;
+
+ENTITY Evaluation_record
+  SUPERTYPE OF (ONEOF (Condition_assertion,
+                       Criterion_evaluation_result,
+                       Parameter_value))
+  SUBTYPE OF (Value_record);
+END_ENTITY;
+
+ENTITY Parameter_value
+  SUBTYPE OF (Evaluation_record);
+  SELF\Value_record.expression_evaluated RENAMED parameter : Criterion;
+END_ENTITY;
+
+END_SCHEMA;  -- Condition_evaluation_arm

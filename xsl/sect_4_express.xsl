@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.40 2002/06/05 07:46:47 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.41 2002/06/06 06:33:41 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -691,12 +691,8 @@ select="document($module_file)/module/arm/express-g/imgfile">
         <xsl:with-param name="clause" select="'section'"/>
       </xsl:call-template>  
   </xsl:if>
-  <!-- need to check for NULL as some XML outputs attribute as null of not
-       known -->
   <xsl:if test="@selectitems and 
-                (string-length(@selectitems)!=0) and
-                (@selectitems != 'null') and
-                (@selectitems != 'NULL')">
+                (string-length(@selectitems)!=0)">
     <xsl:if test="@basedon">
       WITH 
     </xsl:if>

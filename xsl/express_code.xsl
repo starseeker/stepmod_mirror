@@ -298,10 +298,10 @@
         <xsl:with-param name="clause" select="'annexe'"/>
       </xsl:call-template>  
   </xsl:if>
+  <!-- need to check for NULL as some XML outputs attribute as null of not
+       known -->
   <xsl:if test="@selectitems and 
-                (string-length(@selectitems)!=0) and
-                (@selectitems != 'null') and
-                (@selectitems != 'NULL')">
+                (string-length(@selectitems)!=0)">
     <xsl:if test="@basedon">
       WITH 
     </xsl:if>

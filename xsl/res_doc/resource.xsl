@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.45 2004/11/06 00:17:28 thendrix Exp $
+$Id: resource.xsl,v 1.46 2004/11/06 20:36:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -611,7 +611,8 @@ o=isocs; s=central<br/>
         <xsl:value-of select="$resdoc_name"/>.
       </P>
       <P>
-        The following are within the scope of this part of ISO 10303:
+        The following are within the scope of 
+        <xsl:value-of select="$resdoc_stdnumber"/>:
       </P>
 
       <UL>

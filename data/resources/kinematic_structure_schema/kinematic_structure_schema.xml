@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.10 2002/06/04 08:24:21 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,7 +12,7 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.10"
+    version="1.17"
     source="../data/resources/kinematic_structure_schema/kinematic_structure_schema.exp"/>
 
   <schema name="kinematic_structure_schema">
@@ -257,1547 +257,1617 @@
           name="mechanism"/>
       </explicit>
       <explicit
-        name="SELF\representation_relationship_with_transformation.">
-        <typename
-          name="cartesian_transformation_operator_3d"/>
-      </explicit>
-      <derived
-        name="SELF\representation_relationship.rep_2"
-        expression="representation_of_link (base_of_mechanism.base)">
-        <typename
-          name="kinematic_link_representation"/>
-      </derived>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="base_of_mechanism"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_1))       OR       ('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_1))">
-      </where>
-      <where
-        label="WR2"
-        expression="suitably_based_mechanism (SELF, base_of_mechanism)">
-      </where>
-      <where
-        label="WR3"
-        expression="SELF\representation_relationship_with_transformation.         transformation_operator IN       SELF\representation_relationship.rep_1.items">
-      </where>
-    </entity>
-
-    <entity
-      name="initial_state">
-      <explicit
-        name="applies_to_mechanism">
-        <typename
-          name="mechanism"/>
-      </explicit>
-      <explicit
-        name="pair_values">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="pair_value"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (joint &lt;* applies_to_mechanism.structure_definition.joints |               SIZEOF (QUERY (init_val &lt;* pair_values |                       init_val.applies_to_pair.joint :=: joint)) &lt;&gt; 1)) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_structure">
-      <explicit
-        name="joints">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="kinematic_joint"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="kinematic_joint">
-      <explicit
-        name="first_link">
-        <typename
-          name="kinematic_link"/>
-      </explicit>
-      <explicit
-        name="second_link">
-        <typename
-          name="kinematic_link"/>
-      </explicit>
-      <inverse
-        name="structure"
-        entity="kinematic_structure"
-        attribute="joints">
-      </inverse>
-      <where
-        label="WR1"
-        expression="first_link :&lt;&gt;: second_link">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_link">
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF,                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.FIRST_LINK') +               USEDIN (SELF,                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.SECOND_LINK')) &gt; 0">
-      </where>
-      <where
-        label="WR2"
-        expression="unique_link_usage (SELF)">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_link_representation_relation">
-      <explicit
-        name="topological_aspects">
-        <typename
-          name="kinematic_link"/>
-      </explicit>
-      <explicit
-        name="geometric_aspects">
-        <typename
-          name="kinematic_link_representation"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="topological_aspects"/>
-      </unique>
-    </entity>
-
-    <entity
-      name="kinematic_link_representation"
-      supertypes="representation">
-      <explicit
-        name="SELF\representation.context_of_items">
-        <typename
-          name="geometric_representation_context"/>
-      </explicit>
-      <derived
-        name="link_frame"
-        expression="SELF\representation.context_of_items">
-        <typename
-          name="geometric_representation_context"/>
-      </derived>
-      <inverse
-        name="link_representation_relation"
-        entity="kinematic_link_representation_relation"
-        attribute="geometric_aspects">
-      </inverse>
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |               NOT (('KINEMATIC_STRUCTURE_SCHEMA.RIGID_PLACEMENT' IN                      TYPEOF (item))                    OR ('GEOMETRY_SCHEMA.CARTESIAN_TRANSFORMATION_OPERATOR_3D' IN                      TYPEOF (item))) )) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_link_representation_association"
-      supertypes="representation_relationship">
-      <explicit
-        name="SELF\representation_relationship.rep_1">
-        <typename
-          name="kinematic_link_representation"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\representation_relationship.rep_2.context_of_items :=:       SELF\representation_relationship.rep_1\representation.context_of_items">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (['KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION',                'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION'] *               TYPEOF (SELF\representation_relationship.rep_2)) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_frame_background_representation"
-      supertypes="representation">
-      <explicit
-        name="SELF\representation.items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="kinematic_frame_background"/>
-      </explicit>
-      <explicit
-        name="SELF\representation.context_of_items">
-        <typename
-          name="geometric_representation_context"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\representation.context_of_items\         geometric_representation_context.coordinate_space_dimension = 3">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_frame_based_transformation"
-      supertypes="geometric_representation_item functionally_defined_transformation">
-      <explicit
-        name="transformator">
-        <typename
-          name="rigid_placement"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\geometric_representation_item.dim=3">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_frame_background_representation_association"
-      supertypes="representation_relationship_with_transformation">
-      <explicit
-        name="SELF\representation_relationship_with_transformation.">
-        <typename
-          name="kinematic_frame_based_transformation"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_1)">
-      </where>
-      <where
-        label="WR2"
-        expression="'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_FRAME_BACKGROUND_REPRESENTATION'         IN TYPEOF (SELF\representation_relationship.rep_2)">
-      </where>
-      <where
-        label="WR3"
-        expression="SELF\representation_relationship_with_transformation.           transformation_operator\kinematic_frame_based_transformation.           transformator IN         SELF\representation_relationship.rep_1.items">
-      </where>
-    </entity>
-
-    <entity
-      name="su_parameters"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="a">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="alpha">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <explicit
-        name="b">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="beta">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <explicit
-        name="c">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="gamma">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\geometric_representation_item.dim=3">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_pair"
-      supertypes="item_defined_transformation">
-      <explicit
-        name="joint">
-        <typename
-          name="kinematic_joint"/>
-      </explicit>
-      <derived
-        name="pair_placement_in_first_link_context"
-        expression="SELF\item_defined_transformation.transform_item_1">
-        <typename
-          name="rigid_placement"/>
-      </derived>
-      <derived
-        name="pair_placement_in_second_link_context"
-        expression="SELF\item_defined_transformation.transform_item_2">
-        <typename
-          name="rigid_placement"/>
-      </derived>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="joint"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="coordinated_pair_link_representation         (joint.first_link, pair_placement_in_first_link_context)">
-      </where>
-      <where
-        label="WR2"
-        expression="coordinated_pair_link_representation         (joint.second_link, pair_placement_in_second_link_context)">
-      </where>
-    </entity>
-
-    <entity
-      name="pair_actuator">
-      <explicit
-        name="actuated_pair">
-        <typename
-          name="kinematic_pair"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="actuated_pair"/>
-      </unique>
-    </entity>
-
-    <entity
-      name="pair_value">
-      <explicit
-        name="applies_to_pair">
-        <typename
-          name="kinematic_pair"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="simple_pair_range">
-      <explicit
-        name="applies_to_pair">
-        <typename
-          name="kinematic_pair"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="revolute_pair"
-      supertypes="kinematic_pair">
-    </entity>
-
-    <entity
-      name="revolute_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="revolute_pair"/>
-      </explicit>
-      <explicit
-        name="actual_rotation">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="revolute_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="revolute_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
-      </where>
-    </entity>
-
-    <entity
-      name="prismatic_pair"
-      supertypes="kinematic_pair">
-    </entity>
-
-    <entity
-      name="prismatic_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="prismatic_pair"/>
-      </explicit>
-      <explicit
-        name="actual_translation">
-        <typename
-          name="length_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="prismatic_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="prismatic_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_translation">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_translation">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_translation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_translation)))       XOR       (lower_limit_actual_translation &lt; upper_limit_actual_translation)">
-      </where>
-    </entity>
-
-    <entity
-      name="screw_pair"
-      supertypes="kinematic_pair">
-      <explicit
-        name="pitch">
-        <typename
-          name="length_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="screw_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="screw_pair"/>
-      </explicit>
-      <explicit
-        name="actual_rotation">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <derived
-        name="actual_translation"
-        expression="SELF\pair_value.applies_to_pair\                                     screw_pair.pitch *                                     plane_angle_for_pair_in_radian                                      (SELF\pair_value.applies_to_pair,                                       actual_rotation) / (2 * PI)">
-        <typename
-          name="length_measure"/>
-      </derived>
-    </entity>
-
-    <entity
-      name="screw_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="screw_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
-      </where>
-    </entity>
-
-    <entity
-      name="cylindrical_pair"
-      supertypes="kinematic_pair">
-    </entity>
-
-    <entity
-      name="cylindrical_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="cylindrical_pair"/>
-      </explicit>
-      <explicit
-        name="actual_translation">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="actual_rotation">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="cylindrical_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="cylindrical_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_translation">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_translation">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_translation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_translation)))       XOR       (lower_limit_actual_translation &lt; upper_limit_actual_translation)">
-      </where>
-      <where
-        label="WR2"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
-      </where>
-    </entity>
-
-    <entity
-      name="spherical_pair"
-      supertypes="kinematic_pair">
-    </entity>
-
-    <entity
-      name="spherical_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="spherical_pair"/>
-      </explicit>
-      <explicit
-        name="input_orientation">
-        <typename
-          name="spatial_rotation"/>
-      </explicit>
-      <derived
-        name="actual_orientation"
-        expression="convert_spatial_to_ypr_rotation                                     (SELF\pair_value.applies_to_pair,                                      input_orientation)">
-        <typename
-          name="ypr_rotation"/>
-      </derived>
-    </entity>
-
-    <entity
-      name="spherical_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="spherical_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_yaw">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_yaw">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_pitch">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_pitch">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_roll">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_roll">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_yaw))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_yaw)))       XOR       (lower_limit_yaw &lt; upper_limit_yaw)">
-      </where>
-      <where
-        label="WR2"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_pitch))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_pitch)))       XOR       (lower_limit_pitch &lt; upper_limit_pitch)">
-      </where>
-      <where
-        label="WR3"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_roll))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_roll)))       XOR       (lower_limit_roll &lt; upper_limit_roll)">
-      </where>
-    </entity>
-
-    <entity
-      name="universal_pair"
-      supertypes="kinematic_pair">
-      <explicit
-        name="input_skew_angle"
-        optional="YES">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <derived
-        name="skew_angle"
-        expression="NVL (input_skew_angle, 0.0)">
-        <typename
-          name="plane_angle_measure"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="COS (plane_angle_for_pair_in_radian (SELF, skew_angle))       &gt; 0.0">
-      </where>
-    </entity>
-
-    <entity
-      name="universal_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="universal_pair"/>
-      </explicit>
-      <explicit
-        name="first_rotation_angle">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <explicit
-        name="second_rotation_angle">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="universal_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="universal_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_first_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_first_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_second_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_second_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_first_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_first_rotation)))       XOR       (lower_limit_first_rotation &lt; upper_limit_first_rotation)">
-      </where>
-      <where
-        label="WR2"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_second_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_second_rotation)))       XOR       (lower_limit_second_rotation &lt; upper_limit_second_rotation)">
-      </where>
-    </entity>
-
-    <entity
-      name="planar_pair"
-      supertypes="kinematic_pair">
-    </entity>
-
-    <entity
-      name="planar_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="planar_pair"/>
-      </explicit>
-      <explicit
-        name="actual_rotation">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <explicit
-        name="actual_translation_x">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="actual_translation_y">
-        <typename
-          name="length_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="planar_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="planar_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_translation_x">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_translation_x">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_translation_y">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_translation_y">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
-      </where>
-      <where
-        label="WR2"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_translation_x))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_translation_x)))       XOR       (lower_limit_actual_translation_x &lt; upper_limit_actual_translation_x)">
-      </where>
-      <where
-        label="WR3"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_translation_y))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_translation_y)))       XOR       (lower_limit_actual_translation_y &lt; upper_limit_actual_translation_y)">
-      </where>
-    </entity>
-
-    <entity
-      name="unconstrained_pair"
-      supertypes="kinematic_pair">
-    </entity>
-
-    <entity
-      name="unconstrained_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="unconstrained_pair"/>
-      </explicit>
-      <explicit
-        name="actual_placement">
-        <typename
-          name="axis2_placement_3d"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="fully_constrained_pair"
-      supertypes="kinematic_pair">
-    </entity>
-
-    <entity
-      name="point_on_surface_pair"
-      supertypes="kinematic_pair">
-      <explicit
-        name="pair_surface">
-        <typename
-          name="surface"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_first_link_context,         pair_surface)">
-      </where>
-    </entity>
-
-    <entity
-      name="point_on_surface_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="point_on_surface_pair"/>
-      </explicit>
-      <explicit
-        name="actual_point_on_surface">
-        <typename
-          name="point_on_surface"/>
-      </explicit>
-      <explicit
-        name="input_orientation">
-        <typename
-          name="spatial_rotation"/>
-      </explicit>
-      <derived
-        name="actual_orientation"
-        expression="convert_spatial_to_ypr_rotation                                     (SELF\pair_value.applies_to_pair,                                      input_orientation)">
-        <typename
-          name="ypr_rotation"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SELF\pair_value.applies_to_pair\point_on_surface_pair.pair_surface :=:       actual_point_on_surface.basis_surface">
-      </where>
-    </entity>
-
-    <entity
-      name="point_on_surface_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="point_on_surface_pair"/>
-      </explicit>
-      <explicit
-        name="range_on_pair_surface">
-        <typename
-          name="rectangular_trimmed_surface"/>
-      </explicit>
-      <explicit
-        name="lower_limit_yaw">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_yaw">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_pitch">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_pitch">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_roll">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_roll">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\simple_pair_range.applies_to_pair\point_on_surface_pair.pair_surface       :=: range_on_pair_surface.basis_surface">
-      </where>
-      <where
-        label="WR2"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_yaw))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_yaw)))       XOR       (lower_limit_yaw &lt; upper_limit_yaw)">
-      </where>
-      <where
-        label="WR3"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_pitch))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_pitch)))       XOR       (lower_limit_pitch &lt; upper_limit_pitch)">
-      </where>
-      <where
-        label="WR4"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_roll))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_roll)))       XOR       (lower_limit_roll &lt; upper_limit_roll)">
-      </where>
-    </entity>
-
-    <entity
-      name="surface_pair"
-      supertypes="kinematic_pair">
-      <explicit
-        name="surface_1">
-        <typename
-          name="surface"/>
-      </explicit>
-      <explicit
-        name="surface_2">
-        <typename
-          name="surface"/>
-      </explicit>
-      <explicit
-        name="orientation">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_first_link_context,          surface_1)">
-      </where>
-      <where
-        label="WR2"
-        expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_second_link_context,          surface_2)">
-      </where>
-    </entity>
-
-    <entity
-      name="surface_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="surface_pair"/>
-      </explicit>
-      <explicit
-        name="range_on_surface_1">
-        <typename
-          name="rectangular_trimmed_surface"/>
-      </explicit>
-      <explicit
-        name="range_on_surface_2">
-        <typename
-          name="rectangular_trimmed_surface"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_rotation">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\simple_pair_range.applies_to_pair\surface_pair.surface_1 :=:       range_on_surface_1.basis_surface">
-      </where>
-      <where
-        label="WR2"
-        expression="SELF\simple_pair_range.applies_to_pair\surface_pair.surface_2 :=:       range_on_surface_2.basis_surface">
-      </where>
-      <where
-        label="WR3"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
-      </where>
-    </entity>
-
-    <entity
-      name="sliding_surface_pair"
-      supertypes="surface_pair">
-    </entity>
-
-    <entity
-      name="sliding_surface_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="sliding_surface_pair"/>
-      </explicit>
-      <explicit
-        name="actual_point_on_surface_1">
-        <typename
-          name="point_on_surface"/>
-      </explicit>
-      <explicit
-        name="actual_point_on_surface_2">
-        <typename
-          name="point_on_surface"/>
-      </explicit>
-      <explicit
-        name="actual_rotation">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:       actual_point_on_surface_1.basis_surface">
-      </where>
-      <where
-        label="WR2"
-        expression="SELF\pair_value.applies_to_pair\surface_pair.surface_2 :=:       actual_point_on_surface_2.basis_surface">
-      </where>
-    </entity>
-
-    <entity
-      name="rolling_surface_pair"
-      supertypes="surface_pair">
-    </entity>
-
-    <entity
-      name="rolling_surface_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="rolling_surface_pair"/>
-      </explicit>
-      <explicit
-        name="actual_point_on_surface">
-        <typename
-          name="point_on_surface"/>
-      </explicit>
-      <explicit
-        name="actual_rotation">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:       actual_point_on_surface.basis_surface">
-      </where>
-    </entity>
-
-    <entity
-      name="point_on_planar_curve_pair"
-      supertypes="kinematic_pair">
-      <explicit
-        name="pair_curve">
-        <typename
-          name="curve"/>
-      </explicit>
-      <explicit
-        name="orientation">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_first_link_context,         pair_curve)">
-      </where>
-    </entity>
-
-    <entity
-      name="point_on_planar_curve_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="point_on_planar_curve_pair"/>
-      </explicit>
-      <explicit
-        name="actual_point_on_curve">
-        <typename
-          name="point_on_curve"/>
-      </explicit>
-      <explicit
-        name="input_orientation">
-        <typename
-          name="spatial_rotation"/>
-      </explicit>
-      <derived
-        name="actual_orientation"
-        expression="convert_spatial_to_ypr_rotation                                     (SELF\pair_value.applies_to_pair,                                      input_orientation)">
-        <typename
-          name="ypr_rotation"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SELF\pair_value.applies_to_pair\point_on_planar_curve_pair.pair_curve       :=: actual_point_on_curve.basis_curve">
-      </where>
-    </entity>
-
-    <entity
-      name="point_on_planar_curve_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="point_on_planar_curve_pair"/>
-      </explicit>
-      <explicit
-        name="range_on_pair_curve">
-        <typename
-          name="trimmed_curve"/>
-      </explicit>
-      <explicit
-        name="lower_limit_yaw">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_yaw">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_pitch">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_pitch">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="lower_limit_roll">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_roll">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\simple_pair_range.applies_to_pair\           point_on_planar_curve_pair.pair_curve       :=: range_on_pair_curve.basis_curve">
-      </where>
-      <where
-        label="WR2"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_yaw))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_yaw)))       XOR       (lower_limit_yaw &lt; upper_limit_yaw)">
-      </where>
-      <where
-        label="WR3"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_pitch))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_pitch)))       XOR       (lower_limit_pitch &lt; upper_limit_pitch)">
-      </where>
-      <where
-        label="WR4"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_roll))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_roll)))       XOR       (lower_limit_roll &lt; upper_limit_roll)">
-      </where>
-    </entity>
-
-    <entity
-      name="planar_curve_pair"
-      supertypes="kinematic_pair">
-      <explicit
-        name="curve_1">
-        <typename
-          name="curve"/>
-      </explicit>
-      <explicit
-        name="curve_2">
-        <typename
-          name="curve"/>
-      </explicit>
-      <explicit
-        name="orientation">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_first_link_context,          curve_1)">
-      </where>
-      <where
-        label="WR2"
-        expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_second_link_context,          curve_2)">
-      </where>
-    </entity>
-
-    <entity
-      name="planar_curve_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="planar_curve_pair"/>
-      </explicit>
-      <explicit
-        name="range_on_curve_1">
-        <typename
-          name="trimmed_curve"/>
-      </explicit>
-      <explicit
-        name="range_on_curve_2">
-        <typename
-          name="trimmed_curve"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\simple_pair_range.applies_to_pair\planar_curve_pair.curve_1 :=:       range_on_curve_1.basis_curve">
-      </where>
-      <where
-        label="WR2"
-        expression="SELF\simple_pair_range.applies_to_pair\planar_curve_pair.curve_2 :=:       range_on_curve_2.basis_curve">
-      </where>
-    </entity>
-
-    <entity
-      name="sliding_curve_pair"
-      supertypes="planar_curve_pair">
-    </entity>
-
-    <entity
-      name="sliding_curve_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="sliding_curve_pair"/>
-      </explicit>
-      <explicit
-        name="actual_point_on_curve_1">
-        <typename
-          name="point_on_curve"/>
-      </explicit>
-      <explicit
-        name="actual_point_on_curve_2">
-        <typename
-          name="point_on_curve"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:       actual_point_on_curve_1.basis_curve">
-      </where>
-      <where
-        label="WR2"
-        expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_2 :=:       actual_point_on_curve_2.basis_curve">
-      </where>
-    </entity>
-
-    <entity
-      name="rolling_curve_pair"
-      supertypes="planar_curve_pair">
-    </entity>
-
-    <entity
-      name="rolling_curve_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="rolling_curve_pair"/>
-      </explicit>
-      <explicit
-        name="actual_point_on_curve_1">
-        <typename
-          name="point_on_curve"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:       actual_point_on_curve_1.basis_curve">
-      </where>
-    </entity>
-
-    <entity
-      name="gear_pair"
-      supertypes="kinematic_pair">
-      <explicit
-        name="radius_first_link">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="radius_second_link">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="bevel">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <explicit
-        name="helical_angle">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <explicit
-        name="gear_ratio">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="gear_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="gear_pair"/>
-      </explicit>
-      <explicit
-        name="actual_rotation_1">
-        <typename
-          name="plane_angle_measure"/>
-      </explicit>
-      <derived
-        name="actual_rotation_2"
-        expression="- actual_rotation_1 *                                     SELF\pair_value.applies_to_pair\                                     gear_pair.gear_ratio">
-        <typename
-          name="plane_angle_measure"/>
-      </derived>
-    </entity>
-
-    <entity
-      name="gear_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="gear_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_actual_rotation_1">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_actual_rotation_1">
-        <typename
-          name="rotational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation_1))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation_1)))       XOR       (lower_limit_actual_rotation_1 &lt;        upper_limit_actual_rotation_1)">
-      </where>
-    </entity>
-
-    <entity
-      name="rack_and_pinion_pair"
-      supertypes="kinematic_pair">
-      <explicit
-        name="pinion_radius">
-        <typename
-          name="length_measure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="rack_and_pinion_pair_value"
-      supertypes="pair_value">
-      <explicit
-        name="SELF\pair_value.applies_to_pair">
-        <typename
-          name="rack_and_pinion_pair"/>
-      </explicit>
-      <explicit
-        name="actual_displacement">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <derived
-        name="actual_rotation"
-        expression="convert_plane_angle_for_pair_from_radian                     (SELF\pair_value.applies_to_pair,                      (- actual_displacement /                       SELF\pair_value.applies_to_pair\                       rack_and_pinion_pair.pinion_radius))">
-        <typename
-          name="plane_angle_measure"/>
-      </derived>
-    </entity>
-
-    <entity
-      name="rack_and_pinion_pair_range"
-      supertypes="simple_pair_range">
-      <explicit
-        name="SELF\simple_pair_range.applies_to_pair">
-        <typename
-          name="rack_and_pinion_pair"/>
-      </explicit>
-      <explicit
-        name="lower_limit_rack_displacement">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <explicit
-        name="upper_limit_rack_displacement">
-        <typename
-          name="translational_range_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_rack_displacement))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_rack_displacement)))       XOR       (lower_limit_rack_displacement &lt; upper_limit_rack_displacement)">
-      </where>
-    </entity>
-
-    <entity
-      name="kinematic_substructure"
-      super.expression="(ONEOF (kinematic_tree_structure,                       kinematic_network_structure))">
-      <explicit
-        name="parent_structure">
-        <typename
-          name="kinematic_structure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="kinematic_network_structure"
-      supertypes="kinematic_substructure">
-    </entity>
-
-    <entity
-      name="kinematic_tree_structure"
-      supertypes="kinematic_substructure">
-    </entity>
-
-    <entity
-      name="kinematic_loop">
-      <explicit
-        name="network">
-        <typename
-          name="kinematic_network_structure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(USEDIN(SELF,   'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP')) &gt; 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY( relation_1 &lt;* USEDIN(SELF,    'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP') |         SIZEOF (QUERY (relation_2 &lt;*  (USEDIN(SELF,          'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP')              - relation_1) |              NOT(connected_in_simple_loop (relation_1, relation_2))         )) &gt; 0        )) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="joint_logical_relationship">
-      <explicit
-        name="loop">
-        <typename
-          name="kinematic_loop"/>
-      </explicit>
-      <explicit
-        name="previous_joint_logical_structure">
-        <typename
-          name="oriented_joint"/>
-      </explicit>
-      <explicit
-        name="next_joint_logical_structure">
-        <typename
-          name="oriented_joint"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="loop"/>
-        <unique.attribute
-          attribute="previous_joint_logical_structure"/>
-      </unique>
-      <unique
-        label="UR2">
-        <unique.attribute
-          attribute="loop"/>
-        <unique.attribute
-          attribute="next_joint_logical_structure"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="previous_joint_logical_structure.exit_link :=:       next_joint_logical_structure.advent_link">
-      </where>
-    </entity>
-
-    <entity
-      name="oriented_joint">
-      <explicit
-        name="joint">
-        <typename
-          name="kinematic_joint"/>
-      </explicit>
-      <explicit
-        name="orientation">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <derived
-        name="advent_link"
-        expression="assign_directed_link (joint, orientation)">
-        <typename
-          name="kinematic_link"/>
-      </derived>
-      <derived
-        name="exit_link"
-        expression="assign_directed_link (joint, NOT (orientation))">
-        <typename
-          name="kinematic_link"/>
-      </derived>
-    </entity>
-
-    <entity
-      name="oriented_joint_in_tree"
-      supertypes="oriented_joint">
-      <explicit
-        name="parent_structure">
-        <typename
-          name="kinematic_tree_structure"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="advent_oriented_joint"
-      supertypes="oriented_joint">
-    </entity>
-
-    <function
-      name="ypr_index">
-      <parameter
-        name="ypr">
-        <typename
-          name="ypr_enumeration"/>
-      </parameter>
-      <builtintype
-        type="INTEGER"/>
-      <algorithm>
+        name="transformation_operator">
+        <redeclaration
+          entity-ref="representation_relationship_with_transformation"/>
+          <typename
+            name="cartesian_transformation_operator_3d"/>
+        </explicit>
+        <derived
+          name="SELF\representation_relationship.rep_2"
+          expression="representation_of_link (base_of_mechanism.base)">
+          <typename
+            name="kinematic_link_representation"/>
+        </derived>
+        <unique
+          label="UR1">
+          <unique.attribute
+            attribute="base_of_mechanism"/>
+        </unique>
+        <where
+          label="WR1"
+          expression="('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_1))       OR       ('KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_1))">
+        </where>
+        <where
+          label="WR2"
+          expression="suitably_based_mechanism (SELF, base_of_mechanism)">
+        </where>
+        <where
+          label="WR3"
+          expression="SELF\representation_relationship_with_transformation.         transformation_operator IN       SELF\representation_relationship.rep_1.items">
+        </where>
+      </entity>
+
+      <entity
+        name="initial_state">
+        <explicit
+          name="applies_to_mechanism">
+          <typename
+            name="mechanism"/>
+        </explicit>
+        <explicit
+          name="pair_values">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="pair_value"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="SIZEOF (QUERY (joint &lt;* applies_to_mechanism.structure_definition.joints |               SIZEOF (QUERY (init_val &lt;* pair_values |                       init_val.applies_to_pair.joint :=: joint)) &lt;&gt; 1)) = 0">
+        </where>
+      </entity>
+
+      <entity
+        name="kinematic_structure">
+        <explicit
+          name="joints">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="kinematic_joint"/>
+        </explicit>
+      </entity>
+
+      <entity
+        name="kinematic_joint">
+        <explicit
+          name="first_link">
+          <typename
+            name="kinematic_link"/>
+        </explicit>
+        <explicit
+          name="second_link">
+          <typename
+            name="kinematic_link"/>
+        </explicit>
+        <inverse
+          name="structure"
+          entity="kinematic_structure"
+          attribute="joints">
+        </inverse>
+        <where
+          label="WR1"
+          expression="first_link :&lt;&gt;: second_link">
+        </where>
+      </entity>
+
+      <entity
+        name="kinematic_link">
+        <where
+          label="WR1"
+          expression="SIZEOF (USEDIN (SELF,                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.FIRST_LINK') +               USEDIN (SELF,                 'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_JOINT.SECOND_LINK')) &gt; 0">
+        </where>
+        <where
+          label="WR2"
+          expression="unique_link_usage (SELF)">
+        </where>
+      </entity>
+
+      <entity
+        name="kinematic_link_representation_relation">
+        <explicit
+          name="topological_aspects">
+          <typename
+            name="kinematic_link"/>
+        </explicit>
+        <explicit
+          name="geometric_aspects">
+          <typename
+            name="kinematic_link_representation"/>
+        </explicit>
+        <unique
+          label="UR1">
+          <unique.attribute
+            attribute="topological_aspects"/>
+        </unique>
+      </entity>
+
+      <entity
+        name="kinematic_link_representation"
+        supertypes="representation">
+        <explicit
+          name="context_of_items">
+          <redeclaration
+            entity-ref="representation"/>
+            <typename
+              name="geometric_representation_context"/>
+          </explicit>
+          <derived
+            name="link_frame"
+            expression="SELF\representation.context_of_items">
+            <typename
+              name="geometric_representation_context"/>
+          </derived>
+          <inverse
+            name="link_representation_relation"
+            entity="kinematic_link_representation_relation"
+            attribute="geometric_aspects">
+          </inverse>
+          <where
+            label="WR1"
+            expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |               NOT (('KINEMATIC_STRUCTURE_SCHEMA.RIGID_PLACEMENT' IN                      TYPEOF (item))                    OR ('GEOMETRY_SCHEMA.CARTESIAN_TRANSFORMATION_OPERATOR_3D' IN                      TYPEOF (item))) )) = 0">
+          </where>
+        </entity>
+
+        <entity
+          name="kinematic_link_representation_association"
+          supertypes="representation_relationship">
+          <explicit
+            name="rep_1">
+            <redeclaration
+              entity-ref="representation_relationship"/>
+              <typename
+                name="kinematic_link_representation"/>
+            </explicit>
+            <where
+              label="WR1"
+              expression="SELF\representation_relationship.rep_2.context_of_items :=:       SELF\representation_relationship.rep_1\representation.context_of_items">
+            </where>
+            <where
+              label="WR2"
+              expression="SIZEOF (['KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_GROUND_REPRESENTATION',                'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION'] *               TYPEOF (SELF\representation_relationship.rep_2)) = 0">
+            </where>
+          </entity>
+
+          <entity
+            name="kinematic_frame_background_representation"
+            supertypes="representation">
+            <explicit
+              name="items">
+              <redeclaration
+                entity-ref="representation"/>
+                <aggregate
+                  type="SET"
+                  lower="1"
+                  upper="?"/>
+                <typename
+                  name="kinematic_frame_background"/>
+              </explicit>
+              <explicit
+                name="context_of_items">
+                <redeclaration
+                  entity-ref="representation"/>
+                  <typename
+                    name="geometric_representation_context"/>
+                </explicit>
+                <where
+                  label="WR1"
+                  expression="SELF\representation.context_of_items\         geometric_representation_context.coordinate_space_dimension = 3">
+                </where>
+              </entity>
+
+              <entity
+                name="kinematic_frame_based_transformation"
+                supertypes="geometric_representation_item functionally_defined_transformation">
+                <explicit
+                  name="transformator">
+                  <typename
+                    name="rigid_placement"/>
+                </explicit>
+                <where
+                  label="WR1"
+                  expression="SELF\geometric_representation_item.dim=3">
+                </where>
+              </entity>
+
+              <entity
+                name="kinematic_frame_background_representation_association"
+                supertypes="representation_relationship_with_transformation">
+                <explicit
+                  name="transformation_operator">
+                  <redeclaration
+                    entity-ref="representation_relationship_with_transformation"/>
+                    <typename
+                      name="kinematic_frame_based_transformation"/>
+                  </explicit>
+                  <where
+                    label="WR1"
+                    expression="'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_LINK_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_1)">
+                  </where>
+                  <where
+                    label="WR2"
+                    expression="'KINEMATIC_STRUCTURE_SCHEMA.KINEMATIC_FRAME_BACKGROUND_REPRESENTATION'         IN TYPEOF (SELF\representation_relationship.rep_2)">
+                  </where>
+                  <where
+                    label="WR3"
+                    expression="SELF\representation_relationship_with_transformation.           transformation_operator\kinematic_frame_based_transformation.           transformator IN         SELF\representation_relationship.rep_1.items">
+                  </where>
+                </entity>
+
+                <entity
+                  name="su_parameters"
+                  supertypes="geometric_representation_item">
+                  <explicit
+                    name="a">
+                    <typename
+                      name="length_measure"/>
+                  </explicit>
+                  <explicit
+                    name="alpha">
+                    <typename
+                      name="plane_angle_measure"/>
+                  </explicit>
+                  <explicit
+                    name="b">
+                    <typename
+                      name="length_measure"/>
+                  </explicit>
+                  <explicit
+                    name="beta">
+                    <typename
+                      name="plane_angle_measure"/>
+                  </explicit>
+                  <explicit
+                    name="c">
+                    <typename
+                      name="length_measure"/>
+                  </explicit>
+                  <explicit
+                    name="gamma">
+                    <typename
+                      name="plane_angle_measure"/>
+                  </explicit>
+                  <where
+                    label="WR1"
+                    expression="SELF\geometric_representation_item.dim=3">
+                  </where>
+                </entity>
+
+                <entity
+                  name="kinematic_pair"
+                  supertypes="item_defined_transformation">
+                  <explicit
+                    name="joint">
+                    <typename
+                      name="kinematic_joint"/>
+                  </explicit>
+                  <derived
+                    name="pair_placement_in_first_link_context"
+                    expression="SELF\item_defined_transformation.transform_item_1">
+                    <typename
+                      name="rigid_placement"/>
+                  </derived>
+                  <derived
+                    name="pair_placement_in_second_link_context"
+                    expression="SELF\item_defined_transformation.transform_item_2">
+                    <typename
+                      name="rigid_placement"/>
+                  </derived>
+                  <unique
+                    label="UR1">
+                    <unique.attribute
+                      attribute="joint"/>
+                  </unique>
+                  <where
+                    label="WR1"
+                    expression="coordinated_pair_link_representation         (joint.first_link, pair_placement_in_first_link_context)">
+                  </where>
+                  <where
+                    label="WR2"
+                    expression="coordinated_pair_link_representation         (joint.second_link, pair_placement_in_second_link_context)">
+                  </where>
+                </entity>
+
+                <entity
+                  name="pair_actuator">
+                  <explicit
+                    name="actuated_pair">
+                    <typename
+                      name="kinematic_pair"/>
+                  </explicit>
+                  <explicit
+                    name="name">
+                    <typename
+                      name="label"/>
+                  </explicit>
+                  <unique
+                    label="UR1">
+                    <unique.attribute
+                      attribute="actuated_pair"/>
+                  </unique>
+                </entity>
+
+                <entity
+                  name="pair_value">
+                  <explicit
+                    name="applies_to_pair">
+                    <typename
+                      name="kinematic_pair"/>
+                  </explicit>
+                </entity>
+
+                <entity
+                  name="simple_pair_range">
+                  <explicit
+                    name="applies_to_pair">
+                    <typename
+                      name="kinematic_pair"/>
+                  </explicit>
+                </entity>
+
+                <entity
+                  name="revolute_pair"
+                  supertypes="kinematic_pair">
+                </entity>
+
+                <entity
+                  name="revolute_pair_value"
+                  supertypes="pair_value">
+                  <explicit
+                    name="applies_to_pair">
+                    <redeclaration
+                      entity-ref="pair_value"/>
+                      <typename
+                        name="revolute_pair"/>
+                    </explicit>
+                    <explicit
+                      name="actual_rotation">
+                      <typename
+                        name="plane_angle_measure"/>
+                    </explicit>
+                  </entity>
+
+                  <entity
+                    name="revolute_pair_range"
+                    supertypes="simple_pair_range">
+                    <explicit
+                      name="applies_to_pair">
+                      <redeclaration
+                        entity-ref="simple_pair_range"/>
+                        <typename
+                          name="revolute_pair"/>
+                      </explicit>
+                      <explicit
+                        name="lower_limit_actual_rotation">
+                        <typename
+                          name="rotational_range_measure"/>
+                      </explicit>
+                      <explicit
+                        name="upper_limit_actual_rotation">
+                        <typename
+                          name="rotational_range_measure"/>
+                      </explicit>
+                      <where
+                        label="WR1"
+                        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
+                      </where>
+                    </entity>
+
+                    <entity
+                      name="prismatic_pair"
+                      supertypes="kinematic_pair">
+                    </entity>
+
+                    <entity
+                      name="prismatic_pair_value"
+                      supertypes="pair_value">
+                      <explicit
+                        name="applies_to_pair">
+                        <redeclaration
+                          entity-ref="pair_value"/>
+                          <typename
+                            name="prismatic_pair"/>
+                        </explicit>
+                        <explicit
+                          name="actual_translation">
+                          <typename
+                            name="length_measure"/>
+                        </explicit>
+                      </entity>
+
+                      <entity
+                        name="prismatic_pair_range"
+                        supertypes="simple_pair_range">
+                        <explicit
+                          name="applies_to_pair">
+                          <redeclaration
+                            entity-ref="simple_pair_range"/>
+                            <typename
+                              name="prismatic_pair"/>
+                          </explicit>
+                          <explicit
+                            name="lower_limit_actual_translation">
+                            <typename
+                              name="translational_range_measure"/>
+                          </explicit>
+                          <explicit
+                            name="upper_limit_actual_translation">
+                            <typename
+                              name="translational_range_measure"/>
+                          </explicit>
+                          <where
+                            label="WR1"
+                            expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_translation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_translation)))       XOR       (lower_limit_actual_translation &lt; upper_limit_actual_translation)">
+                          </where>
+                        </entity>
+
+                        <entity
+                          name="screw_pair"
+                          supertypes="kinematic_pair">
+                          <explicit
+                            name="pitch">
+                            <typename
+                              name="length_measure"/>
+                          </explicit>
+                        </entity>
+
+                        <entity
+                          name="screw_pair_value"
+                          supertypes="pair_value">
+                          <explicit
+                            name="applies_to_pair">
+                            <redeclaration
+                              entity-ref="pair_value"/>
+                              <typename
+                                name="screw_pair"/>
+                            </explicit>
+                            <explicit
+                              name="actual_rotation">
+                              <typename
+                                name="plane_angle_measure"/>
+                            </explicit>
+                            <derived
+                              name="actual_translation"
+                              expression="SELF\pair_value.applies_to_pair\                                     screw_pair.pitch *                                     plane_angle_for_pair_in_radian                                      (SELF\pair_value.applies_to_pair,                                       actual_rotation) / (2 * PI)">
+                              <typename
+                                name="length_measure"/>
+                            </derived>
+                          </entity>
+
+                          <entity
+                            name="screw_pair_range"
+                            supertypes="simple_pair_range">
+                            <explicit
+                              name="applies_to_pair">
+                              <redeclaration
+                                entity-ref="simple_pair_range"/>
+                                <typename
+                                  name="screw_pair"/>
+                              </explicit>
+                              <explicit
+                                name="lower_limit_actual_rotation">
+                                <typename
+                                  name="rotational_range_measure"/>
+                              </explicit>
+                              <explicit
+                                name="upper_limit_actual_rotation">
+                                <typename
+                                  name="rotational_range_measure"/>
+                              </explicit>
+                              <where
+                                label="WR1"
+                                expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
+                              </where>
+                            </entity>
+
+                            <entity
+                              name="cylindrical_pair"
+                              supertypes="kinematic_pair">
+                            </entity>
+
+                            <entity
+                              name="cylindrical_pair_value"
+                              supertypes="pair_value">
+                              <explicit
+                                name="applies_to_pair">
+                                <redeclaration
+                                  entity-ref="pair_value"/>
+                                  <typename
+                                    name="cylindrical_pair"/>
+                                </explicit>
+                                <explicit
+                                  name="actual_translation">
+                                  <typename
+                                    name="length_measure"/>
+                                </explicit>
+                                <explicit
+                                  name="actual_rotation">
+                                  <typename
+                                    name="plane_angle_measure"/>
+                                </explicit>
+                              </entity>
+
+                              <entity
+                                name="cylindrical_pair_range"
+                                supertypes="simple_pair_range">
+                                <explicit
+                                  name="applies_to_pair">
+                                  <redeclaration
+                                    entity-ref="simple_pair_range"/>
+                                    <typename
+                                      name="cylindrical_pair"/>
+                                  </explicit>
+                                  <explicit
+                                    name="lower_limit_actual_translation">
+                                    <typename
+                                      name="translational_range_measure"/>
+                                  </explicit>
+                                  <explicit
+                                    name="upper_limit_actual_translation">
+                                    <typename
+                                      name="translational_range_measure"/>
+                                  </explicit>
+                                  <explicit
+                                    name="lower_limit_actual_rotation">
+                                    <typename
+                                      name="rotational_range_measure"/>
+                                  </explicit>
+                                  <explicit
+                                    name="upper_limit_actual_rotation">
+                                    <typename
+                                      name="rotational_range_measure"/>
+                                  </explicit>
+                                  <where
+                                    label="WR1"
+                                    expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_translation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_translation)))       XOR       (lower_limit_actual_translation &lt; upper_limit_actual_translation)">
+                                  </where>
+                                  <where
+                                    label="WR2"
+                                    expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
+                                  </where>
+                                </entity>
+
+                                <entity
+                                  name="spherical_pair"
+                                  supertypes="kinematic_pair">
+                                </entity>
+
+                                <entity
+                                  name="spherical_pair_value"
+                                  supertypes="pair_value">
+                                  <explicit
+                                    name="applies_to_pair">
+                                    <redeclaration
+                                      entity-ref="pair_value"/>
+                                      <typename
+                                        name="spherical_pair"/>
+                                    </explicit>
+                                    <explicit
+                                      name="input_orientation">
+                                      <typename
+                                        name="spatial_rotation"/>
+                                    </explicit>
+                                    <derived
+                                      name="actual_orientation"
+                                      expression="convert_spatial_to_ypr_rotation                                     (SELF\pair_value.applies_to_pair,                                      input_orientation)">
+                                      <typename
+                                        name="ypr_rotation"/>
+                                    </derived>
+                                  </entity>
+
+                                  <entity
+                                    name="spherical_pair_range"
+                                    supertypes="simple_pair_range">
+                                    <explicit
+                                      name="applies_to_pair">
+                                      <redeclaration
+                                        entity-ref="simple_pair_range"/>
+                                        <typename
+                                          name="spherical_pair"/>
+                                      </explicit>
+                                      <explicit
+                                        name="lower_limit_yaw">
+                                        <typename
+                                          name="rotational_range_measure"/>
+                                      </explicit>
+                                      <explicit
+                                        name="upper_limit_yaw">
+                                        <typename
+                                          name="rotational_range_measure"/>
+                                      </explicit>
+                                      <explicit
+                                        name="lower_limit_pitch">
+                                        <typename
+                                          name="rotational_range_measure"/>
+                                      </explicit>
+                                      <explicit
+                                        name="upper_limit_pitch">
+                                        <typename
+                                          name="rotational_range_measure"/>
+                                      </explicit>
+                                      <explicit
+                                        name="lower_limit_roll">
+                                        <typename
+                                          name="rotational_range_measure"/>
+                                      </explicit>
+                                      <explicit
+                                        name="upper_limit_roll">
+                                        <typename
+                                          name="rotational_range_measure"/>
+                                      </explicit>
+                                      <where
+                                        label="WR1"
+                                        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_yaw))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_yaw)))       XOR       (lower_limit_yaw &lt; upper_limit_yaw)">
+                                      </where>
+                                      <where
+                                        label="WR2"
+                                        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_pitch))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_pitch)))       XOR       (lower_limit_pitch &lt; upper_limit_pitch)">
+                                      </where>
+                                      <where
+                                        label="WR3"
+                                        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_roll))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_roll)))       XOR       (lower_limit_roll &lt; upper_limit_roll)">
+                                      </where>
+                                    </entity>
+
+                                    <entity
+                                      name="universal_pair"
+                                      supertypes="kinematic_pair">
+                                      <explicit
+                                        name="input_skew_angle"
+                                        optional="YES">
+                                        <typename
+                                          name="plane_angle_measure"/>
+                                      </explicit>
+                                      <derived
+                                        name="skew_angle"
+                                        expression="NVL (input_skew_angle, 0.0)">
+                                        <typename
+                                          name="plane_angle_measure"/>
+                                      </derived>
+                                      <where
+                                        label="WR1"
+                                        expression="COS (plane_angle_for_pair_in_radian (SELF, skew_angle))       &gt; 0.0">
+                                      </where>
+                                    </entity>
+
+                                    <entity
+                                      name="universal_pair_value"
+                                      supertypes="pair_value">
+                                      <explicit
+                                        name="applies_to_pair">
+                                        <redeclaration
+                                          entity-ref="pair_value"/>
+                                          <typename
+                                            name="universal_pair"/>
+                                        </explicit>
+                                        <explicit
+                                          name="first_rotation_angle">
+                                          <typename
+                                            name="plane_angle_measure"/>
+                                        </explicit>
+                                        <explicit
+                                          name="second_rotation_angle">
+                                          <typename
+                                            name="plane_angle_measure"/>
+                                        </explicit>
+                                      </entity>
+
+                                      <entity
+                                        name="universal_pair_range"
+                                        supertypes="simple_pair_range">
+                                        <explicit
+                                          name="applies_to_pair">
+                                          <redeclaration
+                                            entity-ref="simple_pair_range"/>
+                                            <typename
+                                              name="universal_pair"/>
+                                          </explicit>
+                                          <explicit
+                                            name="lower_limit_first_rotation">
+                                            <typename
+                                              name="rotational_range_measure"/>
+                                          </explicit>
+                                          <explicit
+                                            name="upper_limit_first_rotation">
+                                            <typename
+                                              name="rotational_range_measure"/>
+                                          </explicit>
+                                          <explicit
+                                            name="lower_limit_second_rotation">
+                                            <typename
+                                              name="rotational_range_measure"/>
+                                          </explicit>
+                                          <explicit
+                                            name="upper_limit_second_rotation">
+                                            <typename
+                                              name="rotational_range_measure"/>
+                                          </explicit>
+                                          <where
+                                            label="WR1"
+                                            expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_first_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_first_rotation)))       XOR       (lower_limit_first_rotation &lt; upper_limit_first_rotation)">
+                                          </where>
+                                          <where
+                                            label="WR2"
+                                            expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_second_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_second_rotation)))       XOR       (lower_limit_second_rotation &lt; upper_limit_second_rotation)">
+                                          </where>
+                                        </entity>
+
+                                        <entity
+                                          name="planar_pair"
+                                          supertypes="kinematic_pair">
+                                        </entity>
+
+                                        <entity
+                                          name="planar_pair_value"
+                                          supertypes="pair_value">
+                                          <explicit
+                                            name="applies_to_pair">
+                                            <redeclaration
+                                              entity-ref="pair_value"/>
+                                              <typename
+                                                name="planar_pair"/>
+                                            </explicit>
+                                            <explicit
+                                              name="actual_rotation">
+                                              <typename
+                                                name="plane_angle_measure"/>
+                                            </explicit>
+                                            <explicit
+                                              name="actual_translation_x">
+                                              <typename
+                                                name="length_measure"/>
+                                            </explicit>
+                                            <explicit
+                                              name="actual_translation_y">
+                                              <typename
+                                                name="length_measure"/>
+                                            </explicit>
+                                          </entity>
+
+                                          <entity
+                                            name="planar_pair_range"
+                                            supertypes="simple_pair_range">
+                                            <explicit
+                                              name="applies_to_pair">
+                                              <redeclaration
+                                                entity-ref="simple_pair_range"/>
+                                                <typename
+                                                  name="planar_pair"/>
+                                              </explicit>
+                                              <explicit
+                                                name="lower_limit_actual_rotation">
+                                                <typename
+                                                  name="rotational_range_measure"/>
+                                              </explicit>
+                                              <explicit
+                                                name="upper_limit_actual_rotation">
+                                                <typename
+                                                  name="rotational_range_measure"/>
+                                              </explicit>
+                                              <explicit
+                                                name="lower_limit_actual_translation_x">
+                                                <typename
+                                                  name="translational_range_measure"/>
+                                              </explicit>
+                                              <explicit
+                                                name="upper_limit_actual_translation_x">
+                                                <typename
+                                                  name="translational_range_measure"/>
+                                              </explicit>
+                                              <explicit
+                                                name="lower_limit_actual_translation_y">
+                                                <typename
+                                                  name="translational_range_measure"/>
+                                              </explicit>
+                                              <explicit
+                                                name="upper_limit_actual_translation_y">
+                                                <typename
+                                                  name="translational_range_measure"/>
+                                              </explicit>
+                                              <where
+                                                label="WR1"
+                                                expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
+                                              </where>
+                                              <where
+                                                label="WR2"
+                                                expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_translation_x))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_translation_x)))       XOR       (lower_limit_actual_translation_x &lt; upper_limit_actual_translation_x)">
+                                              </where>
+                                              <where
+                                                label="WR3"
+                                                expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_translation_y))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_translation_y)))       XOR       (lower_limit_actual_translation_y &lt; upper_limit_actual_translation_y)">
+                                              </where>
+                                            </entity>
+
+                                            <entity
+                                              name="unconstrained_pair"
+                                              supertypes="kinematic_pair">
+                                            </entity>
+
+                                            <entity
+                                              name="unconstrained_pair_value"
+                                              supertypes="pair_value">
+                                              <explicit
+                                                name="applies_to_pair">
+                                                <redeclaration
+                                                  entity-ref="pair_value"/>
+                                                  <typename
+                                                    name="unconstrained_pair"/>
+                                                </explicit>
+                                                <explicit
+                                                  name="actual_placement">
+                                                  <typename
+                                                    name="axis2_placement_3d"/>
+                                                </explicit>
+                                              </entity>
+
+                                              <entity
+                                                name="fully_constrained_pair"
+                                                supertypes="kinematic_pair">
+                                              </entity>
+
+                                              <entity
+                                                name="point_on_surface_pair"
+                                                supertypes="kinematic_pair">
+                                                <explicit
+                                                  name="pair_surface">
+                                                  <typename
+                                                    name="surface"/>
+                                                </explicit>
+                                                <where
+                                                  label="WR1"
+                                                  expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_first_link_context,         pair_surface)">
+                                                </where>
+                                              </entity>
+
+                                              <entity
+                                                name="point_on_surface_pair_value"
+                                                supertypes="pair_value">
+                                                <explicit
+                                                  name="applies_to_pair">
+                                                  <redeclaration
+                                                    entity-ref="pair_value"/>
+                                                    <typename
+                                                      name="point_on_surface_pair"/>
+                                                  </explicit>
+                                                  <explicit
+                                                    name="actual_point_on_surface">
+                                                    <typename
+                                                      name="point_on_surface"/>
+                                                  </explicit>
+                                                  <explicit
+                                                    name="input_orientation">
+                                                    <typename
+                                                      name="spatial_rotation"/>
+                                                  </explicit>
+                                                  <derived
+                                                    name="actual_orientation"
+                                                    expression="convert_spatial_to_ypr_rotation                                     (SELF\pair_value.applies_to_pair,                                      input_orientation)">
+                                                    <typename
+                                                      name="ypr_rotation"/>
+                                                  </derived>
+                                                  <where
+                                                    label="WR1"
+                                                    expression="SELF\pair_value.applies_to_pair\point_on_surface_pair.pair_surface :=:       actual_point_on_surface.basis_surface">
+                                                  </where>
+                                                </entity>
+
+                                                <entity
+                                                  name="point_on_surface_pair_range"
+                                                  supertypes="simple_pair_range">
+                                                  <explicit
+                                                    name="applies_to_pair">
+                                                    <redeclaration
+                                                      entity-ref="simple_pair_range"/>
+                                                      <typename
+                                                        name="point_on_surface_pair"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="range_on_pair_surface">
+                                                      <typename
+                                                        name="rectangular_trimmed_surface"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="lower_limit_yaw">
+                                                      <typename
+                                                        name="rotational_range_measure"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="upper_limit_yaw">
+                                                      <typename
+                                                        name="rotational_range_measure"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="lower_limit_pitch">
+                                                      <typename
+                                                        name="rotational_range_measure"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="upper_limit_pitch">
+                                                      <typename
+                                                        name="rotational_range_measure"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="lower_limit_roll">
+                                                      <typename
+                                                        name="rotational_range_measure"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="upper_limit_roll">
+                                                      <typename
+                                                        name="rotational_range_measure"/>
+                                                    </explicit>
+                                                    <where
+                                                      label="WR1"
+                                                      expression="SELF\simple_pair_range.applies_to_pair\point_on_surface_pair.pair_surface       :=: range_on_pair_surface.basis_surface">
+                                                    </where>
+                                                    <where
+                                                      label="WR2"
+                                                      expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_yaw))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_yaw)))       XOR       (lower_limit_yaw &lt; upper_limit_yaw)">
+                                                    </where>
+                                                    <where
+                                                      label="WR3"
+                                                      expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_pitch))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_pitch)))       XOR       (lower_limit_pitch &lt; upper_limit_pitch)">
+                                                    </where>
+                                                    <where
+                                                      label="WR4"
+                                                      expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_roll))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_roll)))       XOR       (lower_limit_roll &lt; upper_limit_roll)">
+                                                    </where>
+                                                  </entity>
+
+                                                  <entity
+                                                    name="surface_pair"
+                                                    supertypes="kinematic_pair">
+                                                    <explicit
+                                                      name="surface_1">
+                                                      <typename
+                                                        name="surface"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="surface_2">
+                                                      <typename
+                                                        name="surface"/>
+                                                    </explicit>
+                                                    <explicit
+                                                      name="orientation">
+                                                      <builtintype
+                                                        type="BOOLEAN"/>
+                                                    </explicit>
+                                                    <where
+                                                      label="WR1"
+                                                      expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_first_link_context,          surface_1)">
+                                                    </where>
+                                                    <where
+                                                      label="WR2"
+                                                      expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_second_link_context,          surface_2)">
+                                                    </where>
+                                                  </entity>
+
+                                                  <entity
+                                                    name="surface_pair_range"
+                                                    supertypes="simple_pair_range">
+                                                    <explicit
+                                                      name="applies_to_pair">
+                                                      <redeclaration
+                                                        entity-ref="simple_pair_range"/>
+                                                        <typename
+                                                          name="surface_pair"/>
+                                                      </explicit>
+                                                      <explicit
+                                                        name="range_on_surface_1">
+                                                        <typename
+                                                          name="rectangular_trimmed_surface"/>
+                                                      </explicit>
+                                                      <explicit
+                                                        name="range_on_surface_2">
+                                                        <typename
+                                                          name="rectangular_trimmed_surface"/>
+                                                      </explicit>
+                                                      <explicit
+                                                        name="lower_limit_actual_rotation">
+                                                        <typename
+                                                          name="rotational_range_measure"/>
+                                                      </explicit>
+                                                      <explicit
+                                                        name="upper_limit_actual_rotation">
+                                                        <typename
+                                                          name="rotational_range_measure"/>
+                                                      </explicit>
+                                                      <where
+                                                        label="WR1"
+                                                        expression="SELF\simple_pair_range.applies_to_pair\surface_pair.surface_1 :=:       range_on_surface_1.basis_surface">
+                                                      </where>
+                                                      <where
+                                                        label="WR2"
+                                                        expression="SELF\simple_pair_range.applies_to_pair\surface_pair.surface_2 :=:       range_on_surface_2.basis_surface">
+                                                      </where>
+                                                      <where
+                                                        label="WR3"
+                                                        expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation)))       XOR       (lower_limit_actual_rotation &lt; upper_limit_actual_rotation)">
+                                                      </where>
+                                                    </entity>
+
+                                                    <entity
+                                                      name="sliding_surface_pair"
+                                                      supertypes="surface_pair">
+                                                    </entity>
+
+                                                    <entity
+                                                      name="sliding_surface_pair_value"
+                                                      supertypes="pair_value">
+                                                      <explicit
+                                                        name="applies_to_pair">
+                                                        <redeclaration
+                                                          entity-ref="pair_value"/>
+                                                          <typename
+                                                            name="sliding_surface_pair"/>
+                                                        </explicit>
+                                                        <explicit
+                                                          name="actual_point_on_surface_1">
+                                                          <typename
+                                                            name="point_on_surface"/>
+                                                        </explicit>
+                                                        <explicit
+                                                          name="actual_point_on_surface_2">
+                                                          <typename
+                                                            name="point_on_surface"/>
+                                                        </explicit>
+                                                        <explicit
+                                                          name="actual_rotation">
+                                                          <typename
+                                                            name="plane_angle_measure"/>
+                                                        </explicit>
+                                                        <where
+                                                          label="WR1"
+                                                          expression="SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:       actual_point_on_surface_1.basis_surface">
+                                                        </where>
+                                                        <where
+                                                          label="WR2"
+                                                          expression="SELF\pair_value.applies_to_pair\surface_pair.surface_2 :=:       actual_point_on_surface_2.basis_surface">
+                                                        </where>
+                                                      </entity>
+
+                                                      <entity
+                                                        name="rolling_surface_pair"
+                                                        supertypes="surface_pair">
+                                                      </entity>
+
+                                                      <entity
+                                                        name="rolling_surface_pair_value"
+                                                        supertypes="pair_value">
+                                                        <explicit
+                                                          name="applies_to_pair">
+                                                          <redeclaration
+                                                            entity-ref="pair_value"/>
+                                                            <typename
+                                                              name="rolling_surface_pair"/>
+                                                          </explicit>
+                                                          <explicit
+                                                            name="actual_point_on_surface">
+                                                            <typename
+                                                              name="point_on_surface"/>
+                                                          </explicit>
+                                                          <explicit
+                                                            name="actual_rotation">
+                                                            <typename
+                                                              name="plane_angle_measure"/>
+                                                          </explicit>
+                                                          <where
+                                                            label="WR1"
+                                                            expression="SELF\pair_value.applies_to_pair\surface_pair.surface_1 :=:       actual_point_on_surface.basis_surface">
+                                                          </where>
+                                                        </entity>
+
+                                                        <entity
+                                                          name="point_on_planar_curve_pair"
+                                                          supertypes="kinematic_pair">
+                                                          <explicit
+                                                            name="pair_curve">
+                                                            <typename
+                                                              name="curve"/>
+                                                          </explicit>
+                                                          <explicit
+                                                            name="orientation">
+                                                            <builtintype
+                                                              type="BOOLEAN"/>
+                                                          </explicit>
+                                                          <where
+                                                            label="WR1"
+                                                            expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_first_link_context,         pair_curve)">
+                                                          </where>
+                                                        </entity>
+
+                                                        <entity
+                                                          name="point_on_planar_curve_pair_value"
+                                                          supertypes="pair_value">
+                                                          <explicit
+                                                            name="applies_to_pair">
+                                                            <redeclaration
+                                                              entity-ref="pair_value"/>
+                                                              <typename
+                                                                name="point_on_planar_curve_pair"/>
+                                                            </explicit>
+                                                            <explicit
+                                                              name="actual_point_on_curve">
+                                                              <typename
+                                                                name="point_on_curve"/>
+                                                            </explicit>
+                                                            <explicit
+                                                              name="input_orientation">
+                                                              <typename
+                                                                name="spatial_rotation"/>
+                                                            </explicit>
+                                                            <derived
+                                                              name="actual_orientation"
+                                                              expression="convert_spatial_to_ypr_rotation                                     (SELF\pair_value.applies_to_pair,                                      input_orientation)">
+                                                              <typename
+                                                                name="ypr_rotation"/>
+                                                            </derived>
+                                                            <where
+                                                              label="WR1"
+                                                              expression="SELF\pair_value.applies_to_pair\point_on_planar_curve_pair.pair_curve       :=: actual_point_on_curve.basis_curve">
+                                                            </where>
+                                                          </entity>
+
+                                                          <entity
+                                                            name="point_on_planar_curve_pair_range"
+                                                            supertypes="simple_pair_range">
+                                                            <explicit
+                                                              name="applies_to_pair">
+                                                              <redeclaration
+                                                                entity-ref="simple_pair_range"/>
+                                                                <typename
+                                                                  name="point_on_planar_curve_pair"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="range_on_pair_curve">
+                                                                <typename
+                                                                  name="trimmed_curve"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="lower_limit_yaw">
+                                                                <typename
+                                                                  name="rotational_range_measure"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="upper_limit_yaw">
+                                                                <typename
+                                                                  name="rotational_range_measure"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="lower_limit_pitch">
+                                                                <typename
+                                                                  name="rotational_range_measure"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="upper_limit_pitch">
+                                                                <typename
+                                                                  name="rotational_range_measure"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="lower_limit_roll">
+                                                                <typename
+                                                                  name="rotational_range_measure"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="upper_limit_roll">
+                                                                <typename
+                                                                  name="rotational_range_measure"/>
+                                                              </explicit>
+                                                              <where
+                                                                label="WR1"
+                                                                expression="SELF\simple_pair_range.applies_to_pair\           point_on_planar_curve_pair.pair_curve       :=: range_on_pair_curve.basis_curve">
+                                                              </where>
+                                                              <where
+                                                                label="WR2"
+                                                                expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_yaw))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_yaw)))       XOR       (lower_limit_yaw &lt; upper_limit_yaw)">
+                                                              </where>
+                                                              <where
+                                                                label="WR3"
+                                                                expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_pitch))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_pitch)))       XOR       (lower_limit_pitch &lt; upper_limit_pitch)">
+                                                              </where>
+                                                              <where
+                                                                label="WR4"
+                                                                expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_roll))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_roll)))       XOR       (lower_limit_roll &lt; upper_limit_roll)">
+                                                              </where>
+                                                            </entity>
+
+                                                            <entity
+                                                              name="planar_curve_pair"
+                                                              supertypes="kinematic_pair">
+                                                              <explicit
+                                                                name="curve_1">
+                                                                <typename
+                                                                  name="curve"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="curve_2">
+                                                                <typename
+                                                                  name="curve"/>
+                                                              </explicit>
+                                                              <explicit
+                                                                name="orientation">
+                                                                <builtintype
+                                                                  type="BOOLEAN"/>
+                                                              </explicit>
+                                                              <where
+                                                                label="WR1"
+                                                                expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_first_link_context,          curve_1)">
+                                                              </where>
+                                                              <where
+                                                                label="WR2"
+                                                                expression="frame_associated_to_background         (SELF\kinematic_pair.pair_placement_in_second_link_context,          curve_2)">
+                                                              </where>
+                                                            </entity>
+
+                                                            <entity
+                                                              name="planar_curve_pair_range"
+                                                              supertypes="simple_pair_range">
+                                                              <explicit
+                                                                name="applies_to_pair">
+                                                                <redeclaration
+                                                                  entity-ref="simple_pair_range"/>
+                                                                  <typename
+                                                                    name="planar_curve_pair"/>
+                                                                </explicit>
+                                                                <explicit
+                                                                  name="range_on_curve_1">
+                                                                  <typename
+                                                                    name="trimmed_curve"/>
+                                                                </explicit>
+                                                                <explicit
+                                                                  name="range_on_curve_2">
+                                                                  <typename
+                                                                    name="trimmed_curve"/>
+                                                                </explicit>
+                                                                <where
+                                                                  label="WR1"
+                                                                  expression="SELF\simple_pair_range.applies_to_pair\planar_curve_pair.curve_1 :=:       range_on_curve_1.basis_curve">
+                                                                </where>
+                                                                <where
+                                                                  label="WR2"
+                                                                  expression="SELF\simple_pair_range.applies_to_pair\planar_curve_pair.curve_2 :=:       range_on_curve_2.basis_curve">
+                                                                </where>
+                                                              </entity>
+
+                                                              <entity
+                                                                name="sliding_curve_pair"
+                                                                supertypes="planar_curve_pair">
+                                                              </entity>
+
+                                                              <entity
+                                                                name="sliding_curve_pair_value"
+                                                                supertypes="pair_value">
+                                                                <explicit
+                                                                  name="applies_to_pair">
+                                                                  <redeclaration
+                                                                    entity-ref="pair_value"/>
+                                                                    <typename
+                                                                      name="sliding_curve_pair"/>
+                                                                  </explicit>
+                                                                  <explicit
+                                                                    name="actual_point_on_curve_1">
+                                                                    <typename
+                                                                      name="point_on_curve"/>
+                                                                  </explicit>
+                                                                  <explicit
+                                                                    name="actual_point_on_curve_2">
+                                                                    <typename
+                                                                      name="point_on_curve"/>
+                                                                  </explicit>
+                                                                  <where
+                                                                    label="WR1"
+                                                                    expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:       actual_point_on_curve_1.basis_curve">
+                                                                  </where>
+                                                                  <where
+                                                                    label="WR2"
+                                                                    expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_2 :=:       actual_point_on_curve_2.basis_curve">
+                                                                  </where>
+                                                                </entity>
+
+                                                                <entity
+                                                                  name="rolling_curve_pair"
+                                                                  supertypes="planar_curve_pair">
+                                                                </entity>
+
+                                                                <entity
+                                                                  name="rolling_curve_pair_value"
+                                                                  supertypes="pair_value">
+                                                                  <explicit
+                                                                    name="applies_to_pair">
+                                                                    <redeclaration
+                                                                      entity-ref="pair_value"/>
+                                                                      <typename
+                                                                        name="rolling_curve_pair"/>
+                                                                    </explicit>
+                                                                    <explicit
+                                                                      name="actual_point_on_curve_1">
+                                                                      <typename
+                                                                        name="point_on_curve"/>
+                                                                    </explicit>
+                                                                    <where
+                                                                      label="WR1"
+                                                                      expression="SELF\pair_value.applies_to_pair\planar_curve_pair.curve_1 :=:       actual_point_on_curve_1.basis_curve">
+                                                                    </where>
+                                                                  </entity>
+
+                                                                  <entity
+                                                                    name="gear_pair"
+                                                                    supertypes="kinematic_pair">
+                                                                    <explicit
+                                                                      name="radius_first_link">
+                                                                      <typename
+                                                                        name="length_measure"/>
+                                                                    </explicit>
+                                                                    <explicit
+                                                                      name="radius_second_link">
+                                                                      <typename
+                                                                        name="length_measure"/>
+                                                                    </explicit>
+                                                                    <explicit
+                                                                      name="bevel">
+                                                                      <typename
+                                                                        name="plane_angle_measure"/>
+                                                                    </explicit>
+                                                                    <explicit
+                                                                      name="helical_angle">
+                                                                      <typename
+                                                                        name="plane_angle_measure"/>
+                                                                    </explicit>
+                                                                    <explicit
+                                                                      name="gear_ratio">
+                                                                      <builtintype
+                                                                        type="REAL"/>
+                                                                    </explicit>
+                                                                  </entity>
+
+                                                                  <entity
+                                                                    name="gear_pair_value"
+                                                                    supertypes="pair_value">
+                                                                    <explicit
+                                                                      name="applies_to_pair">
+                                                                      <redeclaration
+                                                                        entity-ref="pair_value"/>
+                                                                        <typename
+                                                                          name="gear_pair"/>
+                                                                      </explicit>
+                                                                      <explicit
+                                                                        name="actual_rotation_1">
+                                                                        <typename
+                                                                          name="plane_angle_measure"/>
+                                                                      </explicit>
+                                                                      <derived
+                                                                        name="actual_rotation_2"
+                                                                        expression="- actual_rotation_1 *                                     SELF\pair_value.applies_to_pair\                                     gear_pair.gear_ratio">
+                                                                        <typename
+                                                                          name="plane_angle_measure"/>
+                                                                      </derived>
+                                                                    </entity>
+
+                                                                    <entity
+                                                                      name="gear_pair_range"
+                                                                      supertypes="simple_pair_range">
+                                                                      <explicit
+                                                                        name="applies_to_pair">
+                                                                        <redeclaration
+                                                                          entity-ref="simple_pair_range"/>
+                                                                          <typename
+                                                                            name="gear_pair"/>
+                                                                        </explicit>
+                                                                        <explicit
+                                                                          name="lower_limit_actual_rotation_1">
+                                                                          <typename
+                                                                            name="rotational_range_measure"/>
+                                                                        </explicit>
+                                                                        <explicit
+                                                                          name="upper_limit_actual_rotation_1">
+                                                                          <typename
+                                                                            name="rotational_range_measure"/>
+                                                                        </explicit>
+                                                                        <where
+                                                                          label="WR1"
+                                                                          expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_actual_rotation_1))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_actual_rotation_1)))       XOR       (lower_limit_actual_rotation_1 &lt;        upper_limit_actual_rotation_1)">
+                                                                        </where>
+                                                                      </entity>
+
+                                                                      <entity
+                                                                        name="rack_and_pinion_pair"
+                                                                        supertypes="kinematic_pair">
+                                                                        <explicit
+                                                                          name="pinion_radius">
+                                                                          <typename
+                                                                            name="length_measure"/>
+                                                                        </explicit>
+                                                                      </entity>
+
+                                                                      <entity
+                                                                        name="rack_and_pinion_pair_value"
+                                                                        supertypes="pair_value">
+                                                                        <explicit
+                                                                          name="applies_to_pair">
+                                                                          <redeclaration
+                                                                            entity-ref="pair_value"/>
+                                                                            <typename
+                                                                              name="rack_and_pinion_pair"/>
+                                                                          </explicit>
+                                                                          <explicit
+                                                                            name="actual_displacement">
+                                                                            <typename
+                                                                              name="length_measure"/>
+                                                                          </explicit>
+                                                                          <derived
+                                                                            name="actual_rotation"
+                                                                            expression="convert_plane_angle_for_pair_from_radian                     (SELF\pair_value.applies_to_pair,                      (- actual_displacement /                       SELF\pair_value.applies_to_pair\                       rack_and_pinion_pair.pinion_radius))">
+                                                                            <typename
+                                                                              name="plane_angle_measure"/>
+                                                                          </derived>
+                                                                        </entity>
+
+                                                                        <entity
+                                                                          name="rack_and_pinion_pair_range"
+                                                                          supertypes="simple_pair_range">
+                                                                          <explicit
+                                                                            name="applies_to_pair">
+                                                                            <redeclaration
+                                                                              entity-ref="simple_pair_range"/>
+                                                                              <typename
+                                                                                name="rack_and_pinion_pair"/>
+                                                                            </explicit>
+                                                                            <explicit
+                                                                              name="lower_limit_rack_displacement">
+                                                                              <typename
+                                                                                name="translational_range_measure"/>
+                                                                            </explicit>
+                                                                            <explicit
+                                                                              name="upper_limit_rack_displacement">
+                                                                              <typename
+                                                                                name="translational_range_measure"/>
+                                                                            </explicit>
+                                                                            <where
+                                                                              label="WR1"
+                                                                              expression="(('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (lower_limit_rack_displacement))        OR        ('KINEMATIC_STRUCTURE_SCHEMA.UNLIMITED_RANGE' IN         TYPEOF (upper_limit_rack_displacement)))       XOR       (lower_limit_rack_displacement &lt; upper_limit_rack_displacement)">
+                                                                            </where>
+                                                                          </entity>
+
+                                                                          <entity
+                                                                            name="kinematic_substructure"
+                                                                            super.expression="(ONEOF (kinematic_tree_structure,                       kinematic_network_structure))">
+                                                                            <explicit
+                                                                              name="parent_structure">
+                                                                              <typename
+                                                                                name="kinematic_structure"/>
+                                                                            </explicit>
+                                                                          </entity>
+
+                                                                          <entity
+                                                                            name="kinematic_network_structure"
+                                                                            supertypes="kinematic_substructure">
+                                                                          </entity>
+
+                                                                          <entity
+                                                                            name="kinematic_tree_structure"
+                                                                            supertypes="kinematic_substructure">
+                                                                          </entity>
+
+                                                                          <entity
+                                                                            name="kinematic_loop">
+                                                                            <explicit
+                                                                              name="network">
+                                                                              <typename
+                                                                                name="kinematic_network_structure"/>
+                                                                            </explicit>
+                                                                            <where
+                                                                              label="WR1"
+                                                                              expression="SIZEOF(USEDIN(SELF,   'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP')) &gt; 0">
+                                                                            </where>
+                                                                            <where
+                                                                              label="WR2"
+                                                                              expression="SIZEOF (QUERY( relation_1 &lt;* USEDIN(SELF,    'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP') |         SIZEOF (QUERY (relation_2 &lt;*  (USEDIN(SELF,          'KINEMATIC_STRUCTURE_SCHEMA.JOINT_LOGICAL_RELATIONSHIP.LOOP')              - relation_1) |              NOT(connected_in_simple_loop (relation_1, relation_2))         )) &gt; 0        )) = 0">
+                                                                            </where>
+                                                                          </entity>
+
+                                                                          <entity
+                                                                            name="joint_logical_relationship">
+                                                                            <explicit
+                                                                              name="loop">
+                                                                              <typename
+                                                                                name="kinematic_loop"/>
+                                                                            </explicit>
+                                                                            <explicit
+                                                                              name="previous_joint_logical_structure">
+                                                                              <typename
+                                                                                name="oriented_joint"/>
+                                                                            </explicit>
+                                                                            <explicit
+                                                                              name="next_joint_logical_structure">
+                                                                              <typename
+                                                                                name="oriented_joint"/>
+                                                                            </explicit>
+                                                                            <unique
+                                                                              label="UR1">
+                                                                              <unique.attribute
+                                                                                attribute="loop"/>
+                                                                              <unique.attribute
+                                                                                attribute="previous_joint_logical_structure"/>
+                                                                            </unique>
+                                                                            <unique
+                                                                              label="UR2">
+                                                                              <unique.attribute
+                                                                                attribute="loop"/>
+                                                                              <unique.attribute
+                                                                                attribute="next_joint_logical_structure"/>
+                                                                            </unique>
+                                                                            <where
+                                                                              label="WR1"
+                                                                              expression="previous_joint_logical_structure.exit_link :=:       next_joint_logical_structure.advent_link">
+                                                                            </where>
+                                                                          </entity>
+
+                                                                          <entity
+                                                                            name="oriented_joint">
+                                                                            <explicit
+                                                                              name="joint">
+                                                                              <typename
+                                                                                name="kinematic_joint"/>
+                                                                            </explicit>
+                                                                            <explicit
+                                                                              name="orientation">
+                                                                              <builtintype
+                                                                                type="BOOLEAN"/>
+                                                                            </explicit>
+                                                                            <derived
+                                                                              name="advent_link"
+                                                                              expression="assign_directed_link (joint, orientation)">
+                                                                              <typename
+                                                                                name="kinematic_link"/>
+                                                                            </derived>
+                                                                            <derived
+                                                                              name="exit_link"
+                                                                              expression="assign_directed_link (joint, NOT (orientation))">
+                                                                              <typename
+                                                                                name="kinematic_link"/>
+                                                                            </derived>
+                                                                          </entity>
+
+                                                                          <entity
+                                                                            name="oriented_joint_in_tree"
+                                                                            supertypes="oriented_joint">
+                                                                            <explicit
+                                                                              name="parent_structure">
+                                                                              <typename
+                                                                                name="kinematic_tree_structure"/>
+                                                                            </explicit>
+                                                                          </entity>
+
+                                                                          <entity
+                                                                            name="advent_oriented_joint"
+                                                                            supertypes="oriented_joint">
+                                                                          </entity>
+
+                                                                          <function
+                                                                            name="ypr_index">
+                                                                            <parameter
+                                                                              name="ypr">
+                                                                              <typename
+                                                                                name="ypr_enumeration"/>
+                                                                            </parameter>
+                                                                            <builtintype
+                                                                              type="INTEGER"/>
+                                                                            <algorithm>
   CASE ypr OF
     yaw    : RETURN (1);
     pitch  : RETURN (2);
     roll   : RETURN (3);
   END_CASE;
   RETURN (?);
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="representation_of_link">
-      <parameter
-        name="link">
-        <typename
-          name="kinematic_link"/>
-      </parameter>
-      <typename
-        name="kinematic_link_representation"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="representation_of_link">
+                                                                            <parameter
+                                                                              name="link">
+                                                                              <typename
+                                                                                name="kinematic_link"/>
+                                                                            </parameter>
+                                                                            <typename
+                                                                              name="kinematic_link_representation"/>
+                                                                            <algorithm>
   LOCAL
     link_rep_rel : BAG OF kinematic_link_representation_relation;
   END_LOCAL;
@@ -1810,25 +1880,25 @@
   ELSE
     RETURN (link_rep_rel[1].geometric_aspects);
   END_IF;
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="suitably_based_mechanism">
-      <parameter
-        name="mbp">
-        <typename
-          name="mechanism_base_placement"/>
-      </parameter>
-      <parameter
-        name="mech">
-        <typename
-          name="mechanism"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="suitably_based_mechanism">
+                                                                            <parameter
+                                                                              name="mbp">
+                                                                              <typename
+                                                                                name="mechanism_base_placement"/>
+                                                                            </parameter>
+                                                                            <parameter
+                                                                              name="mech">
+                                                                              <typename
+                                                                                name="mechanism"/>
+                                                                            </parameter>
+                                                                            <builtintype
+                                                                              type="BOOLEAN"/>
+                                                                            <algorithm>
   LOCAL
     kprop  : kinematic_property_definition;
     kgrep  : kinematic_ground_representation;
@@ -1878,20 +1948,20 @@
       END_IF;
     END_IF;
   END_IF;
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="unique_link_usage">
-      <parameter
-        name="link">
-        <typename
-          name="kinematic_link"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="unique_link_usage">
+                                                                            <parameter
+                                                                              name="link">
+                                                                              <typename
+                                                                                name="kinematic_link"/>
+                                                                            </parameter>
+                                                                            <builtintype
+                                                                              type="BOOLEAN"/>
+                                                                            <algorithm>
   LOCAL
     mechs  : SET OF mechanism;
     joints : SET OF kinematic_joint;
@@ -1917,25 +1987,25 @@
 
   RETURN (TRUE);
 
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="coordinated_pair_link_representation">
-      <parameter
-        name="link">
-        <typename
-          name="kinematic_link"/>
-      </parameter>
-      <parameter
-        name="pair_placement">
-        <typename
-          name="rigid_placement"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="coordinated_pair_link_representation">
+                                                                            <parameter
+                                                                              name="link">
+                                                                              <typename
+                                                                                name="kinematic_link"/>
+                                                                            </parameter>
+                                                                            <parameter
+                                                                              name="pair_placement">
+                                                                              <typename
+                                                                                name="rigid_placement"/>
+                                                                            </parameter>
+                                                                            <builtintype
+                                                                              type="BOOLEAN"/>
+                                                                            <algorithm>
   LOCAL
     link_rep : kinematic_link_representation;
   END_LOCAL;
@@ -1951,25 +2021,25 @@
       RETURN (TRUE);
     END_IF;
   END_IF;
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="frame_associated_to_background">
-      <parameter
-        name="frame">
-        <typename
-          name="rigid_placement"/>
-      </parameter>
-      <parameter
-        name="background">
-        <typename
-          name="kinematic_frame_background"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="frame_associated_to_background">
+                                                                            <parameter
+                                                                              name="frame">
+                                                                              <typename
+                                                                                name="rigid_placement"/>
+                                                                            </parameter>
+                                                                            <parameter
+                                                                              name="background">
+                                                                              <typename
+                                                                                name="kinematic_frame_background"/>
+                                                                            </parameter>
+                                                                            <builtintype
+                                                                              type="BOOLEAN"/>
+                                                                            <algorithm>
   LOCAL
     rep_bag : BAG OF kinematic_frame_background_representation;
     trf_bag : BAG OF kinematic_frame_based_transformation;
@@ -2029,25 +2099,25 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
 
   RETURN (FALSE);
 
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="plane_angle_for_pair_in_radian">
-      <parameter
-        name="pair">
-        <typename
-          name="kinematic_pair"/>
-      </parameter>
-      <parameter
-        name="angle">
-        <typename
-          name="plane_angle_measure"/>
-      </parameter>
-      <typename
-        name="plane_angle_measure"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="plane_angle_for_pair_in_radian">
+                                                                            <parameter
+                                                                              name="pair">
+                                                                              <typename
+                                                                                name="kinematic_pair"/>
+                                                                            </parameter>
+                                                                            <parameter
+                                                                              name="angle">
+                                                                              <typename
+                                                                                name="plane_angle_measure"/>
+                                                                            </parameter>
+                                                                            <typename
+                                                                              name="plane_angle_measure"/>
+                                                                            <algorithm>
   LOCAL
     converted_angle : plane_angle_measure := angle;
     link_rep        : kinematic_link_representation
@@ -2115,25 +2185,25 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
   OTHERWISE           : RETURN (converted_angle);
   END_CASE;
 
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="convert_plane_angle_for_pair_from_radian">
-      <parameter
-        name="pair">
-        <typename
-          name="kinematic_pair"/>
-      </parameter>
-      <parameter
-        name="angle_expr">
-        <builtintype
-          type="REAL"/>
-      </parameter>
-      <typename
-        name="plane_angle_measure"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="convert_plane_angle_for_pair_from_radian">
+                                                                            <parameter
+                                                                              name="pair">
+                                                                              <typename
+                                                                                name="kinematic_pair"/>
+                                                                            </parameter>
+                                                                            <parameter
+                                                                              name="angle_expr">
+                                                                              <builtintype
+                                                                                type="REAL"/>
+                                                                            </parameter>
+                                                                            <typename
+                                                                              name="plane_angle_measure"/>
+                                                                            <algorithm>
   LOCAL
     link_rep    : kinematic_link_representation
                 := representation_of_link (pair.joint.first_link);
@@ -2203,25 +2273,25 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
 
   result := angle_expr / conv_factor;
   RETURN (result);
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="convert_spatial_to_ypr_rotation">
-      <parameter
-        name="pair">
-        <typename
-          name="kinematic_pair"/>
-      </parameter>
-      <parameter
-        name="rotation">
-        <typename
-          name="spatial_rotation"/>
-      </parameter>
-      <typename
-        name="ypr_rotation"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="convert_spatial_to_ypr_rotation">
+                                                                            <parameter
+                                                                              name="pair">
+                                                                              <typename
+                                                                                name="kinematic_pair"/>
+                                                                            </parameter>
+                                                                            <parameter
+                                                                              name="rotation">
+                                                                              <typename
+                                                                                name="spatial_rotation"/>
+                                                                            </parameter>
+                                                                            <typename
+                                                                              name="ypr_rotation"/>
+                                                                            <algorithm>
   LOCAL
     axis       : direction;
     angle      : plane_angle_measure;   -- rotation angle in application
@@ -2419,49 +2489,49 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
 
   RETURN ([ya, pa, ra]);
 
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="assign_directed_link">
-      <parameter
-        name="joint">
-        <typename
-          name="kinematic_joint"/>
-      </parameter>
-      <parameter
-        name="orientation">
-        <builtintype
-          type="BOOLEAN"/>
-      </parameter>
-      <typename
-        name="kinematic_link"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="assign_directed_link">
+                                                                            <parameter
+                                                                              name="joint">
+                                                                              <typename
+                                                                                name="kinematic_joint"/>
+                                                                            </parameter>
+                                                                            <parameter
+                                                                              name="orientation">
+                                                                              <builtintype
+                                                                                type="BOOLEAN"/>
+                                                                            </parameter>
+                                                                            <typename
+                                                                              name="kinematic_link"/>
+                                                                            <algorithm>
    IF (orientation) THEN
       RETURN (joint.first_link);
    ELSE
       RETURN (joint.second_link);
    END_IF;
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-    <function
-      name="connected_in_simple_loop">
-      <parameter
-        name="relation_1">
-        <typename
-          name="joint_logical_relationship"/>
-      </parameter>
-      <parameter
-        name="relation_2">
-        <typename
-          name="joint_logical_relationship"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+                                                                          <function
+                                                                            name="connected_in_simple_loop">
+                                                                            <parameter
+                                                                              name="relation_1">
+                                                                              <typename
+                                                                                name="joint_logical_relationship"/>
+                                                                            </parameter>
+                                                                            <parameter
+                                                                              name="relation_2">
+                                                                              <typename
+                                                                                name="joint_logical_relationship"/>
+                                                                            </parameter>
+                                                                            <builtintype
+                                                                              type="BOOLEAN"/>
+                                                                            <algorithm>
   LOCAL
     next_jlr_in_loop_set : SET [1:?] OF joint_logical_relationship;
   END_LOCAL;
@@ -2488,10 +2558,10 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
       END_IF;
     END_IF;
   END_IF;
-      </algorithm>
+                                                                            </algorithm>
 
-    </function>
+                                                                          </function>
 
-  </schema>
+                                                                        </schema>
 
-</express>
+                                                                      </express>

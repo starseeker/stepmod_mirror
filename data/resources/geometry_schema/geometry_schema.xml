@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,7 +12,7 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.9"
+    version="1.17"
     source="../data/resources/geometry_schema/geometry_schema.exp"/>
 
   <schema name="geometry_schema">
@@ -117,7 +117,7 @@
     </interface>
 
     <constant name="dummy_gri"
-      expression="geometric_representation_item :=  representation_item('')||                                   geometric_representation_item()">
+      expression="geometric_representation_item :=  representation_item('')||                                   geometric_representation_item();">
     </constant>
     <type name="axis2_placement">
       <select
@@ -152,7 +152,7 @@
 
 
       <where
-        label="WHERE"
+        label="WR1"
         expression="SELF &gt; 0">
       </where>
     </type>
@@ -960,15 +960,16 @@
       name="composite_curve_on_surface"
       super.expression="(boundary_curve)"
       supertypes="composite_curve">
-      <explicit
-        name="DERIVE">
+      <derived
+        name="basis_surface"
+        expression="get_basis_surface(SELF)">
         <aggregate
           type="SET"
           lower="0"
           upper="2"/>
         <typename
           name="surface"/>
-      </explicit>
+      </derived>
       <where
         label="WR1"
         expression="SIZEOF(basis_surface) &gt; 0">
@@ -1836,15 +1837,16 @@
         <typename
           name="REAL"/>
       </explicit>
-      <explicit
-        name="DERIVE">
+      <derived
+        name="weights"
+        expression="list_to_array(weights_data,0,                                      upper_index_on_control_points)">
         <aggregate
           type="ARRAY"
           lower="0"
           upper="upper_index_on_control_points"/>
         <typename
           name="REAL"/>
-      </explicit>
+      </derived>
       <where
         label="WR1"
         expression="SIZEOF(weights_data) = SIZEOF(SELF\b_spline_curve.                                           control_points_list)">
@@ -1867,15 +1869,16 @@
         <typename
           name="LIST"/>
       </explicit>
-      <explicit
-        name="DERIVE">
+      <derived
+        name="weights"
+        expression="make_array_of_array(weights_data,0,u_upper,0,v_upper)">
         <aggregate
           type="ARRAY"
           lower="0"
           upper="u_upper"/>
         <typename
           name="ARRAY"/>
-      </explicit>
+      </derived>
       <where
         label="WR1"
         expression="(SIZEOF(weights_data) =                     SIZEOF(SELF\b_spline_surface.control_points_list))           AND (SIZEOF(weights_data[1]) =                  SIZEOF(SELF\b_spline_surface.control_points_list[1]))">
@@ -1898,15 +1901,16 @@
         <typename
           name="LIST"/>
       </explicit>
-      <explicit
-        name="DERIVE">
+      <derived
+        name="weights"
+        expression="make_array_of_array_of_array                             (weights_data,0,u_upper,0,v_upper,0,w_upper)">
         <aggregate
           type="ARRAY"
           lower="0"
           upper="u_upper"/>
         <typename
           name="ARRAY"/>
-      </explicit>
+      </derived>
       <where
         label="WR1"
         expression="(SIZEOF(weights_data) =                         SIZEOF(SELF\b_spline_volume.control_points_list))           AND (SIZEOF(weights_data[1]) =                     SIZEOF(SELF\b_spline_volume.control_points_list[1]))            AND (SIZEOF(weights_data[1][1]) =                 SIZEOF(SELF\b_spline_volume.control_points_list[1][1]))">
@@ -2475,24 +2479,14 @@
     <rule
       name="compatible_dimension"
       appliesto="cartesian_point direction representation_context geometric_representation_context">
-      <algorithm>
-WHERE
-
-  -- ensure that the count of coordinates of each cartesian_point
-  -- matches the coordinate_space_dimension of each geometric_context in
-  -- which it is geometrically founded
-  WR1: SIZEOF(QUERY(x &lt;* cartesian_point| SIZEOF(QUERY
-       (y &lt;* geometric_representation_context | item_in_context(x,y) AND
-       (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0 )) =0;
-
-  -- ensure that the count of direction_ratios of each direction
-  -- matches the coordinate_space_dimension of each geometric_context in
-  -- which it is geometrically founded
-  WR2: SIZEOF(QUERY(x &lt;* direction | SIZEOF( QUERY
-       (y &lt;* geometric_representation_context | item_in_context(x,y) AND
-       (HIINDEX(x.direction_ratios) &lt;&gt; y.coordinate_space_dimension)))
-       &gt; 0 )) = 0;
-      </algorithm>
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(x &lt;* cartesian_point| SIZEOF(QUERY       (y &lt;* geometric_representation_context | item_in_context(x,y) AND       (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0 )) =0">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(QUERY(x &lt;* direction | SIZEOF( QUERY       (y &lt;* geometric_representation_context | item_in_context(x,y) AND       (HIINDEX(x.direction_ratios) &lt;&gt; y.coordinate_space_dimension)))       &gt; 0 )) = 0">
+      </where>
 
     </rule>
 

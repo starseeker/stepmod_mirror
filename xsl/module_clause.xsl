@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_clause.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
+$Id: module_clause.xsl,v 1.2 2001/10/22 09:32:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -25,7 +25,7 @@ $Id: module_clause.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
     <HTML>
       <HEAD>
         <!-- apply a cascading stylesheet.
-             the stylesheet will only be applied if the parameter output_css
+             The stylesheet will only be applied if the parameter output_css
              is set in parameter.xsl 
              -->
         <xsl:call-template name="output_css">

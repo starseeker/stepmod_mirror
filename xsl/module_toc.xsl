@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_toc.xsl,v 1.1 2001/10/22 09:34:10 robbod Exp $
+$Id: module_toc.xsl,v 1.2 2001/11/12 08:57:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -25,6 +25,11 @@ $Id: module_toc.xsl,v 1.1 2001/10/22 09:34:10 robbod Exp $
   <TABLE border="1" cellspacing="1" width="100%">
     <TR>
       <TD valign="TOP">
+        <!-- RBN - this xref is here to aid navigation, it may need to be
+             removed for the ISO process -->
+        <A HREF="../../../../repository_index{$FILE_EXT}">
+          Module repository
+        </A><BR/>
         <A HREF="cover{$FILE_EXT}">Cover page</A><BR/>
         <A HREF="foreword{$FILE_EXT}#foreword">Foreword</A><BR/>
         <A HREF="introduction{$FILE_EXT}#intro">Introduction</A><BR/>

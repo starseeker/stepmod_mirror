@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.73 2002/10/14 10:33:52 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.74 2002/10/24 12:20:06 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -688,12 +688,11 @@
     <code>
       *)<br/>
       TYPE 
-      <xsl:value-of select="@name" />
-        =
+      <xsl:value-of select="@name" /> =
         <xsl:apply-templates select="./aggregate" mode="code"/>        
         <xsl:choose>
           <xsl:when test="./where">
-            <xsl:apply-templates select="./*" mode="underlying"/><br/>
+            <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
             <xsl:apply-templates select="./where" mode="code"/>
           </xsl:when>
           <xsl:otherwise>

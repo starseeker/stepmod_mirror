@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.8 2002/03/04 07:50:08 robbod Exp $
+     $Id: repository_index.xsl,v 1.9 2002/04/18 13:33:38 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -55,22 +55,23 @@
           </td>
         </tr>
       </table>
-      <xsl:variable name="module_count"
+      <xsl:variable name="module_mid_point"
         select="(count(./modules/module)+1) div 2"/>
+
       <blockquote>
         <table width="90%" cellspacing="0" cellpadding="4">
           <tr>
-            <td>
-              <xsl:apply-templates 
-                select="./modules/module[not(position() > $module_count)]">
+            <td valign="top">
+              <xsl:apply-templates select="./modules/module" mode="col1">
+                <xsl:with-param name="mid_point" select="$module_mid_point"/>
                 <xsl:sort select="@name"/>
               </xsl:apply-templates>
             </td>
-            <td>
-              <xsl:apply-templates 
-                select="./modules/module[position() > $module_count]">
+            <td valign="top">
+              <xsl:apply-templates select="./modules/module" mode="col2">
+                <xsl:with-param name="mid_point" select="$module_mid_point"/>
                 <xsl:sort select="@name"/>
-              </xsl:apply-templates>              
+              </xsl:apply-templates>
             </td>
           </tr>
         </table>
@@ -80,19 +81,21 @@
           Alphabetical list of Integrated Resource schemas
         </a>
       </h2>
-      <xsl:variable name="resource_count"
+      <xsl:variable name="resource_mid_point"
         select="(count(./resources/resource)+1) div 2"/>
 
       <blockquote>
         <table width="90%" cellspacing="0" cellpadding="4">
           <tr>
-            <td>
-              <xsl:apply-templates select="./resources/resource[not(position() > $resource_count)]">
+            <td valign="top">
+              <xsl:apply-templates select="./resources/resource" mode="col1">
+                <xsl:with-param name="mid_point" select="$resource_mid_point"/>
                 <xsl:sort select="@name"/>
               </xsl:apply-templates>
             </td>
-            <td>
-              <xsl:apply-templates select="./resources/resource[position() > $resource_count]">
+            <td valign="top">
+              <xsl:apply-templates select="./resources/resource" mode="col2">
+                <xsl:with-param name="mid_point" select="$resource_mid_point"/>
                 <xsl:sort select="@name"/>
               </xsl:apply-templates>
             </td>
@@ -103,8 +106,22 @@
   </HTML>
 </xsl:template>
 
+<xsl:template match="module" mode="col1">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="not(position()>$mid_point)">
+    <xsl:apply-templates select="." mode="output"/>
+  </xsl:if>
+</xsl:template>
 
-<xsl:template match="module">
+<xsl:template match="module" mode="col2">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="position()>$mid_point">
+    <xsl:apply-templates select="."  mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+
+<xsl:template match="module" mode="output">
   <xsl:variable name="xref"
     select="concat('./data/modules/',@name,'/sys/introduction',$FILE_EXT)"/>
   <xsl:variable name="part">
@@ -166,7 +183,22 @@
     </table>
 </xsl:template>
 
-<xsl:template match="resource">
+<xsl:template match="resource" mode="col1">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="not(position()>$mid_point)">
+    <xsl:apply-templates select="." mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="resource" mode="col2">
+  <xsl:param name="mid_point"/>
+  <xsl:if test="position()>$mid_point">
+    <xsl:apply-templates select="."  mode="output"/>
+  </xsl:if>
+</xsl:template>
+
+
+<xsl:template match="resource" mode="output">
   <xsl:variable name="xref" select="concat('./data/resources/',@name,'/',@name,$FILE_EXT)"/>
   <a href="{$xref}">
     <font size="-1">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.39 2002/03/25 14:31:07 robbod Exp $
+$Id: module.xsl,v 1.40 2002/04/11 10:43:52 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -528,7 +528,7 @@ $Id: module.xsl,v 1.39 2002/03/25 14:31:07 robbod Exp $
     This annex references a listing of the EXPRESS entity names and
     corresponding short names as specified or referenced in this part of ISO
     10303. It also provides a listing of each EXPRESS schema specified in this
-    part of ISO 10303 without comments or other explanatory text. These
+    part of ISO 10303 without comments nor other explanatory text. These
     listings are available in computer-interpretable form in Table E.1 and can
     be found at the following URLs:
   </p>
@@ -614,8 +614,8 @@ $Id: module.xsl,v 1.39 2002/03/25 14:31:07 robbod Exp $
     </xsl:call-template>           
   </xsl:variable>
   <p>
-    This clause specifies the information requirements for 
-    <xsl:value-of select="$current_module"/>
+    This clause specifies the information requirements for the 
+    <b><xsl:value-of select="$current_module"/></b>
     application module.
   </p>
   <p>
@@ -635,11 +635,9 @@ $Id: module.xsl,v 1.39 2002/03/25 14:31:07 robbod Exp $
 <p>
   <small>
     NOTE 2 The mapping specification is specified in 
-    <a href="{$sect51}#mapping">5.1</a> which shows how
-    the information requirements are met using the common resources of ISO
-    10303 and of ISO 13584. The use of the integrated resources introduces additional
-    requirements which are common to application modules and application
-    protocols. 
+    <a href="{$sect51}#mapping">5.1</a>. It shows how
+    the information requirements are met, using common resources of ISO
+    10303 and of ISO 13584 and constructs defined or imported in the MIM schema of this application module.
   </small>
 </p>
   <xsl:variable name="module_dir">
@@ -2298,12 +2296,13 @@ defines it. Use: normref.inc')"/>
 
 <xsl:template match="bibitem">
   <p>
-    [<xsl:number/>] <xsl:apply-templates select="orgname"/>
-    <xsl:apply-templates select="orgname"/>
-    <xsl:apply-templates select="pubdate"/>
+    [<xsl:number/>] 
+	<!--	<xsl:apply-templates select="orgname"/> 
+    <xsl:apply-templates select="orgname"/>   -->
     <xsl:apply-templates select="stdnumber"/>
-    <xsl:apply-templates select="stdtitle"/>
-    <xsl:apply-templates select="stdsubtitle"/>
+		<xsl:apply-templates select="stdtitle"/>
+    <xsl:apply-templates select="subtitle"/>
+    <xsl:apply-templates select="pubdate"/>
     <xsl:apply-templates select="ulink"/>
   </p>
 </xsl:template>
@@ -2331,30 +2330,35 @@ defines it. Use: normref.inc')"/>
 </xsl:template>
 
 <xsl:template match="orgname">
-  <xsl:value-of select="."/>,
-</xsl:template>
-
-<xsl:template match="pubdate">
-  <xsl:value-of select="."/>,
+<xsl:value-of select="."/>,
 </xsl:template>
 
 <xsl:template match="stdnumber">
-  <xsl:value-of select="."/>,
-</xsl:template>
-
-<xsl:template match="subtitle">
-  <xsl:value-of select="."/>
+<xsl:value-of select="."/>
+<xsl:text>, </xsl:text>
 </xsl:template>
 
 <xsl:template match="stdtitle">
-  <xsl:value-of select="."/>
+<i>
+<xsl:value-of select="."/>
+</i>
+</xsl:template>
+
+<xsl:template match="subtitle">
+<xsl:text>, </xsl:text>
+<xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="pubdate">
+<xsl:text>, </xsl:text>
+<xsl:value-of select="."/>
+<xsl:text>.</xsl:text>
 </xsl:template>
 
 <xsl:template match="ulink">
+<xsl:text>Available from the World Wide Web: </xsl:text>
   <xsl:variable name="href" select="."/>
   <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
 </xsl:template>
-
-
 
 </xsl:stylesheet>

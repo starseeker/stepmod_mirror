@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_arm_expg.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_c_arm_expg.xsl,v 1.4 2002/04/11 10:43:52 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -31,10 +31,17 @@ $Id: sect_c_arm_expg.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
   </xsl:call-template>
 
 The following diagrams provide a graphical representation of the EXPRESS structure and constructs specified in clause 4.
-The diagrams are presented in EXPRESS-G. 
+The diagrams are presented in EXPRESS-G.
+<p>This annex contain two distinct representations of the Application Reference Model of this application module:</p>
+<ul><li>a schema level representation which depicts the import of the constructs defined in the ARM schema of other application modules, in the ARM schema of this application module, through USE FROM statements;</li> 
+<li>an entity level representation which presents the Express constructs defined in the ARM schema of this application module and the references to imported constructs
+that are specialized or referred to by the constructs of the ARM schema of this application module.</li>
+</ul>
+<small>NOTE Both these representations are partial. The schema level representation does not present the ARM schema of modules that are indirectly imported.
+The entity level representation does not present the imported constructs that are not specialized or referred to by the constructs of the ARM schema of this application module.</small>
 <p>The EXPRESS-G  graphical notation is defined in annex D of ISO 10303-11.</p> 
 
   <xsl:apply-templates select="arm/express-g"/>
 </xsl:template>
-  
+
 </xsl:stylesheet>

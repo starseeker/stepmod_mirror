@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.27 2002/09/04 16:27:29 robbod Exp $
+$Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -35,11 +35,11 @@ $Id: module_toc.xsl,v 1.27 2002/09/04 16:27:29 robbod Exp $
         <p class="toc">
           <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
       
+          <A HREF="{$module_root}/sys/contents{$FILE_EXT}">Table of contents</A><BR/>
+        
           <!-- use #foreword to link direct -->
           <A HREF="{$module_root}/sys/foreword{$FILE_EXT}">Foreword</A><BR/>
 
-          <A HREF="{$module_root}/sys/contents{$FILE_EXT}">Table of contents</A><BR/>
-        
           <!-- use #intro to link direct -->
           <A HREF="{$module_root}/sys/introduction{$FILE_EXT}">Introduction</A><BR/>
           

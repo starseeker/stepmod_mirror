@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.27 2003/02/10 13:57:21 goset1 Exp $
+//$Id: express2xml.js,v 1.28 2003/02/22 02:04:05 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -110,6 +110,7 @@ function normaliseStatement(statement) {
     statement = statement.replace(/^\s*/g,"");
 //TEH added - to fix case where role:type lacks white space
     statement = statement.replace(/:/g,": ");
+    statement = statement.replace(/\s+:/g," : ");
     statement = statement.replace(/:\s*=/g,":=");
 //end TEH added
     while (statement.search(/  /) != -1) {
@@ -350,7 +351,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.27 2003/02/10 13:57:21 goset1 Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.28 2003/02/22 02:04:05 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -360,7 +361,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.27 $";
+    var appCVSRevision = "$Revision: 1.28 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -411,8 +412,21 @@ function xmlConstant(statement,expTs,outTs) {
 
     
     xmlOpenElement("<constant name=\""+name+"\"", outTs);	
-    xmlAttr("expression", expr+";", outTs);
+    var expression = getAfterEquals(statement);
+    var reg = /^\s*/;
+    expression = expression.replace(reg,"");
+    expression = tidyExpression(expression);
+//debug
+//    userMessage("expression " + expression);
+//    userMessage("statement " + statement);
+    typedef = statement.replace(/:=.*/,"");
+    typedef = getAfterColon(typedef);
+
+//    userMessage("typedef " + typedef);
+
+    xmlAttr("expression", expression, outTs);
     outTs.WriteLine(">");
+    xmlUnderlyingType(typedef,outTs);
     xmlCloseElement("</constant>",outTs);
 
     l = expTs.ReadLine();
@@ -883,6 +897,7 @@ function xmlUnderlyingType(statement,outTs) {
 	xmlCloseAttr(outTs);
 	return;
     }
+
     xmlOpenElement("<typename",outTs);
     statement = statement.trim();
     xmlAttr("name",statement,outTs);
@@ -1523,10 +1538,11 @@ function Main() {
 	    break;
 	case "resource" :
 	    var resource = cArgs(0);	    
-	    expFile = '../data/resources/'+resource+'/'+resource+'.exp';
+//TEH modified
+	    expFile = '..\\data\\resources\\'+resource+'\\'+resource+'.exp';
+//end TEH modified
 	    currentExpFile=expFile;
 	    var xmlFile = expFile.replace("\.exp","\.xml");
-
 	    var partno;
 	    if (cArgs.length>2) {
 		partno = cArgs(2);

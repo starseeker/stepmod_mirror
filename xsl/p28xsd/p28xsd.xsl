@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.5 2004/02/11 17:06:12 mikeward Exp $
+$Id: p28xsd.xsl,v 1.6 2004/02/19 07:55:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -10,6 +10,7 @@ $Id: p28xsd.xsl,v 1.5 2004/02/11 17:06:12 mikeward Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
 		xmlns:exslt="http://exslt.org/common"
+		xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 exclude-result-prefixes="msxsl exslt"
                 version="1.0">
 
@@ -80,7 +81,7 @@ $Id: p28xsd.xsl,v 1.5 2004/02/11 17:06:12 mikeward Exp $
     </HTML>
   </xsl:template>
   
-  <xsl:template match="/" mode="schema">
+  <!-- xsl:template match="/" mode="schema">
     <xsl:call-template name="generate_xsd">
       <xsl:with-param name="schema_node_param" select="."/>
       <xsl:with-param name="indent_param" select="string('')"/>
@@ -141,9 +142,54 @@ $Id: p28xsd.xsl,v 1.5 2004/02/11 17:06:12 mikeward Exp $
 				<xsl:otherwise/>
 			</xsl:choose>
 		</xsl:for-each>
+	</xsl:template -->
+
+<xsl:template match="xs:schema" mode="schema">
+		&lt;<xsl:value-of select="string('xs:schema')"/>
+				<xsl:for-each select="namespace::*">
+					<xsl:value-of select="string(' ')"/>
+					<xsl:if test=".!='http://www.w3.org/XML/1998/namespace'">
+						<xsl:choose>
+							<xsl:when test="name()">xmlns:<xsl:value-of select="name()" /></xsl:when>
+		            				<xsl:otherwise>xmlns</xsl:otherwise>
+		            			</xsl:choose>
+	            				<xsl:text />=&quot;<xsl:value-of select="." />&quot;<xsl:text />
+	           			</xsl:if>
+				</xsl:for-each>
+				<xsl:for-each select="./@*">
+					<xsl:value-of select="string(' ')"/>
+					<xsl:value-of select="name()"/>=&quot;<xsl:value-of select="."/>&quot;<xsl:text/>
+				</xsl:for-each>&gt;<xsl:text/><br/>
+				<xsl:apply-templates select="./*" mode="content"/>
+			&lt;/<xsl:value-of select="string('xs:schema')"/>&gt;<br/>
 	</xsl:template>
-
-
+	
+	<xsl:template match="*" mode="content">
+		<xsl:variable name="indent">
+			<xsl:for-each select="ancestor ::*">&#160;&#160;&#160;&#160;</xsl:for-each>
+		</xsl:variable>
+		<xsl:variable name="comment" select="comment()"/>
+		<xsl:if test="string-length($comment) > 0">
+			<xsl:value-of select="concat($indent, '&lt;!-- ', $comment, ' --&gt;')"/><br/>
+		</xsl:if>
+		<xsl:variable name="element_name" select="name()"/>
+		<xsl:value-of select="$indent"/>&lt;<xsl:value-of select="$element_name"/>
+			<xsl:for-each select="./@*">
+				<xsl:value-of select="string(' ')"/>
+				<xsl:value-of select="name()"/>=&quot;<xsl:value-of select="."/>&quot;<xsl:text/>
+			</xsl:for-each>&gt;<xsl:text/>
+			<br/>
+			<xsl:variable name="content" select="text()"/>
+			<xsl:if test="$content">
+				<xsl:value-of select="$content"/>
+				<br/>
+			</xsl:if>
+			<xsl:if test="./*">
+				<xsl:apply-templates select="./*" mode="content"/>
+			</xsl:if>
+			
+		<xsl:value-of select="$indent"/>&lt;/<xsl:value-of select="$element_name"/>&gt;<br/>	
+	</xsl:template>
 
 
 </xsl:stylesheet>

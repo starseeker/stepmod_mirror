@@ -1034,7 +1034,7 @@
 								</xsl:when>			
 
 								<xsl:otherwise>
-									<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
+									<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$optionality}"/>
 									<xsl:text>&#xa;</xsl:text>
 									<xsl:text>&#xa;</xsl:text>
 								</xsl:otherwise>

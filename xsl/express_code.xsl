@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.50 2003/05/19 14:31:45 robbod Exp $
+     $Id: express_code.xsl,v 1.51 2003/05/27 14:27:48 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -307,7 +307,11 @@
 
 
 <xsl:template match="builtintype" mode="underlying">
-  <xsl:value-of select="@type" />
+	<xsl:value-of select="@type" />
+	<xsl:variable name="type_label" select="@typelabel"/>
+	<xsl:if test="$type_label">
+		<xsl:value-of select="concat( ' : ', $type_label)"/>
+	</xsl:if>
 </xsl:template>
 
 

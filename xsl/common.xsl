@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.4 2001/11/12 08:55:58 robbod Exp $
+$Id: common.xsl,v 1.5 2001/11/14 17:09:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -55,25 +55,123 @@ $Id: common.xsl,v 1.4 2001/11/12 08:55:58 robbod Exp $
 </xsl:template>
 
 <!--
-     Output the module title
+     Output the module title - used to create the HTML TITLE
+     If the global parameter: output_rcs in parameter.xsl
+     is set, then RCS version control information is displayed
 -->
 <xsl:template match="module" mode="title">
-  <xsl:variable 
-    name="date"
-    select="translate(@cvs.date,'$','')"/>
-  <xsl:variable 
-    name="rev"
-    select="translate(@cvs.revision,'$','')"/>
-  <xsl:value-of select="concat(@part,' :- ',@name,'  (',$date,' ',$rev,')')"/>
+  <xsl:choose>
+    <xsl:when test="$output_rcs">
+      <xsl:variable 
+        name="date"
+        select="translate(@rcs.date,'$','')"/>
+      <xsl:variable 
+        name="rev"
+        select="translate(@rcs.revision,'$','')"/>
+      <xsl:value-of 
+        select="concat(@part,' :- ',@name,'  (',$date,' ',$rev,')')"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of 
+        select="concat(@part,' :- ',@name)"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+  <!-- output RCS version control information -->
+<xsl:template name="rcs_output">
+  <xsl:param name="module" select="@name"/>
+  <xsl:if test="$output_rcs">
+    <xsl:variable name="mod_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="$module"/>
+      </xsl:call-template>           
+    </xsl:variable>
+
+    <table cellspacing="0" border="0">
+      <xsl:variable
+        name="module_file" 
+        select="concat($mod_dir,'/module.xml')"/>
+      <xsl:variable 
+        name="module_date"
+        select="translate(document($module_file)/module/@rcs.date,'$','')"/>
+      <xsl:variable 
+      name="module_rev"
+        select="translate(document($module_file)/module/@rcs.revision,'$','')"/>
+      <tr>
+        <td>
+          <font size="-2">
+            <xsl:value-of select="'module.xml'"/>
+          </font>
+        </td> 
+        <td>
+          <font size="-2">
+            <xsl:value-of select="concat('(',$module_date,' ',$module_rev,')')"/>
+          </font>
+        </td>
+        <td>&#160;&#160;</td>
+      <xsl:variable
+        name="arm_file" 
+        select="concat($mod_dir,'/arm.xml')"/>
+      <xsl:variable 
+        name="arm_date"
+        select="translate(document($arm_file)/express/@rcs.date,'$','')"/>
+      <xsl:variable 
+        name="arm_rev"
+        select="translate(document($arm_file)/express/@rcs.revision,'$','')"/>
+
+        <td>
+          <font size="-2">
+            <xsl:value-of select="'arm.xml'"/>
+          </font>
+        </td>
+        <td>
+          <font size="-2">
+            <xsl:value-of select="concat('(', $arm_date,' ',$arm_rev,')')"/>
+          </font>
+        </td>
+        <td>&#160;&#160;</td>
+      
+      <xsl:variable
+        name="mim_file" 
+        select="concat($mod_dir,'/mim.xml')"/>
+      <xsl:variable 
+        name="mim_date"
+        select="translate(document($mim_file)/express/@rcs.date,'$','')"/>
+      <xsl:variable 
+        name="mim_rev"
+        select="translate(document($mim_file)/express/@rcs.revision,'$','')"/>
+
+        <td>
+          <font size="-2">
+            <xsl:value-of select="'mim.xml'"/>
+          </font>
+        </td>
+        <td>
+          <font size="-2">
+            <xsl:value-of select="concat('(',$mim_date,' ',$mim_rev,')')"/>
+          </font>
+        </td>
+      </tr>
+    </table>
+  </xsl:if>  
 </xsl:template>
 
 <!--
      Output the tile for a table of contents banner for a module
      displayed on separate pages
+     If the global parameter: output_rcs in parameter.xsl
+     is set, then RCS version control information is displayed
 -->
 <xsl:template match="module" mode="TOCbannertitle">
   <!-- the entry that has been selected -->
   <xsl:param name="selected"/>
+
+  <!-- output RCS version control information -->
+  <xsl:call-template name="rcs_output">
+    <xsl:with-param name="module" select="@name"/>
+  </xsl:call-template>
+
   <TABLE cellspacing="0" border="0" width="100%">
     <TR>
       <TD valign="MIDDLE">

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express.xsl,v 1.2 2001/10/05 15:35:00 robbod Exp $
+     $Id: parameters.xsl,v 1.1 2001/10/22 09:34:10 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -23,6 +23,13 @@
 
   <!-- When YES the Table of schema table of contents will be output -->
   <xsl:param name="output_toc" select="'YES'"/>
+
+  <!-- When YES the RCS version control informatin will be output 
+       Used by:
+       xsl:template match="module" mode="title" in common.xsl
+       xsl:template match="module" mode="TOCbannertitle" in common.xsl
+       -->
+  <xsl:param name="output_rcs" select="'YES'"/>
 
 
 

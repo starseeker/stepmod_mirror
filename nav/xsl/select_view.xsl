@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.14 2003/03/03 11:07:09 nigelshaw Exp $
+$Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -885,6 +885,17 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 	<xsl:when test="$top-schema//type[select][@name=$this-type]">
 
 	<!-- type is declared in this schema so mapping checks are handled elsewhere -->
+
+	</xsl:when>
+	<xsl:when test="./redeclaration">
+
+		<!-- type is redeclared so mapping checks apply to the original declaration -->
+
+<!--		<br/>
+		<xsl:value-of select="concat(../@name,'.',@name)" /> redeclared. No mapping check applies.
+-->
+
+		<!-- check for mappings declared unnecessarily ???  -->
 
 	</xsl:when>
 	<xsl:when test="$called-schemas//type[select][@name=$this-type]">

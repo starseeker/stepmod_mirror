@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.116 2002/12/30 09:39:34 goset1 Exp $
+$Id: module.xsl,v 1.117 2002/12/30 13:09:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3544,6 +3544,7 @@ $module_ok,' Check the normatives references')"/>
 
 
 <xsl:template match="usage_guide[.//guide_subclause]">
+<!-- usage guide with sub-clauses -->
   <xsl:for-each select="./guide_subclause">		
 		<xsl:variable name="sect_no">
 			<xsl:number/>
@@ -3564,16 +3565,25 @@ $module_ok,' Check the normatives references')"/>
  <xsl:template match="guide_subclause">
     <xsl:param name="sect_no"/>
 		
-		<H3><xsl:value-of select="concat('F.',$sect_no,' ')"/>
-			<xsl:value-of select="@title"/></H3>			
+		<xsl:variable name="title">
+		<xsl:value-of select="@title"/>
+		</xsl:variable>
+		
+		<a name="{$title}"><H3><xsl:value-of select="concat('F.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></H3></a>			
 		 <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="guide_subclause[.//guide_subclause]">
+<!-- sub-level of usage guide sub-clauses -->
     <xsl:param name="sect_no"/>
 		
-		<H3><xsl:value-of select="concat('F.',$sect_no,' ')"/>
-			<xsl:value-of select="@title"/></H3>
+		<xsl:variable name="title">
+		<xsl:value-of select="@title"/>
+		</xsl:variable>
+	
+		<A name="{$title}"><H3><xsl:value-of select="concat('F.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></H3></A>
 			
 			<xsl:variable name="sect_sup">
 		<xsl:value-of select="concat('F.',$sect_no,'.')"/>
@@ -3582,10 +3592,14 @@ $module_ok,' Check the normatives references')"/>
 						<xsl:variable name="sect_nos">
 						<xsl:number/>
 						</xsl:variable>
-										
-						<H4>
+	
+			<xsl:variable name="subtitle">
+			<xsl:value-of select="@title"/>
+			</xsl:variable>
+									
+						<A name="{$subtitle}"><H4>
 						<xsl:value-of select="concat($sect_sup,$sect_nos,' ')"/>
-						<xsl:value-of select="@title"/></H4>
+						<xsl:value-of select="@title"/></H4></A>
 			      <xsl:apply-templates/>
 				</xsl:for-each>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.23 2003/03/13 19:16:56 robbod Exp $
+$Id: imgfile.xsl,v 1.24 2003/05/04 08:15:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -63,7 +63,15 @@ $Id: imgfile.xsl,v 1.23 2003/03/13 19:16:56 robbod Exp $
       <xsl:apply-templates select="$module_xml" mode="meta_data"/>
     </HEAD>
 
-    <body>
+    <xsl:element name="body">
+      <xsl:if test="$output_background='YES'">
+        <xsl:attribute name="background">
+            <xsl:value-of select="concat('../../../images/',$background_image)"/>
+          </xsl:attribute>
+          <xsl:attribute name="bgproperties" >
+            <xsl:value-of select="'fixed'" />
+            </xsl:attribute>
+          </xsl:if>
       <xsl:choose>
         <xsl:when test="@module">
           <xsl:apply-templates 
@@ -125,7 +133,7 @@ $Id: imgfile.xsl,v 1.23 2003/03/13 19:16:56 robbod Exp $
 
       <br/><br/>
       <p>&#169; ISO <xsl:value-of select="$module_xml/@publication.year"/> &#8212; All rights reserved</p>
-    </body>
+    </xsl:element>
   </HTML>
 </xsl:template>
 

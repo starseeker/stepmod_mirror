@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.10 2002/08/09 08:55:52 robbod Exp $
+$Id: express.xsl,v 1.11 2003/03/13 19:16:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -84,7 +84,17 @@ $Id: express.xsl,v 1.10 2002/08/09 08:55:52 robbod Exp $
       </xsl:call-template>
       <TITLE>Integrated Resource: <xsl:value-of select="./express/schema/@name"/></TITLE>
     </HEAD>
-    <BODY>
+    <xsl:element name="body">
+      <xsl:if test="$output_background='YES'">
+        <xsl:attribute name="background">
+            <xsl:value-of select="concat('../../../../images/',$background_image)"/>
+          </xsl:attribute>
+
+          <xsl:attribute name="bgproperties" >
+            <xsl:value-of select="'fixed'" />
+            </xsl:attribute>
+</xsl:if>
+
   <!-- debug <xsl:value-of select="$global_xref_list"/> -->
     <h2>
       <xsl:value-of select="concat('Schema: ',./express/schema/@name)"/>
@@ -94,7 +104,7 @@ $Id: express.xsl,v 1.10 2002/08/09 08:55:52 robbod Exp $
 			</xsl:if>
 
     <xsl:apply-templates select="./express/schema" mode="code"/>
-    </BODY>
+  </xsl:element>
   </HTML>
 </xsl:template>
 
@@ -112,9 +122,18 @@ $Id: express.xsl,v 1.10 2002/08/09 08:55:52 robbod Exp $
       </xsl:call-template>
       <TITLE></TITLE>
     </HEAD>
-    <BODY>  
-    <xsl:apply-templates select="./schema" mode="code"/>
-    </BODY>
+    <xsl:element name="body">
+
+      <xsl:if test="$output_background='YES'">
+        <xsl:attribute name="background">
+          <xsl:value-of select="concat('../../../../images/',$background_image)"/>
+        </xsl:attribute>
+        <xsl:attribute name="bgproperties" >
+        <xsl:value-of select="'fixed'" />
+        </xsl:attribute>
+      </xsl:if>
+      <xsl:apply-templates select="./schema" mode="code"/>
+    </xsl:element>
   </HTML>
 </xsl:template>
   

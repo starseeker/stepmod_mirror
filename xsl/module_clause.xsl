@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_clause.xsl,v 1.6 2003/03/11 23:56:56 robbod Exp $
+$Id: module_clause.xsl,v 1.7 2003/03/13 19:16:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -43,7 +43,16 @@ $Id: module_clause.xsl,v 1.6 2003/03/11 23:56:56 robbod Exp $
             mode="title"/>
         </TITLE>
       </HEAD>
-      <BODY>
+    <xsl:element name="body">
+      <xsl:if test="$output_background='YES'">
+        <xsl:attribute name="background">
+            <xsl:value-of select="concat('../../../../images/',$background_image)"/>
+          </xsl:attribute>
+          <xsl:attribute name="bgproperties" >
+            <xsl:value-of select="'fixed'" />
+            </xsl:attribute>
+          </xsl:if>
+
         <!-- debug <xsl:message><xsl:value-of select="$global_xref_list"/></xsl:message> -->
         <!-- output the Table of contents banner -->
         <xsl:apply-templates 
@@ -55,7 +64,7 @@ $Id: module_clause.xsl,v 1.6 2003/03/11 23:56:56 robbod Exp $
 
         <br/><br/>
         <p>&#169; ISO <xsl:value-of select="$module_xml/module/@publication.year"/> &#8212; All rights reserved</p>
-      </BODY>
+      </xsl:element>
     </HTML>
   </xsl:template>
 

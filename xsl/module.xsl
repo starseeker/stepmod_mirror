@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.139 2003/05/06 10:23:49 robbod Exp $
+$Id: module.xsl,v 1.140 2003/05/06 14:50:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -22,9 +22,6 @@ $Id: module.xsl,v 1.139 2003/05/06 10:23:49 robbod Exp $
     doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
     indent="yes"
     />
-
-
-
 <xsl:template match="/">
   <HTML>
     <HEAD>
@@ -40,12 +37,22 @@ $Id: module.xsl,v 1.139 2003/05/06 10:23:49 robbod Exp $
         <xsl:apply-templates select="./module" mode="title"/>
       </TITLE>
     </HEAD>
-    <BODY>
-      <xsl:apply-templates select="./module" mode="TOCsinglePage"/>
-      <xsl:apply-templates select="./module" />
-    </BODY>
-  </HTML>
-</xsl:template>
+
+    <xsl:element name="body">
+      <xsl:if test="$output_background='YES'">
+        <xsl:attribute name="background">
+          <xsl:value-of select="concat('../../../../images/',$background_image)"/>
+        </xsl:attribute>
+        <xsl:attribute name="bgproperties" >
+          <xsl:value-of select="'fixed'" />
+          </xsl:attribute>
+        </xsl:if>
+        
+        <xsl:apply-templates select="./module" mode="TOCsinglePage"/>
+        <xsl:apply-templates select="./module" />
+        </xsl:element>
+      </HTML>
+    </xsl:template>
 
 <xsl:template match="module">
   <xsl:apply-templates select="." mode="coverpage"/>

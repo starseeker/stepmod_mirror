@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.32 2004/10/19 21:23:16 robbod Exp $
+$Id: common.xsl,v 1.33 2004/11/02 08:28:24 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -478,7 +478,7 @@ $Id: common.xsl,v 1.32 2004/10/19 21:23:16 robbod Exp $
   </xsl:call-template>
 
   <xsl:variable name="dc.dates"
-    select="normalize-space(substring-after((translate(@rcs.date,'$','')),'Date: '))"/>
+    select="normalize-space(substring-after((translate(@rcs.date,'$/',' -')),'Date:'))"/>
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Dates'"/>
     <xsl:with-param name="content" select="$dc.dates"/>
@@ -523,7 +523,7 @@ $Id: common.xsl,v 1.32 2004/10/19 21:23:16 robbod Exp $
     <xsl:call-template name="get_module_wg_group"/>
   </xsl:variable>  
   <xsl:variable name="id"
-    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+    select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@wg.number)"/>
   <xsl:variable name="clause_of">
     <xsl:if test="$clause">
       <xsl:value-of select="concat('Clause of ',$clause)"/>

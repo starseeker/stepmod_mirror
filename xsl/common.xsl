@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.143 2004/11/29 12:12:25 robbod Exp $
+$Id: common.xsl,v 1.144 2004/12/17 18:51:05 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -151,7 +151,7 @@ $Id: common.xsl,v 1.143 2004/11/29 12:12:25 robbod Exp $
   </xsl:call-template>
 
   <xsl:variable name="dc.dates"
-    select="normalize-space(substring-after((translate(@rcs.date,'$','')),'Date: '))"/>
+    select="normalize-space(substring-after((translate(@rcs.date,'$/',' -')),'Date:'))"/>
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Dates'"/>
     <xsl:with-param name="content" select="$dc.dates"/>
@@ -2763,6 +2763,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   <xsl:choose>
     <xsl:when test="string-length(/module/@sc4.working_group)>0">
       <xsl:value-of select="normalize-space(/module/@sc4.working_group)"/>
+    </xsl:when>
+    <xsl:when test="/application_protocol">
+      <xsl:value-of select="string('3')"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:value-of select="string('12')"/>

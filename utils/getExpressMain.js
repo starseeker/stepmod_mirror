@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.6 2003/01/08 13:19:53 robbod Exp $
+//$Id: getExpressMain.js,v 1.7 2003/01/10 08:24:32 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -175,7 +175,7 @@ function GetArmMimExpressOld(expDir) {
 	// Copy across mim file
 	var mimFileName = "../data/modules/"+moduleName+"/mim.exp";
 	var newMimFileName = expDir+"/mim/"+moduleName+"_mim.exp";
-	UserMessage(mimFileName+"->"+newMimFileName);
+	//UserMessage(mimFileName+"->"+newMimFileName);
 
 	if (fso.FileExists(mimFileName)) {
 	    src = fso.GetFile(mimFileName);
@@ -225,39 +225,47 @@ function GetIrListExpress(expDir, irList) {
 
     while (!irListStr.AtEndOfStream) {
 	var resourceName =  irListStr.ReadLine();
+	// strip white space - read word
+	resourceName = resourceName.trim();
+
 	var src, dst;
-	// Copy across resource express file
-	var resourceFileName = "../data/resources/"+resourceName+"/"+resourceName+".exp";
-	var newResourceFileName = expDir+"/resources/"+resourceName+".exp";
-	//UserMessage(resourceFileName+"->"+newResourceFileName);
-	if (fso.FileExists(resourceFileName)) {
-	    //copy across resource file
-	    src = fso.GetFile(resourceFileName);
-	    dst = newResourceFileName;
-	    src.Copy(dst);
-	    
-	    // append into resources.exp
-	    var srcStr = fso.OpenTextFile(src,ForReading);	
-	    resourceStr.WriteLine("");
-	    resourceStr.WriteLine("");
-	    resourceStr.WriteLine("(*");
-	    resourceStr.WriteLine("   ------------------------------------------------------------");
-	    resourceStr.WriteLine(src);
-	    resourceStr.WriteLine("   ------------------------------------------------------------");
-	    resourceStr.WriteLine("*)");
-	    resourceStr.WriteLine("");
-	    while (!srcStr.AtEndOfStream) {
-		var l =  srcStr.ReadLine();
-		// ignore 
-		// {iso standard 10303 part (11) version (4)} 
-		var reg = /{.*iso\b/;
-		if (!l.match(reg))
-		    resourceStr.WriteLine(l);
+	// any module starting with // is assumed commented out
+	var reg=/^\w+/;
+	var word = resourceName.match(reg);
+	if (word) {
+	    // Copy across resource express file
+	    var resourceFileName = "../data/resources/"+resourceName+"/"+resourceName+".exp";
+	    var newResourceFileName = expDir+"/resources/"+resourceName+".exp";
+	    //UserMessage(resourceFileName+"->"+newResourceFileName);
+	    if (fso.FileExists(resourceFileName)) {
+		//copy across resource file
+		src = fso.GetFile(resourceFileName);
+		dst = newResourceFileName;
+		src.Copy(dst);
+		
+		// append into resources.exp
+		var srcStr = fso.OpenTextFile(src,ForReading);	
+		resourceStr.WriteLine("");
+		resourceStr.WriteLine("");
+		resourceStr.WriteLine("(*");
+		resourceStr.WriteLine("   ------------------------------------------------------------");
+		resourceStr.WriteLine(src);
+		resourceStr.WriteLine("   ------------------------------------------------------------");
+		resourceStr.WriteLine("*)");
+		resourceStr.WriteLine("");
+		while (!srcStr.AtEndOfStream) {
+		    var l =  srcStr.ReadLine();
+		    // ignore 
+		    // {iso standard 10303 part (11) version (4)} 
+		    var reg = /{.*iso\b/;
+				if (!l.match(reg))
+				resourceStr.WriteLine(l);
+		    }
+		    srcStr.Close();    
+		} else {
+		    UserMessage("File does not exist:\n"+resourceFileName);
+		}
 	    }
-	    srcStr.Close();    
-	} else {
-	    UserMessage("File does not exist:\n"+resourceFileName);
-	}
     }
 }
 
@@ -283,6 +291,7 @@ function GetArmMimExpress(expDir, modList) {
 	var reg=/^\w+/;
 	var word = moduleName.match(reg);
 	if (word) {
+	    //UserMessage(moduleName);
 	    // Copy across mim file
 	    var mimFileName = "../data/modules/"+moduleName+"/mim.exp";
 	    var newMimFileName = expDir+"/mim/"+moduleName+"_mim.exp";
@@ -302,7 +311,8 @@ function GetArmMimExpress(expDir, modList) {
 	    if (fso.FileExists(armFileName)) {
 		src = fso.GetFile(armFileName);
 		dst = newArmFileName;
-		src.Copy(dst);	    
+		src.Copy(dst);
+		//UserMessage(armFileName+"->"+newArmFileName);
 	    } else {
 		UserMessage("File does not exist:\n"+armFileName);
 	    }
@@ -418,25 +428,31 @@ function AppendMimArm(armOrMim, expDir, modList) {
     var reg = /{.*iso\b/;
     while (!modListStr.AtEndOfStream) {
 	var src =  modListStr.ReadLine();
-	src = srcPath+"\\"+armOrMim+"\\"+src+"_"+armOrMim+".exp";
-	if (fso.FileExists(src)) {
-	    var srcStr = fso.OpenTextFile(src,ForReading);	
-	    armStr.WriteLine("");
-	    armStr.WriteLine("");
-	    armStr.WriteLine("(*");
-	    armStr.WriteLine("   ------------------------------------------------------------");
-	    armStr.WriteLine(src);
-	    armStr.WriteLine("   ------------------------------------------------------------");
-	    armStr.WriteLine("*)");
-	    armStr.WriteLine("");
-	    while (!srcStr.AtEndOfStream) {
-		var l =  srcStr.ReadLine();
-		// ignore 
-		// {iso standard 10303 part (11) version (4)} 
-		if (!l.match(reg))
-		    armStr.WriteLine(l);
+	// strip white space - read word
+	src = src.trim();
+	// any module starting with // is assumed commented out
+	var word = src.match(/^\w+/);
+	if (word) {
+	    src = srcPath+"\\"+armOrMim+"\\"+src+"_"+armOrMim+".exp";
+	    if (fso.FileExists(src)) {
+		var srcStr = fso.OpenTextFile(src,ForReading);	
+		armStr.WriteLine("");
+		armStr.WriteLine("");
+		armStr.WriteLine("(*");
+		armStr.WriteLine("   ------------------------------------------------------------");
+		armStr.WriteLine(src);
+		armStr.WriteLine("   ------------------------------------------------------------");
+		armStr.WriteLine("*)");
+		armStr.WriteLine("");
+		while (!srcStr.AtEndOfStream) {
+		    var l =  srcStr.ReadLine();
+		    // ignore 
+		    // {iso standard 10303 part (11) version (4)} 
+		    if (!l.match(reg))
+			armStr.WriteLine(l);
+		}
+		srcStr.Close();    
 	    }
-	    srcStr.Close();    
 	}
     }
    armStr.Close();

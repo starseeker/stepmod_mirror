@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.9 2002/01/23 14:24:56 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.10 2002/01/28 11:07:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -26,11 +26,11 @@ $Id: sect_5_mapping.xsl,v 1.9 2002/01/23 14:24:56 robbod Exp $
 
   <!-- a list of all the entities and resources defined in the resources.
        Used by link_resource_object to produce a URL
-       -->
+NOT USED
   <xsl:variable name="global_resource_xref_list">
     <xsl:call-template name="build_resource_xref_list"/>
   </xsl:variable>
-
+       -->
 
   <!-- A global variable used by the express_file_to_ref template defined
        in express_link.xsl.
@@ -202,6 +202,7 @@ $Id: sect_5_mapping.xsl,v 1.9 2002/01/23 14:24:56 robbod Exp $
           </xsl:otherwise>
         </xsl:choose>
       </font>
+      <xsl:apply-templates select="./alt"/>
     </td>
 
     <!-- Output the remaining mapping table cells -->
@@ -311,7 +312,9 @@ $Id: sect_5_mapping.xsl,v 1.9 2002/01/23 14:24:56 robbod Exp $
 <!-- output alt text in the mapping table -->
 <xsl:template match="alt">
   <font size="-1">
-    <xsl:value-of select="string(.)"/>
+    <xsl:call-template name="output_string_with_linebreaks">
+      <xsl:with-param name="string" select="string(.)"/>
+    </xsl:call-template>
   </font>  
 </xsl:template>
 

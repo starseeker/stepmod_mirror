@@ -624,12 +624,13 @@
 		<xs:element 
 			name="{$corrected_entity_name_param}" 
 			type="{$namespace_prefix}{$corrected_entity_name_param}" 
-			 block="extension restriction"
+			block="extension restriction"
 			substitutionGroup="{$ext_base_sub_grp}"
 			nillable="true">
 		</xs:element>
 		<xsl:text>&#xa;</xsl:text>
 		<xsl:text>&#xa;</xsl:text>
+		
 		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
 
 		<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">

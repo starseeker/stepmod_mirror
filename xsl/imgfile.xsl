@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.18 2002/08/06 06:20:41 robbod Exp $
+$Id: imgfile.xsl,v 1.19 2002/08/09 20:37:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -26,10 +26,41 @@ $Id: imgfile.xsl,v 1.18 2002/08/06 06:20:41 robbod Exp $
 
 
 <xsl:template match="imgfile.content">
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="@module"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="module_file" select="concat($module_dir,'/module.xml')"/>
+
+  <!-- if a file is specified then can deduce the figure title -->
+  <xsl:variable name="fig_title">
+    <xsl:choose>
+      <xsl:when test="./@file">
+        <xsl:apply-templates 
+          select="document($module_file)/module/*/express-g/imgfile"
+          mode="title">
+          <xsl:with-param name="file" select="@file"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@title"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <HTML>
     <HEAD>
       <TITLE>
-        <xsl:value-of select="concat(@module,' : ',@title)"/>
+        <xsl:choose>
+          <xsl:when test="@module">
+            <xsl:value-of select="concat(@module,' : ',$fig_title)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            @module not specified.
+          </xsl:otherwise>
+        </xsl:choose>
       </TITLE>
     </HEAD>
 
@@ -38,13 +69,6 @@ $Id: imgfile.xsl,v 1.18 2002/08/06 06:20:41 robbod Exp $
       <xsl:variable name="self" select="."/>
       <xsl:choose>
         <xsl:when test="@module">
-          <xsl:variable name="module_dir">
-            <xsl:call-template name="module_directory">
-              <xsl:with-param name="module" select="@module"/>
-            </xsl:call-template>
-          </xsl:variable>
-          <xsl:variable name="module_file"
-            select="concat($module_dir,'/module.xml')"/>
           <xsl:apply-templates 
             select="document($module_file)/module"
             mode="TOCmultiplePage">
@@ -75,21 +99,6 @@ $Id: imgfile.xsl,v 1.18 2002/08/06 06:20:41 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
 
-          <!-- if a file is specified then can deduce the figure title -->
-          <xsl:variable name="fig_title">
-            <xsl:choose>
-              <xsl:when test="./@file">
-                <xsl:apply-templates 
-                  select="document($module_file)/module/*/express-g/imgfile"
-                  mode="title">
-                  <xsl:with-param name="file" select="@file"/>
-                </xsl:apply-templates>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="@title"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:variable>
           <!-- now display the image -->
           <xsl:apply-templates select="img">
             <xsl:with-param name="alt" select="$fig_title"/>

@@ -24,6 +24,18 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
+	
+	<xsl:variable name="base_schema_location">
+		<xsl:choose>
+			<xsl:when test="string-length($dex_directory_name)>0">
+				<xsl:value-of select="string('../../../../stepmod/dtd/part28/ex.xsd')"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="string('../../../dtd/part28/ex.xsdl')"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	
+	</xsl:variable>
 		
 	<xsl:variable name="stepmod_namespace_file" select="document(concat($directory_path, '/stepmod_namespace.xml'))"/>
 	<xsl:variable name="schema_name" select="$stepmod_namespace_file//dummy/@schema_name"/>
@@ -44,7 +56,7 @@
 			<xsl:copy-of select="document(concat($directory_path, '/stepmod_namespace.xml'))/*/namespace::*"/>
 			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:xs/', $schema_name)"/></xsl:attribute>
 			<xsl:text>&#xa;</xsl:text>
-			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
+			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="{$base_schema_location}"/>
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
 			<xs:complexType name="uos">

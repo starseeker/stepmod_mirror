@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.23 2003/06/11 08:26:53 robbod Exp $
+$Id: application_protocol_toc.xsl,v 1.24 2003/06/11 14:28:09 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -80,7 +80,7 @@ $Id: application_protocol_toc.xsl,v 1.23 2003/06/11 08:26:53 robbod Exp $
               </small>
               <br/>
 						
-              <a href="{$application_protocol_root}/sys/5_main{$FILE_EXT}">5 Application interpreted model</a>
+              <a href="{$application_protocol_root}/sys/5_main{$FILE_EXT}">5 Module interpreted model</a>
               <br/>
               <a href="{$application_protocol_root}/sys/6_ccs{$FILE_EXT}">6 Conformance requirements</a>
               <br/>
@@ -225,7 +225,7 @@ $Id: application_protocol_toc.xsl,v 1.23 2003/06/11 08:26:53 robbod Exp $
       </td>
       <td valign="TOP">
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#arm">4 Information requirements</a><br/>
-        <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#aim">5 Application interpreted model</a><br/>
+        <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#aim">5 Module interpreted model</a><br/>
 	 <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#ccs">6 Conformance classes</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexa">A MIM EXPRESS expanded listing</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexb">B Implementation method specific requirements</a><br/>

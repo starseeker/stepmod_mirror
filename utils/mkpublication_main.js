@@ -171,7 +171,7 @@ function mkPublicationPackage(publication) {
 	f = fso.GetFile(normrefXml);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!DOCTYPE ballot SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
+	ts.WriteLine("<!DOCTYPE publication SYSTEM \"../../../dtd/publication_xsl_appl.dtd\">");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/pub_ballot/normref_check.xsl\" ?>");
 	ts.WriteLine("<!-- ");
 	ts.WriteLine("$Id: mkpublication_main.js,v 1.4 2005/03/30 20:04:44 thendrix Exp $");

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.17 2003/11/25 17:24:53 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.18 2004/02/05 17:51:07 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -539,6 +539,14 @@ $Id: index_arm_mappings_inner.xsl,v 1.17 2003/11/25 17:24:53 robbod Exp $
 						<xsl:text> </xsl:text>		
 						
 					</xsl:when>
+					<xsl:when test="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[starts-with(@attribute,'SELF') and substring-after(@attribute,'.')=$this-attribute and @assertion_to=$this-item]" >
+						<!-- added to del with attribute names using SELF\ -->
+						<xsl:variable name="SELF-attribute" select="translate($called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[starts-with(@attribute,'SELF') and substring-after(@attribute,'.')=$this-attribute and @assertion_to=$this-item]/@attribute, $UPPER,$LOWER)" />
+						<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$SELF-attribute}assertion_to{$lc-this-item}" 
+							target="info">map</A>
+						<xsl:text> </xsl:text>		
+						
+					</xsl:when>
 					<xsl:otherwise>
 <!--						Mapping NOT found select -->
 						<xsl:call-template name="error_message">
@@ -547,7 +555,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.17 2003/11/25 17:24:53 robbod Exp $
 			        		  <xsl:with-param 
 					            name="message" 
 					            select="concat('Error APmapindex3: Unable to locate mapping for select item, entity: ',
-						 	$this-item)"/>
+						    $this-item,' XX ',$this-attribute,' YY ',$entity-module,' ZZ ',$Uc-this-entity,' WW ')"/>
 						</xsl:call-template>    				
  					</xsl:otherwise>
 				</xsl:choose>

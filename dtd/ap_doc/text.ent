@@ -1,9 +1,185 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-     $Id: $
+     $Id: text.ent,v 1.1 2002/08/29 17:41:51 mikeward Exp $
 -->
-<!ENTITY % text SYSTEM "../text.ent">
-%text;
+
+<!ENTITY % fontstyle "i | b | sub | sup">
+
+<!ENTITY % text-elts "
+  #PCDATA
+  | express_ref
+  | express_extref
+  | module_ref
+  | clause_ref
+  | %fontstyle;
+">
+
+<!ENTITY % block-elts "
+  p
+  | ul
+  | ol
+  | dl
+  | screen
+">
+
+<!ENTITY % figure-table-elts "
+   figure
+   | table
+">
+
+<!ENTITY % single-block-elts "
+   note 
+   | example 
+   | %figure-table-elts;
+">
+
+<!ENTITY % description.content "%text-elts; | %block-elts; | %single-block-elts; ">
+
+<!-- Table
+ caption - table caption
+ number  - table number
+ width   - table width 
+-->
+<!ELEMENT table (tr+)*> 
+<!ATTLIST  table 
+        caption         CDATA       #REQUIRED
+        id  	        CDATA       #IMPLIED
+        number          CDATA       #REQUIRED
+        width           CDATA       #IMPLIED
+>
+
+
+
+<!ELEMENT tr (th | td)+>
+<!ATTLIST tr
+        align   (left|center|right|justify|char) #IMPLIED
+>   
+
+<!ELEMENT th (%description.content;)*>
+
+<!-- Table data 
+ rowspan   number of rows spanned by cell
+ colspan   number of cols spanned by cell
+-->
+<!ELEMENT td (%description.content;)*>
+<!ATTLIST  td
+  align       CDATA          #IMPLIED
+  rowspan     CDATA          #IMPLIED  
+  colspan     CDATA          #IMPLIED   
+>
+
+<!ELEMENT note (%text-elts; | %block-elts; | %figure-table-elts; )*>
+<!ATTLIST  note
+             id         ID                                 #IMPLIED  
+             number     CDATA                              #IMPLIED  >
+
+
+<!ELEMENT example (%text-elts; | %block-elts; | %figure-table-elts; )*>
+<!ATTLIST  example
+             id         ID                                 #IMPLIED  
+             number     CDATA                              #IMPLIED  >
+
+<!ELEMENT figure (title, img)>
+<!ATTLIST  figure
+             id         ID                                 #IMPLIED  
+             number     CDATA                              #IMPLIED  >
+
+<!ELEMENT title (%text-elts;)*>
+
+<!-- definition of an image that is to be displayed in a new browser window -->
+<!ELEMENT imgfile EMPTY>
+<!ATTLIST imgfile file CDATA #REQUIRED
+                  title  CDATA #IMPLIED>
+
+<!-- the root element of the file referenced by imgfile -->
+<!ELEMENT imgfile.content (img)>
+<!ATTLIST imgfile.content 
+          module CDATA #REQUIRED
+          file  CDATA #REQUIRED
+          title  CDATA #IMPLIED
+>
+
+<!-- definition of an image -->
+<!ELEMENT img (img.area*)>
+<!ATTLIST img
+          src CDATA #REQUIRED
+          alt CDATA #IMPLIED
+>
+
+<!-- an area of the image defined as clickable image map-->
+<!ELEMENT img.area  EMPTY>
+<!ATTLIST img.area
+	shape CDATA #REQUIRED
+	coords CDATA #REQUIRED
+        href CDATA #REQUIRED
+>
+
+<!ELEMENT p (%text-elts;)*>
+
+<!-- bold -->
+<!ELEMENT b (%text-elts;)*>
+
+<!-- italic -->   
+<!ELEMENT i (%text-elts;)*>
+
+<!-- subscript, superscript -->
+<!ELEMENT sub (%text-elts;)*>
+<!ELEMENT sup (%text-elts;)*>
+
+<!-- unordered list -->
+<!ELEMENT ul (li+)>
+
+<!-- ordered list -->
+<!ELEMENT ol (li+)>
+<!ATTLIST ol
+		type (1 | A | a | I | i) "1"
+ 		start CDATA #IMPLIED>
+
+<!-- list item -->
+<!ELEMENT li (%text-elts; | %block-elts; | %single-block-elts;)*>
+
+
+<!-- Definition list - DT for term, DD for its defnition -->
+<!ELEMENT dl (dt | dd)+ >
+
+<!-- Definition term -->
+<!ELEMENT dt (%text-elts; | %block-elts; | %single-block-elts;)*>
+
+<!-- Defnition description  -->
+<!ELEMENT dd (%text-elts;)*>
+
+
+<!--                    text from computer display                 -->
+<!ELEMENT  screen       (#PCDATA)                                    >
+<!ATTLIST  screen
+             xml-space  (default | preserve)              "preserve" >
+
+<!--                    reference to EXPRESS name                  -->
+<!ELEMENT  express_ref  (#PCDATA) >
+<!ATTLIST  express_ref
+             linkend    CDATA                              #REQUIRED>
+
+
+<!--
+        reference to EXPRESS name defined in a standard outside STEPMOD     
+        linkend is the EXPRESS entity
+        standard is the standard number
+-->
+<!ELEMENT  express_extref EMPTY                                     >
+<!ATTLIST  express_extref
+             linkend    CDATA                              #REQUIRED  
+             standard   CDATA                              #REQUIRED >
+
+<!--                    module reference                           -->
+<!ELEMENT  module_ref   (#PCDATA)                                    >
+<!ATTLIST  module_ref
+             linkend    CDATA                              #REQUIRED >
+
+<!-- Set up a hyperlink to a clause or annex within the AP document -->
+<!ELEMENT  clause_ref   (#PCDATA)                                    >
+<!ATTLIST  clause_ref
+             linkend    (purpose | scope | inforeqt | aam | imp_meths | usage_guide | tech_disc
+                          | express_arm_lf | express_mim_lf | mim_short_names)  #REQUIRED >
 
 
 <!ELEMENT ap.imgfile.content (img)>

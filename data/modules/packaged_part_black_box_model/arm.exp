@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.16 2005/02/04 17:51:27 budreckytej Exp $
+   $Id: arm.exp,v 1.17 2005/02/08 00:47:34 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3345 - ISO/CD-TS 10303-1710 Packaged part black box model - EXPRESS ARM
 *)
 
@@ -12,13 +12,18 @@ SCHEMA Packaged_part_black_box_model_arm;
 	USE FROM Part_external_reference_arm;	-- ISO/TS 10303-1711
 	USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
 
+	TYPE package_or_package_external_reference = SELECT
+  		(Package,
+   		package_external_reference);
+	END_TYPE;
+
 	TYPE ppbbm_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
 		(Packaged_part);
 	END_TYPE;
 
   ENTITY Packaged_part
     SUBTYPE OF (Part_usage_view);
-      used_package         : SET[1:?] OF Package;
+      used_package         : SET[1:?] OF package_or_package_external_reference;
       implemented_function : OPTIONAL Functional_unit_usage_view;
     INVERSE
       access_mechanisms : SET[0:?] OF packaged_part_terminal FOR associated_definition;

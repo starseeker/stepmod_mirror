@@ -1,0 +1,269 @@
+# $Id: express_model.dtd,v 1.14 2003/07/18 21:50:20 thendrix Exp $
+
+# EXPRESS MODEL DECLARATION MODULE
+
+# This set of declarations defines the EXPRESS-2 Model as of the
+#      date shown in the Formal Public Identifier (FPI) for this entity.
+# 
+#      This set of declarations may be referred to using a public external
+#      entity declaration and reference as shown in the following two lines:
+# 
+# <!ENTITY % express.model PUBLIC "-//TC184 SC4//DTD EXPRESS Model 20010901">
+# %express.model;
+# 
+#      If the parameter entity description.content used within this set 
+#      of declarations is to be given non-default values, the appropriate 
+#      declaration should be given before calling in this package 
+#      (i.e., before the "%express.model;" reference).
+
+# This file was developed by Eurostep and supplied to NIST under contract.
+# Authors:
+#    Rob Bodington
+#    David Price
+#    Nigel Shaw
+#    Phil Spiby
+# Reviewed by:
+#    Josh Lubell
+
+# underlying type
+
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+
+underlying = aggregate*, (typename | builtintype)
+description.content = text
+# Attributes for source control software like RCS or CVS
+
+# The rcs attributes are keywords for RCS source control systems
+
+# rcs.date      $Date: 2003/07/18 21:50:20 $
+
+# rcs.revision  $Revision: 1.14 $
+
+# reference is the source of the schema, e.g. ISO 10303-41
+express =
+  element express {
+    express.attlist, description?, application?, schema+
+  }
+express.attlist &=
+  [ a:defaultValue = "1" ]
+  attribute language_version { "1" | "2" | "3" }?,
+  attribute rcs.date { text },
+  attribute rcs.revision { text },
+  attribute reference { text }?,
+  attribute description.file { text }?
+description =
+  element description { description.attlist, description.content* }
+description.attlist &= empty
+application = element application { application.attlist, empty }
+application.attlist &=
+  attribute name { text }?,
+  attribute owner { text }?,
+  attribute url { text }?,
+  attribute version { text }?,
+  attribute source { text }
+schema =
+  element schema {
+    schema.attlist,
+    description?,
+    interface*,
+    constant*,
+    (entity | function | procedure | rule | subtype.constraint | type)*,
+    graphic.element?
+  }
+schema.attlist &=
+  attribute name { xsd:NMTOKEN },
+  attribute version { xsd:NMTOKEN }?
+interface =
+  element interface {
+    interface.attlist, interfaced.item*, described.item*
+  }
+interface.attlist &=
+  [ a:defaultValue = "use" ] attribute kind { "use" | "reference" }?,
+  attribute schema { xsd:NMTOKEN }
+interfaced.item =
+  element interfaced.item { interfaced.item.attlist, empty }
+interfaced.item.attlist &=
+  attribute name { xsd:NMTOKEN },
+  attribute alias { xsd:NMTOKEN }?
+# A description of any item in the interface. In other words the
+# documentation of an imported construct.         
+# item is the name of the imported construct
+# attribute is only used if the imported construct is an entity in whihc
+# case, item is the name of the entty and item is the name of the attribute
+described.item =
+  element described.item { described.item.attlist, description? }
+described.item.attlist &=
+  attribute item { xsd:NMTOKEN },
+  attribute attribute { xsd:NMTOKEN }?,
+  [ a:defaultValue = "ENTITY" ]
+  attribute kind {
+    "ENTITY"
+    | "TYPE"
+    | "ATTRIBUTE"
+    | "FUNCTION"
+    | "PROCEDURE"
+    | "CONSTANT"
+  }?
+constant =
+  element constant { constant.attlist, description?, underlying }
+constant.attlist &=
+  attribute name { xsd:NMTOKEN },
+  attribute expression { text }
+type =
+  element type {
+    type.attlist,
+    description?,
+    aggregate*,
+    (typename | builtintype | enumeration | select),
+    where*,
+    graphic.element?
+  }
+type.attlist &= attribute name { xsd:NMTOKEN }
+typename = element typename { typename.attlist, empty }
+typename.attlist &= attribute name { xsd:NMTOKEN }
+builtintype =
+  element builtintype { builtintype.attlist, graphic.element? }
+builtintype.attlist &=
+  [ a:defaultValue = "STRING" ]
+  attribute type {
+    "BINARY"
+    | "BOOLEAN"
+    | "GENERIC"
+    | "GENERICENTITY"
+    | "INTEGER"
+    | "LOGICAL"
+    | "NUMBER"
+    | "REAL"
+    | "STRING"
+  }?,
+  attribute width { text }?,
+  [ a:defaultValue = "NO" ] attribute fixed { "YES" | "NO" }?,
+  attribute precision { text }?,
+  attribute typelabel { xsd:NMTOKEN }?
+# Width to allow for Binary and string
+
+# Fixed to allow for Binary and string
+
+# Precision to allow for REAL
+aggregate = element aggregate { aggregate.attlist, empty }
+aggregate.attlist &=
+  [ a:defaultValue = "SET" ]
+  attribute type { "AGGREGATE" | "ARRAY" | "BAG" | "LIST" | "SET" }?,
+  [ a:defaultValue = "NO" ] attribute optional { "YES" | "NO" }?,
+  [ a:defaultValue = "NO" ] attribute unique { "YES" | "NO" }?,
+  attribute lower { text }?,
+  attribute upper { text }?,
+  attribute typelabel { xsd:NMTOKEN }?
+select = element select { select.attlist, graphic.element? }
+select.attlist &=
+  [ a:defaultValue = "NO" ] attribute extensible { "YES" | "NO" }?,
+  [ a:defaultValue = "NO" ] attribute genericentity { "YES" | "NO" }?,
+  attribute basedon { xsd:NMTOKEN }?,
+  attribute selectitems { xsd:NMTOKENS }?
+graphic.element =
+  element graphic.element { graphic.element.attlist, empty }
+graphic.element.attlist &=
+  attribute image { text }?,
+  attribute page { text },
+  attribute xcoord { text }?,
+  attribute ycoord { text }?
+enumeration =
+  element enumeration { enumeration.attlist, graphic.element? }
+enumeration.attlist &=
+  [ a:defaultValue = "NO" ] attribute extensible { "YES" | "NO" }?,
+  attribute basedon { xsd:NMTOKEN }?,
+  attribute items { xsd:NMTOKENS }?
+entity =
+  element entity {
+    entity.attlist,
+    description?,
+    explicit*,
+    derived*,
+    inverse*,
+    unique*,
+    where*,
+    graphic.element?
+  }
+entity.attlist &=
+  attribute name { xsd:NMTOKEN },
+  [ a:defaultValue = "NO" ] attribute abstract.entity { "YES" | "NO" }?,
+  [ a:defaultValue = "NO" ]
+  attribute abstract.supertype { "YES" | "NO" }?,
+  attribute supertypes { xsd:NMTOKENS }?,
+  attribute super.expression { text }?
+explicit =
+  element explicit {
+    explicit.attlist, description?, underlying, redeclaration?
+  }
+explicit.attlist &=
+  attribute name { xsd:NMTOKEN },
+  [ a:defaultValue = "NO" ] attribute optional { "YES" | "NO" }?
+derived =
+  element derived {
+    derived.attlist, description?, underlying, redeclaration?
+  }
+derived.attlist &=
+  attribute name { xsd:NMTOKEN },
+  attribute expression { text }
+inverse =
+  element inverse {
+    inverse.attlist, description?, inverse.aggregate?, redeclaration?
+  }
+inverse.attlist &=
+  attribute name { xsd:NMTOKEN },
+  attribute entity { xsd:NMTOKEN },
+  attribute attribute { xsd:NMTOKEN }
+inverse.aggregate =
+  element inverse.aggregate { inverse.aggregate.attlist, empty }
+inverse.aggregate.attlist &=
+  [ a:defaultValue = "SET" ] attribute type { "BAG" | "SET" }?,
+  attribute lower { text }?,
+  attribute upper { text }?
+redeclaration = element redeclaration { redeclaration.attlist, empty }
+redeclaration.attlist &=
+  attribute entity-ref { xsd:NMTOKEN },
+  attribute old_name { xsd:NMTOKEN }?
+where = element where { where.attlist, description? }
+where.attlist &=
+  attribute label { xsd:NMTOKEN }?,
+  attribute expression { text }?
+# <!ELEMENT unique (description?, unique.attribute)>
+unique =
+  element unique { unique.attlist, description?, unique.attribute+ }
+unique.attlist &= attribute label { xsd:NMTOKEN }?
+unique.attribute =
+  element unique.attribute { unique.attribute.attlist, empty }
+unique.attribute.attlist &=
+  attribute entity-ref { xsd:NMTOKEN }?,
+  attribute attribute { xsd:NMTOKEN }
+subtype.constraint =
+  element subtype.constraint {
+    subtype.constraint.attlist, description?, graphic.element?
+  }
+subtype.constraint.attlist &=
+  attribute name { xsd:NMTOKEN },
+  attribute entity { xsd:NMTOKEN },
+  [ a:defaultValue = "NO" ]
+  attribute abstract.supertype { "YES" | "NO" }?,
+  attribute totalover { xsd:NMTOKENS }?,
+  attribute super.expression { text }?
+function =
+  element function {
+    function.attlist, description?, parameter*, underlying, algorithm
+  }
+function.attlist &= attribute name { xsd:NMTOKEN }
+parameter =
+  element parameter { parameter.attlist, description?, underlying }
+parameter.attlist &= attribute name { xsd:NMTOKEN }
+procedure =
+  element procedure {
+    procedure.attlist, description?, parameter*, algorithm?
+  }
+procedure.attlist &= attribute name { xsd:NMTOKEN }
+rule = element rule { rule.attlist, description?, algorithm?, where+ }
+rule.attlist &=
+  attribute name { xsd:NMTOKEN },
+  attribute appliesto { xsd:NMTOKENS }
+algorithm = element algorithm { algorithm.attlist, text }
+algorithm.attlist &= empty
+start = express

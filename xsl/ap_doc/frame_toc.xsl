@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_toc.xsl,v 1.2 2003/05/23 15:52:56 robbod Exp $
+$Id: frame_toc.xsl,v 1.3 2003/06/02 14:12:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -29,19 +29,21 @@ $Id: frame_toc.xsl,v 1.2 2003/05/23 15:52:56 robbod Exp $
         </title>
       </head>
       <body>
-        <xsl:apply-templates 
-          select="$application_protocol_xml_file/application_protocol"
+        <small>
+          <xsl:apply-templates 
+            select="$application_protocol_xml_file/application_protocol"
           mode="contents">  
-        <xsl:with-param name="target" select="'content'"/>
-        <xsl:with-param name="complete" select="'yes'"/>
-      </xsl:apply-templates>
-      <xsl:apply-templates 
-        select="$application_protocol_xml_file/application_protocol" 
-        mode="contents_tables_figures">
-        <xsl:with-param name="target" select="'content'"/>
-        <xsl:with-param name="complete" select="'yes'"/>
-      </xsl:apply-templates>
-      </body>
+          <xsl:with-param name="target" select="'content'"/>
+          <xsl:with-param name="complete" select="'yes'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates 
+          select="$application_protocol_xml_file/application_protocol" 
+          mode="contents_tables_figures">
+          <xsl:with-param name="target" select="'content'"/>
+          <xsl:with-param name="complete" select="'yes'"/>
+        </xsl:apply-templates>
+      </small>
+    </body>
     </html>
   </xsl:template>
 

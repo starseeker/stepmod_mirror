@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
+$Id: sect_contents.xsl,v 1.26 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -22,6 +22,8 @@ $Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
     <xsl:param name="target" select="'_self'"/>
     <!-- if complete is yes then display the introduction foreword etc -->
     <xsl:param name="complete" select="'no'"/>
+    <!-- if short is yes then display level 3 entries -->
+    <xsl:param name="short" select="'no'"/>
 
     <xsl:variable name="annex_list">
       <xsl:apply-templates select="." mode="annex_list"/>
@@ -43,8 +45,8 @@ $Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
     </xsl:variable>
     
     <xsl:variable name="module_xml" select="document(concat($ap_module_dir,'/module.xml'))"/>		
-    <xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
-    <xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
+    <xsl:variable name="ccs_xml" select="document(concat($application_protocol_dir, '/ccs.xml'))"/>
+    <xsl:variable name="aam_xml" select="document(concat($application_protocol_dir, '/aam.xml'))"/>
 
     <h2><a name="contents"></a>Contents</h2>
     <xsl:if test="$complete='yes'">
@@ -81,19 +83,24 @@ $Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
     &#160;&#160;&#160;&#160;&#160;
     <a href="./4_info_reqs{$FILE_EXT}#41" target="{$target}">4.1 Business concepts and terminology</a>
     <br/>
+
     &#160;&#160;&#160;&#160;&#160;
     <a href="./4_info_reqs{$FILE_EXT}#42" target="{$target}">4.2 Information requirements model</a>
     <br/>
-    &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-    <a href="./4_info_reqs{$FILE_EXT}#421" target="{$target}">4.2.1 Model overview</a>
-    <br/>
-    <xsl:apply-templates select="inforeqt/reqtover" mode="toc">
-      <xsl:with-param name="target" select="$target"/>
-    </xsl:apply-templates>
+    <xsl:if test="$short='no'">
+      &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+      <a href="./4_info_reqs{$FILE_EXT}#421" target="{$target}">4.2.1 Model overview</a>
+      <br/>
+      <xsl:apply-templates select="inforeqt/reqtover" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+    </xsl:if>
     <a href="./5_main{$FILE_EXT}" target="{$target}">5 Module interpreted model</a>
     <br/>
-    <a href="./6_ccs{$FILE_EXT}" target="{$target}">6 Conformance requirements</a>
-    <br/>
+    <a href="./6_ccs{$FILE_EXT}" target="{$target}">6 Conformance requirements</a>    <br/>
+    <xsl:apply-templates select="$ccs_xml/conformance/cc" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
     <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">Annex A EXPRESS expanded listings</a>
     <br/>
     <a href="./annex_shortnames{$FILE_EXT}" target="{$target}">
@@ -116,6 +123,10 @@ $Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
       Annex F Application activity model
     </a>
     <br/>
+    <xsl:apply-templates select="$aam_xml/idef0" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+      <xsl:with-param name="short" select="$short"/>
+    </xsl:apply-templates>
 
     <xsl:if test="$module_xml/module/arm_lf/express-g">
       <xsl:variable name="al_armexpressg">
@@ -156,7 +167,7 @@ $Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
     </a>
     <br/>
 
-    <xsl:if test="$module_xml/module/usage_guide">
+    <xsl:if test="./usage_guide">
       <xsl:variable name="al_uguide">
         <xsl:call-template name="annex_letter" >
           <xsl:with-param name="annex_name" select="'usageguide'"/>
@@ -169,7 +180,7 @@ $Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
       <br/>
     </xsl:if>
 
-    <xsl:if test="$module_xml/module/tech_disc">
+    <xsl:if test="./tech_disc">
       <xsl:variable name="al_tech_disc">
         <xsl:call-template name="annex_letter" >
           <xsl:with-param name="annex_name" select="'techdisc'"/>
@@ -182,7 +193,7 @@ $Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
       <br/>
     </xsl:if>
     
-    <xsl:if test="$module_xml/module/changes/change_detail">
+    <xsl:if test="./changes/change_detail">
       <xsl:variable name="al_changes">
         <xsl:call-template name="annex_letter" >
           <xsl:with-param name="annex_name" select="'changedetail'"/>
@@ -493,6 +504,41 @@ $Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
     </blockquote>
 </xsl:template>
 
+
+<xsl:template match="cc" mode="toc">
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:variable name="clause_aname" select="concat('cc_',@id)"/>
+  <xsl:variable name="clause_hdr"
+    select="concat('6.',position(),' Conformance class for ',@name,' (',@id,')')"/> 
+  &#160;&#160;&#160;
+  <a href="./6_ccs{$FILE_EXT}#{$clause_aname}" target="{$target}">
+    <xsl:value-of select="$clause_hdr"/>
+  </a>
+  <br/>
+</xsl:template>
+
+<xsl:template match="idef0" mode="toc">
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:param name="short" select="'no'"/>
+  &#160;&#160;&#160;
+  <a href="./annex_aam{$FILE_EXT}#activity_defn" target="{$target}">
+    F.1 Application activity model definitions
+  </a>
+  <br/>
+  <xsl:if test="$short='no'">
+    <xsl:for-each select="./page/activity|./icoms/icom">
+      <xsl:sort select="normalize-space(./name)"/>
+      <xsl:variable name="clause_aname">
+        <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
+      </xsl:variable>
+      &#160;&#160;&#160;&#160;&#160;&#160;
+      <a href="./annex_aam{$FILE_EXT}#{$clause_aname}" target="{$target}">
+        <xsl:value-of select="concat('F.1.',position(),' ',normalize-space(./name))"/>
+      </a>
+      <br/>
+    </xsl:for-each>
+  </xsl:if>
+</xsl:template>
 
 <xsl:template match="reqtover" mode="toc">
   <xsl:param name="target" select="'_self'"/>

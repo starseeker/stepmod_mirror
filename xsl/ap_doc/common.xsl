@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.24 2003/06/29 13:03:19 robbod Exp $
+$Id: common.xsl,v 1.25 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -95,7 +95,7 @@ $Id: common.xsl,v 1.24 2003/06/29 13:03:19 robbod Exp $
 				<td valign="MIDDLE">
 					<B>Application protocol:
 						<xsl:call-template name="protocol_display_name">
-							<xsl:with-param name="application_protocol" select="@name"/>
+							<xsl:with-param name="application_protocol" select="@title"/>
 						</xsl:call-template>
 					</B>
 				</td>
@@ -451,7 +451,7 @@ $Id: common.xsl,v 1.24 2003/06/29 13:03:19 robbod Exp $
 
   <xsl:variable name="protocol_name">
     <xsl:call-template name="protocol_display_name">
-      <xsl:with-param name="application_protocol" select="@name"/>
+      <xsl:with-param name="application_protocol" select="@title"/>
     </xsl:call-template>
   </xsl:variable>
   <xsl:variable name="stdnumber">
@@ -701,7 +701,7 @@ $Id: common.xsl,v 1.24 2003/06/29 13:03:19 robbod Exp $
         <xsl:with-param name="application_protocol" select="@name"/>
       </xsl:call-template>
     </xsl:variable>
-    <xsl:value-of select="concat($stdnumber,' ',$protocol_name)"/>                
+    <xsl:value-of select="$stdnumber"/>                
   </xsl:template>
 
 

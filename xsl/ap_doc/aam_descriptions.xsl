@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.10 2003/07/28 07:35:04 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -46,7 +46,11 @@ $Id: aam_descriptions.xsl,v 1.10 2003/07/28 07:35:04 robbod Exp $
 
 
     <p>The viewpoint is that of <xsl:value-of select="viewpoint"/>.</p>    
-    <h2>F.1 Application activity model definitions</h2>
+    <h2>
+      <a name="activity_defn">
+        F.1 Application activity model definitions
+      </a>
+    </h2>
     <p>
       The following terms are used in the application activity model.  Terms
       marked with an asterisk are outside the scope of this application
@@ -56,10 +60,12 @@ $Id: aam_descriptions.xsl,v 1.10 2003/07/28 07:35:04 robbod Exp $
       The definitions given in this annex do not supersede the definitions
       given in the main body of the text.
     </p>
-    <xsl:for-each select="./*/*">
+    <xsl:for-each select="./page/activity|./icoms/icom">
       <xsl:sort select="normalize-space(./name)"/>
       <xsl:variable name="asterisk"><xsl:if test="@inscope='no'">*</xsl:if></xsl:variable>
-      <xsl:variable name="aname" select="@identifier"/>
+      <xsl:variable name="aname">
+        <xsl:value-of select="translate(normalize-space(./name),' ','_')"/>
+      </xsl:variable>
       <h2>
         <a name="{$aname}">
           F.1.<xsl:value-of select="position()"/>

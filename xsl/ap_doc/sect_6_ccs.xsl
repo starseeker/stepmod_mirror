@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.13 2003/06/26 12:54:54 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.14 2003/07/28 07:31:55 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -61,25 +61,43 @@ $Id: sect_6_ccs.xsl,v 1.13 2003/06/26 12:54:54 robbod Exp $
       in the implementation. The PICS form is provided in annex
       <a href="{$annD}">D</a>.
     </p>
-  
-    <p>
-      This part of ISO 10303 provides for a number of options that may be
-      supported by an implementation. 
-      These options have been grouped into the following conformance
-      classes: 
-    </p>
 
     <xsl:variable name="ccs_path"
       select="concat('../../data/application_protocols/', @name, '/ccs.xml')"/>
     <xsl:variable name="ccs_xml" select="document(string($ccs_path))"/>
-    <ul>
-      <xsl:apply-templates
-        select="$ccs_xml/conformance/cc" mode="summary"/>
-    </ul>
-    <p>
-      Support for a particular conformance class requires support of all the options specified
-      in that class.
-    </p>
+
+    <xsl:choose>
+      <xsl:when test="count($ccs_xml/conformance/cc)=1">
+        <p>
+          This part of ISO 10303 provides for only one option that may be
+          supported by an implementation: 
+        </p>
+        <ul>
+          <xsl:apply-templates
+            select="$ccs_xml/conformance/cc" mode="summary"/>
+        </ul>        
+        <p>
+          This option shall be supported by a single class of conformance
+          that consists of all the ARM elements defined in this part of ISO 10303. 
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p>
+          This part of ISO 10303 provides for a number of options that may be
+          supported by an implementation. 
+          These options have been grouped into the following conformance
+          classes: 
+        </p>  
+        <ul>
+          <xsl:apply-templates
+            select="$ccs_xml/conformance/cc" mode="summary"/>
+        </ul>        
+        <p>
+          Support for a particular conformance class requires support of all the options specified
+          in that class.
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
 
 
     <xsl:variable name="table_count">
@@ -537,6 +555,15 @@ conformance class')"/>
         </xsl:otherwise>
       </xsl:choose>
     </p>
+    <xsl:if test="position()=1">
+      <p class="note">
+        <small>
+          NOTE&#160;&#160;Conformance to 
+          <b><xsl:value-of select="@name"/></b>
+          requires that all ARM and MIM elements defined in this part of ISO 10303 be supported.
+        </small>
+      </p>
+    </xsl:if>
     <xsl:apply-templates select="./inscope"/>
   </xsl:template>
 

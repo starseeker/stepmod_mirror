@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.54 2002/05/19 07:55:13 robbod Exp $
+$Id: module.xsl,v 1.55 2002/05/30 08:33:05 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1802,8 +1802,22 @@ defines it. Use: normref.inc')"/>
 
 <!-- Output the normative reference -->
 <xsl:template match="normref">
+  <xsl:variable name="stdnumber">
+    <xsl:choose>
+      <xsl:when test="stdref/pubdate">
+        <xsl:value-of 
+          select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/> 
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of 
+          select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':-')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <p>
-    <xsl:value-of select="concat(stdref/orgname,' ',stdref/stdnumber)"/>
+    <!-- <xsl:value-of select="concat(stdref/orgname,' ',stdref/stdnumber)"/> -->
+    <xsl:value-of select="$stdnumber"/>
     <xsl:if test="stdref[@published='n']">
       <sup>
         <a href="#tobepub">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.1 2002/09/15 21:44:48 robbod Exp $
+$Id: developer.xsl,v 1.2 2002/09/17 07:04:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -18,6 +18,9 @@ $Id: developer.xsl,v 1.1 2002/09/15 21:44:48 robbod Exp $
 
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+
+  <xsl:variable name="REPO_NODES" 
+    select="document('../../repository_index.xml')"/>
 
   <xsl:template match="/" >
     <xsl:apply-templates select="./stylesheet_application"/>
@@ -49,13 +52,16 @@ $Id: developer.xsl,v 1.1 2002/09/15 21:44:48 robbod Exp $
       ]]></script>
     </head>
     <body>
-    <h3>References to module sections</h3>
-    The following XML constructs can be used to reference sections of the
-    module.
     <xsl:variable 
       name="module_xml_file"
       select="concat('../../data/modules/',@directory,'/module.xml')"/>
 
+    <xsl:call-template name="get_bib_entries"/>
+    <xsl:call-template name="output_schema_normrefs_entry"/>
+ 
+    <h3>References to module sections</h3>
+    The following XML constructs can be used to reference sections of the
+    module.
     <xsl:apply-templates 
       select="document($module_xml_file)/module" mode="linkend">
       <xsl:with-param name="section" select="'Introduction'"/>
@@ -179,5 +185,206 @@ $Id: developer.xsl,v 1.1 2002/09/15 21:44:48 robbod Exp $
     </a>
   </p>
 </xsl:template>
+
+
+<!-- output any modules referenced in informative text -->
+<xsl:template name="get_bib_entries">
+  
+  <xsl:variable 
+      name="module_xml_file"
+      select="concat('../../data/modules/',@directory,'/module.xml')"/>
+
+  <xsl:variable name="nodes" select="document($module_xml_file)"/>
+
+  <xsl:variable name="modules_list1">
+    <xsl:apply-templates 
+      select="$nodes/module/purpose//express_ref|$nodes/module/purpose//module_ref">
+      <xsl:with-param name="current_module" select="@directory"/>
+    </xsl:apply-templates>
+  </xsl:variable>
+
+  <xsl:variable name="modules_list2">
+    <xsl:apply-templates 
+      select="$nodes/module/inscope//note//express_ref|$nodes/module/inscope//example//express_ref|$nodes/module/inscope//note//module_ref|$nodes/module/inscope//example//module_ref">
+      <xsl:with-param name="modules_list" select="$modules_list1"/>
+      <xsl:with-param name="current_module" select="@directory"/>
+    </xsl:apply-templates>
+  </xsl:variable>
+  <xsl:variable name="modules_list22" 
+    select="concat($modules_list1,$modules_list2)"/>
+
+  <xsl:variable name="modules_list3">
+    <xsl:apply-templates 
+      select="$nodes/module/outscope//note//express_ref|$nodes/module/outscope//example//express_ref|$nodes/module/outscope//note//module_ref|$nodes/module/outscope//example//module_ref">
+      <xsl:with-param name="modules_list" select="$modules_list22"/>
+      <xsl:with-param name="current_module" select="@directory"/>
+    </xsl:apply-templates>
+  </xsl:variable>
+  <xsl:variable name="modules_list33" 
+    select="concat($modules_list22,$modules_list3)"/>
+
+
+  <xsl:variable 
+      name="arm_xml_file"
+      select="concat('../../data/modules/',@directory,'/arm_descriptions.xml')"/>
+  <xsl:variable name="arm_nodes" select="document($arm_xml_file)"/>
+  <xsl:variable name="modules_list4">
+    <xsl:apply-templates 
+      select="$arm_nodes//note//express_ref|$arm_nodes//example//express_ref|$arm_nodes//note//module_ref|$arm_nodes//example//module_ref">
+      <xsl:with-param name="modules_list" select="$modules_list33"/>
+      <xsl:with-param name="current_module" select="@directory"/>
+    </xsl:apply-templates>
+  </xsl:variable>
+  <xsl:variable name="modules_list44" 
+    select="concat($modules_list33,$modules_list4)"/>
+
+  <xsl:variable 
+      name="mim_xml_file"
+      select="concat('../../data/modules/',@directory,'/mim_descriptions.xml')"/>
+  <xsl:variable name="mim_nodes" select="document($mim_xml_file)"/>
+  <xsl:variable name="modules_list5">
+    <xsl:apply-templates 
+      select="$mim_nodes//note//express_ref|$mim_nodes//example//express_ref|$mim_nodes//note//module_ref|$mim_nodes//example//module_ref">
+      <xsl:with-param name="modules_list" select="$modules_list44"/>
+      <xsl:with-param name="current_module" select="@directory"/>
+    </xsl:apply-templates>
+  </xsl:variable>
+  <xsl:variable name="modules_list55" 
+    select="concat($modules_list44,$modules_list5)"/>
+
+  <xsl:variable name="modules_list6">
+    <xsl:apply-templates 
+      select="$nodes/module/usage_guide//express_ref|$nodes/module/usage_guide//module_ref">
+      <xsl:with-param name="modules_list" select="$modules_list55"/>
+      <xsl:with-param name="current_module" select="@directory"/>
+    </xsl:apply-templates>
+  </xsl:variable>
+  <xsl:variable name="modules_list66" 
+    select="concat($modules_list55,$modules_list6)"/>
+
+  
+  <!-- now process the modules -->
+  <xsl:variable name="modules_list">
+    <xsl:call-template name="remove_duplicates">
+      <xsl:with-param name="list" select="$modules_list66"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="nmodules_list"
+    select="$modules_list"/>
+ 
+  <xsl:choose>
+    <xsl:when test="string-length($nmodules_list)>0">
+      <h3>Bibliography entries</h3>
+      The following modules are referenced in informative 
+      content
+      (foreword, introduction, note, example, or informative annex).
+      These module should be added as 
+      <a href="../sys/biblio{$FILE_EXT}">
+        bibliographic 
+      </a>
+      entries.
+      <ul>
+        <xsl:call-template name="output_bib_entry">
+          <xsl:with-param name="modules_list" 
+            select="concat($nmodules_list,' ')"/>
+        </xsl:call-template>
+      </ul>
+     
+    </xsl:when>
+    <xsl:otherwise>
+      <h3>Bibliography entries</h3>
+      There are no modules referenced in informative 
+      content
+      (foreword, introduction, note, example, or informative annex).
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="output_bib_entry">
+  <xsl:param name="modules_list"/>
+  <xsl:variable name="module" 
+    select="substring-before($modules_list,' ')"/>
+  <xsl:variable name="rest" 
+    select="substring-after($modules_list,' ')"/>
+  <li>
+    <xsl:value-of select="$module"/>
+  </li>
+
+  <xsl:if test="string-length($rest)>1">
+    <xsl:call-template name="output_bib_entry">
+      <xsl:with-param name="modules_list" select="$rest"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="express_ref|module_ref">
+  <xsl:param name="modules_list"/>
+  <xsl:param name="current_module"/>
+  <xsl:variable
+    name="nlinkend"
+    select="translate(@linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+  <xsl:variable
+    name="module"
+    select="substring-before($nlinkend,':')"/>
+  <xsl:variable name="module_str">
+    <xsl:choose>
+      <xsl:when test="$module=$current_module"/>
+      <xsl:otherwise>
+        <xsl:value-of select="concat(' ',$module,' ')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:value-of select="concat($modules_list,$module_str)"/>
+</xsl:template>
+
+
+<xsl:template name="output_schema_normrefs_entry">
+  <h3>Normative references</h3>
+
+  <xsl:variable 
+    name="mim_xml_file"
+    select="concat('../../data/modules/',@directory,'/mim.xml')"/>
+  <xsl:variable 
+    name="mim_nodes"
+    select="document($mim_xml_file)"/>
+  <xsl:choose>
+    <xsl:when test="not($mim_nodes/express/schema/interface[not(substring(@schema,(string-length(@schema)-3))='_mim')])">
+      There are no Common resources interfaced to in the MIM.
+    </xsl:when>
+    <xsl:otherwise>
+      The following Common resources schemas have been interfaced to in the
+      MIM. These must be included as Normative references.
+      <ul>
+        <xsl:apply-templates 
+          select="$mim_nodes/express/schema/interface[not(substring(@schema,(string-length(@schema)-3))='_mim')]"/>
+      </ul>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="interface">
+  <xsl:variable name="schema" select="string(@schema)"/>
+
+  <xsl:choose>
+    <xsl:when 
+      test="$REPO_NODES/repository_index/resources/resource[@name=$schema]">
+      <xsl:variable name="ir_doc" 
+        select="concat('../../data/resources/',$schema,'/',$schema,'.xml')"/>
+      <xsl:variable name="ir_ref"
+        select="document($ir_doc)/express/@reference"/>
+      <li>
+        <xsl:value-of select="concat($schema,' in ',$ir_ref)"/>
+      </li>
+    </xsl:when>
+    <xsl:otherwise>
+      <li>
+        <xsl:value-of select="$schema"/> - not found in repository_index.xml
+      </li>
+    </xsl:otherwise>
+  </xsl:choose>
+  
+</xsl:template>
+
 
 </xsl:stylesheet>

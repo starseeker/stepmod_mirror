@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
+$Id: ballot_summary.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -76,6 +76,7 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
           <td>Year</td>
           <td>Published</td>
           <td>Doc WGn</td>
+          <td>Superseded Doc WGn</td>
           <td>MIM WGn</td>
           <td>ARM WGn</td>
           <td>Internal checklist WGn</td>
@@ -211,6 +212,19 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
         </td>
+
+        <!-- Superceded Doc WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($module_node/@wg.number.supersedes))>0">
+              <xsl:value-of select="$module_node/@wg.number.supersedes"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
         
         <!-- MIM WGn -->
         <td>
@@ -313,6 +327,7 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
             </xsl:with-param>
           </xsl:call-template>
         </td>
+        <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>

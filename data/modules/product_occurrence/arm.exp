@@ -1,4 +1,4 @@
-(* $Id: arm.exp,v 1.2 2002/09/16 16:11:16 goset1 Exp $
+(* $Id: arm.exp,v 1.3 2002/09/21 02:12:52 goset1 Exp $
 N	ISO/WD 10303-1063	Product occurrence	Express ARM *)
 
 SCHEMA Product_occurrence_arm;
@@ -30,17 +30,19 @@ TYPE part_occurrence_select = SELECT(Definition_based_part_occurrence, Specifica
 END_TYPE;
 
 ENTITY Definition_based_function_occurrence
-SUBTYPE OF (Definition_based_product_occurrence, Functional_element_definition);
+ABSTRACT SUPERTYPE
+SUBTYPE OF (Definition_based_product_occurrence);
   SELF\Definition_based_product_occurrence.derived_from: Functional_element_definition;
 END_ENTITY;
 
 ENTITY Definition_based_part_occurrence
-SUBTYPE OF (Definition_based_product_occurrence, Part_view_definition);
+ABSTRACT SUPERTYPE
+SUBTYPE OF (Definition_based_product_occurrence);
   SELF\Definition_based_product_occurrence.derived_from: Part_view_definition;
 END_ENTITY;
 
 ENTITY Definition_based_product_occurrence
-ABSTRACT SUPERTYPE
+ABSTRACT SUPERTYPE OF (ONEOF(Definition_based_function_occurrence, Definition_based_part_occurrence))
 SUBTYPE OF (Product_occurrence);
   derived_from: Product_view_definition;
 DERIVE
@@ -74,17 +76,15 @@ WHERE
 WR1: SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',
 		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_PART_OCCURRENCE']*TYPEOF(SELF))=1;
 WR2: NOT (EXISTS(SELF\Product_occurrence.quantity_criterion));
--- IP1 : the part is a countable part
 END_ENTITY;
 
 ENTITY Selected_instance
 SUBTYPE OF (Product_occurrence);
 WHERE
-WR1: SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',
+WR2: SIZEOF(['PRODUCT_OCCURRENCE_ARM.DEFINITION_BASED_PART_OCCURRENCE',
 		 'PRODUCT_OCCURRENCE_ARM.SPECIFICATION_BASED_PART_OCCURRENCE']*TYPEOF(SELF))=1;
-WR2: (EXISTS(SELF\Product_occurrence.quantity_criterion)) OR
+WR1: (EXISTS(SELF\Product_occurrence.quantity_criterion)) OR
      (NOT('PART_OCCURRENCE_ARM.VALUE_WITH_UNIT' IN TYPEOF(SELF\Product_occurrence.occurrence_quantity)));
--- IP1 : the part is a countable part
 END_ENTITY;
 
 ENTITY Single_function_unit
@@ -105,17 +105,27 @@ WR2: NOT (EXISTS(SELF\Product_occurrence.occurrence_quantity) OR EXISTS(SELF\Pro
 END_ENTITY;
 
 ENTITY Specification_based_function_occurrence
-SUBTYPE OF (Specification_based_product_occurrence, Functional_element_definition);
+ABSTRACT SUPERTYPE
+SUBTYPE OF (Specification_based_product_occurrence);
+WHERE
+WR1: 'PRODUCT_OCCURRENCE_ARM.FUNCTIONAL_ELEMENT_VERSION' IN TYPEOF(SELF\Product_view_definition.defined_version);
 END_ENTITY;
 
 ENTITY Specification_based_part_occurrence
-SUBTYPE OF (Specification_based_product_occurrence, Part_view_definition);
+ABSTRACT SUPERTYPE
+SUBTYPE OF (Specification_based_product_occurrence);
+WHERE
+WR1: 'PRODUCT_OCCURRENCE_ARM.PART_VERSION' IN TYPEOF(SELF\Product_view_definition.defined_version);
 END_ENTITY;
 
 ENTITY Specification_based_product_occurrence
-ABSTRACT SUPERTYPE
+ABSTRACT SUPERTYPE of (ONEOF(Specification_based_function_occurrence, Specification_based_part_occurrence))
 SUBTYPE OF (Product_occurrence);
   SELF\Product_view_definition.defined_version: Specification_based_product_version;
 END_ENTITY;
+
+SUBTYPE_CONSTRAINT alternate_part_instance FOR Product_occurrence;
+  ONEOF(Single_instance, Quantified_instance, Selected_instance);
+END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

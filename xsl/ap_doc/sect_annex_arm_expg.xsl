@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_1_scope.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
+$Id: sect_annex_arm_expg.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -30,6 +30,10 @@ $Id: sect_1_scope.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
       <xsl:with-param name="aname" select="'annexf'"/>
     </xsl:call-template>
     
+    <p>
+      THE XSL HAS NOT BEEN IMPLEMENTED
+      sect_annex_arm_expg.xsl
+    </p>
   </xsl:template>
 	
 </xsl:stylesheet>

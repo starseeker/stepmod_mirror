@@ -1,10 +1,14 @@
 (*
-  $Id: arm.exp,v 1.6 2003/02/07 10:14:55 nigelshaw Exp $
+  $Id: arm.exp,v 1.7 2003/02/11 22:04:48 nigelshaw Exp $
 ISO TC184/SC4/WG12 N1451 - ISO/CD-TS 10303-1262 Task specification - EXPRESS ARM
 *) 
 
 
 SCHEMA Task_specification_arm; 
+
+USE FROM Activity_method_arm;    -- ISO/TS 10303-1049
+
+USE FROM Activity_method_assignment_arm;    -- ISO/CD-TS 10303-1249
 
 USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
 
@@ -26,18 +30,16 @@ TYPE state_or_state_definition_select = SELECT
 END_TYPE; 
 
 TYPE task_classification_item = EXTENSIBLE SELECT BASED_ON classification_item WITH 
-   (Task, 
-    Task_assignment, 
-    Task_method, 
-    Task_method_relationship, 
+   (Activity_method, 
+    Activity_method_relationship, 
+    Applied_activity_method_assignment, 
     Task_method_state_relationship, 
-    Task_relationship, 
     Task_result, 
     Task_result_state_relationship, 
     Task_state_relationship);
 END_TYPE; 
 
-TYPE task_item = EXTENSIBLE SELECT;
+TYPE task_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item;
 END_TYPE; 
 
 ENTITY Advisory_task_step
@@ -71,7 +73,7 @@ ENTITY Looping_method
 END_ENTITY;
 
 ENTITY Method_constraint
-  SUBTYPE OF (Task_method_relationship);
+  SUBTYPE OF (Activity_method_relationship);
   applies_in : OPTIONAL constraint_context;
 END_ENTITY;
 
@@ -99,17 +101,16 @@ ENTITY Structured_task_method
   SUBTYPE OF (Task_method);
 END_ENTITY;
 
-ENTITY Task;
-  name : STRING;
-  description : STRING;
-  objective : SET[1:?] OF Task_result;
+ENTITY Task
+  SUBTYPE OF (Activity_method);
   method : OPTIONAL Task_method;
+  objective : SET[1:?] OF Task_result;
 END_ENTITY;
 
-ENTITY Task_assignment;
-  assigned_task : Task;
-  items : SET[1:?] OF task_item;
-  role : STRING;
+ENTITY Task_assignment
+  SUBTYPE OF (Applied_activity_method_assignment);
+  SELF\Applied_activity_method_assignment.assigned_activity_method RENAMED assigned_task : Task;
+  SELF\Applied_activity_method_assignment.items : task_item;
 END_ENTITY;
 
 ENTITY Task_invocation
@@ -118,20 +119,14 @@ ENTITY Task_invocation
 END_ENTITY;
 
 ENTITY Task_method
-  ABSTRACT SUPERTYPE ;
-  name : STRING;
-  description : STRING;
+  ABSTRACT SUPERTYPE 
+  SUBTYPE OF (Activity_method);
   notes : OPTIONAL LIST[1:?] OF Advisory_task_step;
 END_ENTITY;
 
 ENTITY Task_method_levels
   SUBTYPE OF (Task_method);
   alternatives : SET[2:?] OF Task_method;
-END_ENTITY;
-
-ENTITY Task_method_relationship;
-  relating : Task_method;
-  related : Task_method;
 END_ENTITY;
 
 ENTITY Task_method_sequence
@@ -142,11 +137,6 @@ END_ENTITY;
 ENTITY Task_method_state_relationship;
   state : state_or_state_definition_select;
   task_method : Task_method;
-END_ENTITY;
-
-ENTITY Task_relationship;
-  relating : Task;
-  related : Task;
 END_ENTITY;
 
 ENTITY Task_result;
@@ -170,4 +160,5 @@ ENTITY Task_step
 END_ENTITY;
 
 END_SCHEMA;  -- Task_specification_arm
+
 

@@ -1,8 +1,10 @@
-//$Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $
+//$Id: express2xml.js,v 1.1 2001/11/21 07:20:08 robbod Exp $
 // JScript to convert an Express file to an XML file
 // cscript express2xml.js <express.exp>
 // cscript express2xml.js <module> arm
 // cscript express2xml.js <module> mim
+// cscript express2xml.js <module> mim_lf
+// cscript express2xml.js <module> module
 // cscript express2xml.js <resource> resource
 // e.g
 // cscript express2xml.js part_and_version_identification arm
@@ -297,7 +299,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.1 2001/11/21 07:20:08 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -307,7 +309,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.0 $";
+    var appCVSRevision = "$Revision: 1.1 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -1073,6 +1075,8 @@ function Main() {
 	    "  cscript express2xml.js <express.exp>\nOr\n"+
 	    "  cscript express2xml.js <module> arm\nOr\n"+
 	    "  cscript express2xml.js <module> mim\nOr\n"+
+	    "  cscript express2xml.js <module> mim_lf\nOr\n"+
+	    "  cscript express2xml.js <module> module\nOr\n"+
 	    "  cscript express2xml.js <resource> resource\n";
 	ErrorMessage(msg);
 	return(false);
@@ -1083,24 +1087,61 @@ function Main() {
 	case "arm" :
 	    var module = cArgs(0);
 	    expFile = '../data/modules/'+module+'/arm.exp';
+	    currentExpFile=expFile;
+	    var xmlFile = expFile.replace("\.exp","\.xml");
+	    Output2xml(expFile, xmlFile);
 	    break;
 	case "mim" :
 	    var module = cArgs(0);    
 	    expFile = '../data/modules/'+module+'/mim.exp';
+	    currentExpFile=expFile;
+	    var xmlFile = expFile.replace("\.exp","\.xml");
+	    Output2xml(expFile, xmlFile);
+	    break;
+	case "mim_lf" :
+	    var module = cArgs(0);    
+	    expFile = '../data/modules/'+module+'/mim_lf.exp';
+	    currentExpFile=expFile;
+	    var xmlFile = expFile.replace("\.exp","\.xml");
+	    Output2xml(expFile, xmlFile);
 	    break;
 	case "resource" :
 	    var resource = cArgs(0);    
 	    expFile = '../data/resources/'+resource+'/'+resource+'.exp';
+	    currentExpFile=expFile;
+	    var xmlFile = expFile.replace("\.exp","\.xml");
+	    Output2xml(expFile, xmlFile);
+	    break;
+	case "module" :
+	    var module = cArgs(0);   
+	    var xmlFile;
+	    // arm
+	    expFile = '../data/modules/'+module+'/arm.exp';
+	    currentExpFile=expFile;
+	    xmlFile = expFile.replace("\.exp","\.xml");
+	    Output2xml(expFile, xmlFile);
+
+	    // mim
+	    expFile = '../data/modules/'+module+'/mim.exp';
+	    currentExpFile=expFile;
+	    xmlFile = expFile.replace("\.exp","\.xml");
+	    Output2xml(expFile, xmlFile);
+
+	    // mim long form
+	    expFile = '../data/modules/'+module+'/mim_lf.exp';
+	    currentExpFile=expFile;
+	    xmlFile = expFile.replace("\.exp","\.xml");
+	    Output2xml(expFile, xmlFile);
+
 	    break;
 	}
     } else {
 	expFile = cArgs(0)+".exp";
+	currentExpFile=expFile;
+	var xmlFile = expFile.replace("\.exp","\.xml");
+	Output2xml(expFile, xmlFile);
     }
-    currentExpFile=expFile;
-    var xmlFile = expFile.replace("\.exp","\.xml");
-    Output2xml(expFile, xmlFile);
 }
-
 
 
 // ------------------------------------------------------------

@@ -26,7 +26,6 @@
     <arm>
         <express-g>
             <imgfile file="armexpg1.xml"/>
-            <imgfile file="armexpg2.xml"/>
         </express-g>
     </arm>
     <mapping_table>
@@ -38,6 +37,46 @@ product_definition_relationship.name = `assembly requirement allocation'})
 ({shape_aspect_relationship
 shape_aspect_relationship.name = `assembly requirement allocation'})
 </refpath>
+            <aa assertion_to="Assembly_component" attribute="target_product_object">
+                <aimelt xml:space="preserve">PATH</aimelt>
+                <refpath xml:space="preserve">product_definition_relationship
+product_definition_relationship.related_product_definition -&gt;
+(product_definition =&gt;
+component_definition)
+(product_definition
+{product_definition =&gt;
+component_definition}
+characterized_product_definition = product_definition
+characterized_product_definition
+characterized_definition = characterized_product_definition
+characterized_definition &lt;-
+property_definition.definition
+property_definition =&gt;
+product_definition_shape &lt;-
+shape_aspect.of_shape
+shape_aspect =&gt;
+component_shape_aspect)
+</refpath>
+            </aa>
+            <aa assertion_to="Assembly_joint" attribute="target_product_object">
+                <aimelt xml:space="preserve">PATH</aimelt>
+                <refpath xml:space="preserve">shape_aspect_relationship
+shape_aspect_relationship.related_shape_aspect -&gt;
+shape_aspect =&gt;
+assembly_joint
+</refpath>
+            </aa>
+            <aa assertion_to="Component_feature" attribute="target_product_object">
+                <aimelt xml:space="preserve">PATH</aimelt>
+                <refpath xml:space="preserve">shape_aspect_relationship
+shape_aspect_relationship.related_shape_aspect -&gt;
+shape_aspect =&gt;
+(component_terminal)
+(component_interface_terminal)
+(laminate_component_interface_terminal)
+(component_feature)
+</refpath>
+            </aa>
         </ae>
         <ae original_module="Assembly_physical_requirement_allocation" entity="Assembly_separation_requirement_allocation" extensible="NO">
             <aimelt xml:space="preserve">(product_definition_relationship) (shape_aspect_relationship)</aimelt>
@@ -153,6 +192,54 @@ component_definition
             <refpath xml:space="preserve">shield_allocation &lt;=
 electromagnetic_compatibility_requirement_allocation
 </refpath>
+            <aa assertion_to="Electromagnetic_requirement_occurrence" attribute="allocated_requirement">
+                <aimelt xml:space="preserve">PATH</aimelt>
+                <refpath xml:space="preserve">shield_allocation &lt;=
+electromagnetic_compatibility_requirement_allocation &lt;=
+product_definition_relationship
+product_definition_relationship.relating_product_definition -&gt;
+{product_definition &lt;-
+product_definition_relationship.relating_product_definition
+product_definition_relationship
+product_definition_relationship.name = `shield group member'}
+product_definition
+characterized_product_definition = product_definition
+characterized_product_definition
+characterized_definition = characterized_product_definition
+characterized_definition &lt;-
+property_definition.definition
+{property_definition
+property_definition.name = `electromagnetic requirement'}
+property_definition =&gt;
+requirements_property
+</refpath>
+            </aa>
+            <aa assertion_to="Shield" attribute="target_product_object">
+                <aimelt xml:space="preserve">PATH</aimelt>
+                <refpath xml:space="preserve">shield_allocation &lt;=
+electromagnetic_compatibility_requirement_allocation &lt;=
+product_definition_relationship
+product_definition_relationship.related_product_definition -&gt;
+product_definition
+(product_definition =&gt;
+component_definition =&gt;
+discrete_shield)
+(product_definition
+{product_definition =&gt;
+component_definition}
+characterized_product_definition = product_definition
+characterized_product_definition
+characterized_definition = characterized_product_definition
+characterized_definition &lt;-
+property_definition.definition
+property_definition =&gt;
+product_definition_shape &lt;-
+shape_aspect.of_shape
+shape_aspect =&gt;
+component_shape_aspect =&gt;
+integral_shield)
+</refpath>
+            </aa>
         </ae>
         <ae original_module="Assembly_physical_requirement_allocation" entity="Thermal_requirement_allocation">
             <aimelt>thermal_requirement_allocation</aimelt>
@@ -162,6 +249,54 @@ product_definition_relationship
 {product_definition_relationship
 product_definition_relationship.name = `assembly requirement allocation'}
 </refpath>
+            <aa assertion_to="Thermal_component" attribute="target_product_object">
+                <aimelt>PATH</aimelt>
+                <refpath>thermal_requirement_allocation &lt;=
+product_definition_relationship
+product_definition_relationship.related_product_definition -&gt;
+{product_definition
+product_definition.description = `thermal component'}
+(product_definition =&gt;
+component_definition =&gt;
+thermal_component)
+({product_definition =&gt;
+component_definition}
+product_definition
+characterized_product_definition = product_definition
+characterized_product_definition
+characterized_definition = characterized_product_definition
+characterized_definition &lt;-
+property_definition.definition
+property_definition =&gt;
+product_definition_shape &lt;-
+shape_aspect.of_shape
+shape_aspect =&gt;
+component_shape_aspect =&gt;
+thermal_component_shape_aspect)
+</refpath>
+            </aa>
+            <aa assertion_to="Thermal_requirement_occurrence" attribute="allocated_requirement">
+                <aimelt>PATH</aimelt>
+                <refpath>thermal_requirement_allocation &lt;=
+product_definition_relationship
+product_definition_relationship.relating_product_definition -&gt;
+{product_definition
+product_definition.frame_of_reference -&gt;
+product_definition_context &lt;=
+application_context_element
+application_context_element.name = `design requirement'}
+product_definition
+characterized_product_definition = product_definition
+characterized_product_definition
+characterized_definition = characterized_product_definition
+characterized_definition &lt;-
+property_definition.definition
+{property_definition
+property_definition.name = `thermal requirement'}
+property_definition =&gt;
+requirements_property
+</refpath>
+            </aa>
         </ae>
     </mapping_table>
     <mim>

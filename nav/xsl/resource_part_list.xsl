@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: resource_schema_list.xsl,v 1.3 2002/10/10 12:25:43 nigelshaw Exp $
+$Id: resource_part_list.xsl,v 1.1 2002/10/22 13:18:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of resource parts
@@ -11,7 +11,7 @@ $Id: resource_schema_list.xsl,v 1.3 2002/10/10 12:25:43 nigelshaw Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-  <xsl:import href="../../xsl/common.xsl"/>
+  <xsl:import href="../../xsl/res_doc/common.xsl"/>
 
 
   <xsl:output method="html"/>
@@ -97,10 +97,15 @@ $Id: resource_schema_list.xsl,v 1.3 2002/10/10 12:25:43 nigelshaw Exp $
       </p>
       <xsl:variable name="scope" 
         select="concat('../data/resource_docs/',@name,'/sys/1_scope',$FILE_EXT)"/>
+      <xsl:variable name="express_g" 
+        select="concat('../data/resource_docs/',@name,'/sys/d_expg',$FILE_EXT)"/>
       <p class="menuitem">
         &#160;&#160;<a href="{$scope}" target="content">Scope</a>
         &#160;
         <a href="{$iso_href}" target="content">Introduction</a>
+        &#160;
+        <xsl:call-template name="schema_section_list" />
+        <a href="{$express_g}" target="content">EXPRESS-G</a>
       </p>
     </div>
 
@@ -131,6 +136,47 @@ $Id: resource_schema_list.xsl,v 1.3 2002/10/10 12:25:43 nigelshaw Exp $
   </div>
 </xsl:template>
 
+<xsl:template name="schema_section_list">
+  <!-- depth of xsl/res_doc is the same as nav\xsl -->
 
+  <xsl:variable name="resdoc_dir">
+    <xsl:call-template name="resdoc_directory">
+      <xsl:with-param name="resdoc" select="./@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="resource_xml" 
+    select="concat($resdoc_dir,'/resource.xml')"/>
+  <xsl:message >
+    resdoc_dir: <xsl:value-of select="$resdoc_dir"/> : resource_dir
+  </xsl:message>
+
+      <xsl:apply-templates 
+        select="document($resource_xml)/resource/schema"
+        mode="schema_sect">
+        <xsl:with-param name="resource_xml" select="$resource_xml"/>
+      </xsl:apply-templates>
+</xsl:template>
+
+<xsl:template match="schema" mode="schema_sect">
+  <xsl:param name="resource_xml"/>
+
+  <xsl:variable name="schema_sect_url"
+    select="concat('../data/resource_docs/',../@name,'/sys/',(number(position())+3),'_schema',$FILE_EXT)" />
+
+    <xsl:variable name="schema_name">
+     <xsl:call-template name="resource_name">
+      <xsl:with-param name="resource" select="./@name" />
+    </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="sch_dis_name">
+     <xsl:call-template name="res_display_name">
+      <xsl:with-param name="res" select="$schema_name" />
+    </xsl:call-template>
+    </xsl:variable>
+
+ <a href="{$schema_sect_url}" target="content">
+          <xsl:value-of select="$sch_dis_name" />
+          </a><br/>
+ 
+</xsl:template>
 </xsl:stylesheet>
-

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.13 2003/02/06 22:35:11 goset1 Exp $
+     $Id: application_protocol.xsl,v 1.14 2003/02/19 17:51:56 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -892,7 +892,7 @@
 				<xsl:when test="contains($test_wg_number,'Error')">
 					<xsl:call-template name="error_message">
 						<xsl:with-param name="message">
-							<xsl:value-of select="concat('(Error in application_protocol.xml/application_protocol/@wg.number.',$type,' - ',
+							<xsl:value-of select="concat('(Error in application_protocol.xml - application_protocol/@wg.number.',$type,' - ',
                                   $test_wg_number)"/>
 						</xsl:with-param>
 					</xsl:call-template>

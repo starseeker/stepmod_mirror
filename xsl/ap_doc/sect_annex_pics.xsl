@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_pics.xsl,v 1.7 2004/12/04 08:31:23 robbod Exp $
+$Id: sect_annex_pics.xsl,v 1.8 2005/01/09 07:08:36 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -23,7 +23,7 @@ $Id: sect_annex_pics.xsl,v 1.7 2004/12/04 08:31:23 robbod Exp $
 			<xsl:with-param name="informative" select="'normative'"/>
 		</xsl:call-template>
 		<xsl:variable name="ap_name" select="@name"/>
-		<xsl:variable name="iso_no" select="@std_no"/>	
+		<xsl:variable name="iso_no" select="concat('ISO 10303-',@part)"/>	
 
 		 <p>
 			This clause lists the optional elements of this part of ISO 10303. 
@@ -41,7 +41,7 @@ $Id: sect_annex_pics.xsl,v 1.7 2004/12/04 08:31:23 robbod Exp $
 		<table border="1">
 			<tr>
 				<th align="left">
-					ISO <xsl:value-of select="$iso_no"/> implementation name
+					<xsl:value-of select="$iso_no"/> implementation name
 				</th>
 				<td>
 					&#160; &#160; &#160; &#160;
@@ -79,7 +79,7 @@ $Id: sect_annex_pics.xsl,v 1.7 2004/12/04 08:31:23 robbod Exp $
 		<table border="1">
 			<tr>
 				<th align="left">
-					Implementation Method
+					Implementation method
 				</th>
                                 <xsl:if test="imp_meths/imp_meth[@part='28']">
                                   <th align="left">
@@ -98,7 +98,7 @@ $Id: sect_annex_pics.xsl,v 1.7 2004/12/04 08:31:23 robbod Exp $
        <xsl:if test="@general!='y'">
 				<tr>
 					<th align="left">
-						ISO 10303 - <xsl:value-of select="@part"/>
+						ISO 10303-<xsl:value-of select="@part"/>
 					</th>
                                         <xsl:choose>
                                           <xsl:when test="@part='28'">

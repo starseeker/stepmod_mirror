@@ -1,4 +1,4 @@
-//$Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $
+//$Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate the default XML for the module.
@@ -101,6 +101,28 @@ function GetModuleDir(module) {
     return( stepmodHome+"/data/modules/"+module+"/");
 }
 
+// Create the nav directory and insert the developer file
+function MakeNavFldr(module) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var modFldr = GetModuleDir(module);
+    var modNavFldr = modFldr+"nav/";
+    var developerXML = modNavFldr+"developer.xml";
+    if (!fso.FolderExists(modNavFldr)) 
+	fso.CreateFolder(modNavFldr);
+    if (!fso.FileExists(developerXML)) { 
+	fso.CreateTextFile(developerXML, true);
+	f = fso.GetFile(developerXML);
+	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../nav/xsl/developer.xsl\"?>");
+	ts.WriteLine("<stylesheet_application directory=\""+module+"\"/>");
+	ts.Close();
+    }
+}
+
 // Create the dvlp directory and insert the projmg and issues file
 function MakeDvlpFldr(module) {
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
@@ -126,7 +148,7 @@ function MakeDvlpFldr(module) {
 	f = fso.GetFile(projmgXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $ -->");
+	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/projmg.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE management SYSTEM \"../../../../dtd/projmg/projmg.dtd\">");
 	ts.WriteLine("<management module=\""+module+"\"");
@@ -300,7 +322,7 @@ function MakeDvlpFldr(module) {
 	f = fso.GetFile(issuesXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $ -->");
+	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/issues_file.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE issues SYSTEM \"../../../../dtd/projmg/issues.dtd\">");
 	ts.WriteLine("<issues module=\""+module+"\">");
@@ -369,7 +391,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -392,7 +414,7 @@ function MakeModuleXML(module, long_form, partNo) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     //ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     //ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -422,11 +444,10 @@ function MakeModuleXML(module, long_form, partNo) {
     ts.WriteLine("   rcs.date=\""+rcsdate+"\"");
     var rcsrevision = "$"+"Revision: $";
 
-    ts.WriteLine("   rcs.revision=\""+rcsrevision+"\">");
+    //ts.WriteLine("   rcs.revision=\""+rcsrevision+"\">");
     
-    // Do not want to make issues and proj mg available just yet
-    //ts.WriteLine("   rcs.revision=\""+rcsrevision+"\"");
-    //ts.WriteLine("   development.folder=\"dvlp\">");
+    ts.WriteLine("   rcs.revision=\""+rcsrevision+"\"");
+    ts.WriteLine("   development.folder=\"dvlp\">");
     ts.WriteLine("");
     ts.WriteLine(" <keywords>");
     ts.WriteLine("    module");
@@ -545,7 +566,7 @@ function MakeExpressG(module, expgfile, title) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("    href=\"../../../xsl/imgfile.xsl\"?>");
@@ -576,7 +597,7 @@ function MakeExpress(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("(*");
-    ts.WriteLine("   $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $");
+    ts.WriteLine("   $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $");
     ts.Write("   N - ISO/CD-TS - 10303- ");
     ts.Write(module);
     ts.Write(" - EXPRESS ");
@@ -603,14 +624,14 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
     ts.WriteLine("<express");
     ts.WriteLine("   language_version=\"2\"");
-    ts.WriteLine("   rcs.date=\"$Date: 2002/08/18 17:36:01 $\"");
-    ts.WriteLine("   rcs.revision=\"$Revision: 1.20 $\">");
+    ts.WriteLine("   rcs.date=\"$Date: 2002/08/20 13:43:56 $\"");
+    ts.WriteLine("   rcs.revision=\"$Revision: 1.21 $\">");
     var schema = schemaName(module,armOrMim);
     ts.WriteLine("  <schema name=\""+schema+"\">");
     ts.WriteLine("  </schema>");
@@ -688,7 +709,7 @@ function MakeModule(module, long_form, partNo) {
 	fso.CreateFolder(modFldr);
 	fso.CreateFolder(modSysFldr);	
 	MakeDvlpFldr(module);
-
+	MakeNavFldr(module);
 	for (var i=0; i<moduleClauses.length; i++) {
 	    MakeModuleClause(module, moduleClauses[i]);
 	}
@@ -763,6 +784,34 @@ function MainDvlpWindow(module) {
 }
 
 
+function MainNavWindow(module) {
+    var objShell = WScript.CreateObject("WScript.Shell");
+    var modName = NameModule(module);
+    if (modName.length > 1) {
+
+	var fso = new ActiveXObject("Scripting.FileSystemObject");
+	var modFldr = GetModuleDir(modName);
+	var modNavFldr = modFldr+"nav/";
+	if (!fso.FolderExists(modFldr)) {
+	    objShell.Popup("Module "+modName+" does not exist");
+	} else {
+	    var intRet = objShell.Popup("You are about to create a nav directory in module: "+module,0, "Creating NAV", 49);
+	    if (intRet == 1) {
+		// OK
+		MakeNavFldr(module);
+		objShell.Popup("Created nav folder: "+modNavFldr+"\n"+
+			       "  ProjMg: stepmod/data/modules/"+modName+"/nav/projmg.xml\n"+
+			       "  Issues: stepmod/data/modules/"+modName+"/nav/issues.xml\n"+
+			       "  Add    development.folder=\"nav\" to module.xml\n",
+			       0, "Created module", 64);
+	    }
+	}
+    } else {
+	objShell.Popup("You must enter a module name");
+    }
+}
+
+
 function MainWindow(module) {
     var objShell = WScript.CreateObject("WScript.Shell");
     var modName = NameModule(module);
@@ -798,3 +847,4 @@ function MainWindow(module) {
 
 //Main();
 //MakeDvlpFldr("tester");
+//MakeNavFldr("activity");

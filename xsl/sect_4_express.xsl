@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.110 2004/02/05 07:42:51 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.111 2004/02/25 09:15:13 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -460,9 +460,44 @@
     <xsl:with-param name="clause" select="'section'"/>
   </xsl:call-template>
 
-  <xsl:if test="position()!=last()">,<br/></xsl:if>
+  <xsl:if test="position()!=last()">,
 
-  <xsl:if test="position()=last()">)</xsl:if>
+  <!-- THX added to print out deprecated note  --> 
+  <xsl:variable name="this" select="@name"/>
+  <xsl:if test="../described.item[@item = $this]">
+              &#160;&#160;&#160;--&#160;
+    <xsl:value-of select="../described.item[@item=$this]/description"/>
+  </xsl:if>
+
+
+<br/></xsl:if>
+
+  <xsl:if test="position()=last()">)  
+<!-- THX added to print out deprecated note  --> 
+  <xsl:variable name="this" select="@name"/>
+  <xsl:if test="../described.item[@item = $this]">
+              &#160;&#160;&#160;--&#160;
+    <xsl:value-of select="../described.item[@item=$this]/description"/>
+  </xsl:if>
+
+
+
+</xsl:if>
+
+  
+
+  <!-- THX added to print out deprecated note 
+This probably wont work because notes need to be numbered, etc. Probably need a list at the end 
+  <xsl:variable name="this" select="@name"/>
+  <xsl:if test="../described.item[@item = $this]">
+    <xsl:value-of select="@name"/>
+    <xsl:apply-templates select="../described.item[@item=$this]/description"/>
+  </xsl:if>
+-->
+
+
+  <!-- end THX added -->
+
 
 </xsl:template>
 
@@ -630,7 +665,12 @@
       <code>
         *)<br/>
         &#160;&#160;<xsl:value-of select="@name"/> : 
-          <xsl:apply-templates select="./*" mode="underlying"/> 
+
+      <!-- THX modified to support aggregates
+          <xsl:apply-templates select="./*" mode="underlying"/>  --> 
+
+          <xsl:apply-templates select="./*" mode="code"/> 
+
           := <xsl:value-of select="@expression"/>;
       <br/>(*
       </code>

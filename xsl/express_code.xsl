@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.53 2004/02/05 07:42:51 robbod Exp $
+     $Id: express_code.xsl,v 1.54 2004/05/06 21:18:08 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -237,9 +237,12 @@
   </xsl:if>
 
   <xsl:if test="position()!=last()">,<br/></xsl:if>
-
   <xsl:if test="position()=last()">)</xsl:if>
-
+  <!-- THX added to print out deprecated note -->
+  <xsl:if test="..//described.item[@item = ./@name]">
+    <xsl:apply-templates select="../described.item[@item=./@name]/description"/>
+  </xsl:if>
+  <!-- end THX added -->
 </xsl:template>
 
 
@@ -265,6 +268,18 @@
       <br/>
     </xsl:if>
   </code>
+</xsl:template>
+
+<!-- THX added to support constants that are aggregates -->
+<xsl:template match="aggregate" mode="underlying">
+  <xsl:choose>
+    <xsl:when test="@lower">
+      <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="concat(@type, ' OF ')"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.96 2003/06/13 07:37:26 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.98 2003/06/24 23:59:03 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1166,6 +1166,7 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
+    <xsl:with-param name="supertypes" select="@supertypes"/>
   </xsl:call-template> 
   <!-- output description from express -->
   <p>

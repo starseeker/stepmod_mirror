@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.12 2003/06/24 00:11:32 thendrix Exp $
+     $Id: express_description.xsl,v 1.14 2003/06/24 22:09:57 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -47,6 +47,12 @@
   <!-- if an entity, the name of a unique rule 
        Optional exclusive parameter -->
   <xsl:param name="unique" select="''"/>
+
+  <!-- if an entity, the node
+       Optional exclusive parameter -->
+
+      <xsl:param name="supertypes" select="''"/>
+
 
   <xsl:variable name="description_file"
     select="/express/@description.file"/>
@@ -123,35 +129,65 @@
       
 <!-- -->
 
+<!-- if an entity , that is 
+if 
+    not a type rule function procedure constant 
+and only one dot in string (hence not an attribute) 
+and  string is more than the schema name ( hence not the  schema ) 
+  ....  
+
+-->
+
     <xsl:if test="string-length($type)=0 and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
 
+
+      <xsl:if test="not(contains(substring(normalize-space($description/text()),1),'A'))">
+        
+      <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Ent1:  description of entity ',$description/@linkend,  ' should start with A or An')"/>
+        </xsl:call-template>        
+        
+      </xsl:if>
 
       <xsl:if test="not($description/b/text()) and not($description/express_ref)">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent1: should be at least one bold text in the entity description ', $description/@linkend)"/>
+            select="concat('Warning Ent2: should be at least one bold text or express ref in the description of entity ', $description/@linkend)"/>
         </xsl:call-template>        
       </xsl:if>
 
+
+      <!-- if -->
       <xsl:if test="not(contains(substring-before(normalize-space($description/text()[position()=2]),' '),'is')) and not(contains(substring-before(normalize-space($description/text()[position()=2]),' '),'represents'))">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent2: check that description starts with is or represents ', $description/@linkend)"/>
+            select="concat('Warning Ent3: check that description starts with is or represents ', $description/@linkend)"/>
         </xsl:call-template>        
       </xsl:if>
 
-      <xsl:if test="not(contains($description/@linkend,$description/b/text()))">
+      <xsl:if test="not(contains($description/@linkend,$description/b/text()))and not(contains($description/@linkend,$description/express_ref/@linkend))">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent3: should be at least one bold text in the entity description that contains the entity name ', $description/@linkend)"/>
+            select="concat('Warning Ent4: should be at least one bold text or express_ref in the entity description that contains the entity name ', $description/@linkend)"/>
         </xsl:call-template>
         
       </xsl:if>
-    </xsl:if>
 
+<xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),'is a type'))" >
+  
+      <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Ent5: check for is a type of ', $supertypes)"/>
+        </xsl:call-template>        
+
+</xsl:if>
+    </xsl:if>
 
 
     <xsl:apply-templates select="$description"/>      

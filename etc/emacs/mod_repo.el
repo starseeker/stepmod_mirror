@@ -1,37 +1,55 @@
-;;; $Id: mod_repo.el,v 1.4 2002/09/05 07:06:33 robbod Exp $
+;;; $Id: mod_repo.el,v 1.5 2002/09/06 08:03:21 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
 
+
 (defcustom modrep-home 
-  (concat *local_home* "projects/nist_module_repo/stepmod")
-  "Base directory"
+  *stepmod_home* 
+  "Base directory set in users .emacs"
   :type 'sexp)
 
+;; example users .emacs
+
+;; (setq *stepmod_home* 
+;;      "e:/rbn/projects/nist_module_repo/stepmod/")
+;; ......
+
+;; (setq load-path (append (list nil (concat *stepmod_home* "etc/emacs") ) load-path))
+
+;; (setq *user* "Tom Hendrix" )
+;; (setq *prefix* "TEH-" )
+;; (setq *schema* "plcs-core" )
+;; (setq *org* "Boeing" )
+;; (setq *notice*  "Developed by Eurostep and supplied to NIST under contract.")
+
+;; (load "mod_repo")
+
+;; end example users .emacs 
 
 (defcustom modrep-issue-schema 
-  "plcs_core"
+  *schema*
   "Schema entered into comment"
   :type 'sexp)
 
 (defcustom modrep-issue-prefix 
-  "RBN-"
+  *prefix*
   "Comment prefix"
   :type 'sexp)
 
 (defcustom modrep-user 
-  "Rob Bodington"
+  *user*
   "MODREP user with whom comment is associated"
   :type 'sexp)
 
-(defcustom modrep-esl 
-  "Eurostep Limited"
-  "Eusotep company"
+(defcustom modrep-org 
+  *org*
+  "My organization"
   :type 'sexp)
 
 (defcustom modrep-owner-notice
-  "Developed by Eurostep and supplied to NIST under contract."
-  "Copyright notice in Owner field"
+  *notice*
+  "My organizations copyright notice"
   :type 'sexp)
 
 (defvar month-alist
@@ -245,8 +263,8 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.4 2002/09/05 07:06:33 robbod Exp $\n")
-  (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-esl)
+  (insert "$Id: mod_repo.el,v 1.5 2002/09/06 08:03:21 robbod Exp $\n")
+  (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-org)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")
   (insert "  Purpose:\n")
@@ -465,6 +483,20 @@
     )
   )
 
+;; teh add
+(defun modrep-insert-mim()
+ (interactive)
+ (insert "../activity_method/sys/5_mim.xml#mim_express")
+
+)
+
+(defun modrep-insert-iso()
+ (interactive)
+ (insert "ISO 10303-")
+
+)
+;; end teh add
+
 
 (easy-menu-define
  modrep-menu-symbol global-map "modrep"
@@ -537,15 +569,24 @@
    (modrep-insert-express_ref) t]
   ["Insert <module_ref>" 
    (modrep-insert-module_ref) t]
+;; teh add
+  ["Insert ISO 10303-" 
+   (modrep-insert-iso) t]
+
+  ["Insert href to mim listing" 
+   (modrep-insert-mim) t]
+;; end teh add
 
   ["Dired stepmod/xsl" 
     (find-file (concat modrep-home "/xsl/")) t]
   ["Dired stepmod/data/modules" 
     (find-file (concat modrep-home "/data/modules/")) t]
-   ["Open mode_repo.el" 
+   ["Open mod_repo.el" 
     (find-file (concat modrep-home "/etc/emacs/mod_repo.el")) t]
    ["Insert description LVars " (modrep-insert-issue-lvars) t]
    ["Insert XSL file header" (modrep-insert-file-header-xsl) t]
    ["Insert XML file header" (modrep-insert-file-header-xml) t]
    )
  )
+
+

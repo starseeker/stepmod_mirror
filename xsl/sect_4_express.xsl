@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.18 2002/03/04 07:50:08 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.19 2002/03/19 13:26:43 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1332,8 +1332,8 @@
     <xsl:with-param name="args" select="@appliesto"/>
   </xsl:call-template>
 
-  <xsl:apply-templates select="./where[@expression]" mode="description"/>
-  <xsl:apply-templates select="./where[not(@expression)]" mode="description"/>
+  <xsl:call-template name="output_where_formal"/>
+  <xsl:call-template name="output_where_informal"/>
 
   (*
 </xsl:template>

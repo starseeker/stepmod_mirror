@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.3 2002/09/09 08:25:45 robbod Exp $
+$Id: modules_list.xsl,v 1.4 2002/09/12 09:12:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -113,7 +113,13 @@ $Id: modules_list.xsl,v 1.3 2002/09/09 08:25:45 robbod Exp $
       <a href="{$mimg}" target="content">EXPRESS-G</a>
     </p>
     
-    <p class="menuitem">Developer view</p>
+    <p class="menuitem">
+      <xsl:variable name="developer" 
+      select="concat('../data/modules/',@name,'/nav/developer',$FILE_EXT)"/>
+      <a href="{$developer}" target="content">
+        Developer view
+      </a>
+    </p>
   </div>
   
   <div id="{$NoMenu}">

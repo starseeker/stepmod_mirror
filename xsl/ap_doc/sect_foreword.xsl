@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.18 2005/03/02 13:40:37 robbod Exp $
+$Id: sect_foreword.xsl,v 1.19 2005/03/02 20:27:10 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -513,10 +513,12 @@ $Id: sect_foreword.xsl,v 1.18 2005/03/02 13:40:37 robbod Exp $
   <p>
     A complete list of parts of ISO 10303 is available from the following URL: 
   </p>
+<div align="center">
   <blockquote>
     <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.htm" target="_blank">
       http://www.tc184-sc4.org/titles/STEP_Titles.htm</A>.
   </blockquote>
+</div>
   <p>
     <a name="10303-1">
       <sup>1)</sup>A future edition of ISO 10303-1 will describe the application

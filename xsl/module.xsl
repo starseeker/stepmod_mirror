@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.99 2002/08/18 17:36:58 robbod Exp $
+$Id: module.xsl,v 1.100 2002/08/28 18:21:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -685,8 +685,17 @@ o=isocs; s=central<br/>
 
 
   <p>
-    Annexes A and B form an integral part of this part of ISO 10303. Annexes C,
-    D, E<xsl:if test="./usage_guide"> and F </xsl:if> are for information only.  
+    Annexes A and B form an integral part of this part of ISO
+    10303. Annexes C, 
+    <xsl:choose>
+      <xsl:when test="./usage_guide">
+        D, E and F
+      </xsl:when>
+      <xsl:otherwise>
+        D and E
+      </xsl:otherwise>
+    </xsl:choose>
+    are for information only.  
   </p> 
 </xsl:template>
 

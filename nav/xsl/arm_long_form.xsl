@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
+$Id: arm_long_form.xsl,v 1.2 2002/11/04 13:07:28 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -10,8 +10,8 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-		xmlns:saxon="http://icl.com/saxon"
-                version="1.0">
+		xmlns:exslt="http://exslt.org/common"
+		version="1.0">
 
 	<xsl:import href="../../xsl/express.xsl"/>
 
@@ -120,19 +120,21 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
 		</xsl:when>
 
 
-		<xsl:when test="function-available('saxon:node-set')">
+		<xsl:when test="function-available('exslt:node-set')">
 
 			  <xsl:variable name="schemas-node-set2">
 			      <xsl:choose>
 				<xsl:when test="2 > string-length($schemas)" >
 			        </xsl:when>
 			        <xsl:otherwise>
-			          <xsl:copy-of select="saxon:node-set($schemas)"/>
+			          <xsl:copy-of select="exslt:node-set($schemas)"/>
 			        </xsl:otherwise>
 			      </xsl:choose>
 			    </xsl:variable>
 
-			<xsl:variable name="dep-schemas" select="document($schemas-node-set2//x)" />
+
+
+			<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" /> 
 
 
 			<xsl:apply-templates select="$arm_node//constant | $dep-schemas//constant " mode="annotated-code">
@@ -278,7 +280,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 
 				<xsl:variable name="dir" >
 					<xsl:choose>
-						<xsl:when test="function-available('saxon:node-set')">../../</xsl:when>
+						<xsl:when test="function-available('exslt:node-set')">../../</xsl:when>
 						<xsl:otherwise>../../../../</xsl:otherwise>
 					</xsl:choose>
 				</xsl:variable>

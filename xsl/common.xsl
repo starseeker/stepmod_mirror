@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.2 2001/10/05 15:35:00 robbod Exp $
+$Id: common.xsl,v 1.3 2001/10/22 09:42:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -228,11 +228,31 @@ $Id: common.xsl,v 1.2 2001/10/05 15:35:00 robbod Exp $
   </xsl:template>
 
 
+  <!-- given the name of a module, or module arm or mim schema
+       return the directory part
+-->
   <xsl:template name="module_directory">
     <xsl:param name="module"/>
     <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
     <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:value-of select="translate($module/@name,$UPPER, $LOWER)"/>
+    <xsl:variable name="dir1"
+      select="translate($module,$UPPER, $LOWER)"/>
+    <xsl:variable name="mod_dir">
+      <xsl:choose>
+        <xsl:when test="contains($dir1,'_arm')">
+          <xsl:value-of select="substring-before($dir1,'_arm')"/>
+        </xsl:when>
+        <xsl:when test="contains($dir1,'_mim')">
+          <xsl:value-of select="substring-before($dir1,'_mim')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="string($dir1)"/>
+        </xsl:otherwise>
+      </xsl:choose>      
+    </xsl:variable>
+    <xsl:value-of select="concat('../data/modules/',$mod_dir)"/>
   </xsl:template>
 
 </xsl:stylesheet>
+
+

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.8 2004/07/09 13:03:02 robbod Exp $
+$Id: p28xsd.xsl,v 1.9 2004/10/13 19:18:16 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -80,7 +80,7 @@ $Id: p28xsd.xsl,v 1.8 2004/07/09 13:03:02 robbod Exp $
             <xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 
-                select="concat('Error IMPL1: The module ',../@directory,' must have a long form')"/>
+                select="concat('Error IMPL1: The module ',@directory,' must have a long form')"/>
             </xsl:call-template>
           </xsl:otherwise>
         </xsl:choose>

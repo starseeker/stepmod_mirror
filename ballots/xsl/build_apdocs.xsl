@@ -598,6 +598,21 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:attribute name="name">APDOCGIFS</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/*.gif</xsl:attribute>
     </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCJPEGS</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/*.jpeg</xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCJPGS</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/*.jpg</xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCPNGS</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/*.png</xsl:attribute>
+    </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCSHOMEXML</xsl:attribute>
@@ -1711,6 +1726,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCGIFS}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${APDOCJPEGS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${APDOCJPGS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="srcfileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${APDOCPNGS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+
         <xsl:element name="targetfileset">
           <xsl:attribute name="dir">
             <xsl:value-of select="'${ISODIR}'"/>
@@ -5811,6 +5851,45 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="includes">
             <xsl:value-of select="'${APDOCGIFS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="copy">
+        <xsl:attribute name="todir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${APDOCJPGS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="copy">
+        <xsl:attribute name="todir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${APDOCJPEGS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      <xsl:element name="copy">
+        <xsl:attribute name="todir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'.'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">
+            <xsl:value-of select="'${APDOCPNGS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>

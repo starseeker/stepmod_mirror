@@ -84,7 +84,15 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:element name="property">
           <xsl:attribute name="name">ARCHIVE</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:value-of select="concat(@wg.number.ballot_package,'-',@name,'-${DSTAMP}')"/>
+            <xsl:choose>
+              <xsl:when test="string-length(@wg.number.ballot_package) > 3">
+            <xsl:value-of select="concat(@wg.number.ballot_package ,'-',@name,'-${DSTAMP}')"/>                
+              </xsl:when>
+              <xsl:otherwise>
+            <xsl:value-of select="concat('wgxxnxxxx' ,'-',@name,'-${DSTAMP}')"/>                
+              </xsl:otherwise>
+            </xsl:choose>
+
           </xsl:attribute>
         </xsl:element>
   
@@ -1708,7 +1716,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:element name="param">
+       <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
@@ -2285,6 +2293,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       </xsl:element>
     </target>
 
+      <xsl:if test="ballot_package/resource">
 
     <target name="isoresdocs" depends="init" 
       description="generate HTML for all modules">
@@ -2379,8 +2388,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${ISOMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-      </xsl:element>
-      
+      </xsl:element>      
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3210,6 +3218,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
       </xsl:element>   
     </target>
+  </xsl:if>
 
   </project>
 

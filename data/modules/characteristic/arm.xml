@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-16T18:18:25" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="characteristic_arm schema_instance"/>
+   <schema name="Characteristic_arm">
+      <interface kind="use" schema="Value_with_unit_extension_arm"/>
+      <interface kind="use" schema="Extended_measure_representation_arm"/>
+      <type name="range_class">
+         <enumeration items="closed lower_open upper_open open"/>
+      </type>
+      <type name="scalar_or_coordinated_characteristics">
+         <select selectitems="coordinated_characteristic characteristic"/>
+      </type>
+      <type name="value_qualifier">
+         <select selectitems="Precision_qualifier Type_qualifier Uncertainty_qualifier"/>
+      </type>
+      <type name="coordinated_characteristic">
+         <select selectitems="Property_value_representation Characteristic_representation"/>
+      </type>
+      <type name="characteristic">
+         <select selectitems="String_representation_item Numerical_item_with_unit Value_list Value_set"/>
+      </type>
+      <entity name="Text_representation_item" supertypes="String_representation_item"/>
+      <entity name="Expanded_uncertainty" supertypes="Standard_uncertainty">
+         <explicit name="coverage_factor">
+            <builtintype type="REAL"/>
+         </explicit>
+      </entity>
+      <entity name="Standard_uncertainty" supertypes="Uncertainty_qualifier" super.expression="Expanded_uncertainty">
+         <explicit name="uncertainty_value">
+            <builtintype type="REAL"/>
+         </explicit>
+      </entity>
+      <entity name="Uncertainty_qualifier" super.expression="ONEOF (Standard_uncertainty, Qualitative_uncertainty)">
+         <explicit name="description">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="measure_name">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Maximum_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Numerical_item_with_unit"/>
+            <redeclaration entity-ref="Representation" old_name="items"/>
+         </explicit>
+      </entity>
+      <entity name="Nominal_tolerance_characteristic" supertypes="Tolerance_characteristic"/>
+      <entity name="Measure_qualification">
+         <explicit name="qualifiers">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="value_qualifier"/>
+         </explicit>
+         <explicit name="qualified_measure">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <explicit name="description">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Minimum_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Numerical_item_with_unit"/>
+            <redeclaration entity-ref="Representation" old_name="items"/>
+         </explicit>
+      </entity>
+      <entity name="Plus_minus_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate type="SET" lower="3" upper="3"/>
+            <typename name="Numerical_item_with_unit"/>
+            <redeclaration entity-ref="Representation" old_name="items"/>
+         </explicit>
+      </entity>
+      <entity name="Statistical_tolerance_characteristic" supertypes="Tolerance_characteristic"/>
+      <entity name="Symmetrical_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate type="SET" lower="2" upper="2"/>
+            <typename name="Numerical_item_with_unit"/>
+            <redeclaration entity-ref="Representation" old_name="items"/>
+         </explicit>
+      </entity>
+      <entity name="Tolerance_characteristic" supertypes="Characteristic_representation" super.expression="ONEOF (Minimum_tolerance_characteristic, Statistical_tolerance_characteristic, Symmetrical_tolerance_characteristic, Maximum_tolerance_characteristic, Plus_minus_tolerance_characteristic, Nominal_tolerance_characteristic)">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Numerical_item_with_unit"/>
+            <redeclaration entity-ref="Representation" old_name="items"/>
+         </explicit>
+      </entity>
+      <entity name="Characteristic_representation" supertypes="Representation"/>
+      <entity name="Precision_qualifier">
+         <explicit name="precision_value">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="Qualitative_uncertainty" supertypes="Uncertainty_qualifier">
+         <explicit name="uncertainty_value">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Range_characteristic" supertypes="Characteristic_representation">
+         <explicit name="range_type">
+            <typename name="range_class"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="2" upper="2"/>
+            <typename name="Numerical_item_with_unit"/>
+            <redeclaration entity-ref="Representation" old_name="items"/>
+         </explicit>
+      </entity>
+      <entity name="Type_qualifier">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

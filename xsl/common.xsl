@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.140 2004/11/25 13:43:59 thendrix Exp $
+$Id: common.xsl,v 1.141 2004/11/25 15:16:22 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -789,7 +789,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
   <xsl:if test="(substring-before($href,'/') = '.' or substring-before($href,'/') = '') and not(contains(substring-after($href,'/'),'/')) and not(contains(../../@file,'expg1.xml'))" >
     <xsl:call-template name="error_message">
-      <xsl:with-param name="inline" select="'yes'"/>
+      <xsl:with-param name="inline" select="'no'"/>
       <xsl:with-param name="message">
         <xsl:value-of 
           select="concat('Warning IM3: diagram contains offpage reference to ',substring-after($href,'/'),'. Check this and counterpart on referenced diagram.')"/>
@@ -798,12 +798,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         select="'../../../images/warning.gif'"/>
       
               </xsl:call-template>
-      <AREA shape="{$shape}" coords="{$coords}" href="{$href}" alt="{$href}"/>
-      
   </xsl:if>
-
-
-  <AREA shape="{$shape}" coords="{$coords}" href="{$href}" alt="{$href}"/>
 
  
 </xsl:template>

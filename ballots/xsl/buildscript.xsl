@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+$Id: buildscript.xsl,v 1.12 2005/02/17 22:26:45 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -182,7 +182,7 @@ $Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
 
-      <xsl:apply-templates select="ballot_package/resource">
+      <xsl:apply-templates select="ballot_package/res_doc">
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
       
@@ -198,7 +198,7 @@ $Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
 
-      <xsl:apply-templates select="ballot_package/resource" mode="getexpress">
+      <xsl:apply-templates select="ballot_package/res_doc" mode="getexpress">
         <xsl:with-param name="outfile" select="$outfile"/>
       </xsl:apply-templates>
 
@@ -273,7 +273,7 @@ $Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     </exec>
   </xsl:template>
 
-  <xsl:template match="resource">
+  <xsl:template match="res_doc">
     <xsl:param name="outfile"/>
 
     <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
@@ -306,7 +306,7 @@ $Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
   </xsl:template>
 
-  <xsl:template match="resource" mode="getexpress">
+  <xsl:template match="res_doc" mode="getexpress">
 
 
     <xsl:element name="mkdir">

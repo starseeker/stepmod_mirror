@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: index.xsl,v 1.2 2002/06/20 14:31:17 robbod Exp $
+$Id: index.xsl,v 1.3 2002/08/13 07:10:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the ballot packages
@@ -37,7 +37,7 @@ $Id: index.xsl,v 1.2 2002/06/20 14:31:17 robbod Exp $
 
         <p>
           The modules have been balloted according to the following ballot
-          packages. 
+          cycles. 
         </p>
         <ul>
           <xsl:apply-templates select="./ballots/ballot"/>

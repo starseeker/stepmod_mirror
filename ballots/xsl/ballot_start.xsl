@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_start.xsl,v 1.2 2002/07/31 07:59:59 robbod Exp $
+$Id: ballot_start.xsl,v 1.3 2002/08/07 12:11:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules order according to ballot packages
@@ -10,10 +10,8 @@ $Id: ballot_start.xsl,v 1.2 2002/07/31 07:59:59 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-
+  <xsl:import href="./common.xsl"/>
   <xsl:import href="../../xsl/common.xsl"/>
-
-
 
 
   <xsl:output 
@@ -50,9 +48,7 @@ $Id: ballot_start.xsl,v 1.2 2002/07/31 07:59:59 robbod Exp $
       </xsl:call-template>
       <hr/>
 
-      <h2>
-        Ballot: <xsl:value-of select="@name"/>
-      </h2>
+      <xsl:call-template name="ballot_header"/>
       Comprises the following ballot packages:      
       <ul>
         <xsl:apply-templates select="./ballot_package"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.1 2002/07/31 08:00:26 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.2 2002/08/07 12:11:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -11,7 +11,7 @@ $Id: ballot_checklist.xsl,v 1.1 2002/07/31 08:00:26 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-
+  <xsl:import href="./common.xsl"/>
   <xsl:import href="../../xsl/common.xsl"/>
 
 
@@ -50,25 +50,7 @@ $Id: ballot_checklist.xsl,v 1.1 2002/07/31 08:00:26 robbod Exp $
       </xsl:call-template>
       <hr/>
 
-      <table>
-        <tr>
-          <td>Ballot package:</td>
-          <td><xsl:value-of select="@name"/></td>
-        </tr>
-        <tr>
-          <td>Description:</td>
-          <td><xsl:value-of select="@description"/></td>
-        </tr>
-        <tr>
-          <td>Ballot package WG number:</td>
-          <td><xsl:value-of select="@wg.number.ballot_package"/></td>
-        </tr>
-        <tr>
-          <td>Ballot package comments:</td>
-          <td><xsl:value-of select="@wg.number.ballot_package_comment"/></td>
-        </tr>
-      </table>
-      <hr/>
+      <xsl:call-template name="ballot_header"/>
       <table border="1">
         <tr>
           <td><b>Ballot package</b></td>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_list.xsl,v 1.3 2002/07/31 07:59:59 robbod Exp $
+$Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -11,6 +11,7 @@ $Id: ballot_list.xsl,v 1.3 2002/07/31 07:59:59 robbod Exp $
                 version="1.0">
 
 
+  <xsl:import href="./common.xsl"/>
   <xsl:import href="../../xsl/common.xsl"/>
 
 
@@ -51,6 +52,9 @@ $Id: ballot_list.xsl,v 1.3 2002/07/31 07:59:59 robbod Exp $
       <p align="center">
         <xsl:apply-templates select="./ballot_package" mode="TOC"/>
       </p>
+      
+      <xsl:call-template name="ballot_header"/>
+      <xsl:apply-templates select="./description"/>
       <xsl:apply-templates select="./ballot_package"/>
     </body>
   </HTML>
@@ -99,13 +103,13 @@ $Id: ballot_list.xsl,v 1.3 2002/07/31 07:59:59 robbod Exp $
   <blockquote>
     <table width="90%" cellspacing="0" cellpadding="4">
       <tr>
-        <td valign="top">
+        <td align="left" valign="top">
           <xsl:apply-templates select="./module" mode="col1">
             <xsl:with-param name="mid_point" select="$module_mid_point"/>
             <xsl:sort select="@name"/>
           </xsl:apply-templates>
         </td>
-        <td valign="top">
+        <td align="left" valign="top">
           <xsl:apply-templates select="./module" mode="col2">
             <xsl:with-param name="mid_point" select="$module_mid_point"/>
             <xsl:sort select="@name"/>
@@ -173,7 +177,7 @@ $Id: ballot_list.xsl,v 1.3 2002/07/31 07:59:59 robbod Exp $
           <xsl:with-param name="message">
             <xsl:value-of select="concat('Error B1: Module ',
                                   $module_name,
-                                  ' does not exist in stepmod/repsotory_index.xml')"/>
+                                  ' does not exist in stepmod/repository_index.xml')"/>
           </xsl:with-param>
         </xsl:call-template>
       </p>

@@ -827,6 +827,21 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+          <xsl:attribute name="name">RESDOCRESOURCESXML</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:call-template name="output_resources">
+              <xsl:with-param name="resources"
+                select="normalize-space($resdoc_resources_set)"/>
+              <xsl:with-param name="prefix" select="'data/resources/'"/>
+              <xsl:with-param name="suffix" select="'.xml'"/>
+            </xsl:call-template>
+          </xsl:attribute>
+        </xsl:element>
+
+
+
+
+        <xsl:element name="property">
           <xsl:attribute name="name">RESOURCESEXP</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:call-template name="output_resources">
@@ -875,6 +890,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
 
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESDOCRESOURCESSCHEMAEXPGXMLS</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:call-template name="output_resources">
+              <xsl:with-param name="resources"
+                select="normalize-space($resdoc_resources_set)"/>
+              <xsl:with-param name="prefix" select="'data/resources/'"/>
+              <xsl:with-param name="suffix" select="'expg*.xml'"/>
+            </xsl:call-template>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESDOCRESOURCESSCHEMAEXPGGIFS</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:call-template name="output_resources">
+              <xsl:with-param name="resources"
+                select="normalize-space($resdoc_resources_set)"/>
+              <xsl:with-param name="prefix" select="'data/resources/'"/>
+              <xsl:with-param name="suffix" select="'expg*.gif'"/>
+            </xsl:call-template>
+          </xsl:attribute>
+        </xsl:element>
 
     </xsl:element>
 
@@ -3272,7 +3310,7 @@ utable as in buildscript -->
       <xsl:if test="ballot_package/resource">
 
     <target name="isoresdocs" depends="init" 
-      description="generate HTML for all modules">
+      description="generate HTML for resource doc">
       <dependset>
         <xsl:element name="srcfileset">
           <xsl:attribute name="dir">
@@ -3954,7 +3992,7 @@ utable as in buildscript -->
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESOURCESSCHEMAEXPGXMLS}'"/>
+          <xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPGXMLS}'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>
@@ -3981,6 +4019,14 @@ utable as in buildscript -->
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RESOURCES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -4411,7 +4457,7 @@ utable as in buildscript -->
             <xsl:value-of select="'.'"/>
           </xsl:attribute>
           <xsl:attribute name="includes">
-            <xsl:value-of select="'${RESOURCESSCHEMAEXPGGIFS}'"/>
+            <xsl:value-of select="'${RESDOCRESOURCESSCHEMAEXPGGIFS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>

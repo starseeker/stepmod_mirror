@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.33 2002/08/05 09:41:09 robbod Exp $
+     $Id: express_code.xsl,v 1.34 2002/08/06 08:05:48 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -399,7 +399,7 @@
   <xsl:apply-templates select="./derived" mode="code"/>
   <xsl:apply-templates select="./inverse" mode="code"/>
   <xsl:apply-templates select="./unique" mode="code"/>
-  <xsl:apply-templates select="./where" mode="code"/>
+  <xsl:call-template name="output_where_formal"/>
   END_ENTITY;<br/>
 </xsl:template>
 
@@ -596,6 +596,12 @@ SELF\<xsl:call-template name="link_object">
   </xsl:if>
   <xsl:if test="@unique='YES'">
     UNIQUE
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="output_where_formal">
+  <xsl:if test="./where[@expression] and not(./unique)">
+    <xsl:apply-templates select="./where[@expression]" mode="code"/>
   </xsl:if>
 </xsl:template>
 

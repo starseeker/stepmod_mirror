@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
+$Id: common.xsl,v 1.2 2001/10/05 15:35:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -15,7 +15,26 @@ $Id: common.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
        -->
   <xsl:import href="file_ext.xsl"/>
 
+  <!-- parameters that control the output -->
+  <xsl:import href="parameters.xsl"/>
+
   <xsl:output method="html"/>
+
+<!--
+     Output a cascading stylesheet. The stylesheet is specified in the 
+     global parameter: output_css in parameter.xsl
+     -->
+<xsl:template name="output_css">
+  <xsl:param name="path"/>
+  <xsl:if test="$output_css">
+    <xsl:variable name="hpath"
+      select="concat($path,$output_css)"/>
+    <link 
+      rel="stylesheet" 
+      type="text/css" 
+      href="{$hpath}"/>
+  </xsl:if>
+</xsl:template>
 
 
 <!--
@@ -73,78 +92,6 @@ $Id: common.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
 </xsl:template>
 
 
-<!--
-     Output the Table of contents banner for a module where all clauses are 
-     displayed on separate pages
--->
-<xsl:template match="module" mode="TOCmultiplePage">
-  <!-- the entry that has been selected -->
-  <xsl:param name="selected"/>
-  <xsl:apply-templates select="." mode="TOCbannertitle"/>  
-  <TABLE border="1" cellspacing="1" width="100%">
-    <TR>
-      <TD valign="TOP">
-        <A HREF="cover_page{$FILE_EXT}">Cover page</A><BR/>
-        <A HREF="foreword{$FILE_EXT}#foreword">Foreword</A><BR/>
-        <A HREF="introduction{$FILE_EXT}#intro">Introduction</A><BR/>
-        <A HREF="scope{$FILE_EXT}#scope">1 Scope</A><BR/>
-        <A HREF="ref_defns{$FILE_EXT}#nref">2 Normative references</A><BR/>
-        <A HREF="ref_defns{$FILE_EXT}#defns">3 Definitions and abbreviations</A>
-      </TD>
-      <TD valign="TOP">
-        <A HREF="info_reqs{$FILE_EXT}#arm">4 Information requirements</A><BR/>
-        <A HREF="mim{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
-        <A HREF="annexes{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
-        <A HREF="annexes{$FILE_EXT}#annexb">B Information requirements object
-        registration</A><BR/>
-        <A HREF="annexes{$FILE_EXT}#annexc">C ARM EXPRESS-G</A><BR/>
-        <A HREF="annexes{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
-      </TD>
-      <TD valign="TOP">
-        <A HREF="annexes{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS listings</A><BR/>
-        <A HREF="annexes{$FILE_EXT}#annexf">F Application module implementation and
-        usage guide</A><BR/>
-        <A HREF="annexes{$FILE_EXT}#biblio">Bibliography</A>
-      </TD>
-    </TR>
-  </TABLE>
-</xsl:template>
-
-<!--
-     Output the Table of contents banner for a module where all clauses are 
-     displayed on a single page
--->
-<xsl:template match="module" mode="TOCsinglePage">
-  <xsl:apply-templates select="." mode="TOCbannertitle"/>  
-  <TABLE border="1" cellspacing="1" width="100%">
-    <TR>
-      <TD valign="TOP">
-        <A HREF="module{$FILE_EXT}#cover_page">Cover page</A><BR/>
-        <A HREF="module{$FILE_EXT}#foreword">Foreword</A><BR/>
-        <A HREF="module{$FILE_EXT}#intro">Introduction</A><BR/>
-        <A HREF="module{$FILE_EXT}#scope">1 Scope</A><BR/>
-        <A HREF="module{$FILE_EXT}#nref">2 Normative references</A><BR/>
-        <A HREF="module{$FILE_EXT}#defns">3 Definitions and abbreviations</A>
-      </TD>
-      <TD valign="TOP">
-        <A HREF="module{$FILE_EXT}#arm">4 Information requirements</A><BR/>
-        <A HREF="module{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexb">B Information requirements object
-        registration</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexc">C ARM EXPRESS-G</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
-      </TD>
-      <TD valign="TOP">
-        <A HREF="module{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS listings</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexf">F Application module implementation and
-        usage guide</A><BR/>
-        <A HREF="module{$FILE_EXT}#biblio">Bibliography</A>
-      </TD>
-    </TR>
-  </TABLE>
-</xsl:template>
-
 
 <!-- output the clause heading -->
 <xsl:template name="clause_header">
@@ -164,7 +111,7 @@ $Id: common.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
 
 <xsl:template match="note" >
   <blockquote>
-    <xsl:value-of select="concat('NOTE ',position())"/>
+    <xsl:value-of select="concat('NOTE ',position(),' ')"/>
     <xsl:apply-templates/>
   </blockquote>
 </xsl:template>
@@ -209,5 +156,83 @@ $Id: common.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
     <xsl:apply-templates/>
   </li>
 </xsl:template>
+
+
+
+<!-- Given a string representing a space separated list, remove all
+     duplicate words
+-->
+  <!--
+       Removes all duplicate words from the list
+       -->
+  <xsl:template name="remove_duplicates">
+    <xsl:param name="list" />
+    <xsl:call-template name="remove_duplicates_rec">
+      <xsl:with-param name="list" 
+        select="concat(normalize-space($list),' ')" />
+      <xsl:with-param name="return_list" select="' '" />
+    </xsl:call-template>      
+  </xsl:template>
+  <xsl:template name="remove_duplicates_rec">
+    <xsl:param name="list" />
+    <xsl:param name="return_list" />
+    <xsl:variable 
+      name="first"
+      select="substring-before($list,' ')" />
+    <xsl:variable 
+      name="rest"
+      select="substring-after($list,' ')" />
+    <xsl:choose>
+      <!-- only one word left -->
+      <xsl:when test="not($first)" >
+        <xsl:choose>
+          <!-- check that the word has not already been found -->
+          <xsl:when test="contains($return_list,concat(' ',$list,' '))">
+            <xsl:value-of select="normalize-space($return_list)" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="normalize-space(concat($return_list,' ',$list))" />
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="contains($return_list,concat(' ',$first,' '))" >
+        <xsl:call-template name="remove_duplicates_rec">
+          <xsl:with-param name="list" select="$rest" />
+          <xsl:with-param name="return_list" select="$return_list" />
+        </xsl:call-template>      
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="remove_duplicates_rec">
+          <xsl:with-param name="list" select="$rest" />
+          <xsl:with-param name="return_list" select="concat($return_list,$first,' ')" />
+        </xsl:call-template>      
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- output a warning message
+       -->
+  <xsl:template name="error_message">
+    <xsl:param name="message"/>
+      <!-- default -->
+    <xsl:param name="warning_gif"
+      select="'../../../warning.gif'"/>
+    <br/> 
+    <IMG 
+      SRC="{$warning_gif}" 
+      ALT="[warning:]" 
+      align="absbottom"
+      BORDER="0"/>
+    <xsl:value-of select="$message"/>
+    <br/>
+  </xsl:template>
+
+
+  <xsl:template name="module_directory">
+    <xsl:param name="module"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:value-of select="translate($module/@name,$UPPER, $LOWER)"/>
+  </xsl:template>
 
 </xsl:stylesheet>

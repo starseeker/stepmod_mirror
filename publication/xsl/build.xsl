@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.19 2004/12/01 18:19:38 thendrix Exp $
+<!--  $Id: build.xsl,v 1.20 2004/12/02 01:46:30 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -259,6 +259,8 @@
 
   <!-- variables for building the module -->
   <xsl:template match="publication_index" mode="modules_variables">
+
+
       <xsl:element name="property">
         <xsl:attribute name="name">MODULES</xsl:attribute>
         <xsl:attribute name="value">
@@ -5796,6 +5798,8 @@
     <xsl:variable name="CVS_dir_dot_entry" select="concat('CVS_dir_dot_entry_',@name)"/>
     <xsl:variable name="CVS_dir_dvlp_entry" select="concat('CVS_dir_dvlp_entry_',@name)"/>
     <xsl:variable name="CVS_dir_sys_entry" select="concat('CVS_dir_sys_entry_',@name)"/>
+    <xsl:variable name="CVS_dir_xsl_entry" select="concat('CVS_dir_xsl_entry_',@name)"/>
+    <xsl:variable name="CVS_dir_xslp28xsd_entry" select="concat('CVS_dir_xslp28xsd_entry_',@name)"/>
 
     <xsl:element name="loadfile">
       <xsl:attribute name="property">
@@ -5813,7 +5817,7 @@
       </xsl:attribute>
       <xsl:attribute name="srcFile">
         <xsl:value-of
-          select="concat('data/modules/',@name,'/CVS/Entries')"/>
+          select="concat('data/modules/',@name,'/dvlp/CVS/Entries')"/>
       </xsl:attribute>
     </xsl:element>
 
@@ -5823,7 +5827,27 @@
       </xsl:attribute>
       <xsl:attribute name="srcFile">
         <xsl:value-of
-          select="concat('data/modules/',@name,'/CVS/Entries')"/>
+          select="concat('data/modules/',@name,'/sys/CVS/Entries')"/>
+      </xsl:attribute>
+    </xsl:element>
+
+   <xsl:element name="loadfile">
+      <xsl:attribute name="property">
+        <xsl:value-of select="$CVS_dir_xsl_entry"/>
+      </xsl:attribute>
+      <xsl:attribute name="srcFile">
+        <xsl:value-of
+          select="concat('xsl','/CVS/Entries')"/>
+      </xsl:attribute>
+    </xsl:element>
+
+   <xsl:element name="loadfile">
+      <xsl:attribute name="property">
+        <xsl:value-of select="$CVS_dir_xslp28xsd_entry"/>
+      </xsl:attribute>
+      <xsl:attribute name="srcFile">
+        <xsl:value-of
+          select="concat('xsl/p28xsd','/CVS/Entries')"/>
       </xsl:attribute>
     </xsl:element>
 
@@ -5860,6 +5884,18 @@
         </xsl:attribute>
       </xsl:element>
       <xsl:element name="param">
+        <xsl:attribute name="name">CVS_dir_xsl_entry</xsl:attribute>
+        <xsl:attribute name="expression">
+          <xsl:value-of select="concat('${',$CVS_dir_xsl_entry,'}')"/>
+        </xsl:attribute>
+      </xsl:element>
+      <xsl:element name="param">
+        <xsl:attribute name="name">CVS_dir_xslp28xsd_entry</xsl:attribute>
+        <xsl:attribute name="expression">
+          <xsl:value-of select="concat('${',$CVS_dir_xslp28xsd_entry,'}')"/>
+        </xsl:attribute>
+      </xsl:element>
+      <xsl:element name="param">
         <xsl:attribute name="name">
           <xsl:value-of select="'CVS_tag'"/>
         </xsl:attribute>
@@ -5886,7 +5922,8 @@
     <xsl:variable name="CVS_dir_dot_entry" select="concat('CVS_apdoc_entry_',@name)"/>
     <xsl:variable name="CVS_dir_dvlp_entry" select="concat('CVS_apdoc_dvlp_entry_',@name)"/>
     <xsl:variable name="CVS_dir_sys_entry" select="concat('CVS_apdoc_sys_entry_',@name)"/>
-
+    <xsl:variable name="CVS_dir_xsl_entry" select="concat('CVS_dir_xsl_entry_',@name)"/>
+    <xsl:variable name="CVS_dir_xslapdoc_entry" select="concat('CVS_dir_xslapdoc_entry_',@name)"/>
     <xsl:element name="loadfile">
       <xsl:attribute name="property">
         <xsl:value-of select="$CVS_dir_dot_entry"/>
@@ -5903,7 +5940,7 @@
       </xsl:attribute>
       <xsl:attribute name="srcFile">
         <xsl:value-of
-          select="concat('data/application_protocols/',@name,'/CVS/Entries')"/>
+          select="concat('data/application_protocols/',@name,'/dvlp/CVS/Entries')"/>
       </xsl:attribute>
     </xsl:element>
 
@@ -5913,7 +5950,27 @@
       </xsl:attribute>
       <xsl:attribute name="srcFile">
         <xsl:value-of
-          select="concat('data/application_protocols/',@name,'/CVS/Entries')"/>
+          select="concat('data/application_protocols/',@name,'/sys/CVS/Entries')"/>
+      </xsl:attribute>
+    </xsl:element>
+
+   <xsl:element name="loadfile">
+      <xsl:attribute name="property">
+        <xsl:value-of select="$CVS_dir_xsl_entry"/>
+      </xsl:attribute>
+      <xsl:attribute name="srcFile">
+        <xsl:value-of
+          select="concat('xsl','/CVS/Entries')"/>
+      </xsl:attribute>
+    </xsl:element>
+
+   <xsl:element name="loadfile">
+      <xsl:attribute name="property">
+        <xsl:value-of select="$CVS_dir_xslapdoc_entry"/>
+      </xsl:attribute>
+      <xsl:attribute name="srcFile">
+        <xsl:value-of
+          select="concat('xsl/ap_doc','/CVS/Entries')"/>
       </xsl:attribute>
     </xsl:element>
 
@@ -5949,6 +6006,18 @@
         </xsl:attribute>
       </xsl:element>
       <xsl:element name="param">
+        <xsl:attribute name="name">CVS_dir_xsl_entry</xsl:attribute>
+        <xsl:attribute name="expression">
+          <xsl:value-of select="concat('${',$CVS_dir_xsl_entry,'}')"/>
+        </xsl:attribute>
+      </xsl:element>
+      <xsl:element name="param">
+        <xsl:attribute name="name">CVS_dir_xslapdoc_entry</xsl:attribute>
+        <xsl:attribute name="expression">
+          <xsl:value-of select="concat('${',$CVS_dir_xslapdoc_entry,'}')"/>
+        </xsl:attribute>
+      </xsl:element>
+      <xsl:element name="param">
         <xsl:attribute name="name">
           <xsl:value-of select="'CVS_tag'"/>
         </xsl:attribute>
@@ -5975,6 +6044,10 @@
     <xsl:variable name="CVS_dir_dot_entry" select="concat('CVS_resdoc_entry_',@name)"/>
     <xsl:variable name="CVS_dir_dvlp_entry" select="concat('CVS_resdoc_dvlp_entry_',@name)"/>
     <xsl:variable name="CVS_dir_sys_entry" select="concat('CVS_resdoc_sys_entry_',@name)"/>
+    <xsl:variable name="CVS_dir_xsl_entry" select="concat('CVS_dir_xsl_entry_',@name)"/>
+    <xsl:variable name="CVS_dir_xslresdoc_entry" select="concat('CVS_dir_xslresdoc_entry_',@name)"/>
+
+
 
     <xsl:element name="loadfile">
       <xsl:attribute name="property">
@@ -5992,7 +6065,7 @@
       </xsl:attribute>
       <xsl:attribute name="srcFile">
         <xsl:value-of
-          select="concat('data/resource_docs/',@name,'/CVS/Entries')"/>
+          select="concat('data/resource_docs/',@name,'/dvlp/CVS/Entries')"/>
       </xsl:attribute>
     </xsl:element>
 
@@ -6002,9 +6075,30 @@
       </xsl:attribute>
       <xsl:attribute name="srcFile">
         <xsl:value-of
-          select="concat('data/resource_docs/',@name,'/CVS/Entries')"/>
+          select="concat('data/resource_docs/',@name,'/sys/CVS/Entries')"/>
       </xsl:attribute>
     </xsl:element>
+
+   <xsl:element name="loadfile">
+      <xsl:attribute name="property">
+        <xsl:value-of select="$CVS_dir_xsl_entry"/>
+      </xsl:attribute>
+      <xsl:attribute name="srcFile">
+        <xsl:value-of
+          select="concat('xsl','/CVS/Entries')"/>
+      </xsl:attribute>
+    </xsl:element>
+
+   <xsl:element name="loadfile">
+      <xsl:attribute name="property">
+        <xsl:value-of select="$CVS_dir_xslresdoc_entry"/>
+      </xsl:attribute>
+      <xsl:attribute name="srcFile">
+        <xsl:value-of
+          select="concat('xsl/res_doc','/CVS/Entries')"/>
+      </xsl:attribute>
+    </xsl:element>
+
 
     <xsl:element name="style">
       <xsl:attribute name="in">
@@ -6035,6 +6129,18 @@
         <xsl:attribute name="name">CVS_dir_sys_entry</xsl:attribute>
         <xsl:attribute name="expression">
           <xsl:value-of select="concat('${',$CVS_dir_sys_entry,'}')"/>
+        </xsl:attribute>
+      </xsl:element>
+      <xsl:element name="param">
+        <xsl:attribute name="name">CVS_dir_xsl_entry</xsl:attribute>
+        <xsl:attribute name="expression">
+          <xsl:value-of select="concat('${',$CVS_dir_xsl_entry,'}')"/>
+        </xsl:attribute>
+      </xsl:element>
+      <xsl:element name="param">
+        <xsl:attribute name="name">CVS_dir_xslresdoc_entry</xsl:attribute>
+        <xsl:attribute name="expression">
+          <xsl:value-of select="concat('${',$CVS_dir_xslresdoc_entry,'}')"/>
         </xsl:attribute>
       </xsl:element>
       <xsl:element name="param">

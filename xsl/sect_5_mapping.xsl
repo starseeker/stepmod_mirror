@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.63 2003/03/13 19:17:09 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.64 2003/03/21 07:45:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1335,7 +1335,6 @@ the mapping specification')"/>
 
   <xsl:variable name="sc_count" select="count(//sc)" />
   <xsl:variable name="ae_count" select="count(//ae)" />
-
   <h2>
     <a name="{$sc_map_aname}">
       <xsl:value-of select="concat('5.1.',$ae_count+position(),' ')"/>

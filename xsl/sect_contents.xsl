@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.20 2003/03/13 19:17:12 robbod Exp $
+$Id: sect_contents.xsl,v 1.21 2003/03/26 07:12:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -444,6 +444,7 @@ $Id: sect_contents.xsl,v 1.20 2003/03/13 19:17:12 robbod Exp $
     <A HREF="./5_mapping{$FILE_EXT}">5.1 Mapping specification</A>
   <br/>
   <xsl:apply-templates select="./mapping_table/ae" mode="toc"/>
+  <xsl:apply-templates select="./mapping_table/sc" mode="toc"/>
 
     &#160; &#160;
     <A HREF="./5_mim{$FILE_EXT}#mim_express">5.2 MIM EXPRESS short listing</A>
@@ -1069,6 +1070,30 @@ $Id: sect_contents.xsl,v 1.20 2003/03/13 19:17:12 robbod Exp $
 </xsl:template>
 
 
+<xsl:template match="sc" mode="toc">
+  <xsl:variable name="ae_aname" select="@constraint"/>
+
+  <xsl:variable name="ae_map_aname">
+    <xsl:apply-templates select="." mode="map_attr_aname"/>  
+  </xsl:variable>
+
+  <xsl:variable 
+    name="ae_xref"
+    select="concat('../sys/5_mapping',$FILE_EXT,'#',$ae_map_aname)"/>
+
+
+  <xsl:variable name="ae_count" select="count(//ae)" />
+  <xsl:variable name="sect_no">
+    <xsl:value-of select="$ae_count+position()"/>
+  </xsl:variable>
+
+    &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+    <a href="{$ae_xref}">
+      <xsl:value-of
+        select="concat('5.1.',$sect_no,' ',$ae_aname)"/>
+    </a>
+  <br/>
+</xsl:template>
 
 <xsl:template match="ae" mode="toc">
   <xsl:variable name="ae_aname" select="@entity"/>

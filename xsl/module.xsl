@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
+$Id: module.xsl,v 1.13 2001/12/28 10:17:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -563,6 +563,7 @@ $Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
   </li>
 </xsl:template>
 
+
 <!-- Output the standard set of normative references and then any added by
      the module
      -->
@@ -580,11 +581,7 @@ $Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
 
   <!-- get the default normrefs out of the normrefs.xml database -->
   <xsl:apply-templates 
-    select="document('../data/basic/normrefs.xml')/normref.list/normref[@id='ref10303-1.1994']"/>
-  <xsl:apply-templates 
-    select="document('../data/basic/normrefs.xml')/normref.list/normref[@id='ref10303-11.1994']"/>
-  <xsl:apply-templates 
-    select="document('../data/basic/normrefs.xml')/normref.list/normref[@id='ref8824-1.1995']"/>
+    select="document('../data/basic/normrefs.xml')/normref.list/normref[@default='YES']"/>
 
   <!-- output any normrefs defined in the module-->
   <xsl:apply-templates select="./normref.inc"/>
@@ -607,6 +604,51 @@ $Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
       <xsl:value-of select="stdref/subtitle"/>
     </i>
   </p>
+</xsl:template>
+
+  
+<!-- Output the standard set of abbreviations and then any added by
+     the module
+     -->
+<xsl:template match="abbreviations">
+  <p>
+    For the purposes of this part of ISO 10303, the following abbreviations
+    apply: 
+  </p>
+  <table width="80%">
+  <!-- get the default abbreviations out of the abbreviations.xml database -->
+  <xsl:apply-templates 
+    select="document('../data/basic/abbreviations.xml')/abbreviation.list/abbreviation[@default='YES']"/>
+
+  <!-- output any abbreviations defined in the module-->
+  <xsl:apply-templates select="./abbreviation.inc"/>
+
+  </table>
+</xsl:template>
+
+<!-- get the abbreviations out of the abbreviations.xml database -->
+<xsl:template match="abbreviation.inc">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:apply-templates 
+    select="document('../data/basic/abbreviations.xml')/abbreviation.list/abbreviation[@id=$ref]"/>
+</xsl:template>
+
+
+<!-- output the abbreviation. The term is defined in the normative
+     references -->
+<xsl:template match="abbreviation">
+  <tr>
+    <td>
+      <xsl:value-of select="acronym"/>
+    </td>
+    <td>
+      <xsl:variable name="termref" select="./term/@linkend"/>
+      <xsl:variable 
+        name="term"
+        select="document('../data/basic/normrefs.xml')/normref.list/normref/term[@id=$termref]"/>
+      <xsl:value-of select="$term"/>
+    </td>
+  </tr>
 </xsl:template>
 
 

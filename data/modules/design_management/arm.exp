@@ -14,12 +14,12 @@ USE FROM Work_request_arm;
 USE FROM Product_view_definition_arm;
 
   TYPE design_object_management_relationship_item = SELECT (
-		work_request, 
-		work_order);
-  END_TYPE; -- design_object_management_relationship_item
+		Work_request, 
+		Work_order);
+  END_TYPE;
 
 	TYPE dm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
-   (frozen_assignment);
+   (Frozen_assignment);
 	END_TYPE; 
 
  	TYPE managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT;
@@ -30,7 +30,7 @@ USE FROM Product_view_definition_arm;
       current_design_object : managed_design_object;
     UNIQUE
       UR1 : current_design_object;
-  END_ENTITY; -- add_design_object_management_relationship
+  END_ENTITY;
 
   ENTITY Change_design_object_management_relationship
     SUBTYPE OF (Design_object_management_relationship);
@@ -39,38 +39,38 @@ USE FROM Product_view_definition_arm;
     UNIQUE
       UR1 : current_design_object;
       UR2 : previous_design_object;
-  END_ENTITY; -- change_design_object_management_relationship
+  END_ENTITY;
 
   ENTITY Delete_design_object_management_relationship
     SUBTYPE OF (Design_object_management_relationship);
       previous_design_object : managed_design_object;
     UNIQUE
       UR1 : previous_design_object;
-  END_ENTITY; -- delete_design_object_management_relationship
+  END_ENTITY;
 
   ENTITY Design_object_management_relationship
-    ABSTRACT SUPERTYPE OF (ONEOF (change_design_object_management_relationship,
- delete_design_object_management_relationship,
- add_design_object_management_relationship)ANDOR(view_dependent_design_object_management_relationship));
-  END_ENTITY; -- design_object_management_relationship
+    ABSTRACT SUPERTYPE OF (ONEOF (Change_design_object_management_relationship,
+ Delete_design_object_management_relationship,
+ Add_design_object_management_relationship)ANDOR(View_dependent_design_object_management_relationship));
+  END_ENTITY;
 
 
   ENTITY Design_object_management_relationship_assignment;
-      changes: SET[1:?] OF design_object_management_relationship;
+      changes: SET[1:?] OF Design_object_management_relationship;
       items : SET[1:?] OF design_object_management_relationship_item;
   END_ENTITY;
 
   ENTITY Frozen_assignment;
       frozen_item       : SET[1:?] OF managed_design_object;
 (** Need a global rule to capture cardinality      
-      assigned_approval : approval;
+      assigned_approval : Approval;
 *)      
-  END_ENTITY; -- frozen_assignment
+  END_ENTITY;
 
   ENTITY View_dependent_design_object_management_relationship
     SUBTYPE OF (Design_object_management_relationship);
-      previous_design : product_view_definition;
-      current_design  : product_view_definition;
-  END_ENTITY; -- view_dependent_design_object_management_relationship
+      previous_design : Product_view_definition;
+      current_design  : Product_view_definition;
+  END_ENTITY;
 
-END_SCHEMA; -- Design_management_arm
+END_SCHEMA;

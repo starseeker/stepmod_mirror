@@ -23,16 +23,16 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
         types_of_product 
 ); 
 
-	SUBTYPE_CONSTRAINT plt_connection_zone_subtypes FOR connection_zone;     
-		 ONEOF (connection_zone_in_usage_view,
-		 connection_zone_in_design_view,
-		 connection_zone_in_layout_template);
+	SUBTYPE_CONSTRAINT plt_connection_zone_subtypes FOR Connection_zone;     
+		 ONEOF (Connection_zone_in_usage_view,
+		 Connection_zone_in_design_view,
+		 Connection_zone_in_layout_template);
 	END_SUBTYPE_CONSTRAINT;
 
   TYPE correlated_or_independent = SELECT
     (coordinated_characteristic,
      characteristic);
-  END_TYPE; -- correlated_or_independent
+  END_TYPE;
 
  	TYPE plt_analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_application_assignment_select WITH  
 		(Layout_template_definition);
@@ -40,7 +40,7 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
 
 	TYPE plt_physical_unit_or_part_template_or_fp_or_pd = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_or_part_template_or_fp_or_pd WITH 
     	(Layout_template_definition);
-	END_TYPE; -- ap210_physical_unit_or_part_template_or_fp_or_pd
+	END_TYPE;
 
   ENTITY Connection_zone_in_layout_template
   	SUBTYPE OF (Connection_zone);
@@ -57,11 +57,11 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
       WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\product_view_definition.defined_version.of_product,
  'PHYSICAL_LAYOUT_TEMPLATE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'template model'))) > 0;
       WR2 : SELF\shape_element.element_name = 'NULL';
-  END_ENTITY; -- layout_template_definition
+  END_ENTITY;
 
   ENTITY Reference_functional_unit_assignment_to_template;
-      functional_design_definition_path : reference_composition_path;
-      implementation                    : layout_template_definition;
+      functional_design_definition_path : Reference_composition_path;
+      implementation                    : Layout_template_definition;
       of_property                       : OPTIONAL SET[1:?] OF coordinated_characteristic;
       path_alias                        : STRING; --ee_name;
       swap_code                         : OPTIONAL STRING;
@@ -74,26 +74,26 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
 		template					: Layout_template_definition;
 		analytical_representation	: Analytical_model_definition;
 		UNIQUE
-			UR1 : template;
+			UR1 : Template;
 	END_ENTITY;
 
   ENTITY Template
   	SUBTYPE OF (Product);
   	WHERE 
   		WR1 : SIZEOF([ 'template model' ] * types_of_product(SELF))= 1 ;
-  END_ENTITY; -- template
+  END_ENTITY;
 
   ENTITY Template_definition
-    SUBTYPE OF (item_shape, product_view_definition);
-    	SELF\product_view_definition.defined_version 	: template_version;
+    SUBTYPE OF (Item_shape, Product_view_definition);
+    	SELF\product_view_definition.defined_version 	: Template_version;
     DERIVE	
     	SELF\item_shape.described_element     				: template_definition := SELF;      
-  END_ENTITY; -- layout_template_definition
+  END_ENTITY;
   
   ENTITY Template_version
   	SUBTYPE OF (Product_version);
   		SELF\product_version.of_product : Template;
-  END_ENTITY; -- template_version
+  END_ENTITY;
 
 RULE template_version_constraint FOR 
 (Product_version);

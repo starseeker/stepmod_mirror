@@ -18,39 +18,39 @@ USE FROM Characteristic_arm;
 	END_TYPE;
 
 	TYPE specification_product_object_select = EXTENSIBLE GENERIC_ENTITY SELECT(
-		product_configuration,
-     	product_view_definition,
-     	product_version,
-     	product);
+		Product_configuration,
+     	Product_view_definition,
+     	Product_version,
+     	Product);
 	END_TYPE;
 
   ENTITY Design_specification
-    SUPERTYPE OF (interface_specification)
-    SUBTYPE OF (specification_definition);
-  END_ENTITY; -- design_specification
+    SUPERTYPE OF (Interface_specification)
+    SUBTYPE OF (Specification_definition);
+  END_ENTITY;
 
   ENTITY Fabrication_technology_specification
-    SUBTYPE OF (process_specification);
-  END_ENTITY; -- fabrication_technology_specification
+    SUBTYPE OF (Process_specification);
+  END_ENTITY;
 
   ENTITY Interface_specification
     SUBTYPE OF (Design_specification);
-  END_ENTITY; -- interface_specification
+  END_ENTITY;
 
   ENTITY Language_reference_manual
-    SUBTYPE OF (specification_definition);
-  END_ENTITY; -- language_reference_manual
+    SUBTYPE OF (Specification_definition);
+  END_ENTITY;
 
   ENTITY Material_specification
-    SUBTYPE OF (specification_definition);
-  END_ENTITY; -- material_specification
+    SUBTYPE OF (Specification_definition);
+  END_ENTITY;
 
   ENTITY Process_specification
-    SUBTYPE OF (specification_definition);
-  END_ENTITY; -- process_specification
+    SUBTYPE OF (Specification_definition);
+  END_ENTITY;
 
   ENTITY Specification_allocation;
-      allocated_specification      : specification_definition;
+      allocated_specification      : Specification_definition;
       target_product_object        : SET[1:?] OF specification_product_object_select;
       purpose                      : STRING; --ee_name;
       identifier_in_target_context : OPTIONAL STRING; --ee_name;
@@ -61,43 +61,43 @@ USE FROM Characteristic_arm;
  the_context;
     WHERE
       WR1 : NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1);
-  END_ENTITY; -- specification_allocation
+  END_ENTITY;
 
   ENTITY Specification_definition
-  	SUPERTYPE OF(ONEOF (design_specification,
-	 process_specification,
-	 material_specification,
-	 test_specification,
-	 language_reference_manual))
+  	SUPERTYPE OF(ONEOF (Design_specification,
+	 Process_specification,
+	 Material_specification,
+	 Test_specification,
+	 Language_reference_manual))
     SUBTYPE OF (Document_definition);
     INVERSE 
       source : organization_or_person_in_organization_assignment FOR items;
-  END_ENTITY; -- specification_definition
+  END_ENTITY;
 
   ENTITY Structured_text
   	SUBTYPE OF (Document_definition);
-      plain_text_content        : OPTIONAL text_representation_item;
-      precedent_structured_text : OPTIONAL structured_text;
-      structured_text_content   : OPTIONAL SET[1:?] OF structured_text;
+      plain_text_content        : OPTIONAL Text_representation_item;
+      precedent_structured_text : OPTIONAL Structured_text;
+      structured_text_content   : OPTIONAL SET[1:?] OF Structured_text;
     INVERSE
       content_markup						: External_source_identification FOR item;
-  END_ENTITY; -- structured_text
+  END_ENTITY;
 
   ENTITY Structured_text_id_in_document;
       identifier : STRING; --ee_name;
-      text       : structured_text;
-      document   : document_definition;
+      text       : Structured_text;
+      document   : Document_definition;
     UNIQUE
       UR1 : identifier,
- document;
-  END_ENTITY; -- structured_text_id_in_document
+ Document;
+  END_ENTITY;
 
   ENTITY Surface_finish_specification
     SUBTYPE OF (Material_specification);
-  END_ENTITY; -- surface_finish_specification
+  END_ENTITY;
 
   ENTITY Test_specification
-    SUBTYPE OF (specification_definition);
-  END_ENTITY; -- test_specification
+    SUBTYPE OF (Specification_definition);
+  END_ENTITY;
 
-END_SCHEMA; -- Specification_document_arm
+END_SCHEMA;

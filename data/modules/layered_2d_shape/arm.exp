@@ -8,31 +8,31 @@ SCHEMA Layered_2d_shape_arm;
 USE FROM Layered_shape_arm;
 
   TYPE axis_placement_or_cto2d = SELECT
-    (axis_placement,
-     cartesian_transformation_2d);
-  END_TYPE; -- axis_placement_or_cto2d
+    (Axis_placement,
+     Cartesian_transformation_2d);
+  END_TYPE;
 
   ENTITY Axis_placement_2d
     SUBTYPE OF (Axis_placement);
-  END_ENTITY; -- axis_placement_2d
+  END_ENTITY;
 
   ENTITY Planar_projected_shape
-    SUBTYPE OF (planar_shape,
- feature_shape_definition);
-  END_ENTITY; -- planar_projected_shape
+    SUBTYPE OF (Planar_shape,
+ Feature_shape_definition);
+  END_ENTITY;
 
   ENTITY Planar_shape
     ABSTRACT SUPERTYPE OF(Planar_projected_shape) 
     SUBTYPE OF (Geometric_model);
     WHERE
       WR1 : SELF\geometric_model.context_of_items.dimension_count = 2;
-  END_ENTITY; -- planar_shape
+  END_ENTITY;
 
   ENTITY Reference_geometric_representation_relationship
     SUBTYPE OF (Geometric_model_relationship);
       related_feature_shape_placement : OPTIONAL axis_placement_or_cto2d;
-      SELF\Geometric_model_relationship.rep_1 RENAMED related_feature_shape   : feature_shape_definition;
-      SELF\Geometric_model_relationship.rep_2 RENAMED resultant_feature_shape : feature_shape_definition;
+      SELF\Geometric_model_relationship.rep_1 RENAMED related_feature_shape   : Feature_shape_definition;
+      SELF\Geometric_model_relationship.rep_2 RENAMED resultant_feature_shape : Feature_shape_definition;
     WHERE
       WR1 : EXISTS(related_feature_shape_placement) OR (related_feature_shape.context_of_items :=: resultant_feature_shape.context_of_items);
 (** TODO For Tom - convert WR3 into a global rule in Assembly_module_design 
@@ -43,7 +43,7 @@ USE FROM Layered_shape_arm;
       WR4 : NOT ((SIZEOF(['LAYERED_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE',
  'LAYERED_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE'] * TYPEOF(related_feature_shape)) = 1) AND ('LAYERED_2D_SHAPE_ARM.INTERCONNECT_MODULE' IN TYPEOF(related_feature_shape.shape_characterized_physical_unit))) OR NOT EXISTS(related_feature_shape_placement);
 *) 
-  END_ENTITY; -- reference_geometric_representation_relationship
+  END_ENTITY;
 
 END_SCHEMA;
 

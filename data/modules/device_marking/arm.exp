@@ -30,17 +30,17 @@ USE FROM Specification_document_arm;
 USE FROM Styled_text_arm;
 
   TYPE marked_message_select = SELECT
-    (configuration_controlled_message,
-     text_representation_item);
-  END_TYPE; -- marked_message_select
+    (Configuration_controlled_message,
+     Text_representation_item);
+  END_TYPE;
 
 TYPE marking_shape_select = SELECT
-    (part_template_3d_shape,
-     physical_unit_3d_shape,
-     part_template_non_planar_2d_shape,
-     part_template_planar_shape,
-     physical_unit_planar_shape);
-END_TYPE; -- ap210_marking_shape_select
+    (Part_template_3d_shape,
+     Physical_unit_3d_shape,
+     Part_template_non_planar_2d_shape,
+     Part_template_planar_shape,
+     Physical_unit_planar_shape);
+END_TYPE;
 
   	TYPE message_source_select = SELECT
       	(Organization,
@@ -53,27 +53,27 @@ END_TYPE; -- ap210_marking_shape_select
      manufacturer_code,
      revision_identifier,
      approval_date);
-  END_TYPE; -- message_type
+  END_TYPE;
     
   ENTITY Configuration_controlled_message;
       message_source             : message_source_select;
       message_content            : STRING;
       message_type_specification : message_type;
-  END_ENTITY; -- configuration_controlled_message
+  END_ENTITY;
 
   ENTITY Marking;
       marked_message              : marked_message_select;
       marked_device_shape         : marking_shape_select;
-      placement                   : axis_placement;
-      message_representation      : feature_shape_definition;
-      message_representation_text : styled_text;
-      marking_specification       : specification_definition;
+      placement                   : Axis_placement;
+      message_representation      : Feature_shape_definition;
+      message_representation_text : Styled_text;
+      marking_specification       : Specification_definition;
     WHERE
       WR1 : SIZEOF(QUERY(st <* message_representation\geometric_model.items | st = message_representation_text)) = 1;
       WR2 : SIZEOF(QUERY(ap <* marked_device_shape\geometric_model.items | ap = placement)) = 1;
       WR3 : SIZEOF(TYPEOF(marked_device_shape) * ['DEVICE_MARKING_ARM.PHYSICAL_UNIT_3D_SHAPE',
  'DEVICE_MARKING_ARM.PHYSICAL_UNIT_PLANAR_SHAPE']) = 1;
-  END_ENTITY; -- marking
+  END_ENTITY;
 
-END_SCHEMA; -- Device_marking_arm
+END_SCHEMA;
 

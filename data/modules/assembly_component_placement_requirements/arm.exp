@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.6 2004/12/17 12:49:25 liutkus Exp $
+   $Id: arm.exp,v 1.7 2004/12/31 11:52:31 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly component placement requirements - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -28,62 +28,62 @@ TYPE acpr_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_O
 END_TYPE; 
 
   ENTITY Component_group_assignment;
-      associated_group   : placement_group;
-      assigned_component : assembly_component;
-  END_ENTITY; -- component_group_assignment
+      associated_group   : Placement_group;
+      assigned_component : Assembly_component;
+  END_ENTITY;
 
   ENTITY Component_placement_restriction_assignment;
-      maximum_negative_component_height : OPTIONAL datum_based_length_measure;
-      maximum_positive_component_height : OPTIONAL datum_based_length_measure;
-      area                              : OPTIONAL mounting_restriction_area;
-      volume                            : OPTIONAL mounting_restriction_volume;
-      requirement                       : item_restricted_requirement_occurrence;
+      maximum_negative_component_height : OPTIONAL Datum_based_length_measure;
+      maximum_positive_component_height : OPTIONAL Datum_based_length_measure;
+      area                              : OPTIONAL Mounting_restriction_area;
+      volume                            : OPTIONAL Mounting_restriction_volume;
+      requirement                       : Item_restricted_requirement_occurrence;
       components_permitted              : BOOLEAN;
-      maximum_mounting_clearance        : OPTIONAL datum_based_length_measure;
-      minimum_mounting_clearance        : OPTIONAL datum_based_length_measure;
+      maximum_mounting_clearance        : OPTIONAL Datum_based_length_measure;
+      minimum_mounting_clearance        : OPTIONAL Datum_based_length_measure;
     WHERE
       WR1 : EXISTS(area) OR EXISTS(volume);
-  END_ENTITY; -- component_placement_restriction_assignment
+  END_ENTITY;
 
   ENTITY Item_restricted_requirement_occurrence
     SUBTYPE OF (Requirement_definition_property);
       basis : restriction_basis_item;
-  END_ENTITY; -- item_restricted_requirement_occurrence
+  END_ENTITY;
 
   ENTITY Mounting_restriction_area
     SUBTYPE OF (Non_feature_shape_element);
-      mounting_surface                     : interconnect_module_component_surface_feature;
-      SELF\non_feature_shape_element.scope : assembly_module;
+      mounting_surface                     : Interconnect_module_component_surface_feature;
+      SELF\non_feature_shape_element.scope : Assembly_module;
     WHERE
       WR1 : 'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(SELF\non_feature_shape_element.element_shape);
-  END_ENTITY; -- mounting_restriction_area
+  END_ENTITY;
 
   ENTITY Mounting_restriction_volume
     SUBTYPE OF (Non_feature_shape_element);
-      mounting_surface                     : interconnect_module_component_surface_feature;
-      SELF\non_feature_shape_element.scope : assembly_module;
+      mounting_surface                     : Interconnect_module_component_surface_feature;
+      SELF\non_feature_shape_element.scope : Assembly_module;
     INVERSE
       volume : non_feature_shape_definition FOR associated_element;
     WHERE
       WR1 : 'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_ARM.THREE_DIMENSIONAL_SHAPE' IN TYPEOF(volume);
-  END_ENTITY; -- mounting_restriction_volume
+  END_ENTITY;
 
   ENTITY Placement_group;
       design_specific_usage : STRING; --ee_name;
 (** Need a WR to capture cardinality      
       requirement           : SET[1:?] OF Requirement_definition_property;
 *)      
-  END_ENTITY; -- placement_group
+  END_ENTITY;
 
   ENTITY Placement_group_area_assignment;
-      placed_group : placement_group;
-      area         : mounting_restriction_area;
-  END_ENTITY; -- placement_group_area_assignment
+      placed_group : Placement_group;
+      area         : Mounting_restriction_area;
+  END_ENTITY;
 
   ENTITY Placement_group_volume_assignment;
-      placed_group : placement_group;
-      volume       : mounting_restriction_volume;
-  END_ENTITY; -- placement_group_volume_assignment
+      placed_group : Placement_group;
+      volume       : Mounting_restriction_volume;
+  END_ENTITY;
 
-END_SCHEMA; -- Assembly_component_placement_requirements_arm
+END_SCHEMA;
 

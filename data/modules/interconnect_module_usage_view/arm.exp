@@ -21,85 +21,85 @@ USE FROM Network_functional_usage_view_arm;
 
   ENTITY Interconnect_module_cavity_surface
     SUBTYPE OF (Interconnect_module_surface_feature);
-      reference_surface : interconnect_module_surface_feature;
+      reference_surface : Interconnect_module_surface_feature;
     WHERE
       WR1 : SELF :<>: reference_surface;
-  END_ENTITY; -- interconnect_module_cavity_surface
+  END_ENTITY;
 
   ENTITY Interconnect_module_cutout_segment_surface
     SUBTYPE OF (Interconnect_module_surface_feature);
-      composed_surface : interconnect_module_cutout_surface;
-      start_vertex     : edge_segment_vertex;
-      end_vertex       : edge_segment_vertex;
+      composed_surface : Interconnect_module_cutout_surface;
+      start_vertex     : Edge_segment_vertex;
+      end_vertex       : Edge_segment_vertex;
     WHERE
       WR1 : start_vertex :<>: end_vertex;
-  END_ENTITY; -- interconnect_module_cutout_segment_surface
+  END_ENTITY;
 
   ENTITY Interconnect_module_cutout_surface
     SUBTYPE OF (Interconnect_module_surface_feature);
-  END_ENTITY; -- interconnect_module_cutout_surface
+  END_ENTITY;
 
   ENTITY Interconnect_module_edge_segment_surface
     SUBTYPE OF (Interconnect_module_surface_feature);
-      composed_surface : interconnect_module_edge_surface;
-      start_vertex     : edge_segment_vertex;
-      end_vertex       : edge_segment_vertex;
+      composed_surface : Interconnect_module_edge_surface;
+      start_vertex     : Edge_segment_vertex;
+      end_vertex       : Edge_segment_vertex;
     WHERE
       WR1 : start_vertex :<>: end_vertex;
-  END_ENTITY; -- interconnect_module_edge_segment_surface
+  END_ENTITY;
 
   ENTITY Interconnect_module_edge_surface
     SUBTYPE OF (Interconnect_module_surface_feature);
-  END_ENTITY; -- interconnect_module_edge_surface
+  END_ENTITY;
 
   ENTITY Interconnect_module_interface_terminal
     SUBTYPE OF (Interconnect_module_terminal);
-  END_ENTITY; -- interconnect_module_interface_terminal
+  END_ENTITY;
 
   ENTITY Interconnect_module_primary_surface
     SUBTYPE OF (Interconnect_module_surface_feature);
-  END_ENTITY; -- interconnect_module_primary_surface
+  END_ENTITY;
 
   ENTITY Interconnect_module_secondary_surface
     SUBTYPE OF (Interconnect_module_surface_feature);
-  END_ENTITY; -- interconnect_module_secondary_surface
+  END_ENTITY;
 
   ENTITY Interconnect_module_surface_feature
-    ABSTRACT SUPERTYPE OF (ONEOF (interconnect_module_cavity_surface,
- interconnect_module_cutout_segment_surface,
- interconnect_module_cutout_surface,
- interconnect_module_secondary_surface,
- interconnect_module_primary_surface,
- interconnect_module_edge_surface,
- interconnect_module_edge_segment_surface))
-    SUBTYPE OF (part_feature);
-      SELF\part_feature.associated_definition : interconnect_module_usage_view;
-  END_ENTITY; -- interconnect_module_surface_feature
+    ABSTRACT SUPERTYPE OF (ONEOF (Interconnect_module_cavity_surface,
+ Interconnect_module_cutout_segment_surface,
+ Interconnect_module_cutout_surface,
+ Interconnect_module_secondary_surface,
+ Interconnect_module_primary_surface,
+ Interconnect_module_edge_surface,
+ Interconnect_module_edge_segment_surface))
+    SUBTYPE OF (Part_feature);
+      SELF\part_feature.associated_definition : Interconnect_module_usage_view;
+  END_ENTITY;
 
   ENTITY Interconnect_module_terminal
-    SUBTYPE OF (part_terminal);
-      terminal_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
-      SELF\part_feature.associated_definition : interconnect_module_usage_view;
+    SUBTYPE OF (Part_terminal);
+      terminal_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
+      SELF\part_feature.associated_definition : Interconnect_module_usage_view;
     INVERSE
       SELF\part_feature.feature_shape : SET[1:?] OF usage_concept_usage_relationship FOR associated_usage;
-  END_ENTITY; -- interconnect_module_terminal
+  END_ENTITY;
 
   ENTITY Interconnect_module_terminal_surface_constituent_relationship
-    SUBTYPE OF (shape_element_constituent_relationship);
-      SELF\shape_element_relationship.relating : interconnect_module_surface_feature;
-      SELF\shape_element_relationship.related  : interconnect_module_terminal;
-  END_ENTITY; -- interconnect_module_terminal_surface_constituent_relationship
+    SUBTYPE OF (Shape_element_constituent_relationship);
+      SELF\shape_element_relationship.relating : Interconnect_module_surface_feature;
+      SELF\shape_element_relationship.related  : Interconnect_module_terminal;
+  END_ENTITY;
 
   ENTITY Interconnect_module_usage_view
-    SUPERTYPE OF (pcb_usage_view)
-    SUBTYPE OF (part_usage_view);
-      minimum_thickness_over_metal_requirement      : OPTIONAL length_data_element;
-      maximum_thickness_over_metal_requirement      : OPTIONAL length_data_element;
-      minimum_thickness_over_dielectric_requirement : OPTIONAL length_data_element;
-      maximum_thickness_over_dielectric_requirement : OPTIONAL length_data_element;
-      measurement_condition                         : OPTIONAL restraint_condition;
-      located_thickness_requirement                 : OPTIONAL SET[1:?] OF located_interconnect_module_thickness_requirement;
-      implemented_function                          : OPTIONAL functional_unit_usage_view;
+    SUPERTYPE OF (Pcb_usage_view)
+    SUBTYPE OF (Part_usage_view);
+      minimum_thickness_over_metal_requirement      : OPTIONAL Length_data_element;
+      maximum_thickness_over_metal_requirement      : OPTIONAL Length_data_element;
+      minimum_thickness_over_dielectric_requirement : OPTIONAL Length_data_element;
+      maximum_thickness_over_dielectric_requirement : OPTIONAL Length_data_element;
+      measurement_condition                         : OPTIONAL Restraint_condition;
+      located_thickness_requirement                 : OPTIONAL SET[1:?] OF Located_interconnect_module_thickness_requirement;
+      implemented_function                          : OPTIONAL Functional_unit_usage_view;
     WHERE
       WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
  'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(pf)))) <= 1;
@@ -112,22 +112,22 @@ USE FROM Network_functional_usage_view_arm;
       WR6 : NOT (EXISTS(maximum_thickness_over_metal_requirement)) OR (maximum_thickness_over_metal_requirement\value_with_unit.value_component > 0.0);
       WR7 : NOT (EXISTS(minimum_thickness_over_dielectric_requirement)) OR (minimum_thickness_over_dielectric_requirement\value_with_unit.value_component > 0.0);
       WR8 : NOT (EXISTS(maximum_thickness_over_dielectric_requirement)) OR (maximum_thickness_over_dielectric_requirement\value_with_unit.value_component > 0.0);
-  END_ENTITY; -- interconnect_module_usage_view
+  END_ENTITY;
 
   ENTITY Located_interconnect_module_thickness_requirement;
-      reference_location            : axis_placement;
-      maximum_thickness_requirement : length_data_element;
-      minimum_thickness_requirement : length_data_element;
+      reference_location            : Axis_placement;
+      maximum_thickness_requirement : Length_data_element;
+      minimum_thickness_requirement : Length_data_element;
     INVERSE
       design : SET[1:?] OF interconnect_module_usage_view FOR located_thickness_requirement;
     UNIQUE
       UR1 : design,
  reference_location;
-  END_ENTITY; -- located_interconnect_module_thickness_requirement
+  END_ENTITY;
 
   ENTITY Pcb_usage_view
     SUBTYPE OF (Interconnect_module_usage_view);
-  END_ENTITY; -- pcb_usage_view
+  END_ENTITY;
 
-END_SCHEMA; -- Interconnect_module_usage_view_arm
+END_SCHEMA;
 

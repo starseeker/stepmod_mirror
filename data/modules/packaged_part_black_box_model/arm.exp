@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2004/12/17 12:50:26 liutkus Exp $
+   $Id: arm.exp,v 1.8 2004/12/17 15:05:32 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Packaged part black box model - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -18,42 +18,42 @@ USE FROM Package_arm;
 USE FROM Network_functional_usage_view_arm;
 
   ENTITY Packaged_part
-    SUBTYPE OF (part_usage_view);
+    SUBTYPE OF (Part_usage_view);
       used_package         : SET[1:?] OF Package;
-      implemented_function : OPTIONAL functional_unit_usage_view;
+      implemented_function : OPTIONAL Functional_unit_usage_view;
     INVERSE
       access_mechanisms : SET[0:?] OF packaged_part_terminal FOR associated_definition;
     WHERE
       WR1 : NOT (EXISTS(implemented_function) XOR (SIZEOF(access_mechanisms) > 0));
       WR2 : single_package_version(SELF);
-  END_ENTITY; -- packaged_part
+  END_ENTITY;
 
   ENTITY Packaged_part_join_terminal
-    SUBTYPE OF (packaged_part_terminal);
-  END_ENTITY; -- packaged_part_join_terminal
+    SUBTYPE OF (Packaged_part_terminal);
+  END_ENTITY;
 
   ENTITY Packaged_part_terminal
   	ABSTRACT SUPERTYPE
-    SUBTYPE OF (part_terminal);
+    SUBTYPE OF (Part_terminal);
       terminal_of_package                     : SET[1:?] OF Package_terminal;
-      SELF\part_feature.associated_definition : packaged_part;
+      SELF\part_feature.associated_definition : Packaged_part;
     WHERE
       WR1 : disjoint_package_terminals(SELF);
       WR2 : NOT EXISTS(SELF\part_feature.precedent_feature);
-  END_ENTITY; -- packaged_part_terminal
+  END_ENTITY;
 
   FUNCTION disjoint_package_terminals(
-    input : packaged_part_terminal
+    input : Packaged_part_terminal
   ) : BOOLEAN;
 
     RETURN(TRUE);
-  END_FUNCTION; -- disjoint_package_terminals
+  END_FUNCTION;
 
   FUNCTION single_package_version(
-    input : packaged_part
+    input : Packaged_part
   ) : BOOLEAN;
 
     RETURN(TRUE);
-  END_FUNCTION; -- single_package_version
+  END_FUNCTION;
 
-END_SCHEMA; -- Packaged_part_black_box_model_arm
+END_SCHEMA;

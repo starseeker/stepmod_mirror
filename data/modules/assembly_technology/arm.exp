@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2004/12/21 17:58:53 budreckytej Exp $
+   $Id: arm.exp,v 1.14 2004/12/31 11:52:32 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly technology - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -19,9 +19,9 @@ USE FROM External_item_identification_assignment_arm;
 
 USE FROM Product_identification_extension_arm;
 
-	SUBTYPE_CONSTRAINT assembly_module_subtypes FOR assembly_module; 
-		(ONEOF (pca,
-		 reference_packaged_part_assembly_implementation));
+	SUBTYPE_CONSTRAINT assembly_module_subtypes FOR Assembly_module; 
+		(ONEOF (Pca,
+		 Reference_packaged_part_assembly_implementation));
 	END_SUBTYPE_CONSTRAINT;
 
  	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
@@ -39,32 +39,32 @@ USE FROM Product_identification_extension_arm;
      u,
      v,
      w);
-  END_TYPE; -- degree_of_freedom
+  END_TYPE;
 
-	SUBTYPE_CONSTRAINT process_specification_subtypes FOR process_specification;   
-		(ONEOF (assembly_technology_specification,
-		fabrication_technology_specification));
+	SUBTYPE_CONSTRAINT process_specification_subtypes FOR Process_specification;   
+		(ONEOF (Assembly_technology_specification,
+		Fabrication_technology_specification));
 	END_SUBTYPE_CONSTRAINT; 
 
   ENTITY Assembled_with_bonding
     SUBTYPE OF (Assembly_joint);
-      default_bond_definition : assembly_bond_definition;
+      default_bond_definition : Assembly_bond_definition;
     WHERE
       WR1 : SELF\assembly_joint.assembly_features_1.definition :=: default_bond_definition.bonded_feature_1;
       WR2 : SELF\assembly_joint.assembly_features_2.definition :=: default_bond_definition.bonded_feature_2;
-  END_ENTITY; -- assembled_with_bonding
+  END_ENTITY;
 
   ENTITY Assembled_with_fasteners
     SUBTYPE OF (Assembly_joint);
-      SELF\assembly_joint.associated_assembly : assembly_group_component;
-  END_ENTITY; -- assembled_with_fasteners
+      SELF\assembly_joint.associated_assembly : Assembly_group_component;
+  END_ENTITY;
 
   ENTITY Assembly_bond_definition;
       name                                    : STRING;   
-      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF analytical_model_application;
-      associated_definition                   : externally_defined_ee_product_definition;
-      bonded_feature_1                        : part_feature;
-      bonded_feature_2                        : part_feature;
+      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
+      associated_definition                   : Externally_defined_ee_product_definition;
+      bonded_feature_1                        : Part_feature;
+      bonded_feature_2                        : Part_feature;
     INVERSE
       default_shape : SET[0:1] OF default_assembly_bond_shape FOR characterized_bond_definition;
 	  bond_category	: External_source_identification FOR item;      
@@ -72,11 +72,11 @@ USE FROM Product_identification_extension_arm;
       UR1 : name;
     WHERE
       WR1 : bonded_feature_1 <> bonded_feature_2;
-  END_ENTITY; -- assembly_bond_definition
+  END_ENTITY;
 
   ENTITY Assembly_joint
     SUPERTYPE OF (assembled_with_fasteners ANDOR
- assembled_with_bonding);
+ Assembled_with_bonding);
       name                : STRING;
       assembly_features_1 : assembled_feature_select;
       assembly_features_2 : assembled_feature_select;
@@ -89,34 +89,34 @@ USE FROM Product_identification_extension_arm;
       WR1 : assembly_features_1 :<>: assembly_features_2;
       WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_1)) AND (SIZEOF(QUERY(ay <* assembly_features_1\component_feature.associated_component\definition_based_product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
       WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_2)) AND (SIZEOF(QUERY(ay <* assembly_features_2\component_feature.associated_component\definition_based_product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
-  END_ENTITY; -- assembly_joint
+  END_ENTITY;
 
   ENTITY Assembly_technology_specification
-    SUBTYPE OF (process_specification);
-  END_ENTITY; -- assembly_technology_specification
+    SUBTYPE OF (Process_specification);
+  END_ENTITY;
 
   ENTITY Component_mating_constraint_condition;
       name                          : STRING; --ee_name;
-      constraining_joint            : SET[1:3] OF assembly_joint;
+      constraining_joint            : SET[1:3] OF Assembly_joint;
       constrained_degree_of_freedom : SET[1:5] OF degree_of_freedom;
-      of_context                    : part_design_view;
+      of_context                    : Part_design_view;
     UNIQUE
       UR1 : name,
  of_context;
-  END_ENTITY; -- component_mating_constraint_condition
+  END_ENTITY;
 
   ENTITY Connection_zone_based_assembly_joint
     SUBTYPE OF (Assembly_joint);
-      zone_1 : connection_zone_in_design_view;
-      zone_2 : connection_zone_in_design_view;
+      zone_1 : Connection_zone_in_design_view;
+      zone_2 : Connection_zone_in_design_view;
     WHERE
       WR1 : zone_1 :<>: zone_2;
-  END_ENTITY; -- connection_zone_based_assembly_joint
+  END_ENTITY;
 
   ENTITY Default_assembly_bond_shape
     SUBTYPE OF (Feature_shape_definition);
-      characterized_bond_definition : assembly_bond_definition;
-  END_ENTITY; -- default_assembly_bond_shape
+      characterized_bond_definition : Assembly_bond_definition;
+  END_ENTITY;
 
   ENTITY Reference_packaged_part_assembly_implementation
     SUBTYPE OF (Assembly_module);
@@ -124,7 +124,7 @@ USE FROM Product_identification_extension_arm;
       WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\product_view_definition.defined_version.of_product,
  'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | NOT (SIZEOF(QUERY(epcr <* USEDIN(prpc,
  'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY') | (epcr.sub_category\product_category.name = 'template model'))) = 1))) = 0;
-  END_ENTITY; -- reference_packaged_part_assembly_implementation
+  END_ENTITY;
 
-END_SCHEMA; -- Assembly_technology_arm
+END_SCHEMA;
 

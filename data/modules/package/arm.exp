@@ -20,13 +20,13 @@ USE FROM Part_feature_function_arm;
 USE FROM Part_feature_location_arm;
 
  	TYPE p_analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_application_assignment_select WITH  
-		(package_terminal);
+		(Package_terminal);
 	END_TYPE;
 
   TYPE mounting_technology_type = ENUMERATION OF
     (surface_mount,
      through_hole);
-  END_TYPE; -- mounting_technology_type
+  END_TYPE;
 
 	SUBTYPE_CONSTRAINT part_feature_subtypes FOR Part_feature; 
 		(ONEOF (Package_orientation_feature,
@@ -41,18 +41,18 @@ USE FROM Part_feature_location_arm;
      undefined,
      ball,
      straight);
-  END_TYPE; -- predefined_lead_form
+  END_TYPE;
 
   TYPE seating_plane_intersection_type = ENUMERATION OF
     (surface_intersection,
      through_intersection,
      does_not_intersect);
-  END_TYPE; -- seating_plane_intersection_type
+  END_TYPE;
 
   ENTITY Connection_zone_package_interface_plane_relationship;
-      interface_plane          : seating_plane;
-      mating_zone              : connection_zone_in_usage_view;
-      derived_zone             : connection_zone_in_usage_view;
+      interface_plane          : Seating_plane;
+      mating_zone              : Connection_zone_in_usage_view;
+      derived_zone             : Connection_zone_in_usage_view;
       derived_zone_shape_class : STRING;
     INVERSE
       associated_package_terminal  : SET[0:1] OF package_terminal FOR seating_plane_zone;
@@ -63,30 +63,30 @@ USE FROM Part_feature_location_arm;
   END_ENTITY;
 
   ENTITY Functional_orientation_feature
-    SUBTYPE OF (part_feature);
-      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
-      associated_terminal             : primary_reference_terminal;
-  END_ENTITY; -- functional_orientation_feature
+    SUBTYPE OF (Part_feature);
+      associated_body_vertical_extent : OPTIONAL SET[1:2] OF Package_body_surface;
+      associated_terminal             : Primary_reference_terminal;
+  END_ENTITY;
 
   ENTITY Guided_wave_terminal
-    SUBTYPE OF (package_terminal);
-  END_ENTITY; -- guided_wave_terminal
+    SUBTYPE OF (Package_terminal);
+  END_ENTITY;
 
   ENTITY Package
-    SUBTYPE OF (part_usage_view);
+    SUBTYPE OF (Part_usage_view);
       mounting_technology                        : mounting_technology_type;
-      maximum_seating_plane_installation_offset  : OPTIONAL length_data_element;
+      maximum_seating_plane_installation_offset  : OPTIONAL Length_data_element;
       surface_mount_lead_form                    : OPTIONAL predefined_lead_form;
-      nominal_mounting_lead_pitch                : OPTIONAL length_data_element;
-      nominal_mounting_lead_span                 : OPTIONAL length_data_element;
-      maximum_body_height_above_seating_plane    : length_data_element;
-      maximum_body_height_below_seating_plane    : OPTIONAL length_data_element;
-      maximum_body_clearance_above_seating_plane : OPTIONAL length_data_element;
-      maximum_body_clearance_below_seating_plane : OPTIONAL length_data_element;
-      minimum_body_clearance_above_seating_plane : OPTIONAL length_data_element;
-      minimum_body_clearance_below_seating_plane : OPTIONAL length_data_element;
-      maximum_lead_length_below_seating_plane    : OPTIONAL length_data_element;
-      least_lead_length_below_seating_plane      : OPTIONAL length_data_element;
+      nominal_mounting_lead_pitch                : OPTIONAL Length_data_element;
+      nominal_mounting_lead_span                 : OPTIONAL Length_data_element;
+      maximum_body_height_above_seating_plane    : Length_data_element;
+      maximum_body_height_below_seating_plane    : OPTIONAL Length_data_element;
+      maximum_body_clearance_above_seating_plane : OPTIONAL Length_data_element;
+      maximum_body_clearance_below_seating_plane : OPTIONAL Length_data_element;
+      minimum_body_clearance_above_seating_plane : OPTIONAL Length_data_element;
+      minimum_body_clearance_below_seating_plane : OPTIONAL Length_data_element;
+      maximum_lead_length_below_seating_plane    : OPTIONAL Length_data_element;
+      least_lead_length_below_seating_plane      : OPTIONAL Length_data_element;
     DERIVE
       maximum_package_total_vertical_extent : length_data_element := max_data_element(add_data_element(maximum_body_height_above_seating_plane,
  maximum_body_height_below_seating_plane),
@@ -124,11 +124,11 @@ USE FROM Part_feature_location_arm;
 --      WR14 : NOT (SIZEOF(of_datum_reference_frame) > 0) OR (SIZEOF(QUERY(odrf <* of_datum_reference_frame | NOT ('PACKAGE_ARM.DATUM_REFERENCE_FRAME' IN TYPEOF(odrf)))) = 0);
       WR14 : SIZEOF(QUERY(pa <* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
 	  WR15: (EXISTS (surface_mount_lead_form)) OR ((SIZEOF(external_surface_mount_lead_form)) = 1);      
-  END_ENTITY; -- package
+  END_ENTITY;
 
   ENTITY Package_body
-    SUBTYPE OF (part_feature);
-      SELF\part_feature.associated_definition : package;
+    SUBTYPE OF (Part_feature);
+      SELF\part_feature.associated_definition : Package;
     WHERE
       WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
  'PACKAGE_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('PACKAGE_ARM.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF(pf)))) <= 1;
@@ -136,56 +136,56 @@ USE FROM Part_feature_location_arm;
  'PACKAGE_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('PACKAGE_ARM.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf)))) <= 1;
       WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
  'PACKAGE_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('PACKAGE_ARM.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
-  END_ENTITY; -- package_body
+  END_ENTITY;
 
   ENTITY Package_body_bottom_surface
-    SUBTYPE OF (package_body_surface);
-  END_ENTITY; -- package_body_bottom_surface
+    SUBTYPE OF (Package_body_surface);
+  END_ENTITY;
 
   ENTITY Package_body_edge_segment_surface
-    SUBTYPE OF (package_body_surface);
-      composed_surface : package_body_edge_surface;
-      start_vertex     : edge_segment_vertex;
-      end_vertex       : edge_segment_vertex;
+    SUBTYPE OF (Package_body_surface);
+      composed_surface : Package_body_edge_surface;
+      start_vertex     : Edge_segment_vertex;
+      end_vertex       : Edge_segment_vertex;
     WHERE
       WR1 : start_vertex :<>: end_vertex;
-  END_ENTITY; -- package_body_edge_segment_surface
+  END_ENTITY;
 
   ENTITY Package_body_edge_surface
-    SUBTYPE OF (package_body_surface);
-  END_ENTITY; -- package_body_edge_surface
+    SUBTYPE OF (Package_body_surface);
+  END_ENTITY;
 
   ENTITY Package_body_surface
-    ABSTRACT SUPERTYPE OF (ONEOF (package_body_bottom_surface,
- package_body_top_surface,
- package_body_edge_segment_surface,
- package_body_edge_surface))
-    SUBTYPE OF (part_feature);
-      SELF\part_feature.associated_definition : package_body;
-  END_ENTITY; -- package_body_surface
+    ABSTRACT SUPERTYPE OF (ONEOF (Package_body_bottom_surface,
+ Package_body_top_surface,
+ Package_body_edge_segment_surface,
+ Package_body_edge_surface))
+    SUBTYPE OF (Part_feature);
+      SELF\part_feature.associated_definition : Package_body;
+  END_ENTITY;
 
   ENTITY Package_body_top_surface
-    SUBTYPE OF (package_body_surface);
-  END_ENTITY; -- package_body_top_surface
+    SUBTYPE OF (Package_body_surface);
+  END_ENTITY;
 
   ENTITY Package_orientation_feature
     ABSTRACT SUPERTYPE OF (ONEOF(Primary_orientation_feature, Secondary_orientation_feature, Tertiary_orientation_feature))
-    SUBTYPE OF (part_feature, datum_feature);    
-           associated_body_vertical_extent : OPTIONAL SET [1:2] OF package_body_surface;
+    SUBTYPE OF (Part_feature, Datum_feature);    
+           associated_body_vertical_extent : OPTIONAL SET [1:2] OF Package_body_surface;
   END_ENTITY;
 
 (** attribute model_representation changed to analytical_model_assignment
 *)
   ENTITY Package_terminal
-    SUBTYPE OF (part_feature);
-      SELF\part_feature.associated_definition 		: package;
-      external_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
-      internal_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+    SUBTYPE OF (Part_feature);
+      SELF\part_feature.associated_definition 		: Package;
+      external_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
+      internal_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
       seating_plane_intersection              : seating_plane_intersection_type;
       terminal_characteristic                 : OPTIONAL SET[1:?] OF characteristic;
-      minimum_terminal_diametrical_extent     : OPTIONAL length_data_element;
-      maximum_terminal_diametrical_extent     : OPTIONAL length_data_element;
-      seating_plane_zone                      : OPTIONAL connection_zone_package_interface_plane_relationship;
+      minimum_terminal_diametrical_extent     : OPTIONAL Length_data_element;
+      maximum_terminal_diametrical_extent     : OPTIONAL Length_data_element;
+      seating_plane_zone                      : OPTIONAL Connection_zone_package_interface_plane_relationship;
     DERIVE
       mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone)) AND (associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane);
     INVERSE
@@ -196,60 +196,60 @@ USE FROM Part_feature_location_arm;
       WR3 : NOT (EXISTS(seating_plane_zone)) OR ((associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane) OR (associated_definition.interface_plane[1] :=: seating_plane_zone.interface_plane));
       WR4 : NOT (EXISTS(seating_plane_zone)) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection));
       WR5 : NOT ((seating_plane_intersection = does_not_intersect) AND (EXISTS(seating_plane_zone)));
-  END_ENTITY; -- package_terminal
+  END_ENTITY;
 
   ENTITY Package_terminal_surface_constituent_relationship
-    SUBTYPE OF (shape_element_constituent_relationship);
-      SELF\shape_element_relationship.relating : package_body_surface;
-      SELF\shape_element_relationship.related  : package_terminal;
-  END_ENTITY; -- package_terminal_surface_constituent_relationship
+    SUBTYPE OF (Shape_element_constituent_relationship);
+      SELF\shape_element_relationship.relating : Package_body_surface;
+      SELF\shape_element_relationship.related  : Package_terminal;
+  END_ENTITY;
 
   ENTITY Polarity_indication_feature
-    SUBTYPE OF (part_feature);
-      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
-      associated_terminal             : package_terminal;
-  END_ENTITY; -- polarity_indication_feature
+    SUBTYPE OF (Part_feature);
+      associated_body_vertical_extent : OPTIONAL SET[1:2] OF Package_body_surface;
+      associated_terminal             : Package_terminal;
+  END_ENTITY;
 
   ENTITY Primary_orientation_feature
     SUBTYPE OF (Package_orientation_feature);
-  END_ENTITY; -- primary_orientation_feature
+  END_ENTITY;
 
   ENTITY Primary_reference_terminal
-    SUBTYPE OF (package_terminal);
+    SUBTYPE OF (Package_terminal);
     WHERE
       WR1 : NOT (EXISTS(SELF\part_feature.precedent_feature));
-  END_ENTITY; -- primary_reference_terminal
+  END_ENTITY;
 
   ENTITY Secondary_orientation_feature
     SUBTYPE OF (Package_orientation_feature);
-  END_ENTITY; -- secondary_orientation_feature
+  END_ENTITY;
 
   ENTITY Tertiary_orientation_feature
     SUBTYPE OF (Package_orientation_feature);
-  END_ENTITY; -- tertiary_orientation_feature
+  END_ENTITY;
 
   ENTITY Wire_terminal
-    SUBTYPE OF (package_terminal);
-      SELF\package_terminal.internal_connection_zone : SET[1:?] OF connection_zone_in_usage_view;
-      maximum_wire_terminal_length                   : length_data_element;
-      minimum_wire_terminal_length                   : length_data_element;
-  END_ENTITY; -- wire_terminal
+    SUBTYPE OF (Package_terminal);
+      SELF\package_terminal.internal_connection_zone : SET[1:?] OF Connection_zone_in_usage_view;
+      maximum_wire_terminal_length                   : Length_data_element;
+      minimum_wire_terminal_length                   : Length_data_element;
+  END_ENTITY;
 
   FUNCTION add_data_element(
-    input1 : length_data_element ;
-    input2 : length_data_element
-  ) : length_data_element;
+    input1 : Length_data_element ;
+    input2 : Length_data_element
+  ) : Length_data_element;
 
     RETURN(input1);
-  END_FUNCTION; -- add_data_element
+  END_FUNCTION;
 
   FUNCTION max_data_element(
-    input1 : length_data_element ;
-    input2 : length_data_element
-  ) : length_data_element;
+    input1 : Length_data_element ;
+    input2 : Length_data_element
+  ) : Length_data_element;
 
     RETURN(input1);
-  END_FUNCTION; -- max_data_element
+  END_FUNCTION;
 
-END_SCHEMA; -- Package_arm
+END_SCHEMA;
 

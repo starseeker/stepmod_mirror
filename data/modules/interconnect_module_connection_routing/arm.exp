@@ -19,9 +19,9 @@ USE FROM Interconnect_module_with_macros_arm;
     	Topological_junction);
   	END_TYPE;
 
-	SUBTYPE_CONSTRAINT layer_connection_point_subtypes FOR layer_connection_point; 
-		(ONEOF (explicitly_located_layer_connection_point,
-		 dependently_located_layer_connection_point));
+	SUBTYPE_CONSTRAINT layer_connection_point_subtypes FOR Layer_connection_point; 
+		(ONEOF (Explicitly_located_layer_connection_point,
+		 Dependently_located_layer_connection_point));
 	END_SUBTYPE_CONSTRAINT; 
 	
  	TYPE terminal_or_inter_stratum_feature = SELECT(
@@ -38,91 +38,91 @@ USE FROM Interconnect_module_with_macros_arm;
   ENTITY Dependently_located_layer_connection_point
     SUBTYPE OF (Layer_connection_point);
       associated_design_object : terminal_or_inter_stratum_feature;
-      reference_zone           : OPTIONAL connection_zone_in_design_view;
-  END_ENTITY; -- dependently_located_layer_connection_point
+      reference_zone           : OPTIONAL Connection_zone_in_design_view;
+  END_ENTITY;
 
   ENTITY Dielectric_crossover_area
-    SUBTYPE OF (stratum_concept_relationship);
-      relating_concept               : stratum_feature;    
-      related_concept                : stratum_feature;
-      resulting_dielectric_crossover : stratum_feature;
-  END_ENTITY; -- dielectric_crossover_area
+    SUBTYPE OF (Stratum_concept_relationship);
+      relating_concept               : Stratum_feature;    
+      related_concept                : Stratum_feature;
+      resulting_dielectric_crossover : Stratum_feature;
+  END_ENTITY;
 
   ENTITY Direct_stratum_component_join_implementation;
-      implementing_joint      : fabrication_joint;
-      topological_requirement : stratum_embedded_component_join_relationship;
-  END_ENTITY; -- direct_stratum_component_join_implementation
+      implementing_joint      : Fabrication_joint;
+      topological_requirement : Stratum_embedded_component_join_relationship;
+  END_ENTITY;
 
   ENTITY Explicitly_located_layer_connection_point
     SUBTYPE OF (Layer_connection_point);
-  END_ENTITY; -- explicitly_located_layer_connection_point
+  END_ENTITY;
 
   ENTITY Indirect_stratum_component_join_implementation
-    SUBTYPE OF (plated_inter_stratum_feature);
-      indirect_topological_requirement : stratum_embedded_component_join_relationship;
-      implementing_joint               : fabrication_joint;
+    SUBTYPE OF (Plated_inter_stratum_feature);
+      indirect_topological_requirement : Stratum_embedded_component_join_relationship;
+      implementing_joint               : Fabrication_joint;
     UNIQUE
       UR1 : indirect_topological_requirement,
  implementing_joint;
-  END_ENTITY; -- indirect_stratum_component_join_implementation
+  END_ENTITY;
 
   ENTITY Inter_stratum_join_implementation
-    ABSTRACT SUPERTYPE OF (ONEOF (physical_network_supporting_stratum_feature_conductive_join,
- physical_network_supporting_inter_stratum_feature));
-      topological_requirement : inter_stratum_join_relationship;
-  END_ENTITY; -- inter_stratum_join_implementation
+    ABSTRACT SUPERTYPE OF (ONEOF (Physical_network_supporting_stratum_feature_conductive_join,
+ Physical_network_supporting_inter_stratum_feature));
+      topological_requirement : Inter_stratum_join_relationship;
+  END_ENTITY;
 
   ENTITY Join_two_physical_connectivity_definition_supporting_inter_stratum_feature
-    SUBTYPE OF (physical_network_supporting_inter_stratum_feature);
-      joined_definitions : SET[2:2] OF physical_connectivity_definition;
-  END_ENTITY; -- join_two_physical_connectivity_definition_supporting_inter_stratum_feature
+    SUBTYPE OF (Physical_network_supporting_inter_stratum_feature);
+      joined_definitions : SET[2:2] OF Physical_connectivity_definition;
+  END_ENTITY;
 
   ENTITY Junction_vertex_allocation;
       implementation_point : trace_junction_or_via;
-      required_vertex      : topological_junction;
+      required_vertex      : Topological_junction;
     UNIQUE
       UR1 : required_vertex;
-  END_ENTITY; -- junction_vertex_allocation
+  END_ENTITY;
 
   ENTITY Physical_connectivity_abstraction_map;
-      name_space_context_based_definition : physical_connectivity_element;
-      geometric_context_based_definition  : conductive_interconnect_element;
+      name_space_context_based_definition : Physical_connectivity_element;
+      geometric_context_based_definition  : Conductive_interconnect_element;
     UNIQUE
       UR1 : name_space_context_based_definition,
  geometric_context_based_definition;
-  END_ENTITY; -- physical_connectivity_abstraction_map
+  END_ENTITY;
 
   ENTITY Physical_network_supporting_inter_stratum_feature
-    SUPERTYPE OF (join_two_physical_connectivity_definition_supporting_inter_stratum_feature)
-    SUBTYPE OF (plated_inter_stratum_feature,
- inter_stratum_join_implementation);
-  END_ENTITY; -- physical_network_supporting_inter_stratum_feature
+    SUPERTYPE OF (Join_two_physical_connectivity_definition_supporting_inter_stratum_feature)
+    SUBTYPE OF (Plated_inter_stratum_feature,
+ Inter_stratum_join_implementation);
+  END_ENTITY;
 
   ENTITY Physical_network_supporting_stratum_feature_conductive_join
-    SUBTYPE OF (stratum_feature_conductive_join,
- inter_stratum_join_implementation);
-  END_ENTITY; -- physical_network_supporting_stratum_feature_conductive_join
+    SUBTYPE OF (Stratum_feature_conductive_join,
+ Inter_stratum_join_implementation);
+  END_ENTITY;
 
   ENTITY Stratum_feature_conductive_join
-    SUPERTYPE OF (physical_network_supporting_stratum_feature_conductive_join)
-    SUBTYPE OF (stratum_concept_relationship);
-      relating_concept : stratum_feature_template_component;    
-      related_concept  : stratum_feature_template_component;
+    SUPERTYPE OF (Physical_network_supporting_stratum_feature_conductive_join)
+    SUBTYPE OF (Stratum_concept_relationship);
+      relating_concept : Stratum_feature_template_component;    
+      related_concept  : Stratum_feature_template_component;
     WHERE
       WR1 : related_concept.stratum_feature_implementation.resident_stratum :<>: relating_concept.stratum_feature_implementation.resident_stratum;
-  END_ENTITY; -- stratum_feature_conductive_join
+  END_ENTITY;
 
   ENTITY Topological_junction;
       name  : STRING; --ee_name;  
-      scope : physical_connectivity_structure_definition;
+      scope : Physical_connectivity_structure_definition;
     UNIQUE
       UR1 : name,
  scope;
-  END_ENTITY; -- topological_junction
+  END_ENTITY;
 
 	SUBTYPE_CONSTRAINT Stratum_concept_relationship_subtypes FOR Stratum_concept_relationship;     
- 		(ONEOF (stratum_feature_conductive_join,
- 		dielectric_crossover_area));
+ 		(ONEOF (Stratum_feature_conductive_join,
+ 		Dielectric_crossover_area));
 	END_SUBTYPE_CONSTRAINT;
 
-END_SCHEMA; -- Interconnect_module_connection_routing_arm
+END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2004/12/31 12:39:43 liutkus Exp $
+   $Id: arm.exp,v 1.14 2005/01/04 06:28:12 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Analytical model - EXPRESS ARM
 *)
 
@@ -35,7 +35,7 @@ USE FROM Document_structure_arm;
      logical_property_type,
      numeric_property_type,
      physical_property_type);
-  END_TYPE; -- model_parameter_type
+  END_TYPE;
 
   TYPE signal_flow_direction = ENUMERATION OF
     (unknown_direction,
@@ -43,100 +43,100 @@ USE FROM Document_structure_arm;
      output_direction,
      input_direction,
      bidirectional);
-  END_TYPE; -- signal_flow_direction
+  END_TYPE;
 
   ENTITY Across_port_variable
     SUBTYPE OF (Analog_port_variable);
     WHERE
       WR1 : EXISTS(SELF\analog_port_variable.unit_of_measure);
-  END_ENTITY; -- across_port_variable
+  END_ENTITY;
 
   ENTITY Analog_analytical_model_port
     SUBTYPE OF (Analytical_model_port);
     INVERSE
       signal_variable : SET[1:?] OF analog_port_variable FOR associated_port;
-  END_ENTITY; -- analog_analytical_model_port
+  END_ENTITY;
 
   ENTITY Analog_port_variable
-    SUPERTYPE OF (ONEOF (through_port_variable,
- across_port_variable,
- transform_port_variable));
-      associated_port : analog_analytical_model_port;
+    SUPERTYPE OF (ONEOF (Through_port_variable,
+ Across_port_variable,
+ Transform_port_variable));
+      associated_port : Analog_analytical_model_port;
       variable_name   : STRING; --ee_name;
       unit_of_measure : OPTIONAL Unit; --STRING;
     UNIQUE
       UR1 : variable_name,
  associated_port;
-  END_ENTITY; -- analog_port_variable
+  END_ENTITY;
 
   ENTITY Analytical_model
-  	SUBTYPE OF (software);
+  	SUBTYPE OF (Software);
   	WHERE 
   		WR1 : SIZEOF([ 'analytical model' ] * types_of_product(SELF))= 1 ;
-  END_ENTITY; -- analytical_model
+  END_ENTITY;
 
   ENTITY Analytical_model_application
-    SUBTYPE OF (representation);  
-      model_parameter_assignment     : SET[1:?] OF parameter_assignment;
-      model_representation           : analytical_model_definition;
+    SUBTYPE OF (Representation);  
+      model_parameter_assignment     : SET[1:?] OF Parameter_assignment;
+      model_representation           : Analytical_model_definition;
       analytical_model_application_name : STRING; --ee_name;
     UNIQUE
       UR1 : analytical_model_application_name;
-  END_ENTITY; -- analytical_model_application
+  END_ENTITY;
 (*
 This AO is redundant once the proposed change to analytical_model_port_assignment is implemented
 
   ENTITY Analytical_model_application_assignment; --- was analytical_model_definition_assignment;
 	assigned_analytical_model: Analytical_model_application;
 	assigned_item: analytical_model_application_assignment_select;
-  END_ENTITY; -- Analytical_model_application_assignment
+  END_ENTITY;
 *)
 
   ENTITY Analytical_model_definition
-    SUBTYPE OF (software_definition);
+    SUBTYPE OF (Software_definition);
       SELF\product_view_definition.defined_version 	: Analytical_model_version;
-      representation_language 						: language_reference_manual;
-      reference_document      						: document_definition;
-      source_code             						: software_definition;
+      representation_language 						: Language_reference_manual;
+      reference_document      						: Document_definition;
+      source_code             						: Software_definition;
     INVERSE
       access_mechanism : SET[1:?] OF analytical_model_port FOR accessed_analytical_model;
       parameter        : SET[1:?] OF analytical_model_parameter FOR accessed_analytical_model;
-  END_ENTITY; -- analytical_model_definition
+  END_ENTITY;
 
   ENTITY Analytical_model_make_from_relationship
   	SUBTYPE OF (Document_definition_relationship);
-      reusable_model  : analytical_model_definition;
-      resultant_model : analytical_model_definition;
+      reusable_model  : Analytical_model_definition;
+      resultant_model : Analytical_model_definition;
     UNIQUE
       UR1 : reusable_model,
  resultant_model;
     WHERE
       WR1 : reusable_model :<>: resultant_model;
-  END_ENTITY; -- analytical_model_make_from_relationship
+  END_ENTITY;
 
   ENTITY Analytical_model_parameter
     SUBTYPE OF (Model_parameter);
-      accessed_analytical_model : analytical_model_definition;
+      accessed_analytical_model : Analytical_model_definition;
     UNIQUE
       UR1 : SELF\independent_property.id,
  accessed_analytical_model;
-  END_ENTITY; -- analytical_model_parameter
+  END_ENTITY;
 
   ENTITY Analytical_model_port
     SUPERTYPE OF (analytical_model_vector_port ANDOR
- (ONEOF (analog_analytical_model_port,
- digital_analytical_model_port)));
-      accessed_analytical_model : analytical_model_definition;
+ (ONEOF (Analog_analytical_model_port,
+ Digital_analytical_model_port)));
+      accessed_analytical_model : Analytical_model_definition;
       port_name                 : STRING; --ee_name;
     UNIQUE
       UR1 : port_name,
  accessed_analytical_model;
-  END_ENTITY; -- analytical_model_port
+  END_ENTITY;
 
   ENTITY Analytical_model_port_assignment;
-	assigned_analytical_model_port	: analytical_model_port;
+	assigned_analytical_model_port	: Analytical_model_port;
 	assigned_item					: analytical_model_port_assignment_select;
-	associated_analytical_model_application :analytical_model_application;
+	associated_analytical_model_application :Analytical_model_application;
    UNIQUE
     UR1 : assigned_analytical_model_port,assigned_item,associated_analytical_model_application;
 (* where rule
@@ -147,7 +147,7 @@ This AO is redundant once the proposed change to analytical_model_port_assignmen
    WHERE
     WR1 : assigned_analytical_model_port.accessed_analytical_model =
    associated_analytical_model_application.model_representation;
-  END_ENTITY; -- analytical_model_port_assignment
+  END_ENTITY;
 (*mapping of analytical_model_port_assignment::
    complex subtype of prop_def_rep,representation_relationship
    prop_def_rep.used_rep->self
@@ -157,16 +157,16 @@ This AO is redundant once the proposed change to analytical_model_port_assignmen
 *)
    
   ENTITY Analytical_model_port_make_from_relationship;
-      associated_make_from : analytical_model_make_from_relationship;
-      reusable_feature     : analytical_model_port;
-      resultant_feature    : analytical_model_port;
+      associated_make_from : Analytical_model_make_from_relationship;
+      reusable_feature     : Analytical_model_port;
+      resultant_feature    : Analytical_model_port;
     UNIQUE
       UR1 : reusable_feature,
  resultant_feature;
     WHERE
       WR1 : reusable_feature :<>: resultant_feature;
       WR2 : reusable_feature.accessed_analytical_model :<>: resultant_feature.accessed_analytical_model;
-  END_ENTITY; -- analytical_model_port_make_from_relationship
+  END_ENTITY;
 
 (* see issues.xml for mapping proposal sketch for
 amsp, amvp. 
@@ -177,19 +177,19 @@ amsp, amvp.
     WHERE
       WR1 : SIZEOF(SELF\Analytical_model_vector_port.element_port) = 1;
       WR2 : SELF = SELF\Analytical_model_vector_port.element_port[1];
-  END_ENTITY; -- analytical_model_scalar_port
+  END_ENTITY;
 
   ENTITY Analytical_model_vector_port
-    SUPERTYPE OF (analytical_model_scalar_port)
+    SUPERTYPE OF (Analytical_model_scalar_port)
     SUBTYPE OF (Analytical_model_port);
-    element_port : LIST [1:?] OF analytical_model_scalar_port;
+    element_port : LIST [1:?] OF Analytical_model_scalar_port;
   DERIVE    
       size : INTEGER := SIZEOF(element_port); -- positive_integer;      
-  END_ENTITY; -- analytical_model_vector_port
+  END_ENTITY;
   
   ENTITY Analytical_model_version
-  	SUBTYPE OF (software_version);
-  		SELF\product_version.of_product : analytical_model;
+  	SUBTYPE OF (Software_version);
+  		SELF\product_version.of_product : Analytical_model;
   END_ENTITY; 
 
   ENTITY Digital_analytical_model_port
@@ -200,7 +200,7 @@ amsp, amvp.
       WR1 : not_applicable <> nominal_signal_flow_direction;
       WR2 : numeric_property_type <> port_type;
       WR3 : physical_property_type <> port_type;
-  END_ENTITY; -- digital_analytical_model_port
+  END_ENTITY;
 
   ENTITY Digital_analytical_model_vector_port
     SUBTYPE OF (Digital_analytical_model_port,Analytical_model_vector_port);
@@ -208,26 +208,26 @@ amsp, amvp.
       data_encoding_method 	: External_source_identification FOR item;
     WHERE
      WR1 : SELF\Digital_analytical_model_port.port_type = model_parameter_type.string_property_type;
-  END_ENTITY; -- digital_analytical_model_port
+  END_ENTITY;
 
   ENTITY Terminal_pair_port_equivalence_relationship;
-      equivalent_port : analytical_model_port;
-      scalar_ports    : LIST[2:2] OF UNIQUE analytical_model_scalar_port;
-  END_ENTITY; -- terminal_pair_port_equivalence_relationship
+      equivalent_port : Analytical_model_port;
+      scalar_ports    : LIST[2:2] OF UNIQUE Analytical_model_scalar_port;
+  END_ENTITY;
 
   ENTITY Through_port_variable
-    SUBTYPE OF (analog_port_variable);
+    SUBTYPE OF (Analog_port_variable);
     WHERE
       WR1 : EXISTS(SELF\analog_port_variable.unit_of_measure);
-  END_ENTITY; -- through_port_variable
+  END_ENTITY;
   
   ENTITY Transform_port_variable
-    SUBTYPE OF (analog_port_variable);
+    SUBTYPE OF (Analog_port_variable);
       nominal_signal_flow_direction : signal_flow_direction;
     WHERE
       WR1 : not_applicable <> nominal_signal_flow_direction;
       WR2 : bidirectional <> nominal_signal_flow_direction;
-  END_ENTITY; -- transform_port_variable
+  END_ENTITY;
 
 RULE analytical_model_version_constraint FOR 
 (Product_version);
@@ -241,4 +241,4 @@ WHERE
   WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
 END_RULE; 
 
-END_SCHEMA; -- Analytical_model_arm
+END_SCHEMA;

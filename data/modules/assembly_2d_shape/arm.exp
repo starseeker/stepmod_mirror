@@ -8,42 +8,42 @@ USE FROM Physical_unit_2d_design_view_arm;
 
 USE FROM Assembly_technology_arm;
 
-	SUBTYPE_CONSTRAINT a2ds_component_2d_location_subtypes FOR component_2d_location;         
-	    ONEOF (component_2d_edge_location,
-	 component_2d_stacked_location,
-	 component_2d_surface_location);    
+	SUBTYPE_CONSTRAINT a2ds_component_2d_location_subtypes FOR Component_2d_location;         
+	    ONEOF (Component_2d_edge_location,
+	 Component_2d_stacked_location,
+	 Component_2d_surface_location);    
 	END_SUBTYPE_CONSTRAINT;
 
   ENTITY Component_2d_edge_location
     SUBTYPE OF (Component_2d_location);
-      reference_terminal_assembly_joint : assembly_joint;
-      mounting_surface_assembly_joint   : assembly_joint;
+      reference_terminal_assembly_joint : Assembly_joint;
+      mounting_surface_assembly_joint   : Assembly_joint;
     WHERE
       WR1 : reference_terminal_assembly_joint <> mounting_surface_assembly_joint;
       WR2 : SELF\component_2d_location.substrate_location = FALSE;
       WR3 : SIZEOF(['ASSEMBLY_2D_SHAPE_ARM.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
  'ASSEMBLY_2D_SHAPE_ARM.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_surface_assembly_joint.assembly_features_1)) >= 1;
-  END_ENTITY; -- component_2d_edge_location
+  END_ENTITY;
 
   ENTITY Component_2d_stacked_location
     SUBTYPE OF (Component_2d_location);
-      mounting_joint : assembly_joint;
+      mounting_joint : Assembly_joint;
     WHERE
       WR1 : SIZEOF(['ASSEMBLY_2D_SHAPE_ARM.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
  'ASSEMBLY_2D_SHAPE_ARM.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_joint.assembly_features_1)) = 0;
       WR2 : SIZEOF(['ASSEMBLY_2D_SHAPE_ARM.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
  'ASSEMBLY_2D_SHAPE_ARM.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_joint.assembly_features_2)) = 0;
       WR3 : SELF\component_2d_location.substrate_location = FALSE;
-  END_ENTITY; -- component_2d_stacked_location
+  END_ENTITY;
 
   ENTITY Component_2d_surface_location
     SUBTYPE OF (Component_2d_location);
-      mounting_surface_assembly_joint : assembly_joint;
+      mounting_surface_assembly_joint : Assembly_joint;
     WHERE
       WR1 : SELF\component_2d_location.substrate_location = FALSE;
       WR2 : SIZEOF(['ASSEMBLY_2D_SHAPE_ARM.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
  'ASSEMBLY_2D_SHAPE_ARM.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_surface_assembly_joint.assembly_features_1)) >= 1;
-  END_ENTITY; -- component_2d_surface_location
+  END_ENTITY;
 
 END_SCHEMA;
 

@@ -13,9 +13,9 @@ USE FROM Land_arm;
 
 USE FROM Layered_interconnect_module_with_printed_component_design_arm;
 
-	SUBTYPE_CONSTRAINT dsatiuv_component_feature_to_physical_usage_view_assignment_subtypes FOR component_feature_to_physical_usage_view_assignment;     
-		ONEOF (component_terminal_to_interconnect_module_join_terminal_assignment,
-		 component_terminal_to_interconnect_module_interface_terminal_assignment);
+	SUBTYPE_CONSTRAINT dsatiuv_component_feature_to_physical_usage_view_assignment_subtypes FOR Component_feature_to_physical_usage_view_assignment;     
+		ONEOF (Component_terminal_to_interconnect_module_join_terminal_assignment,
+		 Component_terminal_to_interconnect_module_interface_terminal_assignment);
 	END_SUBTYPE_CONSTRAINT;
 
  	TYPE interconnect_or_assembly_module_select = SELECT
@@ -27,29 +27,29 @@ USE FROM Layered_interconnect_module_with_printed_component_design_arm;
 
   ENTITY Component_terminal_to_interconnect_module_interface_terminal_assignment
     SUBTYPE OF (Component_feature_to_physical_usage_view_assignment);
-      SELF\component_feature_to_physical_usage_view_assignment.defined_part_feature RENAMED usage_view_terminal	: interconnect_module_interface_terminal;
+      SELF\component_feature_to_physical_usage_view_assignment.defined_part_feature RENAMED usage_view_terminal	: Interconnect_module_interface_terminal;
       SELF\component_feature_to_physical_usage_view_assignment.assigned_design_object RENAMED assigned_terminal	: interconnect_or_assembly_module_select;
     UNIQUE
       UR1 : usage_view_terminal;
-  END_ENTITY; -- component_terminal_to_interconnect_module_interface_terminal_assignment
+  END_ENTITY;
 
   ENTITY Component_terminal_to_interconnect_module_join_terminal_assignment
     SUBTYPE OF (Component_feature_to_physical_usage_view_assignment);
-      SELF\component_feature_to_physical_usage_view_assignment.defined_part_feature RENAMED usage_view_terminal : interconnect_module_join_terminal;
+      SELF\component_feature_to_physical_usage_view_assignment.defined_part_feature RENAMED usage_view_terminal : Interconnect_module_join_terminal;
       SELF\component_feature_to_physical_usage_view_assignment.assigned_design_object RENAMED assigned_terminal	: fabricated_feature_select;
     UNIQUE
       UR1 : usage_view_terminal;
-  END_ENTITY; -- component_terminal_to_interconnect_module_join_terminal_assignment
+  END_ENTITY;
 
   ENTITY Stratum_concept_to_physical_usage_view_assignment;
       assigned_design_object : stratum_concept;
-      defined_part_feature   : part_feature;
+      defined_part_feature   : Part_feature;
       purpose                : OPTIONAL STRING; --ee_name;
     UNIQUE
     	UR1 : defined_part_feature;
     WHERE
       WR1 : NOT ('DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.INTERCONNECT_MODULE_TERMINAL' IN TYPEOF(defined_part_feature));
-  END_ENTITY; -- stratum_concept_to_physical_usage_view_assignment
+  END_ENTITY;
 
 END_SCHEMA;
 

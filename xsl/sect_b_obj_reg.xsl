@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.9 2003/08/18 10:53:07 robbod Exp $
+$Id: sect_b_obj_reg.xsl,v 1.10 2004/11/02 09:51:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -54,7 +54,11 @@ $Id: sect_b_obj_reg.xsl,v 1.9 2003/08/18 10:53:07 robbod Exp $
   <xsl:variable
     name="object_reg" 
     select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
-  <h2>B.1 Document identification </h2>
+  <h2>
+    <a name="b1">
+      B.1 Document identification
+    </a>
+  </h2>
   To provide for unambiguous identification of an information object in an
   open system, the object identifier
   <p align="center">

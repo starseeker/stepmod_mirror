@@ -1,99 +1,53 @@
 (*
-   $Id: mim.exp,v 1.5 2003/01/13 17:39:11 whaas Exp $
+   $Id: mim.exp,v 1.6 2003/02/21 10:54:10 whaas Exp $
    ISO/TC184/SC4 WG12N1779 - ISO/CD-TS - 10303-1143 Building_component - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Building_component_mim;
 
 USE FROM Classification_assignment_mim;
 
 USE FROM Shape_property_assignment_mim;
 
-USE FROM group_schema -- ISO 10303-41
-  (group);
-
-USE FROM product_property_definition_schema -- ISO 10303-41
-  (property_definition,
-   shape_aspect);
-
-USE FROM product_property_representation_schema -- ISO 10303-41
-  (property_definition_representation);
 
 TYPE element_component_classification_item = SELECT BASED_ON classification_item WITH
-   (negative_component,
-    positive_component,
-    opening,
-    recess);
+   (opening);
 END_TYPE;
 
-ENTITY applied_element_component_classification_assignment
-    SUBTYPE OF (applied_classification_assignment);
-    SELF\applied_classification_assignment.items : SET [1:?] OF element_component_classification_item;
-END_ENTITY;
-
 ENTITY element_component_classification_group
-    SUBTYPE OF (group);
-  WHERE
-    WR1: SIZEOF (QUERY (ga <* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +
+SUBTYPE OF (group);
+WHERE
+WR1: SIZEOF (QUERY (ga <* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +
     'CLASSIFICATION_ASSIGNMENT.ASSIGNED_CLASS') |
-    'BUILDING_COMPONENT_MIM.' +
-    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT' IN TYPEOF (ga)))
+    'BUILDING_COMPONENT_MIM.' + 'APPLIED_CLASSIFICATION_ASSIGNMENT' IN TYPEOF (ga)))
     >= 1;
 END_ENTITY;
 
 ENTITY negative_component
-    SUBTYPE OF (shape_aspect);
-  WHERE
-    WR1: (SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +
-    'PROPERTY_DEFINITION.DEFINITION')) >= 1)
-    AND
-    (SIZEOF (QUERY (pd <* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +
-    'PROPERTY_DEFINITION.DEFINITION') |
-    NOT (SIZEOF (USEDIN (pd, 'BUILDING_COMPONENT_MIM.' + 
-    'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) >= 1))) = 0);
-    WR2: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-    ['BUILDING_COMPONENT_MIM.BUILDING_ELEMENT',
-    'BUILDING_COMPONENT_MIM.FIXTURE_EQUIPMENT_ELEMENT',
-    'BUILDING_COMPONENT_MIM.SERVICE_ELEMENT',
-    'BUILDING_COMPONENT_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1;
+SUBTYPE OF (shape_aspect);
+WHERE
+WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
+    ['BUILDING_COMPONENT_MIM.BUILDING_ELEMENT' ]) = 1;
 END_ENTITY;
 
 ENTITY opening
-    SUBTYPE OF (negative_component);
-  WHERE
-    WR1: SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+
-    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
-    WR2: SIZEOF (QUERY (bcca <* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+
-    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS') |
-    NOT (bcca\classification_assignment.assigned_class.description = 'opening')
-    )) = 0;
+SUBTYPE OF (negative_component);
+WHERE
+WR1: SIZEOF (QUERY (aca <* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+
+    'APPLIED_CLASSIFICATION_ASSIGNMENT.ITEMS') |
+    'BUILDING_COMPONENT_MIM.ELEMENT_COMPONENT_CLASSIFICATION_GROUP' IN 
+    TYPEOF(aca\classfication_assignment.assigned_class)
+    )) = 1;
 END_ENTITY;
 
 ENTITY positive_component
-    SUBTYPE OF (shape_aspect);
-  WHERE
-    WR1: (SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +
-    'PROPERTY_DEFINITION.DEFINITION')) >= 1)
-    AND
-    (SIZEOF (QUERY (pd <* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +
-    'PROPERTY_DEFINITION.DEFINITION') |
-    NOT (SIZEOF (USEDIN (pd, 'BUILDING_COMPONENT_MIM.' + 
-    'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) >= 1))) = 0);
-    WR2: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-    ['BUILDING_COMPONENT_MIM.BUILDING_ELEMENT',
-    'BUILDING_COMPONENT_MIM.FIXTURE_EQUIPMENT_ELEMENT',
-    'BUILDING_COMPONENT_MIM.SERVICE_ELEMENT',
-    'BUILDING_COMPONENT_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1;
+SUBTYPE OF (shape_aspect);
+WHERE
+WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
+    ['BUILDING_COMPONENT_MIM.BUILDING_ELEMENT' ]) = 1;
 END_ENTITY;
 
 ENTITY recess
-    SUBTYPE OF (negative_component);
-  WHERE
-    WR1: SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +
-    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
-    WR2: SIZEOF (QUERY (bcca <* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+
-    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS') |
-    NOT (bcca\classification_assignment.assigned_class.description = 'recess')
-    )) = 0;
+SUBTYPE OF (negative_component);
 END_ENTITY;
 
 

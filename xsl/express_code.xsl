@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.54 2004/05/06 21:18:08 thendrix Exp $
+     $Id: express_code.xsl,v 1.56 2004/07/14 23:48:41 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -173,7 +173,6 @@
 
       <xsl:choose>
         <xsl:when test="$resource_ok='true'">
-
           <!-- the IR directory must be all lower case - the schema itself
                sometimes is mixed case -->
           <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
@@ -238,11 +237,6 @@
 
   <xsl:if test="position()!=last()">,<br/></xsl:if>
   <xsl:if test="position()=last()">)</xsl:if>
-  <!-- THX added to print out deprecated note -->
-  <xsl:if test="..//described.item[@item = ./@name]">
-    <xsl:apply-templates select="../described.item[@item=./@name]/description"/>
-  </xsl:if>
-  <!-- end THX added -->
 </xsl:template>
 
 
@@ -261,7 +255,7 @@
     <br/>
     <xsl:if test="position()=1">CONSTANT<br/></xsl:if>
     <A NAME="{$aname}"></A>
-    &#160;&#160;<xsl:value-of select="@name"/> : <xsl:apply-templates select="./*" mode="underlying"/> := <xsl:choose>
+    &#160;&#160;<xsl:value-of select="@name"/> : <xsl:apply-templates select="./*" mode="underlyingconstant"/><xsl:apply-templates select="./*" mode="underlying"/> := <xsl:choose>
     
     <xsl:when test="./aggregate and contains(@expression,',')"><br/>
       &#160;&#160;&#160;<xsl:value-of select="concat(substring-before(@expression,','),',')"/>
@@ -305,7 +299,7 @@
 </xsl:template>
 
 
-<xsl:template match="aggregate" mode="underlying">
+<xsl:template match="aggregate" mode="underlyingconstant">
   <xsl:choose>
     <xsl:when test="@lower">
       <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>

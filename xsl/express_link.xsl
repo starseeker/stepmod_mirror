@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_link.xsl,v 1.1 2001/10/22 09:34:10 robbod Exp $
+     $Id: express_link.xsl,v 1.2 2001/11/21 08:11:54 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -305,8 +305,11 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
 -->
 <xsl:template name="get_object_xref">
   <xsl:param name="object_name"/>
+  <xsl:param name="object_used_in_schema_name"/>
   <xsl:param name="clause" select="section"/>
-  <xsl:variable name="first"
+  
+  <xsl:variable 
+    name="first"
     select="substring-before($global_xref_list, concat('.',$object_name,'|'))"/>
   <xsl:variable name="schema">
     <xsl:call-template name="get_last">
@@ -328,12 +331,16 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
     </xsl:call-template>
   </xsl:variable>
 
-
   <xsl:variable name="express_file_to_ref">
-    <xsl:call-template name="express_file_to_ref">
-      <xsl:with-param name="schema_name" select="$schema"/>
-      <xsl:with-param name="clause" select="$clause"/>
-    </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test="$schema!=$object_used_in_schema_name">
+        <xsl:call-template name="express_file_to_ref">
+          <xsl:with-param name="schema_name" select="$schema"/>
+          <xsl:with-param name="clause" select="$clause"/>
+        </xsl:call-template>        
+      </xsl:when>
+      <xsl:otherwise></xsl:otherwise>
+    </xsl:choose>
   </xsl:variable>
   
   <xsl:variable name="xref" select="concat($express_file_to_ref,'#',$aname)"/>
@@ -447,6 +454,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
         <xsl:call-template name="get_object_xref">
           <xsl:with-param name="clause" select="$clause"/>
           <xsl:with-param name="object_name" select="$lobject_name"/>
+          <xsl:with-param name="object_used_in_schema_name" select="$lobject_used_in_schema_name"/>
         </xsl:call-template>
       </xsl:variable>
       <A HREF="{$xref}">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.126 2003/02/24 10:47:24 robbod Exp $
+$Id: module.xsl,v 1.127 2003/03/02 07:46:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -460,8 +460,8 @@ o=isocs; s=central<br/>
           </xsl:call-template>
         </p>
       </xsl:if>
-      and has been determined to be ready for 
-       <xsl:value-of select="$ballot_cycle_or_pub"/>.
+      and is ready for 
+      <xsl:value-of select="$ballot_cycle_or_pub"/>.
     </td>
   </tr>
  

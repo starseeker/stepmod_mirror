@@ -15,6 +15,10 @@ SCHEMA Extended_geometric_tolerance_mim;
 	USE FROM Shape_property_assignment_mim;
 	USE FROM Value_with_unit_extension_mim;
 	
+	USE FROM Application_context_schema;
+	USE FROM Shape_tolerance_schema;
+	
+	
 ENTITY auxiliary_characteristic_dimension_representation
  SUBTYPE OF (dimensional_characteristic_representation);
 END_ENTITY; -- auxiliary_characteristic_dimension_representation
@@ -265,6 +269,40 @@ WHERE
          'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
          sar\shape_aspect_relationship.name = 'constituent')) = 0);
 END_ENTITY; -- physical_unit_datum_target_set
+
+ENTITY physical_unit_geometric_tolerance
+  SUBTYPE OF (geometric_tolerance, property_definition);
+WHERE
+    WR1: SELF\geometric_tolerance.name = SELF\property_definition.name;
+    WR2: SELF\geometric_tolerance.toleranced_shape_aspect
+         = SELF\property_definition.definition;
+    WR3: (NOT (SIZEOF([
+              'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+              'GEOMETRIC_TOLERANCE_WITH_SPECIFIED_DATUM_SYSTEM',
+              'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+              'LINEAR_PROFILE_TOLERANCE',
+              'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+              'SURFACE_PROFILE_TOLERANCE',
+              'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+              'POSITION_TOLERANCE'] * TYPEOF(SELF)) = 0))
+         OR (SELF\geometric_tolerance.name IN ['circularity',
+             'cylindricity', 'flatness', 'straightness']);
+    WR4: (NOT (SELF\geometric_tolerance.name = 'circularity')) OR
+         (NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'MODIFIED_GEOMETRIC_TOLERANCE' IN TYPEOF(SELF)));
+    WR5: (NOT (SELF\geometric_tolerance.name = 'cylindricity')) OR
+         (NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+             'MODIFIED_GEOMETRIC_TOLERANCE' IN TYPEOF(SELF)));
+    WR6: (NOT (SELF\geometric_tolerance.name = 'flatness')) OR
+         (NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+         'MODIFIED_GEOMETRIC_TOLERANCE' IN TYPEOF(SELF)));
+    WR7: (SIZEOF (QUERY (pugt <* QUERY ( sar <* USEDIN(SELF,
+          'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+          'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+          sar\shape_aspect_relationship.name = 'group geometric tolerance') | 
+          pugt.relating_shape_aspect\shape_aspect.description = 
+          'simultaneous requirement')) <= 1);
+END_ENTITY; -- physical_unit_geometric_tolerance
 
 ENTITY positional_boundary
   SUBTYPE OF (shape_aspect);

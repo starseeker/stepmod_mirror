@@ -20,227 +20,11 @@ SCHEMA Layered_interconnect_module_design_mim;
 	USE FROM Physical_unit_design_view_mim;
 	USE FROM Printed_physical_layout_template_mim;
 	USE FROM Requirement_assignment_mim;
-	
-ENTITY component_shape_aspect
-  SUPERTYPE OF (ONEOF (land, connected_area_component, inter_stratum_feature)
-                ANDOR (thermal_component_shape_aspect))
-  SUBTYPE OF (shape_aspect);
-WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'COMPONENT_DEFINITION' IN
-       TYPEOF (SELF.of_shape.definition);
-  WR2: (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'INTER_STRATUM_FEATURE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'FIDUCIAL',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'CONNECTED_AREA_COMPONENT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'ASSEMBLY_GROUP_COMPONENT_SHAPE_ASPECT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'THERMAL_COMPONENT_SHAPE_ASPECT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'MATERIAL_REMOVAL_COMPONENT_SHAPE_ASPECT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'INTEGRAL_SHIELD',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PROBE_ACCESS_AREA',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'LAND'] * 
-       TYPEOF (SELF)) >= 1) OR
-       (SELF\shape_aspect.description IN [
-       'part template occurrence', 
-       'laminate component', 
-       'laminate text component', 
-       'laminate text string component', 
-       'conductive interconnect element with pre defined transitions', 
-       'join 2 physical connectivity definition supporting',
-     'conductive interconnect element with user defined single transition',
-      'special symbol laminate component', 
-       'primary stratum indicator symbol', 
-       'stratum feature template component']);
-  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_REPRESENTATION'
-       IN TYPEOF (pdr.used_representation)) |
-       sr_pdr.used_representation\representation.name = 'planar projected shape')) 
-       <= 1))) = 0;
-  WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_REPRESENTATION'
-       IN TYPEOF (pdr.used_representation)) |
-       sr_pdr.used_representation\representation.name = '3d bound volume shape')) 
-       <= 1))) = 0;
-  WR5: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN ['laminate text component', 
-       'laminate text string component', 
-       'special symbol laminate component', 
-       'primary stratum indicator symbol',  
-       'stratum feature template component']) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'COMPONENT_DEFINITION' IN
-       TYPEOF (SELF.of_shape.definition)) AND
-       (SELF.of_shape.definition\product_definition.description = 
-                  'laminate component')
-       ));
-  WR6: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description = 
-       'laminate text component') OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PART_TEXT_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)))) = 1));
-  WR7: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['stratum feature template component']) OR
-       (SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'stratum feature implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'STRATUM_FEATURE' IN
-       TYPEOF (sfi.relating_shape_aspect)))) = 1));
-  WR8: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['conductive interconnect element with pre defined transitions', 
-       'join 2 physical connectivity definition supporting',
-       'conductive interconnect element with ' +
-       'user defined single transition']) OR
-       (SIZEOF (QUERY (cc <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed conductor') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'STRATUM_FEATURE' IN
-       TYPEOF (cc.related_shape_aspect)))) = 1));
-(*
-  WR9: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['conductive interconnect element with pre defined transitions', 
-       'join 2 physical connectivity definition supporting',
-       'conductive interconnect element with user ' +
-       'defined single transition']) OR
-       (SIZEOF (QUERY (at <* associated_terminals(SELF)|
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'COMPONENT_TERMINAL' IN
-       TYPEOF (at)) AND
-       (at\shape_aspect.description =
-       'conductive interconnect element terminal')))) >= 2));
-*)
- WR10: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['special symbol laminate component',
-       'primary stratum indicator symbol']) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.related_shape_aspect\shape_aspect.description =
-       'special symbol part template')))) = 1));
- WR11: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description = 
-       'stratum feature template component') OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
-       'stratum feature template')) OR
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)))) <= 1));
- WR12: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['laminate text component']) OR
-       (SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'stratum feature implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'STRATUM_FEATURE' IN
-       TYPEOF (sfi.relating_shape_aspect)))) >= 1));
- WR13: NOT ((SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'INTER_STRATUM_FEATURE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'FIDUCIAL',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'CONNECTED_AREA_COMPONENT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'ASSEMBLY_GROUP_COMPONENT_SHAPE_ASPECT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'THERMAL_COMPONENT_SHAPE_ASPECT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'MATERIAL_REMOVAL_COMPONENT_SHAPE_ASPECT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'INTEGRAL_SHIELD',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PROBE_ACCESS_AREA',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'LAND'] *
-       TYPEOF (SELF)) >= 1) OR
-       (SELF\shape_aspect.description IN [
-       'laminate component',
-       'laminate text component',
-       'laminate text string component',
-       'conductive interconnect element with pre defined transitions', 
-       'join 2 physical connectivity definition supporting',
-     'conductive interconnect element with user defined single transition',
-      'special symbol laminate component',
-       'primary stratum indicator symbol',
-       'stratum feature template component'])) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'COMPONENT_DEFINITION' IN
-       TYPEOF (SELF.of_shape.definition)) AND
-       (SELF.of_shape.definition\
-        product_definition.frame_of_reference\
-        application_context_element.name = 'layout occurrence'));
- WR14: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template')) <= 1;
- WR15: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description =
-       'join 2 physical connectivity definition supporting') OR
-       (SIZEOF ( QUERY (propd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       (SIZEOF (QUERY (ri <* QUERY (propdr <* USEDIN (propd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
-       propdr\property_definition_relationship.name = 'requirement implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'SHAPE_ASPECT_RELATIONSHIP' IN
-       TYPEOF (ri.relating_property_definition.definition)) AND
-       (ri.relating_property_definition.definition\shape_aspect_relationship.name =
-       'ordered physical connectivity definition') AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PHYSICAL_CONNECTIVITY_DEFINITION'
-       IN TYPEOF (ri.relating_property_definition.definition.
-       related_shape_aspect)) AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'PHYSICAL_CONNECTIVITY_DEFINITION' IN TYPEOF
-       (ri.relating_property_definition.definition.
-       relating_shape_aspect)))) = 1))) = 1));
-END_ENTITY; -- component_shape_aspect
+
+SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR interconnect_module_terminal;         
+  (ONEOF (interconnect_module_interface_terminal,
+                      interconnect_module_join_terminal));
+END_SUBTYPE_CONSTRAINT;        
 
 ENTITY conductive_interconnect_element_terminal_link
   SUBTYPE OF (shape_aspect,shape_aspect_relationship);
@@ -292,7 +76,7 @@ END_ENTITY; -- connected_area_component
 ENTITY electrical_isolation_component_shape_aspect
   SUBTYPE OF (filled_area_material_removal_component_shape_aspect);
 END_ENTITY; -- electrical_isolation_component_shape_aspect
-
+(**
 ENTITY externally_defined_interconnect_definition
  SUBTYPE OF (externally_defined_physical_unit);
 WHERE
@@ -300,7 +84,7 @@ WHERE
   WR2: NOT EXISTS(SELF\product_definition.name) OR
        (SELF\product_definition.name = 'interconnect module');
 END_ENTITY; -- externally_defined_interconnect_definition
-
+*)
 ENTITY fiducial
   SUBTYPE OF (component_shape_aspect);
 WHERE
@@ -1165,8 +949,7 @@ WHERE
 END_ENTITY; -- physical_network
 
 ENTITY plated_inter_stratum_feature
-  SUPERTYPE OF (ONEOF(plated_passage,plated_cutout_edge_segment, 
- plated_interconnect_module_edge_segment))
+  SUPERTYPE OF (plated_passage)
   SUBTYPE OF (inter_stratum_feature);
 WHERE
   WR1: (SELF\shape_aspect.description IN ['bonded conductive base blind via', 

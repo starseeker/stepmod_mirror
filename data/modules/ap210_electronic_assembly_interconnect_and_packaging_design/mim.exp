@@ -95,6 +95,7 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_mim;
 	USE FROM Interface_component_mim;
 	USE FROM Land_mim;
 	USE FROM Layered_3d_shape_mim;
+	USE FROM Layered_interconnect_module_3d_shape_mim;
 	USE FROM Layered_interconnect_module_design_mim;
 	USE FROM Layered_interconnect_module_with_printed_component_design_mim;
 	USE FROM Layered_shape_mim;
@@ -145,6 +146,10 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_mim;
 	USE FROM Via_component_mim;
 	USE FROM Wireframe_2d_mim;
 
+	USE FROM Contract_schema;
+	USE FROM Presentation_definition_schema;	
+	USE FROM Presentation_resource_schema;
+
 SUBTYPE_CONSTRAINT component_definition_subtypes FOR component_definition;         
   (ONEOF (printed_component, packaged_component, routed_physical_component)
                 ANDOR (thermal_component) ANDOR (cable_component));
@@ -162,19 +167,36 @@ SUBTYPE_CONSTRAINT model_parameter_subtypes FOR model_parameter;
                rule_function_range_parameter));
 END_SUBTYPE_CONSTRAINT;               
 
+SUBTYPE_CONSTRAINT physical_unit_subtypes FOR physical_unit;         
+ (ONEOF (bare_die, 
+          package, 
+          packaged_part, 
+          assembly_definition, 
+          interconnect_definition,
+          reference_packaged_part_assembly_implementation,
+          reference_packaged_part_interconnect_implementation));
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT shape_definition_3d_intersection_subtypes FOR shape_definition_3d_intersection;         
+  (ONEOF (edge_segment_cross_section,
+              pre_defined_parallel_datum_axis_symbol_3d_2d_relationship,
+              pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship,
+              pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship));
+END_SUBTYPE_CONSTRAINT;        
+
 TYPE ap210_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
      (action,
       action_directive,
       certification,
-      change,
-      change_request,
+--      change,
+--      change_request,
       configuration_effectivity,
       configuration_item,
       contract,
       date,
       directed_action,
       document,
-      model_parameter_relationship,
+      general_property_relationship,
       product,
       product_definition,
       product_definition_relationship,
@@ -184,8 +206,8 @@ TYPE ap210_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_it
       requirement_allocation_group,
       security_classification,
       shape_aspect_relationship,
-      start_request,
-      start_work,
+--      start_request,
+--      start_work,
       versioned_action_request);
 END_TYPE; --ap210_approval_item
 
@@ -212,7 +234,7 @@ END_TYPE; --ap210_contract_item
 TYPE ap210_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH 
      (approval_person_organization,
       certification,
-      change,
+--      change,
       contract,
       directed_action,
       document,
@@ -225,7 +247,7 @@ END_TYPE; --ap210_date_and_time_item
 TYPE ap210_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
      (action_method,
       assembly_component_usage,
-      bond_category,
+--      bond_category,
       characterized_object,
       component_definition,
       component_feature,
@@ -279,7 +301,7 @@ TYPE ap210_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organiz
 END_TYPE; --ap210_organization_item
 
 TYPE ap210_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
-     (change,
+     (--change,
       configuration_item,
       contract,
       document,
@@ -313,17 +335,12 @@ TYPE ap210_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED
       product_definition);
 END_TYPE; --ap210_security_classification_item
 
-TYPE document_identifier_assigned_item = SELECT
-     (document);
-END_TYPE;
-
 TYPE ap210_frozen_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON frozen_assigned_item WITH 
      (alternate_product_relationship,
       applied_date_and_time_assignment,
       applied_document_reference,
       applied_group_assignment,
       characterized_object,
-      colour,
       component_definition,
       component_shape_aspect,
       composite_curve_segment,
@@ -401,7 +418,6 @@ TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON man
       approval_status,
       certification,
       characterized_object,
-      colour,
       composite_curve_segment,
       configuration_effectivity,
       configuration_item,
@@ -454,7 +470,6 @@ END_TYPE; -- managed_design_object
 TYPE owner_assigned_item = SELECT
      (alternate_product_relationship,
       characterized_object,
-      colour,
       component_definition,
       component_shape_aspect,
       composite_curve_segment,
@@ -840,80 +855,6 @@ there will be an ordered list of assigned_functional_unit_terminals.
 *)
 (*
 </EXPRESS.CODE>
-<INFORMAL.PROPOSITIONS RULE.TYPES="IP">
-<INFORMAL.PROPOSITIONS.RUL>
-IF the property_definition_representation.used_representation is an
-analytical_model_vector_port] 
-THEN
-property_definition_representation.definition.description shall be an
-integer greater than or equal to 0.
-</INFORMAL.PROPOSITIONS.RUL>
-<INFORMAL.PROPOSITIONS.RUL>
-IF the property_definition_representation.used_representation is an
-analytical_model_vector_port
-THEN
-the combination of the property_definition_representation.used_representation
-and property_definition_representation.definition.description shall be
-unique.
-</INFORMAL.PROPOSITIONS.RUL>
-</INFORMAL.PROPOSITIONS>
-</RULE.DEF>
-</RULE.DEF.CL4>
-
-<RULE.DEF.CL4>
-<RULE.DEF NAME="angular_dimension_with_direction_vector_unique_constraint">
-<RULE.DESCRIPTION>
-<note> This rule may not have been updated to agree with the changes in clause 4.2.</note>
-
-The angular_dimension_with_direction_vector_unique_constraint rule constrains the
-angular_dimension_with_orientation population members, that fill the role of ARM
-angular_dimension_with_direction_vector, so that the ARM measurement_orientation
-attribute shall be unique within the population.
-</RULE.DESCRIPTION>
-<EXPRESS.CODE>
-*)
-RULE angular_dimension_with_direction_vector_unique_constraint FOR
- ( angular_dimension_with_orientation );
-LOCAL
-  p_bag : BAG OF property_definition;
-  pdr_bag : BAG OF property_definition_relationship;
-  pass : BOOLEAN := TRUE;
-  pd_bag : BAG OF property_definition := [];
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(angular_dimension_with_orientation) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  p_bag := QUERY( pd <* USEDIN(angular_dimension_with_orientation[i],
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'PROPERTY_DEFINITION.DEFINITION') | (pd\property_definition.description = 
-         'dimensional location property') );
-  REPEAT j := 1 to SIZEOF(p_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    pdr_bag := QUERY( pdr <* USEDIN(p_bag[j],
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
-((pdr\property_definition_relationship.name = 'measurement orientation') AND
-(pdr.related_property_definition\property_definition.description = 
-        'datum based vector orientation')) );
-    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
-      IF EXISTS(  pdr_bag[k].related_property_definition ) THEN
-        IF ( pdr_bag[k].related_property_definition IN pd_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          pd_bag := pd_bag + pdr_bag[k].related_property_definition;
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass;
-END_RULE; -- angular_dimension_with_direction_vector__unique_constraint
-(*
-</EXPRESS.CODE>
 <formal.propositions rule.types="WR">
 <formal.propositions.rul>
 Every instance of angular_dimension_with_orientation must have a
@@ -1292,14 +1233,14 @@ ARM used_package shall be unique within the population.
 <EXPRESS.CODE>
 *)
 RULE bare_die_unique_constraint FOR
- ( bare_die, externally_defined_bare_die, library_defined_bare_die );
+ ( bare_die); --, externally_defined_bare_die, library_defined_bare_die );
 LOCAL
   bd : BAG OF physical_unit := QUERY( r <* bare_die |
 (r.frame_of_reference.name = 'physical design usage') );
-  edbd : BAG OF physical_unit := QUERY( r <* externally_defined_bare_die |
+(**  edbd : BAG OF physical_unit := QUERY( r <* externally_defined_bare_die |
 (r.frame_of_reference.name = 'physical design usage') );
   ldbd : BAG OF physical_unit := QUERY( r <* library_defined_bare_die |
-(r.frame_of_reference.name = 'physical design usage') );
+(r.frame_of_reference.name = 'physical design usage') ); *)
   pu : BAG OF physical_unit;
   pdr_bag : BAG OF product_definition_relationship;
   fu_bag : BAG OF functional_unit := [];
@@ -2028,83 +1969,6 @@ representation_item or a measure_representation_item when it is used as a charac
 </RULE.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-(*
-</EXPRESS.CODE>
-<Informal.propositions rule.types="IP">
-<Informal.propositions.rul>
-Each representation_item that is supporting the ARM concept of 
-a characteristic shall be specified as the item in an 
-applied_document_reference.
-</Informal.propositions.rul>
-
-</Informal.propositions>
-
-</RULE.DEF>
-</RULE.DEF.CL4>
-<RULE.DEF.CL4>
-<RULE.DEF NAME="unique_characterized_product_category">
-<RULE.DESCRIPTION>
-<note> This rule may not have been updated to agree with the changes in clause 4.2.</note>
-
-The characterized_product_category_unique_constraint rule constrains the characterized_product_category 
-members so that the combination of name inherited from product_category and the document referenced by applied_document_reference
-assigned_document shall be unique within those members.
-</RULE.DESCRIPTION>
-<EXPRESS.CODE>
-*)
-RULE characterized_product_category_unique_constraint FOR
-                  (characterized_product_category); 
-LOCAL 
-  adr : BAG OF applied_document_reference := []; 
-  documents : BAG OF document := []; 
-  labels : BAG OF label := []; 
-  pass : BOOLEAN := TRUE;
-  size_of : LIST OF INTEGER := [];
-END_LOCAL;
-  -- build the set of applied_document_reference that reference characterized_product_category.
-  -- build the set of labels that characterized_product_category references as name.
-
-  REPEAT i := 1 TO SIZEOF(characterized_product_category);
-   adr := adr + USEDIN(characterized_product_category[i],
-   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-   'APPLIED_DOCUMENT_REFERENCE.ITEMS');
-    labels := labels + characterized_product_category[i]\product_category.name;
-  END_REPEAT;
-
-  IF SIZEOF(adr) <> SIZEOF(labels)
-  THEN pass := FALSE;
-  END_IF;
-
-  REPEAT k := 1 TO SIZEOF(adr);
-    documents := documents + adr[k]\document_reference.assigned_document;
-  END_REPEAT;
-  
-  IF SIZEOF(documents) <> SIZEOF(labels)
-  THEN pass := FALSE;
-  END_IF;
- 
-  -- check that each label is related to one and only one instance of document 
-  -- check that each document is related to one and only one label
-  REPEAT i := 1 to SIZEOF(labels);
-   REPEAT j := 1 to SIZEOF(documents);
-    REPEAT k := 1 to SIZEOF(adr);
-     IF ((labels[i] = adr[k].items[1]\product_category.name) AND
-        (documents[j] = adr[k]\document_reference.assigned_document))
-     THEN
-       size_of[i] := size_of[i] + 1;
-     END_IF;
-    END_REPEAT;
-   END_REPEAT;
-  END_REPEAT;
- REPEAT i := 1 to SIZEOF(labels);
-  IF (size_of[i] <> 1)
-  THEN pass := FALSE;
-  END_IF;
- END_REPEAT;
- 
-WHERE
-  WR1: pass;
-END_RULE; -- via_template_terminal_unique_constraint 
 (*
 </EXPRESS.CODE>
 <formal.propositions rule.types="WR">
@@ -4394,111 +4258,6 @@ The datum_target_usage_in_datum_target_set_relationship_constraint rule constrai
 *)
 (*
 </EXPRESS.CODE>
-<Informal.Propositions rule.types="IP">
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum target usage' shall have a related_shape_aspect that is a physical_unit_datum_target.
-</Informal.propositions.rul>
-
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum target usage' shall have a relating_shape_aspect that is a physical_unit_datum_target_set.
-</Informal.propositions.rul>
-
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum target usage' shall have a description that is expressed only by digits and represents a positive integer.
-</Informal.propositions.rul>
-
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum target usage' shall specify a unique combination of relating_shape_aspect and related_shape_aspect.
-</Informal.propositions.rul>
-
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum target usage' shall specify a unique combination of relating_shape_aspect and description.
-</Informal.propositions.rul>
-
-</Informal.propositions>
-
-</RULE.DEF>
-</RULE.DEF.CL4>
-<RULE.DEF.CL4>
-<RULE.DEF NAME="datum_target_usage_in_datum_target_set_relationship_unique_constraint">
-<RULE.DESCRIPTION>
-<note> This rule may not have been updated to agree with the changes in clause 4.2.</note>
-
-The datum_target_usage_in_datum_target_set_relationship_unique_constraint rule
-constrains shape_aspect_relationship population members, that fill the role of ARM
-datum_target_usage_in_datum_target_set_relationship, so that the combination of ARM
-used_datum_target and ARM defined_datum_target attributes and that the combination
-of ARM datum_target_number and ARM defined_datum_target attributes shall be unique
-within the population.
-</RULE.DESCRIPTION>
-<EXPRESS.CODE>
-*)
-RULE datum_target_usage_in_datum_target_set_relationship_unique_constraint
-FOR ( shape_aspect_relationship );
-LOCAL
-  dtuidts : BAG OF shape_aspect_relationship := 
-    QUERY( sar <* shape_aspect_relationship |
-(sar\shape_aspect_relationship.name = 'datum target usage'));
-  pudts_bag : BAG OF physical_unit_datum_target_set := [];
-  sar_bag : BAG OF shape_aspect_relationship;
-  pass1 : BOOLEAN := TRUE;
-  pudt_bag : BAG OF physical_unit_datum_target;
-  pass2 : BOOLEAN := TRUE;
-  num_bag : BAG OF STRING;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(dtuidts) by 1;
-  IF EXISTS( dtuidts[i].relating_shape_aspect ) THEN
-    IF( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'PHYSICAL_UNIT_DATUM_TARGET_SET' IN 
-   TYPEOF(dtuidts[i].relating_shape_aspect) ) THEN
-      IF ( NOT ( dtuidts[i].relating_shape_aspect IN pudts_bag ) ) THEN
-        pudts_bag := pudts_bag + dtuidts[i].relating_shape_aspect;
-      END_IF;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(pudts_bag) by 1;
-  IF ( NOT (pass1 AND pass2) ) THEN ESCAPE;
-  END_IF;
-  num_bag := [];
-  pudt_bag := [];
-  sar_bag := 
-     QUERY( sar <* dtuidts | (sar.relating_shape_aspect :=: pudts_bag[i]) );
-  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
-    IF ( NOT (pass1 AND pass2) ) THEN ESCAPE;
-    END_IF;
-    IF ( pass1 AND 
-          ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'PHYSICAL_UNIT_DATUM_TARGET' IN 
-               TYPEOF(sar_bag[j].related_shape_aspect)) ) THEN
-      IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
-        IF ( sar_bag[j].related_shape_aspect IN pudt_bag ) THEN
-          pass1 := FALSE;
-        ELSE
-          pudt_bag := pudt_bag + sar_bag[j].related_shape_aspect;
-        END_IF;
-      END_IF;
-    END_IF;
-    IF ( pass2 ) THEN
-      IF EXISTS( sar_bag[j]\shape_aspect_relationship.description ) THEN
-        IF ( sar_bag[j]\shape_aspect_relationship.description IN num_bag ) THEN
-          pass2 := FALSE;
-        ELSE
-          num_bag := num_bag + sar_bag[j]\shape_aspect_relationship.description;
-        END_IF;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass1;
-  WR2: pass2;
-END_RULE; -- datum_target_usage_in_datum_target_set_relationship_unique_-
-          -- constraint
-(*
-</EXPRESS.CODE>
 <formal.propositions rule.types="WR">
 <formal.propositions.rul>
 Every instance of shape_aspect_relationship with a name of 'datum target usage'
@@ -4520,89 +4279,6 @@ The datum_usage_in_datum_system_relationship_constraint rule constrains the use 
 </RULE.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-(*
-</EXPRESS.CODE>
-<Informal.Propositions rule.types="IP">
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum usage in datum system' shall have a related_shape_aspect that is a physical_unit_datum, and the name of physical_unit_datum shall be either 'common datum' or 'single datum'
-</Informal.propositions.rul>
-
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum usage in datum system' shall have a relating_shape_aspect that is a datum_system.
-</Informal.propositions.rul>
-
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum usage in datum system' shall have exactly one property_definition with a description of 'datum precedence assignment'.
-</Informal.propositions.rul>
-
-<Informal.propositions.rul>
-Each shape_aspect_relationship with a name of 'datum usage in datum system' shall specify a unique combination of relating_shape_aspect and related_shape_aspect.
-</Informal.propositions.rul>
-
-</Informal.propositions>
-
-</RULE.DEF>
-</RULE.DEF.CL4>
-<RULE.DEF.CL4>
-<RULE.DEF NAME="datum_usage_in_datum_system_relationship_unique_constraint">
-<RULE.DESCRIPTION>
-<note> This rule may not have been updated to agree with the changes in clause 4.2.</note>
-
-The datum_usage_in_datum_system_relationship_unique_constraint rule constrains
-shape_aspect_relationship population members, that fill the role of ARM
-datum_usage_in_datum_system_relationship, so that the combination of ARM
-established_datum_system and ARM used_datum attributes shall be unique
-within the population.
-</RULE.DESCRIPTION>
-<EXPRESS.CODE>
-*)
-RULE datum_usage_in_datum_system_relationship_unique_constraint FOR
- ( shape_aspect_relationship );
-LOCAL
-  duidsr : BAG OF shape_aspect_relationship := 
-      QUERY( sar <* shape_aspect_relationship |
-(sar\shape_aspect_relationship.name = 'datum usage in datum system'));
-  ds_bag : BAG OF datum_system := [];
-  sar_bag : BAG OF shape_aspect_relationship;
-  pass : BOOLEAN := TRUE;
-  pud_bag : BAG OF physical_unit_datum;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(duidsr) by 1;
-  IF EXISTS( duidsr[i].relating_shape_aspect ) THEN
-    IF( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'DATUM_SYSTEM' IN TYPEOF(duidsr[i].relating_shape_aspect) ) THEN
-      IF ( NOT ( duidsr[i].relating_shape_aspect IN ds_bag ) ) THEN
-        ds_bag := ds_bag + duidsr[i].relating_shape_aspect;
-      END_IF;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(ds_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  pud_bag := [];
-  sar_bag := 
-     QUERY( sar <* duidsr | (sar.relating_shape_aspect :=: ds_bag[i]) );
-  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
-    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
-      IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'PHYSICAL_UNIT_DATUM' IN 
-               TYPEOF(sar_bag[j].related_shape_aspect) ) THEN
-        IF ( sar_bag[j].related_shape_aspect IN pud_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          pud_bag := pud_bag + sar_bag[j].related_shape_aspect;
-        END_IF;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass;
-END_RULE; -- datum_usage_in_datum_system_relationship_unique_constraint
 (*
 </EXPRESS.CODE>
 <formal.propositions rule.types="WR">
@@ -6239,7 +5915,7 @@ attribute shall be unique within the population.
 <EXPRESS.CODE>
 *)
 RULE dimension_location_with_direction_vector_unique_constraint FOR
- ( dimensional_location_with_direction );
+ ( dimensional_location );
 LOCAL
   p_bag : BAG OF property_definition;
   pdr_bag : BAG OF property_definition_relationship;
@@ -6249,10 +5925,10 @@ LOCAL
   place_bag : BAG OF placement := [];
 END_LOCAL;
 
-REPEAT i := 1 to SIZEOF(dimensional_location_with_direction) by 1;
+REPEAT i := 1 to SIZEOF(dimensional_location) by 1;
   IF ( NOT pass ) THEN ESCAPE;
   END_IF;
-  p_bag := QUERY( pd <* USEDIN(dimensional_location_with_direction[i],
+  p_bag := QUERY( pd <* USEDIN(dimensional_location[i],
 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
 'PROPERTY_DEFINITION.DEFINITION') | 
 (pd\property_definition.description = 'dimensional location property') );
@@ -6923,52 +6599,6 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE; -- edge_segment_vertex_unique_constraint
-(*
-</EXPRESS.CODE>
-<formal.propositions rule.types="WR">
-<formal.propositions.rul>
-Every instance of edge_segment_vertex with a name of 'single datum' must have
-unique description attributes on descriptive_representation_item entities that are
-the first entry in the used_representation.items attribute of
-property_definition_representation entities that have said edge_segment_vertex
-entities as the property_definition_representation's definition.defintion attribute.
-</formal.propositions.rul>
-</formal.propositions>
-</RULE.DEF>
-</RULE.DEF.CL4>
-<RULE.DEF.CL4>
-<RULE.DEF NAME="ee_colour_unique_constraint">
-<RULE.DESCRIPTION>
-<note> This rule may not have been updated to agree with the changes in clause 4.2.</note>
-
-The ee_colour_unique_constraint rule constrains the colour_specification.name population members to satisfy the uniqueness requirement of the ARM application object Ee_colour.
-</RULE.DESCRIPTION>
-
-<EXPRESS.CODE>
-*)
-
-RULE ee_colour_unique_constraint FOR (colour_rgb, colour_specification);
-
-LOCAL
-  r : BAG OF colour_rgb := QUERY (r <* colour_rgb | TRUE);
-  pass : BOOLEAN := TRUE;
-  name_bag : BAG OF string := [];
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF (r) by 1;
-  IF EXISTS( r[i]\colour_specification.name ) THEN
-    IF (r[i]\colour_specification.name IN name_bag) THEN
-      pass := FALSE;
-      ESCAPE;
-    ELSE
-      name_bag := name_bag + r[i]\colour_specification.name;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-WHERE
-  WR1 : pass;
-END_RULE; -- ee_colour_unique_constraint
 
 (*
 </EXPRESS.CODE>
@@ -10180,14 +9810,14 @@ fill the role of ARM package, to have unique members in their ARM case_style att
 <EXPRESS.CODE>
 *)
 RULE package_unique_constraint FOR
- ( package, externally_defined_package, library_defined_package );
+ ( package); --, externally_defined_package, library_defined_package );
 LOCAL
   p : BAG OF physical_unit := QUERY( r <* package |
 (r.frame_of_reference.name = 'physical design usage') );
-  edp : BAG OF physical_unit := QUERY( r <* externally_defined_package |
+(**  edp : BAG OF physical_unit := QUERY( r <* externally_defined_package |
 (r.frame_of_reference.name = 'physical design usage') );
   ldp : BAG OF physical_unit := QUERY( r <* library_defined_package |
-(r.frame_of_reference.name = 'physical design usage') );
+(r.frame_of_reference.name = 'physical design usage') ); *)
   pu : BAG OF physical_unit;
   pd_bag : BAG OF property_definition;
   pdr_bag : BAG OF property_definition_representation;
@@ -10349,12 +9979,9 @@ The uniqueness constraint is divided between this construct and the the constrai
 <EXPRESS.CODE>
 *)
 RULE packaged_part_unique_constraint FOR
- ( packaged_part, externally_defined_packaged_part, 
-   library_defined_packaged_part);
+ ( packaged_part); --, externally_defined_packaged_part, library_defined_packaged_part);
 LOCAL
-  pp : SET OF physical_unit := packaged_part +
-                   externally_defined_packaged_part +
-                    library_defined_packaged_part;
+  pp : SET OF physical_unit := packaged_part; -- + externally_defined_packaged_part + library_defined_packaged_part;
   pdr_bag : BAG OF product_definition_relationship;
   pdf_bag : BAG OF product_definition_formation := [];
   pass : BOOLEAN := TRUE;
@@ -10368,11 +9995,12 @@ REPEAT i := 1 to SIZEOF(pp) by 1;
 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
 ((pdr\product_definition_relationship.name = 'used package')
 AND (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'PACKAGE' IN TYPEOF(pdr.relating_product_definition)) OR
+'PACKAGE' IN TYPEOF(pdr.relating_product_definition)) (** OR
 ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
 'EXTERNALLY_DEFINED_PACKAGE' IN TYPEOF(pdr.relating_product_definition)) OR
 ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'LIBRARY_DEFINED_PACKAGE' IN TYPEOF(pdr.relating_product_definition)) ) ) );
+'LIBRARY_DEFINED_PACKAGE' IN TYPEOF(pdr.relating_product_definition))  *)
+) ) );
     pdf_bag := pdf_bag + pdr_bag[1].relating_product_definition.formation;
     REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
      IF ( NOT pass ) THEN ESCAPE; END_IF;
@@ -10612,10 +10240,10 @@ sa_bag[j].of_shape.definition.related_product_definition,
 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
 'PROPERTY_DEFINITION.DEFINITION') | (SIZEOF([
 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'BARE_DIE','ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'EXTERNALLY_DEFINED_BARE_DIE',
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'LIBRARY_DEFINED_BARE_DIE'] * TYPEOF(pd.definition))>0) );
+'BARE_DIE'
+-- ,'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'EXTERNALLY_DEFINED_BARE_DIE',
+-- 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'LIBRARY_DEFINED_BARE_DIE'
+] * TYPEOF(pd.definition))>0) );
     REPEAT k := 1 to SIZEOF(pd_bag) by 1;
       IF ( NOT pass ) THEN ESCAPE;
       END_IF;
@@ -10683,11 +10311,10 @@ REPEAT i := 1 to SIZEOF(pd) by 1;
     IF( (pd[i].relating_product_definition.frame_of_reference.name =
 'physical design usage') AND (SIZEOF(
 ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'PACKAGED_PART',
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'EXTERNALLY_DEFINED_PACKAGED_PART',
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-'LIBRARY_DEFINED_PACKAGED_PART'] * 
+'PACKAGED_PART'
+-- ,'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'EXTERNALLY_DEFINED_PACKAGED_PART',
+-- 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'LIBRARY_DEFINED_PACKAGED_PART'
+] * 
 TYPEOF(pd[i].relating_product_definition))>0) ) THEN
       IF( NOT( pd[i].relating_product_definition IN pu_bag ) ) THEN
         pu_bag := pu_bag + pd[i].relating_product_definition;
@@ -15634,8 +15261,6 @@ WHERE
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'DATUM_REFERENCE_FRAME',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'DATUM_SYSTEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'DERIVED_SHAPE_ASPECT',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'DEVICE_TERMINAL_MAP',
@@ -15728,8 +15353,6 @@ WHERE
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'DATUM_REFERENCE_FRAME',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'DATUM_SYSTEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'DEVICE_TERMINAL_MAP',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'FABRICATION_JOINT',
@@ -15817,8 +15440,6 @@ WHERE
        'COMPONENT_TERMINAL',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'DATUM_REFERENCE_FRAME',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'DATUM_SYSTEM',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'DERIVED_SHAPE_ASPECT',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -16070,7 +15691,7 @@ WHERE
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'ANGULAR_DIMENSION_WITH_ORIENTATION',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'DIMENSIONAL_LOCATION_WITH_DIRECTION',
+       'DIMENSIONAL_LOCATION',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'DIMENSIONAL_LOCATION_WITH_PATH']
        * TYPEOF(dl)) <= 1))) = 0;
@@ -16577,34 +16198,6 @@ END_RULE; -- subtype_mandatory_address
 </EXPRESS.CODE>
 <formal.propositions rule.types="WR"> 
 <formal.propositions.rul>
-Each instance of address shall be of type personal_address or
-organizational_address.
-</formal.propositions.rul>
-</formal.propositions>
-</RULE.DEF>
-</RULE.DEF.CL4>
-
-<RULE.DEF.CL4>
-<RULE.DEF NAME="subtype_mandatory_colour">
-<RULE.DESCRIPTION>
-<note> This rule may not have been updated to agree with the changes in clause 4.2.</note>
-
-The subtype_mandatory_colour rule requires all colour entities to be colour_rgb.
-</RULE.DESCRIPTION>
-<EXPRESS.CODE>
-*)
-RULE subtype_mandatory_colour FOR (colour);
-WHERE
-  WR1: SIZEOF (QUERY (c <* colour |
-       NOT (
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'COLOUR_RGB'
-       IN TYPEOF (c)))) = 0;
-END_RULE; -- subtype_mandatory_colour
-(*
-</EXPRESS.CODE>
-<formal.propositions rule.types="WR"> 
-<formal.propositions.rul>
 Each instance of colour shall be of type colour_rgb.
 </formal.propositions.rul>
 </formal.propositions>
@@ -16739,12 +16332,12 @@ WHERE
        'BOND_CATEGORY',  
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'EXTERNALLY_DEFINED_CURVE_FONT',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'EXTERNALLY_DEFINED_FUNCTIONAL_UNIT',
+--       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+--       'EXTERNALLY_DEFINED_FUNCTIONAL_UNIT',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
        'EXTERNALLY_DEFINED_HATCH_STYLE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-       'EXTERNALLY_DEFINED_PHYSICAL_UNIT',
+--       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+--       'EXTERNALLY_DEFINED_PHYSICAL_UNIT',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
        'EXTERNALLY_DEFINED_REPRESENTATION_ITEM',
        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -18360,7 +17953,7 @@ The first component_definition should be the only component_definition located.
 <EXPRESS.CODE>
 *)
 FUNCTION component_definition_located_by_component_location 
-                   (cl : component_location) : component_definition; 
+                   (cl : component_2d_location) : component_definition; 
 LOCAL
   pdr : BAG OF property_definition_representation := USEDIN (cl,
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -18668,7 +18261,7 @@ The is_bottom_footprint_occurrence_location function returns true if the compone
 </FUNCTION.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-FUNCTION is_bottom_footprint_occurrence_location ( cl: component_location) : BOOLEAN; 
+FUNCTION is_bottom_footprint_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
 LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -18764,7 +18357,7 @@ The is_bottom_padstack_occurrence_location function returns true if the componen
 </FUNCTION.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-FUNCTION is_bottom_padstack_occurrence_location ( cl: component_location) : BOOLEAN; 
+FUNCTION is_bottom_padstack_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
 LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -18827,7 +18420,7 @@ ELSE
 END_IF;
 END_FUNCTION;
 
-FUNCTION is_interconnect_module_component_location ( cl: component_location) : BOOLEAN; 
+FUNCTION is_interconnect_module_component_location ( cl: component_2d_location) : BOOLEAN; 
 LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -18957,7 +18550,7 @@ The is_laminate_component_location function returns true if the component_locati
 </FUNCTION.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-FUNCTION is_laminate_component_location ( cl: component_location) : BOOLEAN; 
+FUNCTION is_laminate_component_location ( cl: component_2d_location) : BOOLEAN; 
 LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -19054,7 +18647,7 @@ The is_symmetrical_footprint_occurrence_location function returns true if the co
 </FUNCTION.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-FUNCTION is_symmetrical_footprint_occurrence_location ( cl: component_location) : BOOLEAN; 
+FUNCTION is_symmetrical_footprint_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
 LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -19151,7 +18744,7 @@ The is_symmetrical_padstack_occurrence_location function returns true if the com
 </FUNCTION.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-FUNCTION is_symmetrical_padstack_occurrence_location ( cl: component_location) : BOOLEAN; 
+FUNCTION is_symmetrical_padstack_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
 LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -19248,7 +18841,7 @@ The is_top_footprint_occurrence_location function returns true if the component_
 </FUNCTION.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-FUNCTION is_top_footprint_occurrence_location ( cl: component_location) : BOOLEAN; 
+FUNCTION is_top_footprint_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
 LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -19345,7 +18938,7 @@ The is_top_padstack_occurrence_location function returns true if the component_l
 </FUNCTION.DESCRIPTION>
 <EXPRESS.CODE>
 *)
-FUNCTION is_top_padstack_occurrence_location ( cl: component_location) : BOOLEAN; 
+FUNCTION is_top_padstack_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
 LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
@@ -19366,61 +18959,6 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;
-END_FUNCTION;
-(*
-</EXPRESS.CODE>
-
-</FUNCTION.DEF>
-</FUNCTION.DEF.CL4>
-
-<FUNCTION.DEF.CL4>
-<FUNCTION.DEF NAME="unique_version_change_order">
-<FUNCTION.DESCRIPTION>
-The unique_version_change_order boolean function accepts an action
-as input and returns true if the ordered_action invoked by the
-action incorporates requested_action entities which reference
-different product_definition_formation entities and those
-product_definition_formation entities reference different product entities.
-This function will return false if the requested_action entities reference
-product_definition_formation entities that are incorporated by an
-action and those product_definition_formation entities reference the
-same product.  This function will be true if a change modifies one version 
-for each product considered, where multiple products are considered.  A
-single change shall not modify different versions of a single product.
-</FUNCTION.DESCRIPTION>
-<EXPRESS.CODE>
-*)
-FUNCTION unique_version_change_order (c : action;
-  schema_name : STRING) : BOOLEAN;
-LOCAL ords       : action_directive := c\directed_action.directive; 
-assign     : SET OF action_request_assignment := []; 
-versions   : SET OF product_definition_formation := []; 
-END_LOCAL;
-  -- build the set of change_requests that are the assigned
-  -- versioned_action_requests incorporated by the action_directive
-
-  REPEAT i := 1 TO SIZEOF(ords.requests);
-  assign := assign + QUERY (ara <* bag_to_set (USEDIN (ords.requests[i],
-            schema_name + '.ACTION_REQUEST_ASSIGNMENT.' +
-            'ASSIGNED_ACTION_REQUEST')) | 
-            schema_name + '.CHANGE_REQUEST'
-             IN TYPEOF (ara));
-  END_REPEAT;
-
-  -- gather the product_definition_formations that are referenced by the
-  -- change_requests
-
-  REPEAT k := 1 TO SIZEOF(assign);
-    versions := versions + assign[k]\change_request.items;
-  END_REPEAT;
-
-  -- check that no more than one product_definition_formation 
-  -- references the same
-  -- instance of product
-
-  RETURN (SIZEOF (QUERY (vers <* versions |
-          NOT (SIZEOF (QUERY (other_vers <* versions - vers |
-          vers.of_product :=: other_vers.of_product)) = 0))) = 0);
 END_FUNCTION;
 (*
 </EXPRESS.CODE>

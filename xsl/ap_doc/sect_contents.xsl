@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.40 2004/11/04 16:48:24 robbod Exp $
+$Id: sect_contents.xsl,v 1.41 2004/11/08 16:24:33 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -287,6 +287,15 @@ $Id: sect_contents.xsl,v 1.40 2004/11/04 16:48:24 robbod Exp $
         Annex <xsl:value-of select="$al_changes"/> Detailed changes
       </a>
       <br/>
+      <xsl:apply-templates select="./changes/change_detail/annex_clause" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+        <xsl:with-param name="short" select="'no'"/>
+        <xsl:with-param name="annex_file"  select="'annex_changes'"/>
+        <xsl:with-param name="annex_letter"  select="$al_changes"/>
+      <xsl:with-param name="max-depth" select="3"/>
+      <xsl:with-param name="current-depth" select="0"/>
+
+      </xsl:apply-templates>
     </xsl:if>
 
     <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
@@ -763,7 +772,9 @@ $Id: sect_contents.xsl,v 1.40 2004/11/04 16:48:24 robbod Exp $
   <xsl:param name="annex_letter"/>
   <xsl:param name="annex_file"/>
   <xsl:param name="indentation"/>
-  <xsl:if test="$short='no'">
+  <xsl:param name="max-depth"/>
+  <xsl:param name="current-depth"/>
+  <xsl:if test="$short = 'no' and $max-depth != $current-depth" >
     <xsl:variable name="annex_no">
       <xsl:apply-templates select="." mode="number"/>
     </xsl:variable>
@@ -779,6 +790,8 @@ $Id: sect_contents.xsl,v 1.40 2004/11/04 16:48:24 robbod Exp $
         <xsl:with-param name="annex_file"  select="$annex_file"/>
       <xsl:with-param name="annex_letter"  select="$annex_letter"/>
       <xsl:with-param name="indentation" select="$new_indentation"/>
+      <xsl:with-param name="max-depth" select="$max-depth"/>
+      <xsl:with-param name="current-depth" select="$current-depth + 1"/>
     </xsl:apply-templates>
   </xsl:if>
 </xsl:template>

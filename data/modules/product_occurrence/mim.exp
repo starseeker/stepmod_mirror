@@ -1,4 +1,4 @@
-(* $Id: mim.exp,v 1.1 2002/09/13 07:57:02 goset1 Exp $
+(* $Id: mim.exp,v 1.2 2002/10/02 15:53:29 goset1 Exp $
 N	ISO/CD-TS 10303-1063	Product occurrence	Express MIM *)
 
 SCHEMA Product_occurrence_mim;
@@ -22,7 +22,7 @@ RULE restrict_part_occurrence FOR (product_definition);
 LOCAL
   part_occurrences: SET[1:?] OF product_definition := [];
 END_LOCAL;
-part_occurrences := QUERY(pd <* product_definition | ( pd.frame_of_reference.name = 'part occurrence' ));
+  part_occurrences := QUERY(pd <* product_definition | ( pd.frame_of_reference.name = 'part occurrence' ));
 WHERE
 wr1: SIZEOF ( QUERY ( pd <* part_occurrences | ( NOT( pd.name IN 
 [ 'single instance' , 'selected instance' ,'quantified instance' , 'specified instance' ] ) ) ) ) = 0;
@@ -68,5 +68,32 @@ pdor <* USEDIN ( pd , 'PRODUCT_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_OCCURRENCE_
 'OCCURRENCE' ) | 'PRODUCT_OCCURRENCE_MIM.' +'SPECIFIED_HIGHER_USAGE_OCCURRENCE' IN TYPEOF ( pdor.
 occurrence_usage ) ) ) = 0 ) ) ) = 0;
 END_RULE;
+
+RULE restrict_part_occurrence_category FOR (product_definition);
+LOCAL
+  part_occurrences: SET OF product_definition: := [];
+END_LOCAL;
+  part_occurrences :=  QUERY( pd <* product_definition |(pd.frame_of_reference.name = 'part occurrence'));
+WHERE
+WR1: SIZEOF( QUERY( pd <* part_occurrences | 
+(SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+  prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0;
+END_RULE;
+
+FUNCTION types_of_product (obj : product) : SET OF STRING; 
+LOCAL
+  category_assignments: BAG OF product_related_product_category;
+  categories: SET OF STRING:=[];
+  i: INTEGER;
+END_LOCAL;
+
+category_assignments := USEDIN(obj,'PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+   
+REPEAT i := 1 TO HIINDEX(category_assignments) BY 1;
+   categories := categories + category_assignments[i].category.name;
+END_REPEAT;
+
+RETURN(categories);
+END_FUNCTION;
 
 END_SCHEMA;

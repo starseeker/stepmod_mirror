@@ -60,7 +60,7 @@
 LOCAL
   part_occurrences: SET[1:?] OF product_definition := [];
 END_LOCAL;
-part_occurrences := QUERY(pd &lt;* product_definition | ( pd.frame_of_reference.name = 'part occurrence' ));
+  part_occurrences := QUERY(pd &lt;* product_definition | ( pd.frame_of_reference.name = 'part occurrence' ));
       </algorithm>
 
       <where
@@ -89,6 +89,52 @@ part_occurrences := QUERY(pd &lt;* product_definition | ( pd.frame_of_reference.
       </where>
 
     </rule>
+
+    <rule
+      name="restrict_part_occurrence_category"
+      appliesto="product_definition">
+      <algorithm>
+LOCAL
+  part_occurrences: SET OF product_definition: := [];
+END_LOCAL;
+  part_occurrences :=  QUERY( pd &lt;* product_definition |(pd.frame_of_reference.name = 'part occurrence'));
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF( QUERY( pd &lt;* part_occurrences | (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'PRODUCT_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |   prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0">
+      </where>
+
+    </rule>
+
+    <function
+      name="types_of_product">
+      <parameter
+        name="obj">
+        <typename
+          name="product"/>
+      </parameter>
+      <aggregate
+        type="SET"/>
+      <builtintype
+        type="STRING"/>
+      <algorithm>
+LOCAL
+  category_assignments: BAG OF product_related_product_category;
+  categories: SET OF STRING:=[];
+  i: INTEGER;
+END_LOCAL;
+
+category_assignments := USEDIN(obj,'PRODUCT_OCCURRENCE_MIM.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+   
+REPEAT i := 1 TO HIINDEX(category_assignments) BY 1;
+   categories := categories + category_assignments[i].category.name;
+END_REPEAT;
+
+RETURN(categories);
+      </algorithm>
+
+    </function>
 
   </schema>
 

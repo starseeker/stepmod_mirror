@@ -34,7 +34,7 @@
  </contacts>
 
  <purpose>
-This part of ISO 10303 specifies an application module for the characterization of occurrences of objects represented with the entity Product and its subtypes, in a product structure.
+This part of ISO 10303 specifies an application module for the characterization of occurrences in a product structure, of objects represented with the entity Product and its subtypes.
  </purpose>
 
  <inscope>
@@ -52,11 +52,27 @@ This part of ISO 10303 specifies an application module for the characterization 
  <li>description of the use case of a part occurrence in a product family.</li>
  </outscope>
 
-<!--
- <normrefs/>
+ <normrefs>
+  <normref.inc normref="ref10303-44.2000"/>
+  <normref.inc module.name="part_and_version_identification">
+			<term.ref linkend="NCM"/>
+			<term.ref linkend="part"/>
+  </normref.inc>
+  <normref.inc module.name="item_definition_structure">
+	</normref.inc>
+ </normrefs>
 
- <definition/>
 
+<definition>
+   <term id="product_structure">product structure</term>
+<def>a characterization of the composition of a product. 
+This characterization may be a hierarchical representation where all assembly relationships are explicit or 
+a partly implicit one, where some nodes are not related to a product but to a family of products with relationships conditioned by boolean expressions.
+<example number="1">In the first approach, a part A would be specified as resulting from the assembly of a part B and a part C.</example>
+<example number="2">The description of the product structure of products with a huge diversity, like vehicles proposed by major car manufacturers, is usually done using the second approach.</example>
+</def>
+ </definition>
+<!-- 
  <abbreviations/>
 -->
 
@@ -97,22 +113,55 @@ This part of ISO 10303 specifies an application module for the characterization 
 
  <mapping_table>
 <ae entity="Product_occurrence">
+<alt_map id="1">
+<description>If the Product_occurrence is referred to by at least an Assembly_component_relationship and by no Assembled_part_association.</description>
+<aimelt>assembly_component_usage</aimelt>
+<source>ISO 10303-44</source>
+<refpath>
+product_definition &lt;- product_definition_relationship.related_product_definition
+product_definition_relationship =&gt; product_definition_usage
+product_definition_usage =&gt; assembly_component_usage
+</refpath>
+</alt_map>
+<alt_map id="2">
+<description>If the Product_occurrence is referred to by at least an Assembled_part_association.</description>
+<aimelt>[product_definition]
+[assembly_component_usage]</aimelt>
+<source>ISO 10303-41
+ISO 10303-44
+</source>
+<refpath>
+[product_definition] 
+[&lt;- product_definition_relationship.related_product_definition
+{product_definition_relationship.name = 'definition usage'}
+product_definition_relationship.relating_product_definition -&gt; product_definition
+product_definition &lt;- product_definition_relationship.related_product_definition
+product_definition_relationship =&gt; product_definition_usage
+product_definition_usage =&gt; assembly_component_usage]
+{&lt;- product_definition_occurrence_relationship.occurrence
+product_definition_occurrence_relationship
+product_definition_occurrence_relationship.occurrence_usage -&gt; assembly_component_usage}
+</refpath>
+</alt_map>
+<alt_map id="3">
+<description>In all other cases</description>
 <aimelt>product_definition</aimelt>
 <source>ISO 10303-41</source>
-<rules>restrict_part_occurrence</rules>
 <refpath>
 product_definition &lt;- product_definition_relationship.related_product_definition
 product_definition_relationship
 {product_definition_relationship.name = 'definition usage'}
-product_definition_relationship.relating_product_definition -&gt; product_definition
 </refpath>
+</alt_map>
 <aa attribute="occurrence_quantity" assertion_to="Value_with_unit">
-<alt_map id="2">
+<alt_map id="1">
 <description>If the product occurrence is not a Quantified_instance
-<note>See mapping of Quantified_instance for the mapping of the alternate case.</note></description>
+<note>See mapping of Quantified_instance for the mapping of the alternate case.</note>
+</description>
 <aimelt>PATH</aimelt>
 <refpath>
-characterized_definition = characterized_product_definition
+product_definition = characterized_product_definition
+characterized_product_definition = characterized_definition 
 characterized_definition &lt;- property_definition.definition
 property_definition 
 {property_definition.name = 'occurrence selection'}
@@ -130,7 +179,8 @@ measure_representation_item</refpath>
 <aa attribute="occurrence_quantity" assertion_to="Value_limit">
 <aimelt>PATH</aimelt>
 <refpath>
-characterized_definition = characterized_product_definition
+product_definition = characterized_product_definition
+characterized_product_definition = characterized_definition 
 characterized_definition &lt;- property_definition.definition
 property_definition 
 {property_definition.name = 'occurrence selection'}
@@ -149,7 +199,8 @@ representation_item =&gt;
 <aa attribute="occurrence_quantity" assertion_to="Value_range">
 <aimelt>PATH</aimelt>
 <refpath>
-characterized_definition = characterized_product_definition
+product_definition = characterized_product_definition
+characterized_product_definition = characterized_definition 
 characterized_definition &lt;- property_definition.definition
 property_definition 
 {property_definition.name = 'occurrence selection'}
@@ -186,15 +237,15 @@ representation.items[i] -&gt; representation_item
 representation_item =&gt; descriptive_representation_item
 {representation_item.name = 'selection control'}
 descriptive_representation_item.description
-</refpath></alt_map>
+</refpath>
+</alt_map>
 <alt_map id="2">
 <description>If the product occurrence is not used in an assembly</description>
 <aimelt>descriptive_representation_item.description</aimelt>
 <source>ISO 10303-43</source>
 <refpath>
-product_definition
-characterized_product_definition = product_definition
-characterized_definition = characterized_product_definition
+product_definition = characterized_product_definition
+characterized_product_definition = characterized_definition
 characterized_definition &lt;- property_definition.definition
 property_definition 
 {property_definition.name = 'occurrence selection'}
@@ -207,29 +258,53 @@ representation.items[i] -&gt; representation_item
 representation_item =&gt; descriptive_representation_item
 {representation_item.name = 'selection control'}
 descriptive_representation_item.description
-</refpath></alt_map>
+</refpath>
+</alt_map>
 </aa>
 </ae>
 
 <ae entity="Part_occurrence_definition_relationship">
 <alt_map id="1">
-<description>If the Occurrence_definition_relationship is also a Assembly_component_relationship</description>
+<description>If the Part_occurrence_definition_relationship is also an Assembly_component_relationship</description>
 <aimelt>assembly_component_usage</aimelt>
 <source>ISO 10303-44</source>
-<refpath>product_definition_relationship =&gt;
-product_definition_usage =&gt;
-assembly_component_usage</refpath>
+<refpath>
+assembly_component_usage &lt;= product_definition_usage
+product_definition_usage &lt;= product_definition_relationship
+</refpath>
 </alt_map>
 <alt_map id="2">
-<description>If the Occurrence_definition_relationship is not Assembly_component_relationship</description>
+<description>If the Part_occurrence_definition_relationship is not also an Assembly_component_relationship</description>
 <aimelt>|product_definition_relationship|</aimelt>
 <source>ISO 10303-41</source>
 </alt_map>
-<aa attribute="SELF\View_definition_relationship.related_view" assertion_to="Product_occurrence">
+<aa attribute="SELF\View_definition_relationship.relating_view" assertion_to="Part_view_definition">
 <aimelt>PATH</aimelt>
-<refpath></refpath>
+<refpath>
+product_definition_relationship.relating_product_definition -&gt; product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element 
+application_context_element.name = 'part definition'}
+</refpath>
 </aa>
-
+<aa attribute="SELF\View_definition_relationship.related_view" assertion_to="Definition_based_part_occurrence">
+<aimelt>PATH</aimelt>
+<refpath>
+product_definition_relationship.related_product_definition -&gt; product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element 
+application_context_element.name = 'part occurrence'}
+</refpath>
+</aa>
+<aa attribute="SELF\View_definition_relationship.related_view" assertion_to="Specification_based_part_occurrence">
+<aimelt>PATH</aimelt>
+<refpath>
+product_definition_relationship.related_product_definition -&gt; product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element 
+application_context_element.name = 'part occurrence'}
+</refpath>
+</aa>
 </ae>
 
 <ae entity="Definition_based_product_occurrence">
@@ -240,8 +315,74 @@ assembly_component_usage</refpath>
 </ae>
 
 <ae entity="Definition_based_part_occurrence">
+<alt_map id="1">
+<description>If the Definition_based_part_occurrence is referred to by at least an Assembly_component_relationship and by no Assembled_part_association.</description>
+<aimelt>assembly_component_usage</aimelt>
+<source>ISO 10303-44</source>
+<rules>restrict_part_occurrence
+restrict_part_occurrence_category
+</rules>
+<refpath>
+product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element 
+application_context_element.name = 'part definition'}
+product_definition &lt;- product_definition_relationship.related_product_definition
+product_definition_relationship =&gt; product_definition_usage
+product_definition_usage =&gt; assembly_component_usage
+</refpath>
+</alt_map>
+<alt_map id="2">
+<description>If the Product_occurrence is referred to by at least an Assembled_part_association.</description>
+<aimelt>[product_definition]
+[assembly_component_usage]</aimelt>
+<source>ISO 10303-41
+ISO 10303-44
+</source>
+<rules>restrict_part_occurrence
+restrict_part_occurrence_category
+</rules>
+<refpath>
+[product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element 
+application_context_element.name = 'part occurrence'}] 
+[&lt;- product_definition_relationship.related_product_definition
+{product_definition_relationship.name = 'definition usage'}
+product_definition_relationship.relating_product_definition -&gt; product_definition
+product_definition &lt;- product_definition_relationship.related_product_definition
+product_definition_relationship =&gt; product_definition_usage
+product_definition_usage =&gt; assembly_component_usage]
+{&lt;- product_definition_occurrence_relationship.occurrence
+product_definition_occurrence_relationship
+product_definition_occurrence_relationship.occurrence_usage -&gt; assembly_component_usage}
+</refpath>
+</alt_map>
+<alt_map id="3">
+<description>In all other cases</description>
 <aimelt>product_definition</aimelt>
 <source>ISO 10303-41</source>
+<rules>restrict_part_occurrence
+restrict_part_occurrence_category
+</rules>
+<refpath>
+product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element 
+application_context_element.name = 'part occurrence'}
+product_definition &lt;- product_definition_relationship.related_product_definition
+product_definition_relationship
+{product_definition_relationship.name = 'definition usage'}
+</refpath>
+</alt_map>
+<aa attribute="SELF\Definition_based_product_occurrence.derived_from" assertion_to="Part_view_definition">
+<alt_map id="1">
+<description>If the Definition_based_part_occurrence is mapped only onto assembly_component_usage.</description>
+<aimelt>IDENTICAL MAPPING</aimelt>
+</alt_map>
+<alt_map id="2">
+<description>If the Definition_based_part_occurrence is mapped only onto product_definition.</description>
+<aimelt>PATH</aimelt>
 <refpath>
 product_definition
 {product_definition.frame_of_reference -&gt; product_definition_context
@@ -256,17 +397,21 @@ product_definition_relationship.relating_product_definition -&gt; product_defini
 product_definition_context &lt;= application_context_element 
 application_context_element.name = 'part definition'}
 </refpath>
-<aa attribute="SELF\Definition_based_product_occurrence.derived_from" assertion_to="Part_view_definition">
-<aimelt>PATH</aimelt>
-<refpath>
-
-</refpath>
+</alt_map>
 </aa>
 </ae>
 
 <ae entity="Definition_based_function_occurrence">
 <aimelt>product_definition</aimelt>
 <source>ISO 10303-41</source>
+<refpath>
+product_definition
+{product_definition.frame_of_reference -&gt; product_definition_context
+product_definition_context &lt;= application_context_element 
+application_context_element.name = 'functional occurrence'}
+</refpath>
+<aa attribute="SELF\Definition_based_product_occurrence.derived_from" assertion_to="Functional_element">
+<aimelt>PATH</aimelt>
 <refpath>
 product_definition
 {product_definition.frame_of_reference -&gt; product_definition_context
@@ -281,17 +426,12 @@ product_definition_relationship.relating_product_definition -&gt; product_defini
 product_definition_context &lt;= application_context_element 
 application_context_element.name = 'functional definition'}
 </refpath>
-<aa attribute="SELF\Definition_based_product_occurrence.derived_from" assertion_to="Functional_element">
-<aimelt>PATH</aimelt>
-<refpath>
-
-</refpath>
-</aa></ae>
+</aa>
+</ae>
 
 <ae entity="Specification_based_product_occurrence">
 <aimelt>
-(/SUBTYPE(Specification_based_part_occurrence)/)
-(/SUBTYPE(Specification_based_function_occurrence)/)
+product_definition
 </aimelt>
 <source>ISO 10303-41</source>
 <refpath>
@@ -300,17 +440,14 @@ application_context_element.name = 'functional definition'}
 <aimelt>PATH</aimelt>
 <refpath>
 product_definition
-{product_definition.frame_of_reference -&gt; product_definition_context
-product_definition_context &lt;= application_context_element 
-application_context_element.name = 'part occurrence'}
 product_definition.formation -&gt; product_definition_formation
-{	product_definition_formation = configuration_design_item
-	configuration_design_item &lt;- configuration_design.design
-	{configuration_design.name = 'product design'}
-	configuration_design.configuration -&gt; configuration_item
-	(configuration_item =&gt; product_identification)
-	(configuration_item =&gt; product_identification
-	product_identification =&gt; product_specification)}
+{product_definition_formation = configuration_design_item
+configuration_design_item &lt;- configuration_design.design
+{configuration_design.name = 'product design'}
+configuration_design.configuration -&gt; configuration_item
+(configuration_item =&gt; product_identification)
+(configuration_item =&gt; product_identification
+product_identification =&gt; product_specification)}
 </refpath>
 </aa>
 </ae>
@@ -318,6 +455,9 @@ product_definition.formation -&gt; product_definition_formation
 <ae entity="Specification_based_part_occurrence">
 <aimelt>product_definition</aimelt>
 <source>ISO 10303-41</source>
+<rules>restrict_part_occurrence
+restrict_part_occurrence_category
+</rules>
 <refpath>
 product_definition
 {product_definition.frame_of_reference -&gt; product_definition_context
@@ -328,13 +468,13 @@ product_definition.formation -&gt; product_definition_formation
 product &lt;- product_related_product_category.products[i]
 product_related_product_category &lt;= product_category
 product_category.name = 'part'}
-{	product_definition_formation = configuration_design_item
-	configuration_design_item &lt;- configuration_design.design
-	{configuration_design.name = 'product design'}
-	configuration_design.configuration -&gt; configuration_item
-	(configuration_item =&gt; product_identification)
-	(configuration_item =&gt; product_identification
-	product_identification =&gt; product_specification)}
+{product_definition_formation = configuration_design_item
+configuration_design_item &lt;- configuration_design.design
+{configuration_design.name = 'product design'}
+configuration_design.configuration -&gt; configuration_item
+(configuration_item =&gt; product_identification)
+(configuration_item =&gt; product_identification
+product_identification =&gt; product_specification)}
 </refpath>
 </ae>
 
@@ -351,13 +491,13 @@ product_definition.formation -&gt; product_definition_formation
 product &lt;- product_related_product_category.products[i]
 product_related_product_category &lt;= product_category
 product_category.name = 'functionality'}
-{	product_definition_formation = configuration_design_item
-	configuration_design_item &lt;- configuration_design.design
-	{configuration_design.name = 'product design'}
-	configuration_design.configuration -&gt; configuration_item
-	(configuration_item =&gt; product_identification)
-	(configuration_item =&gt; product_identification
-	product_identification =&gt; product_specification)}
+{product_definition_formation = configuration_design_item
+configuration_design_item &lt;- configuration_design.design
+{configuration_design.name = 'product design'}
+configuration_design.configuration -&gt; configuration_item
+(configuration_item =&gt; product_identification)
+(configuration_item =&gt; product_identification
+product_identification =&gt; product_specification)}
 </refpath>
 </ae>
 
@@ -501,23 +641,6 @@ application_context_element.name = 'part occurrence'}
 </alt_map>
 <alt_map id="2">
 	<description>
-If the Selected_instance is only used in an assembly and is a Definition_based_part_occurrence
-<note>This mapping is specified for upward compatibility with ISO 10303-203:1994</note>
-	</description>
-	<aimelt>assembly_component_usage</aimelt>
-	<source>ISO 10303-44</source>
-	<refpath>
-assembly_component_usage &lt;= product_definition_usage
-product_definition_usage &lt;= product_definition_relationship
-{product_definition_relationship.name = 'selected instance usage'}
-product_definition_relationship.related_product_definition -&gt; product_definition
-{product_definition.frame_of_reference -&gt; product_definition_context
-product_definition_context &lt;= application_context_element 
-application_context_element.name = 'part definition'}
-	</refpath>
-</alt_map>
-<alt_map id="3">
-	<description>
 If the Selected_instance is only used in an assembly and is a Specification_based_part_occurrence
 <note>This mapping resolves a no-mapping case of ISO 10303-214:2001</note>
 	</description>
@@ -533,7 +656,7 @@ product_definition_context &lt;= application_context_element
 application_context_element.name = 'part occurrence'}
 	</refpath>
 </alt_map>
-<alt_map id="4">
+<alt_map id="3">
 	<description>
 If the Selected_instance is not only used in an assembly
 <note>This dual mapping enables import processors designed to process only assembly relationship entities to interpret correctly a simple assembly structure.</note>
@@ -638,6 +761,11 @@ application context element
 application context element.name = 'functional occurrence'}
 </refpath>
 </ae>
+
+<sc constraint="alternate_part_instance">
+	<constraint>restrict_part_occurrence.WR1
+	</constraint>
+</sc>
  </mapping_table>
  
  <mim>

@@ -2063,7 +2063,8 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
+    <xsl:with-param name="type" select="@name"/>
+   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
@@ -2188,6 +2189,7 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
+    <xsl:with-param name="type" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
@@ -2331,7 +2333,8 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
+    <xsl:with-param name="type" select="@name"/>
+    </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
@@ -2562,7 +2565,8 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
+    <xsl:with-param name="type" select="@name"/>
+   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.175 2004/11/18 16:20:41 robbod Exp $
+$Id: module.xsl,v 1.176 2004/11/23 21:27:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1366,7 +1366,7 @@ provided  that links throught SC4ONLINE to a new repository -->
   <!-- <xsl:variable name="information_url"
   select="'http://www.tc184-sc4.org/implementation_information/'"/> -->
   <xsl:variable name="information_url"
-       select="concat('http://www.tc184-sc4.org/implementation_information/10303/',@part)"/>
+       select="concat('http://www.tc184-sc4.org/implementation_information/10303/',format-number(@part, '00000'))"/>
   <p>
     This annex references a listing of the EXPRESS entity names and
     corresponding short names as specified or referenced in this part of ISO
@@ -1395,7 +1395,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
   <table>
     <tr>
       <td>&#160;&#160;</td>
-      <td>Additional information:</td>
+      <td>Additional information:</td>      
       <td>&lt;<a href="{$information_url}"  target="_blank"><xsl:value-of select="$information_url"/></a>&gt;</td>
   </tr>
   </table>

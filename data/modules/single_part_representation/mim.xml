@@ -108,7 +108,7 @@ LOCAL
   parts: SET OF product := [];
 END_LOCAL;
   parts := QUERY ( prod &lt;* product | 
-     SIZEOF(['part', 'raw material', 'tool']*types_of_product(SELF)) &gt; 0) ;
+     SIZEOF(['part', 'raw material', 'tool']* categories_of_product(SELF)) &gt; 0) ;
 
       </algorithm>
 
@@ -127,7 +127,7 @@ LOCAL
   parts: SET OF product := [];
 END_LOCAL;
   parts := QUERY ( prod &lt;* product | 
-     SIZEOF(['part', 'raw material', 'tool']*types_of_product(SELF)) &gt; 0) ;
+     SIZEOF(['part', 'raw material', 'tool']* categories_of_product(SELF)) &gt; 0) ;
       </algorithm>
 
       <where
@@ -136,6 +136,35 @@ END_LOCAL;
       </where>
 
     </rule>
+
+    <function
+      name="categories_of_product">
+      <parameter
+        name="obj">
+        <typename
+          name="product"/>
+      </parameter>
+      <aggregate
+        type="SET"/>
+      <builtintype
+        type="STRING"/>
+      <algorithm>
+LOCAL
+  category_assignments: BAG OF product_category;
+  categories: SET OF STRING:=[];
+  i: INTEGER;
+END_LOCAL;
+
+category_assignments := USEDIN(obj, schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+   
+REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+  categories := categories + category_assignments[i].name;
+END_REPEAT;
+
+RETURN(categories);
+      </algorithm>
+
+    </function>
 
   </schema>
 

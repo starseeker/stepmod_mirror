@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.14 2002/12/11 15:27:19 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.15 2003/02/12 12:08:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -139,7 +139,7 @@ $Id: sect_a_short_names.xsl,v 1.14 2002/12/11 15:27:19 robbod Exp $
   <p align="center">
     <b>
       <a name="table_a1">
-        Table A.1 - MIM short names of entities 
+        Table A.1&#8212; MIM short names of entities 
       </a>
     </b>
   </p>

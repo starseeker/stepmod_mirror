@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.42 2005/02/02 14:43:52 budreckytej Exp $
+   $Id: arm.exp,v 1.43 2005/02/04 17:47:32 budreckytej Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -156,7 +156,8 @@ SCHEMA Layered_interconnect_module_design_arm;
 	END_TYPE;
 
   TYPE stratum_surface_designation = ENUMERATION OF
-    (primary_surface,
+    (average_surface,
+     primary_surface,
      secondary_surface);
   END_TYPE;
 
@@ -928,15 +929,19 @@ It is a summary of all vertical elements of particular kind, similar like stratu
       of_technology 												: Stratum_technology;
     DERIVE
       name : STRING := SELF\Product_view_definition.product_definition_id;
+      of_average_surface 	: SET[0:1] OF stratum_average_surface := USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE.OF_STRATUM');
     INVERSE
-      of_average_surface 	: SET[0:1] OF stratum_average_surface FOR of_stratum;
       of_surface         	: SET[1:2] OF stratum_surface FOR of_stratum;
       assembly           	: SET[1:?] OF interconnect_module_stratum_assembly_relationship FOR component;
 	  stratum_usage			: SET[0:1] OF External_source_identification FOR item;      
+   WHERE
+    WR1: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 0;
   END_ENTITY;
 
   ENTITY Stratum_average_surface
       SUBTYPE OF (Stratum_surface);
+   WHERE
+    WR1 : SELF\Stratum_surface.name = stratum_surface_designation.average_surface;
   END_ENTITY;
 
   ENTITY Stratum_concept_relationship

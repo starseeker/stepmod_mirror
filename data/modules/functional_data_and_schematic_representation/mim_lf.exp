@@ -1,5 +1,5 @@
 (*
- $Id: mim_lf.exp,v 1.3 2004/08/26 16:55:24 robbod Exp $
+ $Id: mim_lf.exp,v 1.5 2004/09/01 11:54:24 robbod Exp $
  ISO TC184/SC4/WG3 N1218 - ISO/TS 10303-421 Functional data and schematic representation - EXPRESS MIM Long form
 *) 
 
@@ -129,12 +129,13 @@ SCHEMA Functional_data_and_schematic_representation_mim_lf;
 *)
  
 CONSTANT
+(* R.Bodington - incorrectly added by SHTOLO
   base_types : SET OF STRING := ['NUMBER', 'COMPLEX_NUMBER_LITERAL', 'REAL', 
   'INTEGER', 'LOGICAL', 'BOOLEAN', 'STRING', 'BINARY', 'MATHS_SPACE', 
   'MATHS_FUNCTION', 'LIST', 'ELEMENTARY_SPACE_ENUMERATORS', 'ORDERING_TYPE', 
   'LOWER_UPPER', 'SYMMETRY_TYPE', 'ELEMENTARY_FUNCTION_ENUMERATORS', 
   'OPEN_CLOSED', 'SPACE_CONSTRAINT_TYPE', 'REPACKAGE_OPTIONS', 
-  'EXTENSION_OPTIONS'];
+  'EXTENSION_OPTIONS']; *)
   cnlit : STRING := schema_prefix + 'COMPLEX_NUMBER_LITERAL';
   dummy_gri : geometric_representation_item := representation_item('')||
   geometric_representation_item();
@@ -1830,7 +1831,7 @@ END_ENTITY;
  
 ENTITY defined_function
 ABSTRACT SUPERTYPE OF (ONEOF (numeric_defined_function, string_defined_function
-, boolean_defined_function) ANDOR sql_mappable_defined_function);
+, boolean_defined_function) ANDOR SQL_mappable_defined_function);
 END_ENTITY;
  
 ENTITY defined_maths_space_context
@@ -3438,7 +3439,7 @@ numeric_defined_function))
 SUBTYPE OF (expression);
 DERIVE
   is_int : BOOLEAN := is_int_expr(SELF);
-  sql_mappable : BOOLEAN := is_sql_mappable(SELF);
+  sql_mappable : BOOLEAN := is_SQL_mappable(SELF);
 END_ENTITY;
  
 ENTITY numeric_variable
@@ -4394,7 +4395,7 @@ SUBTYPE OF (general_property_relationship);
   ;
 END_ENTITY;
  
-ENTITY sql_mappable_defined_function ABSTRACT SUPERTYPE
+ENTITY SQL_mappable_defined_function ABSTRACT SUPERTYPE
 SUBTYPE OF (defined_function);
 END_ENTITY;
  
@@ -6112,7 +6113,7 @@ END_LOCAL;
   RETURN (TRUE);
 END_FUNCTION;
 
-(* 
+(* R.Bodington - not valid express ed1
 FUNCTION dependently_instantiated(set_of_input_instances : SET OF GENERIC; 
   set_of_input_types : SET OF STRING; previous_in_chain : LIST OF GENERIC) : 
   BOOLEAN;
@@ -9447,7 +9448,7 @@ END_LOCAL;
   RETURN (FALSE);
 END_FUNCTION;
  
-FUNCTION is_sql_mappable(arg : expression) : BOOLEAN;
+FUNCTION is_SQL_mappable(arg : expression) : BOOLEAN;
 LOCAL
   i : INTEGER;
 END_LOCAL;
@@ -9463,7 +9464,7 @@ END_LOCAL;
   END_IF;
   IF 'FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.MINUS_FUNCTION' IN 
   TYPEOF(arg) THEN
-    RETURN (is_sql_mappable(arg\unary_numeric_expression.operand));
+    RETURN (is_SQL_mappable(arg\unary_numeric_expression.operand));
   END_IF;
   IF ('FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.ABS_FUNCTION' IN 
   TYPEOF(arg)) OR (
@@ -9500,7 +9501,7 @@ END_LOCAL;
   'FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.MINIMUM_FUNCTION' IN 
   TYPEOF(arg)) THEN
     REPEAT i := 1 TO SIZEOF(arg\multiple_arity_numeric_expression.operands);
-      IF NOT is_sql_mappable(arg\multiple_arity_numeric_expression.operands[i])
+      IF NOT is_SQL_mappable(arg\multiple_arity_numeric_expression.operands[i])
        THEN
         RETURN (FALSE);
       END_IF;
@@ -9511,8 +9512,8 @@ END_LOCAL;
    TYPEOF(arg)) OR (
   'FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.SLASH_EXPRESSION' IN 
   TYPEOF(arg)) THEN
-    RETURN (is_sql_mappable(arg\binary_numeric_expression.operands[1]) AND 
-    is_sql_mappable(arg\binary_numeric_expression.operands[2]));
+    RETURN (is_SQL_mappable(arg\binary_numeric_expression.operands[1]) AND 
+    is_SQL_mappable(arg\binary_numeric_expression.operands[2]));
   END_IF;
   IF ('FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.DIV_EXPRESSION' IN 
   TYPEOF(arg)) OR (
@@ -9529,7 +9530,7 @@ END_LOCAL;
   END_IF;
   IF 'FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.NOT_EXPRESSION' IN 
   TYPEOF(arg) THEN
-    RETURN (is_sql_mappable(arg\unary_generic_expression.operand));
+    RETURN (is_SQL_mappable(arg\unary_generic_expression.operand));
   END_IF;
   IF ('FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.ODD_FUNCTION' IN 
   TYPEOF(arg)) OR (
@@ -9542,7 +9543,7 @@ END_LOCAL;
   'FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.OR_EXPRESSION' IN TYPEOF
   (arg)) THEN
     REPEAT i := 1 TO SIZEOF(arg\multiple_arity_boolean_expression.operands);
-      IF NOT is_sql_mappable(arg\multiple_arity_boolean_expression.operands[i])
+      IF NOT is_SQL_mappable(arg\multiple_arity_boolean_expression.operands[i])
        THEN
         RETURN (FALSE);
       END_IF;
@@ -9551,8 +9552,8 @@ END_LOCAL;
   END_IF;
   IF 'FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.EQUALS_EXPRESSION' IN
    TYPEOF(arg) THEN
-    RETURN (is_sql_mappable(arg\binary_generic_expression.operands[1]) AND 
-    is_sql_mappable(arg\binary_generic_expression.operands[2]));
+    RETURN (is_SQL_mappable(arg\binary_generic_expression.operands[1]) AND 
+    is_SQL_mappable(arg\binary_generic_expression.operands[2]));
   END_IF;
   IF ('FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.COMPARISON_EQUAL' IN
    TYPEOF(arg)) OR (
@@ -9568,13 +9569,13 @@ END_LOCAL;
    TYPEOF(arg)) OR (
   'FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.LIKE_EXPRESSION' IN 
   TYPEOF(arg)) THEN
-    RETURN (is_sql_mappable(arg\comparison_expression.operands[1]) AND 
-    is_sql_mappable(arg\comparison_expression.operands[2]));
+    RETURN (is_SQL_mappable(arg\comparison_expression.operands[1]) AND 
+    is_SQL_mappable(arg\comparison_expression.operands[2]));
   END_IF;
   IF 'FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_MIM_LF.INTERVAL_EXPRESSION' 
   IN TYPEOF(arg) THEN
-    RETURN (is_sql_mappable(arg\interval_expression.interval_low) AND 
-    is_sql_mappable(arg\interval_expression.interval_high) AND is_sql_mappable(
+    RETURN (is_SQL_mappable(arg\interval_expression.interval_low) AND 
+    is_SQL_mappable(arg\interval_expression.interval_high) AND is_SQL_mappable(
     arg\interval_expression.interval_item));
   END_IF;
   IF (
@@ -13252,7 +13253,7 @@ WHERE
     direction_ratios) <> y.coordinate_space_dimension))) > 0)) = 0;
 END_RULE;
 
-(* 
+(* R.Bodington - not valid express ed1
 RULE validate_dependently_instantiable_entity_data_types FOR (abs_function, 
   abstracted_expression_function, acos_function, and_expression, 
   annotation_text, application_context, application_context_element, 

@@ -40,7 +40,7 @@
  </normrefs>
 
  <arm>
-   <uof name="Date_ime_assignment">
+   <uof name="Date_time_assignment">
      <description>The Date_time_assignment UoF specifies the definitional information 
 		 for the concept of assigning date or date and time with a role to activity or product data.</description>
      <uof.ae entity="Date_or_date_time_assignment" />
@@ -55,42 +55,60 @@
  <mapping_table>
 
    <ae entity="Date_or_date_time_assignment">
-     <aimelt>(date_assignment)
-		         (date_and_time_assignment)
+		 <alt>
+		   #1 : for assigned dates that are instances of Calendar_date
+		   #2 : for assigned dates that are instances of Date_time
+		 </alt>
+     <aimelt>
+		   #1: (date_assignment)
+		   #2: (date_and_time_assignment)
 		 </aimelt>
      <source>41</source>
-     <aa attribute="assigned_date">
-       <aimelt>(date_and_time_assignment.assigned_date_and_time)
-			 				 (date_assignment.assigned_date)
-			 </aimelt>
-       <source>41</source>
+     <aa attribute="assigned_date" assertion_to="date_or_date_time_select">
+       <aimelt>PATH</aimelt>
+       <refpath>
+			   #1: (date_assignment
+				 date_assignment.assigned_date -&gt; date 
+				 {date =&gt; calendar_date})
+				 #2: (date_and_time_assignment
+				 date_and_time_assignment.assigned_date_and_time -&gt; date_and_time
+				 {date_and_time.date_component -&gt; date =&gt; calendar_date}
+				 {date_and_time.time_component -&gt;local_time}) 
+			 </refpath>
      </aa>
      <aa attribute="role">
-       <aimelt>(date_time_role)
-			         (date_role)
+		   <alt>
+		   #1 : if assigned dates are instances of Calendar_date
+		   #2 : if assigned dates are instances of Date_time
+		   </alt>
+       <aimelt>
+			   #1: (date_role)
+				 #2: (date_time_role)
 			 </aimelt>
-       <source>PATH</source>
+       <source>41</source>
        <refpath>
-			   (date_and_time_assignment
-			 		date_and_time_assignment.role -&gt; date_time_role
-					date_time_role
-					date_time_role.name)
-					
-					(date_assignment
+					 #1: (date_assignment
 					date_assignment.role -&gt; date_role
-					date_role
 					date_role.name)
+			   #2: (date_and_time_assignment
+			 		date_and_time_assignment.role -&gt; date_time_role
+					date_time_role.name)
 			 </refpath>
      </aa>
      <aa attribute="items" assertion_to="date_or_date_time_item">
-       <aimelt>PATH</aimelt>
+       <alt>
+		   #1 : if the assigned dates are instances of Calendar_date
+		   #2 : if the assigned dates are instances of Date_time
+		   </alt>
+		 <aimelt>PATH</aimelt>
        <refpath>
-			   (date_and_time_assignment=&gt;
-			 		applied_date_and_time_assignment
-					applied_date_and_time_assignment.items[i])
-					(date_assignment=&gt;
+					#1: (date_assignment=&gt;
 					 applied_date_assignment
-					 applied_date_assignment.items[i])
+					 applied_date_assignment.items[i] -&gt; date_item)
+
+			    #2: (date_and_time_assignment=&gt;
+			 		 applied_date_and_time_assignment
+					 applied_date_and_time_assignment.items[i] -&gt; date_and_time_item)
 				</refpath>
      </aa>
    </ae>   
@@ -100,9 +118,8 @@
      <imgfile file="mimexpg1.xml"/>
 		</express-g>
 		<shortnames>
-      <shortname name="APCRAS" entity="applied_date_assignment"/> 
-      <shortname name="APCRAS" entity="applied_date_and_time_assignment"/> 
+      <shortname name="APDTAS" entity="applied_date_assignment"/> 
+      <shortname name="ADATA" entity="applied_date_and_time_assignment"/> 
  	  </shortnames>
 	</mim>
-
 </module>

@@ -27,8 +27,8 @@
 	<purpose>The Person organization assignment application module supports the requirement 
 	to assign an organization or a person in an organization to activity or product data.</purpose>
 	<inscope>
-		<li>the assignment of an organization to activity or product data;</li>
-		<li>the assignment of a person in an organization to activity or product data.</li>
+		<li>association of an organization with activity or product data;</li>
+		<li>association of a person in an organization with activity or product data.</li>
 	</inscope>
 	<normrefs>
 		<normref.inc normref="ref10303-41.2000"/>
@@ -36,7 +36,7 @@
 	<arm>
 		<uof name="Organization_or_person_in_organization_assignment">
 			<description>The Organization_or_person_in_organization_Assignment UoF specifies 
-			the definitional information for the concept of the assignment 
+			the data structure needed to represent the assignment 
 			of an organization or a person in an organization to activity or product data.</description>
 			
 	
@@ -51,42 +51,57 @@
 	</arm>
 	<mapping_table>
 		<ae entity="Organization_or_person_in_organization_assignment">
+		 <alt>
+			 #1 : for assigned person_organizations that are instances of Organization
+	 		 #2 : for assigned person_organizations that are instances of Person_in_organization
+			</alt>
 			<aimelt> 
-							 (person_and_organization_assignment)
-							 (organization_assignment)
+			(#1: applied_organization_assignment)
+			(#2: applied_person_and_organization_assignment)
 			</aimelt>
-			<source>41</source>
-			<aa attribute="assigned_entity">
-			<aimelt>
-							(person_and_organization_assignment.assigned_person_and_organization)
-							(organization_assignment.assigned_organization)
-			</aimelt>
-			<source>41</source>
+			<source>
+			(#1: ISO 10303-1013)
+			(#2: ISO 10303-1013)
+			</source>
+			<refpath>
+			(#1: applied_organization_assignment &lt;= organization_assignment)
+			(#2: applied_person_and_organization_assignment&lt;= person_and_organization_assignment)
+			</refpath>
+			<aa attribute="assigned_entity" assertion_to="Organization">
+			<aimelt>PATH</aimelt>
+			<refpath>
+			applied_organization_assignment &lt;= organization_assignment
+			organization_assignment.assigned_organization -&gt; organization
+			</refpath>
+			</aa>
+			<aa attribute="assigned_entity" assertion_to="Person_in_organization">
+			<aimelt>PATH</aimelt>
+			<refpath>
+			applied_person_and_organization_assignment&lt;= person_and_organization_assignment
+			person_and_organization_assignment.assigned_person_and_organization -&gt; person_and_organization
+			</refpath>
 			</aa>
 			<aa attribute="role">
-				<aimelt>PATH
+				<aimelt>
+				#1: (organization_role.name)
+				#2: (person_and_organization_role.name)
 			  </aimelt>
-        <refpath>
-			   (person_and_organization_assignment
+        <refpath>				
+					(#1: organization_assignment
+					 organization_assignment.role -&gt; organization_role
+					 organization_role
+					 organization_role.name)
+			    (#2: person_and_organization_assignment
 			 		person_and_organization_assignment.role -&gt; person_and_organization_role
 					person_and_organization_role
 					person_and_organization_role.name)
-					
-					(organization_assignment
-					organization_assignment.role -&gt; organization_role
-					organization_role
-					organization_role.name)
        </refpath>
 			</aa>
-     <aa attribute="items" assertion_to="Organization_or_person_in_organization_assignment">
+     <aa attribute="items" assertion_to="Organization_or_person_in_organization_select">
        <aimelt>PATH</aimelt>
        <refpath>
-			   (person_and_organization_assignment =&gt;
-			 		applied_person_and_organization_assignment
-					applied_person_and_organization_assignment.items[i])
-					(organization_assignment =&gt;
-					 applied_organization_assignment
-					 applied_organization_assignment.items[i])
+					#1: (applied_organization_assignment.items[i] -&gt; organization_item)
+			    #2: (applied_person_and_organization_assignment.items[i] -&gt; person_and_organization_item)
 				</refpath>
      </aa>
    </ae>   
@@ -96,8 +111,8 @@
 			<imgfile file="mimexpg1.xml"/>
 		</express-g>
 		<shortnames>
-      <shortname name="APCRAS" entity="applied_organization_assignment"/> 
-      <shortname name="APCRAS" entity="applied_person_and_organization_assignment"/> 
+      <shortname name="APORAS" entity="applied_organization_assignment"/> 
+      <shortname name="APAOA" entity="applied_person_and_organization_assignment"/> 
  	  </shortnames>
 	</mim>
 

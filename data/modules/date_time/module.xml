@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.8 2002/05/09 18:46:40 buchanan Exp $ -->
+<!-- $Id: module.xml,v 1.9 2002/05/28 20:12:18 darla Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 
 <module
-
    name="date_time"
    part="1010"
-   wg.number="N705"
+   wg.number="1080"
+	wg.number.supersedes="705"
+	checklist.internal_review="1056"
+	checklist.project_leader="1057"
+	checklist.convener="1058"	  
    version="1"
    status="TS"
    language="E"
    publication.year="2002"
-   published="n"
-   rcs.date="$Date: 2002/05/09 18:46:40 $"
-   rcs.revision="$Revision: 1.8 $">
+   published="y"
+   rcs.date="$Date: 2002/05/28 20:12:18 $"
+   rcs.revision="$Revision: 1.9 $">
 
  <keywords>
     module, date, time
@@ -24,27 +27,18 @@
    <editor ref="pdmmodules.editor"/>
  </contacts>
 
- <purpose>The Date time application module supports the requirement to record a date with an optional time and attach it to product data.</purpose>
+ <purpose>The Date time application module supports 
+ the requirement to represent dates and times based on the Coordinated Universal Time (UTC). 
+ </purpose>
 
- <inscope><li>the specification of a data structure to represent a date;</li>
-
-<li>the specification of a data structure to represent a time;</li>
-
-<li>the definition of the term coordinated universal time offset;</li>
-
-<li>the specification of a data structure to represent a coordinated universal time offset.</li>
-
- </inscope>
-
- <outscope>
-<li>all concepts not involved in the specification of the of date and time.</li>
-
- </outscope>
-
-
+ <inscope>
+<li>definition of a date according to the Gregorian calendar;</li>
+<li>definition of a point in time in a day;</li>
+</inscope>
  <normrefs>
    <normref.inc normref="ref8601.1998">
     <term.ref linkend="calendardate" />
+		<term.ref linkend="utc" />
     <term.ref linkend="day" />
     <term.ref linkend="gregoriancalendar" />
     <term.ref linkend="hour" />
@@ -52,185 +46,171 @@
     <term.ref linkend="minute" />
     <term.ref linkend="second" />
     <term.ref linkend="year" />
+
    </normref.inc>
    <normref.inc normref="ref10303-41.2000"/>
  </normrefs>
 
  <definition>
-   <term>universal time</term>
-<def><p>a time scale called "Coordinated Universal Time" (abbreviated UTC), which is the basis for the worldwide system of civil time. This time scale is kept by time laboratories around the world and is determined using highly precise atomic clocks. The International Bureau of Weights and Measures makes use of data from the timing laboratories to provide the international standard UTC which is accurate to approximately a nanosecond (billionth of a second) per day. The length of a UTC second is defined in terms of an atomic transition of the element cesium under specific conditions, and is not directly related to any astronomical phenomena.</p>
-<note number="1">Greenwich Mean Time (GMT) is a 24 hour astronomical time system based on the local time at Greenwich, England. GMT can be considered equivalent to Coordinated Universal Time (UTC). Based on an international agreement, the term UTC is recommended for all general timekeeping, and use of the term GMT is discouraged.</note>
-<note number="2">This is NOT the astronomical and navigational usage. In astronomical and navigational usage, UT often refers to a specific time called UT1, which is a measure of the rotation angle of the Earth as observed astronomically. It is affected by small variations in the rotation of the Earth, and can differ slightly from the civil time on the Greenwich meridian. Times which may be labeled "Universal Time" or "UT" in data provided by the Astronomical Applications Department of the U.S. Naval Observatory (for example, in the annual almanacs) conform to this definition.</note>
-</def>
- </definition>
-
- <definition>
-   <term>coordinated universal time offset</term>
-   <def>the offset (before or after) in hours and minutes between the local time and the universal time.</def>
  </definition>
 
  <abbreviations>
-   <abbreviation>
-     <acronym>GMT</acronym><term>Greenwich Mean Time</term>
-   </abbreviation>
-   <abbreviation>
-     <acronym>UT</acronym><term>Universal Time</term>
-   </abbreviation>
    <abbreviation>
      <acronym>UTC</acronym><term>Coordinated Universal Time</term>
    </abbreviation>
  </abbreviations>
 
  <arm>
-   <uof name="Date_Time">
-	<description><p>This UoF specifies information related to the definitional information for the concept of a date or a date with a time and how it could be assigned to product data.</p>
+   <uof name="Date_time">
+	<description><p>This UoF specifies the data structure needed to represent a calendar 
+	date and a point in time in a day.</p>
 	</description>
    
       <uof.ae entity="Calendar_date" />
       <uof.ae entity="Date_time" />
       <uof.ae entity="Time_offset" />
-
    </uof>
  
 
    <express-g>
      <imgfile file="armexpg1.xml"/>
-          <imgfile file="armexpg2.xml"/>
+     <imgfile file="armexpg2.xml"/>
    </express-g>
  </arm>
 
  <mapping_table>
 
-   <ae entity="CALENDAR_DATE">
+   <ae entity="Calendar_date">
      <aimelt>calendar_date</aimelt>
      <source>41</source>
-     <aa attribute="month">
-       <aimelt>calendar_date.month_component</aimelt>
-       <source>41</source>
+			 <refpath>
+			 calendar_date &lt;= date
+			 </refpath>
+     <aa attribute="year_component" assertion_to="year_number">
+       <aimelt>PATH</aimelt>
+			 <refpath>
+			 date.year_component -&gt; year_number
+			 </refpath>
      </aa>
-     <aa attribute="day">
-       <aimelt>calendar_date.day_component</aimelt>
-       <source>41</source>
-     </aa>
-     <aa attribute="year">
-       <aimelt>date.year_component</aimelt>
-       <source>41</source>
-       <refpath>calendar_date &lt;= date -&gt; date.year_component 
-       </refpath>
-     </aa>
-   </ae>
+     <aa attribute="day_component" assertion_to="day_in_month_number">
+       <aimelt>PATH</aimelt>
+			 <refpath>
+			 calendar_date.day_component -&gt; day_in_month_number
+			 </refpath>
+			</aa>
+      <aa attribute="month_component" assertion_to="month_in_year_number">
+       <aimelt>PATH</aimelt>
+			 <refpath>
+			 calendar_date.month_component -&gt; month_in_year_number
+			 </refpath>
+      </aa>
+    </ae>
 
    <ae entity="Date_time">
-     <aimelt>(date_and_time)
-(calendar_date)</aimelt>
+     <aimelt>date_and_time
+			</aimelt>
      <source>41</source>
-
-
-     <aa attribute="date">
-       <aimelt>(date_and_time.date_component)
-(calendar_date)</aimelt>
-       <source>41</source>
+     <aa attribute="date_component" assertion_to="Calendar_date">
+       <aimelt>PATH</aimelt>
+		 <refpath>
+		   date_and_time.date_component -&gt; date =&gt; calendar_date
+		 </refpath>
      </aa>
-   
-
-     <aa attribute="time">
-       <aimelt>date_and_time.time_component</aimelt>
-       <source>41</source>
-     </aa>
-
-
-     <aa attribute="hour">
-       <aimelt>local_time.hour_component</aimelt>
-       <source>41</source>
-       <refpath>date_and_time.time_component-&gt;
-local_time-&gt;
-local_time.hour_component</refpath>
+     <aa attribute="time_component" assertion_to="Local_time">
+       <aimelt>PATH</aimelt>
+		 <refpath>
+		   date_and_time.time_component -&gt; local_time
+		 </refpath>
      </aa> 
-
-     <aa attribute="minute">
-       <aimelt>local_time.minute_component</aimelt>
-       <source>41</source>
-       <refpath>date_and_time.time_component-&gt;
-local_time-&gt;
-local_time.minute_component</refpath>
-     </aa>
-
-     <aa attribute="second">
-       <aimelt>local_time.second_component</aimelt>
-       <source>41</source>
-       <refpath>date_and_time.time_component-&gt;
-local_time-&gt;
-local_time.second_component</refpath>
-     </aa>
-
-     <aa attribute="offset">
-       <aimelt>local_time.zone</aimelt>
-       <source></source>
-       <refpath>date_and_time.time_component-&gt;
-local_time-&gt;
-local_time.zone</refpath>
-     </aa>
-
    </ae>
 
-   <ae entity="TIME_OFFSET">
+   <ae entity="Local_time">
+     <aimelt>local_time</aimelt>
+     <source>41</source>
+     <aa attribute="hour_component" assertion_to="hour_in_day">
+       <aimelt>PATH</aimelt>
+		   <refpath>
+		   local_time.hour_component -&gt; hour_in_day
+		   </refpath>
+     </aa>
+     <aa attribute="minute_component" assertion_to="minute_in_hour">
+       <aimelt>PATH</aimelt>
+		   <refpath>
+		   local_time.minute_component -&gt; minute_in_hour
+		   </refpath>
+		 </aa>
+     <aa attribute="second_component" assertion_to="second_in_minute">
+       <aimelt>PATH</aimelt>
+		 <refpath>
+		   local_time.second_component -&gt; second_in_minute
+		 </refpath>
+     </aa> 
+     <aa attribute="zone" assertion_to="Time_offset">
+       <aimelt>PATH</aimelt>
+		 <refpath>
+		   local_time.zone -&gt; coordinated_universal_time_offset
+		 </refpath>
+     </aa> 
+   </ae>
+
+   <ae entity="Time_offset">
      <aimelt>coordinated_universal_time_offset</aimelt>
      <source>41</source>
-     <aa attribute="hour">
+     <aa attribute="hour_offset">
        <aimelt>coordinated_universal_time_offset.hour_offset</aimelt>
        <source>41</source>
      </aa>
-     <aa attribute="minute">
+     <aa attribute="minute_offset">
        <aimelt>coordinated_universal_time_offset.minute_offset</aimelt>
        <source>41</source>
-     </aa>
-     <aa attribute="offset">
-       <aimelt>coordinated_universal_time_offset.sense</aimelt>
-       <source>41</source>
-     </aa>
+		 </aa>
+		 <aa attribute="sense" assertion_to="offset_orientation">
+       <aimelt>PATH</aimelt>
+		   <refpath>
+		   coordinated_universal_time_offset.sense -&gt; ahead_or_behind
+		   </refpath>
+     </aa> 
    </ae>
-
-
  </mapping_table>
-
  <mim>
    <express-g>
      <imgfile file="mimexpg1.xml"/>
     </express-g>
  </mim>
-
  <usage_guide>
-   <description><p>This clause describes usages of this module. This module shall be used in the context of another module (e.g. the Approval or the Date time assignment module) to be used. If a simple date is required, <b>calendar_date</b> provides this function.</p>
-   <example number="1"><p>If the date of February 10, 1999 is the date to be represented, the data structure would be:</p>
+   <description>
+	 <p>This clause describes usages of this module. </p>
+	<p> <b>calendar_date</b> provides the capability to represent a date in the Gregorian Calendar.</p>
+
+   <example number="1">
+	 					<p>The date of February 10, 1999 can be represented as follows:</p>
 <screen>
 #1=CALENDAR_DATE(1999,10,2);
 </screen>
-</example>
-<p>If a date and time is required, <b>date_and_time</b> provides this function.</p>
-<example number="2"><p>If the date of February 10, 1999 is the date to be represented with a time of 11:10 PM in the Japanese time zone, The data structure would be:</p>
+   </example>
+	<p> <b>date_and_time</b> provides the capability to represent a date in the Gregorian Calendar and a point in time in that day.</p>
+	 <example number="2">
+		 <p>The following instances represent the date of February 10, 1999 with 
+			  a time of 11:10 PM in the Japanese time zone:</p>
 <screen>
 #1=DATE_AND_TIME(#2,#3);
-
 #2=CALENDAR_DATE(1999,10,2);
-
 #3=LOCAL_TIME(23,10,$,#4);
-
 #4=COORDINATED_UNIVERSAL_TIME_OFFSET(9,$,.AHEAD.);
 </screen>
-</example>
-<example number="3"><p>If the date of February 10, 1999 is the date to be represented with a time of 11:10 PM in Newfoundland, Candada, the data structure would be:</p>
+	 </example>
+	 <example number="3">
+	 	 <p>The following instances represent the date of February 10, 1999 
+	 			with a time of 11:10 PM in Newfoundland, Canada:</p>
 <screen>
 #1=DATE_AND_TIME(#2,#3);
-
 #2=CALENDAR_DATE(1999,10,2);
-
 #3=LOCAL_TIME(23,10,$,#4);
-
 #4=COORDINATED_UNIVERSAL_TIME_OFFSET(3,30,.BEHIND.);
 </screen>
-</example>
-<p><b>Pre-processor Recommendations</b>: All pre-processors should use noon in the originating time zone as a default for <b>local_time</b> when this data is unavailable.</p>
+	 </example>
+	 	 <p><b>Pre-processor Recommendations</b>: All pre-processors should use noon 
+		in the originating time zone as a default for <b>local_time</b> when time information is unavailable.</p>
 </description>
  </usage_guide>
-
 </module>

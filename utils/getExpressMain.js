@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.3 2002/07/11 16:56:40 robbod Exp $
+//$Id: getExpressMain.js,v 1.4 2002/09/09 10:47:36 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -46,6 +46,17 @@ function ErrorMessage(msg){
 	WScript.Echo(msg);
     objShell.Popup(msg);
 }
+
+
+function getDate() {
+    var d, s="";
+    d = new Date();                           //Create Date object.
+    s += d.getYear();                         //Get year.
+    s += d.getMonth() + 1;            //Get month
+    s += d.getDate();                   //Get day
+   return(s);                                //Return date.
+}
+
 
 function checkXMLParse(doc) {
     if (doc.parseError.errorCode !=0) {
@@ -250,6 +261,55 @@ function AppendFiles(src, dst) {
     dstStr.Close();
 }
 
+// Append the concatenated Mim.exp and resourec.exp
+function AppendMimResources(expDir) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var ForAppending = 8;
+    var ForReading = 1;
+    
+    var dateSuffix="_"+getDate()+"v1";
+
+    var mimFile = expDir+"/mim/mim"+dateSuffix+".exp";
+    var mimStr = fso.OpenTextFile(mimFile,ForReading);
+
+    var mimResFile = expDir+"\\mim\\mim_resources"+dateSuffix+".exp";
+    var mimResStr = fso.CreateTextFile(mimResFile, true);	
+
+    var resourceFile = expDir+"/resources/resource.exp";
+    var resourceStr = fso.OpenTextFile(resourceFile, ForReading);
+
+    mimResStr.WriteLine("");
+    mimResStr.WriteLine("(*");
+    mimResStr.WriteLine("   ------------------------------------------------------------");
+    mimResStr.WriteLine("    MIM SCHEMAS ");
+    mimResStr.WriteLine("   ------------------------------------------------------------");
+    mimResStr.WriteLine("*)");
+    mimResStr.WriteLine("");
+
+    while (!mimStr.AtEndOfStream) {
+	var l =  mimStr.ReadLine();
+	mimResStr.WriteLine(l);
+    }
+
+    mimResStr.WriteLine("");
+    mimResStr.WriteLine("(*");
+    mimResStr.WriteLine("   ------------------------------------------------------------");
+    mimResStr.WriteLine("    COMMON RESOURCE SCHEMAS");
+    mimResStr.WriteLine("   ------------------------------------------------------------");
+    mimResStr.WriteLine("*)");
+    mimResStr.WriteLine("");
+
+    while (!resourceStr.AtEndOfStream) {
+	var l =  resourceStr.ReadLine();
+	mimResStr.WriteLine(l);
+    }
+
+    mimStr.Close();
+    mimResStr.Close();
+    resourceStr.Close();
+    return(mimResFile);
+}
+
 // Append all the express files
 function AppendMimArm(armOrMim, expDir, modList) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
@@ -257,7 +317,9 @@ function AppendMimArm(armOrMim, expDir, modList) {
     var ForReading = 1;
     var schemaArr = new Array;
 
-    var armFile = expDir+"/"+armOrMim+"/"+armOrMim+".exp";    
+    var dateSuffix="_"+getDate()+"v1";
+    
+    var armFile = expDir+"\\"+armOrMim+"\\"+armOrMim+dateSuffix+".exp"
     // make sure that the arm.exp file does not exist
     if (fso.FileExists(armFile)) {
 	ErrorMessage("The "+armOrMim+".exp already exists. Delete to proceed\n"+armFile);
@@ -297,7 +359,8 @@ function AppendMimArm(armOrMim, expDir, modList) {
 	    srcStr.Close();    
 	}
     }
-    armStr.Close();
+   armStr.Close();
+   return(armFile);		
 }
 
 function AppendMimArmOld(armOrMim, expDir, modList) {
@@ -428,21 +491,29 @@ function Main() {
     }
 }
 
-//Run from getEpxress.wsf
+//Run from getExpress.wsf
 function MainWindow(expDir, modList) {
     if (TestParams(expDir, modList) == 1) {
 	MakeDirs(expDir);
 	GetArmMimExpress(expDir, modList);
 	GetIrExpress(expDir);
-	AppendMimArm("arm",expDir,modList);
-	AppendMimArm("mim",expDir,modList);
-	UserMessage("Created directory:\n  "+expDir);
+	var armFile = AppendMimArm("arm",expDir,modList);
+	var mimFile = AppendMimArm("mim",expDir,modList);
+	var resFile = AppendMimResources(expDir);
+	UserMessage("Created directory:\n  "+expDir
+		    + "\nConcatenated ARM EXPRESS: "+armFile
+		    + "\nConcatenated MIM EXPRESS: "+mimFile
+		    + "\nConcatenated MIM+Resource EXPRESS: "+resFile);
     }
 }
 
 
 //MainWindow("..\\express", "..\\modlist.txt");
 //MainWindow("..\\ballots\\ballots\\plcs_bp1\\express", "..\\ballots\\ballots\\plcs_bp1\\modlist.txt");
+//MainWindow("..\\ballots\\ballots\\plcs_bp1\\express_nostate", "..\\ballots\\ballots\\plcs_bp1\\modlist_nostate.txt");
 
 //outputModuleList("plcs_bp1");
 //outputModuleList("pdm_ballot_072002");
+
+
+

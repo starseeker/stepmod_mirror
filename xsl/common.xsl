@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.106 2003/07/29 10:11:57 robbod Exp $
+$Id: common.xsl,v 1.107 2003/07/29 11:21:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -716,7 +716,6 @@ $Id: common.xsl,v 1.106 2003/07/29 10:11:57 robbod Exp $
   </xsl:variable>
   <xsl:variable name="item" select="normalize-space($item1)"/>
 
-
   <xsl:variable name="position">
     <!-- use number rather than position as SAXON gives wrong results -->
     <xsl:number/>
@@ -734,13 +733,18 @@ $Id: common.xsl,v 1.106 2003/07/29 10:11:57 robbod Exp $
     </xsl:choose>
   </xsl:variable>  
   <li>
-    <xsl:if test="substring($item,string-length($item))!=$terminator">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error b1: Item in list should end with',$terminator)"/>
-      </xsl:call-template>
-    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="contains($item,'**')">
+        <!-- the list item contains a sub list, so allow other terminators -->
+      </xsl:when>
+      <xsl:when test="substring($item,string-length($item))!=$terminator">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error b1: Item in list should end with',$terminator)"/>
+        </xsl:call-template>
+      </xsl:when>
+    </xsl:choose>
     <xsl:apply-templates/>
   </li>
 </xsl:template>
@@ -750,7 +754,11 @@ $Id: common.xsl,v 1.106 2003/07/29 10:11:57 robbod Exp $
   </li>
 </xsl:template>
 
-<xsl:template match="example|note|ul" mode="flatten"/>
+<xsl:template match="example|note" mode="flatten"/>
+<xsl:template match="ul" mode="flatten">
+ **
+</xsl:template>
+
 <xsl:template match="p" mode="flatten">
   <xsl:value-of select="."/>
 </xsl:template>

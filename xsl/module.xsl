@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.60 2002/06/02 07:12:37 robbod Exp $
+$Id: module.xsl,v 1.61 2002/06/02 13:21:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -326,7 +326,7 @@ o=isocs; s=central<br/>
         <!-- the default provided by mkmodule -->
         <xsl:call-template name="error_message">
           <xsl:with-param name="message">
-            Error 17: No WG number provided for convener checklist
+            Error 19: No WG number provided for convener checklist
           </xsl:with-param>
         </xsl:call-template>     
       </xsl:if>

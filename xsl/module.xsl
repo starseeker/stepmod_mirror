@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.138 2003/05/04 08:15:03 robbod Exp $
+$Id: module.xsl,v 1.139 2003/05/06 10:23:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1392,9 +1392,8 @@ o=isocs; s=central<br/>
   <xsl:call-template name="output_express_issue">
     <xsl:with-param name="schema" select="$schema_name"/>
   </xsl:call-template> 
-
-  <code>
     <u>EXPRESS specification: </u>
+  <code>
     <br/>    <br/>
     *)<br/>
     <a name="{$xref}">
@@ -1841,9 +1840,8 @@ o=isocs; s=central<br/>
 
 
   <xsl:apply-templates select="$mim_nodes/express/schema" mode="check_mim_usefroms"/>
-
+  <u>EXPRESS specification: </u>
   <code>
-    <u>EXPRESS specification: </u>
     <br/>    <br/>
     *)<br/>
     <a name="{$xref}">

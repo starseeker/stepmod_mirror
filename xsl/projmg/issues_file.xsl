@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     $Id: issues_file.xsl,v 1.3 2002/08/20 13:51:01 robbod Exp $
+     $Id: issues_file.xsl,v 1.4 2002/08/21 20:23:50 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -361,7 +361,7 @@
       <xsl:when test="@type='purpose'">
         against purpose.
         <a href="../sys/introduction{$FILE_EXT}#introduction">
-          (module.xml/module/purpise).
+          (module.xml/module/purpose).
         </a>
       </xsl:when>
 

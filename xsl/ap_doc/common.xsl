@@ -22,10 +22,10 @@
 		<xsl:param name="application_protocol"/>
 		<xsl:variable name="ap_dir">
 			<xsl:call-template name="module_name">
-				<xsl:with-param name="application_protocol" select="$application_protocol"/>
+				<xsl:with-param name="module" select="$application_protocol"/>
 			</xsl:call-template>
 		</xsl:variable>
-		<xsl:value-of select="concat('../../data/application_protocols/',$ap_dir)"/>
+		<xsl:value-of select="concat('../../data/application_protocols/', $ap_dir)"/>
 	</xsl:template>
 	
 	<xsl:template name="check_application_protocol_exists">

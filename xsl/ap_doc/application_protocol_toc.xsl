@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-<!-- last edited mwd 2002-08-20 -->
+
+<!--
+     $Id: $
+-->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	
@@ -8,9 +11,13 @@
 		<!-- the entry that has been selected -->
 		<xsl:param name="selected"/>
 		<xsl:param name="application_protocol_root" select="'..'"/>
+		
+		
+
 		<xsl:apply-templates select="." mode="TOCbannertitle">
 			<xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
 		</xsl:apply-templates>
+
 
 		<xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
 		<xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>
@@ -407,7 +414,7 @@
 						</A>
 						<xsl:call-template name="expressg_icon">
 							<xsl:with-param name="schema" select="concat(./@name,'_mim')"/>
-							<xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
+							<xsl:with-param name="module_root" select="$application_protocol_root"/>
 						</xsl:call-template>
 						<BR/>
 						<!-- use #annexb to link direct -->
@@ -433,7 +440,6 @@
 							<xsl:with-param name="schema" select="concat(./@name,'_arm')"/>
 							<xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
 						</xsl:call-template>
-
 						<BR/>
 						<!-- use #annexf to link direct -->
 						<A HREF="{$application_protocol_root}/sys/f_arm_expg{$FILE_EXT}">
@@ -441,7 +447,7 @@
 						</A>
 						<xsl:call-template name="expressg_icon">
 							<xsl:with-param name="schema" select="concat(./@name,'_arm')"/>
-							<xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
+							<xsl:with-param name="module_root" select="$application_protocol_root"/>
 						</xsl:call-template>
 						<BR/>
 						<!-- use #annexg to link direct -->

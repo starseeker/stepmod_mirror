@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.28 2002/06/21 09:35:52 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.29 2002/06/24 07:34:05 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -393,15 +393,18 @@ $Id: sect_5_mapping.xsl,v 1.28 2002/06/21 09:35:52 robbod Exp $
     <xsl:apply-templates select="$entity_node" mode="expressg_icon"/>
   </h3>
 
-  <xsl:apply-templates select="./alt"/>
-
+  <xsl:apply-templates select="./alt" mode="specification"/>
   <!-- now layout the aim element -->
-  <table>
-    <xsl:apply-templates select="./aimelt"  mode="specification"/>
-    <xsl:apply-templates select="./source"  mode="specification"/>
-    <xsl:apply-templates select="./rules"  mode="specification"/>
-    <xsl:apply-templates select="./refpath"  mode="specification"/>
-  </table>
+
+  <xsl:choose>
+    <xsl:when test="./alt_map">
+      <!-- can either have a set of alternatives or one mapping -->
+      <xsl:apply-templates select="./alt_map" mode="output_mapping"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="." mode="output_mapping"/>
+    </xsl:otherwise>
+  </xsl:choose>
 
   <xsl:apply-templates select="aa" mode="specification">
     <xsl:with-param name="sect" select="concat('5.1.',$sect_no)"/>
@@ -487,13 +490,31 @@ $Id: sect_5_mapping.xsl,v 1.28 2002/06/21 09:35:52 robbod Exp $
       select="document($arm_xml)/express/schema/entity[@name=$ae]"/>
   <xsl:apply-templates select="$entity_node" mode="expressg_icon"/>
   </h3>
-  <xsl:apply-templates select="./alt"/>
-  <table>
-    <xsl:apply-templates select="./aimelt"  mode="specification"/>
-    <xsl:apply-templates select="./source"  mode="specification"/>
-    <xsl:apply-templates select="./rules"  mode="specification"/>
-    <xsl:apply-templates select="./refpath"  mode="specification"/>
-  </table>
+  <xsl:apply-templates select="./alt" mode="specification"/>
+
+  <xsl:choose>
+    <xsl:when test="./alt_map">
+      <!-- can either have a set of alternatives or one mapping -->
+      <xsl:apply-templates select="./alt_map" mode="output_mapping"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="." mode="output_mapping"/>
+    </xsl:otherwise>
+  </xsl:choose>
+
+</xsl:template>
+
+
+<xsl:template match="alt" mode="specification">
+  <xsl:call-template name="error_message">
+    <xsl:with-param name="message">
+      'Warning &lt;alt&gt; has been deprecated. Use &lt;alt_map&gt; instead'
+    </xsl:with-param>
+  </xsl:call-template>
+  <xsl:call-template name="output_string_with_linebreaks">
+    <xsl:with-param name="string" select="string(.)"/>
+  </xsl:call-template>
+  <br/>
 </xsl:template>
 
 <xsl:template match="aimelt" mode="specification">
@@ -542,7 +563,7 @@ $Id: sect_5_mapping.xsl,v 1.28 2002/06/21 09:35:52 robbod Exp $
   <xsl:variable name="str" select="string(.)"/>
   <xsl:if test="string-length($str)>0">
     <tr valign="top">
-      <td>Reference path:</td>
+      <td>Reference path:&#160;&#160;</td>
       <xsl:apply-templates select="." mode="check_ref_path"/>
       <td>
         <xsl:call-template name="output_string_with_linebreaks">
@@ -554,6 +575,81 @@ $Id: sect_5_mapping.xsl,v 1.28 2002/06/21 09:35:52 robbod Exp $
 </xsl:template>
 
 
+<xsl:template match="alt_map" mode="output_id_description">
+  <xsl:choose>
+    <xsl:when test="@id">
+      <p/>
+      <xsl:value-of select="concat('#',@id,'&#160;&#160;&#160;')"/>
+      <xsl:apply-templates select="./description"/>
+      <p/>
+    </xsl:when>
+
+    <!-- use a description defined earlier in the mapping specification -->
+    <xsl:when test="@alt_map.inc">
+      <!-- 
+           can only use in an a mapping specification for an attribute aa
+           -->
+      <xsl:variable name="dsc.id" select="@alt_map.inc"/>
+      <xsl:choose>
+        <xsl:when test="../../alt_map[@id=$dsc.id]/description">
+          <xsl:apply-templates 
+            select="../../alt_map[@id=$dsc.id]" mode="output_id_description"/>          
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error altm2: cannot find the
+description referred to by @alt_map.inc ',@alt_map.inc, ' Can only
+reference description defnied in the alt_map at the entity (ae) level) in
+the mapping specification')"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:when>
+
+
+    <xsl:otherwise>
+      <xsl:variable name="msg">
+        <xsl:choose>
+          <xsl:when test="../@entity">
+            <xsl:value-of 
+              select="concat('Error altm1: alt_map in &lt;ae entity=&quot;',
+                      ../@entity,'&quot; must specifiy @id')"/>
+          </xsl:when>
+          <xsl:when test="../@attribute">
+            <xsl:value-of 
+              select="concat('Error altm1: alt_map in &lt;a attribute=&quot;',
+                      ../@attribute,'&quot; must specifiy @id')"/>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          <xsl:value-of select="$msg"/>
+          </xsl:with-param>
+        </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="ae|aa" mode="output_id_description">
+  <p/>
+  <xsl:apply-templates select="./description"/>
+  <p/>
+</xsl:template>
+
+
+<!-- This is the main template to output the mapping specification -->
+<xsl:template match="ae|aa|alt_map" mode="output_mapping">
+  <xsl:apply-templates select="." mode="output_id_description"/>
+  <table>
+    <xsl:apply-templates select="./aimelt"  mode="specification"/>
+    <xsl:apply-templates select="./source"  mode="specification"/>
+    <xsl:apply-templates select="./rules"  mode="specification"/>
+    <xsl:apply-templates select="./refpath"  mode="specification"/>
+  </table>  
+</xsl:template>
 
 <!-- 
      ************************************************************

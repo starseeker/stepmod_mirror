@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
+$Id: sect_contents.xsl,v 1.7 2002/12/18 22:29:38 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -158,7 +158,7 @@ $Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
    <p class="content">
      &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
      <A HREF="{$xref}">
-       <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
+       <xsl:value-of select="concat($clause_no,$clause_number, '.', position(), ' ', @name)"/>
      </A>
    </p>
  </xsl:template>
@@ -447,10 +447,10 @@ $Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
                                ' type definitions')"/>
        </A>
      </p>    
-     <!--    <xsl:apply-templates 
-       select="document($express_xml)/express/schema/constant" mode="contents">
+     <xsl:apply-templates 
+       select="document(string($express_xml))/express/schema/type" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
-     </xsl:apply-templates> -->
+     </xsl:apply-templates> 
    </xsl:if>
 
    <!-- only output if there are imported types defined and 
@@ -491,11 +491,12 @@ $Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
                                ' entity definitions')"/>
        </A>
      </p>
-     <!--    <xsl:apply-templates 
-       select="document($express_xml)/express/schema/constant" mode="contents">
+
+    <xsl:apply-templates 
+       select="document(string($express_xml))/express/schema/entity" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
- -->
+
    </xsl:if>
 
    <!-- only output if there are imported entitys defined and 
@@ -535,11 +536,10 @@ $Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
                                ' subtype constraint definitions')"/>
        </A>
      </p>
-     <!--    <xsl:apply-templates 
-       select="document($express_xml)/express/schema/constant" mode="contents">
+    <xsl:apply-templates 
+       select="document($express_xml)/express/schema/subtype.constraint" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
- -->
    </xsl:if>
 
 
@@ -560,11 +560,11 @@ $Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
                                ' function definitions')"/>
        </A>
      </p>
-     <!--    <xsl:apply-templates 
-       select="document($express_xml)/express/schema/constant" mode="contents">
+     <xsl:apply-templates 
+       select="document($express_xml)/express/schema/function" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
- -->
+
    </xsl:if>
    <!-- only output if there are imported functions defined and 
         therefore a section -->
@@ -602,11 +602,10 @@ $Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
                                ' rule definitions')"/>
        </A>
      </p>
-     <!--    <xsl:apply-templates 
-       select="document($express_xml)/express/schema/constant" mode="contents">
+    <xsl:apply-templates 
+       select="document($express_xml)/express/schema/rule" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
- -->
    </xsl:if>
    <!-- only output if there are imported rules defined and 
         therefore a section -->
@@ -645,7 +644,7 @@ $Id: sect_contents.xsl,v 1.6 2002/12/17 04:53:46 thendrix Exp $
        </A>
      </p>
      <xsl:apply-templates 
-       select="document($express_xml)/express/schema/constant" mode="contents">
+       select="document($express_xml)/express/schema/procedure" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
    </xsl:if>

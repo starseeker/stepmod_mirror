@@ -1,341 +1,173 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<!-- $Id: product_property_definition_schema.xml,v 1.5 2002/07/14 16:43:51 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-41"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/product_property_definition_schema/product_property_definition_schema.exp"/>
-
-  <schema name="product_property_definition_schema">
-    <interface
-      kind="reference"
-      schema="process_property_schema">
-      <interfaced.item
-        name="action_property"/>
-      <interfaced.item
-        name="resource_property"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="product_definition_schema">
-      <interfaced.item
-        name="product_definition"/>
-      <interfaced.item
-        name="product_definition_relationship"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="bag_to_set"/>
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="basic_attribute_schema">
-      <interfaced.item
-        name="get_id_value"/>
-      <interfaced.item
-        name="id_attribute"/>
-    </interface>
-
-    <type name="characterized_definition">
-      <select
-        selectitems="characterized_object characterized_product_definition shape_definition">
-      </select>
-
-    </type>
-    <type name="characterized_product_definition">
-      <select
-        selectitems="product_definition product_definition_relationship">
-      </select>
-
-    </type>
-    <type name="derived_property_select">
-      <select
-        selectitems="property_definition action_property resource_property">
-      </select>
-
-    </type>
-    <type name="shape_definition">
-      <select
-        selectitems="product_definition_shape shape_aspect shape_aspect_relationship">
-      </select>
-
-    </type>
-    <entity
-      name="characterized_object">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="characterized_object_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_object">
-        <typename
-          name="characterized_object"/>
-      </explicit>
-      <explicit
-        name="related_object">
-        <typename
-          name="characterized_object"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="general_property">
-      <explicit
-        name="id">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="general_property_association">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="base_definition">
-        <typename
-          name="general_property"/>
-      </explicit>
-      <explicit
-        name="derived_definition">
-        <typename
-          name="derived_property_select"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF( USEDIN( derived_definition,                       'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +                        'GENERAL_PROPERTY_ASSOCIATION.' +                        'DERIVED_DEFINITION')) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="derived_definition.name = base_definition.name">
-      </where>
-    </entity>
-
-    <entity
-      name="general_property_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_property">
-        <typename
-          name="general_property"/>
-      </explicit>
-      <explicit
-        name="related_property">
-        <typename
-          name="general_property"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="product_definition_shape"
-      supertypes="property_definition">
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="SELF\property_definition.definition"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="SIZEOF     (['PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_PRODUCT_DEFINITION',  'PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_OBJECT'] *TYPEOF         (SELF\property_definition.definition))&gt;0">
-      </where>
-    </entity>
-
-    <entity
-      name="property_definition">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="definition">
-        <typename
-          name="characterized_definition"/>
-      </explicit>
-      <derived
-        name="id"
-        expression="get_id_value (SELF)">
-        <typename
-          name="identifier"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="shape_aspect">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="of_shape">
-        <typename
-          name="product_definition_shape"/>
-      </explicit>
-      <explicit
-        name="product_definitional">
-        <builtintype
-          type="LOGICAL"/>
-      </explicit>
-      <derived
-        name="id"
-        expression="get_id_value (SELF)">
-        <typename
-          name="identifier"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="shape_aspect_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_shape_aspect">
-        <typename
-          name="shape_aspect"/>
-      </explicit>
-      <explicit
-        name="related_shape_aspect">
-        <typename
-          name="shape_aspect"/>
-      </explicit>
-      <derived
-        name="id"
-        expression="get_id_value (SELF)">
-        <typename
-          name="identifier"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <function
-      name="acyclic_characterized_object_relationship">
-      <parameter
-        name="relation">
-        <typename
-          name="characterized_object_relationship"/>
-      </parameter>
-      <parameter
-        name="relatives">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="characterized_object"/>
-      </parameter>
-      <parameter
-        name="specific_relation">
-        <builtintype
-          type="STRING"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+<express language_version="2" reference="ISO 10303-41" rcs.date="$Date: 2002/07/14 16:43:51 $" rcs.revision="$Revision: 1.5 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.17" source="../data/resources/product_property_definition_schema/product_property_definition_schema.exp"/>
+	<schema name="product_property_definition_schema">
+		<interface kind="reference" schema="process_property_schema">
+			<interfaced.item name="action_property"/>
+			<interfaced.item name="resource_property"/>
+		</interface>
+		<interface kind="reference" schema="product_definition_schema">
+			<interfaced.item name="product_definition"/>
+			<interfaced.item name="product_definition_relationship"/>
+		</interface>
+		<interface kind="reference" schema="support_resource_schema">
+			<interfaced.item name="bag_to_set"/>
+			<interfaced.item name="identifier"/>
+			<interfaced.item name="label"/>
+			<interfaced.item name="text"/>
+		</interface>
+		<interface kind="reference" schema="basic_attribute_schema">
+			<interfaced.item name="get_id_value"/>
+			<interfaced.item name="id_attribute"/>
+		</interface>
+		<type name="characterized_definition">
+			<select selectitems="characterized_object characterized_product_definition shape_definition"/>
+		</type>
+		<type name="characterized_product_definition">
+			<select selectitems="product_definition product_definition_relationship"/>
+		</type>
+		<type name="derived_property_select">
+			<select selectitems="property_definition action_property resource_property"/>
+		</type>
+		<type name="shape_definition">
+			<select selectitems="product_definition_shape shape_aspect shape_aspect_relationship"/>
+		</type>
+		<entity name="characterized_object">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+		</entity>
+		<entity name="characterized_object_relationship">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="relating_object">
+				<typename name="characterized_object"/>
+			</explicit>
+			<explicit name="related_object">
+				<typename name="characterized_object"/>
+			</explicit>
+		</entity>
+		<entity name="general_property">
+			<explicit name="id">
+				<typename name="identifier"/>
+			</explicit>
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+		</entity>
+		<entity name="general_property_association">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="base_definition">
+				<typename name="general_property"/>
+			</explicit>
+			<explicit name="derived_definition">
+				<typename name="derived_property_select"/>
+			</explicit>
+			<where label="WR1" expression="SIZEOF( USEDIN( derived_definition,                       'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +                        'GENERAL_PROPERTY_ASSOCIATION.' +                        'DERIVED_DEFINITION')) = 1"/>
+			<where label="WR2" expression="derived_definition.name = base_definition.name"/>
+		</entity>
+		<entity name="general_property_relationship">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="relating_property">
+				<typename name="general_property"/>
+			</explicit>
+			<explicit name="related_property">
+				<typename name="general_property"/>
+			</explicit>
+		</entity>
+		<entity name="product_definition_shape" supertypes="property_definition">
+			<!-- unique label="UR1">
+				<unique.attribute attribute="SELF\property_definition.definition"/>
+			</unique -->
+			<where label="WR1" expression="SIZEOF     (['PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_PRODUCT_DEFINITION',  'PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_OBJECT'] *TYPEOF         (SELF\property_definition.definition))&gt;0"/>
+		</entity>
+		<entity name="property_definition">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="definition">
+				<typename name="characterized_definition"/>
+			</explicit>
+			<derived name="id" expression="get_id_value (SELF)">
+				<typename name="identifier"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+		</entity>
+		<entity name="shape_aspect">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="of_shape">
+				<typename name="product_definition_shape"/>
+			</explicit>
+			<explicit name="product_definitional">
+				<builtintype type="LOGICAL"/>
+			</explicit>
+			<derived name="id" expression="get_id_value (SELF)">
+				<typename name="identifier"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+		</entity>
+		<entity name="shape_aspect_relationship">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="relating_shape_aspect">
+				<typename name="shape_aspect"/>
+			</explicit>
+			<explicit name="related_shape_aspect">
+				<typename name="shape_aspect"/>
+			</explicit>
+			<derived name="id" expression="get_id_value (SELF)">
+				<typename name="identifier"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+		</entity>
+		<function name="acyclic_characterized_object_relationship">
+			<parameter name="relation">
+				<typename name="characterized_object_relationship"/>
+			</parameter>
+			<parameter name="relatives">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="characterized_object"/>
+			</parameter>
+			<parameter name="specific_relation">
+				<builtintype type="STRING"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
   LOCAL
     x                : SET OF characterized_object_relationship;
   END_LOCAL;
@@ -358,33 +190,20 @@
   END_REPEAT;
   RETURN(TRUE);
       </algorithm>
-
-    </function>
-
-    <function
-      name="acyclic_general_property_relationship">
-      <parameter
-        name="relation">
-        <typename
-          name="general_property_relationship"/>
-      </parameter>
-      <parameter
-        name="relatives">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="general_property"/>
-      </parameter>
-      <parameter
-        name="specific_relation">
-        <builtintype
-          type="STRING"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+		</function>
+		<function name="acyclic_general_property_relationship">
+			<parameter name="relation">
+				<typename name="general_property_relationship"/>
+			</parameter>
+			<parameter name="relatives">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="general_property"/>
+			</parameter>
+			<parameter name="specific_relation">
+				<builtintype type="STRING"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
   LOCAL
     x                : SET OF general_property_relationship;
   END_LOCAL;
@@ -407,33 +226,20 @@
   END_REPEAT;
   RETURN(TRUE);
       </algorithm>
-
-    </function>
-
-    <function
-      name="acyclic_shape_aspect_relationship">
-      <parameter
-        name="relation">
-        <typename
-          name="shape_aspect_relationship"/>
-      </parameter>
-      <parameter
-        name="relatives">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="shape_aspect"/>
-      </parameter>
-      <parameter
-        name="specific_relation">
-        <builtintype
-          type="STRING"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+		</function>
+		<function name="acyclic_shape_aspect_relationship">
+			<parameter name="relation">
+				<typename name="shape_aspect_relationship"/>
+			</parameter>
+			<parameter name="relatives">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="shape_aspect"/>
+			</parameter>
+			<parameter name="specific_relation">
+				<builtintype type="STRING"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
   LOCAL
     x                : SET OF shape_aspect_relationship;
   END_LOCAL;
@@ -456,21 +262,14 @@
   END_REPEAT;
   RETURN(TRUE);
       </algorithm>
-
-    </function>
-
-    <function
-      name="get_shape_aspects">
-      <parameter
-        name="c_def_instance">
-        <typename
-          name="characterized_definition"/>
-      </parameter>
-      <aggregate
-        type="SET"/>
-      <typename
-        name="shape_aspect"/>
-      <algorithm>
+		</function>
+		<function name="get_shape_aspects">
+			<parameter name="c_def_instance">
+				<typename name="characterized_definition"/>
+			</parameter>
+			<aggregate type="SET"/>
+			<typename name="shape_aspect"/>
+			<algorithm>
       
       LOCAL
       pd_set : SET OF product_definition_shape := [];
@@ -489,9 +288,6 @@
  END_REPEAT;
  RETURN (pdr_set);
       </algorithm>
-
-    </function>
-
-  </schema>
-
+		</function>
+	</schema>
 </express>

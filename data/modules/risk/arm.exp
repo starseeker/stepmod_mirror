@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.1 2003/02/27 18:02:37 magnevs Exp $
+   $Id: arm.exp,v 1.3 2003/03/13 01:12:51 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-1264 Risk - EXPRESS ARM
 *) 
 
@@ -11,6 +11,8 @@ USE FROM Activity_method_assignment_arm;    -- ISO/CD-TS 10303-1249
 USE FROM Approval_arm;    -- ISO/TS 10303-1012
 
 USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
+
+USE FROM Condition_arm;    -- ISO/CD-TS 10303-1253
 
 USE FROM Date_time_assignment_arm;    -- ISO/TS 10303-1014
 
@@ -25,14 +27,11 @@ USE FROM Probability_arm;    -- ISO/CD-TS 10303-1252
 USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 
-TYPE impacted_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
-
 TYPE mitigation_select = SELECT
    (Applied_risk_consequence, 
     Applied_risk_probability, 
-    Impact, 
-    Risk);
+    Risk, 
+    Risk_impact);
 END_TYPE; 
 
 TYPE risk_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
@@ -44,19 +43,32 @@ TYPE risk_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_ite
     Risk_treatment);
 END_TYPE; 
 
-TYPE risk_classified = SELECT BASED_ON classification_item WITH 
-   (Impact, 
-    Risk, 
+TYPE risk_classified_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+   (Risk, 
     Risk_consequence, 
+    Risk_impact, 
     Risk_perception, 
     Risk_probability, 
     Risk_reduction, 
     Risk_relationship);
 END_TYPE; 
 
-TYPE risk_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH 
+TYPE risk_condition_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_item WITH 
+   (Risk_criteria);
+END_TYPE; 
+
+TYPE risk_criteria_select = SELECT
+   (Applied_risk_source_assignment, 
+    Risk_perception, 
+    Risk_treatment);
+END_TYPE; 
+
+TYPE risk_date_or_date_time_item = EXTENSIBLE SELECT BASED_ON date_or_date_time_item WITH 
    (Risk, 
     Risk_reduction);
+END_TYPE; 
+
+TYPE risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT;
 END_TYPE; 
 
 TYPE risk_item = EXTENSIBLE GENERIC_ENTITY SELECT
@@ -67,12 +79,12 @@ TYPE risk_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justifi
    (Risk_reduction);
 END_TYPE; 
 
-TYPE risk_organization_or_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_or_person_in_organization_item WITH 
+TYPE risk_organization_or_person_in_organization_item = EXTENSIBLE SELECT BASED_ON organization_or_person_in_organization_item WITH 
    (Risk, 
     Risk_reduction);
 END_TYPE; 
 
-TYPE risk_property_assignment = SELECT BASED_ON property_assignment_select WITH 
+TYPE risk_property_assignment = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH 
    (Risk, 
     Risk_relationship);
 END_TYPE; 
@@ -80,17 +92,22 @@ END_TYPE;
 TYPE risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT;
 END_TYPE; 
 
-ENTITY Applied_impact_assignment;
-  described_impact : Impact;
-  items : SET[1:?] OF impacted_item;
-  role : STRING;
-END_ENTITY;
-
 ENTITY Applied_risk_consequence;
   name : STRING;
   description : STRING;
-  effect : SET[1:?] OF Impact;
-  related : Risk_consequence;
+  effect : Risk_impact;
+  pertaining_consequence : Risk_consequence;
+END_ENTITY;
+
+ENTITY Applied_risk_criteria;
+  inputs : SET[1:?] OF risk_criteria_select;
+  pertaining_criteria : Risk_criteria;
+END_ENTITY;
+
+ENTITY Applied_risk_impact_assignment;
+  described_impact : Risk_impact;
+  items : SET[1:?] OF risk_impact_item;
+  role : STRING;
 END_ENTITY;
 
 ENTITY Applied_risk_probability;
@@ -101,9 +118,9 @@ ENTITY Applied_risk_probability;
 END_ENTITY;
 
 ENTITY Applied_risk_source_assignment;
-  assigned_to : risk_source_item;
+  assigned_to : SET[1:?] OF risk_source_item;
   described_risk : Risk;
-  role : STRING;
+  role : Risk_source_role;
 END_ENTITY;
 
 ENTITY Defined_risk_consequence;
@@ -120,11 +137,6 @@ ENTITY Defined_risk_probability;
   related_risk : Risk;
 END_ENTITY;
 
-ENTITY Impact;
-  name : STRING;
-  description : STRING;
-END_ENTITY;
-
 ENTITY Residual_risk;
   name : STRING;
   description : STRING;
@@ -136,7 +148,6 @@ ENTITY Risk;
   id : STRING;
   name : STRING;
   description : STRING;
-  context : Risk_context;
   negation : LOGICAL;
 END_ENTITY;
 
@@ -156,6 +167,19 @@ END_ENTITY;
 ENTITY Risk_context;
   name : STRING;
   description : STRING;
+  pertinent_criteria : SET[0:?] OF Risk_criteria;
+  related_risk : Risk;
+END_ENTITY;
+
+ENTITY Risk_criteria;
+  name : STRING;
+  description : STRING;
+END_ENTITY;
+
+ENTITY Risk_impact;
+  name : STRING;
+  description : STRING;
+  severity : OPTIONAL STRING;
 END_ENTITY;
 
 ENTITY Risk_optimization
@@ -168,6 +192,13 @@ ENTITY Risk_perception;
   perceived_consequence : Applied_risk_consequence;
   perceived_probability : Applied_risk_probability;
   perceived_risk : Risk;
+END_ENTITY;
+
+ENTITY Risk_perception_relationship;
+  name : STRING;
+  description : STRING;
+  relating : Risk_perception;
+  related : Risk_perception;
 END_ENTITY;
 
 ENTITY Risk_probability
@@ -196,6 +227,11 @@ ENTITY Risk_retention
   SUBTYPE OF (Risk_treatment);
 END_ENTITY;
 
+ENTITY Risk_source_role;
+  name : STRING;
+  description : STRING;
+END_ENTITY;
+
 ENTITY Risk_status;
   id : STRING;
   name : STRING;
@@ -215,4 +251,3 @@ ENTITY Risk_treatment;
 END_ENTITY;
 
 END_SCHEMA;  -- Risk_arm
-

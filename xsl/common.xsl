@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.48 2002/06/17 15:48:54 robbod Exp $
+$Id: common.xsl,v 1.49 2002/06/18 08:26:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1684,8 +1684,10 @@ $Id: common.xsl,v 1.48 2002/06/17 15:48:54 robbod Exp $
   <xsl:template name="output_menubar">
     <xsl:param name="module_root"/>
     <xsl:param name="module_name"/>
+    <!-- the relative path from XSL directory to stepmod -->
+    <xsl:param name="xsl_path" select="'..'"/>
     <xsl:variable name="rel_menubar_file" 
-      select="concat('../',$menubar_file)"/>
+      select="concat($xsl_path,'/',$menubar_file)"/>
     <xsl:apply-templates
       select="document($rel_menubar_file)/menubar">
       <xsl:with-param name="module_root" select="$module_root"/>

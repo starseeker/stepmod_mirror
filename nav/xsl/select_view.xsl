@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: developer.xsl,v 1.2 2002/09/17 07:04:33 robbod Exp $
+$Id: select_view.xsl,v 1.1 2002/10/10 11:21:15 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -344,19 +345,27 @@ $Id: developer.xsl,v 1.2 2002/09/17 07:04:33 robbod Exp $
 		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 	          <xsl:with-param 
 	            name="message" 
-	            select="concat('Error Sel4: No mapping defined in module ',$this-mod,' for ',$this-ent,'.',$this-attr,
+	            select="concat('Error Sel4: No mapping defined in module ',//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
 		    ' Mapping is required after SELECT type has been extended.')"/>
 	        </xsl:call-template>    
 
 	</xsl:if>
 
 
+	<br/>
+	  &lt;ae entity="<xsl:value-of select="../@name"/>" 
+	  original_module="<xsl:value-of select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>"
+	  &gt;
+	  <br/>
 	<xsl:call-template name="select-attribute-mappings" >
 		<xsl:with-param name="select-items" select="$this-select/select/@selectitems" />
 		<xsl:with-param name="this-attribute" select="@name" />
 		<xsl:with-param name="this-entity" select="../@name" />
 		<xsl:with-param name="this-module" select="$this-mod" />
 	</xsl:call-template>
+	<br/>
+	&lt;/ae&gt;
+	<br/>
 
 </xsl:template>
 
@@ -374,10 +383,6 @@ $Id: developer.xsl,v 1.2 2002/09/17 07:04:33 robbod Exp $
 	<xsl:if test="string-length($this-item) > 0" >
 
 	  <blockquote>
-	  &lt;ae entity="<xsl:value-of select="$this-entity"/>" 
-	  original_module="<xsl:value-of select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>"
-	  &gt;
-	  <br/>
 	    &lt;aa attribute="<xsl:value-of select="$this-attribute"/>" 
 	    assertion_to="<xsl:value-of select="$this-item"/>"&gt;
 	  <br/>

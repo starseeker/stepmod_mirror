@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.20 2005/01/06 14:07:01 liutkus Exp $
+   $Id: arm.exp,v 1.21 2005/01/10 08:40:18 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Extended geometric tolerance - EXPRESS ARM
 *)
 
@@ -502,10 +502,18 @@ USE FROM Default_tolerance_arm;
  
   ENTITY Restraint_condition
     SUPERTYPE OF (Tolerance_specific_restraint_condition);
-(** Need a WR to capture cardinality    
-      restraint_description : Requirement_definition_property;
-*)      
       applied_to            : restrained_item_select;
+	DERIVE
+  		restraint_description: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'restraint description'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
+	WHERE
+   		WR1 : EXISTS (restraint_description) AND SIZEOF(restraint_description) = 1;
   END_ENTITY;
   
   ENTITY Runout_tolerance_zone_definition_with_specified_angle
@@ -562,17 +570,33 @@ USE FROM Default_tolerance_arm;
   ENTITY Statistical_dimensional_tolerance
     SUBTYPE OF (Geometric_dimension);
       alternate_dimension             : OPTIONAL Geometric_dimension;
-(** Need a WR to capture cardinality      
-      statistical_control_requirement : Requirement_definition_property;
-*)      
+	DERIVE
+  		statistical_control_requirement: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'statistical control requirement'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
+	WHERE
+   		WR1 : EXISTS (statistical_control_requirement) AND SIZEOF(statistical_control_requirement) = 1;
   END_ENTITY;
 
   ENTITY Statistical_geometric_tolerance
     SUBTYPE OF (Geometric_tolerance);
       alternate_tolerance             : OPTIONAL Geometric_tolerance;
-(** Need a WR to capture cardinality      
-      statistical_control_requirement : Requirement_definition_property;
-*)      
+	DERIVE
+  		statistical_control_requirement: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'statistical control requirement'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
+	WHERE
+   		WR1 : EXISTS (statistical_control_requirement) AND SIZEOF(statistical_control_requirement) = 1;
   END_ENTITY;
 
   ENTITY Tangent_plane

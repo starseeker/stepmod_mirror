@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.8 2005/01/04 07:10:55 kovaliovas Exp $
+   $Id: arm.exp,v 1.9 2005/01/10 08:40:12 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly component placement requirements - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -70,9 +70,17 @@ END_TYPE;
 
   ENTITY Placement_group;
       design_specific_usage : STRING; --ee_name;
-(** Need a WR to capture cardinality      
-      requirement           : SET[1:?] OF Requirement_definition_property;
-*)      
+	DERIVE
+  		requirement: SET[0:?] OF Requirement_view_definition :=
+		QUERY (rvd <* QUERY (ra <* USEDIN (SELF,
+       'REQUIREMENT_ASSIGNMENT_ARM.'+
+       'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') |
+        (ra.id = 'requirement'))  |
+       'REQUIREMENT_VIEW_DEFINITION_ARM.' +
+       'REQUIREMENT_VIEW_DEFINITION' IN 
+       TYPEOF (ra.assigned_requirement));
+	WHERE
+   		WR1 : EXISTS (requirement) AND SIZEOF(application_technology_constraint) >= 1;
   END_ENTITY;
 
   ENTITY Placement_group_area_assignment;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2005/01/05 08:12:40 liutkus Exp $
+   $Id: arm.exp,v 1.14 2005/01/10 08:40:16 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Chemical substance - EXPRESS ARM
 *)
 
@@ -173,9 +173,14 @@ Example 2: The CAS number of water is "7732-18-5".
  
   ENTITY Chemical_compound 
     SUBTYPE OF (Substance); 
+	DERIVE
+  		id_owner: SET[0:?] OF Organization_or_person_in_organization_assignment :=
+         QUERY(temp <* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+
+         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |
+                         (temp.role = 'id owner') );
   WHERE 
      WR1: SIZEOF([ 'chemical compound' ] * types_of_product(SELF))= 1 ; 
-     WR2: SIZEOF(QUERY(t <* SELF\Organization_or_person_in_organization_assignment. items | t.role = 'id owner') = 1); 
+     WR2 : EXISTS (id_owner) AND sizeof(id_owner) = 1;
   END_ENTITY; 
    
   ENTITY Chemical_element 

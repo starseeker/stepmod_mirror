@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.42 2004/01/07 15:37:07 robbod Exp $
+$Id: express_description.xsl,v 1.43 2004/01/13 09:03:10 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -306,7 +306,7 @@ and
               </xsl:if>              
             </xsl:when>
             <xsl:when test="$attribute='purpose'">
-              <xsl:if test="not(contains($phrase,'the purpose of'))">
+              <xsl:if test="not(contains($phrase,'the text that'))">
                 <xsl:call-template name="error_message">
                   <xsl:with-param 
                     name="message" 
@@ -314,13 +314,13 @@ and
                             $description/@linkend,
                             '. Purpose attribute description should be a phrase.#
                             is: &quot;',$phrase,'&quot;#
-                            Usually will start with &quot;the purpose of&quot;.')"/>
+                            Usually will start with &quot;the text that&quot;.')"/>
                 </xsl:call-template>
               </xsl:if>              
             </xsl:when>
 
             <xsl:when test="$attribute='restriction'">
-              <xsl:if test="not(contains($phrase,'the restriction of'))">
+              <xsl:if test="not(contains($phrase,'the text that'))">
                 <xsl:call-template name="error_message">
                   <xsl:with-param 
                     name="message" 
@@ -328,7 +328,7 @@ and
                             $description/@linkend,
                             '. Name attribute description should be a phrase.#
                             is: &quot;',$phrase,'&quot;#
-                            Usually will start with &quot;the restriction of&quot;.')"/>
+                            Usually will start with &quot;the text that&quot;.')"/>
                 </xsl:call-template>
               </xsl:if>              
             </xsl:when>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.21 2004/02/24 15:10:03 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.22 2004/02/25 09:15:14 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -242,7 +242,7 @@ $Id: sect_4_info_reqs.xsl,v 1.21 2004/02/24 15:10:03 robbod Exp $
     <xsl:if test="position()=1">
       <xsl:choose>
         <xsl:when test="count(../imgfile)>1">
-          Figures
+          Figures 
         </xsl:when>
         <xsl:otherwise>
           Figure
@@ -258,9 +258,18 @@ $Id: sect_4_info_reqs.xsl,v 1.21 2004/02/24 15:10:03 robbod Exp $
       <xsl:call-template name="count_figures_from_fundamentals"/>
     </xsl:variable>
     <a href="{$file_href}">
-      <xsl:value-of select="position()+$figure_count"/>
+      <xsl:value-of select="position()+$figure_count"/> 
     </a>
-    <xsl:if test="position()!=last()">,&#160;</xsl:if>
+    <xsl:choose>
+      <xsl:when test="position()=last()-1 and count(../imgfile)>1">
+        and
+      </xsl:when>
+      <xsl:when test="position()=last()"/>
+      <xsl:otherwise>
+        <xsl:text/>,&#160;
+      </xsl:otherwise>
+    </xsl:choose>
+
   </xsl:template>
 
 

@@ -2,15 +2,18 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-21T11:05:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-24T12:01:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_functional_interface_requirement_arm schema_instance"/>
    <schema name="Assembly_functional_interface_requirement_arm">
       <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
       <interface kind="use" schema="Product_view_definition_arm"/>
       <interface kind="use" schema="Requirement_assignment_arm"/>
       <interface kind="use" schema="Requirement_decomposition_arm"/>
+      <interface kind="reference" schema="Specification_document_arm">
+         <interfaced.item name="get_document_definition"/>
+      </interface>
       <type name="afir_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_documented_element_select" selectitems="Protocol_physical_layer_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Protocol_physical_layer_definition"/>
       </type>
       <entity name="Minimally_defined_connector" supertypes="Packaged_part">
          <explicit name="used_package">
@@ -38,19 +41,19 @@
          <explicit name="media_functional_definition" optional="YES">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
-         <derived name="reference_document" expression=" QUERY ( rd &lt;* QUERY ( da &lt;* USEDIN ( SELF , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( da . role = 'reference document' ) ) | 'DOCUMENT_DEFINITION_ARM.' + 'DOCUMENT_DEFINITION' IN TYPEOF ( rd . assigned_document ) ) ">
+         <derived name="reference_document" expression=" get_document_definition ( SELF , 'reference document' , 'DOCUMENT_DEFINITION_ARM.DOCUMENT_DEFINITION' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Document_definition"/>
          </derived>
-         <derived name="host_rcv_functional_characterization" expression=" QUERY ( rd &lt;* QUERY ( da &lt;* USEDIN ( SELF , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( da . role = 'host rcv functional characterization' ) ) | 'FUNCTIONAL_SPECIFICATION_ARM.' + 'FUNCTIONAL_SPECIFICATION_DEFINITION' IN TYPEOF ( rd . assigned_document ) ) ">
+         <derived name="host_rcv_functional_characterization" expression=" get_document_definition ( SELF , 'host rcv functional characterization' , 'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Functional_specification_definition"/>
          </derived>
-         <derived name="host_xmt_functional_characterization" expression=" QUERY ( rd &lt;* QUERY ( da &lt;* USEDIN ( SELF , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( da . role = 'host xmt functional characterization' ) ) | 'FUNCTIONAL_SPECIFICATION_ARM.' + 'FUNCTIONAL_SPECIFICATION_DEFINITION' IN TYPEOF ( rd . assigned_document ) ) ">
+         <derived name="host_xmt_functional_characterization" expression=" get_document_definition ( SELF , 'host xmt functional characterization' , 'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Functional_specification_definition"/>
          </derived>
-         <derived name="media_functional_characterization" expression=" QUERY ( rd &lt;* QUERY ( da &lt;* USEDIN ( SELF , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( da . role = 'media functional characterization' ) ) | 'FUNCTIONAL_SPECIFICATION_ARM.' + 'FUNCTIONAL_SPECIFICATION_DEFINITION' IN TYPEOF ( rd . assigned_document ) ) ">
+         <derived name="media_functional_characterization" expression=" get_document_definition ( SELF , 'media functional characterization' , 'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Functional_specification_definition"/>
          </derived>

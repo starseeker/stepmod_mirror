@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-21T11:05:59" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-24T12:02:02" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Document_assignment_arm"/>
@@ -10,7 +10,7 @@
       <interface kind="use" schema="Configuration_item_arm"/>
       <interface kind="use" schema="Characteristic_arm"/>
       <type name="sd_external_identification_item">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Structured_text"/>
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Structured_text"/>
       </type>
       <type name="specification_product_object_select">
          <select extensible="YES" genericentity="YES" selectitems="Product_configuration Product_view_definition Product_version Product"/>
@@ -51,7 +51,7 @@
          </derived>
          <where label="WR1" expression=" EXISTS ( source ) AND sizeof ( source ) = 1 "/>
       </entity>
-      <entity name="Structured_text" supertypes="Document_definition">
+      <entity name="Structured_text">
          <explicit name="plain_text_content" optional="YES">
             <typename name="Text_representation_item"/>
          </explicit>
@@ -79,5 +79,19 @@
       </entity>
       <entity name="Surface_finish_specification" supertypes="Material_specification"/>
       <entity name="Test_specification" supertypes="Specification_definition"/>
+      <function name="get_document_definition">
+         <parameter name="input">
+            <typename name="documented_element_select"/>
+         </parameter>
+         <parameter name="role">
+            <builtintype type="STRING"/>
+         </parameter>
+         <parameter name="type_name">
+            <builtintype type="STRING"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Document_definition"/>
+         <algorithm> LOCAL dd : SET [ 0 : ? ] OF Document_definition := [ ] ; da : SET [ 0 : ? ] OF Document_assignment := [ ] ; END_LOCAL ; da := ( QUERY ( dr &lt;* USEDIN ( input , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( dr . role = role ) ) ) ; REPEAT i := 1 to SIZEOF ( da ) by 1 ; IF ( type_name IN TYPEOF ( da [ i ] . assigned_document ) ) THEN dd := dd + da [ i ] . assigned_document ; END_IF ; END_REPEAT ; RETURN ( dd ) ; </algorithm>
+      </function>
    </schema>
 </express>

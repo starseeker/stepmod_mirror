@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-21T11:05:58" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-24T12:02:00" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
@@ -33,25 +33,25 @@
          <enumeration items="right centre left"/>
       </type>
       <type name="limd_ee_product_definition_with_annotation_elements">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_ee_product_definition_with_annotation_elements" selectitems="Layout_template_definition Part_usage_view Part_design_view Stratum"/>
+         <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Layout_template_definition Part_usage_view Part_design_view Stratum"/>
       </type>
       <type name="limd_external_identification_item">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Laminate_layer Stratum Laminate_component"/>
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Laminate_layer Stratum Laminate_component"/>
       </type>
       <type name="limd_part_feature_or_template_feature">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_part_feature_or_template_feature" selectitems="Printed_part_template_terminal Land_template_terminal Component_termination_passage_template_terminal Via_template_terminal Part_terminal_external_reference"/>
+         <select extensible="YES" genericentity="YES" basedon="part_feature_or_template_feature" selectitems="Printed_part_template_terminal Land_template_terminal Component_termination_passage_template_terminal Via_template_terminal Part_terminal_external_reference"/>
       </type>
       <type name="limd_physical_feature_or_part_template">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Physical_laminate_component Layout_template_definition Stratum_feature"/>
+         <select extensible="YES" genericentity="YES" basedon="physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Physical_laminate_component Layout_template_definition Stratum_feature"/>
       </type>
       <type name="limd_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_requirement_assignment_item" selectitems="Stratum_concept_relationship"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Stratum_concept_relationship"/>
       </type>
       <type name="limd_specification_product_object_select">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_specification_product_object_select" selectitems="stratum_concept Stratum"/>
+         <select extensible="YES" genericentity="YES" basedon="specification_product_object_select" selectitems="stratum_concept Stratum"/>
       </type>
       <type name="limd_usage_concept">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_usage_concept" selectitems="Component_termination_passage_template_terminal Via_template_terminal"/>
+         <select extensible="YES" genericentity="YES" basedon="usage_concept" selectitems="Component_termination_passage_template_terminal Via_template_terminal"/>
       </type>
       <type name="printed_part_template_or_printed_part_cross_section_template">
          <select selectitems="Printed_part_template Printed_part_cross_section_template"/>
@@ -310,9 +310,10 @@
          <derived name="minimum_as_finished_passage_extent" expression=" SELF \ Passage_technology . of_technology . minimum_as_finished_passage_extent ">
             <typename name="Length_data_element"/>
          </derived>
+         <inverse name="deposition_material" entity="Material_identification" attribute="items"/>
          <where label="WR1" expression=" EXISTS ( minimum_as_finished_deposition_thickness ) "/>
          <where label="WR2" expression=" EXISTS ( minimum_as_finished_passage_extent ) "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) = 1 ) "/>
+         <where label="WR3" expression=" 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( deposition_material ) "/>
       </entity>
       <entity name="Default_passage_based_land_physical_template" abstract.supertype="YES" supertypes="Default_land_physical_template" super.expression="ONEOF (Default_via_based_land_physical_template, Default_component_termination_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)">
          <explicit name="minimum_fabrication_allowance">
@@ -363,9 +364,10 @@
          <derived name="minimum_as_finished_passage_extent" expression=" SELF \ Passage_technology . of_technology . minimum_as_finished_passage_extent ">
             <typename name="Length_data_element"/>
          </derived>
+         <inverse name="deposition_material" entity="Material_identification" attribute="items"/>
          <where label="WR1" expression=" EXISTS ( minimum_as_finished_deposition_thickness ) "/>
          <where label="WR2" expression=" EXISTS ( minimum_as_finished_passage_extent ) "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) = 1 ) "/>
+         <where label="WR3" expression=" 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( deposition_material ) "/>
       </entity>
       <entity name="Design_layer_stratum" supertypes="Stratum">
          <explicit name="primary_design_layer_stratum">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-21T11:05:58" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-24T12:02:00" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="model_parameter_arm schema_instance"/>
    <schema name="Model_parameter_arm">
       <interface kind="use" schema="Classification_with_attributes_arm"/>
@@ -12,8 +12,11 @@
       <interface kind="use" schema="Document_assignment_arm"/>
       <interface kind="use" schema="Document_definition_arm"/>
       <interface kind="use" schema="Characteristic_arm"/>
+      <interface kind="reference" schema="Specification_document_arm">
+         <interfaced.item name="get_document_definition"/>
+      </interface>
       <type name="mp_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="_SELECT_documented_element_select" selectitems="Model_parameter"/>
+         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Model_parameter"/>
       </type>
       <entity name="Category_model_parameter" supertypes="Model_parameter Classification_attribute"/>
       <entity name="Model_parameter" supertypes="Independent_property">
@@ -27,7 +30,7 @@
          <explicit name="default_value" optional="YES">
             <typename name="scalar_or_coordinated_characteristics"/>
          </explicit>
-         <derived name="reference_document" expression=" QUERY ( rd &lt;* QUERY ( da &lt;* USEDIN ( SELF , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( da . role = 'reference document' ) ) | 'DOCUMENT_DEFINITION_ARM.' + 'DOCUMENT_DEFINITION' IN TYPEOF ( rd . assigned_document ) ) ">
+         <derived name="reference_document" expression=" get_document_definition ( SELF , 'reference document' , 'DOCUMENT_DEFINITION_ARM.DOCUMENT_DEFINITION' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Document_definition"/>
          </derived>

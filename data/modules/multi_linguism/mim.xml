@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.18 2002/07/14 16:55:57 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.21 2002/08/07 06:36:23 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,10 +12,128 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.18"
+    version="1.21"
     source="../data/modules/multi_linguism/mim.exp"/>
 
   <schema name="Multi_linguism_mim">
-  </schema>
+    <interface
+      kind="use"
+      schema="management_resources_schema">
+      <interfaced.item
+        name="attribute_classification_assignment"/>
+      <interfaced.item
+        name="attribute_value_assignment"/>
+    </interface>
 
-</express>
+    <interface
+      kind="use"
+      schema="group_schema">
+      <interfaced.item
+        name="group"/>
+    </interface>
+
+    <type name="attribute_language_item">
+      <select
+        extensible="YES"
+        genericentity="YES"
+        selectitems="multi_language_attribute_assignment">
+      </select>
+
+    </type>
+    <type name="multi_language_attribute_item">
+      <select
+        extensible="YES"
+        genericentity="YES">
+      </select>
+
+    </type>
+    <entity
+      name="language"
+      supertypes="group">
+      <where
+        label="WR1"
+        expression="SELF\group.name &lt;&gt; ''">
+      </where>
+    </entity>
+
+    <entity
+      name="attribute_language_assignment"
+      supertypes="attribute_classification_assignment">
+      <explicit
+        name="assigned_class">
+        <redeclaration
+          entity-ref="attribute_classification_assignment"/>
+          <typename
+            name="language"/>
+        </explicit>
+        <explicit
+          name="items">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="attribute_language_item"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="SELF\attribute_classification_assignment.role.name IN ['primary', 'translated']">
+        </where>
+        <where
+          label="WR2"
+          expression="SELF\attribute_classification_assignment.attribute_name&lt;&gt; ''">
+        </where>
+      </entity>
+
+      <entity
+        name="multi_language_attribute_assignment"
+        supertypes="attribute_value_assignment">
+        <explicit
+          name="items">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="multi_language_attribute_item"/>
+        </explicit>
+        <derived
+          name="translation_language"
+          expression="language_indication[1]\attribute_classification_assignment.assigned_class">
+          <typename
+            name="language"/>
+        </derived>
+        <inverse
+          name="language_indication"
+          entity="attribute_language_assignment"
+          attribute="items">
+          <inverse.aggregate
+            type="SET"
+            lower="1"
+            upper="1"/>
+        </inverse>
+        <where
+          label="WR1"
+          expression="(SELF\attribute_value_assignment.role.name = 'alternate language')">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF( QUERY( ala &lt;* language_indication |     (ala\attribute_classification_assignment.attribute_name = 'attribute_value') AND    (ala\attribute_classification_assignment.role.name='translated') )) = 1 ">
+        </where>
+        <where
+          label="WR3"
+          expression="SELF\attribute_value_assignment.attribute_name &lt;&gt; '' ">
+        </where>
+        <where
+          label="WR4"
+          expression="SIZEOF(QUERY(ci &lt;* items | SIZEOF(QUERY(ata &lt;* USEDIN(ci, 'MULTI_LINGUISM_MIM.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT.ITEMS') |(ata\attribute_value_assignment.attribute_name = SELF\attribute_value_assignment.attribute_name) AND (ata.translation_language :=: translation_language) ))&gt;1 )) =0">
+        </where>
+        <where
+          label="WR5"
+          expression="SIZEOF(QUERY(ci &lt;* items | SIZEOF(QUERY(ata &lt;* USEDIN(ci, 'MULTI_LINGUISM_MIM.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS') | (ala\attribute_classification_assignment.role.name='primary') AND (ala\attribute_classification_assignment.attribute_name= SELF\attribute_value_assignment.attribute_name) AND  (ala\attribute_classification_assignment.assigned_class :=: translation_language) ))&gt;0 )) =0">
+        </where>
+      </entity>
+
+    </schema>
+
+  </express>

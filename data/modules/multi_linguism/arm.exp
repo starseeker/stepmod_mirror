@@ -1,6 +1,6 @@
 (* 
-$Id: arm.exp,v 1.1 2002/07/15 09:12:04 goset1 Exp $
-Nxxxx	 - ISO/WD 10303-1yyy	Multi-linguism - Express ARM 
+$Id: arm.exp,v 1.2 2002/08/09 09:07:46 rugarcia Exp $
+Nxxxx	 - ISO/WD 10303-1105	Multi-linguism - Express ARM 
 *)
 
 SCHEMA Multi_linguism_arm;
@@ -14,18 +14,20 @@ ENTITY Language;
 END_ENTITY;
 
 ENTITY Language_indication;
-   considered_instance: string_select;
+   considered_instances: SET[1:?] OF string_select;
    considered_attribute: STRING;
    used_language:  Language;
 END_ENTITY;
 
 ENTITY Attribute_translation_assignment;
-   considered_instance: string_select;
+   considered_instances: SET[1:?] OF string_select;
    considered_attribute: STRING;
    translation_text : STRING;
    translation_language: Language;
-UNIQUE
-UR1: considered_instance, considered_attribute, translation_language;
+WHERE
+WR1: SIZEOF(ci <* considered_instances |
+SIZEOF(QUERY(ata <* USEDIN(ci, 'MULTI_LINGUISM_ARM.ATTRIBUTE_TRANSLATION_ASSIGNMENT.ITEMS') |
+(ata.considered_attribute = considered_attribute) AND (ata.translation_language :=: translation_language)))>1 ) =0;
 END_ENTITY;
-  
+
 END_SCHEMA;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.26 2004/08/31 07:16:02 robbod Exp $
+$Id: ballot_summary.xsl,v 1.27 2004/12/01 09:30:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -195,7 +195,8 @@ $Id: ballot_summary.xsl,v 1.26 2004/08/31 07:16:02 robbod Exp $
           <xsl:variable name="apdoc_xref"
             select="concat($stepmodhome,'/data/application_protocols/',@name,'/home',$FILE_EXT)"/>
           <a href="{$apdoc_xref}">
-            <xsl:value-of select="@name"/>
+            <!-- changed to avoid changing folder for 203  <xsl:value-of select="@name"/>  -->
+            <xsl:value-of select="$apdoc_node/@title"/> 
           </a>
         </td>
         <!-- Part -->

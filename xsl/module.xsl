@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.136 2003/04/23 14:33:19 robbod Exp $
+$Id: module.xsl,v 1.137 2003/05/04 07:51:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -940,10 +940,10 @@ o=isocs; s=central<br/>
     Resource constructs are interpreted to meet the information
     requirements. 
     This interpretation produces the module interpreted model (MIM). 
-    This interpretation, given in <a href="5_mapping{$FILE_EXT}">5.1</a>,
+    This interpretation, given in <a href="5_mapping{$FILE_EXT}#mapping">5.1</a>,
     shows the correspondence between the information requirements and the
     MIM. The short listing of the MIM specifies the interface to the
-    resources and is given in <a href="5_mim{$FILE_EXT}">5.2</a>.  
+    resources and is given in <a href="5_mim{$FILE_EXT}#mim_express">5.2</a>.  
 
     A graphical representation of the short listing of the MIM is given
     in annex <a href="d_mim_expg{$FILE_EXT}">D</a>.
@@ -1292,7 +1292,7 @@ o=isocs; s=central<br/>
   <xsl:variable name="c_expg"
     select="concat('./c_arm_expg',$FILE_EXT)"/>
   <xsl:variable name="sect51" 
-    select="concat('./5_mapping',$FILE_EXT)"/>
+    select="concat('./5_mapping',$FILE_EXT,'#mapping')"/>
 
   <xsl:variable name="current_module">
     <xsl:call-template name="module_display_name">

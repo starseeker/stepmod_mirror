@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.22 2003/03/11 23:56:55 robbod Exp $
+$Id: imgfile.xsl,v 1.23 2003/03/13 19:16:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -181,7 +181,7 @@ $Id: imgfile.xsl,v 1.22 2003/03/11 23:56:55 robbod Exp $
   <xsl:if test="$file=@file">
     <!-- Page navigation:&#160; -->
       <xsl:variable name="maphref" 
-        select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
+        select="concat('./sys/5_mapping',$FILE_EXT,'#mapping')"/>
       <a href="{$maphref}">
         <img align="middle" border="0" 
           alt="Mapping table" src="../../../images/mapping.gif"/>

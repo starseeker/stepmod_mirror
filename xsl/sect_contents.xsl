@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.22 2003/04/17 15:11:30 robbod Exp $
+$Id: sect_contents.xsl,v 1.23 2003/05/04 07:51:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -441,7 +441,7 @@ $Id: sect_contents.xsl,v 1.22 2003/04/17 15:11:30 robbod Exp $
     <A HREF="./5_main{$FILE_EXT}">5 Module interpreted model</A>
   <br/>
     &#160; &#160;
-    <A HREF="./5_mapping{$FILE_EXT}">5.1 Mapping specification</A>
+    <A HREF="./5_mapping{$FILE_EXT}#mapping">5.1 Mapping specification</A>
   <br/>
   <xsl:apply-templates select="./mapping_table/ae" mode="toc"/>
   <xsl:apply-templates select="./mapping_table/sc" mode="toc"/>

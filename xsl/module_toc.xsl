@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.33 2003/03/13 19:16:59 robbod Exp $
+$Id: module_toc.xsl,v 1.34 2003/04/09 10:48:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -395,7 +395,7 @@ $Id: module_toc.xsl,v 1.33 2003/03/13 19:16:59 robbod Exp $
         <!-- use #mim to link direct -->
         <A HREF="{$module_root}/sys/5_main{$FILE_EXT}">5 Module interpreted model</A><BR/>
         <small>
-          &#160; &#160;<A HREF="{$module_root}/sys/5_mapping{$FILE_EXT}">5.1 Mapping specification</A><BR/>
+          &#160; &#160;<A HREF="{$module_root}/sys/5_mapping{$FILE_EXT}#mapping">5.1 Mapping specification</A><BR/>
         &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mim_express">5.2 MIM EXPRESS short listing</A><BR/>
           <!-- only output if there are constants defined and therefore a
                section -->

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_main.xsl,v 1.1 2002/06/17 16:06:17 robbod Exp $
+$Id: sect_5_main.xsl,v 1.2 2003/03/13 19:17:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to PLCS under contract.
   Purpose:
@@ -27,12 +27,12 @@ $Id: sect_5_main.xsl,v 1.1 2002/06/17 16:06:17 robbod Exp $
     <xsl:with-param name="aname" select="'mim'"/>
   </xsl:call-template>
   <h2>
-    <a href="../sys/5_mapping{$FILE_EXT}">
+    <a href="../sys/5_mapping{$FILE_EXT}#mapping">
       5.1 Mapping specification
     </a>
   </h2>
   <h2>
-    <a href="../sys/5_mim{$FILE_EXT}">
+    <a href="../sys/5_mim{$FILE_EXT}#mim_express">
       5.2 MIM EXPRESS short listing
     </a>
   </h2>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express.xsl,v 1.2 2001/10/05 15:35:00 robbod Exp $
+     $Id: express_toc.xsl,v 1.1 2001/10/22 09:34:10 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -29,12 +29,10 @@
     <table width="90%" cellspacing="0" cellpadding="4">
       <tr>
         <td>
-          <font size="-1">
-            <xsl:apply-templates 
-              select="./schema[not(position() > $schemacount) ]" mode="toc-link">
-              <xsl:sort select="@name"/>
-            </xsl:apply-templates>
-          </font>
+          <xsl:apply-templates 
+            select="./schema[not(position() > $schemacount) ]" mode="toc-link">
+            <xsl:sort select="@name"/>
+          </xsl:apply-templates>
         </td>
         <td>
           <font size="-1" > 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.27 2003/08/11 09:13:52 robbod Exp $
+$Id: common.xsl,v 1.28 2003/08/11 09:54:53 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -52,26 +52,36 @@ $Id: common.xsl,v 1.27 2003/08/11 09:13:52 robbod Exp $
     <xsl:value-of select="$ret_val"/>
   </xsl:template>
 
-	<xsl:template name="idef0_icon">
-		<xsl:param name="schema"/>
-		<xsl:param name="application_protocol_root" select="'..'"/>
-		
-		<xsl:variable name="application_protocol_dir">
-			<xsl:call-template name="application_protocol_directory">
-				<xsl:with-param name="application_protocol" select="$schema"/>
-			</xsl:call-template>
-		</xsl:variable>
-		
-		<xsl:variable name="href_aam">
-			<xsl:value-of select="concat($application_protocol_root,'/aamidef01',$FILE_EXT)"/>
-		</xsl:variable>
-		&#160;&#160;
-		<a href="{$href_aam}">
-			<img align="middle" border="0" alt="AAM" src="{$application_protocol_root}/../../../images/ap_doc/aam.gif"/>
-		</a>
-	</xsl:template>
+  <xsl:template name="idef0_icon">
+    <xsl:param name="schema"/>
+    <xsl:param name="application_protocol_root" select="'..'"/>
+    
+    <xsl:variable name="application_protocol_dir">
+      <xsl:call-template name="application_protocol_directory">
+        <xsl:with-param name="application_protocol" select="$schema"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="imgfile_xml"
+      select="document(concat($application_protocol_dir,'/application_protocol.xml'))//idef0/imgfile[1]/@file"/>
+
+    <xsl:variable name="imgfile">
+      <xsl:call-template name="set_file_ext">
+        <xsl:with-param name="filename" select="$imgfile_xml"/> 
+      </xsl:call-template>
+    </xsl:variable>
+  
+
+    <xsl:variable name="href_aam">
+      <xsl:value-of select="concat($application_protocol_root,'/',$imgfile)"/>
+    </xsl:variable>
+    &#160;&#160;
+    <a href="{$href_aam}">
+      <img align="middle" border="0" alt="AAM" src="{$application_protocol_root}/../../../images/ap_doc/aam.gif"/>
+    </a>
+  </xsl:template>
 	
-	<xsl:template match="module" mode="TOCbannertitle"/>
+  <xsl:template match="module" mode="TOCbannertitle"/>
 
         <xsl:template match="application_protocol" mode="TOCbannertitle">
 		<xsl:param name="selected"/>

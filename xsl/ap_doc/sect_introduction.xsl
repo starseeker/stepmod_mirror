@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.5 2003/05/23 15:52:57 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.6 2003/05/23 21:29:46 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -105,5 +105,28 @@
 				Double quotation marks " " denote quoted text. Single quotation marks ' ' denote particular text string values.
 			</p>
 		</xsl:template>
+
+  <xsl:template match="imgfile" mode="data_plan_figures">
+    <xsl:if test="position()=1">
+      <xsl:choose>
+        <xsl:when test="count(../imgfile)>1">
+          Figures
+        </xsl:when>
+        <xsl:otherwise>
+          Figure
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+    <xsl:variable name="file_href">
+      <xsl:call-template name="set_file_ext">
+        <xsl:with-param name="filename" select="concat('../',@file)"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <a href="{$file_href}">
+      <xsl:value-of select="position()"/>
+    </a>
+    <xsl:if test="position()!=last()">,&#160;</xsl:if>
+  </xsl:template>
+
 
 </xsl:stylesheet>

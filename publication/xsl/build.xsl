@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.6 2004/10/12 00:50:39 thendrix Exp $
+<!--  $Id: build.xsl,v 1.7 2004/11/03 15:58:45 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -4007,7 +4007,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_resdocindex.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4017,7 +4017,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_abstract.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4027,7 +4027,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_contents.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>      
       
       <xsl:element name="style">
@@ -4037,7 +4037,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_1_scope.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4047,7 +4047,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_resdocindex.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4057,7 +4057,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_2_refs.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4067,7 +4067,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_3_defs.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4077,7 +4077,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_schema.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4087,7 +4087,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_c_exp_schema.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4097,7 +4097,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_c_exp.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4107,7 +4107,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_d_expg.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <!--
@@ -4118,7 +4118,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_main.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       -->
       <xsl:element name="style">
@@ -4128,7 +4128,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_a_short_names.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4138,7 +4138,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_b_obj_reg.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4148,7 +4148,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4158,7 +4158,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_tech_discussion.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4168,7 +4168,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_examples.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4178,7 +4178,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_add_scope.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>      
       
       <xsl:element name="style">
@@ -4188,7 +4188,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_biblio.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4198,10 +4198,11 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_cover.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
 
       <!-- move the cover page to SC4 cover page  -->
+      <!--
       <xsl:element name="move">
         <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
         <xsl:element name="fileset">
@@ -4210,7 +4211,7 @@
         </xsl:element>
         <mapper type="glob" from="*.htm" to="*_sc4.htm"/>
       </xsl:element> 
-
+-->
       <!-- generate the ISO cover page  -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4219,8 +4220,20 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_isocover.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
+
+      <!-- move the ISO cover page to cover page -->
+      <xsl:element name="move">
+        <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">${TMPDIR}</xsl:attribute>
+          <xsl:attribute name="includes">${ISOCOVERHTM}</xsl:attribute>
+        </xsl:element>
+        <mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
+      </xsl:element> 
+
+
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4229,7 +4242,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_foreword.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4239,7 +4252,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_introduction.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4249,7 +4262,7 @@
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/imgfile.xsl'"/>
         </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes"/>
+        <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
 
       <xsl:element name="copy">
@@ -4283,7 +4296,7 @@
     </target>
   </xsl:template>
     
-  <!-- called from template match="publication_index" mode="target_isomodules" -->
+  <!-- called from template match="publication_index" mode="target_isoresdocs" -->
   <xsl:template match="publication_index"
     mode="resdoc_target_style_attributes">
     <xsl:attribute name="destdir">
@@ -4750,6 +4763,7 @@
     <!-- NOT YET IMPLEMENTED -->
     <xsl:apply-templates select="." mode="copy_express"/>
 
+
     <xsl:element name="zip">
       <xsl:attribute name="zipfile">
         <xsl:value-of select="concat('${PUBDIR}/zip/iso10303_',$resdoc_xml/resource/@part,'.zip')"/>
@@ -4896,6 +4910,45 @@
       </xsl:element>
     </xsl:if>
   </xsl:template>
+
+  <xsl:template match="resource_docs" mode="copy_express">
+    <xsl:param name="express_dir"/>
+    <xsl:variable name="resdoc" select="@name"/>
+    <xsl:variable name="resdoc_xml"
+      select="document(concat('../../data/resource_docs/',$resdoc,'/resource.xml'))"/>
+    <xsl:variable name="resdoc_iso_no" select="concat('iso10303_',$resdoc_xml/resource/@part)"/>
+    <xsl:variable name="express_dir1">
+      <xsl:choose>
+        <xsl:when test="$express_dir">
+          <xsl:value-of select="$express_dir"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat('${PUBDIR}/',$resdoc_iso_no,'express/')"/>  
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    
+    <xsl:variable name="part" select="$resdoc_xml/resource/@part"/>
+    <xsl:variable name="status" 
+      select="translate(translate($resdoc_xml/resource/@status,$UPPER,$LOWER),'-','')"/>
+    <xsl:variable name="wg" select="$resdoc_xml/resource/@sc4.working_group"/>
+    <xsl:variable name="prefix" select="concat('part',$part,$status,'_wg',$wg,'n')"/>
+    
+    <xsl:variable name="wg.number.express" select="$resdoc_xml/resource/@wg.number.express"/>
+    <xsl:element name="copy">
+      <!-- need to go through the schema sections of the resource.xml and for each, copy from the data/resources/schema_name.xml dir to the target express dir.  -->
+      <xsl:attribute name="file">
+        <xsl:value-of select="concat('data/resource_docs/',@name,'/',@name,'.exp')"/>
+      </xsl:attribute>
+      <xsl:attribute name="tofile">
+        <xsl:value-of select="concat($express_dir1,$prefix,$wg.number.express,@name,'.exp')"/>
+      </xsl:attribute>
+    </xsl:element>
+    
+
+  </xsl:template>
+
 
   <xsl:template match="resource|module|application_protocol|res_doc" mode="list">
     <xsl:param name="prefix"/>

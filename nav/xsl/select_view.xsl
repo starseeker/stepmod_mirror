@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.1 2002/10/10 11:21:15 nigelshaw Exp $
+$Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -395,9 +395,9 @@ $Id: select_view.xsl,v 1.1 2002/10/10 11:21:15 nigelshaw Exp $
 	      &lt;/refpath&gt;
 	  <br/>
 	    &lt;/aa&gt;
-	  <br/>
+<!--	  <br/>
 	  &lt;/ae&gt;
-	  
+-->	  
 	  </blockquote>
 
 		<xsl:call-template name="select-attribute-mappings" >
@@ -422,7 +422,7 @@ $Id: select_view.xsl,v 1.1 2002/10/10 11:21:15 nigelshaw Exp $
 	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
 	
 		<xsl:if test="select/@selectitems" >
-			<xsl:value-of select="select/@selectitems" /> [<xsl:value-of select="./@name" />]
+			<xsl:value-of select="select/@selectitems" /> <!-- [<xsl:value-of select="./@name" />] -->
 			<br/>
 		</xsl:if>
 

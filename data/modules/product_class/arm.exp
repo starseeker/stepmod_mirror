@@ -1,11 +1,93 @@
-(* N	ISO/CD-TS	Product class	Express ARM *)
+(* $Id: $
+ N	ISO/CD-TS	Product class	Express ARM *)
 
 SCHEMA Product_class_arm;
 
 USE FROM Product_concept_identification_arm;
 
+TYPE expression_operator = ENUMERATION OF (or_operator, and_operator, oneof_operator, not_operator);
+END_TYPE;
+
+ TYPE specification_operand_select = SELECT
+      (Specification_expression, Specification);
+ END_TYPE;
+
+
+ ENTITY Class_category_association;
+  associated_product_class : Product_class;
+  mandatory : BOOLEAN;
+  associated_category : Specification_category;
+ END_ENTITY;
+
+ ENTITY Class_condition_association;
+  condition_type : STRING;
+  associated_product_class : Product_class;
+  description : OPTIONAL STRING;
+  associated_condition : Specification_expression;
+ END_ENTITY;
+
+ ENTITY Class_inclusion_association;
+  associated_product_class : Product_class;
+  description : OPTIONAL STRING;
+  associated_inclusion : Specification_inclusion;
+ END_ENTITY;
+
+ ENTITY Class_specification_association;
+  associated_product_class : Product_class;
+  association_type : STRING;
+  associated_specification : Specification;
+ END_ENTITY;
+
+
 ENTITY Product_class
 SUBTYPE OF (Product_concept);
+  level_type : OPTIONAL STRING;
+  version_id : OPTIONAL STRING;
+WHERE
+WR1: NOT (EXISTS(target_market));
 END_ENTITY;
 
+ ENTITY Product_class_relationship;
+  relating : Product_class;
+  related : Product_class;
+  description : OPTIONAL STRING;
+  relation_type : STRING;
+ END_ENTITY;
+
+ ENTITY Specification;
+  id : STRING;
+  name : OPTIONAL STRING;
+  description : OPTIONAL STRING;
+  category : Specification_category;
+  version_id : OPTIONAL STRING;
+  package : BOOLEAN;
+ END_ENTITY;
+
+ ENTITY Specification_category;
+  implicit_exclusive_condition : BOOLEAN;
+  id : STRING;
+  description : STRING;
+ END_ENTITY;
+
+ ENTITY Specification_category_hierarchy;
+  sub_category : Specification_category;
+  super_category : Specification_category;
+ END_ENTITY;
+
+ ENTITY Specification_expression;
+  description : OPTIONAL STRING;
+  operation : expression_operator;
+  operand : SET[1:?] OF specification_operand_select;
+  id : OPTIONAL undefined_object;
+ END_ENTITY;
+
+ ENTITY Specification_inclusion;
+  if_condition : specification_operand_select;
+  included_specification : specification_operand_select;
+  description : OPTIONAL STRING;
+  id : OPTIONAL STRING;
+ END_ENTITY;
+
+
 END_SCHEMA;
+

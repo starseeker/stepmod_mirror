@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.15 2002/06/18 11:51:06 robbod Exp $
+//$Id: express2xml.js,v 1.16 2002/07/05 11:10:27 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -251,7 +251,7 @@ function getAfterEquals(statement) {
     var reg = /=/;
     var pos = statement.search(reg);
     if (pos) {
-	expr = statement.substr(pos+2);
+	expr = statement.substr(pos+1);
 	expr = expr.replace(/^\s/g,"");
 	expr = expr.replace(/;/,"");
     }
@@ -340,7 +340,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.15 2002/06/18 11:51:06 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.16 2002/07/05 11:10:27 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -350,7 +350,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.15 $";
+    var appCVSRevision = "$Revision: 1.16 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -546,6 +546,7 @@ function xmlEntityStructure(outTs,expTs,mode) {
 
 	case "derive" :
 	    xmlOpenElement("<derived",outTs);
+
 	    var expression = getAfterEquals(rest);
 	    var reg = /^\s*/;
 	    expression = expression.replace(reg,"");

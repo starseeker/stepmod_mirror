@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.50 2002/10/14 10:33:52 goset1 Exp $
+$Id: sect_5_mapping.xsl,v 1.51 2002/10/21 13:16:45 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1077,7 +1077,6 @@ the mapping specification')"/>
     </xsl:choose>
   </xsl:variable> <!-- module_ok -->
 
-
   <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
@@ -1090,10 +1089,13 @@ the mapping specification')"/>
   </xsl:variable>
 
   <xsl:variable name="sc_count" select="count(//sc)" />
+  <xsl:variable name="ae_count" select="count(//ae)" />
 
   <h3>
     <a name="{$sc_map_aname}">
-      <xsl:value-of select="concat('5.1.',$sc_count + $sect_no,' ')"/></a>
+      <!--      <xsl:value-of select="concat('5.1.',$ae_count + $sect_no,' ')"/> -->
+</a>
+<xsl:value-of select="concat('5.1.',$ae_count+position(),' ')"/>
     <a href="{$sc_xref}"><xsl:value-of select="$sc"/></a>
   </h3>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.69 2002/09/16 07:29:05 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.70 2002/09/27 07:51:32 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -705,9 +705,9 @@
     </code>
   <!-- </blockquote> -->
 </p>
+  <xsl:apply-templates select="enumeration" mode="describe_enums"/>
   <xsl:call-template name="output_where_formal"/>
   <xsl:call-template name="output_where_informal"/>
-
 </xsl:template>
 
 <!-- empty template to prevent the description element being out put along
@@ -797,7 +797,84 @@
       <xsl:with-param name="break_char" select="','"/>
     </xsl:call-template>
   </xsl:if>
+</xsl:template>
 
+<xsl:template match="enumeration" mode="describe_enums">
+  <xsl:if test="string-length(normalize-space(@items))>0">
+    <p><u>Enumerated item definitions:</u></p>
+    <xsl:call-template name="output_enums">
+      <xsl:with-param name="str" select="normalize-space(@items)"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+
+<xsl:template name="output_enums">
+  <xsl:param name="str"/>
+  <xsl:variable name="break_char" select="' '"/>
+  <xsl:choose>
+    <xsl:when test="contains($str,$break_char)">
+      <xsl:variable name="substr" 
+        select="substring-before($str,$break_char)"/>
+      <xsl:call-template name="output_enum_description">
+        <xsl:with-param name="enum_value" select="$substr"/>
+      </xsl:call-template> 
+      
+      <xsl:variable name="rest" select="substring-after($str,$break_char)"/>
+      <xsl:call-template name="output_enums">
+        <xsl:with-param name="str" select="$rest"/>
+      </xsl:call-template> 
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="output_enum_description">
+        <xsl:with-param name="enum_value" select="$str"/>
+      </xsl:call-template> 
+    </xsl:otherwise>        
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="output_enum_description">
+  <xsl:param name="enum_value"/>
+  <xsl:variable name="schema" select="../../@name"/>
+  <xsl:variable name="enum_type" select="../@name"/>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema"/>
+      <xsl:with-param name="section2" select="$enum_type"/>
+      <xsl:with-param name="section3" select="$enum_value"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <p class="expressdescription">
+    <b>
+      <a name="{$aname}">
+        <xsl:value-of select="$enum_value"/>:
+      </a>
+    </b>
+    
+    <!-- get description from external file -->
+    <xsl:call-template name="output_external_description">
+      <xsl:with-param name="schema" select="$schema"/>
+      <xsl:with-param name="entity" select="$enum_type"/>
+      <xsl:with-param name="attribute" select="$enum_value"/>
+    </xsl:call-template>
+
+    <xsl:variable name="external_description">
+      <xsl:call-template name="check_external_description">
+      <xsl:with-param name="schema" select="$schema"/>
+      <xsl:with-param name="entity" select="$enum_type"/>
+      <xsl:with-param name="attribute" select="$enum_value"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:if test="$external_description='false'">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error e15: No description provided for ',$enum_value)"/>
+      </xsl:call-template>
+    </xsl:if>
+  </p>
 </xsl:template>
 
 
@@ -1171,7 +1248,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Error e4: No description provided for ',$aname)"/>
+            select="concat('Error e5: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>
@@ -1653,7 +1730,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Error e10: No description provided for ',$aname)"/>
+            select="concat('Error e11: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>
@@ -1759,7 +1836,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Error e11: No description provided for ',$aname)"/>
+            select="concat('Error e12: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>
@@ -1851,7 +1928,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Error e12: No description provided for ',$aname)"/>
+            select="concat('Error e13: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>
@@ -1953,7 +2030,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Error e13: No description provided for ',$aname)"/>
+            select="concat('Error e14: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>

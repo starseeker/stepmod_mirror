@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.1 2004/11/18 12:27:48 robbod Exp $
+$Id: normref_check.xsl,v 1.2 2004/11/18 15:46:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -41,12 +41,22 @@ $Id: normref_check.xsl,v 1.1 2004/11/18 12:27:48 robbod Exp $
     <xsl:apply-templates select="document($ballot_index)/ballot_index" mode="html_body"/>
   </xsl:template>
 
-  <xsl:template match="ballot_index" mode="html_body">
+  <xsl:template match="ballot_index|publication_index" mode="html_body">
     <HTML>
       <head>
-        <title></title>
+        <title>Normative reference check</title>
       </head>
       <body>
+        <h2>
+          Normative reference check: 
+          <xsl:value-of select="concat('WG', @sc4.working_group, 
+                                ' N',@wg.number.publication_set, ' (',@name,')')"/> 
+        </h2>
+        <p>
+          This provides a summary of all the normative references used in
+          the package of parts. 
+          It should be used to check that the normative references are correct.
+        </p>
         <xsl:apply-templates select="/" mode="process_modules"/>
       </body>
     </HTML>
@@ -58,16 +68,6 @@ $Id: normref_check.xsl,v 1.1 2004/11/18 12:27:48 robbod Exp $
     <xsl:apply-templates select="document($publication_index)/publication_index" mode="html_body"/>
   </xsl:template>
 
-  <xsl:template match="publication_index" mode="html_body">
-    <HTML>
-      <head>
-        <title></title>
-      </head>
-      <body>
-        <xsl:apply-templates select="/" mode="process_modules"/>
-      </body>
-    </HTML>
-  </xsl:template>
   
   
   <xsl:template match="/" mode="process_modules">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
+$Id: sect_contents.xsl,v 1.9 2002/12/20 12:35:58 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -32,7 +32,6 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
    <xsl:apply-templates select="../resource" mode="contents_tables_figures"/>
    <xsl:apply-templates select="../resource" mode="copyright"/>
  </xsl:template>
-
  <xsl:template match="resource" mode="contents">
 
    <xsl:variable name="resdoc_dir">
@@ -396,9 +395,7 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
      </xsl:call-template>
    </xsl:variable>
 
-   <xsl:variable name="express_xml">
-     <xsl:value-of select="concat($resource_dir,'/',$resource_name,'_schema.xml')" />
-   </xsl:variable>
+   <xsl:variable name="express_xml" select="document(concat($resource_dir,'/',$resource_name,'_schema.xml'))" />
 
    <!--   <xsl:variable name="clause_no" select="$clause_no"/> -->
    <xsl:variable name="schema_name" select="@name"/>
@@ -467,7 +464,7 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
        </A>
      </p>
      <xsl:apply-templates 
-       select="document($express_xml)/express/schema/constant" mode="contents">
+       select="$express_xml/express/schema/constant" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
 
@@ -511,7 +508,7 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
        </A>
      </p>    
      <xsl:apply-templates 
-       select="document(string($express_xml))/express/schema/type" mode="contents">
+       select="$express_xml/express/schema/type" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates> 
    </xsl:if>
@@ -556,7 +553,7 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
      </p>
 
     <xsl:apply-templates 
-       select="document(string($express_xml))/express/schema/entity" mode="contents">
+       select="$express_xml/express/schema/entity" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
 
@@ -600,7 +597,7 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
        </A>
      </p>
     <xsl:apply-templates 
-       select="document($express_xml)/express/schema/subtype.constraint" mode="contents">
+       select="$express_xml/express/schema/subtype.constraint" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
    </xsl:if>
@@ -624,7 +621,7 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
        </A>
      </p>
      <xsl:apply-templates 
-       select="document($express_xml)/express/schema/function" mode="contents">
+       select="$express_xml/express/schema/function" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
 
@@ -666,7 +663,7 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
        </A>
      </p>
     <xsl:apply-templates 
-       select="document($express_xml)/express/schema/rule" mode="contents">
+       select="$express_xml/express/schema/rule" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
    </xsl:if>
@@ -707,7 +704,7 @@ $Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
        </A>
      </p>
      <xsl:apply-templates 
-       select="document($express_xml)/express/schema/procedure" mode="contents">
+       select="$express_xml/express/schema/procedure" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
    </xsl:if>

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.21 2004/11/15 15:42:29 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.22 2004/12/03 14:00:39 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -36,7 +36,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.21 2004/11/15 15:42:29 robbod Exp $
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
 
   <xsl:variable name="UPPER_BACKSLASH" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ\'"/>
-  <xsl:variable name="LOWER_FORWARDSLASH" select="'abcdefghijklmnopqrstuvwxyz/'"/>
+  <xsl:variable name="LOWER_FORWARDSLASH" select="'abcdefghijklmnopqrstuvwxyz'"/>
 
   <xsl:variable name="ap_file" 
 	    select="concat('../../data/application_protocols/',$selected_ap,'/application_protocol.xml')"/>
@@ -419,6 +419,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.21 2004/11/15 15:42:29 robbod Exp $
 				<!-- Mapping found q -->
 				<xsl:variable name="redeclared-from" 
 				  select="translate(./redeclaration/@entity-ref,$UPPER,$LOWER)" />
+
 				<A 
                                   HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattributeself{$redeclared-from}.{@name}assertion_to{$lc-typename}" 
 				target="info">
@@ -544,6 +545,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.21 2004/11/15 15:42:29 robbod Exp $
 						<!-- added to del with attribute names using SELF\ -->
 
 						<xsl:variable name="SELF-attribute" select="translate($called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[starts-with(@attribute,'SELF') and substring-after(@attribute,'.')=$this-attribute and @assertion_to=$this-item]/@attribute, $UPPER_BACKSLASH,$LOWER_FORWARDSLASH)" />
+
 
 						<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$SELF-attribute}assertion_to{$lc-this-item}" 
 							target="info">map</A>

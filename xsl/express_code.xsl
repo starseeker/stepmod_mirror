@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_code.xsl,v 1.2 2001/11/21 15:35:29 robbod Exp $
+     $Id: express_code.xsl,v 1.3 2001/12/21 09:41:11 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -320,18 +320,18 @@
   </xsl:if>
   &#160;&#160;&#160;
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
-  <xsl:apply-templates select="./inverse.aggregate" mode="code"/>;<br/>
+  <xsl:apply-templates select="./inverse.aggregate" mode="code"/>
+  <xsl:call-template name="link_object">
+    <xsl:with-param name="object_name" select="@entity"/>
+    <xsl:with-param name="object_used_in_schema_name" 
+      select="../../@name"/>
+    <xsl:with-param name="clause" select="'annexe'"/>
+  </xsl:call-template>  
+  <xsl:value-of select="concat(' FOR ', @attribute)"/>;<br/>
 </xsl:template>
 
 <xsl:template match="inverse.aggregate" mode="code">
   <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
-  <xsl:call-template name="link_object">
-    <xsl:with-param name="object_name" select="../@entity"/>
-    <xsl:with-param name="object_used_in_schema_name" 
-      select="../../../@name"/>
-    <xsl:with-param name="clause" select="'annexe'"/>
-  </xsl:call-template>  
-  <xsl:value-of select="concat(' FOR ', ../@attribute)"/>
 </xsl:template>
 
 <xsl:template match="unique" mode="code">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: extract_descriptions.xsl,v 1.11 2003/04/09 10:50:55 robbod Exp $
+     $Id: extract_descriptions.xsl,v 1.12 2004/09/16 17:11:20 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -68,10 +68,10 @@
     </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="'$Date: 2003/04/09 10:50:55 $'"/>
+    <xsl:value-of select="'$Date: 2004/09/16 17:11:20 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="'$Revision: 1.11 $'"/>
+    <xsl:value-of select="'$Revision: 1.12 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      
@@ -138,22 +138,47 @@
   -->
   <xsl:variable name="linkend" 
     select="concat(../@name, '.', @name)"/>
+  <xsl:variable name="entity"  select="@name"/>
+
+  <xsl:text/>
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
-  <xsl:value-of select="concat(' Entity: ',@name,' ')"/> 
+  <xsl:value-of select="concat(' Entity: ',$entity,' ')"/> 
   &#x20;<xsl:call-template name="output_express_ref">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="linkend" select="$linkend"/>
   </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
+
+  <xsl:variable name="arm_mim"
+    select="substring(../@name, string-length(../@name)-2)"/>
+
   <xsl:element name="ext_description">
     <xsl:attribute name="linkend">
       <xsl:value-of select="$linkend"/>
     </xsl:attribute>
     <!-- <xsl:copy-of select="./description"/> -->
     <xsl:apply-templates select="./description"/>
+    <xsl:choose>
+      <!-- needs some work here to iterate through teh supertypes,
+           to correctly identify the module -->
+      <xsl:when test="string-length(@supertypes) !=0">
+        <xsl:variable name="module" select="'module'"/>
+        <xsl:variable name="exp_schema" select="'Module'"/>
+        <xsl:variable name="supertypes" select="@supertypes"/>
+        A <b><xsl:value-of select="$entity"/></b> is a type of
+        <xsl:element name="express_ref">
+          <xsl:attribute name="linkend">
+            <xsl:value-of select="concat($module,':',$arm_mim,':',$exp_schema,'_',$arm_mim,'.',$supertypes)"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+        A <b><xsl:value-of select="$entity"/></b> is a
+      </xsl:otherwise>
+    </xsl:choose>    
   </xsl:element>
   <xsl:apply-templates select="explicit|derived|inverse"/>
   <xsl:apply-templates select="where"/>
@@ -175,10 +200,12 @@
   -->
   <xsl:variable name="linkend" 
     select="concat(../../@name,'.',../@name,'.',@name)"/>
+  <xsl:variable name="entity"  select="../@name"/>
+
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../../@name,' ')"/>
-  <xsl:value-of select="concat(' Entity: ',../@name,' ')"/>
+  <xsl:value-of select="concat(' Entity: ',$entity,' ')"/>
   <xsl:value-of select="concat(' Attribute: ',@name,' ')"/>
   &#x20;<xsl:call-template name="output_express_ref">
     <xsl:with-param name="schema" select="../../@name"/>
@@ -192,6 +219,20 @@
     </xsl:attribute>
     <!-- <xsl:copy-of select="./description"/> -->
     <xsl:apply-templates select="./description"/>
+    <xsl:choose>
+      <xsl:when test="@name='id'">
+       the identifier for the <b><xsl:value-of select="$entity"/></b>.        
+      </xsl:when>
+      <xsl:when test="@name='name'">
+        the words by which the <b><xsl:value-of select="$entity"/></b> is known. 
+      </xsl:when>
+      <xsl:when test="@name='description'">
+        the text that provides further information about the <b><xsl:value-of select="$entity"/></b>.
+      </xsl:when>
+    </xsl:choose>
+    <xsl:if test="@optional='YES'">
+      The value of this attribute need not be specified.
+    </xsl:if>
   </xsl:element>
 </xsl:template>
 

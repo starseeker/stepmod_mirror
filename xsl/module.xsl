@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.123 2003/02/04 17:57:45 robbod Exp $
+$Id: module.xsl,v 1.124 2003/02/05 10:56:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3843,9 +3843,10 @@ $module_ok,' Check the normatives references')"/>
       <xsl:with-param name="module" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-  <!-- iterate through each used ARM and check if there is a mim -->
+  <!-- iterate through each used ARM and check if there is a mim 
+       Note - only compares USE FROMs -->
   <xsl:for-each
-    select="document(concat($module_dir,'/arm.xml'))/express/schema/interface">
+    select="document(concat($module_dir,'/arm.xml'))/express/schema/interface[@kind='use']">
     <xsl:variable name="used_mim"
       select="concat(substring-before(concat(@schema,' '),'_arm'),'_mim')"/>
     <xsl:if test="not($mim_interfaces[@schema=$used_mim])">

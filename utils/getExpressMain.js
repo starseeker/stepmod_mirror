@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.2 2002/05/28 05:42:17 robbod Exp $
+//$Id: getExpressMain.js,v 1.3 2002/07/11 16:56:40 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -21,6 +21,12 @@
 //
 //------------------------------------------------------------
 
+// ------------------------------------------------------------
+// Global variables
+// -----------------------------------------------------------
+
+var stepmodHome = '..';
+
 // If 1 then output user messages
 var outputUsermessage = 1;
 
@@ -39,6 +45,22 @@ function ErrorMessage(msg){
     if (outputUsermessage == 1)
 	WScript.Echo(msg);
     objShell.Popup(msg);
+}
+
+function checkXMLParse(doc) {
+    if (doc.parseError.errorCode !=0) {
+	var strError = new String;
+	strError = 'Invalid XML file!\n'
+	    + 'File URL: ' + doc.parseError.url + '\n'
+	    + 'Line No: ' + doc.parseError.line + '\n'
+	    + 'Character: ' + doc.parseError.linepos + '\n'
+	    + 'File Position: ' + doc.parseError.filepos + '\n'
+	    + 'Source Text: ' + doc.parseError.srcText + '\n'
+	    + 'Error Code: ' + doc.parseError.errorCode + '\n'
+	    + 'Description: ' + doc.parseError.reason;
+	ErrorMessage(strError);
+    }
+    return (doc.parseError.errorCode == 0 );
 }
 
 // Copy across the Integrated Resource express
@@ -62,6 +84,7 @@ function GetIrExpress(expDir) {
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
     xml.async = false;
     xml.load(index);
+    checkXMLParse(xml);
     var expr = "/repository_index/resources/resource";
     var resourceNodes = xml.selectNodes(expr);
     var members = resourceNodes.length;
@@ -118,6 +141,7 @@ function GetArmMimExpressOld(expDir) {
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
     xml.async = false;
     xml.load(index);
+    checkXMLParse(xml);
     var expr = "/repository_index/modules/module";
     var moduleNodes = xml.selectNodes(expr);
     var members = moduleNodes.length;
@@ -325,6 +349,31 @@ function AppendMimArmOld(armOrMim, expDir, modList) {
 }
 
 
+
+function outputModuleList(ballot) {
+    var ballotIndexXml = stepmodHome + "/ballots/ballots/"
+	+ballot+"/ballot_index.xml";
+    UserMessage("Loading: "+ballotIndexXml);
+    // create a new document instance
+    var objXML = new ActiveXObject('MSXML2.DOMDocument.3.0');
+    objXML.async = false;
+    objXML.load(ballotIndexXml);
+    checkXMLParse(objXML);
+
+    var expr = "/ballot_index/ballot_package/module";
+    var moduleNodes = objXML.selectNodes(expr);
+    //moduleNodes = objXML.getElementsByTagName("ballot_index");
+    var members = moduleNodes.length;
+    UserMessage("Making:"+members);
+    for (var i = 0; i < members; i++) {	
+	var node = moduleNodes(i);
+	var moduleName = node.attributes.getNamedItem("name").nodeValue;
+	UserMessage(moduleName);
+    }
+
+}
+
+
 function TestArgs() {
     var cArgs = WScript.Arguments;
     var msg="Incorrect arguments\n"+
@@ -393,3 +442,7 @@ function MainWindow(expDir, modList) {
 
 
 //MainWindow("..\\express", "..\\modlist.txt");
+//MainWindow("..\\ballots\\ballots\\plcs_bp1\\express", "..\\ballots\\ballots\\plcs_bp1\\modlist.txt");
+
+//outputModuleList("plcs_bp1");
+//outputModuleList("pdm_ballot_072002");

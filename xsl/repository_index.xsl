@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: repository_index.xsl,v 1.4 2002/01/03 09:29:45 robbod Exp $
+     $Id: repository_index.xsl,v 1.5 2002/01/12 08:44:51 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -113,9 +113,15 @@
 
   <xsl:variable name="xref4"
     select="concat('./data/modules/',@name,'/sys/4_info_reqs',$FILE_EXT,'#arm')"/>
+
+  <xsl:variable name="arm_expg"
+    select="concat('./data/modules/',@name,'/armexpg1',$FILE_EXT,'#arm')"/>
   
   <xsl:variable name="xref5"
     select="concat('./data/modules/',@name,'/sys/5_mim',$FILE_EXT,'#mim')"/>
+
+  <xsl:variable name="mim_expg"
+    select="concat('./data/modules/',@name,'/mimexpg1',$FILE_EXT,'#arm')"/>
   
   <table cellspacing="0" cellpadding="1">
     <tr>
@@ -125,11 +131,21 @@
           <a href="{$xref4}">ARM</a>
         </font>
       </td>
-        <td>
+      <td>
+        <font size="-2">
+          <a href="{$arm_expg}">ARM-G</a>
+        </font>
+      </td>
+      <td>
         <font size="-2">
           <a href="{$xref5}">MIM</a>
         </font>
-        </td>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$mim_expg}">MIM-G</a>
+        </font>
+      </td>
       </tr>
     </table>
 </xsl:template>

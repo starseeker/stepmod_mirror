@@ -2,6 +2,77 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Styled curve - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Styled_curve_arm;
-END_SCHEMA;
+
+USE FROM Value_with_unit_extension_arm;
+
+USE FROM Basic_curve_arm;
+
+  TYPE curve_font_or_scaled_curve_font_select = SELECT
+    (curve_style_font_and_scaling,
+     curve_style_font_select);
+  END_TYPE; -- curve_font_or_scaled_curve_font_select
+
+  TYPE curve_style_font_select = SELECT
+    (solid_curve,
+     externally_defined_curve_font,
+     curve_style_font);
+  END_TYPE; -- curve_style_font_select
+  
+  TYPE extend_or_chord_2_extend_or_truncate_or_round = ENUMERATION OF
+    (truncate,
+     chord_2_extend,
+     round,
+     extend);
+  END_TYPE; -- extend_or_chord_2_extend_or_truncate_or_round
+
+  TYPE extend_or_truncate = ENUMERATION OF
+    (truncate,
+     extend);
+  END_TYPE; -- extend_or_truncate
+
+  TYPE square_or_round = ENUMERATION OF
+    (square,
+     round);
+  END_TYPE; -- square_or_round
+
+	TYPE styled_area_representation = 
+		EXTENSIBLE GENERIC_ENTITY SELECT (styled_curve_occurrence);
+	END_TYPE;
+
+  ENTITY Curve_style;
+      name              : STRING;
+      corner_style      : extend_or_chord_2_extend_or_truncate_or_round;
+      curve_width       : length_data_element;
+      curve_font        : OPTIONAL curve_font_or_scaled_curve_font_select;
+      end_extension     : extend_or_truncate;
+      end_style         : square_or_round;
+      width_uncertainty : length_data_element;
+    UNIQUE
+      ur1 : name;
+  END_ENTITY; -- curve_style
+
+  ENTITY Curve_style_font;
+  END_ENTITY; -- curve_style_font
+
+  ENTITY Curve_style_font_and_scaling;
+      curve_font         : curve_style_font_select;
+      name               : STRING;
+      curve_font_scaling : INTEGER; -- positive_ratio_measure;
+    UNIQUE
+      ur1 : name;
+  END_ENTITY; -- curve_style_font_and_scaling
+
+  ENTITY Externally_defined_curve_font;
+  END_ENTITY; -- externally_defined_curve_font
+
+  ENTITY Solid_curve;
+  END_ENTITY; -- solid_curve
+
+  ENTITY Styled_curve_occurrence;
+      styled_curve   : curve;
+      of_curve_style : curve_style;
+  END_ENTITY; -- styled_curve_occurrence
+
+END_SCHEMA; -- Styled_curve_arm

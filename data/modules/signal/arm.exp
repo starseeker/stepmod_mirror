@@ -2,6 +2,43 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Signal - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Signal_arm;
-END_SCHEMA;
+
+USE FROM External_item_identification_assignment_arm;
+
+USE FROM Extended_measure_representation_arm;
+
+ 	TYPE s_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Composite_signal_property_relationship,
+		Signal_property,
+		Signal);
+	END_TYPE;
+
+  ENTITY Composite_signal_property
+    SUBTYPE OF (signal_property);
+    INVERSE
+      signal_property_structure : SET[1:?] OF composite_signal_property_relationship FOR composition;
+  END_ENTITY; -- composite_signal_property
+
+  ENTITY Composite_signal_property_relationship;
+      composition                        	: composite_signal_property;
+      signal_property_structural_element 	: signal_property;
+    INVERSE
+      aggregation_operation								: External_source_identification FOR item;
+  END_ENTITY; -- composite_signal_property_relationship
+
+  ENTITY Signal;
+    INVERSE
+      signal_category	: External_source_identification FOR item;
+  END_ENTITY; -- signal
+
+  ENTITY Signal_property
+    SUPERTYPE OF (composite_signal_property);
+      signal_property_representation 	: value_list;
+      characterized_signal           	: signal;
+    INVERSE
+      signal_property_category				: External_source_identification FOR item;
+  END_ENTITY; -- signal_property
+
+END_SCHEMA; -- Signal_arm

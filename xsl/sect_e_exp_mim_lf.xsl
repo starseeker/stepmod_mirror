@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_mim_lf.xsl,v 1.5 2003/03/09 16:51:29 robbod Exp $
+$Id: sect_e_exp_mim_lf.xsl,v 1.6 2003/03/13 19:17:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the MIM long form express 
@@ -19,65 +19,12 @@ $Id: sect_e_exp_mim_lf.xsl,v 1.5 2003/03/09 16:51:29 robbod Exp $
        -->
   <xsl:import href="module_clause.xsl"/>
 
+  <!-- because this is a long form load express_link_lf.xsl which
+       overwrites link_object -->
+  <xsl:import href="express_link_lf.xsl"/>
+
 
   <xsl:output method="html"/>
-
-  <!-- +++++++++++++++++++
-         Global variables
-       +++++++++++++++++++ -->
-
-  <!-- 
-       Global variable used in express_link.xsl by:
-         link_object
-         link_list
-       Provides a lookup table of all the references for the entities and
-       types indexed through all the interface specifications in the
-       express.
-       Note:  This variable must defined in each XSL that is used for
-       formatting express.
-         sect_4_info.xsl
-         sect_5_mim.xsl
-         sect_e_exp_arm.xsl
-         sect_e_exp_mim.xsl
-       build_xref_list is defined in express_link
-       -->
-  <xsl:variable name="global_xref_list">
-    <!-- debug 
-    <xsl:message>
-      global_xref_list defined in sect_e_exp_arm.xsl
-    </xsl:message> -->
-    <xsl:choose>
-      <xsl:when test="/module_clause">
-        <xsl:variable name="module_dir">
-          <xsl:call-template name="module_directory">
-            <xsl:with-param name="module" select="/module_clause/@directory"/>
-          </xsl:call-template>
-        </xsl:variable>
-        
-        <xsl:variable name="express_xml" select="concat($module_dir,'/mim_lf.xml')"/>
-        <xsl:call-template name="build_xref_list">
-          <xsl:with-param name="express" select="document($express_xml)/express"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="/module">
-        <xsl:variable name="module_dir">
-          <xsl:call-template name="module_directory">
-            <xsl:with-param name="module" select="/module/@name"/>
-          </xsl:call-template>
-        </xsl:variable>
-        
-        <xsl:variable name="express_xml" select="concat($module_dir,'/mim_lf.xml')"/>
-        <xsl:call-template name="build_xref_list">
-          <xsl:with-param name="express" select="document($express_xml)/express"/>
-        </xsl:call-template>        
-      </xsl:when>
-    </xsl:choose>
-  </xsl:variable>
-
-
-  <!-- +++++++++++++++++++
-         Templates
-       +++++++++++++++++++ -->
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_arm_lf.xsl,v 1.3 2003/03/09 16:51:29 robbod Exp $
+$Id: sect_e_exp_arm_lf.xsl,v 1.4 2003/03/13 19:17:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM long form express 
@@ -14,6 +14,10 @@ $Id: sect_e_exp_arm_lf.xsl,v 1.3 2003/03/09 16:51:29 robbod Exp $
   <xsl:import href="module.xsl"/>
   <xsl:import href="express_code.xsl"/>
 
+  <!-- because this is a long form load express_link_lf.xsl which
+       overwrites link_object -->
+  <xsl:import href="express_link_lf.xsl"/>
+
   <!-- 
        the stylesheet that allows different stylesheets to be applied 
        -->
@@ -22,66 +26,9 @@ $Id: sect_e_exp_arm_lf.xsl,v 1.3 2003/03/09 16:51:29 robbod Exp $
 
   <xsl:output method="html"/>
 
-  <!-- +++++++++++++++++++
-         Global variables
-       +++++++++++++++++++ -->
-
-  <!-- 
-       Global variable used in express_link.xsl by:
-         link_object
-         link_list
-       Provides a lookup table of all the references for the entities and
-       types indexed through all the interface specifications in the
-       express.
-       Note:  This variable must defined in each XSL that is used for
-       formatting express.
-         sect_4_info.xsl
-         sect_5_mim.xsl
-         sect_e_exp_arm.xsl
-         sect_e_exp_arm.xsl
-       build_xref_list is defined in express_link
-       -->
-  <xsl:variable name="global_xref_list">
-    <!-- debug 
-    <xsl:message>
-      global_xref_list defined in sect_e_exp_arm.xsl
-    </xsl:message> -->
-    <xsl:choose>
-      <xsl:when test="/module_clause">
-        <xsl:variable name="module_dir">
-          <xsl:call-template name="module_directory">
-            <xsl:with-param name="module" select="/module_clause/@directory"/>
-          </xsl:call-template>
-        </xsl:variable>
-        
-        <xsl:variable name="express_xml" select="concat($module_dir,'/arm_lf.xml')"/>
-        <xsl:call-template name="build_xref_list">
-          <xsl:with-param name="express" select="document($express_xml)/express"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="/module">
-        <xsl:variable name="module_dir">
-          <xsl:call-template name="module_directory">
-            <xsl:with-param name="module" select="/module/@name"/>
-          </xsl:call-template>
-        </xsl:variable>
-        
-        <xsl:variable name="express_xml" select="concat($module_dir,'/arm_lf.xml')"/>
-        <xsl:call-template name="build_xref_list">
-          <xsl:with-param name="express" select="document($express_xml)/express"/>
-        </xsl:call-template>        
-      </xsl:when>
-    </xsl:choose>
-  </xsl:variable>
-
-
-  <!-- +++++++++++++++++++
-         Templates
-       +++++++++++++++++++ -->
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-  <!-- debug <xsl:value-of select="$global_xref_list"/> -->
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="''"/>
     <xsl:with-param name="aname" select="'annexe-arm_lf-express'"/>

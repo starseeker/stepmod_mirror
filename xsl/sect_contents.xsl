@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.11 2002/09/05 07:45:19 robbod Exp $
+$Id: sect_contents.xsl,v 1.12 2002/12/30 10:44:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -643,12 +643,12 @@ $Id: sect_contents.xsl,v 1.11 2002/09/05 07:45:19 robbod Exp $
         F Application module implementation and usage guide
       </A>
     </p>
+		<xsl:apply-templates 
+      select="./usage_guide/guide_subclause" mode="contents"/>
   </xsl:if>
   <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A>
   
 </xsl:template>
-
-
 
 
 <xsl:template match="constant|type|entity|subtype.constraint|rule|procedure|function" 
@@ -688,6 +688,19 @@ $Id: sect_contents.xsl,v 1.11 2002/09/05 07:45:19 robbod Exp $
   </p>
 </xsl:template>
 
+<xsl:template match="guide_subclause" mode="contents">
+  <p class="content">
+	
+	  <xsl:variable name="xref">
+       <xsl:value-of select="concat('./f_guide',$FILE_EXT,'#',@title)"/>
+    </xsl:variable>
+
+    &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+    <A HREF="{$xref}">
+      <xsl:value-of select="concat('F.', position(), ' ', @title)"/>
+    </A>
+  </p>
+</xsl:template>
 
 <xsl:template match="imgfile" mode="expressg_figure">
   <xsl:variable name="number">

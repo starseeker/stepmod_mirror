@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.44 2004/11/05 17:27:01 thendrix Exp $
+$Id: resource.xsl,v 1.45 2004/11/06 00:17:28 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1150,7 +1150,6 @@ An ISO/PAS or ISO/TS is reviewed after three years in order to decide whether it
               </xsl:when>
               <xsl:otherwise>
 
-                <!--  move dcombined express  inside data/resourcd_doc/ <a href="../../../../wg12n{$wgnumber}.exp"> -->
                 <a href="../wg12n{$wgnumber}.exp">
                   <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
                 </a>
@@ -1308,6 +1307,12 @@ defined in Annex D of ISO 10303-11.
     <xsl:with-param name="aname" select="concat('schema','$schema_no+3')"/>
   </xsl:call-template>
 
+    <xsl:message>
+      <xsl:value-of select="'&#010;___________________________________________________________'"/>
+      <xsl:value-of select="concat('&#010;Processing: data/resource_docs/',../@name,'/sys/',$schema_no+3,'_schema.xml','&#010;')"/>
+    </xsl:message>
+
+
   <xsl:variable name="c_expg"
     select="concat('./c_',($schema_no+3),'schema_expg',$FILE_EXT)"/>
 
@@ -1443,6 +1448,12 @@ defined in Annex D of ISO 10303-11.
     END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="$express_xml/express/schema/@name"/>
     <br/>(*
   </code>
+
+    <xsl:message>
+      <xsl:value-of select="'&#010;___________________________________________________________'"/>
+      <xsl:value-of select="concat('&#010;EndProcessing: data/resource_docs/',../@name,'/sys/',$schema_no+3,'_schema.xml','&#010;')"/>
+    </xsl:message>
+
 
 </xsl:template>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_exp_schema.xsl,v 1.2 2003/02/05 20:51:35 thendrix Exp $
+$Id: sect_c_exp_schema.xsl,v 1.3 2003/10/09 03:50:27 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM short form express 
@@ -161,6 +161,14 @@ $Id: sect_c_exp_schema.xsl,v 1.2 2003/02/05 20:51:35 thendrix Exp $
     </xsl:call-template>
   </xsl:variable>
 
+
+    <xsl:message>
+      <xsl:value-of select="'&#010;___________________________________________________________'"/>
+      <xsl:value-of select="concat('&#010;Processing: data/resource_docs/',./@name,'/sys/c_exp_schema_',$pos+3,'.xml','&#010;')"/>
+    </xsl:message>
+
+
+
   <code>
   (*<br/>
     <xsl:value-of 
@@ -178,6 +186,7 @@ $Id: sect_c_exp_schema.xsl,v 1.2 2003/02/05 20:51:35 thendrix Exp $
 
   <!-- output all the EXPRESS specifications -->
   <xsl:variable name="schema_name" select="./schema[number($pos)]/@name"/>
+
     <!--  <xsl:variable name="schema_name" select="./schema[2]/@name" /> -->
 
     <!--    <xsl:message>
@@ -204,6 +213,11 @@ $Id: sect_c_exp_schema.xsl,v 1.2 2003/02/05 20:51:35 thendrix Exp $
   </xsl:message>
 -->
   <xsl:apply-templates select="document($express_xml)/express/schema" mode="code"/>
+
+    <xsl:message>
+      <xsl:value-of select="'&#010;___________________________________________________________'"/>
+      <xsl:value-of select="concat('&#010;EndProcessing: data/resource_docs/',./@name,'/sys/c_exp_schema_',$pos+3,'.xml','&#010;')"/>
+    </xsl:message>
 
 </xsl:template>
 

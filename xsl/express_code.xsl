@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.57 2004/08/12 18:03:07 thendrix Exp $
+     $Id: express_code.xsl,v 1.58 2004/10/21 15:35:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -188,6 +188,16 @@
 
           <xsl:choose>
             <xsl:when test="string-length($reference)>0">
+              <xsl:if test="not(starts-with($reference,'ISO 10303-'))">
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="message">
+                  <xsl:value-of select="concat('Error IF-3a: The reference parameter for ',
+                            $module,' is incorrectly specified. It should
+                    be of the form ISO 10303-***. Change @reference in
+                            data/resources/',$module,'/',$module,'.xml.')"/>
+                  </xsl:with-param>
+                </xsl:call-template>
+              </xsl:if>
               <xsl:value-of select="concat('&#160;&#160;&#160;-- ',$reference)"/>
             </xsl:when>
             <xsl:otherwise>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.117 2004/08/31 11:43:39 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.118 2004/10/21 15:35:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -308,7 +308,17 @@
 
           <xsl:choose>
             <xsl:when test="string-length($reference)>0">
-              <xsl:value-of select="$reference"/>
+              <xsl:if test="not(starts-with($reference,'ISO 10303-'))">
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="message">
+                  <xsl:value-of select="concat('Error IF-3a: The reference parameter for ',
+                            $module,' is incorrectly specified. It should
+                    be of the form ISO 10303-***. Change @reference in
+                            data/resources/',$module,'/',$module,'.xml.')"/>
+                  </xsl:with-param>
+                </xsl:call-template>
+              </xsl:if>
+              <xsl:value-of select="$reference"/>              
             </xsl:when>
             <xsl:otherwise>
               <xsl:call-template name="error_message">
@@ -654,14 +664,13 @@
 
 <br/></xsl:if>
 
-  <xsl:if test="position()=last()">)  
+<xsl:if test="position()=last()">)<xsl:text/>
 <!-- THX added to print out deprecated note  --> 
   <xsl:variable name="this" select="@name"/>
   <xsl:if test="../described.item[@item = $this]">
               &#160;&#160;&#160;--&#160;
     <xsl:value-of select="../described.item[@item=$this]/description"/>
   </xsl:if>
-
 
 
 </xsl:if>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.2 2003/09/06 00:16:08 thendrix Exp $
+$Id: express_description.xsl,v 1.3 2004/02/10 23:47:42 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -265,7 +265,11 @@ and
 
 
       <xsl:if test="$ERROR_CHECK_ATTRIBUTES='YES'">
-        <xsl:variable name="phrase" select="normalize-space($description/text())"/>
+        <xsl:variable name="raw_phrase">
+          <xsl:apply-templates select="$description" mode="phrase_text"/>
+        </xsl:variable>
+        <!--        <xsl:variable name="phrase" select="normalize-space($description/text())"/> -->
+        <xsl:variable name="phrase" select="normalize-space($raw_phrase)"/>
         <xsl:variable name="first_word"
           select="substring-before($phrase,' ')"/>
         <xsl:variable name="second_word"
@@ -544,6 +548,15 @@ and  string is more than the schema name ( hence not the  schema )
     </xsl:choose>
 </xsl:if>  
      </xsl:template>
+
+<xsl:template match="text" mode="phrase_text">
+  <xsl:apply-templates mode="phrase_text"/>
+</xsl:template>
+
+<xsl:template match="express_ref" mode="phrase_text">
+  <xsl:value-of select="substring-after(./@linkend,'.')" />
+</xsl:template>
+
 
 
 <xsl:template match="text()" mode="chktxt" >

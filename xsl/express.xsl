@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express.xsl,v 1.2 2001/10/05 15:35:00 robbod Exp $
+     $Id: express.xsl,v 1.3 2001/10/22 09:32:56 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -85,7 +85,6 @@
     </h2>
     )*<br/>
   </xsl:if>
-
   <blockquote>
     <code>
       <xsl:choose>
@@ -423,6 +422,7 @@
     &#160; SUBTYPE OF (
     <xsl:call-template name="link_list">
       <xsl:with-param name="list" select="@supertypes"/>
+        <xsl:with-param name="suffix" select="', '"/>
       <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
     </xsl:call-template>)
   </xsl:if>
@@ -467,7 +467,7 @@
     UNIQUE<br/>
   </xsl:if>
   &#160; &#160; &#160;
-  <xsl:value-of select="concat(@label, ' : ')"/>
+  <xsl:value-of select="concat(@label, ': ')"/>
   <xsl:apply-templates select="./unique.attribute" mode="code"/>
   <br/>
 </xsl:template>
@@ -494,7 +494,7 @@
     &#160; &#160; WHERE<br/>
   </xsl:if>  
   &#160; &#160; &#160;
-  <xsl:value-of select="concat(@label, ' : ', @expression)"/>
+  <xsl:value-of select="concat(@label, ': ', @expression, ';')"/>
   <br/>
 </xsl:template>
 
@@ -565,6 +565,19 @@
       </xsl:call-template>    
     </xsl:when>
 
+    <xsl:when test="contains($nexpression,'SUBTYPE OF')">
+      <!-- remove the SUBTYPE OF -->
+      <xsl:variable 
+        name="expression1"
+        select="concat(
+                substring-before($nexpression,' SUBTYPE OF '),' ',
+                substring-after($nexpression,' SUBTYPE OF '))"/>
+      <!-- recurse to remove any others -->
+      <xsl:call-template name="supertypes-list">
+        <xsl:with-param name="expression" select="$expression1"/>    
+      </xsl:call-template>    
+    </xsl:when>
+
     <xsl:when test="contains($nexpression,'ONEOF')">
       <!-- remove the ONEOF -->
       <xsl:variable 
@@ -603,7 +616,7 @@
 
 <xsl:template match="explicit" mode="description">
   <xsl:if test="position()=1">
-    <h3>Explicit attributes:</h3>
+    <p><u>Attributes definitions</u></p>
   </xsl:if>
   <xsl:variable name="aname"
     select="concat(../../@name,'.',../@name,'.',@name)"/>
@@ -620,8 +633,11 @@
 </xsl:template>
 
 <xsl:template match="derived" mode="description">
-  <xsl:if test="position()=1">
-    <h3>Derived attributes:</h3>
+  <!-- check that this is the first derived attribute and that the
+       there are no explicit attribute - if there were then Attribute
+       definitions" would have already been output -->
+  <xsl:if test="position()=1 and not(../explicit)">
+    <p><u>Attributes definitions</u></p>
   </xsl:if>
   <xsl:variable name="aname"
     select="concat(../../@name,'.',../@name,'.',@name)"/>

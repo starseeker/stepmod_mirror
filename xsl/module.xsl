@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
+$Id: module.xsl,v 1.5 2001/10/25 08:13:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -13,7 +13,7 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
 
   <xsl:import href="module_toc.xsl"/>
 
-  <xsl:import href="express.xsl"/>
+  <xsl:import href="sect_4_express.xsl"/>
 
   <xsl:output 
     method="html"
@@ -94,7 +94,7 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
 <xsl:template match="purpose">
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="'Introduction'"/>
-    <xsl:with-param name="aname" select="'introdcution'"/>
+    <xsl:with-param name="aname" select="'introduction'"/>
   </xsl:call-template>
   <xsl:apply-templates/>
 </xsl:template>
@@ -240,7 +240,12 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
   <xsl:variable name="c_expg"
     select="concat('./sys/c_arm_expg',$FILE_EXT)"/>
   <xsl:variable name="sect51" 
-    select="concat('./sys/5_mim',$FILE_EXT)"/>
+    select="concat('./5_mim',$FILE_EXT)"/>
+  <xsl:variable 
+    name="schema_name" 
+    select="concat(../@name,'_arm')"/>
+
+
   <p>
     This clause specifies the information requirements for 
     <xsl:value-of select="@name"/>
@@ -270,14 +275,60 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
     <br/>    <br/>
     *)
     <br/>    <br/>
-    SCHEMA <xsl:value-of select="concat(../@name,'_arm;')"/>
-    <br/>    <br/>
+    <a name="{$schema_name}">
+      SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
+  </a>
+  <br/>    <br/>
     (*
   </code>
 
   <xsl:apply-templates select="uof" mode="toc"/>
   <xsl:apply-templates select="uof" mode="uof_toc"/>
-  <xsl:apply-templates select="." mode="arm_entity_defs"/>
+
+  <!-- output all the EXPRESS specifications -->
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="../@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:variable name="arm_xml"
+    select="concat($module_dir,'/arm.xml')"/>
+
+  <!-- display the EXPRESS for the interfaces in the ARM.
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($arm_xml)/express/schema[@name=$schema_name]/interface"/>
+
+  <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($arm_xml)/express/schema[@name=$schema_name]/constant"/>
+
+  <!-- display the EXPRESS for the types in the schema.
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($arm_xml)/express/schema[@name=$schema_name]/type"/>
+  
+  <!-- display the EXPRESS for the entities in the ARM.
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($arm_xml)/express/schema[@name=$schema_name]/entity"/>
+
+  <!-- display the EXPRESS for the functions in the ARM
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($arm_xml)/express/schema[@name=$schema_name]/function"/>
+
+  <!-- display the EXPRESS for the entities in the ARM. 
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($arm_xml)/express/schema[@name=$schema_name]/rule"/>
+
+  <!-- display the EXPRESS for the procedures in the ARM. 
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($arm_xml)/express/schema[@name=$schema_name]/procedure"/>
+
   
   <code>
     <br/>    <br/>
@@ -292,8 +343,9 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
 
 <xsl:template match="uof" mode="toc">
   <xsl:if test="position()=1">
-    <h3>4.1 Units of functionality</h3>
-
+    <a name="uof">
+      <h3>4.1 Units of functionality</h3>
+    </a>
     This subclause specifies the units of functionality (UoF) for this part
     ISO 10303 as well as any support elements needed for the application module
     definition. This part of ISO 10303 specifies the following units of
@@ -318,7 +370,9 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
 
 <xsl:template match="uof" mode="uof_toc">
   <h3>
-    <xsl:value-of select="concat('4.1.',position(),' ',@name)"/>
+    <a name="uof">
+      <xsl:value-of select="concat('4.1.',position(),' ',@name)"/>
+    </a>
   </h3>
   The <xsl:value-of select="@name"/> UoF specifies 
   <xsl:apply-templates select="description"/>
@@ -347,65 +401,23 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
   </li>
 </xsl:template>
 
-<!--
-     Output all the entities defined in arm.xml
-     -->
-<xsl:template match="arm" mode="arm_entity_defs">
-  <h3>4.2 ARM entity definitions</h3>
-  This subclause specifies the application entities for this module. Each
-  application entity is an atomic element that embodies a unique application
-  concept and contains attributes specifying the data elements of the
-  entity. The application entities and their definitions are given below.
-  <p><b>
-    <font color="#FF0000">
-      RBN -Not sure how to display this?
-      I could just display the express. The question is what to do about
-      the links.
-      My preferred alternative is to list the ARM entities and link to the
-      express 
-    </font>
-  </b></p>
 
-
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="module_directory">
-      <xsl:with-param name="module" select=".."/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <xsl:variable name="arm_xml"
-    select="concat('../data/modules/',$module_dir,'/arm.xml')"/>
-
-  <xsl:variable name="mod_schema"
-    select="concat(../@name,'_arm')"/>
-
-  <xsl:apply-templates 
-    select="document($arm_xml)/express/schema[@name=$mod_schema]/entity"
-    mode="sect4"/>
-
-</xsl:template>
-
-<xsl:template match="entity" mode="sect4">
-  <h3>
-    <xsl:value-of select="concat('4.2.',position(),' ',@name)"/>
-  </h3>
-  <xsl:apply-templates select=".">
-    <xsl:with-param name="noheader" select="'noheader'"/>
-    <xsl:with-param name="nousedby" select="'nousedby'"/>
-  </xsl:apply-templates>
-</xsl:template>
 
 
 <xsl:template match="mim">
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="'5 Module interpreted model'"/>
-    <xsl:with-param name="aname" select="'arm'"/>
+    <xsl:with-param name="aname" select="'mim'"/>
   </xsl:call-template>
 
-  <h3>5.1 Mapping specification</h3>
+  <h3>
+    <a name="mapping">5.1 Mapping specification</a>
+  </h3>
   <xsl:apply-templates select="../mapping_table" mode="toc"/>
 
-  <h3>5.2 MIM EXPRESS short listing</h3>
+  <h3>
+    <a name="mim_express">5.2 MIM EXPRESS short listing</a>
+  </h3>
   <p>
     This clause specifies the EXPRESS schema that uses elements from the
     integrated resources, application interpreted constructs or application
@@ -420,23 +432,71 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
     and subtypes apply exclusively to those items which are imported into the
     MIM. 
   </p>
+
+  <!-- output all the EXPRESS specifications -->
+  <xsl:variable 
+    name="schema_name" 
+    select="concat(../@name,'_mim')"/>
+
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="$schema_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+
+  <xsl:variable 
+    name="mim_xml"
+    select="concat($module_dir,'/mim.xml')"/>
+
   <code>
     <u>EXPRESS specification: </u>
     <br/>    <br/>
     *)
     <br/>    <br/>
-    SCHEMA <xsl:value-of select="concat(../@name,'_mim;')"/>
+    SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
     <br/>    <br/>
     (*
   </code>
-  <b>
-    <font color="#FF0000">
-      RBN -Not sure how to display this?
-      I could just display the express. The question is what to do about
-      the links.
-      My preferred alternative is to link the express
-    </font>
-  </b>
+
+
+  <!-- RBN - BUG IN THE INTERFACE -->
+  <!-- display the EXPRESS for the interfaces in the MIM.
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($mim_xml)/express/schema[@name=$schema_name]/interface"/>
+
+  <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($mim_xml)/express/schema[@name=$schema_name]/constant"/>
+
+  <!-- display the EXPRESS for the types in the schema.
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($mim_xml)/express/schema[@name=$schema_name]/type"/>
+
+  
+  <!-- display the EXPRESS for the entities in the MIM.
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($mim_xml)/express/schema[@name=$schema_name]/entity"/>
+
+  <!-- display the EXPRESS for the functions in the MIM
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($mim_xml)/express/schema[@name=$schema_name]/function"/>
+
+  <!-- display the EXPRESS for the entities in the MIM. 
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($mim_xml)/express/schema[@name=$schema_name]/rule"/>
+
+  <!-- display the EXPRESS for the procedures in the MIM. 
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($mim_xml)/express/schema[@name=$schema_name]/procedure"/>
+
+
   <code>
     <br/>    <br/>
     *)
@@ -450,7 +510,7 @@ $Id: module.xsl,v 1.4 2001/10/25 07:57:42 robbod Exp $
 
 <xsl:template match="mapping_table" mode="toc">
   <ul>
-    <xsl:apply-templates select="ae" mode="toc"/>
+    <xsl:apply-templates select="ae" mode="toc"/> 
   </ul>
 </xsl:template>
 

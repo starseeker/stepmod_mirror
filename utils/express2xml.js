@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.23 2002/09/24 16:42:56 robbod Exp $
+//$Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -346,7 +346,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.23 2002/09/24 16:42:56 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -356,7 +356,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.23 $";
+    var appCVSRevision = "$Revision: 1.24 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -681,14 +681,33 @@ function xmlAggregate(statement, outTs) {
 	var bounds = statement.substr(opos+1, cpos-opos-1);
 	bounds = bounds.replace(/\s/g,"");
 	var lower = bounds.match(/.*:/);
-	lower = lower[0].replace(/:/,"");
-	var upper = bounds.match(/:.*/);
-	upper = upper[0].replace(/:/,"");
-	xmlOpenElement("<inverse.aggregate",outTs);
-	xmlAttr("type",agg,outTs);
-	xmlAttr("lower",lower,outTs);
-	xmlAttr("upper",upper,outTs);
-	xmlCloseAttr(outTs);
+//debug TEH
+//    userMessage("opos " + opos);
+//    userMessage("cpos " + cpos);
+//    userMessage("bounds " + bounds);
+//    userMessage("bounds.length " + bounds.length);
+//    userMessage("lower " + lower);
+
+//if added by TEH to enable else - which deals with implied bounds
+// After experimenting with GE I decide to coerce explicit bounds in all cases
+// rather than fix the display in the case where no bounds are in the express
+	if (bounds.length > 0) {
+		lower = lower[0].replace(/:/,"");
+		var upper = bounds.match(/:.*/);
+		upper = upper[0].replace(/:/,"");
+		xmlOpenElement("<inverse.aggregate",outTs);
+		xmlAttr("type",agg,outTs);
+		xmlAttr("lower",lower,outTs);
+		xmlAttr("upper",upper,outTs);
+		xmlCloseAttr(outTs);
+	}
+	else{
+		xmlOpenElement("<inverse.aggregate",outTs);
+		xmlAttr("type",agg,outTs);
+		xmlAttr("lower",'0',outTs);
+		xmlAttr("upper",'?',outTs);
+		xmlCloseAttr(outTs);
+	}
     }
 }
 

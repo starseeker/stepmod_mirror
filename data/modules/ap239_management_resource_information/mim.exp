@@ -1,8 +1,7 @@
 (*
-   $Id: mim.exp,v 1.9 2003/02/26 15:02:05 robbod Exp $
+   $Id: mim.exp,v 1.11 2003/03/05 11:53:48 robbod Exp $
    ISO TC184/SC4/WG12 N1629 - ISO/CD-TS 10303-1289 Ap239 management resource information - EXPRESS MIM
 *) 
-
 
 SCHEMA Ap239_management_resource_information_mim; 
 
@@ -47,7 +46,14 @@ USE FROM date_time_schema   -- ISO 10303-41
   (calendar_date,
    date_and_time,
    date_role,
-   date_time_role); 
+   date_time_role,
+   event_occurrence,
+   event_occurrence_context_role,
+   event_occurrence_relationship); 
+
+USE FROM Event_assignment_mim;    -- ISO/CD-TS 10303-xxxx
+
+USE FROM Event_mim;    -- ISO/TS 10303-1064
 
 USE FROM External_class_mim;    -- ISO/CD-TS 10303-1275
 
@@ -92,8 +98,20 @@ USE FROM Set_theory_mim;    -- ISO/CD-TS 10303-1210
 
 TYPE ap239_mri_aliasable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON aliasable_item WITH 
    (approval_status, 
+    certification, 
+    event_occurrence, 
     organization, 
+    organizational_project, 
     security_classification);
+END_TYPE; 
+
+TYPE ap239_mri_approval_item = SELECT BASED_ON approval_item WITH 
+   (applied_contract_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_identification_assignment, 
+    applied_organizational_project_assignment, 
+    event_occurrence, 
+    organizational_project);
 END_TYPE; 
 
 TYPE ap239_mri_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_classification_item WITH 
@@ -106,6 +124,8 @@ TYPE ap239_mri_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT 
     contract_type, 
     date_role, 
     date_time_role, 
+    event_occurrence_context_role, 
+    event_occurrence_relationship, 
     group, 
     identification_role, 
     name_attribute, 
@@ -120,6 +140,10 @@ TYPE ap239_mri_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT 
     security_classification_level);
 END_TYPE; 
 
+TYPE ap239_mri_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
+   (organizational_project);
+END_TYPE; 
+
 TYPE ap239_mri_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
    (address, 
     applied_approval_assignment, 
@@ -127,6 +151,7 @@ TYPE ap239_mri_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON c
     applied_contract_assignment, 
     applied_date_and_time_assignment, 
     applied_date_assignment, 
+    applied_event_occurrence_assignment, 
     applied_identification_assignment, 
     applied_organization_assignment, 
     applied_organizational_project_assignment, 
@@ -140,6 +165,8 @@ TYPE ap239_mri_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON c
     certification, 
     contract, 
     date_and_time, 
+    event_occurrence, 
+    event_occurrence_relationship, 
     language, 
     multi_language_attribute_assignment, 
     organization, 
@@ -153,17 +180,47 @@ TYPE ap239_mri_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON c
 END_TYPE; 
 
 TYPE ap239_mri_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH 
-   (applied_identification_assignment);
+   (applied_certification_assignment, 
+    applied_contract_assignment, 
+    applied_identification_assignment, 
+    organizational_address, 
+    person_and_organization_address);
 END_TYPE; 
 
 TYPE ap239_mri_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH 
-   (applied_identification_assignment);
+   (applied_certification_assignment, 
+    applied_contract_assignment, 
+    applied_identification_assignment, 
+    organizational_address);
 END_TYPE; 
 
 TYPE ap239_mri_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
    (approval_status, 
+    certification, 
+    event_occurrence, 
     organization, 
+    organizational_project, 
     security_classification);
+END_TYPE; 
+
+TYPE ap239_mri_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
+   (applied_certification_assignment, 
+    applied_contract_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_organizational_project_assignment, 
+    certification, 
+    event_occurrence, 
+    organizational_project);
+END_TYPE; 
+
+TYPE ap239_mri_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
+   (applied_certification_assignment, 
+    applied_contract_assignment, 
+    applied_event_occurrence_assignment, 
+    applied_organizational_project_assignment, 
+    certification, 
+    event_occurrence, 
+    organizational_project);
 END_TYPE; 
 
 END_SCHEMA;  -- Ap239_management_resource_information_mim

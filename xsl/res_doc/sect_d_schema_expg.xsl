@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
+<!--
+$Id: sect_c_arm_expg.xsl,v 1.9 2002/07/22 09:33:18 robbod Exp $
+  Author:  Rob Bodington, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST under contract.
+  Purpose:
+     
+-->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                version="1.0">
+
+  <xsl:import href="module.xsl"/>
+
+  <!-- 
+       the stylesheet that allows different stylesheets to be applied 
+       -->
+  <xsl:import href="module_clause.xsl"/>
+
+
+  <xsl:output method="html"/>
+
+<!-- overwrites the template declared in module.xsl -->
+<xsl:template match="module">
+  <xsl:call-template name="annex_header">
+    <xsl:with-param name="annex_no" select="'C'"/>
+    <xsl:with-param name="heading" 
+      select="'ARM EXPRESS-G'"/>
+    <xsl:with-param name="aname" select="'annexc'"/>
+  </xsl:call-template>
+  <p>
+    The following diagrams provide a graphical representation of the 
+    <!-- EXPRESS structure and constructs specified in clause 4. -->
+    ARM EXPRESS short listing defined in 
+    <a href="./4_info_reqs{$FILE_EXT}">Clause 4</a>.
+    The diagrams are presented in EXPRESS-G.
+  </p>
+  <p>
+    This annex contain two distinct representations of the Application
+    Reference Model of this application module:
+  </p> 
+  <ul>
+    <li>
+      a schema level representation which depicts the import of the
+      constructs defined in the ARM schema of other application modules, in
+      the ARM schema of this application module, through USE FROM statements;
+    </li> 
+    <li>
+      an entity level representation which presents the EXPRESS constructs
+      defined in the ARM schema of this application module and the
+      references to imported constructs that are specialized or referred to
+      by the constructs of the ARM schema of this application module.
+    </li>
+  </ul>
+  <p class="note">
+    <small>
+      NOTE&#160;&#160;Both these representations are partial. The schema level
+      representation does not present the ARM schema of modules that are
+      indirectly imported. The entity level representation does not present
+      the imported constructs that are not specialized or referred to by
+      the constructs of the ARM schema of this application module.
+    </small>
+  </p>
+  <p>
+    The EXPRESS-G  graphical notation is defined in annex D of ISO
+    10303-11.
+  </p> 
+  <a name="armexpg"/>
+  <xsl:apply-templates select="arm/express-g"/>
+</xsl:template>
+
+</xsl:stylesheet>

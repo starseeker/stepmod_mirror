@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
+<!--
+$Id: resource_clause.xsl,v 1.5 2002/03/04 07:54:14 robbod Exp $
+  Author:  Rob Bodington, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST under contract.
+  Purpose:
+     
+-->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                version="1.0">
+
+  <xsl:template match="/" >
+    <xsl:apply-templates select="./resource_clause" />
+  </xsl:template>
+
+
+  <xsl:template match="resource_clause">
+    <!-- the XML file to which the stylesheet will be applied 
+         NOTE: that the path used by document is relative to the directory
+         of this xsl file
+         -->
+    <xsl:variable 
+      name="resource_xml_file"
+      select="concat('../../data/resource_docs/',@directory,'/resource.xml')"/>
+    <HTML>
+      <HEAD>
+        <!-- apply a cascading stylesheet.
+             The stylesheet will only be applied if the parameter output_css
+             is set in parameter.xsl 
+             -->
+        <xsl:call-template name="output_css">
+          <xsl:with-param name="path" select="'../../../../css/'"/>
+        </xsl:call-template>
+        <TITLE>
+          <!-- output the resource page title -->
+          <xsl:apply-templates 
+            select="document($resource_xml_file)/resource"
+            mode="title"/>
+        </TITLE>
+      </HEAD>
+      <BODY>
+        <!-- debug <xsl:message><xsl:value-of select="$global_xref_list"/></xsl:message> -->
+        <!-- output the Table of contents banner -->
+        <xsl:apply-templates 
+          select="document($resource_xml_file)/resource"
+          mode="TOCmultiplePage"/>
+
+        <!-- now apply the stylesheet specified in the document -->
+        <xsl:apply-templates select="document($resource_xml_file)/resource"/>
+      </BODY>
+    </HTML>
+  </xsl:template>
+
+
+</xsl:stylesheet>

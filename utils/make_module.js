@@ -1,4 +1,4 @@
-//$Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $
+//$Id: make_module.js,v 1.2 2001/11/22 09:51:22 robbod Exp $
 // JScript to generate the expressg html for a module.
 // This script uses The Saxon XSLT processor:
 //  http://sourceforge.net/projects/saxon
@@ -56,13 +56,13 @@ var moduleClauses = new Array("main", "cover", "introduction", "foreword",
 //MainUpdateModules() 
 //
 // Make the HTML for all the resources from the XML
-MainMakeHtmlResources()
+// MainMakeHtmlResources()
 
 // Make the HTML for all the modules from the XML
 // MainMakeHtmlModules()
 
 // Make the all HTML for all the modules, resources and index
-//MainMakeHtmlAll()
+MainMakeHtmlAll()
 
 
 
@@ -178,7 +178,7 @@ function MakeModuleXML(module) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.2 2001/11/22 09:51:22 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -231,7 +231,7 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.2 2001/11/22 09:51:22 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -257,7 +257,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.2 2001/11/22 09:51:22 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.5 2003/05/08 21:30:48 thendrix Exp $ -->
+<!-- $Id: issues.xml,v 1.6 2003/05/08 21:38:16 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="measure_representation">
@@ -127,6 +127,51 @@ Raised as a SEDS
 Reject    "PROPERTY_VALUE_REPRESENTATION does not have an
     attribute items.". Disagree that this is an error. 
 Accept and corrected "units is not found".
+</description>
+</comment>
+
+<comment
+   by="Phil Spiby"
+   date="03-07-04">
+<description>
+  <p>
+The problem is that the entity Property_value_representation does not
+declare the attribute items, therefore the USEDIN will not return a BAG OF
+Property_representation_item, but a BAG OF GENERIC.  
+  </p>
+  <p>
+What you need to do is modify the rule to get the correct reference to the
+items attribute (declared in representation) then constrain the type down
+to property_value_representations. Also the entity
+Property_value_representation does not have an attribute units, you should
+access this through the context_of_items attribute which is of type
+numerical_representation_context, which has the units attibute! 
+  </p>
+  <p>
+Change
+  </p>
+    <screen>
+  ENTITY numerical_item_with_global_unit
+    SUBTYPE OF (measure_item);
+      value_component : measure_value;
+    WHERE
+      wr1: (SIZEOF(QUERY ( pvr &lt;* USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_ARM_LF.PROPERTY_VALUE_REPRESE
+NTATION.ITEMS')
+                | EXISTS(pvr.units) )) &gt; 0);
+  END_ENTITY; -- numerical_item_with_global_unit
+    </screen>
+    <p>with</p>
+    <screen>
+  ENTITY numerical_item_with_global_unit
+    SUBTYPE OF (measure_item);
+      value_component : measure_value;
+    WHERE
+      wr1: (SIZEOF(QUERY(pvr &lt;* QUERY ( r &lt;* USEDIN(SELF, 'MEASURE_REPRESENTATION_ARM.REPRESENTATION.ITEMS')|
+'MEASURE_REPRESENTATION_ARM.PROPERTY_VALUE_REPRESENTATION' IN
+TYPEOF(r)) | EXISTS(pvr.context_of_items.units) )) > 0);
+  END_ENTITY; -- numerical_item_with_global_unit
+    </screen>
+
 </description>
 </comment>
 </issue>

@@ -48,7 +48,7 @@
 				<xs:complexContent>
 					<xs:restriction base="ex:uos">
 						<xs:choice maxOccurs="unbounded" minOccurs="0">
-						<xsl:for-each select="//entity">
+						<!-- xsl:for-each select="//entity">
 							<xsl:variable name="raw_entity_name" select="./@name"/>
 							<xsl:choose>
 								<xsl:when test="./@abstract.supertype='YES'">
@@ -66,7 +66,10 @@
 									<xs:element ref="{$namespace_prefix}{$corrected_entity_name}"/>
 								</xsl:otherwise>
 							</xsl:choose>
-						</xsl:for-each>
+						</xsl:for-each -->
+							<xs:element ref="ex:Entity"/>
+							<xs:element ref="ex:edokey"/>
+							<xs:element ref="ex:nonEntity"/>
 						</xs:choice>
 					</xs:restriction>
 				</xs:complexContent>
@@ -98,7 +101,7 @@
 			<xsl:for-each select="$configuration//ex:entity">
 				<xsl:variable name="synthetic_entity_name" select="./@name"/>
 				<xsl:variable name="supertypes" select="./@select"/>
-				
+
 				<xsl:call-template name="inheritance-free_mapping">
 					<xsl:with-param name="raw_entity_name_param" select="$synthetic_entity_name"/>
 					<xsl:with-param name="corrected_entity_name_param" select="$synthetic_entity_name"/>
@@ -344,7 +347,7 @@
 						<xsl:comment>EXPRESS AGGREGATE DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
 							<xsl:text>&#xa;</xsl:text>
 							
-							<xs:element name="{$corrected_type_name}" nillable="true">
+							<xs:element substitutionGroup="ex:nonEntity" name="{$corrected_type_name}" nillable="true">
 								<xs:complexType>
 									<xs:complexContent>
 										<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
@@ -372,6 +375,7 @@
 										</xsl:when>
 										<xsl:otherwise>
 											<xs:element 
+												substitutionGroup="ex:nonEntity"
 												ref="{$base_datatype}" 
 												minOccurs="{$lower_bound}"
 												maxOccurs="{$upper_bound}"
@@ -474,7 +478,7 @@
 				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
 				<xsl:text>&#xa;</xsl:text>
 				
-				<xs:element name="{$corrected_type_name}" nillable="true">
+				<xs:element substitutionGroup="ex:nonEntity" name="{$corrected_type_name}" nillable="true">
 					<xs:complexType>
 						<xs:complexContent>
 							<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
@@ -501,7 +505,7 @@
 			<xsl:otherwise>
 				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
 				<xsl:text>&#xa;</xsl:text>
-				<xs:element name="{$corrected_type_name}" nillable="true">
+				<xs:element substitutionGroup="ex:nonEntity" name="{$corrected_type_name}" nillable="true">
 					<xs:complexType>
 						<xs:simpleContent>
 							<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
@@ -621,6 +625,7 @@
 				<xs:element
 					name="{$corrected_entity_name_param}" 
 					type="{$namespace_prefix}{$corrected_entity_name_param}" 
+					substitutionGroup="ex:Entity"
 					nillable="true">
 				</xs:element>
 				<xsl:text>&#xa;</xsl:text>
@@ -1279,23 +1284,23 @@
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='BOOLEAN']">
-				<xs:element type="xs:boolean"   name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
+				<xs:element substitutionGroup="ex:nonEntity" type="xs:boolean"   name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='LOGICAL']">
-				<xs:element type="ex:logical"   name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
+				<xs:element substitutionGroup="ex:nonEntity" type="ex:logical"   name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='INTEGER']">
-				<xs:element type="xs:long" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
+				<xs:element substitutionGroup="ex:nonEntity" type="xs:long" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='NUMBER']">
-				<xs:element type="xs:decimal" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
+				<xs:element substitutionGroup="ex:nonEntity" type="xs:decimal" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='REAL']">
-				<xs:element type="xs:double" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
+				<xs:element substitutionGroup="ex:nonEntity" type="xs:double" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='GENERICENTITY']">
@@ -1304,14 +1309,14 @@
 
 			
 			<xsl:when test="$type_param/builtintype[@type='STRING' and not(@width)]">
-				<xs:element type="xs:normalizedString" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
+				<xs:element substitutionGroup="ex:nonEntity" type="xs:normalizedString" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='STRING' and @width]">
 				<xsl:variable name="express_length" select="./builtintype/@width"/>
 				<xsl:choose>
 					<xsl:when test="$type_param/builtintype[@type='STRING' and @fixed='YES']">
-						<xs:element name="{$attribute_name_param}" minOccurs="{$optionality_param}">
+						<xs:element substitutionGroup="ex:nonEntity" name="{$attribute_name_param}" minOccurs="{$optionality_param}">
 					       	<xs:simpleType>
 					        		<xs:restriction base="xs:normalizedString">
 									<xs:maxLength value="{$express_length}"/>
@@ -1321,7 +1326,7 @@
 						</xs:element>
 					</xsl:when>
 					<xsl:when test="$type_param/builtintype[@type='STRING' and not(@fixed='YES')]">
-						<xs:element name="{$attribute_name_param}" minOccurs="{$optionality_param}">
+						<xs:element substitutionGroup="ex:nonEntity" name="{$attribute_name_param}" minOccurs="{$optionality_param}">
 					            <xs:simpleType>
 					        		<xs:restriction base="xs:normalizedString">
 									<xs:maxLength value="{$express_length}"/>

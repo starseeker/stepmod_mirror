@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-23T15:01:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-07T17:15:30" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_product_data_management_arm schema_instance"/>
    <schema name="Ap210_product_data_management_arm">
       <interface kind="use" schema="Activity_arm"/>
@@ -12,13 +12,10 @@
       <interface kind="use" schema="Class_arm"/>
       <interface kind="use" schema="Classification_assignment_arm"/>
       <interface kind="use" schema="Configuration_effectivity_arm"/>
-      <interface kind="use" schema="Configuration_item_arm"/>
-      <interface kind="use" schema="Contextual_shape_positioning_arm"/>
       <interface kind="use" schema="Contract_arm"/>
       <interface kind="use" schema="Date_time_arm"/>
       <interface kind="use" schema="Date_time_assignment_arm"/>
       <interface kind="use" schema="Document_assignment_arm"/>
-      <interface kind="use" schema="Document_management_arm"/>
       <interface kind="use" schema="Document_structure_arm"/>
       <interface kind="use" schema="Effectivity_application_arm"/>
       <interface kind="use" schema="Effectivity_arm"/>
@@ -27,45 +24,27 @@
       <interface kind="use" schema="External_class_arm"/>
       <interface kind="use" schema="External_item_identification_assignment_arm"/>
       <interface kind="use" schema="File_identification_arm"/>
-      <interface kind="use" schema="Foundation_representation_arm"/>
-      <interface kind="use" schema="Identification_assignment_arm"/>
-      <interface kind="use" schema="Incomplete_data_reference_mechanism_arm"/>
-      <interface kind="use" schema="Independent_property_arm"/>
       <interface kind="use" schema="Independent_property_representation_arm"/>
-      <interface kind="use" schema="Item_definition_structure_arm"/>
-      <interface kind="use" schema="Management_resource_information_arm"/>
-      <interface kind="use" schema="Measure_representation_arm"/>
       <interface kind="use" schema="Multi_linguism_arm"/>
-      <interface kind="use" schema="Name_assignment_arm"/>
-      <interface kind="use" schema="Part_definition_relationship_arm"/>
-      <interface kind="use" schema="Pdm_material_aspects_arm"/>
       <interface kind="use" schema="Person_organization_arm"/>
       <interface kind="use" schema="Person_organization_assignment_arm"/>
-      <interface kind="use" schema="Physical_unit_design_view_arm"/>
       <interface kind="use" schema="Process_property_assignment_arm"/>
-      <interface kind="use" schema="Product_categorization_arm"/>
-      <interface kind="use" schema="Product_concept_identification_arm"/>
       <interface kind="use" schema="Product_identification_arm"/>
-      <interface kind="use" schema="Product_occurrence_arm"/>
+      <interface kind="use" schema="Part_occurrence_arm"/>
       <interface kind="use" schema="Product_replacement_arm"/>
-      <interface kind="use" schema="Product_structure_arm"/>
-      <interface kind="use" schema="Product_version_arm"/>
-      <interface kind="use" schema="Product_version_relationship_arm"/>
       <interface kind="use" schema="Product_view_definition_arm"/>
-      <interface kind="use" schema="Product_view_definition_properties_arm"/>
       <interface kind="use" schema="Project_arm"/>
       <interface kind="use" schema="Property_assignment_arm"/>
-      <interface kind="use" schema="Requirement_assignment_arm"/>
-      <interface kind="use" schema="Requirement_view_definition_arm"/>
       <interface kind="use" schema="Requirement_view_definition_relationship_arm"/>
       <interface kind="use" schema="Security_classification_arm"/>
-      <interface kind="use" schema="Single_part_representation_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="use" schema="Work_order_arm"/>
       <interface kind="use" schema="Work_request_arm"/>
-      <interface kind="use" schema="Characteristic_arm">
-         <interfaced.item name="Text_representation_item"/>
-      </interface>
-      <interface kind="use" schema="Product_identification_extension_arm"/>
+      <interface kind="use" schema="Characteristic_arm"/>
+      <interface kind="use" schema="Physical_unit_design_view_arm"/>
+      <type name="design_object_management_relationship_or_description">
+         <select extensible="YES" genericentity="YES" selectitems="Text_representation_item"/>
+      </type>
       <type name="pdm_activity_item">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_activity_item" selectitems="Item_usage_effectivity Product_version Product_view_definition View_definition_relationship"/>
       </type>
@@ -111,35 +90,32 @@
       <type name="pdm_string_select">
          <select extensible="YES" genericentity="YES" basedon="_SELECT_string_select" selectitems="Approval Approval_relationship Approval_status Certification Contract Document_assignment External_item_identification File_relationship Organization_relationship Person_in_organization Product Product_category Product_version Product_view_definition Project Project_assignment Project_relationship View_definition_relationship"/>
       </type>
-      <type name="design_object_management_relationship_or_description">
-         <select extensible="YES" genericentity="YES" selectitems="Text_representation_item"/>
-      </type>
       <entity name="Assembly_alternate_product" supertypes="Alternate_product_relationship">
          <explicit name="basis_context">
             <typename name="Part_design_view"/>
          </explicit>
       </entity>
-      <entity name="Test_select_product" supertypes="Alternate_product_relationship"/>
       <entity name="Assembly_item_number">
-         <explicit name="item_number">
-            <builtintype type="STRING"/>
-         </explicit>
          <explicit name="assembly_usage">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Assembly_component_relationship"/>
          </explicit>
-         <derived name="part" expression=" assembly_usage [ 1 ] . relating_view \ definition_based_product_occurrence . derived_from \ product_view_definition . defined_version . of_product ">
-            <typename name="Product"/>
-         </derived>
+         <explicit name="item_number">
+            <builtintype type="STRING"/>
+         </explicit>
          <derived name="assembly" expression=" assembly_usage [ 1 ] . related_view ">
             <typename name="Part_design_view"/>
+         </derived>
+         <derived name="part" expression=" assembly_usage [ 1 ] . relating_view \ definition_based_product_occurrence . derived_from \ product_view_definition . defined_version . of_product ">
+            <typename name="Product"/>
          </derived>
          <unique label="ur1">
             <unique.attribute entity-ref="Assembly_item_number" attribute="assembly"/>
             <unique.attribute entity-ref="Assembly_item_number" attribute="item_number"/>
          </unique>
-         <where label="wr2" expression=" SIZEOF ( QUERY ( au &lt;* assembly_usage | NOT ( au . related_view = assembly ) ) ) = 0 "/>
          <where label="wr1" expression=" SIZEOF ( QUERY ( au &lt;* assembly_usage | NOT ( au . relating_view \ definition_based_product_occurrence . derived_from \ product_view_definition . defined_version . of_product = part ) ) ) = 0 "/>
+         <where label="wr2" expression=" SIZEOF ( QUERY ( au &lt;* assembly_usage | NOT ( au . related_view = assembly ) ) ) = 0 "/>
       </entity>
+      <entity name="Test_select_product" supertypes="Alternate_product_relationship"/>
    </schema>
 </express>

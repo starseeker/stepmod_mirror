@@ -1,0 +1,276 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.9"
+    source="../data/modules/value_with_unit/mim.exp"/>
+
+  <schema name="Value_with_unit_mim">
+    <interface
+      kind="use"
+      schema="iso13584_generic_expressions_schema">
+      <interfaced.item
+        name="variable_semantics"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="measure_schema">
+      <interfaced.item
+        name="amount_of_substance_measure"/>
+      <interfaced.item
+        name="amount_of_substance_measure_with_unit"/>
+      <interfaced.item
+        name="amount_of_substance_unit"/>
+      <interfaced.item
+        name="area_measure"/>
+      <interfaced.item
+        name="area_measure_with_unit"/>
+      <interfaced.item
+        name="area_unit"/>
+      <interfaced.item
+        name="context_dependent_measure"/>
+      <interfaced.item
+        name="context_dependent_unit"/>
+      <interfaced.item
+        name="conversion_based_unit"/>
+      <interfaced.item
+        name="count_measure"/>
+      <interfaced.item
+        name="derived_unit"/>
+      <interfaced.item
+        name="descriptive_measure"/>
+      <interfaced.item
+        name="electric_current_measure"/>
+      <interfaced.item
+        name="electric_current_measure_with_unit"/>
+      <interfaced.item
+        name="electric_current_unit"/>
+      <interfaced.item
+        name="length_measure"/>
+      <interfaced.item
+        name="length_measure_with_unit"/>
+      <interfaced.item
+        name="length_unit"/>
+      <interfaced.item
+        name="luminous_intensity_measure"/>
+      <interfaced.item
+        name="luminous_intensity_measure_with_unit"/>
+      <interfaced.item
+        name="luminous_intensity_unit"/>
+      <interfaced.item
+        name="mass_measure"/>
+      <interfaced.item
+        name="mass_measure_with_unit"/>
+      <interfaced.item
+        name="mass_unit"/>
+      <interfaced.item
+        name="measure_value"/>
+      <interfaced.item
+        name="measure_with_unit"/>
+      <interfaced.item
+        name="named_unit"/>
+      <interfaced.item
+        name="numeric_measure"/>
+      <interfaced.item
+        name="parameter_value"/>
+      <interfaced.item
+        name="plane_angle_measure"/>
+      <interfaced.item
+        name="plane_angle_measure_with_unit"/>
+      <interfaced.item
+        name="plane_angle_unit"/>
+      <interfaced.item
+        name="positive_length_measure"/>
+      <interfaced.item
+        name="positive_plane_angle_measure"/>
+      <interfaced.item
+        name="positive_ratio_measure"/>
+      <interfaced.item
+        name="ratio_measure"/>
+      <interfaced.item
+        name="ratio_measure_with_unit"/>
+      <interfaced.item
+        name="ratio_unit"/>
+      <interfaced.item
+        name="si_unit"/>
+      <interfaced.item
+        name="solid_angle_measure"/>
+      <interfaced.item
+        name="solid_angle_measure_with_unit"/>
+      <interfaced.item
+        name="solid_angle_unit"/>
+      <interfaced.item
+        name="thermodynamic_temperature_measure"/>
+      <interfaced.item
+        name="thermodynamic_temperature_measure_with_unit"/>
+      <interfaced.item
+        name="thermodynamic_temperature_unit"/>
+      <interfaced.item
+        name="time_measure"/>
+      <interfaced.item
+        name="time_measure_with_unit"/>
+      <interfaced.item
+        name="time_unit"/>
+      <interfaced.item
+        name="unit"/>
+      <interfaced.item
+        name="volume_measure"/>
+      <interfaced.item
+        name="volume_measure_with_unit"/>
+      <interfaced.item
+        name="volume_unit"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="qualified_measure_schema">
+      <interfaced.item
+        name="measure_representation_item"/>
+      <interfaced.item
+        name="precision_qualifier"/>
+      <interfaced.item
+        name="qualified_representation_item"/>
+      <interfaced.item
+        name="type_qualifier"/>
+      <interfaced.item
+        name="value_qualifier"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="compound_representation_item"/>
+      <interfaced.item
+        name="representation_item"/>
+      <interfaced.item
+        name="set_representation_item"/>
+      <interfaced.item
+        name="value_representation_item"/>
+    </interface>
+
+    <entity
+      name="derived_unit_variable"
+      supertypes="derived_unit variable_semantics">
+      <inverse
+        name="associated_variable_environment"
+        entity="environment"
+        attribute="semantics">
+      </inverse>
+    </entity>
+
+    <entity
+      name="value_range"
+      supertypes="compound_representation_item">
+      <where
+        label="WR1"
+        expression="( 'value_with_unit_mim.'+ 'SET_REPRESENTATION_ITEM' IN     TYPEOF ( item_element ) ) AND value_range_wr1 (     item_element ) ">
+      </where>
+      <where
+        label="WR2value_range_wr2"
+        expression="value_range_wr2 ( item_element ) ">
+      </where>
+      <where
+        label="WR3value_range_wr3"
+        expression="value_range_wr3 ( item_element ) ">
+      </where>
+    </entity>
+
+    <function
+      name="value_range_wr1">
+      <parameter
+        name="agg">
+        <typename
+          name="AGGREGATE OF representation_item"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+  BEGIN
+    IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY ( i1 &lt;* agg | (
+    'value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
+    (i1)) ))
+    = 2) OR (SIZEOF(QUERY ( i2 &lt;* agg | (
+    'value_with_unit_mim.VALUE_REPRESENTATION_ITEM' IN TYPEOF
+    (i2)) ))
+    = 2)) THEN
+      RETURN(TRUE);
+    ELSE
+      RETURN(FALSE);
+    END_IF;
+  END;
+      </algorithm>
+
+    </function>
+
+    <function
+      name="value_range_wr2">
+      <parameter
+        name="agg">
+        <typename
+          name="AGGREGATE OF representation_item"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+  BEGIN
+    IF (SIZEOF(QUERY ( i &lt;* agg | (i.name = 'upper limit')
+        )) = 1)
+    AND (SIZEOF(QUERY ( i &lt;* agg | (i.name = 'lower limit')
+         )) = 1)
+     THEN
+      RETURN(TRUE);
+    ELSE
+      RETURN(FALSE);
+    END_IF;
+  END;
+      </algorithm>
+
+    </function>
+
+    <function
+      name="value_range_wr3">
+      <parameter
+        name="agg">
+        <typename
+          name="AGGREGATE OF representation_item"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+  BEGIN
+    IF (SIZEOF(QUERY ( i &lt;* agg | (
+    'value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' IN 
+    TYPEOF(i)) ))
+    &lt;&gt; 2) OR (SIZEOF(QUERY ( i1 &lt;* agg | 
+     ('value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' 
+     IN TYPEOF (i1))
+     AND
+     (SIZEOF(QUERY ( i2 &lt;* agg
+     | ((i1\measure_with_unit.unit_component
+    :=: i2\measure_with_unit.unit_component) OR
+     (i1\measure_with_unit.unit_component :=:
+     i2\measure_with_unit.unit_component)) ))
+    = 2) )) = 2) THEN
+      RETURN(TRUE);
+    ELSE
+      RETURN(FALSE);
+    END_IF;
+  END;
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.47 2004/12/31 16:59:05 robbod Exp $ -->
+<!-- $Id: issues.xml,v 1.48 2005/01/07 07:21:32 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="ap239_product_life_cycle_support">
@@ -605,10 +605,10 @@ compliance with reference path in mapping table.
 		</description>
 		<comment by="Rob Bodington" date="2004-09-21">
 			<description>
-The rules are actually explicit in the mapping table. We agree that they
-could be made explicit in the AIM as well. We will investigate automating
-the generation and the documentation of the rule using the mapping table
-analysis software currently implemented in STEPmod.
+The rules are actually explicit in the mapping table. 
+As agreed at the Seattle SC4 meeting, explicit rules could be extracted and
+made avialable once the automated software is devloped.
+                          These rule will be stored at: http://
 </description>
 		</comment>
 	</issue>
@@ -871,7 +871,7 @@ Discuss if adding rules on Product for example, would make the model more strict
 		<comment by="Rob Bodington" date="2004-11-06">
 			<description>
 It was agreed at the Seattle SC4 meeting that, if appropriate, the global
-rules would be documented and recorded on an external sire. 
+rules would be documented and recorded on an external site. 
 </description>
 		</comment>
 	</issue>
@@ -1351,4 +1351,78 @@ Removed as requested.
 </comment>
 </issue>
 
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="JHH-32"
+   type="mim"
+   linkend="Ap239_product_life_cycle_support_mim"
+   status="closed"
+   category="minor_technical"
+   by="Jochen Haenisch"
+   date="2005-01-13"
+   seds="no"
+   ballot_comment="no"
+   member_body="GB"
+   resolution="accept">
+<description>
+The AIM longform (439 MIM) does not include the entity
+application_protocol_definition. There has probably been a discussion about
+this earlier, I am not sure. 
+
+My concern now is that this entity is a part of the PDM schema. For upward
+compatibility it needs to be included in 239/439. The
+Product_data_management_mim of 203e2 does also include it. 
+
+439 should include the entity and 239 should constrain the population of
+its attributes. 
+
+</description>
+
+<comment
+   by="Lothar Klein"
+   date="2005-01-14">
+<description>
+this topic was discussed in some meeting in Seattle and that we had a common understanding that every AP, even the modular ones should have a rule like the one below from AP214.
+
+--------------
+5.2.4.1 application_protocol_definition_required
+The application_protocol_definition_required rule ensures that at least one application_protocol_definition is specified that provides the designator 'automotive_design' of this application protocol.  
+
+*)
+RULE application_protocol_definition_required FOR
+    (application_context);
+WHERE
+  WR1:  SIZEOF( QUERY( ac &lt;* application_context |
+              (SIZEOF (QUERY (apd &lt;* USEDIN(ac,'AUTOMOTIVE_DESIGN.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') |
+                apd.application_interpreted_model_schema_name = 'automotive_design'
+                )) &gt; 0)
+              )) &gt; 0;   
+
+END_RULE;
+(*
+
+Argument definitions:
+
+application_context: the set of all instances of application_context.
+
+Formal propositions
+
+WR1: At least one instance of application_context shall be refered by one instance of application_protocol_definition which contains the instance of application_context as its application attribute and has a
+application_interpreted_model_schema_name of 'automotive_design'.   
+
+</description>
+</comment>
+
+<comment
+   by="Rob Bodington"
+   date="2005-01-15">
+<description>
+Added rule.
+</description>
+</comment>
+</issue>
+
 </issues>
+
+

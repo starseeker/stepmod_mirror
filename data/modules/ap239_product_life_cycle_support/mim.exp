@@ -1,9 +1,8 @@
 (*
- $Id: mim.exp,v 1.5 2003/10/09 09:50:45 robbod Exp $
+ $Id: mim.exp,v 1.6 2004/11/19 21:37:33 robbod Exp $
  ISO TC184/SC4/WG3 N1561 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG3 N1401
 *) 
-
 
 SCHEMA Ap239_product_life_cycle_support_mim;
 
@@ -11,5 +10,15 @@ USE FROM Ap239_activity_recording_mim;    -- ISO/TS 10303-1287
 
 USE FROM Ap239_product_status_recording_mim;    -- ISO/TS 10303-1304
 
+USE FROM application_context_schema   -- ISO 10303-41
+  (application_context,
+   application_protocol_definition); 
+
+
+RULE application_protocol_definition_required FOR 
+(application_context);
+WHERE
+  WR1: SIZEOF( QUERY( ac <* application_context | (SIZEOF (QUERY (apd <* USEDIN(ac,'PRODUCT_LIFE_CYCLE_SUPPORT.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | apd.application_interpreted_model_schema_name = 'product_life_cycle_support' )) > 0) )) > 0;
+END_RULE; 
 
 END_SCHEMA;  -- Ap239_product_life_cycle_support_mim

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: pub_isocover.xsl,v 1.7 2004/10/09 15:25:20 thendrix Exp $
+$Id: pub_isocover.xsl,v 1.8 2004/10/09 17:04:52 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -147,7 +147,7 @@ $Id: pub_isocover.xsl,v 1.7 2004/10/09 15:25:20 thendrix Exp $
             <span style="font-size:14; font-family:sans-serif;">
               <i>
                 Syst&#232;mes d'automatisation industrielle et int&#233;gration &#8212;
-                et &#233;change de donn&#233;es de produits
+                Repr&#233;sentation et &#233;change de donn&#233;es de produits
               </i>
             </span>
           </div>

@@ -1,0 +1,943 @@
+(*
+   $Id: mkmodule.js,v 1.43 2004/11/12 07:49:20 robbod Exp $
+   N - ISO/CD-TS - 10303- organization_structure - EXPRESS ARM_LF*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Organization_structure_arm_cc_lf;
+  TYPE activity_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE any_number_value = NUMBER;
+  END_TYPE;
+
+  TYPE any_string_value = STRING;
+  END_TYPE;
+
+  TYPE certification_item = SELECT (Qualification_assignment);
+  END_TYPE;
+
+  TYPE classification_item = SELECT (Experience_type, Location, Location_relationship, Managed_resource, Managed_resource_relationship, Person_or_organization_or_person_in_organization_in_position_relationship, Position, Position_group, Position_group_relationship, Position_position_type_assignment, Position_relationship, Position_type, Qualification_type, Required_resource, Required_resource_assignment, Required_resource_relationship, Resource_as_realized, Resource_as_realized_assignment, Resource_as_realized_relationship, Resource_event, Resource_event_correspondence_relationship, Resource_event_relationship, Resource_item, Resource_item_assignment, Resource_item_relationship, Type_of_person, Type_of_person_assignment, Type_of_person_definition, Type_of_person_definition_relationship, Type_of_person_definition_required_attributes_relationship);
+  END_TYPE;
+
+  TYPE date_or_date_time_item = SELECT (Experience_instance, Qualification_assignment);
+  END_TYPE;
+
+  TYPE date_or_date_time_select = SELECT (Calendar_date, Date_time);
+  END_TYPE;
+
+  TYPE date_or_event = SELECT (Calendar_date, Date_time, Event);
+  END_TYPE;
+
+  TYPE day_in_month_number = INTEGER;
+    WHERE
+      WR1: {1 <= SELF <= 31};
+  END_TYPE;
+
+  TYPE defined_activities = SELECT (Activity_actual, Resource_as_realized);
+  END_TYPE;
+
+  TYPE defined_attributes = SELECT (Experience_type, Qualification_type);
+  END_TYPE;
+
+  TYPE defined_methods = SELECT (Activity, Activity_method, Required_resource);
+  END_TYPE;
+
+  TYPE event_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE hour_in_day = INTEGER;
+    WHERE
+      WR1: {0 <= SELF < 24};
+  END_TYPE;
+
+  TYPE information_packet_element = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE information_packet_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE information_packet_select = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE length_measure = REAL;
+  END_TYPE;
+
+  TYPE location_assignment_select = SELECT (Managed_resource);
+  END_TYPE;
+
+  TYPE measure_value = SELECT (any_number_value, any_string_value, length_measure, plane_angle_measure);
+  END_TYPE;
+
+  TYPE minute_in_hour = INTEGER;
+    WHERE
+      WR1: {0 <= SELF <= 59};
+  END_TYPE;
+
+  TYPE month_in_year_number = INTEGER;
+    WHERE
+      WR1: {1 <= SELF <= 12};
+  END_TYPE;
+
+  TYPE offset_orientation = ENUMERATION OF (ahead, exact, behind);
+  END_TYPE;
+
+  TYPE organization_or_person_in_organization_item = SELECT (Qualification_assignment, Qualification_type);
+  END_TYPE;
+
+  TYPE organization_or_person_in_organization_select = SELECT (Organization, Person_in_organization);
+  END_TYPE;
+
+  TYPE person_or_organization_or_person_in_organization_select = SELECT (Organization, Person, Person_in_organization);
+  END_TYPE;
+
+  TYPE plane_angle_measure = REAL;
+  END_TYPE;
+
+  TYPE position_context_item = SELECT (Organization, Position_group, Project);
+  END_TYPE;
+
+  TYPE position_group_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE position_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE position_person_or_organization_or_person_in_organization_select = SELECT (Organization, Person, Person_in_organization);
+  END_TYPE;
+
+  TYPE position_type_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE product_based_location_representation = SELECT (Product, Product_version);
+  END_TYPE;
+
+  TYPE project_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE property_assignment_select = SELECT (Experience_instance, Type_of_person_definition);
+  END_TYPE;
+
+  TYPE qualifications_select = SELECT (Organization, Person, Person_in_organization);
+  END_TYPE;
+
+  TYPE required_resource_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE resource_as_realized_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE resource_as_realized_relationship_select = SELECT (Required_resource, Resource_event);
+  END_TYPE;
+
+  TYPE resource_assignment_item = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE resource_item_select = SELECT (Aaa_empty_for_os_testing);
+  END_TYPE;
+
+  TYPE second_in_minute = REAL;
+    WHERE
+      WR1: {0 <= SELF <= 60.000000};
+  END_TYPE;
+
+  TYPE type_of_person_item_select = SELECT (Experience_gained, Experience_instance, Experience_type, Organization, Organization_type, Position, Position_group, Position_type, Qualification_type);
+  END_TYPE;
+
+  TYPE year_number = INTEGER;
+  END_TYPE;
+
+  ENTITY Aaa_empty_for_os_testing;
+  END_ENTITY;
+
+  ENTITY Activity;
+    id : STRING;
+    name : STRING;
+    description : OPTIONAL STRING;
+    chosen_method : Activity_method;
+  END_ENTITY;
+
+  ENTITY Activity_actual
+    SUBTYPE OF (Activity);
+  END_ENTITY;
+
+  ENTITY Activity_happening
+    SUBTYPE OF (Activity_relationship);
+    SELF\Activity_relationship.relating_activity : Activity_actual;
+  DERIVE
+    actual : Activity_actual := SELF\Activity_relationship.relating_activity;
+    predicted : Activity := SELF\Activity_relationship.related_activity;
+  WHERE
+    WR1: NOT ('ACTIVITY_AS_REALIZED.ACTIVITY_ACTUAL' IN TYPEOF(predicted));
+  END_ENTITY;
+
+  ENTITY Activity_method;
+    name : STRING;
+    description : OPTIONAL STRING;
+    consequence : OPTIONAL STRING;
+    purpose : STRING;
+  END_ENTITY;
+
+  ENTITY Activity_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating_activity : Activity;
+    related_activity : Activity;
+  END_ENTITY;
+
+  ENTITY Activity_status;
+    assigned_activity : Activity;
+    status : STRING;
+  END_ENTITY;
+
+  ENTITY Address;
+    name : OPTIONAL STRING;
+    street_number : OPTIONAL STRING;
+    street : OPTIONAL STRING;
+    postal_box : OPTIONAL STRING;
+    town : OPTIONAL STRING;
+    region : OPTIONAL STRING;
+    postal_code : OPTIONAL STRING;
+    country : OPTIONAL STRING;
+    internal_location : OPTIONAL STRING;
+    facsimile_number : OPTIONAL STRING;
+    telephone_number : OPTIONAL STRING;
+    electronic_mail_address : OPTIONAL STRING;
+    telex_number : OPTIONAL STRING;
+    url : OPTIONAL STRING;
+  WHERE
+    WR1: (EXISTS(street_number) OR EXISTS(street) OR EXISTS(postal_box) OR EXISTS(town) OR EXISTS(region) OR EXISTS(postal_code) OR EXISTS(country) OR EXISTS(internal_location) OR EXISTS(facsimile_number) OR EXISTS(telephone_number) OR EXISTS(electronic_mail_address) OR EXISTS(telex_number));
+  END_ENTITY;
+
+  ENTITY Address_assignment;
+    address_type : OPTIONAL STRING;
+    assigned_address : Address;
+    located_person_organizations : SET [1:?] OF organization_or_person_in_organization_select;
+  END_ENTITY;
+
+  ENTITY Address_based_location_representation
+    SUBTYPE OF (Location_representation);
+    postal_address : Address;
+  END_ENTITY;
+
+  ENTITY Amount_of_substance_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Applied_activity_assignment;
+    assigned_activity : Activity;
+    items : SET [1:?] OF activity_item;
+    role : STRING;
+  END_ENTITY;
+
+  ENTITY Applied_independent_property
+    SUBTYPE OF (Assigned_property);
+    base_independent_property : Independent_property;
+  DERIVE
+    SELF\Assigned_property.name : STRING := base_independent_property.property_type;
+  END_ENTITY;
+
+  ENTITY Assigned_property;
+    id : OPTIONAL STRING;
+    name : STRING;
+    description : OPTIONAL STRING;
+    described_element : property_assignment_select;
+  END_ENTITY;
+
+  ENTITY Calendar_date;
+    year_component : year_number;
+    month_component : month_in_year_number;
+    day_component : day_in_month_number;
+  END_ENTITY;
+
+  ENTITY Certification;
+    name : STRING;
+    description : OPTIONAL STRING;
+    kind : STRING;
+  END_ENTITY;
+
+  ENTITY Certification_assignment;
+    assigned_certification : Certification;
+    items : SET [1:?] OF certification_item;
+    role : STRING;
+  END_ENTITY;
+
+  ENTITY Class
+    SUPERTYPE OF (ONEOF(Class_by_extension, Class_by_intension));
+    id : STRING;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Class_by_extension
+    SUBTYPE OF (Class);
+  END_ENTITY;
+
+  ENTITY Class_by_intension
+    SUBTYPE OF (Class);
+  END_ENTITY;
+
+  ENTITY Classification_assignment;
+    assigned_class : Class;
+    items : SET [1:?] OF classification_item;
+    role : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Context_dependent_unit
+    SUBTYPE OF (Unit);
+  WHERE
+    WR1: EXISTS(SELF\Unit.name);
+  END_ENTITY;
+
+  ENTITY Conversion_based_unit
+    SUBTYPE OF (Unit);
+    conversion_factor : Value_with_unit;
+  WHERE
+    WR1: EXISTS(SELF\Unit.name);
+  END_ENTITY;
+
+  ENTITY Date_or_date_time_assignment;
+    assigned_date : date_or_date_time_select;
+    role : STRING;
+    items : SET [1:?] OF date_or_date_time_item;
+  END_ENTITY;
+
+  ENTITY Date_time;
+    date_component : Calendar_date;
+    time_component : Local_time;
+  END_ENTITY;
+
+  ENTITY Decreasing_resource_event
+    SUBTYPE OF (Resource_event);
+  END_ENTITY;
+
+  ENTITY Derived_unit
+    SUBTYPE OF (Unit);
+    elements : SET [1:?] OF Derived_unit_element;
+  END_ENTITY;
+
+  ENTITY Derived_unit_element;
+    base_unit : Unit;
+    exponent : REAL;
+  END_ENTITY;
+
+  ENTITY Duration
+    SUBTYPE OF (Value_with_unit);
+  WHERE
+    WR1: 'ORGANIZATION_STRUCTURE_ARM_CC_LF.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
+  END_ENTITY;
+
+  ENTITY Electric_current_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Event;
+    id : STRING;
+    name : STRING;
+    description : OPTIONAL STRING;
+    actual_start_date : OPTIONAL date_or_date_time_select;
+    planned_start_date : OPTIONAL date_or_date_time_select;
+  END_ENTITY;
+
+  ENTITY Event_assignment;
+    assigned_event : Event;
+    items : SET [1:?] OF event_item;
+    role : STRING;
+  END_ENTITY;
+
+  ENTITY Event_relationship;
+    relation_type : STRING;
+    description : OPTIONAL STRING;
+    relating_event : Event;
+    related_event : Event;
+  END_ENTITY;
+
+  ENTITY Experience_gained;
+    experience_of : Experience_instance;
+    gained_by : person_or_organization_or_person_in_organization_select;
+    role : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Experience_instance;
+    description : OPTIONAL STRING;
+    is_defined_by : Experience_type;
+    consists_of : OPTIONAL defined_activities;
+  END_ENTITY;
+
+  ENTITY Experience_type;
+    name : STRING;
+    description : OPTIONAL STRING;
+    consists_of : OPTIONAL defined_methods;
+  END_ENTITY;
+
+  ENTITY Experience_type_relationship;
+    compound_experience : Experience_type;
+    component_experience : Experience_type;
+  END_ENTITY;
+
+  ENTITY Global_location_representation
+    SUBTYPE OF (Location_representation);
+    altitude : OPTIONAL Value_with_unit;
+    geographical_area : OPTIONAL STRING;
+    latitude : Value_with_unit;
+    longitude : Value_with_unit;
+  END_ENTITY;
+
+  ENTITY Increasing_resource_event
+    SUBTYPE OF (Resource_event);
+  END_ENTITY;
+
+  ENTITY Independent_property;
+    id : STRING;
+    property_type : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Independent_property_relationship;
+    relation_type : STRING;
+    description : OPTIONAL STRING;
+    relating : Independent_property;
+    related : Independent_property;
+  END_ENTITY;
+
+  ENTITY Information_packet
+    SUBTYPE OF (Product);
+  END_ENTITY;
+
+  ENTITY Information_packet_aggregate;
+    composed_of : SET [0:?] OF information_packet_select;
+  END_ENTITY;
+
+  ENTITY Information_packet_definition;
+    id : STRING;
+    description : OPTIONAL STRING;
+    status : STRING;
+    purpose : STRING;
+    role : OPTIONAL STRING;
+    associated_version : Information_packet_version;
+    release_date : OPTIONAL date_or_date_time_select;
+    released_by : OPTIONAL organization_or_person_in_organization_select;
+    contains : SET [0:?] OF information_packet_element;
+    used_by : SET [0:?] OF information_packet_item;
+  END_ENTITY;
+
+  ENTITY Information_packet_definition_relationship;
+    relation_type : STRING;
+    description : OPTIONAL STRING;
+    relating_information_packet : Information_packet_definition;
+    related_information_packet : Information_packet_definition;
+  END_ENTITY;
+
+  ENTITY Information_packet_version
+    SUBTYPE OF (Product_version);
+    SELF\Product_version.of_product : Information_packet;
+  END_ENTITY;
+
+  ENTITY Length_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Local_time;
+    hour_component : hour_in_day;
+    minute_component : OPTIONAL minute_in_hour;
+    second_component : OPTIONAL second_in_minute;
+    zone : Time_offset;
+  END_ENTITY;
+
+  ENTITY Location;
+    name : STRING;
+    description : OPTIONAL STRING;
+    alternative_location_representations : SET [0:?] OF Location_representation;
+  END_ENTITY;
+
+  ENTITY Location_assignment;
+    description : OPTIONAL STRING;
+    role : OPTIONAL STRING;
+    entity_for_location : location_assignment_select;
+    location_for_assignment : Location;
+  END_ENTITY;
+
+  ENTITY Location_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Location;
+    related : Location;
+  END_ENTITY;
+
+  ENTITY Location_representation
+    ABSTRACT SUPERTYPE OF (ONEOF(Address_based_location_representation, Global_location_representation, Organization_based_location_representation, Product_based_location_identification, Regional_grid_location_representation));
+  END_ENTITY;
+
+  ENTITY Luminous_intensity_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Managed_resource;
+    name : STRING;
+    description : OPTIONAL STRING;
+    quantity : OPTIONAL Value_with_unit;
+    item : Resource_item;
+  END_ENTITY;
+
+  ENTITY Managed_resource_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Managed_resource;
+    related : Managed_resource;
+  END_ENTITY;
+
+  ENTITY Mass_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Numerical_representation_context
+    SUBTYPE OF (Representation_context);
+    units : OPTIONAL SET [1:?] OF Unit;
+    accuracies : OPTIONAL SET [1:?] OF Uncertainty_with_unit;
+  END_ENTITY;
+
+  ENTITY Organization;
+    id : OPTIONAL STRING;
+    name : STRING;
+  END_ENTITY;
+
+  ENTITY Organization_based_location_representation
+    SUBTYPE OF (Location_representation);
+    location_identifications : LIST [0:?] OF Organizational_location_identification;
+    organization_for_location : Organization;
+  END_ENTITY;
+
+  ENTITY Organization_information_packet
+    SUBTYPE OF (Information_packet_definition);
+  END_ENTITY;
+
+  ENTITY Organization_or_person_in_organization_assignment;
+    assigned_entity : organization_or_person_in_organization_select;
+    role : STRING;
+    items : SET [1:?] OF organization_or_person_in_organization_item;
+  END_ENTITY;
+
+  ENTITY Organization_organization_type_relationship;
+    organization : Organization;
+    organization_type : Organization_type;
+  END_ENTITY;
+
+  ENTITY Organization_relationship;
+    relation_type : STRING;
+    description : OPTIONAL STRING;
+    relating_organization : Organization;
+    related_organization : Organization;
+  END_ENTITY;
+
+  ENTITY Organization_type;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Organizational_location_identification;
+    identification_type : STRING;
+    location_value : STRING;
+  END_ENTITY;
+
+  ENTITY Person;
+    last_name : STRING;
+    first_name : OPTIONAL STRING;
+    middle_names : OPTIONAL LIST [1:?] OF STRING;
+    prefix_titles : OPTIONAL LIST [1:?] OF STRING;
+    suffix_titles : OPTIONAL LIST [1:?] OF STRING;
+  END_ENTITY;
+
+  ENTITY Person_in_organization;
+    concerned_person : Person;
+    containing_organization : Organization;
+    role : STRING;
+  END_ENTITY;
+
+  ENTITY Person_or_organization_or_person_in_organization_in_position;
+    name : STRING;
+    description : STRING;
+    person_or_organization : position_person_or_organization_or_person_in_organization_select;
+    position : Position;
+  END_ENTITY;
+
+  ENTITY Person_or_organization_or_person_in_organization_in_position_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Person_or_organization_or_person_in_organization_in_position;
+    related : Person_or_organization_or_person_in_organization_in_position;
+  END_ENTITY;
+
+  ENTITY Plane_angle_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Position;
+    name : STRING;
+    description : OPTIONAL STRING;
+    address : OPTIONAL Address;
+    position_context : position_context_item;
+  END_ENTITY;
+
+  ENTITY Position_assignment;
+    items : SET [1:?] OF position_item;
+    position : Position;
+    role : Position_role;
+  END_ENTITY;
+
+  ENTITY Position_group;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Position_group_assignment;
+    items : SET [1:?] OF position_group_item;
+    position_group : Position_group;
+    role : Position_group_role;
+  END_ENTITY;
+
+  ENTITY Position_group_relationship;
+    group : Position_group;
+    position : Position;
+  END_ENTITY;
+
+  ENTITY Position_group_role;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Position_position_type_assignment;
+    assigned_position_type : Position_type;
+    assigned_to : Position;
+  END_ENTITY;
+
+  ENTITY Position_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating_position : Position;
+    related_position : Position;
+  END_ENTITY;
+
+  ENTITY Position_role;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Position_type;
+    name : STRING;
+    description : OPTIONAL STRING;
+    defined_by : Type_of_person;
+  END_ENTITY;
+
+  ENTITY Position_type_assignment;
+    items : SET [1:?] OF position_type_item;
+    position_type : Position_type;
+    role : Position_type_role;
+  END_ENTITY;
+
+  ENTITY Position_type_role;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Product;
+    id : STRING;
+    name : OPTIONAL STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Product_based_location_identification
+    SUBTYPE OF (Location_representation);
+    location_identification : STRING;
+    location_name : OPTIONAL STRING;
+    referenced_product : product_based_location_representation;
+  END_ENTITY;
+
+  ENTITY Product_category;
+    id : OPTIONAL STRING;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Product_category_assignment;
+    category : Product_category;
+    products : SET [1:?] OF Product;
+  END_ENTITY;
+
+  ENTITY Product_category_hierarchy;
+    super_category : Product_category;
+    sub_category : Product_category;
+  END_ENTITY;
+
+  ENTITY Product_version;
+    id : STRING;
+    description : OPTIONAL STRING;
+    of_product : Product;
+  END_ENTITY;
+
+  ENTITY Project;
+    id : STRING;
+    name : STRING;
+    description : OPTIONAL STRING;
+    responsible_organizations : SET [0:?] OF Organization;
+    planned_start_date : OPTIONAL date_or_event;
+    planned_end_date : OPTIONAL date_or_event;
+    actual_start_date : OPTIONAL date_or_date_time_select;
+    actual_end_date : OPTIONAL date_or_date_time_select;
+  END_ENTITY;
+
+  ENTITY Project_assignment;
+    assigned_project : Project;
+    role : STRING;
+    items : SET [0:?] OF project_item;
+  END_ENTITY;
+
+  ENTITY Project_relationship;
+    relation_type : STRING;
+    description : OPTIONAL STRING;
+    relating_project : Project;
+    related_project : Project;
+  END_ENTITY;
+
+  ENTITY Property_representation;
+    description : OPTIONAL STRING;
+    property : Assigned_property;
+    rep : Representation;
+    role : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Qualification_assignment;
+    assigned_qualification_type : Qualification_type;
+    received_by : qualifications_select;
+  END_ENTITY;
+
+  ENTITY Qualification_type;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Qualification_type_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Qualification_type;
+    related : Qualification_type;
+  END_ENTITY;
+
+  ENTITY Ratio_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Regional_coordinate;
+    name : STRING;
+    coordinate_value : Value_with_unit;
+    grid_system : Regional_grid_location_representation;
+  END_ENTITY;
+
+  ENTITY Regional_grid_location_representation
+    SUBTYPE OF (Location_representation);
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Relative_event
+    SUBTYPE OF (Event);
+    base_event : Event;
+    offset : Duration;
+  END_ENTITY;
+
+  ENTITY Representation;
+    id : OPTIONAL STRING;
+    name : STRING;
+    description : OPTIONAL STRING;
+    context_of_items : Representation_context;
+    items : SET [1:?] OF Representation_item;
+  END_ENTITY;
+
+  ENTITY Representation_context;
+    id : STRING;
+    kind : STRING;
+  INVERSE
+    representations_in_context : SET [1:?] OF Representation FOR context_of_items;
+  END_ENTITY;
+
+  ENTITY Representation_item
+    ABSTRACT SUPERTYPE;
+    name : STRING;
+  END_ENTITY;
+
+  ENTITY Representation_relationship;
+    relation_type : STRING;
+    description : STRING;
+    rep_1 : Representation;
+    rep_2 : Representation;
+  END_ENTITY;
+
+  ENTITY Required_resource
+    ABSTRACT SUPERTYPE OF (ONEOF(Required_resource_by_resource_item, Required_resource_by_specification));
+    name : STRING;
+    description : OPTIONAL STRING;
+    required_quantity : OPTIONAL Value_with_unit;
+  END_ENTITY;
+
+  ENTITY Required_resource_assignment;
+    assigned_resource : Required_resource;
+    item : required_resource_item;
+  END_ENTITY;
+
+  ENTITY Required_resource_by_resource_item
+    SUBTYPE OF (Required_resource);
+    resource_item : Resource_item;
+  END_ENTITY;
+
+  ENTITY Required_resource_by_specification
+    SUBTYPE OF (Required_resource);
+  END_ENTITY;
+
+  ENTITY Required_resource_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Required_resource;
+    related : Required_resource;
+  END_ENTITY;
+
+  ENTITY Resource_as_realized;
+    name : STRING;
+    description : OPTIONAL STRING;
+    quantity : OPTIONAL Value_with_unit;
+  END_ENTITY;
+
+  ENTITY Resource_as_realized_assignment;
+    assigned_resource : Resource_as_realized;
+    item : resource_as_realized_item;
+  END_ENTITY;
+
+  ENTITY Resource_as_realized_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Resource_as_realized;
+    related : resource_as_realized_relationship_select;
+  END_ENTITY;
+
+  ENTITY Resource_as_realized_resource_item
+    SUBTYPE OF (Resource_as_realized);
+    resource_item : Resource_item;
+  END_ENTITY;
+
+  ENTITY Resource_event
+    ABSTRACT SUPERTYPE;
+    name : STRING;
+    description : OPTIONAL STRING;
+    quantity : OPTIONAL Value_with_unit;
+    resource : Managed_resource;
+  END_ENTITY;
+
+  ENTITY Resource_event_correspondence_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Resource_event;
+    related : Required_resource;
+  END_ENTITY;
+
+  ENTITY Resource_event_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Resource_event;
+    related : Resource_event;
+  END_ENTITY;
+
+  ENTITY Resource_group_relationship
+    SUBTYPE OF (Resource_item_relationship);
+    quantity : OPTIONAL Value_with_unit;
+  END_ENTITY;
+
+  ENTITY Resource_item;
+    name : STRING;
+    description : OPTIONAL STRING;
+    resource_items : OPTIONAL SET [0:?] OF resource_item_select;
+  END_ENTITY;
+
+  ENTITY Resource_item_assignment;
+    assigned_resource : Resource_item;
+    item : resource_assignment_item;
+  END_ENTITY;
+
+  ENTITY Resource_item_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Resource_item;
+    related : Resource_item;
+  END_ENTITY;
+
+  ENTITY Solid_angle_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY String_representation_item
+    SUBTYPE OF (Representation_item);
+    string_value : STRING;
+  END_ENTITY;
+
+  ENTITY Thermodynamic_temperature_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Time_offset;
+    hour_offset : INTEGER;
+    minute_offset : OPTIONAL INTEGER;
+    sense : offset_orientation;
+  DERIVE
+    actual_minute_offset : INTEGER := NVL(minute_offset, 0);
+  WHERE
+    WR1: {0 <= hour_offset < 24};
+    WR2: {0 <= actual_minute_offset <= 59};
+    WR3: NOT (((hour_offset <> 0) OR (actual_minute_offset <> 0)) AND (sense = exact));
+  END_ENTITY;
+
+  ENTITY Time_unit
+    SUBTYPE OF (Unit);
+  END_ENTITY;
+
+  ENTITY Type_of_person;
+    name : STRING;
+    description : OPTIONAL STRING;
+    has : SET [0:?] OF Type_of_person_definition;
+  END_ENTITY;
+
+  ENTITY Type_of_person_assignment;
+    assigned_type_of_person : Type_of_person;
+    items : SET [1:?] OF type_of_person_item_select;
+    role : STRING;
+  END_ENTITY;
+
+  ENTITY Type_of_person_definition;
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Type_of_person_definition_relationship;
+    name : STRING;
+    description : OPTIONAL STRING;
+    relating : Type_of_person_definition;
+    related : Type_of_person_definition;
+  END_ENTITY;
+
+  ENTITY Type_of_person_definition_required_attributes_relationship;
+    assigned_required_attributes : Type_of_person_definition;
+    required_attributes : SET [0:?] OF defined_attributes;
+  END_ENTITY;
+
+  ENTITY Uncertainty_with_unit
+    SUBTYPE OF (Value_with_unit);
+    name : STRING;
+    description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Unit
+    SUPERTYPE OF (ONEOF(Amount_of_substance_unit, Electric_current_unit, Length_unit, Luminous_intensity_unit, Mass_unit, Plane_angle_unit, Ratio_unit, Solid_angle_unit, Thermodynamic_temperature_unit, Time_unit));
+    name : STRING;
+    si_unit : BOOLEAN;
+  END_ENTITY;
+
+  ENTITY Value_with_unit;
+    unit : Unit;
+    value_component : measure_value;
+  END_ENTITY;
+
+END_SCHEMA;

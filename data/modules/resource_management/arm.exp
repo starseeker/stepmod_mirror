@@ -1,60 +1,37 @@
+(*
+  $Id: arm.exp,v 1.4 2003/01/08 15:49:26 leifgyllstrom Exp $
+  ISO/TC184/SC4 WG12N1463 - ISO/TS - 10303-1266 Resource management - EXPRESS ARM 
+*)
+
 SCHEMA Resource_management_arm;
 
-USE FROM Activity_arm;
-
-USE FROM Classification_arm;
-
-USE FROM Date_time_assignment_arm;
+USE FROM Classification_assignment_arm;
 
 USE FROM Required_resource_arm;
 
-USE FROM Resource_as_realized_arm;
-
 USE FROM Resource_item_arm;
-
-USE FROM Scheme_arm;
-
-USE FROM State_observed_arm;
 
 USE FROM Value_with_unit_arm;
 
-TYPE managed_resource_activity_item = SELECT BASED_ON activity_item WITH
-  (Resource_event);
+TYPE resource_location_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE;
 
-TYPE managed_resource_classified_select = SELECT BASED_ON classified_select WITH
+TYPE resource_management_classified_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
   (Managed_resource,
+   Managed_resource_relationship,
    Resource_event,
    Resource_event_relationship,
    Resource_location);
 END_TYPE;
 
-TYPE managed_resource_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH
-  (Resource_event);
-END_TYPE;
-
-TYPE managed_resource_scheme_entry_item_select = SELECT BASED_ON scheme_entry_item_select WITH
-  (Resource_event);
-END_TYPE;
-
-TYPE managed_resource_state_of_select = SELECT BASED_ON state_of_select WITH
-  (Resource_event);
-END_TYPE;
-
-TYPE resource_event_correspondence_item = SELECT 
-  (Required_resource,
-   Resource_as_realized);
-END_TYPE;
-
-TYPE resource_location_item = EXTENSIBLE SELECT ;
-END_TYPE;
-
 ENTITY Decreasing_resource_event
 SUBTYPE OF (Resource_event);
+  quantity : Value_with_unit;
 END_ENTITY;
 
 ENTITY Increasing_resource_event
 SUBTYPE OF (Resource_event);
+  quantity : Value_with_unit;
 END_ENTITY;
 
 ENTITY Managed_resource;
@@ -72,10 +49,9 @@ ENTITY Managed_resource_relationship;
   related : Managed_resource;
 END_ENTITY;
 
-ENTITY Resource_event;
+ENTITY Resource_event ABSTRACT SUPERTYPE;
   name : STRING;
   description : OPTIONAL STRING;
-  quantity : OPTIONAL Value_with_unit;
   resource : Managed_resource;
 END_ENTITY;
 
@@ -83,7 +59,7 @@ ENTITY Resource_event_correspondence_relationship;
   name : STRING;
   description : OPTIONAL STRING;
   relating : Resource_event;
-  related : resource_event_correspondence_item;
+  related : Required_resource;
 END_ENTITY;
 
 ENTITY Resource_event_relationship;
@@ -99,4 +75,9 @@ ENTITY Resource_location;
   location_item : OPTIONAL resource_location_item;
 END_ENTITY;
 
+ENTITY Scheduling_resource_event
+SUBTYPE OF (Resource_event);
+END_ENTITY;
+
 END_SCHEMA;
+

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.13 2004/02/28 18:45:37 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.14 2004/11/26 11:02:34 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -320,7 +320,8 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
             </tr>
             <xsl:apply-templates select="$short-names//mod/shortname"
               mode="output_shortnames">
-              <xsl:sort select="@name"/>
+              <xsl:sort select="@entity"/>
+              <!-- <xsl:sort select="@name"/> -->
             </xsl:apply-templates>              
           </table>
         </div>

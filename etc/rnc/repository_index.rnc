@@ -1,0 +1,78 @@
+# $Id: repository_index.rnc,v 1.1 2003/12/19 02:13:59 thendrix Exp $
+
+# List of modules and resource
+
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+
+repository_index =
+  element repository_index {
+    attlist.repository_index,
+    modules+,
+    resources+,
+    application_protocols+,
+    resource_docs+
+  }
+attlist.repository_index &= empty
+# List of modules
+
+# Note, there may be further attributes added at a later date
+modules = element modules { attlist.modules, module+ }
+attlist.modules &= empty
+# Module
+module = element module { attlist.module, empty }
+# the name of the module
+attlist.module &= attribute name { xsd:NMTOKEN }
+# the part number of the module
+attlist.module &= attribute part { text }?
+# the project responsible for the module
+attlist.module &= attribute project { text }?
+# the status of module 
+# in-development - the module is under development
+# team-review - the module is undergoing team review
+# QC-team-review - the module has been submitted for QC by team
+# QC-convener-review - the module has been submitted for QC by convener
+# in-ballot - the module has been submitted for ballot
+# ballot-resolution - the module has completed the ballot and the ballot comments are being resolved
+# ISO - the module has been submitted to ISO as a standard.
+attlist.module &=
+  [ a:defaultValue = "in-development" ]
+  attribute status {
+    "in-development"
+    | "team-review"
+    | "QC-team-review"
+    | "QC-convener-review"
+    | "in-ballot"
+    | "ballot-resolution"
+    | "ISO"
+  }?
+# List of resources
+
+# Note, there may be further attributes added at a later date
+resources = element resources { attlist.resources, resource+ }
+attlist.resources &= empty
+# Resource
+resource = element resource { attlist.resource, empty }
+# the name of the integrated resource schema
+attlist.resource &=
+  attribute name { xsd:NMTOKEN },
+  attribute part { xsd:NMTOKEN }?
+# List of application_protocols
+application_protocols =
+  element application_protocols {
+    attlist.application_protocols, application_protocol+
+  }
+attlist.application_protocols &= empty
+application_protocol =
+  element application_protocol { attlist.application_protocol, empty }
+attlist.application_protocol &=
+  attribute name { xsd:NMTOKEN },
+  attribute part { xsd:NMTOKEN }?
+# List of resource_docs
+resource_docs =
+  element resource_docs { attlist.resource_docs, resource_doc+ }
+attlist.resource_docs &= empty
+resource_doc = element resource_doc { attlist.resource_doc, empty }
+attlist.resource_doc &=
+  attribute name { xsd:NMTOKEN },
+  attribute part { xsd:NMTOKEN }?
+start = repository_index

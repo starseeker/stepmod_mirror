@@ -1,0 +1,162 @@
+# $Id: text.ent.rnc,v 1.1 2004/02/17 21:46:18 thendrix Exp $
+
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+
+fontstyle = i | b | sub | sup
+special = a
+inline = text | fontstyle
+# a Uniform Resource Identifier
+URI = string
+text-elts =
+  text
+  | express_ref
+  | express_extref
+  | module_ref
+  | clause_ref
+  | fontstyle
+  | special
+block-elts = p | ul | ol | dl | screen
+figure-table-elts = figure | table
+single-block-elts = note | example | figure-table-elts
+description.content = text-elts | block-elts | single-block-elts
+# Table
+# caption - table caption
+# number  - table number
+# width   - table width 
+table = element table { table-attlist, tr+ }
+table-attlist &=
+  attribute caption { text },
+  attribute id { text }?,
+  attribute number { text },
+  attribute width { text }?
+tr = element tr { tr-attlist, (th | td)+ }
+tr-attlist &=
+  attribute align { "left" | "center" | "right" | "justify" | "char" }?
+th = element th { th-attlist, description.content* }
+th-attlist &= empty
+# Table data 
+# rowspan   number of rows spanned by cell
+# colspan   number of cols spanned by cell
+td = element td { td-attlist, description.content* }
+td-attlist &=
+  attribute align { text }?,
+  attribute rowspan { text }?,
+  attribute colspan { text }?
+note =
+  element note {
+    note-attlist, (text-elts | block-elts | figure-table-elts)*
+  }
+note-attlist &=
+  attribute id { xsd:ID }?,
+  attribute number { text }?
+example =
+  element example {
+    example-attlist, (text-elts | block-elts | figure-table-elts)*
+  }
+example-attlist &=
+  attribute id { xsd:ID }?,
+  attribute number { text }?
+figure = element figure { figure-attlist, title, img }
+figure-attlist &=
+  attribute id { xsd:ID }?,
+  attribute number { text }?
+title = element title { title-attlist, text-elts* }
+title-attlist &= empty
+# definition of an image that is to be displayed in a new browser window
+imgfile = element imgfile { imgfile-attlist, empty }
+imgfile-attlist &=
+  attribute file { text },
+  attribute title { text }?
+# the root element of the file referenced by imgfile
+imgfile.content =
+  element imgfile.content { imgfile.content-attlist, img }
+imgfile.content-attlist &=
+  attribute module { text },
+  attribute file { text },
+  attribute title { text }?
+# definition of an image
+img = element img { img-attlist, img.area* }
+img-attlist &=
+  attribute src { text },
+  attribute alt { text }?
+#  an area of the image defined as clickable image map
+img.area = element img.area { img.area-attlist, empty }
+img.area-attlist &=
+  attribute shape { text },
+  attribute coords { text },
+  attribute href { text }
+p = element p { p-attlist, text-elts* }
+p-attlist &= empty
+# bold
+b = element b { b-attlist, text-elts* }
+b-attlist &= empty
+# italic
+i = element i { i-attlist, text-elts* }
+i-attlist &= empty
+# subscript, superscript
+sub = element sub { sub-attlist, text-elts* }
+sub-attlist &= empty
+sup = element sup { sup-attlist, text-elts* }
+sup-attlist &= empty
+a = element a { a-attlist, inline* }
+a-attlist &= attribute href { URI }
+# unordered list
+ul = element ul { ul-attlist, li+ }
+ul-attlist &= empty
+# ordered list
+ol = element ol { ol-attlist, li+ }
+ol-attlist &=
+  [ a:defaultValue = "1" ]
+  attribute type { "1" | "A" | "a" | "I" | "i" }?,
+  attribute start { text }?
+# list item
+li =
+  element li {
+    li-attlist, (text-elts | block-elts | single-block-elts)*
+  }
+li-attlist &= empty
+# Definition list - DT for term, DD for its defnition
+dl = element dl { dl-attlist, (dt | dd)+ }
+dl-attlist &= empty
+# Definition term
+dt =
+  element dt {
+    dt-attlist, (text-elts | block-elts | single-block-elts)*
+  }
+dt-attlist &= empty
+# Defnition description
+dd =
+  element dd {
+    dd-attlist, (text-elts | block-elts | single-block-elts)*
+  }
+dd-attlist &= empty
+# text from computer display
+screen = element screen { screen-attlist, text-elts* }
+screen-attlist &=
+  [ a:defaultValue = "preserve" ]
+  attribute xml-space { "default" | "preserve" }?
+# reference to EXPRESS name
+express_ref = element express_ref { express_ref-attlist, text }
+express_ref-attlist &= attribute linkend { text }
+# reference to EXPRESS name defined in a standard outside STEPMOD     
+# linkend is the EXPRESS entity
+# standard is the standard number
+express_extref =
+  element express_extref { express_extref-attlist, empty }
+express_extref-attlist &=
+  attribute linkend { text },
+  attribute standard { text }
+# module reference
+module_ref = element module_ref { module_ref-attlist, text }
+module_ref-attlist &= attribute linkend { text }
+# Set up a hyperlink to a clause or annex within the AP document 
+# use linkend: purpose | scope | inforeqt | aam | imp_meths | usage_guide | tech_disc
+#                           | express_arm_lf | express_mim_lf | mim_short_names | object_registration
+clause_ref = element clause_ref { clause_ref-attlist, text }
+clause_ref-attlist &= attribute linkend { text }
+ap.imgfile.content =
+  element ap.imgfile.content { ap.imgfile.content-attlist, img }
+ap.imgfile.content-attlist &=
+  attribute application_protocol { text },
+  attribute file { text },
+  attribute title { text }?

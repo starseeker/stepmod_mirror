@@ -1,0 +1,84 @@
+# $Id: mapping.ent.rnc,v 1.1 2004/01/27 00:00:58 thendrix Exp $
+
+# Mapping specification markup
+# declarations
+
+#                     Requires text.ent markup
+# declarations for representing 'description'
+
+# descriptive text
+
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+
+include "text.ent.rnc"
+# use the %description.content defined in text.ent
+description =
+  element description { description-attlist, description.content* }
+description-attlist &= empty
+# mapping specification row
+
+# express_ref must contain a rule name
+mapping = alt?, description?, aimelt?, source?, express_ref*, refpath?
+# A mapping table
+mapping_table =
+  element mapping_table { mapping_table-attlist, ae+, sc* }
+mapping_table-attlist &= empty
+# application entity
+ae = element ae { ae-attlist, mapping, alt_map*, aa* }
+ae-attlist &=
+  attribute entity { xsd:NMTOKEN },
+  [ a:defaultValue = "NO" ] attribute extensible { "YES" | "NO" }?,
+  attribute original_module { xsd:NMTOKEN }?
+# application attribute
+
+# description?, alt*, )
+aa = element aa { aa-attlist, mapping, alt_map* }
+aa-attlist &=
+  attribute attribute { xsd:NMTOKEN },
+  attribute assertion_to { xsd:NMTOKEN }?,
+  attribute inherited_from_module { xsd:NMTOKEN }?,
+  attribute inherited_from_entity { xsd:NMTOKEN }?
+# contains explanatory text describing the
+# alternative                                
+# THIS IS DEPRECATED - USE alt_map
+alt = element alt { alt-attlist, text }
+alt-attlist &= empty
+# alternative mapping
+alt_map = element alt_map { alt_map-attlist, mapping }
+alt_map-attlist &=
+  attribute id { text }?,
+  attribute alt_map.inc { text }?
+# AIM element
+aimelt = element aimelt { aimelt-attlist, text* }
+aimelt-attlist &=
+  [ a:defaultValue = "preserve" ] attribute xml:space { "preserve" }?
+# ISO part number
+source = element source { source-attlist, text }
+source-attlist &=
+  [ a:defaultValue = "preserve" ] attribute xml:space { "preserve" }?
+# reference path
+refpath = element refpath { refpath-attlist, text* }
+refpath-attlist &=
+  [ a:defaultValue = "preserve" ] attribute xml:space { "preserve" }?
+# reference path
+
+# mapping specification row
+scmapping = description?, (constraint | rules), source
+# ARM subtype constraint
+
+# not sure if original_module attr needed.
+sc = element sc { sc-attlist, (scmapping | alt_scmap+) }
+sc-attlist &=
+  attribute constraint { xsd:NMTOKEN },
+  attribute original_module { xsd:NMTOKEN }?
+# rules for mapping subtype_constraint
+rules = element rules { rules-attlist, express_ref+ }
+rules-attlist &= empty
+# constraint for mapping subtype_constraint
+constraint = element constraint { constraint-attlist, express_ref+ }
+constraint-attlist &= empty
+# alternative mapping  for subtype_constraint
+alt_scmap = element alt_scmap { alt_scmap-attlist, scmapping }
+alt_scmap-attlist &=
+  attribute id { text }?,
+  attribute alt_scmap.inc { text }?

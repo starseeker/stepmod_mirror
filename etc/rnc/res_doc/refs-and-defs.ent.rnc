@@ -1,0 +1,116 @@
+# $Id: refs-and-defs.ent.rnc,v 1.1 2004/01/27 00:00:58 thendrix Exp $
+
+# bibliographic elements
+
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+
+bib-elts =
+  text | orgname | pubdate | stdnumber | subtitle | stdtitle | ulink
+# The normative references used in a module 
+# Either listed explicitly or referenced for inclusion through
+# normref.inc
+normrefs = element normrefs { normrefs-attlist, normref*, normref.inc* }
+normrefs-attlist &= empty
+# normative reference
+normref = element normref { normref-attlist, stdref, term* }
+normref-attlist &=
+  attribute url { text }?,
+  attribute id { text },
+  [ a:defaultValue = "url #DEFAULT" ]
+  attribute docbook-atts { string "url #DEFAULT" }?,
+  [ a:defaultValue = "bibliomixed" ]
+  attribute docbook { xsd:NMTOKEN "bibliomixed" }?
+# normative reference inclusion
+normref.inc = element normref.inc { normref.inc-attlist, term.ref* }
+# the id of a normative reference to be included
+normref.inc-attlist &= attribute normref { xsd:NMTOKEN }?
+# the name of a module to be included as a normative reference
+normref.inc-attlist &= attribute module.name { xsd:NMTOKEN }?
+# the name of an integrated resource  to be included as a normative reference
+normref.inc-attlist &= attribute resource.name { xsd:NMTOKEN }?
+# A list of normative references that can be included in module.xml
+normref.list = element normref.list { normref.list-attlist, normref+ }
+normref.list-attlist &= empty
+# standard reference
+stdref = element stdref { stdref-attlist, bib-elts* }
+# If y then the standard has been published
+stdref-attlist &=
+  [ a:defaultValue = "y" ] attribute published { "y" | "n" }?
+# organization name
+orgname = element orgname { orgname-attlist, text }
+orgname-attlist &=
+  [ a:defaultValue = "orgname" ]
+  attribute docbook { xsd:NMTOKEN "orgname" }?
+# publication date
+pubdate = element pubdate { pubdate-attlist, text }
+pubdate-attlist &=
+  [ a:defaultValue = "pubdate" ]
+  attribute docbook { xsd:NMTOKEN "pubdate" }?
+# release information
+stdnumber = element stdnumber { stdnumber-attlist, text }
+stdnumber-attlist &=
+  [ a:defaultValue = "stdnumber" ]
+  attribute docbook { xsd:NMTOKEN "stdnumber" }?
+# subtitle
+subtitle = element subtitle { subtitle-attlist, text }
+subtitle-attlist &=
+  [ a:defaultValue = "subtitle" ]
+  attribute docbook { xsd:NMTOKEN "subtitle" }?
+# title of standard
+stdtitle = element stdtitle { stdtitle-attlist, text }
+stdtitle-attlist &=
+  [ a:defaultValue = "title" ]
+  attribute docbook { xsd:NMTOKEN "title" }?
+# link to URL
+ulink = element ulink { ulink-attlist, text }
+ulink-attlist &=
+  [ a:defaultValue = "ulink" ]
+  attribute docbook { xsd:NMTOKEN "ulink" }?,
+  attribute url { text }
+# term
+term = element term { term-attlist, text }
+term-attlist &=
+  attribute id { text }?,
+  attribute linkend { xsd:IDREF }?,
+  attribute url { text }?
+# a reference to the term that has been defined elsewhere:
+# either in a normative reference, a module or an integrated resource
+term.ref = element term.ref { term.ref-attlist, empty }
+term.ref-attlist &=
+  attribute linkend { xsd:NMTOKEN },
+  attribute normref { xsd:NMTOKEN }?
+synonym = element synonym { synonym-attlist, text }
+synonym-attlist &= empty
+# definition
+definition =
+  element definition { definition-attlist, term, synonym*, def }
+definition-attlist &= attribute id { text }?
+# definition of a term
+def =
+  element def {
+    def-attlist, (text-elts | block-elts | single-block-elts)*
+  }
+def-attlist &= empty
+# abbreviation
+abbreviation =
+  element abbreviation {
+    abbreviation-attlist, acronym, (term | term.ref)
+  }
+abbreviation-attlist &= attribute id { xsd:ID }?
+# The abbreviations used in a module
+abbreviations =
+  element abbreviations {
+    abbreviations-attlist, (abbreviation*, abbreviation.inc*)+
+  }
+abbreviations-attlist &= empty
+# abbreviation inclusion
+abbreviation.inc =
+  element abbreviation.inc { abbreviation.inc-attlist, empty }
+abbreviation.inc-attlist &= attribute linkend { xsd:NMTOKEN }
+# A list of abbreviations that can be included in module.xml
+abbreviation.list =
+  element abbreviation.list { abbreviation.list-attlist, abbreviation+ }
+abbreviation.list-attlist &= empty
+# acronym
+acronym = element acronym { acronym-attlist, text }
+acronym-attlist &= empty

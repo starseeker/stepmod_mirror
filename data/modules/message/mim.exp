@@ -1,6 +1,6 @@
 
 (*
-$Id: mim.exp,v 1.14 2003/02/13 14:39:12 seanbarker Exp $
+$Id: mim.exp,v 1.15 2003/02/18 08:56:08 seanbarker Exp $
 ISO TC184/SC4/WG12 N1476 - ISO/CD-TS 10303-1270 Message - EXPRESS MIM
 *) 
 
@@ -11,10 +11,11 @@ USE FROM Approval_mim;    -- ISO/TS 10303-1012
 
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 
-USE FROM Group_mim;    -- ISO/CD-TS 10303-1113
-
 USE FROM group_schema   -- ISO 10303-41
   (group); 
+
+USE FROM management_resources_schema   -- ISO 10303-41
+  (group_assignment); 
 
 USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
 
@@ -42,10 +43,6 @@ USE FROM state_observed_schema   -- ISO 10303-56
   (state_of_item); 
 
 
-TYPE contents_item = SELECT BASED_ON groupable_item WITH 
-   (representation);
-END_TYPE; 
-
 TYPE message_approval = SELECT BASED_ON approval_item WITH 
    (structured_message);
 END_TYPE; 
@@ -55,10 +52,6 @@ TYPE message_date = SELECT BASED_ON date_item WITH
 END_TYPE; 
 
 TYPE message_date_time = SELECT BASED_ON date_and_time_item WITH 
-   (structured_message);
-END_TYPE; 
-
-TYPE message_having_contents = SELECT
    (structured_message);
 END_TYPE; 
 
@@ -79,15 +72,15 @@ TYPE message_state = SELECT BASED_ON state_of_item WITH
 END_TYPE; 
 
 ENTITY containing_message
-  SUBTYPE OF (applied_group_assignment);
-  SELF\group_assignment.assigned_group : message_contents_group;
-  SELF\applied_group_assignment.items RENAMED containing_message : SET[1:1] OF message_having_contents;
+  SUBTYPE OF (group_assignment);
+  items : SET[1:1] OF structured_message;
+  SELF\group_assignment.assigned_group RENAMED message_contents_group : message_contents_group;
 END_ENTITY;
 
 ENTITY message_contents_assignment
-  SUBTYPE OF (applied_group_assignment);
-  SELF\group_assignment.assigned_group : message_contents_group;
-  SELF\applied_group_assignment.items : SET[1:?] OF contents_item;
+  SUBTYPE OF (group_assignment);
+  items : SET[1:?] OF representation;
+  SELF\group_assignment.assigned_group RENAMED message_contents_group : message_contents_group;
 END_ENTITY;
 
 ENTITY message_contents_group
@@ -105,3 +98,4 @@ ENTITY structured_message
 END_ENTITY;
 
 END_SCHEMA;  -- Message_mim
+

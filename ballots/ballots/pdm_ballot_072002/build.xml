@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1 2002/06/20 12:49:08 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.2 2002/06/20 17:09:41 robbod Exp $ -->
 <!-- ================================================= -->
 <!-- build.xml for the ballot packages of              -->
 <!-- STEP modules repository                           -->
@@ -20,14 +20,19 @@ Usage:
 
 "ant" or "ant all"
 
+"ant zip" 
+     will zip up all the modules in a ballot package. Note, this is
+     under development, so you must first do an ant build of the whole
+     repository using stepmod/utils/build.xml
      
 -->
+
 
 <project name="ballothtml" default="all" basedir="../..">
 
   <target name="init" description="initialize variables">
     <tstamp/>
-    <property name="STYLES" value="xsl"/>
+    <property name="BALLLOTSTYLES" value="xsl"/>
     <property name="STEPMODSTYLES" value="../xsl"/>
     <property name="DTDDIR" value="dtd"/>
     <property name="BALLOTDIR" value="ballots/pdm_ballot_072002"/>
@@ -39,13 +44,13 @@ Usage:
   <target name="index" depends="init" 
     description="generate ballot index">
     <dependset>
-      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <srcfileset dir="${BALLLOTSTYLES}" includes="**/*.xsl"/>
       <targetfileset dir="." includes="index.htm*"/>
     </dependset>
 
     <style includes="index.xml" destdir="."
 	   extension=".htm"
-	   style="${STYLES}/index.xsl">
+	   style="${BALLLOTSTYLES}/index.xsl">
       <param name="output_type" expression="HTM"/>
     </style>
   </target>
@@ -55,28 +60,28 @@ Usage:
           description="generate ballot indices">
     <dependset>
       <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
-      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <srcfileset dir="${BALLLOTSTYLES}" includes="**/*.xsl"/>
       <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
       <targetfileset dir="." includes="${BALLOTDIR}/*.htm*"/>
     </dependset>
 
     <style includes="${BALLOTDIR}/start.xml" 
       destdir="." extension=".htm"
-      style="${STYLES}/ballot_start.xsl">
+      style="${BALLLOTSTYLES}/ballot_start.xsl">
       <param name="output_type" expression="HTM"/>
       <param name="menubar_file" expression="${BALLOTMENU}"/>
     </style>
 
     <style includes="${BALLOTDIR}/ballot_summary.xml" 
       destdir="." extension=".htm"
-      style="${STYLES}/ballot_summary.xsl">
+      style="${BALLLOTSTYLES}/ballot_summary.xsl">
       <param name="output_type" expression="HTM"/>
       <param name="menubar_file" expression="${BALLOTMENU}"/>
     </style>
 
     <style includes="${BALLOTDIR}/ballot_list.xml" 
       destdir="." extension=".htm"
-      style="${STYLES}/ballot_list.xsl">
+      style="${BALLLOTSTYLES}/ballot_list.xsl">
       <param name="output_type" expression="HTM"/>
       <param name="menubar_file" expression="${BALLOTMENU}"/>
     </style>
@@ -90,10 +95,79 @@ Usage:
   </target>
 
   <target name="zip" depends="all" description="create .zip file">
-    <zip zipfile="../ballots.zip" basedir="../.."
-      includes="ballots/pdm_ballot_072002/*.htm"
-      excludes="ballots/pdm_ballot_072002/*.xml"
-      />
+    <zip zipfile="../../${ARCHIVE}.zip" basedir="../.."
+      includes="stepmod/ballots/ballots/pdm_ballot_072002/*.htm,
+                stepmod/ballots/index.htm,
+                stepmod/repository_index.htm, stepmod/css/**,
+                stepmod/data/resources/**, 
+                stepmod/data/modules/constructive_solid_geometry_2d/**,
+                stepmod/data/modules/elemental_geometric_shape/**,
+                stepmod/data/modules/elemental_topology/**,
+                stepmod/data/modules/foundation_representation/**,
+                stepmod/data/modules/alias_identification/**,
+                stepmod/data/modules/approval/**,
+                stepmod/data/modules/contract/**,
+                stepmod/data/modules/date_time/**,
+                stepmod/data/modules/date_time_assignment/**,
+                stepmod/data/modules/identification_assignment/**,
+                stepmod/data/modules/part_and_version_identification/**,
+                stepmod/data/modules/part_view_definition/**,
+                stepmod/data/modules/person_organization/**,
+                stepmod/data/modules/person_organization_assignment/**,
+                stepmod/data/modules/product_categorization/**,
+                stepmod/data/modules/product_identification/**,
+                stepmod/data/modules/product_version/**,
+                stepmod/data/modules/product_view_definition/**,
+                stepmod/data/modules/project/**,
+                stepmod/data/modules/security_classification/**,
+                stepmod/data/modules/assembly_component_characterization/**,
+                stepmod/data/modules/assembly_structure/**,
+                stepmod/data/modules/certification/**,
+                stepmod/data/modules/part_definition_relationship/**,
+                stepmod/data/modules/product_relationship/**,
+                stepmod/data/modules/product_replacement/**,
+                stepmod/data/modules/product_version_relationship/**,
+                stepmod/data/modules/product_view_definition_relationship/**,
+                stepmod/data/modules/activity/**,
+                stepmod/data/modules/activity_method/**,
+                stepmod/data/modules/work_order/**,
+                stepmod/data/modules/work_request/**,
+                stepmod/data/modules/configuration_effectivity/**,
+                stepmod/data/modules/configuration_item/**,
+                stepmod/data/modules/effectivity/**,
+                stepmod/data/modules/effectivity_application/**,
+                stepmod/data/modules/event/**,
+                stepmod/data/modules/product_concept_identification/**,
+                stepmod/data/modules/time_interval/**,
+                stepmod/data/modules/document_and_version_identification/**,
+                stepmod/data/modules/document_assignment/**,
+                stepmod/data/modules/document_definition/**,
+                stepmod/data/modules/document_structure/**,
+                stepmod/data/modules/external_item_identification_assignment/**,
+                stepmod/data/modules/file_identification/**,
+                stepmod/data/modules/pdm_document_properties/**,
+                stepmod/data/modules/pdm_file_properties/**,
+                stepmod/data/modules/geometric_validation_property_representation/**,
+                stepmod/data/modules/independent_property/**,
+                stepmod/data/modules/independent_property_representation/**,
+                stepmod/data/modules/process_property_assignment/**,
+                stepmod/data/modules/product_view_definition_properties/**,
+                stepmod/data/modules/property_assignment/**,
+                stepmod/data/modules/shape_property_assignment/**,
+                stepmod/data/modules/value_with_unit/**,
+                stepmod/data/modules/advanced_boundary_representation/**,
+                stepmod/data/modules/constructive_solid_geometry/**,
+                stepmod/data/modules/constructive_solid_geometry_3d/**,
+                stepmod/data/modules/edge_based_wireframe/**,
+                stepmod/data/modules/faceted_boundary_representation/**,
+                stepmod/data/modules/geometrically_bounded_surface/**,
+                stepmod/data/modules/geometrically_bounded_wireframe/**,
+                stepmod/data/modules/manifold_surface/**,
+                stepmod/data/modules/shell_based_wireframe/**,
+                stepmod/data/modules/solid_model/**,
+                stepmod/data/modules/topologically_bounded_surface/**,
+                stepmod/help/**, stepmod/images/**"
+      excludes="**/*.xml, **/*.zip" />
   </target>
 
 </project>

@@ -1,6 +1,8 @@
-(* Genenerated from: ../../irs/wg12n976.exp *)
+ (* Document WG12 N1046r date 2003-04-29. EXPRESS listing corresponding to part
+ 42  edition IS WG12 N536, as modified by TC1 WG12 N608 and
+ by revision 1 (edition 3)  WG12 N1045 *)
 
-SCHEMA geometric_model_schema;
+ SCHEMA geometric_model_schema;
    REFERENCE FROM geometry_schema;
    REFERENCE FROM topology_schema;
    REFERENCE FROM measure_schema(length_measure,
@@ -9,6 +11,7 @@ SCHEMA geometric_model_schema;
                                  plane_angle_unit,
                                  positive_length_measure,
                                  positive_plane_angle_measure);
+   REFERENCE FROM representation_schema(founded_item);
 
  TYPE boolean_operand = SELECT
    (solid_model, 
@@ -75,7 +78,8 @@ SCHEMA geometric_model_schema;
    second_operand  :  boolean_operand;
  END_ENTITY;
 
- ENTITY box_domain;
+ ENTITY box_domain
+   SUBTYPE OF (founded_item);
    corner  : cartesian_point;
    xlength : positive_length_measure;
    ylength : positive_length_measure;
@@ -285,7 +289,8 @@ END_ENTITY;
      WR1 : SELF\geometric_representation_item.dim = 2;
  END_ENTITY;
 
- ENTITY rectangle_domain;
+ ENTITY rectangle_domain
+   SUBTYPE OF (founded_item);
    corner: cartesian_point;
    xlength: positive_length_measure;
    ylength: positive_length_measure;
@@ -319,22 +324,23 @@ END_ENTITY;
    axis  : axis1_placement;
    angle : plane_angle_measure;
  DERIVE
-   axis_line : line := representation_item('')||
+  axis_line : line := representation_item('')||
                     geometric_representation_item()|| curve()||
                     line(axis.location, representation_item('')||
                     geometric_representation_item()||
                     vector(axis.z, 1.0));
  END_ENTITY;
 
- ENTITY revolved_face_solid  SUBTYPE OF (swept_face_solid);
+ENTITY revolved_face_solid
+   SUBTYPE OF (swept_face_solid);
    axis  : axis1_placement;
    angle : plane_angle_measure;
  DERIVE
-   axis_line : line := representation_item('')||
-                     geometric_representation_item()|| curve()||
-                     line(axis.location, representation_item('')||
-                     geometric_representation_item()||
-                     vector(axis.z, 1.0));
+  axis_line : line := representation_item('')||
+                    geometric_representation_item()|| curve()||
+                    line(axis.location, representation_item('')||
+                    geometric_representation_item()||
+                    vector(axis.z, 1.0));
  END_ENTITY;
 
  ENTITY right_angular_wedge
@@ -391,6 +397,13 @@ END_ENTITY;
    WR1: constraints_geometry_shell_based_wireframe_model(SELF);
  END_ENTITY;
 
+ ENTITY solid_model
+   SUPERTYPE OF (ONEOF( csg_solid, manifold_solid_brep, swept_face_solid,
+                        swept_area_solid, swept_disk_solid, solid_replica,
+                        brep_2d, trimmed_volume))
+   SUBTYPE OF (geometric_representation_item);
+ END_ENTITY;
+
  ENTITY solid_replica
    SUBTYPE OF (solid_model);
    parent_solid   : solid_model;
@@ -400,12 +413,6 @@ END_ENTITY;
    WR2: parent_solid\geometric_representation_item.dim = 3;
  END_ENTITY;
 
- ENTITY solid_model
-   SUPERTYPE OF (ONEOF( csg_solid, manifold_solid_brep, swept_face_solid,
-                        swept_area_solid, solid_replica,
-                        brep_2d, trimmed_volume))
-   SUBTYPE OF (geometric_representation_item);
- END_ENTITY;
 
  ENTITY sphere
    SUBTYPE OF (geometric_representation_item);
@@ -442,6 +449,18 @@ END_ENTITY;
    swept_area :  curve_bounded_surface;
  WHERE
    WR1: 'GEOMETRY_SCHEMA.PLANE' IN TYPEOF(swept_area.basis_surface);
+ END_ENTITY;
+
+ ENTITY swept_disk_solid
+   SUBTYPE OF (solid_model);
+     directrix    : curve;
+     radius       : positive_length_measure;
+     inner_radius : OPTIONAL positive_length_measure;
+     start_param : REAL;
+     end_param   : REAL;
+   WHERE
+     WR1 : directrix.dim = 3;
+     WR2 : (NOT EXISTS(inner_radius)) OR (radius > inner_radius) ;
  END_ENTITY;
 
  ENTITY swept_face_solid
@@ -515,26 +534,27 @@ END_ENTITY;
     END_IF;
   END_FUNCTION;
 
-  FUNCTION build_transformed_set(tr: cartesian_transformation_operator;
+ FUNCTION build_transformed_set(tr: cartesian_transformation_operator;
            gset : geometric_set) : SET [0:?] OF geometric_set_select;
-    LOCAL
-     s          : SET [1:?] OF geometric_set_select := gset.elements;
-     trset      : SET [0:?] OF geometric_set_select := [];
-    END_LOCAL;
-    REPEAT j := 1 TO SIZEOF(s);
-      IF ('GEOMETRY_SCHEMA.CURVE' IN TYPEOF(s[j])) THEN
-         trset := trset + curve_replica(s[j],tr); ELSE
-         IF ('GEOMETRY_SCHEMA.POINT' IN TYPEOF(s[j])) THEN
-           trset := trset + point_replica(s[j],tr); ELSE
-           IF ('GEOMETRY_SCHEMA.SURFACE' IN TYPEOF(s[j])) THEN
-             trset := trset + surface_replica(s[j],
-                tr || cartesian_transformation_operator_3d (?));
-           END_IF;
-         END_IF;
-      END_IF;
-    END_REPEAT;
-    RETURN(trset);
-   END_FUNCTION;
+  LOCAL
+   s          : SET [1:?] OF geometric_set_select := gset.elements;
+   trset      : SET [0:?] OF geometric_set_select := [];
+  END_LOCAL;
+  REPEAT j := 1 TO SIZEOF(s);
+    IF ('GEOMETRY_SCHEMA.CURVE' IN TYPEOF(s[j])) THEN
+     trset := trset + dummy_gri || curve() ||curve_replica(s[j],tr); ELSE
+     IF ('GEOMETRY_SCHEMA.POINT' IN TYPEOF(s[j])) THEN
+       trset := trset + dummy_gri || point() || point_replica(s[j],tr);
+       ELSE
+       IF ('GEOMETRY_SCHEMA.SURFACE' IN TYPEOF(s[j])) THEN
+         trset := trset + dummy_gri || surface()  || surface_replica(s[j],
+           tr || cartesian_transformation_operator_3d (?));
+       END_IF;
+     END_IF;
+    END_IF;
+  END_REPEAT;
+  RETURN(trset);
+ END_FUNCTION;
 
  FUNCTION constraints_geometry_shell_based_surface_model
              (m: shell_based_surface_model): BOOLEAN;

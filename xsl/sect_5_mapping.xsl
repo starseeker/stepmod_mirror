@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.44 2002/08/09 08:27:43 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.45 2002/08/18 17:36:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -447,6 +447,8 @@ $Id: sect_5_mapping.xsl,v 1.44 2002/08/09 08:27:43 robbod Exp $
     </xsl:if>
   </h3>
 
+  <!-- output any issues against the mapping -->
+  <xsl:apply-templates select="."  mode="output_mapping_issue"/>
 
   <xsl:choose>
     <xsl:when test="$module_ok != 'true'">
@@ -695,6 +697,9 @@ $Id: sect_5_mapping.xsl,v 1.44 2002/08/09 08:27:43 robbod Exp $
       </xsl:apply-templates>
     </xsl:if>
   </h3>
+
+  <!-- output any issues against the mapping -->
+  <xsl:apply-templates select="."  mode="output_mapping_issue"/>
 
   <xsl:if test="$module_aok='true'">
     <xsl:apply-templates select="." mode="check_valid_attribute"/>

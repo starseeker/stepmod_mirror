@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.46 2004/10/09 21:22:28 thendrix Exp $
+$Id: express_description.xsl,v 1.47 2004/10/23 08:01:48 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -255,7 +255,7 @@ $Id: express_description.xsl,v 1.46 2004/10/09 21:22:28 thendrix Exp $
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
       
     <!-- if an attribute, should start with a or an, not is -->
-    <xsl:if test="string-length($type)=0 and contains(substring-after($description/@linkend,'.'),'.') and not(contains($schema,$description/@linkend)) and not(contains($description/@linkend,'.wr:'))">
+    <xsl:if test="string-length($type)=0 and contains(substring-after($description/@linkend,'.'),'.') and not(contains($schema,$description/@linkend)) and not(contains($description/@linkend,'.wr:')) and not(contains($description/@linkend,'.ur:'))">
 
       <xsl:if test="$ERROR_CHECK_ATTRIBUTES='YES'">
         <xsl:variable name="raw_phrase">

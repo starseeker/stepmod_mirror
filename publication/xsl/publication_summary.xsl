@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.1 2004/01/09 17:35:51 robbod Exp $
+$Id: publication_summary.xsl,v 1.2 2004/01/11 22:31:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -155,7 +155,7 @@ $Id: publication_summary.xsl,v 1.1 2004/01/09 17:35:51 robbod Exp $
               select="concat($mod_dir_name,'.htm')"/>
             <xsl:variable name="mod_xref"
               select="concat($pub_dir,'/',$mod_cover)"/>
-            <xsl:value-of select="@name"/> 
+            <xsl:value-of select="concat(@name,'&#160;')"/> 
             <a href="{$mod_xref}">
               <xsl:value-of select="$mod_cover"/>
             </a>

@@ -1,5 +1,5 @@
 (*
-  $Id: arm.exp,v 1.10 2003/03/06 11:37:13 leifgyllstrom Exp $
+  $Id: arm.exp,v 1.6 2003/03/24 09:47:35 leifgyllstrom Exp $
 ISO TC184/SC4/WG12 N1427 - ISO/CD-TS 10303-1253 Condition - EXPRESS ARM
 *)
 
@@ -10,28 +10,28 @@ USE FROM Classification_assignment_arm;
 TYPE condition_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
 (Condition,
  Condition_assignment,
+ Condition_parameter_assignment,
  Condition_relationship);
 END_TYPE;
 
 TYPE condition_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE;
 
-TYPE expression_type = STRING;
-END_TYPE;
-
-TYPE operator_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+TYPE condition_operator_item = EXTENSIBLE GENERIC_ENTITY SELECT 
 (expression_type);
 END_TYPE;
 
-TYPE parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+TYPE condition_parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT 
 (Condition_relationship);
+END_TYPE;
+
+TYPE expression_type = STRING;
 END_TYPE;
 
 ENTITY Condition;
 name : STRING;
 description : OPTIONAL STRING;
-operator : operator_item;
-parameter : OPTIONAL LIST [0 : ?] OF parameter_item;
+operator : OPTIONAL condition_operator_item;
 END_ENTITY;
 
 ENTITY Condition_assignment;
@@ -39,10 +39,14 @@ assigned_condition : Condition;
 item : condition_item;
 END_ENTITY;
 
+ENTITY Condition_parameter_assignment;
+condition : Condition;
+parameter : condition_parameter_item;
+END_ENTITY;
+
 ENTITY Condition_relationship;
 name : STRING;
 description : OPTIONAL STRING;
-operator : operator_item;
 relating_condition : Condition;
 related_condition : Condition;
 END_ENTITY;

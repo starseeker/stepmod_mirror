@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.16 2004/02/25 09:15:13 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.18 2004/09/27 05:52:35 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1031,6 +1031,53 @@
 </xsl:template>
 
 <xsl:template match="explicit" mode="code">
+
+  <xsl:if test="@name='id' or @name='identifier' or substring-after(@name,'_')='id'" >
+
+    <xsl:if test="not(preceding-sibling::explicit[1][@name='id' or substring-after(@name,'_')='id']) and preceding-sibling::explicit[1]">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error a1:   ','identifier',' must be first attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:if>
+
+  <xsl:if test="contains(@name,'relating' ) and ./preceding-sibling::explicit[contains(@name,'related')]" >
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error a2:   ','&quot;relating&quot;','  attribute must precede ','&quot;related&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+<xsl:if test="@name='name' and ./preceding-sibling::explicit[@name='description']">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error',' a3:   ','&quot;name&quot;','  attribute must precede ','&quot;description&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+<xsl:if test="@name='name' and ./preceding-sibling::explicit[@name!='id' and @name!='identifier' and substring-after(@name,'_')!='id']">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error',' a4:   ','&quot;name&quot;','  attribute must precede any attribute except an identifier attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+
+
+<xsl:if test="@name='description' and ./preceding-sibling::explicit[contains(@name,'related')]">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error a5:   ','&quot;description&quot;','  attribute must precede ','&quot;relating&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+
 &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:if test="@optional='YES' or @optional='yes'">

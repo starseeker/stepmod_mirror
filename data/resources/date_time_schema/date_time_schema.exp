@@ -34,8 +34,8 @@ END_TYPE;
 
 TYPE date_time_select = SELECT
    (date, 
-    local_time, 
-    date_and_time);
+    date_and_time, 
+    local_time);
 END_TYPE; 
 
 TYPE day_in_month_number = INTEGER;
@@ -97,7 +97,7 @@ DERIVE
   actual_minute_offset : INTEGER := NVL(minute_offset,0);
 WHERE
   WR1: { 0 <= hour_offset < 24 };
-  WR2: { 0 <= minute_offset <= 59 };
+  WR2: { 0 <= actual_minute_offset <= 59 };
   WR3: NOT (((hour_offset <> 0) OR (actual_minute_offset <>0)) AND (sense = exact));
 END_ENTITY;
 
@@ -124,7 +124,7 @@ END_ENTITY;
 ENTITY date_time_role;
   name : label;
 DERIVE
-  description : text := get_description_value(SELF);
+  description : text := get_description_value (SELF);
 WHERE
   WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
 END_ENTITY;
@@ -296,3 +296,4 @@ FUNCTION valid_time
 END_FUNCTION; 
 
 END_SCHEMA;  -- date_time_schema
+

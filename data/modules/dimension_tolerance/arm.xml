@@ -3,14 +3,14 @@
   type="text/xsl" 
   href="../../../xsl/express.xsl"
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $"
-  description.file="arm_descriptions.xml"
->
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="dimension_tolerance_arm_v004.vsd" />
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.15" source="dimension_tolerance_arm_v008.vsd" />
 <schema name="Dimension_tolerance_arm">
 <interface kind="use" schema="Construction_geometry_arm">
 </interface>
 <interface kind="use" schema="Derived_shape_element_arm">
+</interface>
+<interface kind="use" schema="Document_assignment_arm">
 </interface>
 <interface kind="use" schema="Elemental_geometric_shape_arm">
 </interface>
@@ -22,9 +22,13 @@
 </interface>
 <interface kind="use" schema="Value_with_unit_arm">
 </interface>
+<type name="dimension_tolerance_document_element_select">
+<select extensible="YES" basedon="documented_element_select" selectitems="Externally_defined_size_dimension" />
+<graphic.element page="2" xcoord="182" ycoord="18" />
+</type>
 <type name="dimension_value_select">
-<select selectitems="Dimension_value_with_limitation Numerical_item_with_unit Value_limit Value_range" />
-<graphic.element page="2" xcoord="249" ycoord="517" />
+<select selectitems="Dimension_value_with_limitation Numerical_item_with_unit Tolerance_range Value_limit" />
+<graphic.element page="2" xcoord="243" ycoord="514" />
 </type>
 <type name="element_with_dimension_select">
 <select extensible="YES" genericentity="YES" selectitems="Shape_element" />
@@ -34,15 +38,25 @@
 <select selectitems="Limits_and_fits Plus_minus_bounds" />
 <graphic.element page="3" xcoord="89" ycoord="136" />
 </type>
+<type name="origin_enumeration">
+<enumeration items="unchanged mirror normal_positive normal_negative" />
+<graphic.element page="2" xcoord="556" ycoord="270" />
+</type>
 <type name="placed_element_select">
 <select extensible="YES" selectitems="constructive_element_select Derived_geometry element_with_dimension_select" />
 <graphic.element page="3" xcoord="73" ycoord="467" />
 </type>
 <entity name="Angular_location_dimension" supertypes="Location_dimension">
-<explicit name="orientation" optional="YES">
-<typename name="Axis_placement" />
+<explicit name="major_angle">
+<builtintype type="BOOLEAN" />
 </explicit>
-<graphic.element page="2" xcoord="313" ycoord="225" />
+<explicit name="mirror_target">
+<builtintype type="BOOLEAN" />
+</explicit>
+<explicit name="origin_determination">
+<typename name="origin_enumeration" />
+</explicit>
+<graphic.element page="2" xcoord="359" ycoord="293" />
 </entity>
 <entity name="Angular_size_dimension" supertypes="Size_dimension">
 <explicit name="full">
@@ -51,13 +65,22 @@
 <explicit name="major_angle">
 <builtintype type="BOOLEAN" />
 </explicit>
-<graphic.element page="2" xcoord="109" ycoord="185" />
+<graphic.element page="2" xcoord="198" ycoord="216" />
 </entity>
 <entity name="Curved_distance_dimension" supertypes="Location_dimension">
 <explicit name="used_path">
 <typename name="Measurement_path" />
 </explicit>
-<graphic.element page="2" xcoord="330" ycoord="120" />
+<explicit name="with_curve_direction">
+<builtintype type="BOOLEAN" />
+</explicit>
+<graphic.element page="2" xcoord="371" ycoord="185" />
+</entity>
+<entity name="Curved_size_dimension" supertypes="Size_dimension">
+<graphic.element page="2" xcoord="58" ycoord="177" />
+</entity>
+<entity name="Diameter_dimension" supertypes="Size_dimension">
+<graphic.element page="2" xcoord="60" ycoord="248" />
 </entity>
 <entity name="Dimension_value_with_limitation">
 <explicit name="defined_by">
@@ -71,23 +94,23 @@
 </explicit>
 <graphic.element page="3" xcoord="97" ycoord="249" />
 </entity>
-<entity name="General_size_dimension" supertypes="Size_dimension">
-<explicit name="dimension_type">
-<builtintype type="STRING" />
-</explicit>
-<explicit name="used_path" optional="YES">
-<typename name="Measurement_path" />
-</explicit>
-<graphic.element page="2" xcoord="116" ycoord="29" />
+<entity name="Externally_defined_size_dimension" supertypes="Size_dimension_with_path">
+<graphic.element page="2" xcoord="221" ycoord="81" />
 </entity>
 <entity name="Geometric_dimension" abstract.supertype="YES" super.expression="ONEOF(Location_dimension, Size_dimension)">
-<explicit name="id">
-<builtintype type="STRING" />
-</explicit>
 <explicit name="dimension_value">
 <typename name="dimension_value_select" />
 </explicit>
-<graphic.element page="2" xcoord="140" ycoord="421" />
+<explicit name="id">
+<builtintype type="STRING" />
+</explicit>
+<graphic.element page="2" xcoord="92" ycoord="453" />
+</entity>
+<entity name="Height_dimension" supertypes="Size_dimension_with_path">
+<graphic.element page="2" xcoord="54" ycoord="74" />
+</entity>
+<entity name="Length_dimension" supertypes="Size_dimension_with_path">
+<graphic.element page="2" xcoord="56" ycoord="137" />
 </entity>
 <entity name="Limits_and_fits">
 <explicit name="deviation">
@@ -102,17 +125,17 @@
 <graphic.element page="3" xcoord="260" ycoord="164" />
 </entity>
 <entity name="Linear_distance_dimension" supertypes="Location_dimension">
+<explicit name="directed">
+<builtintype type="BOOLEAN" />
+</explicit>
 <explicit name="orientation" optional="YES">
 <typename name="Line" />
 </explicit>
-<graphic.element page="2" xcoord="335" ycoord="177" />
+<graphic.element page="2" xcoord="371" ycoord="238" />
 </entity>
 <entity name="Location_dimension" abstract.supertype="YES" supertypes="Geometric_dimension" super.expression="ONEOF(Angular_location_dimension, Curved_distance_dimension, Linear_distance_dimension)">
-<explicit name="description">
+<explicit name="description" optional="YES">
 <builtintype type="STRING" />
-</explicit>
-<explicit name="directed">
-<builtintype type="BOOLEAN" />
 </explicit>
 <explicit name="origin">
 <typename name="placed_element_select" />
@@ -120,7 +143,7 @@
 <explicit name="target">
 <typename name="placed_element_select" />
 </explicit>
-<graphic.element page="2" xcoord="255" ycoord="341" />
+<graphic.element page="2" xcoord="284" ycoord="337" />
 </entity>
 <entity name="Plus_minus_bounds">
 <explicit name="lower_bound">
@@ -137,21 +160,42 @@
 </explicit>
 <graphic.element page="3" xcoord="256" ycoord="94" />
 </entity>
-<entity name="Size_dimension" abstract.supertype="YES" supertypes="Geometric_dimension" super.expression="ONEOF(Angular_size_dimension, General_size_dimension, Thickness_dimension)">
-<explicit name="applied_to">
-<typename name="element_with_dimension_select" />
-</explicit>
+<entity name="Radial_dimension" supertypes="Size_dimension">
+<graphic.element page="2" xcoord="60" ycoord="212" />
+</entity>
+<entity name="Size_dimension" abstract.supertype="YES" supertypes="Geometric_dimension" super.expression="ONEOF(Angular_size_dimension, Curved_size_dimension, Diameter_dimension, Radial_dimension, Size_dimension_with_path)">
 <explicit name="envelope_principle" optional="YES">
 <builtintype type="BOOLEAN" />
 </explicit>
-<graphic.element page="2" xcoord="63" ycoord="343" />
+<explicit name="is_applied_to">
+<typename name="element_with_dimension_select" />
+</explicit>
+<graphic.element page="2" xcoord="72" ycoord="305" />
 </entity>
-<entity name="Thickness_dimension" supertypes="Size_dimension">
-<explicit name="used_path">
+<entity name="Size_dimension_with_path" abstract.supertype="YES" supertypes="Size_dimension" super.expression="ONEOF(Externally_defined_size_dimension, Height_dimension, Length_dimension, Thickness_dimension, Width_dimension)">
+<explicit name="used_path" optional="YES">
 <typename name="Measurement_path" />
 </explicit>
-<graphic.element page="2" xcoord="137" ycoord="134" />
+<graphic.element page="2" xcoord="208" ycoord="179" />
 </entity>
-<graphic.element page="1" xcoord="180" ycoord="191" />
+<entity name="Thickness_dimension" supertypes="Size_dimension_with_path">
+<graphic.element page="2" xcoord="207" ycoord="121" />
+</entity>
+<entity name="Tolerance_range">
+<explicit name="lower_range">
+<builtintype type="REAL" />
+</explicit>
+<explicit name="significant_digits">
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="upper_range">
+<builtintype type="REAL" />
+</explicit>
+<graphic.element page="2" xcoord="389" ycoord="427" />
+</entity>
+<entity name="Width_dimension" supertypes="Size_dimension_with_path">
+<graphic.element page="2" xcoord="54" ycoord="106" />
+</entity>
+<graphic.element page="1" xcoord="226" ycoord="297" />
 </schema>
 </express>

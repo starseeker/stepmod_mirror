@@ -1,25 +1,21 @@
 <?xml version="1.0"?>
-<!-- $Id: mim.xml,v 1.7 2002/03/04 07:45:59 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/03/04 07:45:59 $"
-  rcs.revision="$Revision: 1.7 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $"
+  description.file="mim_descriptions.xml">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.7"
+    version="1.9"
     source="../data/modules/product_identification/mim.exp"/>
 
   <schema name="Product_identification_mim">
-    <interface
-      kind="use"
-      schema="Person_organization_assignment_mim">
-    </interface>
-
     <interface
       kind="use"
       schema="Product_categorisation_mim">
@@ -33,64 +29,6 @@
       <interfaced.item
         name="product_related_product_category"/>
     </interface>
-
-    <type name="product_organization_item">
-      <description>An <b>product_organization_item</b> extends organization assignment to <b>product</b> instances.</description>
-      <select
-        basedon="organization_item"
-        selectitems="product">
-      </select>
-
-    </type>
-    <type name="product_person_and_organization_item">
-      <description>A <b>product_person_and_organization_item</b> extends person and organization assignment to <b>product</b> instances.</description>
-      <select
-        basedon="person_and_organization_item"
-        selectitems="product">
-      </select>
-
-    </type>
-    <rule
-      name="product_requires_actors"
-      appliesto="product">
-      <description>
-        The <b>product_requires_actors</b> rule specifies that every
-        instance of <b>product</b> shall be referred to by at least one 
-        instance of <b>applied_organization_assignment</b> or of
-  <b>applied_person_and_organization_assignment</b>. 
-      </description>
-      <where label="WR1"
-        expression="SIZEOF(QUERY(prod &lt;* product | 
-        SIZEOF(USEDIN(prod,'PRODUCT_IDENTIFICATION_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS'))+
-        SIZEOF(USEDIN(prod,'PRODUCT_IDENTIFICATION_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS'))
-   =0))=0">
-
-        <description>
-          There shall not be any instance of product that is not referred to by any instance of <b>applied_organization_assignment</b> or of
-  <b>applied_person_and_organization_assignment</b>.
-        </description>
-      </where>
-    </rule>
-    <rule
-      name="product_has_id_owner"
-      appliesto="product">
-      <description>
-        The <b>product_has_id_owner</b> rule specifies that all
-        instances of <b>product</b> shall have an organization or a person in an organization that is the owner of the product identifier. 
-      </description>
-      <where label="WR1"
-        expression="SIZEOF(QUERY(prod &lt;* product | 
-        (SIZEOF(QUERY(apoa &lt;* USEDIN(prod,'PRODUCT_IDENTIFICATION_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') | apoa\
-         person_and_organization_assignment.role.name = 'id owner')) +
-        (SIZEOF(QUERY(apoa &lt;* USEDIN(prod,'PRODUCT_IDENTIFICATION_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') | apoa\
-         organization_assignment.role.name = 'id owner'))
-         &lt;&gt; 1)) = 0">
-        <description>
-          There shall not be any instance of <b>product</b> that is not referred to by exactly one instance of <b>applied_organization_assignment</b> or of
-  <b>applied_person_and_organization_assignment</b> with role 'id owner'.
-        </description>
-      </where>
-    </rule>
 
   </schema>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.4 2002/09/10 14:04:50 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -54,7 +54,9 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
       <table border="1">
         <tr>
           <td><b>Ballot package</b></td>
+          <td><b>Ballot cycle</b></td>
           <td><b>Module</b></td>
+          <td><b>URL</b></td>
           <td><b>Part</b></td>
           <td><b>Version</b></td>
           <td><b>Status</b></td>
@@ -69,10 +71,21 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
           <td><b>Convener leader checklist WGn</b></td>
           <td><b>Project leader</b></td>
           <td><b>Project editor</b></td>
+
+          <td><b>Scope</b></td>
+          <td><b>Introduction</b></td>
+          <td><b>Normrefs</b></td>
+          <td><b>Bibliography</b></td>
+          <td><b>ARM</b></td>
+          <td><b>MIM</b></td>
+          <td><b>Mapping</b></td>
+          <td><b>QC complete</b></td>
         </tr>
         <tr>
+          <td><small><i>&#160;</i></small></td>
           <td><small><i>&#160;</i></small></td>
           <td align="right"><small>file:</small></td>
+          <td>&#160;</td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
@@ -87,14 +100,46 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
+          <!-- Scope -->
+          <td><small><i>module.xml</i></small></td>
+
+          <!-- Introduction -->
+          <td><small><i>module.xml</i></small></td>
+
+          <!-- Normrefs -->
+          <td><small><i>module.xml</i></small></td>
+
+          <!-- Bibliography -->
+          <td><small><i>module.xml</i></small></td>
+
+          <!-- ARM -->
+          <td>
+            <small><i>arm.xml</i></small><br/>
+            <small><i>arm_descriptions.xml</i></small><br/>
+            <small><i>armexpg1.xml</i></small>
+          </td>
+
+          <!-- MIM -->
+          <td>
+            <small><i>mim.xml</i></small><br/>
+            <small><i>mim_descriptions.xml</i></small><br/>
+            <small><i>mimexpg1.xml</i></small>
+          </td>
+
+          <!-- Mapping -->
+          <td><small><i>module.xml</i></small></td>
+
+          <!-- QC complete -->
+          <td>&#160;</td>
         </tr>
         <tr>
           <td><small><i>&#160;</i></small></td>
+          <td><small><i>&#160;</i></small></td>
           <td align="right"><small>attribute:</small></td>
-        <td><small><i>
+          <td>&#160;</td>
+          <td><small><i>
           /module/@part
         </i></small></td>
-
         <!-- Version -->
         <td><small><i>
           /module/@version
@@ -159,6 +204,30 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
         <td><small><i>
           module/contacts/editor/@ref
         </i></small></td>
+          <!-- Scope -->
+          <td>&#160;</td>
+
+          <!-- Introduction -->
+          <td>&#160;</td>
+
+          <!-- Normrefs -->
+          <td>&#160;</td>
+
+          <!-- Bibliography -->
+          <td>&#160;</td>
+
+          <!-- ARM -->
+          <td>&#160;</td>
+
+          <!-- MIM -->
+          <td>&#160;</td>
+
+          <!-- Mapping -->
+          <td>&#160;</td>
+
+          <!-- QC complete -->
+          <td>&#160;</td>
+
         </tr>
         <xsl:apply-templates select="./*/module"/>
       </table>
@@ -184,22 +253,26 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
       <tr>
         <!-- Ballot package -->
         <td>
-          <xsl:choose>
-            <xsl:when test="../@id">
-              <xsl:value-of select="concat(../@id,' - ',../@name)"/>    
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="../@name"/> 
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:value-of select="../../@name"/>    
+        </td>
+
+        <!-- Ballot cycle -->
+        <td>
+          <xsl:value-of select="../@name"/> 
         </td>
 
         <!-- Module -->
         <td>
-          <xsl:variable name="mod_xref"
-            select="concat('../../../data/modules/',@name,'/sys/1_scope',$FILE_EXT)"/>
+          <xsl:value-of select="@name"/>
+        </td>
+
+        <!-- URL -->
+        <xsl:variable name="mod_xref"
+          select="concat('../../../data/modules/',@name,'/sys/1_scope',$FILE_EXT)"/>
+        <td>
           <a href="{$mod_xref}">
-            <xsl:value-of select="@name"/>
+            <img align="middle" border="0" 
+              alt="URL" src="../../../images/url.gif"/>
           </a>
         </td>
 
@@ -391,16 +464,46 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
           </xsl:call-template>
         </td>
 
+        <!-- Scope -->
+        <td>&#160;</td>
+        
+        <!-- Introduction -->
+        <td>&#160;</td>
 
+        <!-- Normrefs -->
+        <td>&#160;</td>
+        
+        <!-- Bibliography -->
+        <td>&#160;</td>
+        
+        <!-- ARM -->
+        <td>&#160;</td>
+        
+        <!-- MIM -->
+        <td>&#160;</td>
+        
+        <!-- Mapping -->
+        <td>&#160;</td>
+        
+        <!-- QC complete -->
+        <td>&#160;</td>
       </tr>
     </xsl:when>
 
     <!-- module does not exist in repository index -->
     <xsl:otherwise>
       <tr>
+        <!-- Ballot package -->
         <td>
-          <xsl:value-of select="../@name"/>
+          <xsl:value-of select="../../@name"/>    
         </td>
+
+        <!-- Ballot cycle -->
+        <td>
+          <xsl:value-of select="../@name"/> 
+        </td>
+
+        <!-- Module -->
         <td>
           <xsl:value-of select="@name"/>
           <xsl:call-template name="error_message">
@@ -422,6 +525,30 @@ $Id: ballot_checklist.xsl,v 1.3 2002/08/16 14:05:23 robbod Exp $
         <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <!-- Scope -->
+        <td>&#160;</td>
+        
+        <!-- Introduction -->
+        <td>&#160;</td>
+
+        <!-- Normrefs -->
+        <td>&#160;</td>
+        
+        <!-- Bibliography -->
+        <td>&#160;</td>
+        
+        <!-- ARM -->
+        <td>&#160;</td>
+        
+        <!-- MIM -->
+        <td>&#160;</td>
+        
+        <!-- Mapping -->
+        <td>&#160;</td>
+        
+        <!-- QC complete -->
         <td>&#160;</td>
       </tr>      
     </xsl:otherwise>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.1 2002/08/16 16:34:49 robbod Exp $
+$Id: common.xsl,v 1.2 2002/09/27 12:08:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -26,7 +26,12 @@ $Id: common.xsl,v 1.1 2002/08/16 16:34:49 robbod Exp $
         </tr>
 
         <tr>
-          <td><small>Proposed submission date:</small></td>
+          <td><small>Proposed submission to convener date:</small></td>
+          <td><small><xsl:value-of select="@convener.submission.date"/></small></td>
+        </tr>
+
+        <tr>
+          <td><small>Proposed ballot submission date:</small></td>
           <td><small><xsl:value-of select="@proposed.submission.date"/></small></td>
         </tr>
        <tr>

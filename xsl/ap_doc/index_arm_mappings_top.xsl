@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
+$Id: index_arm_mappings_top.xsl,v 1.1 2003/05/23 08:55:04 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -57,7 +57,8 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
   <body>
   	<A HREF="frame_index.xml" TARGET="toc" >Back to main index</A>
 	<BR/>
-	<B>ARM Entity Mapping index</B>
+	<B>Entity Mapping index</B>
+	<br/>
 	<br/>
 
 	<xsl:variable name="top_module_file" 
@@ -150,7 +151,7 @@ $Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$ent-names" />
-				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="file" select="'index_arm_mappings_inner.xml'" />
 				<xsl:with-param name="internal-link-root" select="'letter'" />
 			</xsl:call-template>
 			<br/>

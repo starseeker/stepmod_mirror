@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.19 2004/02/05 17:51:07 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.20 2004/11/08 16:24:33 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -94,9 +94,9 @@ $Id: sect_6_ccs.xsl,v 1.19 2004/02/05 17:51:07 robbod Exp $
                   <xsl:with-param name="application_protocol" select="$module"/>
                 </xsl:call-template>
               </xsl:variable>
-              <xsl:variable name="module_node"
-                select="document(concat($module_dir,'/module.xml'))/module"/>              
-              (<a href="../../../modules/{$module}/sys/cover{$FILE_EXT}">ISO 10303-<xsl:value-of select="$module_node/@part"/></a>).
+	      <xsl:variable name="module_node"
+			    select="document(concat($module_dir,'/module.xml'))/module"/> 
+	      (<a href="../../../modules/{$module}/sys/cover{$FILE_EXT}">ISO 10303-<xsl:value-of select="$module_node/@part"/></a>).
             </xsl:when>
             <xsl:otherwise>
               <xsl:call-template name="error_message">
@@ -234,14 +234,14 @@ $Id: sect_6_ccs.xsl,v 1.19 2004/02/05 17:51:07 robbod Exp $
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="$module_ok='true'">
-        <xsl:variable name="module_dir">
+        <xsl:variable name="ap_module_dir">
           <xsl:call-template name="ap_module_directory">
             <xsl:with-param name="application_protocol" select="$cc1_module"/>
           </xsl:call-template>
         </xsl:variable>
-        <xsl:variable name="arm_lf"
-          select="document(concat($module_dir,'/arm_lf.xml'))"/>
-        <xsl:if test="count($arm_lf//entity)=0">
+        <xsl:variable name="ap_arm_lf"
+          select="document(concat($ap_module_dir,'/arm_lf.xml'))"/> 
+        <xsl:if test="count($ap_arm_lf//entity)=0">
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
               <xsl:value-of select="concat('Error APCC2: The module
@@ -255,30 +255,50 @@ conformance class')"/>
         
         <!-- collect entities and sort -->
         <xsl:variable name="entities">
-          <xsl:for-each select="$arm_lf//entity">
-            <xsl:element name="entity">
-              <xsl:attribute name="name">
-                <xsl:value-of select="@name"/>
-              </xsl:attribute>
-              <xsl:attribute name="cc">
-                <xsl:value-of select="1"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:for-each>
-          <xsl:for-each select="//arm_entity_in_cc">
-            <!-- only add if not in cc1 long form -->
-            <xsl:variable name="lname" select="@name"/>
-            <xsl:if test="not($arm_lf//entity[@name=$lname])">
-              <xsl:element name="entity">
-                <xsl:attribute name="name">
-                  <xsl:value-of select="$lname"/>
-                </xsl:attribute>
-                <xsl:attribute name="cc">
-                  <xsl:value-of select="'?'"/>
-                </xsl:attribute>
-              </xsl:element>
-            </xsl:if>
-          </xsl:for-each>
+	  <xsl:for-each select="cc">
+	    <xsl:variable name="arm_lf" select="document(concat('../../data/modules/',@module,'/arm_lf.xml'))"/>
+	    <xsl:variable name="cc_pos" select="position()"/>
+	    <xsl:variable name="cc_id" select="@id"/>
+	    <xsl:element name="cc">
+		<xsl:attribute name="cc">
+		  <xsl:value-of select="$cc_pos"/>
+		</xsl:attribute>
+		<xsl:attribute name="cc_id">
+		  <xsl:value-of select="@id"/>
+		</xsl:attribute>
+	      <xsl:attribute name="entity_in_cc">
+		<xsl:choose>
+		  <xsl:when test="//arm_entity_in_cc/cc_id[@id=$cc_id]">
+		    <xsl:value-of select="'yes'"/>
+		  </xsl:when>
+		  <xsl:otherwise>
+		    <xsl:value-of select="'no'"/>
+		  </xsl:otherwise>
+		</xsl:choose>
+	      </xsl:attribute>
+	    <xsl:for-each select="$arm_lf//entity">
+	      <xsl:element name="entity">
+		<xsl:attribute name="name">
+		  <xsl:value-of select="@name"/>
+		</xsl:attribute>
+	      </xsl:element>
+	    </xsl:for-each>
+	    <xsl:for-each select="//arm_entity_in_cc">
+	      <!-- only add if not in cc1 long form -->
+	      <xsl:variable name="lname" select="@name"/>
+	      <xsl:if test="not($arm_lf//entity[@name=$lname])">
+		<xsl:element name="entity">
+		  <xsl:attribute name="name">
+		    <xsl:value-of select="$lname"/>
+		  </xsl:attribute>
+		  <xsl:attribute name="cc">
+		    <xsl:value-of select="'?'"/>
+		  </xsl:attribute>
+		</xsl:element>
+	      </xsl:if>
+	    </xsl:for-each>
+	    </xsl:element>
+	  </xsl:for-each>
         </xsl:variable>
 
         <xsl:choose>
@@ -294,7 +314,7 @@ conformance class')"/>
             <xsl:call-template name="output_cc_arm_row">
               <xsl:with-param name="entities_node_set" select="$entities_node_set"/>
               <xsl:with-param name="conformance_node_set" select="/conformance"/>
-            </xsl:call-template>
+            </xsl:call-template> 
           </xsl:when>
         </xsl:choose>
       </xsl:when>
@@ -326,9 +346,9 @@ conformance class')"/>
             <xsl:with-param name="application_protocol" select="$cc1_module"/>
           </xsl:call-template>
         </xsl:variable>
-        <xsl:variable name="mim_lf"
+        <xsl:variable name="ap_mim_lf"
           select="document(concat($module_dir,'/mim_lf.xml'))"/>
-        <xsl:if test="count($mim_lf//entity)=0">
+        <xsl:if test="count($ap_mim_lf//entity)=0">
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
               <xsl:value-of select="concat('Error APCC2: The module
@@ -342,31 +362,54 @@ conformance class')"/>
         
         <!-- collect entities and sort -->
         <xsl:variable name="entities">
-          <xsl:for-each select="$mim_lf//entity">
-            <xsl:element name="entity">
-              <xsl:attribute name="name">
-                <xsl:value-of select="@name"/>
-              </xsl:attribute>
-              <xsl:attribute name="cc">
-                <xsl:value-of select="'1'"/>
-              </xsl:attribute>
-            </xsl:element>
-          </xsl:for-each>
-          <xsl:for-each select="//mim_entity_in_cc">
-            <!-- only add if not in cc1 long form -->
-            <xsl:variable name="lname" select="@name"/>
-            <xsl:if test="not($mim_lf//entity[@name=$lname])">
-              <xsl:element name="entity">
-                <xsl:attribute name="name">
-                  <xsl:value-of select="$lname"/>
-                </xsl:attribute>
-                <xsl:attribute name="cc">
-                  <xsl:value-of select="'?'"/>
-                </xsl:attribute>
-              </xsl:element>
-            </xsl:if>
-          </xsl:for-each>
-        </xsl:variable>
+	  <xsl:for-each select="cc">
+	    <xsl:variable name="mim_lf" select="document(concat('../../data/modules/',@module,'/mim_lf.xml'))"/>
+	    <xsl:variable name="cc_pos" select="position()"/>
+	    <xsl:variable name="cc_id" select="@id"/>
+	    <xsl:element name="cc">
+		<xsl:attribute name="cc">
+		  <xsl:value-of select="$cc_pos"/>
+		</xsl:attribute>
+		<xsl:attribute name="cc_id">
+		  <xsl:value-of select="@id"/>
+		</xsl:attribute>
+	      <xsl:attribute name="entity_in_cc">
+		<xsl:choose>
+		  <xsl:when test="//mim_entity_in_cc/cc_id[@id=$cc_id]">
+		    <xsl:value-of select="'yes'"/>
+		  </xsl:when>
+		  <xsl:otherwise>
+		    <xsl:value-of select="'no'"/>
+		  </xsl:otherwise>
+		</xsl:choose>
+	      </xsl:attribute>
+	      <xsl:for-each select="$mim_lf//entity">
+		<xsl:element name="entity">
+		  <xsl:attribute name="name">
+		    <xsl:value-of select="@name"/>
+		  </xsl:attribute>
+		  <xsl:attribute name="cc">
+		    <xsl:value-of select="'1'"/>
+		  </xsl:attribute>
+		</xsl:element>
+	      </xsl:for-each>
+	      <xsl:for-each select="//mim_entity_in_cc">
+		<!-- only add if not in cc1 long form -->
+		<xsl:variable name="lname" select="@name"/>
+		<xsl:if test="not($mim_lf//entity[@name=$lname])">
+		  <xsl:element name="entity">
+		    <xsl:attribute name="name">
+		      <xsl:value-of select="$lname"/>
+		    </xsl:attribute>
+		    <xsl:attribute name="cc">
+		      <xsl:value-of select="'?'"/>
+		    </xsl:attribute>
+		  </xsl:element>
+		</xsl:if>
+	      </xsl:for-each>
+	    </xsl:element>
+	  </xsl:for-each>
+	</xsl:variable>
 
         <xsl:choose>
           <xsl:when test="function-available('msxsl:node-set')">
@@ -402,7 +445,7 @@ conformance class')"/>
     <xsl:param name="conformance_node_set"/>
     <xsl:variable name="ccs" select="$conformance_node_set/cc"/>
     <xsl:variable name="arms_in_ccs" select="$conformance_node_set/arms_in_ccs"/>
-    <xsl:for-each select="$entities_node_set/*">
+    <xsl:for-each select="$entities_node_set/cc[1]/*">
       <xsl:sort select="@name"/>
       <xsl:variable name="lname" select="@name"/>
       <tr>
@@ -411,7 +454,7 @@ conformance class')"/>
         </td>
         <!-- output CC1 -->
         <xsl:choose>
-          <xsl:when test="@cc='1'">
+          <xsl:when test="../@cc='1'">
             <td>
               <img align="middle" border="0" alt="X"
                 src="../../../../images/bullet.gif"/>
@@ -425,8 +468,13 @@ conformance class')"/>
              check if the entity is referenced in CCs other than 1
              -->
         <xsl:choose>
-          <xsl:when test="$arms_in_ccs/arm_entity_in_cc[@name=$lname]">
-            <xsl:apply-templates select="$arms_in_ccs/arm_entity_in_cc[@name=$lname]" mode="cc_table1"/>
+          <xsl:when test="$arms_in_ccs/arm_entity_in_cc[@name=$lname] or $entities_node_set/cc[position()>1]/entity[@name=$lname]">
+<!--	    <xsl:apply-templates select="$arms_in_ccs/arm_entity_in_cc[@name=$lname]" mode="cc_table1"/> -->
+
+            <xsl:apply-templates select="." mode="cc_table_new">
+	      <xsl:with-param name="entity_in_ccs" select="$arms_in_ccs"/>
+	      <xsl:with-param name="entities_node_set" select="$entities_node_set"/>
+	    </xsl:apply-templates>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates select="$ccs" mode="blanks"/>
@@ -441,7 +489,7 @@ conformance class')"/>
     <xsl:param name="conformance_node_set"/>
     <xsl:variable name="ccs" select="$conformance_node_set/cc"/>
     <xsl:variable name="mims_in_ccs" select="$conformance_node_set/mims_in_ccs"/>
-    <xsl:for-each select="$entities_node_set/*">
+    <xsl:for-each select="$entities_node_set/cc[1]/*">
       <xsl:sort select="@name"/>
       <xsl:variable name="lname" select="@name"/>
       <tr>
@@ -450,7 +498,7 @@ conformance class')"/>
         </td>
         <!-- output CC1 -->
         <xsl:choose>
-          <xsl:when test="@cc='1'">
+          <xsl:when test="../@cc='1'">
             <td>
               <img align="middle" border="0" alt="X"
                 src="../../../../images/bullet.gif"/>
@@ -464,8 +512,11 @@ conformance class')"/>
              check if the entity is referenced in CCs other than 1
              -->
         <xsl:choose>
-          <xsl:when test="$mims_in_ccs/mim_entity_in_cc[@name=$lname]">
-            <xsl:apply-templates select="$mims_in_ccs/mim_entity_in_cc[@name=$lname]" mode="cc_table1"/>
+          <xsl:when test="$mims_in_ccs/mim_entity_in_cc[@name=$lname]  or  $entities_node_set/cc[position()>1]/entity[@name=$lname]">
+            <xsl:apply-templates select="." mode="cc_table_new">
+	      <xsl:with-param name="entity_in_ccs" select="$mims_in_ccs"/>
+	      <xsl:with-param name="entities_node_set" select="$entities_node_set"/>
+	    </xsl:apply-templates>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates select="$ccs" mode="blanks"/>
@@ -488,6 +539,22 @@ conformance class')"/>
   </xsl:template>
 
 
+  <xsl:template match="arm_entity_in_cc|mim_entity_in_cc" mode="cc_table_new">
+    <xsl:variable name="cc_id" select="@id"/>
+    <xsl:choose>
+      <xsl:when test="current()/cc_id[@id=$cc_id]">
+	<img align="middle" border="0" alt="X" src="../../../../images/bullet.gif"/>
+      </xsl:when>
+      <xsl:otherwise>
+	&#160;
+      </xsl:otherwise>
+    </xsl:choose>
+
+      <xsl:apply-templates select="/conformance/cc" mode="td_entity">
+        <xsl:with-param name="entity_in_cc" select="current()"/>
+      </xsl:apply-templates>
+  </xsl:template>
+
 
   <xsl:template match="cc" mode="td_entity">
     <xsl:param name="entity_in_cc"/>
@@ -506,6 +573,32 @@ conformance class')"/>
       </td>
     </xsl:if>
   </xsl:template>
+
+  <xsl:template match="entity" mode="cc_table_new">
+    <xsl:param name="entity_in_ccs"/>
+    <xsl:param name="entities_node_set"/>
+    <xsl:variable name="lname" select="@name"/>
+    <xsl:for-each select="//cc[position() != 1]">
+      <xsl:variable name="ipos" select="position()"/>
+      <xsl:variable name="cc_pos" select="@cc_pos"/>
+      <xsl:variable name="cc_id" select="@cc_id"/>
+	<td>
+	<xsl:choose>
+	  <xsl:when test="../cc/@entity_in_cc='yes' and $entity_in_ccs/*[@name=$lname]/cc_id[@id=$cc_id]">
+<img align="middle" border="0" alt="X" src="../../../../images/bullet.gif"/>
+	  </xsl:when>
+	  <xsl:when test="../cc/@entity_in_cc='no' and $entities_node_set/cc[$ipos + 1]/entity[@name=$lname]">
+<img align="middle" border="0" alt="X" src="../../../../images/bullet.gif"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    &#160;
+	  </xsl:otherwise>
+	</xsl:choose>
+	</td>
+    </xsl:for-each>
+  </xsl:template>
+
+
 
 
   <xsl:template match="cc" mode="td_title">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.6 2003/01/31 07:34:56 nigelshaw Exp $
+$Id: imgfile.xsl,v 1.7 2003/02/26 21:47:09 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -153,6 +153,9 @@ $Id: imgfile.xsl,v 1.6 2003/01/31 07:34:56 nigelshaw Exp $
           <div align="center"><br/><br/><b><xsl:value-of select="@title"/></b><br/></div>
         </xsl:otherwise>
       </xsl:choose>
+      <br/><br/>
+      <p>&#169; ISO <xsl:value-of select="document($resdoc_file)/resource/@publication.year"/> &#8212; All rights reserved</p>
+
     </body>
   </HTML>
 </xsl:template>

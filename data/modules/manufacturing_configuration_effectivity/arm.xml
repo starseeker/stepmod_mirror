@@ -1,104 +1,42 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
+<!-- $Id: arm.xml,v 1.2 2003/02/06 16:07:41 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.26"
-    source="../data/modules/manufacturing_configuration_effectivity/arm.exp"/>
-
-  <schema name="Manufacturing_configuration_effectivity_arm">
-    <interface
-      kind="use"
-      schema="Configuration_effectivity_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Person_organization_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Product_occurrence_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Specified_product_arm">
-    </interface>
-
-    <constant name="schema_name"
-      expression="STRING := 'MANUFACTURING_CONFIGURATION_EFFECTIVITY_ARM';">
-    </constant>
-    <entity
-      name="Dated_configuration"
-      supertypes="Manufacturing_configuration">
-      <explicit
-        name="effectivity_domain">
-        <redeclaration
-          entity-ref="Item_usage_effectivity"/>
-          <typename
-            name="Dated_effectivity"/>
-        </explicit>
-      </entity>
-
-      <entity
-        name="Lot_configuration"
-        supertypes="Manufacturing_configuration">
-        <explicit
-          name="effectivity_domain">
-          <redeclaration
-            entity-ref="Item_usage_effectivity"/>
-            <typename
-              name="Lot_effectivity"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="Manufacturing_configuration"
-          abstract.supertype="YES"
-          super.expression="(ONEOF(Serial_configuration,Dated_configuration,                         Lot_configuration))"
-          supertypes="Item_usage_effectivity">
-          <explicit
-            name="concerned_organization">
-            <aggregate
-              type="SET"
-              lower="0"
-              upper="?"/>
-            <typename
-              name="Organization"/>
-          </explicit>
-          <where
-            label="WR1"
-            expression="(schema_name + '.PRODUCT_SPECIFICATION') IN TYPEOF(SELF\resolved_configuration.watched_item)">
-          </where>
-          <where
-            label="WR2"
-            expression="(schema_name + '.PRODUCT_OCCURRENCE') IN  TYPEOF(SELF\resolved_configuration.item_usage_relationship\View_definition_relationship.related_view)">
-          </where>
-        </entity>
-
-        <entity
-          name="Serial_configuration"
-          supertypes="Manufacturing_configuration">
-          <explicit
-            name="effectivity_domain">
-            <redeclaration
-              entity-ref="Item_usage_effectivity"/>
-              <typename
-                name="Serial_effectivity"/>
-            </explicit>
-          </entity>
-
-        </schema>
-
-      </express>
+<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/02/06 16:07:41 $" rcs.revision="$Revision: 1.2 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.26" source="../data/modules/manufacturing_configuration_effectivity/arm.exp"/>
+	<schema name="Manufacturing_configuration_effectivity_arm">
+		<interface kind="use" schema="Configuration_effectivity_arm"/>
+		<interface kind="use" schema="Person_organization_arm"/>
+		<interface kind="use" schema="Product_occurrence_arm"/>
+		<interface kind="use" schema="Specified_product_arm"/>
+		<constant name="schema_name" expression="'MANUFACTURING_CONFIGURATION_EFFECTIVITY_ARM'">
+			<builtintype type="STRING"/>
+		</constant>
+		<entity name="Dated_configuration" supertypes="Manufacturing_configuration">
+			<explicit name="effectivity_domain">
+				<redeclaration entity-ref="Item_usage_effectivity"/>
+				<typename name="Dated_effectivity"/>
+			</explicit>
+		</entity>
+		<entity name="Lot_configuration" supertypes="Manufacturing_configuration">
+			<explicit name="effectivity_domain">
+				<redeclaration entity-ref="Item_usage_effectivity"/>
+				<typename name="Lot_effectivity"/>
+			</explicit>
+		</entity>
+		<entity name="Manufacturing_configuration" abstract.supertype="YES" super.expression="(ONEOF(Serial_configuration,Dated_configuration,                         Lot_configuration))" supertypes="Item_usage_effectivity">
+			<explicit name="concerned_organization">
+				<aggregate type="SET" lower="0" upper="?"/>
+				<typename name="Organization"/>
+			</explicit>
+			<where label="WR1" expression="(schema_name + '.PRODUCT_SPECIFICATION') IN TYPEOF(SELF\resolved_configuration.watched_item)"/>
+			<where label="WR2" expression="(schema_name + '.PRODUCT_OCCURRENCE') IN  TYPEOF(SELF\resolved_configuration.item_usage_relationship\View_definition_relationship.related_view)"/>
+		</entity>
+		<entity name="Serial_configuration" supertypes="Manufacturing_configuration">
+			<explicit name="effectivity_domain">
+				<redeclaration entity-ref="Item_usage_effectivity"/>
+				<typename name="Serial_effectivity"/>
+			</explicit>
+		</entity>
+	</schema>
+</express>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.7 2003/05/27 08:08:48 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.8 2003/05/27 13:21:59 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -70,7 +70,7 @@ $Id: sect_3_defs.xsl,v 1.7 2003/05/27 08:08:48 robbod Exp $
        section has been output -->
   <xsl:variable name="def_section1">
     <xsl:choose>
-      <xsl:when test="/module/definition">
+      <xsl:when test="/application_protocol/definition">
         <xsl:value-of select="$def_section+1"/>
       </xsl:when>
       <xsl:otherwise>
@@ -79,7 +79,7 @@ $Id: sect_3_defs.xsl,v 1.7 2003/05/27 08:08:48 robbod Exp $
     </xsl:choose>
   </xsl:variable>
 
-  <xsl:apply-templates select="/module/definition">
+  <xsl:apply-templates select="/application_protocol/definition">
     <xsl:with-param name="section" select="concat('3.',$def_section1)"/>
     <xsl:sort select="term"/>
   </xsl:apply-templates>

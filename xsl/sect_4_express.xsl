@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.28 2002/04/16 13:36:59 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.29 2002/04/26 13:44:16 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -382,7 +382,9 @@
       <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
     </A>
   </h3>
-  
+
+  <xsl:apply-templates select="./select" mode="description"/>
+
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -396,18 +398,24 @@
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../@name"/>
-            <xsl:with-param name="entity" select="@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',$aname)"/>
-          </xsl:call-template>
+
+        <!-- 
+             disable error checking for selects as boiler plate
+             should output text -->
+        <xsl:if test="not(./select)">
+          <xsl:variable name="external_description">
+            <xsl:call-template name="check_external_description">
+              <xsl:with-param name="schema" select="../@name"/>
+              <xsl:with-param name="entity" select="@name"/>
+            </xsl:call-template>        
+          </xsl:variable>
+          <xsl:if test="$external_description='false'">
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('No description provided for ',$aname)"/>
+            </xsl:call-template>
+          </xsl:if>
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
@@ -2197,5 +2205,161 @@ SELF\<xsl:call-template name="link_object">
     </li>
   </ul>
 </xsl:template>
+
+
+<xsl:template match="select" mode="description">
+  <!--  output the boilerplate select descriptions for selects. -->
+  <xsl:variable name="description_file"
+    select="/express/@description.file"/>
+  <xsl:variable name="select_description">
+    <xsl:choose>
+      <xsl:when test="$description_file">
+        <xsl:value-of select="document($description_file)/ext_descriptions/@describe.selects"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'NO'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="typename" select="../@name"/>
+
+  <xsl:if test="$select_description='YES'">    
+    <xsl:choose>
+      <xsl:when test="@basedon and @extensible='YES'">
+        <!-- an extended and extensible SELECT type -->
+        <p><b><i>an extended and extensible SELECT type</i></b></p>
+        The <b><xsl:value-of select="$typename"/></b> type is an extension
+        of the 
+        <b>
+          <xsl:call-template name="link_object">
+            <xsl:with-param name="object_name" select="@basedon"/>
+            <xsl:with-param name="object_used_in_schema_name" 
+              select="../../@name"/>
+            <xsl:with-param name="clause" select="'section'"/>
+          </xsl:call-template>  
+        </b> type. 
+        <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
+          It adds the data 
+          <xsl:choose>
+            <!-- if the list has a space there must be more than one item -->
+            <xsl:when test="contains(normalize-space(@selectitems),' ')">
+              types
+            </xsl:when>
+            <xsl:otherwise>
+              type
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:call-template name="link_list">
+            <xsl:with-param name="suffix" select="', '"/>
+            <xsl:with-param name="list" select="@selectitems"/>
+            <xsl:with-param name="object_used_in_schema_name"
+              select="../../@name"/>
+            <xsl:with-param name="clause" select="'section'"/>
+          </xsl:call-template>
+          to the list of alternate data types.
+        </xsl:if>
+        <p>
+          <small>
+            NOTE:&#160;&#160;The list of entity data types may be
+            extended in application modules that use the constructs of
+            this module.                 
+          </small>
+        </p>
+      </xsl:when>
+
+      <xsl:when test="(@basedon and @extensible='NO') or @basedon">
+        <!-- an extended not extensible SELECT type  -->
+        <p><b><i>an extended not extensible SELECT type</i></b></p>
+        The <b><xsl:value-of select="$typename"/></b> type is an extension
+        of the 
+        <b>
+          <xsl:call-template name="link_object">
+            <xsl:with-param name="object_name" select="@basedon"/>
+            <xsl:with-param name="object_used_in_schema_name" 
+              select="../../@name"/>
+            <xsl:with-param name="clause" select="'section'"/>
+          </xsl:call-template>  
+        </b> type. 
+        <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
+          It adds the data 
+          <xsl:choose>
+            <!-- if the list has a space there must be more than one item -->
+            <xsl:when test="contains(normalize-space(@selectitems),' ')">
+              types
+            </xsl:when>
+            <xsl:otherwise>
+              type
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:call-template name="link_list">
+            <xsl:with-param name="suffix" select="', '"/>
+            <xsl:with-param name="list" select="@selectitems"/>
+            <xsl:with-param name="object_used_in_schema_name"
+              select="../../@name"/>
+            <xsl:with-param name="clause" select="'section'"/>
+          </xsl:call-template>
+          to the list of alternate data types.
+        </xsl:if>
+      </xsl:when>
+
+      <xsl:when test="@extensible='YES'">
+        <!-- extensible SELECT type -->
+        <xsl:choose>
+
+          <xsl:when test="@selectitems">
+            <!-- an extensible non-empty SELECT type -->
+            <p><b><i>an extensible non-empty SELECT type</i></b></p>
+            The <b><xsl:value-of select="$typename"/></b> type is an
+            extensible list of alternate data types. It provides a
+            mechanism to refer to instances of the data types included in
+            the <b><xsl:value-of select="$typename"/></b> type or in its
+            extensions.  
+            <p>
+              <small>
+                NOTE:&#160;&#160;The list of entity data types may be
+                extended in application modules that use the constructs of
+                this module.                 
+              </small>
+            </p>
+          </xsl:when>
+
+          <xsl:otherwise>
+            <!-- an extensible empty SELECT type -->
+            <p><b><i>an extensible empty SELECT type</i></b></p>
+            The <b><xsl:value-of select="$typename"/></b> type is an
+            extensible list of alternate data types. It provides a
+            mechanism to refer to instances of the data types included in
+            the types that extend the 
+            <b><xsl:value-of select="$typename"/></b> type. 
+          <p>
+              The <b><xsl:value-of select="$typename"/></b> type shall be
+            extended in application modules that use the constructs of this
+            module.
+          </p>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- a non extensible SELECT type -->
+        <p><b><i>a non extensible SELECT type</i></b></p>
+        The <b><xsl:value-of select="$typename"/></b> type is a list of
+        alternate data types. It provides a mechanism to refer to an
+        instance of one of these data types.  
+        <!--
+        <p>
+          <small>
+            NOTE:&#160;&#160;the select type may also be used for other
+            purposes. 
+          </small>
+        </p>
+        -->
+      </xsl:otherwise>
+      
+    </xsl:choose>    
+  </xsl:if>
+
+</xsl:template>
+
 
 </xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.28 2003/08/11 09:54:53 robbod Exp $
+$Id: common.xsl,v 1.29 2003/08/21 15:14:14 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -731,7 +731,7 @@ $Id: common.xsl,v 1.28 2003/08/11 09:54:53 robbod Exp $
        object_registration - Annex E Information object registration
        
        -->
-
+ 
   <xsl:template match="clause_ref">
     <xsl:variable name="annex_list">
       <xsl:apply-templates select="." mode="annex_list"/>
@@ -761,6 +761,7 @@ $Id: common.xsl,v 1.28 2003/08/11 09:54:53 robbod Exp $
                        or $section_tmp='inforeqt'
                        or $section_tmp='fundamentals'
                        or $section_tmp='aam'
+                       or $section_tmp='conformance'
                        or $section_tmp='imp_meths'
                        or $section_tmp='usage_guide'
                        or $section_tmp='tech_disc'
@@ -815,7 +816,8 @@ $Id: common.xsl,v 1.28 2003/08/11 09:54:53 robbod Exp $
         <xsl:when test="$construct_tmp='example'
                         or $construct_tmp='note'
                         or $construct_tmp='figure'
-                        or $construct_tmp='table'">
+                        or $construct_tmp='table'
+                        or $construct_tmp='cc'">
           <xsl:choose>
             <!-- test that an id has been given -->
             <xsl:when test="$id!=''">
@@ -829,6 +831,25 @@ $Id: common.xsl,v 1.28 2003/08/11 09:54:53 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
+
+        <!-- AAM definition don't have construct as prefix -->
+        <xsl:when test="$construct_tmp=$construct_tmp='activity'
+                        or $construct_tmp='icom'">
+          <xsl:choose>
+            <!-- test that an id has been given -->
+            <xsl:when test="$id!=''">
+              <xsl:value-of select="concat('#',$id)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <!--
+                   error - will be picked up after the  href variable is set.
+                   -->
+              <xsl:value-of select="'error'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+          
+        </xsl:when>
+
 
         <!-- data_plan links dealt with on output below -->
         <xsl:when test="$construct_tmp='data_plan'">
@@ -943,10 +964,21 @@ $Id: common.xsl,v 1.28 2003/08/11 09:54:53 robbod Exp $
       <xsl:when test="$section='aam'">
         <xsl:choose>
           <xsl:when test="string-length($construct)">
-            <a href="annex_aam{$FILE_EXT}"><xsl:apply-templates/></a>
+            <a href="annex_aam{$FILE_EXT}{$construct}"><xsl:apply-templates/></a>
           </xsl:when>
           <xsl:otherwise>
-            Annex <a href="annex_aam{$FILE_EXT}">F</a>
+            Annex <a href="annex_aam{$FILE_EXT}{$construct}"><xsl:value-of select="concat('F.',$id)"/></a>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$section='conformance'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="6_ccs{$FILE_EXT}{$construct}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Clause <a href="6_ccs{$FILE_EXT}{$construct}"><xsl:value-of select="concat('6.',$id)"/></a>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

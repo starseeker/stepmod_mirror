@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.9 2003/02/12 01:46:21 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.11 2003/02/27 02:22:23 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -86,7 +86,9 @@ $Id: ballot_summary.xsl,v 1.9 2003/02/12 01:46:21 thendrix Exp $
           <td><b>Status</b></td>
           <td><b>Year</b></td>
           <td><b>ARM EXPRESS</b></td>
+          <td><b>ARM LF EXPRESS</b></td>          
           <td><b>MIM EXPRESS</b></td>
+          <td><b>MIM LF EXPRESS</b></td>
         </tr>
         <xsl:apply-templates select="./*/module"/>
       </table>
@@ -361,6 +363,32 @@ $Id: ballot_summary.xsl,v 1.9 2003/02/12 01:46:21 thendrix Exp $
           </a>
         </td>
 
+
+        <!-- ARM Long form express -->
+        <xsl:choose>
+          <xsl:when test="$module_node/@wg.number.arm_lf">
+            <td>
+              <xsl:variable name="arm_lf_file"
+                select="concat('part',
+                        $module_node/@part,
+                        $status, '_wg',
+                        $module_node/@sc4.working_group,'n',
+                        $module_node/@wg.number.arm_lf,
+                        'arm_lf.exp')"/>
+              <xsl:variable name="arm_lf_href" select="concat('express/',$arm_lf_file)"/>
+              <a href="{$arm_lf_href}">
+                <xsl:value-of select="$arm_lf_file"/>
+              </a>
+            </td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>
+              No Long Form
+            </td>
+          </xsl:otherwise>
+        </xsl:choose>
+
+
         <!-- MIM express -->
         <td>
           <xsl:variable name="mimfile"
@@ -375,6 +403,31 @@ $Id: ballot_summary.xsl,v 1.9 2003/02/12 01:46:21 thendrix Exp $
             <xsl:value-of select="$mimfile"/>
           </a>
         </td>
+
+
+        <!-- MIM Long form express -->
+        <xsl:choose>
+          <xsl:when test="$module_node/@wg.number.mim_lf">
+            <td>
+              <xsl:variable name="mim_lf_file"
+                select="concat('part',
+                        $module_node/@part,
+                        $status, '_wg',
+                        $module_node/@sc4.working_group,'n',
+                        $module_node/@wg.number.mim_lf,
+                        'mim_lf.exp')"/>
+              <xsl:variable name="mim_lf_href" select="concat('express/',$mim_lf_file)"/>
+              <a href="{$mim_lf_href}">
+                <xsl:value-of select="$mim_lf_file"/>
+              </a>
+            </td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>
+              No Long Form
+            </td>
+          </xsl:otherwise>
+        </xsl:choose>
       </tr>
     </xsl:when>
 
@@ -392,6 +445,8 @@ $Id: ballot_summary.xsl,v 1.9 2003/02/12 01:46:21 thendrix Exp $
             </xsl:with-param>
           </xsl:call-template>
         </td>
+        <td>&#160;</td>
+        <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>

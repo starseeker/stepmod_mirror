@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                version="1.0">
+
+  <xsl:import href="common.xsl"/>
+  <xsl:output method="html"/>
+
+
+  <xsl:template match="/">
+    <html>
+      <body bgcolor="#FFFFFF">
+        <xsl:apply-templates/>
+      </body>
+    </html>
+  </xsl:template>
+
+
+  <xsl:template match="ext_descriptions">
+    <h2>
+      Descriptions for Module: 
+      <xsl:variable name="doc_sect">
+        <xsl:choose>
+          <xsl:when test="@schema_file='arm.xml'">
+            <xsl:value-of select="'sys/4_info_reqs.xml#types'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'sys/5_mim.xml#types'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <a href="{$doc_sect}"><xsl:value-of select="@module_directory"/></a>
+      <br/>
+      <xsl:variable name="schema_file" select="@schema_file"/>
+      File: <a href="{$schema_file}"><xsl:value-of select="@schema_file"/></a>
+    </h2>
+    <xsl:apply-templates/>
+  </xsl:template>
+
+  <xsl:template match="ext_description">
+    <xsl:variable name="arm_mim"
+      select="substring-before(/ext_descriptions/@schema_file,'.xml')"/>
+    <xsl:variable name="baselink">
+      <xsl:value-of select="concat(/ext_descriptions/@module_directory,':',$arm_mim,':')"/>
+    </xsl:variable>
+
+
+    <hr/>
+    <i>Reference: </i>
+    <xsl:variable name="href">
+      <xsl:call-template name="get_href_from_express_ref">
+        <xsl:with-param name="linkend" select="concat($baselink,@linkend)"/>
+        <xsl:with-param name="baselink" select="'../../'"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:choose>
+      <xsl:when test="$href=''">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="warning_gif"
+            select="'../../../images/warning.gif'"/>
+          <xsl:with-param 
+            name="message" 
+            select="concat('ext_description reference=', 
+                    @linkend, 
+                    ' is incorrectly specified')"/>
+        </xsl:call-template>
+        <xsl:apply-templates/>
+      </xsl:when>
+      <xsl:otherwise>
+        <a href="{$href}">
+          <xsl:value-of select="./@linkend"/>
+        </a>
+      </xsl:otherwise>
+    </xsl:choose>
+    <br/><i>Description: </i>
+    <xsl:choose>
+      <xsl:when test="string-length(.)">
+        <blockquote>
+          <xsl:apply-templates/>
+        </blockquote>        
+      </xsl:when>
+      <xsl:otherwise>
+        -
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+      
+  <!-- overwrite express_ref defined in common.xsl
+       calls get_href_from_express_ref with a baselink
+       -->
+  <xsl:template match="express_ref">
+    <xsl:variable name="href">
+      <xsl:call-template name="get_href_from_express_ref">
+        <xsl:with-param name="baselink" select="'../../'"/>
+        <xsl:with-param name="linkend" select="@linkend"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:choose>
+      <xsl:when test="$href=''">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="warning_gif"
+            select="'../../../images/warning.gif'"/>
+          <xsl:with-param 
+            name="message" 
+            select="concat('express_ref linkend', 
+                    @linkend, 
+                    ' is incorrectly specified')"/>
+        </xsl:call-template>
+        <xsl:apply-templates/>
+      </xsl:when>
+      <xsl:otherwise>
+        <a href="{$href}"><xsl:apply-templates/></a>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+
+</xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.4 2003/01/31 08:14:04 nigelshaw Exp $
+$Id: mapping_view_with_test.xsl,v 1.5 2003/02/14 10:45:21 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -1829,7 +1829,7 @@ the tree and recursing up. Need to add wr to constrain out any types found in th
 				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 			          <xsl:with-param 
 			            name="message" 
-			            select="'Error Map21: SELECT based on tree branches downwards'"/>
+			            select="'Error Map31: SELECT based on tree branches downwards'"/>
 			</xsl:call-template>
 		</xsl:if>
 		<xsl:if test="contains($base-select,'TYPE COUNT ERROR2' )" >
@@ -2207,7 +2207,8 @@ Therefore only need to prune the list of members
 			<xsl:value-of select="concat(' ',$first,' ')" /> 
 		</xsl:if>
 
-		<xsl:call-template name="filter-select-items">
+<!--		<xsl:call-template name="filter-select-items"> -->
+		<xsl:call-template name="filter-word-list-negated">
 			<xsl:with-param name="allowed-list" select="$allowed-list" />
 			<xsl:with-param name="word-list" select="substring-after($word-list,$first)" />
 		</xsl:call-template>
@@ -2230,13 +2231,14 @@ Therefore only need to prune the list of members
 
 
 		WR<xsl:value-of select="$count" />: NOT(
-		<xsl:value-of select="concat($the-schema,'.',translate($first,$LOWER,$UPPER),' ')" />
+		<xsl:value-of select='concat(" &#x27;",$the-schema,".",translate($first,$LOWER,$UPPER),"&#x27; ")' />
 		IN TYPEOF(SELF));
 		<br/>
 
 		<xsl:call-template name="excess-where-rule">
 			<xsl:with-param name="the-schema" select="$the-schema" />
 			<xsl:with-param name="excess-list" select="substring-after($excess-list,$first)" />
+			<xsl:with-param name="count" select="$count + 1" />
 		</xsl:call-template>
 
 	</xsl:if>

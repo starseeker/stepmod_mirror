@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.20 2002/03/19 16:27:52 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.21 2002/03/22 16:36:36 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -18,6 +18,8 @@
 
   <xsl:import href="express_link.xsl"/> 
   <xsl:import href="express_description.xsl"/> 
+
+  <!-- <xsl:import href="issues.xsl"/> -->
 
   <xsl:output method="html"/>
 
@@ -265,7 +267,8 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  
+
+  <!-- output description from express --> 
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -444,11 +447,11 @@
 
 
 <xsl:template match="select" mode="underlying">
-  <xsl:if test="@extensible='YES'">
+  <xsl:if test="@extensible='YES' or @extensible='yes'">
     EXTENSIBLE
   </xsl:if>
 
-  <xsl:if test="@genericentity='YES'">
+  <xsl:if test="@genericentity='YES' or @genericentity='yes'">
     GENERIC_ENTITY
   </xsl:if>
 
@@ -570,6 +573,15 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
+
+
+  <!-- output any issue against entity 
+  <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="./@name"/>
+  </xsl:call-template> 
+  -->
+
   <p><u>EXPRESS specification:</u></p>
   *)
   <blockquote>
@@ -609,7 +621,7 @@
     </xsl:if>
   </xsl:variable>
   <xsl:choose>
-    <xsl:when test="@abstract.supertype='YES'">
+    <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       <br/>
       &#160; ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
@@ -642,7 +654,7 @@
   <xsl:apply-templates select="./redeclaration" mode="code"/>
   &#160;&#160; 
   <xsl:value-of select="concat(@name, ' : ')"/>
-  <xsl:if test="@optional='YES'">
+  <xsl:if test="@optional='YES' or @optional='yes'">
     OPTIONAL 
   </xsl:if>
   <xsl:apply-templates select="./aggregate" mode="code"/>

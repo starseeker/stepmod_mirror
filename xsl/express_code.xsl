@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.9 2002/03/04 07:54:07 robbod Exp $
+     $Id: express_code.xsl,v 1.10 2002/03/22 16:36:36 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -167,11 +167,11 @@
 
 
 <xsl:template match="select" mode="underlying">
-  <xsl:if test="@extensible='YES'">
+  <xsl:if test="@extensible='YES' or @extensible='yes'">
     EXTENSIBLE
   </xsl:if>
 
-  <xsl:if test="@genericentity='YES'">
+  <xsl:if test="@genericentity='YES' or @genericentity='yes'">
     GENERIC_ENTITY
   </xsl:if>
 
@@ -244,7 +244,7 @@
   </xsl:variable>
 
   <xsl:choose>
-    <xsl:when test="@abstract.supertype='YES'">
+    <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       <br/>
       &#160; ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
@@ -285,7 +285,7 @@
 
  &#160;&#160; 
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
-  <xsl:if test="@optional='YES'">
+  <xsl:if test="@optional='YES' or @optional='yes'">
     OPTIONAL 
   </xsl:if>
   <xsl:apply-templates select="./aggregate" mode="code"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.10 2002/06/17 15:48:54 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.11 2002/06/18 06:13:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -30,10 +30,37 @@ $Id: sect_a_short_names.xsl,v 1.10 2002/06/17 15:48:54 robbod Exp $
     <xsl:with-param name="informative" select="'normative'"/>
   </xsl:call-template>
 
+
+  <!-- check that all the MIM entities have short names declared -->
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="mim_xml"
+    select="concat($module_dir,'/mim.xml')"/>
+
+  <xsl:variable name="shortnames"
+    select="/module/mim/shortnames/shortname"/>
+
+  <xsl:for-each select="document($mim_xml)/express/schema/entity">
+    <xsl:variable name="mim_entity" select="@name"/>
+    <xsl:if test="not($shortnames[@entity=$mim_entity])">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error sn1: the MIM entity ',$mim_entity,
+                  ' has not had a shortname declared.')"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:for-each>
+
   <xsl:choose>
     <xsl:when test="mim/shortnames">
       <xsl:apply-templates select="mim/shortnames"/>
     </xsl:when>
+
     <xsl:otherwise>
       <p>
         Entity names in this part of ISO 10303 have been defined in other
@@ -110,10 +137,42 @@ $Id: sect_a_short_names.xsl,v 1.10 2002/06/17 15:48:54 robbod Exp $
 <xsl:template match="shortname">
   <tr>
     <td width="77%" align="left">
-      <xsl:value-of select="@entity"/>
+      <!-- check that the entity exists in the mim -->
+      <xsl:variable name="module_dir">
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="../../../@name"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:variable name="mim_entity" select="@entity"/>
+      <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
+      <xsl:choose>
+        <xsl:when
+          test="document($mim_xml)/express/schema/entity[@name=$mim_entity]">
+          <xsl:value-of select="$mim_entity"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$mim_entity"/>
+          <xsl:call-template name="error_message">
+            <xsl:with-param 
+              name="message" 
+              select="concat('Error sn2: ',$mim_entity,' is not in mim.xml.')"/>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
     </td>
     <td width="23%" align="left">
-      <xsl:value-of select="@name"/>
+      <xsl:choose>
+        <xsl:when test="string-length(@name)>0">
+          <xsl:value-of select="@name"/>          
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param 
+              name="message" 
+              select="concat('Error sn3: ',@entity,' shortname not declared.')"/>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
     </td>
   </tr>
 </xsl:template>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.105 2003/07/23 16:23:46 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.106 2003/08/05 07:04:25 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2263,6 +2263,7 @@
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
     <xsl:with-param name="type" select="@name"/>
+    <xsl:with-param name="function" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>

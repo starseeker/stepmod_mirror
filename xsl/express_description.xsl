@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.30 2003/07/23 07:27:49 robbod Exp $
+$Id: express_description.xsl,v 1.31 2003/07/23 07:49:55 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -249,7 +249,7 @@ and  string is more than the schema name ( hence not the  schema )
     <xsl:if test="string-length($type)=0 and not(contains(substring-after($description/@linkend,'.'),'.')) and not(contains($schema,$description/@linkend))">
 
 
-      <xsl:if test="string-length($rule)=0 and not(contains(substring(normalize-space($description//text()),1),'A'))">
+      <xsl:if test="string-length($rule)=0 and string-length($function)=0 and not(contains(substring(normalize-space($description//text()),1),'A'))">
         
       <xsl:call-template name="error_message">
           <xsl:with-param 

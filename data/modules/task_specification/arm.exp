@@ -1,5 +1,5 @@
 (*
-  $Id: arm.exp,v 1.8 2003/03/26 17:53:21 nigelshaw Exp $
+  $Id: arm.exp,v 1.9 2003/04/21 09:58:02 nigelshaw Exp $
 ISO TC184/SC4/WG12 N1451 - ISO/CD-TS 10303-1262 Task specification - EXPRESS ARM
 *) 
 
@@ -68,6 +68,9 @@ ENTITY Exit_loop
 END_ENTITY;
 
 ENTITY Looping_method
+  SUPERTYPE OF (ONEOF (Repeat_count,
+                       Repeat_until,
+                       Repeat_while))
   SUBTYPE OF (Structured_task_method);
   repeated_method : Task_method;
 END_ENTITY;
@@ -97,7 +100,10 @@ ENTITY Simultaneous_methods
 END_ENTITY;
 
 ENTITY Structured_task_method
-  ABSTRACT SUPERTYPE 
+  ABSTRACT SUPERTYPE OF (ONEOF (Concurrent_methods,
+                                Decision_point,
+                                Looping_method,
+                                Task_method_sequence))
   SUBTYPE OF (Task_method);
 END_ENTITY;
 
@@ -119,7 +125,12 @@ ENTITY Task_invocation
 END_ENTITY;
 
 ENTITY Task_method
-  ABSTRACT SUPERTYPE 
+  ABSTRACT SUPERTYPE OF (ONEOF (End_task,
+                                Exit_loop,
+                                Structured_task_method,
+                                Task_invocation,
+                                Task_method_levels,
+                                Task_step))
   SUBTYPE OF (Activity_method);
   notes : OPTIONAL LIST[1:?] OF Advisory_task_step;
 END_ENTITY;
@@ -171,5 +182,16 @@ ENTITY Task_step
   step_text : STRING;
 END_ENTITY;
 
+SUBTYPE_CONSTRAINT restrict_activity_method_relationship FOR Activity_method_relationship;
+  ONEOF (Task_method_relationship,
+         Task_relationship);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT restrict_activity_method_subtypes FOR Activity_method;
+  ONEOF (Task,
+         Task_method);
+END_SUBTYPE_CONSTRAINT;
+
 END_SCHEMA;  -- Task_specification_arm
+
 

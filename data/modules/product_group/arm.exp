@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.1 2003/01/09 13:25:40 erieger Exp $
+ $Id: arm.exp,v 1.2 2003/02/10 08:29:50 robbod Exp $
  ISO TC184/SC4/WG12 N1595 - ISO/CD-TS 10303-1278 Product group - EXPRESS ARM
 *) 
 
@@ -7,7 +7,7 @@ SCHEMA Product_group_arm;
 
 USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
 
-USE FROM Effectivity_arm;    -- ISO/TS 10303-1057
+USE FROM Effectivity_application_arm;    -- ISO/TS 10303-1059
 
 USE FROM Product_as_individual_arm;    -- ISO/CD-TS 10303-1164
 
@@ -21,6 +21,11 @@ TYPE product_group_classification_item = SELECT BASED_ON classification_item WIT
     Product_group_relationship);
 END_TYPE; 
 
+TYPE product_group_effectivity_item = SELECT BASED_ON effectivity_item WITH 
+   (Product_group_membership, 
+    Product_group_relationship);
+END_TYPE; 
+
 TYPE product_select = EXTENSIBLE SELECT
    (Product_as_individual, 
     Product_concept, 
@@ -31,21 +36,19 @@ END_TYPE;
 ENTITY Product_group;
   description : OPTIONAL STRING;
   id : STRING;
-  mebership_rule : OPTIONAL LIST[1:?] OF STRING;
+  membership_rule : OPTIONAL LIST[1:?] OF STRING;
   product_group_context : OPTIONAL STRING;
   purpose : STRING;
 END_ENTITY;
 
 ENTITY Product_group_membership;
   member : product_select;
-  membership_effectivity : Effectivity;
-  of_group : LIST[0:?] OF Product_group;
+  of_group : Product_group;
 END_ENTITY;
 
 ENTITY Product_group_relationship;
   description : OPTIONAL STRING;
   name : STRING;
-  product_group_relationship_effectivity : Effectivity;
   related : Product_group;
   relating : Product_group;
 END_ENTITY;

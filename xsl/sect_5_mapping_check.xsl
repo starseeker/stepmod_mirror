@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.2 2002/06/24 07:39:19 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.3 2002/06/24 15:47:56 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -17,6 +17,7 @@ $Id: sect_5_mapping_check.xsl,v 1.2 2002/06/24 07:39:19 robbod Exp $
 
   <!-- the SAXON and MSXML proprietary extensions are for node-set -->
 
+  <!-- checks all the ARM entities are mapped -->
 <xsl:template match="mapping_table" mode="check_all_arm_mapped">
   <xsl:variable name="module_dir">
     <xsl:call-template name="module_directory">
@@ -24,17 +25,35 @@ $Id: sect_5_mapping_check.xsl,v 1.2 2002/06/24 07:39:19 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:variable name="ae_nodes" select="./ae"/>
+  <xsl:variable name="aa_nodes" select="./ae//aa"/>
   <xsl:for-each
     select="document(concat($module_dir,'/arm.xml'))/express/schema/entity">
     <xsl:variable name="entity" select="@name"/>
-    <xsl:if test="not($ae_nodes[@entity=$entity])">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error mc5: the entity ',$entity,' has not been mapped.')"/>
-      </xsl:call-template>    
-
-    </xsl:if>
+    <xsl:choose>
+      <!-- check mapping for entity exists -->
+      <xsl:when test="not($ae_nodes[@entity=$entity])">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error mc5: the entity ',$entity,' has not been mapped.')"/>
+        </xsl:call-template>    
+      </xsl:when>
+    <xsl:otherwise>
+      <!-- check that all the attributes have been mapped -->      
+      <xsl:for-each select="./explicit|derived">
+        <xsl:variable name="arm_attr" select="@name"/>
+        <xsl:if test="not($aa_nodes[@attribute=$arm_attr])">
+          <xsl:call-template name="error_message">
+            <xsl:with-param 
+              name="message" 
+              select="concat('Error mc6: the attribute ',
+                      $entity,'.',$arm_attr,
+                      ' has not been mapped.')"/>
+          </xsl:call-template> 
+        </xsl:if>
+      </xsl:for-each>
+    </xsl:otherwise>
+  </xsl:choose>
   </xsl:for-each>
 </xsl:template>
 

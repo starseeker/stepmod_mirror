@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.29 2002/06/24 07:34:05 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.30 2002/06/25 10:19:16 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -430,6 +430,13 @@ $Id: sect_5_mapping.xsl,v 1.29 2002/06/24 07:34:05 robbod Exp $
     name="aa_xref"
     select="concat('./4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
 
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="../../../../module/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
 
   <xsl:variable name="sect_no" select="concat($sect,'.',position())"/>
   <!-- users frequently try to write the assertion explicitly e.g.
@@ -447,6 +454,10 @@ $Id: sect_5_mapping.xsl,v 1.29 2002/06/24 07:34:05 robbod Exp $
       </xsl:call-template>
     </xsl:when>
   </xsl:choose>
+
+  <xsl:variable name="arm_entity" select="string(../@entity)"/>
+  <xsl:variable name="arm_attr" select="string(@attribute)"/>
+
   <h3>
     <a name="{$aa_aname}">
     <xsl:choose>
@@ -479,17 +490,24 @@ $Id: sect_5_mapping.xsl,v 1.29 2002/06/24 07:34:05 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </a>
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="module_directory">
-      <xsl:with-param name="module" select="../../../../module/@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+
   <xsl:variable name="ae" select="../@entity"/>
   <xsl:variable name="entity_node"
       select="document($arm_xml)/express/schema/entity[@name=$ae]"/>
   <xsl:apply-templates select="$entity_node" mode="expressg_icon"/>
   </h3>
+
+  <!--  check that the attribut exists in the arm -->
+  <xsl:if
+    test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit[@name=$arm_attr] or document($arm_xml)/express/schema/entity[@name=$arm_entity]/derived[@name=$arm_attr])">
+    <xsl:call-template name="error_message">
+      <xsl:with-param name="message"
+        select="concat('Error m1: The attribute ', ../@entity,'.',@attribute 
+                ' does not exist in the arm')"/>
+    </xsl:call-template>
+  </xsl:if>
+
+
   <xsl:apply-templates select="./alt" mode="specification"/>
 
   <xsl:choose>

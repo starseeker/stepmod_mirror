@@ -1,4 +1,4 @@
-//$Id: xml2html.js,v 1.5 2002/01/28 11:03:51 robbod Exp $
+//$Id: xml2html.js,v 1.6 2002/07/31 22:25:14 thendrix Exp $
 // JScript to convert the module XML to HTML
 //
 // This script uses The Saxon XSLT processor:
@@ -25,9 +25,11 @@
 // -----------------------------------------------------------
 
 // change to point to local installation of saxon
+
 var saxonExe = "c:/progra~1/saxon/saxon.exe";
 
 // change to point to root diectory of module repository
+
 var stepmodHome = "C:/stepmod";
 
 var ForReading = 1, ForWriting = 2, ForAppending = 8;
@@ -141,7 +143,7 @@ function runSaxon(xmlFile, htmFile) {
 
     if (fso.FileExists(xmlFile)) {
 	var WSHShell = WScript.CreateObject("WScript.Shell");
-	var ret = WSHShell.Run (saxonExe + args, 2, true);
+	var ret = WSHShell.Run (saxonExe + args, 7, true);
 	userMessage(ret);
     } else {
 	ErrorMessage(" Can't find:: " + xmlFile);

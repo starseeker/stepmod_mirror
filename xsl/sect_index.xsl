@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.6 2003/07/15 14:02:51 robbod Exp $
+$Id: sect_index.xsl,v 1.1 2003/07/23 10:28:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -61,6 +61,7 @@ $Id: sect_1_scope.xsl,v 1.6 2003/07/15 14:02:51 robbod Exp $
     </xsl:apply-templates>
     <xsl:apply-templates select="$arm_xml/express/schema/*" mode="get_arm_interface_object"/>
     <xsl:apply-templates select="$arm_xml/express/schema/*" mode="get_arm_object"/>
+    <xsl:apply-templates select="$arm_xml/express/schema/*" mode="get_arm_entity"/>
     <xsl:apply-templates select="$mim_xml/express/schema/*" mode="get_mim_interface_object"/>
     <xsl:apply-templates select="$mim_xml/express/schema/*" mode="get_mim_object"/>
   </xsl:variable>
@@ -154,7 +155,7 @@ $Id: sect_1_scope.xsl,v 1.6 2003/07/15 14:02:51 robbod Exp $
 
 
 <xsl:template
-  match="constant|entity|type|rule|function|procedure|subtype.constraint"
+  match="constant|type|rule|function|procedure|subtype.constraint"
   mode="get_arm_object">
   <arm_object>
     <xsl:variable name="aname">
@@ -212,14 +213,82 @@ $Id: sect_1_scope.xsl,v 1.6 2003/07/15 14:02:51 robbod Exp $
       <xsl:value-of select="concat('C','.',$expg_fig_no)"/>
     </xsl:attribute>
 
+  </arm_object>
+</xsl:template>
+
+
+<xsl:template
+  match="entity|subtype.constraint"
+  mode="get_arm_object">
+  <arm_entity>
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="../@name"/>
+        <xsl:with-param name="section2" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:variable name="name" select="@name"/>
+
+    <xsl:attribute name="name">
+      <xsl:value-of select="$name"/>
+    </xsl:attribute>
+
+    <xsl:attribute name="object_href">
+      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',$aname)"/>
+    </xsl:attribute>
+
+    <xsl:attribute name="clause_no">
+      <xsl:apply-templates select="." mode="clause_no"/>
+    </xsl:attribute>
+
+    <xsl:variable name="lentity"
+      select="translate(normalize-space(@name),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/> 
+
+    <xsl:attribute name="expg_href">
+      <xsl:call-template name="get_arm_expressg_href">
+        <xsl:with-param name="object" select="$lentity"/>
+      </xsl:call-template>
+    </xsl:attribute>
+
+    <xsl:variable name="expg_file">
+      <xsl:call-template name="get_arm_expressg_file">
+        <xsl:with-param name="object" select="$lentity"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="/express/schema/@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="module" select="document(concat($module_dir,'/module.xml'))"/>
+
+    <xsl:variable name="expg_fig_no">
+      <xsl:apply-templates select="$module/module/arm/express-g/imgfile"
+        mode="expg_figure_no">
+        <xsl:with-param name="file" select="$expg_file"/>
+      </xsl:apply-templates>
+    </xsl:variable>
+
+    <xsl:attribute name="expg_figure">
+
+      <xsl:value-of select="concat('C','.',$expg_fig_no)"/>
+    </xsl:attribute>
+
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="map_aname" select="translate(concat('aeentity',@name),$UPPER,$LOWER)"/>
+
     <xsl:attribute name="map_href">
-      <xsl:value-of select="concat('5_mapping',$FILE_EXT,'#',$aname)"/>
+      <xsl:value-of select="concat('5_mapping',$FILE_EXT,'#',$map_aname)"/>
     </xsl:attribute>
 
     <xsl:attribute name="map_clause_no">
-      <xsl:apply-templates select="." mode="clause_no"/>
+      <xsl:apply-templates select="$module//ae[@entity=$name]" mode="clause_no"/>
     </xsl:attribute>
-  </arm_object>
+  </arm_entity>
 </xsl:template>
 
 
@@ -347,6 +416,30 @@ $Id: sect_1_scope.xsl,v 1.6 2003/07/15 14:02:51 robbod Exp $
     <a href="{$expg_href}">
       <xsl:value-of select="$expg_figure"/>
     </a>
+  </div> 
+</xsl:template>
+
+<xsl:template match="arm_entity" mode="output_index">
+  <div>
+    <xsl:value-of select="@name"/>
+  </div>
+  <xsl:variable name="object_href" select="@object_href"/>
+  <xsl:variable name="clause_no" select="@clause_no"/>
+  <xsl:variable name="expg_href" select="@expg_href"/>
+  <xsl:variable name="expg_figure" select="@expg_figure"/>
+  <xsl:variable name="map_href" select="@map_href"/>
+  <xsl:variable name="map_clause_no" select="@map_clause_no"/>
+  <div>
+    &#160;&#160;&#160;ARM object definition
+    <a href="{$object_href}">
+      <xsl:value-of select="$clause_no"/>
+    </a>
+  </div>
+  <div>
+    &#160;&#160;&#160;ARM EXPRESS-G
+    <a href="{$expg_href}">
+      <xsl:value-of select="$expg_figure"/>
+    </a>
   </div>
   <div>
     &#160;&#160;&#160;mapping specification
@@ -380,81 +473,6 @@ $Id: sect_1_scope.xsl,v 1.6 2003/07/15 14:02:51 robbod Exp $
 
 
 
-
-
-<xsl:template match="constant|entity|type|rule|function|procedure|subtype.constraint" mode="index_arm">
-  
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="../@name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>    
-
-  <div>
-    <xsl:value-of select="@name"/>
-  </div>
-  
-  <div>
-    <xsl:variable name="object_href" select="concat('4_info_reqs',$FILE_EXT,'#',$aname)"/>
-
-    <xsl:variable name="object_clause_no">
-      <xsl:apply-templates select="." mode="clause_no"/>
-    </xsl:variable>
-    
-    &#160;&#160;&#160;ARM object definition
-    <a href="{$object_href}">
-      <xsl:value-of select="$object_clause_no"/>
-    </a>
-  </div>
-
-  <div>
-    <xsl:variable name="lentity"
-      select="translate(normalize-space(@name),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/> 
-
-    <xsl:variable name="expg_href">
-      <xsl:call-template name="get_arm_expressg_href">
-        <xsl:with-param name="object" select="$lentity"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    &#160;&#160;&#160;ARM diagrams 
-    <a href="{$expg_href}">
-      C
-    </a>
-  </div>
-
-  <div>
-    <xsl:variable name="map_href" select="concat('5_mapping',$FILE_EXT,'#',$aname)"/>
-    &#160;&#160;&#160;mapping specification 
-    <a href="{$map_href}">
-      
-    </a>
-  </div>
-</xsl:template>
-
-    
-
-<xsl:template match="constant|entity|type|rule|function|procedure|subtype.constraint" mode="index_mim">  
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="../@name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>    
-
-  <xsl:variable name="schema" select="/express/schema/@name"/>
-
-  <xsl:variable name="href" select="concat('5_mim',$FILE_EXT,'#',$aname)"/>
-
-  <div>
-    <xsl:apply-templates select="." mode="expressg_icon"/>
-    <a href="{$href}">
-      <xsl:value-of select="@name"/>
-    </a>
-  </div>
-</xsl:template>
-
 <xsl:template match="constant|entity|type|rule|function|procedure|subtype.constraint" mode="clause_no">
   <xsl:variable name="schema" select="/express/schema/@name"/>
   <xsl:variable name="object_clause_no1">
@@ -478,7 +496,7 @@ $Id: sect_1_scope.xsl,v 1.6 2003/07/15 14:02:51 robbod Exp $
   <xsl:variable name="sect_no">
     <xsl:number/>
   </xsl:variable>
-  <xsl:value-of select="$sect_no"/>
+  <xsl:value-of select="concat('5.1.',$sect_no)"/>
 </xsl:template>
 
 

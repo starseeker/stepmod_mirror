@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.53 2002/10/28 08:47:46 goset1 Exp $
+$Id: sect_5_mapping.xsl,v 1.54 2002/10/29 10:21:44 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -833,6 +833,41 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
            -->
       <xsl:variable name="dsc.id" select="@alt_map.inc"/>
       <xsl:choose>
+        <xsl:when test="../../@original_module">
+          <!-- if there has been an external module declared, then get the 
+               alt_map descriptions from there -->
+          <xsl:variable name="ae" select="../../@entity"/>
+          <xsl:variable name="module_dir">
+            <xsl:call-template name="module_directory">
+              <xsl:with-param name="module" select="../../@original_module"/>
+            </xsl:call-template>
+          </xsl:variable>
+          
+          <xsl:variable name="module_ok">
+            <xsl:choose>
+              <!-- original_module specified then the ARM object is declared in
+                   another module -->
+              <xsl:when test="../../@original_module">
+                <xsl:call-template name="check_module_exists">
+                  <xsl:with-param name="module" select="@original_module"/>
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:call-template name="check_module_exists">
+                  <xsl:with-param name="module" select="../../../module/@name"/>
+                </xsl:call-template>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable> <!-- module_ok -->
+          <xsl:if test="$module_ok != 'true'">
+            <!-- get the alt_map description from the original module -->
+            <xsl:variable name="alt_description"
+              select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/alt_map[@id=$dsc.id]"/>
+            <xsl:if test="$alt_description">
+              <xsl:apply-templates select="$alt_description" mode="output_id_description"/>              
+            </xsl:if>
+          </xsl:if>
+        </xsl:when>
         <xsl:when test="../../alt_map[@id=$dsc.id]/description">
           <xsl:apply-templates 
             select="../../alt_map[@id=$dsc.id]" mode="output_id_description"/>          

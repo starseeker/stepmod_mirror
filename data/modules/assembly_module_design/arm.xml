@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-16T15:55:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_module_design_arm schema_instance"/>
+   <schema name="Assembly_module_design_arm">
+      <interface kind="use" schema="Assembly_module_usage_view_arm"/>
+      <interface kind="use" schema="Altered_package_arm"/>
+      <interface kind="use" schema="Bare_die_arm"/>
+      <interface kind="use" schema="Component_grouping_arm"/>
+      <interface kind="use" schema="Connection_zone_in_design_view_arm"/>
+      <interface kind="use" schema="Package_arm"/>
+      <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
+      <interface kind="use" schema="Part_feature_function_arm"/>
+      <interface kind="use" schema="Physical_unit_design_view_arm"/>
+      <type name="assembled_feature_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <type name="assembly_module_or_assembly_group_component">
+         <select extensible="YES" genericentity="YES" selectitems="Assembly_module"/>
+      </type>
+      <entity name="Bare_die_component" supertypes="Physical_component">
+         <explicit name="derived_from">
+            <typename name="Bare_die"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
+         </explicit>
+      </entity>
+      <entity name="Packaged_component" supertypes="Physical_component">
+         <inverse name="access_mechanism" entity="Packaged_component_join_terminal" attribute="associated_component">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
+         <explicit name="selected_package_alternate" optional="YES">
+            <typename name="Altered_package"/>
+         </explicit>
+         <explicit name="derived_from">
+            <typename name="Packaged_part"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
+         </explicit>
+      </entity>
+      <entity name="Bare_die_component_terminal" supertypes="Physical_component_terminal">
+         <explicit name="associated_component">
+            <typename name="Bare_die_component"/>
+            <redeclaration entity-ref="Component_feature" old_name="associated_component"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="Bare_die_terminal"/>
+            <redeclaration entity-ref="Component_feature" old_name="definition"/>
+         </explicit>
+      </entity>
+      <entity name="Minimally_defined_component_terminal" supertypes="Physical_component_terminal">
+         <explicit name="definition">
+            <typename name="Part_terminal_external_reference"/>
+            <redeclaration entity-ref="Component_feature" old_name="definition"/>
+         </explicit>
+      </entity>
+      <entity name="Assembly_material_composition_relationship" supertypes="Assembly_component_relationship">
+         <explicit name="as_required">
+            <builtintype type="LOGICAL"/>
+         </explicit>
+         <explicit name="relating_view">
+            <typename name="Material_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Part_design_view"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         </explicit>
+         <explicit name="quantity" optional="YES">
+            <typename name="Value_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="Assembly_module" supertypes="Part_design_view"/>
+      <entity name="Component_mounting_clearance_relationship">
+         <explicit name="maximum_mounting_clearance" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="minimum_mounting_clearance">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="feature_relationship">
+            <typename name="Component_feature_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="Component_mounting_feature" supertypes="Physical_component_feature">
+         <explicit name="definition">
+            <typename name="Part_mounting_feature"/>
+            <redeclaration entity-ref="Component_feature" old_name="definition"/>
+         </explicit>
+      </entity>
+      <entity name="Component_overlap_relationship">
+         <explicit name="maximum_added_clearance" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="minimum_added_clearance">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="current_component">
+            <typename name="Next_assembly_usage"/>
+         </explicit>
+         <explicit name="previously_placed_component">
+            <typename name="Next_assembly_usage"/>
+         </explicit>
+      </entity>
+      <entity name="Movable_packaged_component_join_terminal" supertypes="Packaged_component_join_terminal">
+         <explicit name="minimum_wire_terminal_length">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="maximum_wire_terminal_length">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <where label="wr1" expression=" 'AP210_ARM.WIRE_TERMINAL' IN TYPEOF ( SELF \ component_feature . definition \ packaged_part_terminal . terminal_of_package ) "/>
+      </entity>
+      <entity name="Package_terminal_occurrence">
+         <explicit name="associated_component">
+            <typename name="Packaged_component"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="Package_terminal"/>
+         </explicit>
+      </entity>
+      <entity name="Packaged_component_join_terminal" supertypes="Physical_component_terminal">
+         <explicit name="associated_component">
+            <typename name="Packaged_component"/>
+            <redeclaration entity-ref="Component_feature" old_name="associated_component"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="Packaged_part_join_terminal"/>
+            <redeclaration entity-ref="Component_feature" old_name="definition"/>
+         </explicit>
+      </entity>
+      <entity name="Pca" supertypes="Assembly_module">
+         <explicit name="usage_view">
+            <typename name="Pca_usage_view"/>
+            <redeclaration entity-ref="Part_design_view" old_name="usage_view"/>
+         </explicit>
+      </entity>
+      <entity name="Routed_physical_component" supertypes="Physical_component">
+         <explicit name="routed_centreline_shape">
+            <typename name="Curve"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

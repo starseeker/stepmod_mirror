@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.114 2002/12/24 09:56:35 robbod Exp $
+$Id: module.xsl,v 1.115 2002/12/30 08:31:12 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1305,7 +1305,7 @@ o=isocs; s=central<br/>
 
   <h3>
     <a name="uof">
-      4.1 Units of functionality
+      4.1&#160;Units of functionality
     </a>
   </h3>
   This subclause specifies the units of functionality (UoF) for this part
@@ -1645,8 +1645,7 @@ o=isocs; s=central<br/>
   <p>
     This clause specifies the EXPRESS schema derived from the mapping-table. It uses elements from the
     common resources or from other application
-    modules and contains the types, entity specializations, rules, and
-    functions that are specific to this part of ISO 10303.</p> 
+    modules and defines the Express constructs that are specific to this part of ISO 10303.</p> 
   <p>This clause also
     specifies the modifications that apply to the constructs 
     imported from the common resources.</p>

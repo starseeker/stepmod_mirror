@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.5 2002/12/05 09:31:11 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.6 2002/12/24 16:56:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -65,7 +65,9 @@ $Id: ballot_checklist.xsl,v 1.5 2002/12/05 09:31:11 robbod Exp $
           <td><b>Doc WGn</b></td>
           <td><b>Superseded Doc WGn</b></td>
           <td><b>ARM WGn</b></td>
+          <td><b>ARM LF WGn</b></td>
           <td><b>MIM WGn</b></td>
+          <td><b>MIM LF WGn</b></td>
           <td><b>Internal checklist WGn</b></td>
           <td><b>Project leader checklist WGn</b></td>
           <td><b>Convener leader checklist WGn</b></td>
@@ -86,6 +88,8 @@ $Id: ballot_checklist.xsl,v 1.5 2002/12/05 09:31:11 robbod Exp $
           <td><small><i>&#160;</i></small></td>
           <td align="right"><small>file:</small></td>
           <td>&#160;</td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
@@ -175,9 +179,19 @@ $Id: ballot_checklist.xsl,v 1.5 2002/12/05 09:31:11 robbod Exp $
           /module/@wg.number.arm
         </i></small></td>
 
+        <!-- ARM LF WGn -->
+        <td><small><i>
+          /module/@wg.number.arm_lf
+        </i></small></td>
+
         <!-- MIM WGn -->
         <td><small><i>
           /module/@wg.number.mim
+        </i></small></td>
+
+        <!-- MIM LF WGn -->
+        <td><small><i>
+          /module/@wg.number.mim_lf
         </i></small></td>
 
         <!-- Internal checklist WGn -->
@@ -394,12 +408,38 @@ $Id: ballot_checklist.xsl,v 1.5 2002/12/05 09:31:11 robbod Exp $
           </xsl:choose>
         </td>
 
+        <!-- ARM LFWGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($module_node/@wg.number.arm_lf))>0">
+              <xsl:value-of select="$module_node/@wg.number.arm_lf"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
         <!-- MIM WGn -->
         <td>
           <xsl:choose>
             <xsl:when 
               test="string-length(normalize-space($module_node/@wg.number.mim))>0">
               <xsl:value-of select="$module_node/@wg.number.mim"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- MIM LF WGn -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($module_node/@wg.number.mim_lf))>0">
+              <xsl:value-of select="$module_node/@wg.number.mim_lf"/>
             </xsl:when>
             <xsl:otherwise>
               -
@@ -541,8 +581,14 @@ $Id: ballot_checklist.xsl,v 1.5 2002/12/05 09:31:11 robbod Exp $
         
         <!-- ARM -->
         <td>&#160;</td>
+
+        <!-- ARM LF-->
+        <td>&#160;</td>
         
         <!-- MIM -->
+        <td>&#160;</td>
+
+        <!-- MIM LF -->
         <td>&#160;</td>
         
         <!-- Mapping -->

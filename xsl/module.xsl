@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.174 2004/11/09 12:06:39 robbod Exp $
+$Id: module.xsl,v 1.175 2004/11/18 16:20:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -597,7 +597,7 @@ o=isocs; s=central<br/>
       <P>
         <xsl:call-template name="get_module_stdnumber">
           <xsl:with-param name="module" select="."/>
-        </xsl:call-template> specifies the application module
+        </xsl:call-template> specifies the application module for
         <xsl:value-of select="$module_name"/>.       
       </P>
       <P>
@@ -614,6 +614,7 @@ o=isocs; s=central<br/>
       
 </xsl:template>
 
+<!--
 <xsl:template match="abstract">
   <xsl:variable name="module_name">
     <xsl:call-template name="module_display_name">
@@ -631,7 +632,7 @@ o=isocs; s=central<br/>
   <UL>
     <xsl:apply-templates select="./li"/>
   </UL>  
-</xsl:template>
+</xsl:template> -->
 
 
 <xsl:template match="keywords">

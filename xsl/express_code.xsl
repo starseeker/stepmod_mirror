@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.8 2002/02/24 23:14:02 robbod Exp $
+     $Id: express_code.xsl,v 1.9 2002/03/04 07:54:07 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -281,6 +281,8 @@
     </xsl:call-template>
   </xsl:variable>
 
+  <xsl:apply-templates select="./redeclaration" mode="code"/>
+
  &#160;&#160; 
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:if test="@optional='YES'">
@@ -290,6 +292,15 @@
   <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
 </xsl:template>
 
+<xsl:template match="redeclaration" mode="code">
+  &#160;&#160;SELF\<xsl:call-template name="link_object">
+      <xsl:with-param name="object_name" select="@entity-ref"/>
+      <xsl:with-param name="object_used_in_schema_name" 
+        select="../../@name"/>
+      <xsl:with-param name="clause" select="'annexe'"/>
+    </xsl:call-template>
+  <xsl:value-of select="concat('.',@old_name,' RENAMED ')"/>
+</xsl:template>
 
 <xsl:template match="derived" mode="code">
   <xsl:variable name="aname">
@@ -303,6 +314,7 @@
   <xsl:if test="position()=1">
     &#160;&#160;DERIVE<br/>
   </xsl:if>
+  <xsl:apply-templates select="./redeclaration" mode="code"/>
   &#160;&#160;&#160;
   <!-- need to clarify the XML for derive --> 
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
@@ -323,6 +335,7 @@
   <xsl:if test="position()=1">
     &#160;&#160;INVERSE<br/>
   </xsl:if>
+  <xsl:apply-templates select="./redeclaration" mode="code"/>
   &#160;&#160;&#160;
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:apply-templates select="./inverse.aggregate" mode="code"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.14 2002/01/03 09:29:28 robbod Exp $
+$Id: common.xsl,v 1.15 2002/01/06 21:34:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1164,6 +1164,38 @@ $Id: common.xsl,v 1.14 2002/01/03 09:29:28 robbod Exp $
         <xsl:value-of select="$cnt"/>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+
+
+  <!-- Output a string, replacing all the carriage returns with
+       HTML br
+       -->
+  <xsl:template name="output_string_with_linebreaks">
+    <xsl:param name="string"/>
+    
+    <xsl:variable name="nstring" 
+      select="translate( $string,'&#xA;&#xD;','&#xA;')"/>
+
+    <xsl:choose>
+      <xsl:when test="contains($nstring,'&#xA;')">
+        <xsl:variable 
+          name="first"
+          select="substring-before($nstring,'&#xA;')"/>
+        <xsl:variable 
+          name="rest"
+          select="substring-after($nstring,'&#xA;')"/>
+
+        <xsl:value-of select="$first"/><br/>
+        <xsl:call-template name="output_string_with_linebreaks">
+          <xsl:with-param name="string" select="$rest"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$nstring"/>
+      </xsl:otherwise>
+    </xsl:choose>
+
   </xsl:template>
 
 </xsl:stylesheet>

@@ -2,7 +2,7 @@
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 <!--
-$Id: document_xsl.xsl,v 1.4 2003/05/19 08:45:08 robbod Exp $
+$Id: document_xsl.xsl,v 1.5 2003/05/28 23:34:29 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
      Purpose: To display the import/includes in stylesheets
@@ -23,8 +23,12 @@ $Id: document_xsl.xsl,v 1.4 2003/05/19 08:45:08 robbod Exp $
     <ul>
     <xsl:apply-templates select="*/xsl:include | */xsl:import"/>
     </ul>
+
+
+    <xsl:if test="*/xsl:template">      
     <hr/>
     <h2>Templates</h2>
+
     <ul>
       <xsl:apply-templates select="*/xsl:template[@match]">
         <xsl:sort select="./@match"/>
@@ -33,7 +37,33 @@ $Id: document_xsl.xsl,v 1.4 2003/05/19 08:45:08 robbod Exp $
       <xsl:apply-templates select="*/xsl:template[@name]">
         <xsl:sort select="./@name"/>
       </xsl:apply-templates>
+
     </ul>
+    </xsl:if>
+
+    <xsl:if test="/xsl:stylesheet/xsl:param">
+    <hr/>      
+    <h2>Parameters</h2>
+    <ul>
+      <xsl:apply-templates select="/xsl:stylesheet/xsl:param[@name]">
+        <xsl:sort select="./@name"/>
+      </xsl:apply-templates>
+    </ul>
+
+    </xsl:if>
+
+    <xsl:if test="/xsl:stylesheet/xsl:variable">
+
+      <hr/>
+    <h2>Global variables</h2>
+    <ul>
+      <xsl:apply-templates select="/xsl:stylesheet/xsl:variable[@name]">
+        <xsl:sort select="./@name"/>
+      </xsl:apply-templates>
+      </ul> 
+
+    </xsl:if>
+
   </body></html>
 </xsl:template>
 
@@ -77,6 +107,19 @@ $Id: document_xsl.xsl,v 1.4 2003/05/19 08:45:08 robbod Exp $
   </xsl:choose>
   </li>
 </xsl:template>
+
+<xsl:template match="xsl:param">
+  <li>
+      parameter name="<xsl:value-of select="@name"/>"     
+  </li>
+</xsl:template>
+
+<xsl:template match="xsl:variable">
+  <li>
+      global  name="<xsl:value-of select="@name"/>"     
+  </li>
+</xsl:template>
+
 
 </xsl:transform>
 

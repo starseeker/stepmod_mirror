@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.72 2002/08/18 17:36:58 robbod Exp $
+$Id: common.xsl,v 1.73 2002/08/20 13:49:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -362,10 +362,10 @@ $Id: common.xsl,v 1.72 2002/08/18 17:36:58 robbod Exp $
   <xsl:variable name="aname">
     <xsl:choose>
       <xsl:when test="@id">
-        <xsl:value-of select="concat('note:',@id)"/>
+        <xsl:value-of select="concat('note_',@id)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('note:',@number)"/>
+        <xsl:value-of select="concat('note_',@number)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -382,10 +382,10 @@ $Id: common.xsl,v 1.72 2002/08/18 17:36:58 robbod Exp $
   <xsl:variable name="aname">
     <xsl:choose>
       <xsl:when test="@id">
-        <xsl:value-of select="concat('example:',@id)"/>
+        <xsl:value-of select="concat('example_',@id)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('example:',@number)"/>
+        <xsl:value-of select="concat('example_',@number)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -1272,7 +1272,7 @@ $Id: common.xsl,v 1.72 2002/08/18 17:36:58 robbod Exp $
           <xsl:choose>
             <!-- test that an id has been given -->
             <xsl:when test="$id!=''">
-              <xsl:value-of select="concat('#',$construct_tmp,':',$id)"/>
+              <xsl:value-of select="concat('#',$construct_tmp,'_',$id)"/>
             </xsl:when>
             <xsl:otherwise>
               <!--

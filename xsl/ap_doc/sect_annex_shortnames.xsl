@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.12 2004/02/05 17:51:07 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.13 2004/02/28 18:45:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -72,7 +72,8 @@ $Id: sect_annex_shortnames.xsl,v 1.12 2004/02/05 17:51:07 robbod Exp $
         <xsl:with-param name="done" select="' '"/>
       </xsl:call-template>
     </xsl:variable>
-   <xsl:choose>
+ 
+    <xsl:choose>
      <xsl:when test="function-available('msxsl:node-set')">
        <xsl:variable name="schemas-node-set" select="msxsl:node-set($mim_schemas)"/>
        <xsl:variable name="mim_entity_nodes" select="msxsl:node-set($mim_entity_names)"/>
@@ -212,7 +213,7 @@ $Id: sect_annex_shortnames.xsl,v 1.12 2004/02/05 17:51:07 robbod Exp $
         </xsl:call-template>
     </xsl:when>
   </xsl:choose>
-   
+
   </xsl:template> 
 
 
@@ -302,6 +303,8 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
             </a>
           </b>
         </p>
+
+	
         <div align="center">
           <table border="1" cellspacing="0" cellpadding="7" width="90%">
             <tr>
@@ -336,8 +339,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
          Otherwise output and add to todo
          -->
     <xsl:variable name="this-schema" 
-      select="translate(substring-before(concat(normalize-space($todo),' '),' '),
-              'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
+	    select="substring-before(concat(normalize-space($todo),' '),' ')"/>
 
 
 
@@ -474,4 +476,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
     </xsl:for-each>
   </xsl:template>
 
+
+  
 </xsl:stylesheet>
+

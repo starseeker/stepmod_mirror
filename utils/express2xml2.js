@@ -1,4 +1,4 @@
-//  $Id: express2xml2.js,v 1.2 2003/04/15 11:06:03 robbod Exp $
+//  $Id: express2xml2.js,v 1.3 2003/05/02 07:56:57 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -209,9 +209,12 @@ function readNextLine(ts) {
     	    var com = readComment(line,ts);
     	}
     	
-        line    = ts.ReadLine();
-        lNumber = ts.Line;	
-        line    = trim(line);
+        if(!(ts.AtEndOfStream)){
+		line    = ts.ReadLine();
+	        lNumber = ts.Line;	
+        	line    = trim(line);
+	}
+	else return(line);
     }
     
     // remove any trailing -- comments
@@ -495,7 +498,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.2 2003/04/15 11:06:03 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.3 2003/05/02 07:56:57 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -510,7 +513,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.2 $";
+    var appCVSRevision = "$Revision: 1.3 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mim.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
+$Id: sect_5_mim.xsl,v 1.2 2001/11/21 08:11:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -35,10 +35,10 @@ $Id: sect_5_mim.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
        build_xref_list is defined in express_link
        -->
   <xsl:variable name="global_xref_list">
-    <!-- debug -->
+    <!-- debug 
     <xsl:message>
       global_xref_list defined in sect_5_mim.xsl
-    </xsl:message>
+    </xsl:message> -->
     <xsl:choose>
       <xsl:when test="/module_clause">
         <xsl:variable name="module_dir">

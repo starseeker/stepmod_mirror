@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_link.xsl,v 1.3 2001/11/21 10:17:20 robbod Exp $
+     $Id: express_link.xsl,v 1.4 2001/11/21 15:35:49 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -492,9 +492,10 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
       <A HREF="{$xref}">
         <xsl:value-of select="$lobject_name"/>
       </A>
+      <!-- debug 
       <xsl:message>     
         <xsl:value-of select="concat('xr:{',$object_name,':',$xref,'}')"/>
-      </xsl:message>
+      </xsl:message> -->
     </xsl:when>
 
     <xsl:otherwise>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.3 2002/11/25 16:35:46 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.4 2002/11/25 17:38:11 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -49,6 +49,11 @@ $Id: mapping_view.xsl,v 1.3 2002/11/25 16:35:46 nigelshaw Exp $
   <xsl:variable name="mim_node" select="document($mim_file)/express"/>
 
   <xsl:variable name="mim_schema_name" select="$mim_node//schema/@name"/>
+
+  <xsl:variable name="arm_file" 
+                select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/arm.xml')"/>
+
+  <xsl:variable name="arm_node" select="document($arm_file)/express"/>
 
   <xsl:variable name="schema-name" select="concat(/stylesheet_application[1]/@directory,'_mim')"/>
 
@@ -207,6 +212,19 @@ $Id: mapping_view.xsl,v 1.3 2002/11/25 16:35:46 nigelshaw Exp $
 		</xsl:if>
 	</H3>
 	<blockquote>
+		<xsl:variable name="the-ent" select="@entity" />
+	
+		<xsl:if test="not($arm_node//entity[@name=$the-ent])" >
+				<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+			            name="message" 
+			            select="concat('Error Map22: ',$the-ent,' is not an ARM ENTITY type')"/>
+				</xsl:call-template>    
+			
+			</xsl:if>
+
 		<xsl:choose>
 		<xsl:when test="@original_module" >
 			Original entity mapping defined in module: 
@@ -313,6 +331,40 @@ $Id: mapping_view.xsl,v 1.3 2002/11/25 16:35:46 nigelshaw Exp $
 							</blockquote>
 						</xsl:when>
 					
+						<xsl:when test="contains(aimelt,'(')" >
+							<xsl:variable name="this-aimelt" 
+								select="substring-before(substring-after(aimelt,'('),')')" />
+								<xsl:if test="not($this-aimelt)" >
+
+									<!-- !! MISMATCH in () !! -->
+		<xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+		            select="'Error Map29: MISMATCH in parentheses in MIM element '"/>
+		</xsl:call-template>    
+		
+								
+								</xsl:if>
+						
+							<xsl:variable name="found-ent" select="$schemas//entity[@name=$this-aimelt]" />
+							<blockquote>
+							<xsl:choose>
+								<xsl:when test="$found-ent" >
+									MIM element found in schema 
+									<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+									<br/>
+								</xsl:when>
+								<xsl:otherwise>
+									!!! MIM element not found in relevant schemas !!! 
+									<br/>
+								</xsl:otherwise>
+							</xsl:choose>
+							</blockquote>
+						</xsl:when>
+
+
 					<xsl:otherwise>
 						<xsl:variable name="found-ent" select="$schemas//entity[@name=current()/aimelt]" />
 						<blockquote>
@@ -364,10 +416,41 @@ $Id: mapping_view.xsl,v 1.3 2002/11/25 16:35:46 nigelshaw Exp $
 		</xsl:choose>
 
 		<xsl:if test="@assertion_to" >
-			<xsl:if test="@assertion_to = translate(@assertion_to,$UPPER,'')" >
-			!! <xsl:value-of select="@assertion_to" /> must be an ARM SELECT type !!<br/>
-			</xsl:if>
-		
+		<xsl:choose>
+			<xsl:when test="@assertion_to = translate(@assertion_to,$UPPER,'')" >
+				<xsl:value-of select="@assertion_to" /> as reference by "Assertion to" must be an ARM SELECT type
+				<br/>
+
+				<xsl:variable name="this_sel" select="@assertion_to" />
+				
+				<xsl:if test="not($arm_node//type[@name=$this_sel][select])" >
+					<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+				            select="concat('Error Map27: ',$this_sel,' is not an ARM SELECT type')"/>
+					</xsl:call-template>    
+				
+				</xsl:if>
+			</xsl:when>
+			<xsl:otherwise>
+
+				<xsl:variable name="this_ent" select="@assertion_to" />
+
+				<xsl:if test="not($arm_node//entity[@name=$this_ent] | $arm_node//typename[@name=$this_ent])" >
+					<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+				            select="concat('Error Map28: ',$this_ent,' is not referenced as ENTITY or type in the ARM')"/>
+					</xsl:call-template>    
+				
+				</xsl:if>
+
+			</xsl:otherwise>
+		</xsl:choose>
 		</xsl:if>
 
 	</blockquote>
@@ -439,6 +522,38 @@ $Id: mapping_view.xsl,v 1.3 2002/11/25 16:35:46 nigelshaw Exp $
 		          <xsl:with-param 
 		            name="message" 
 		            select="'Error Map23: MISMATCH in | in MIM element '"/>
+		</xsl:call-template>    
+		
+								
+								</xsl:if>
+						
+							<xsl:variable name="found-ent" select="$schemas//entity[@name=$this-aimelt]" />
+							<blockquote>
+							<xsl:choose>
+								<xsl:when test="$found-ent" >
+									MIM element found in schema 
+									<xsl:value-of select="$found-ent/ancestor::schema/@name" />
+									<br/>
+								</xsl:when>
+								<xsl:otherwise>
+									!!! MIM element not found in relevant schemas !!! 
+									<br/>
+								</xsl:otherwise>
+							</xsl:choose>
+							</blockquote>
+						</xsl:when>
+						<xsl:when test="contains(aimelt,'(')" >
+							<xsl:variable name="this-aimelt" 
+								select="substring-before(substring-after(aimelt,'('),')')" />
+								<xsl:if test="not($this-aimelt)" >
+
+									<!-- !! MISMATCH in () !! -->
+		<xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+		            select="'Error Map29: MISMATCH in parentheses in MIM element '"/>
 		</xsl:call-template>    
 		
 								
@@ -598,7 +713,7 @@ $Id: mapping_view.xsl,v 1.3 2002/11/25 16:35:46 nigelshaw Exp $
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 				          <xsl:with-param 
 				            name="message" 
-				            select="'Error Map24: End-Quote missing'"/>
+				            select="'Error Map21: End-Quote missing'"/>
 				</xsl:call-template>    
 
 		</xsl:otherwise>

@@ -17,3 +17,31 @@ for distribution to SC4 for balloting.
 
    This will create a zip file:
      stepmod/ballots/isohtml/plcs_bp2/plcs_bp2xxxx.zip
+
+------------------------------------------------------------
+To generate the EXPRESS
+
+1) run stepmod\utils\getExpressIr.wsf
+
+   pass the list of modules and Integrated Resources whose EXPRESS is to be
+   concatenate as argument:
+   stepmod/ballots/ballots/plcs_bp2/modlist.txt
+   stepmod/ballots/ballots/plcs_bp2/irlist.txt
+
+
+   This will create a directory of the EXPRESS files of the modules listed
+   in modlist.txt
+
+   The concatenated EXPRESS of the module will be:
+     ARM:                    stepmod/ballots/ballots/plcs_bp2/express/arm/arm_xxxx.exp
+     MIM+Resource EXPRESS:   stepmod/ballots/ballots/plcs_bp2/express/arm/mim_resources_xxxx.exp
+
+   where xxxx is the date.
+
+
+------------------------------------------------------------   
+To validate the HTML
+
+1) build plcs_bp2
+ This will create isohtml/plcs_bp2
+

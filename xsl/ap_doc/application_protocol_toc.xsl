@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: $
+     $Id: application_protocol_toc.xsl,v 1.3 2002/09/13 09:33:58 mikeward Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -12,7 +12,7 @@
 		<xsl:param name="selected"/>
 		<xsl:param name="application_protocol_root" select="'..'"/>
 		
-		
+		<h1>NB THIS AP IS FOR DEMONSTRATION PURPOSES ONLY</h1>
 
 		<xsl:apply-templates select="." mode="TOCbannertitle">
 			<xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>

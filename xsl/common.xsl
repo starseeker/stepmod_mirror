@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.3 2001/10/22 09:42:17 robbod Exp $
+$Id: common.xsl,v 1.4 2001/11/12 08:55:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -229,28 +229,59 @@ $Id: common.xsl,v 1.3 2001/10/22 09:42:17 robbod Exp $
 
 
   <!-- given the name of a module, or module arm or mim schema
+       return the name of the module
+       -->
+  <xsl:template name="module_name">
+    <xsl:param name="module"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="module_lcase"
+      select="translate($module,$UPPER, $LOWER)"/>
+    <xsl:variable name="mod_name">
+      <xsl:choose>
+        <xsl:when test="contains($module_lcase,'_arm')">
+          <xsl:value-of select="substring-before($module_lcase,'_arm')"/>
+        </xsl:when>
+        <xsl:when test="contains($module_lcase,'_mim')">
+          <xsl:value-of select="substring-before($module_lcase,'_mim')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="string($module_lcase)"/>
+        </xsl:otherwise>
+      </xsl:choose>      
+    </xsl:variable>
+    <xsl:value-of select="$mod_name"/>
+  </xsl:template>
+
+  <!-- given the name of a module, or module arm or mim schema
        return the directory part
 -->
   <xsl:template name="module_directory">
     <xsl:param name="module"/>
-    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:variable name="dir1"
-      select="translate($module,$UPPER, $LOWER)"/>
     <xsl:variable name="mod_dir">
-      <xsl:choose>
-        <xsl:when test="contains($dir1,'_arm')">
-          <xsl:value-of select="substring-before($dir1,'_arm')"/>
-        </xsl:when>
-        <xsl:when test="contains($dir1,'_mim')">
-          <xsl:value-of select="substring-before($dir1,'_mim')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="string($dir1)"/>
-        </xsl:otherwise>
-      </xsl:choose>      
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$module"/>
+      </xsl:call-template>           
     </xsl:variable>
     <xsl:value-of select="concat('../data/modules/',$mod_dir)"/>
+  </xsl:template>
+
+  <!-- output the error message -->
+  <xsl:template name="error">
+    <xsl:param name="message"/>
+    
+    <xsl:variable name="warning_gif" select="'../../../../images/warning.gif'"/>
+    <br/>
+    <IMG 
+      SRC="{$warning_gif}" ALT="[warning:]" 
+      align="absbottom" border="0"
+      width="20" height="20"/>
+    <font color="#FF0000" size="-1">
+      <i>
+        <xsl:value-of select="concat('Error: ',$message)"/>
+      </i>
+    </font>
+    <br/>
   </xsl:template>
 
 </xsl:stylesheet>

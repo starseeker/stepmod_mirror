@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.46 2002/08/21 20:25:21 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.47 2002/08/22 15:08:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -471,8 +471,10 @@ $Id: sect_5_mapping.xsl,v 1.46 2002/08/21 20:25:21 robbod Exp $
   <!-- original_module specified then the ARM object is declared in
        another module -->
   <xsl:if test="@original_module">
+
+    <!-- get the URL of the mapping -->
     <xsl:variable name="map_xref"
-      select="concat('../../',@original_module,'/sys/5_mapping',$FILE_EXT,'#',$aname)"/>
+      select="translate(concat('../../',@original_module,'/sys/5_mapping',$FILE_EXT,'#aeentity',@entity),$UPPER,$LOWER)"/>
 
     <p>
       This application object,
@@ -496,12 +498,37 @@ $Id: sect_5_mapping.xsl,v 1.46 2002/08/21 20:25:21 robbod Exp $
     </a>
     for the case where it maps onto the resource entity 
     <xsl:value-of select="./aimelt"/>.    
-    Depending on the extensions of the Select type
-    property_assignment_select, this mapping may be superseded in the
+    Depending on the extensions of the Select
+
+    <!-- not sure what is the most sensible approach here
+         could explicitly list the selects in the xml or
+         look at all the explicit attributes that have extensible
+         selects. Gone for the latter approach
+         -->
+    <xsl:if test="$module_ok = 'true'">
+      <xsl:variable name="selects">
+        <xsl:apply-templates 
+          select="document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit"
+          mode="output_extensible_attributes"/>
+      </xsl:variable>
+      <xsl:variable name="nselects">
+        <xsl:call-template name="remove_duplicates">
+          <xsl:with-param name="list" select="$selects"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:choose>
+        <xsl:when test="contains($nselects,' ')">
+          types 
+        </xsl:when>
+        <xsl:otherwise>
+          type 
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:value-of select="translate($nselects,': ',', ')"/>
+    </xsl:if>
+    this mapping may be superseded in the
     application modules that define these extensions. 
   </xsl:if>
-
-
 
   <xsl:apply-templates select="./alt" mode="specification"/>
   <!-- now layout the aim element -->
@@ -520,6 +547,17 @@ $Id: sect_5_mapping.xsl,v 1.46 2002/08/21 20:25:21 robbod Exp $
     <xsl:with-param name="sect" select="concat('5.1.',$sect_no)"/>
   </xsl:apply-templates>
 </xsl:template>
+
+
+<xsl:template match="explicit" mode="output_extensible_attributes">
+  <xsl:variable name="attr_select" select="typename/@name"/>
+  <xsl:variable name="ext_select"
+    select="../../type[@name=$attr_select]/select[@extensible='YES']/../@name"/>
+  <xsl:if test="$ext_select">
+    <xsl:value-of select="concat($ext_select,': ')"/>
+  </xsl:if>
+</xsl:template>
+
 
 
 <xsl:template match="aa" mode="specification">
@@ -971,6 +1009,7 @@ the mapping specification')"/>
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:value-of select="translate(concat('aeentity',@entity),$UPPER,$LOWER)"/>
 </xsl:template>
+
 
 <!-- give the A NAME for the mapping of the entity attribute in sect 5 -->
 <xsl:template match="aa" mode="map_attr_aname">

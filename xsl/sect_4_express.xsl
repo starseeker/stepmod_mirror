@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.63 2002/08/21 20:27:12 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.64 2002/08/22 15:08:18 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -797,13 +797,6 @@
 
 </xsl:template>
 
-<!-- give the A NAME for the mapping of the entity in sect 5 -->
-<xsl:template match="ae" mode="mapping_aname">
-  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-  <xsl:value-of select="translate(concat('aeentity',@name),$UPPER,$LOWER)"/>
-</xsl:template>
-
 
 <xsl:template match="entity">
   <xsl:variable 
@@ -870,9 +863,10 @@
     <xsl:if test="substring($schema_name, string-length($schema_name)-3)=
 '_arm'">
 
-      <xsl:variable name="ae_map_aname">
-        <xsl:apply-templates select="." mode="mapping_aname"/>  
-      </xsl:variable>
+      <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+      <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+      <xsl:variable name="ae_map_aname"
+        select="translate(concat('aeentity',@name),$UPPER,$LOWER)"/>
 
       <xsl:variable name="maphref" 
         select="concat('./5_mapping',$FILE_EXT,'#',$ae_map_aname)"/>

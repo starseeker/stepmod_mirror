@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.23 2005/02/04 17:51:28 budreckytej Exp $
    ISO TC184/SC4/WG12 N3498 - ISO/CD-TS 10303-1707 Package - EXPRESS ARM
 *)
 
@@ -25,7 +25,10 @@ SCHEMA Package_arm;
 
   END_TYPE;
 
-
+ TYPE pa_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select  WITH
+   (Package_body,
+    Package_terminal);
+END_TYPE; 
 
 	SUBTYPE_CONSTRAINT part_feature_subtypes FOR Part_feature; 
 
@@ -229,6 +232,9 @@ SCHEMA Package_arm;
 
       SELF\Part_feature.associated_definition : Package;
 
+INVERSE
+   body_material : Material_identification FOR items;
+
     WHERE
 
       WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
@@ -242,6 +248,8 @@ SCHEMA Package_arm;
       WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
 
  'PACKAGE_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('PACKAGE_ARM.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
+
+     WR4: 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (body_material);
 
   END_ENTITY;
 
@@ -347,6 +355,15 @@ SCHEMA Package_arm;
 
       mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone)) AND (associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane);
 
+      terminal_core_material : SET [0:1] OF Material_identification := QUERY( temp <* USEDIN(SELF,
+      'PACKAGE_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
+      (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal core material')) = 1));
+
+      terminal_surface_material : SET [1:1] OF Material_identification := QUERY( temp <* USEDIN(SELF,
+      'PACKAGE_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
+      (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal surface material')) = 1));
     INVERSE
 
       SELF\Part_feature.feature_shape : SET[1:?] OF usage_concept_usage_relationship FOR associated_usage;
@@ -369,6 +386,13 @@ SCHEMA Package_arm;
       WR7 : SIZEOF(QUERY(ica <* internal_connection_zone |
       NOT(ica\Connection_zone.associated_definition = SELF\Part_feature.associated_definition)
                    )) = 0;
+      WR8 : NOT (SIZEOF(terminal_core_material) = 1) OR
+            'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_core_material[1]);
+                   
+      WR9 : EXISTS(terminal_core_material);
+      
+      WR10 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_surface_material[1]);
+                   
   END_ENTITY;
 
   ENTITY Package_terminal_surface_constituent_relationship

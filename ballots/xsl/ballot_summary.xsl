@@ -137,11 +137,9 @@ $Id: ballot_summary.xsl,v 1.9 2003/02/12 01:46:21 thendrix Exp $
         </td>
         <!-- Resource part -->
         <td>
-          <xsl:if test="$FILE_EXT='.htm'">
-          <meta http-equiv="Refresh" content="0;URL=./data/resource_docs/expression_extensions/sys/cover{$FILE_EXT}"/>
-          </xsl:if>
           <xsl:variable name="resdoc_xref"
             select="concat($stepmodhome,'/data/resource_docs/',@name,'/sys/cover',$FILE_EXT)"/>
+          <meta http-equiv="Refresh" content="0;URL={$resdoc_xref}"/>
           <a href="{$resdoc_xref}">
             <xsl:value-of select="@name"/>
           </a>

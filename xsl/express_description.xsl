@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.33 2003/08/25 23:28:53 thendrix Exp $
+$Id: express_description.xsl,v 1.34 2003/10/31 08:01:32 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -247,7 +247,7 @@ and
       <xsl:if test="$ERROR_CHECK_ATTRIBUTES='YES'">
         <xsl:variable name="first_word"
           select="substring-before(normalize-space($description/text()),' ')"/>
-        <xsl:if test="not(contains('the a an one', $first_word))">
+        <xsl:if test="not(contains('the a an one specifies', $first_word))">
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 

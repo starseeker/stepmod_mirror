@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.1 2003/02/03 08:28:29 goset1 Exp $
+   $Id: mim.exp,v 1.2 2003/07/15 09:21:04 rugarcia Exp $
    N - ISO/CD-TS - 10303- inertia_characteristics - EXPRESS MIM*)
 
 SCHEMA Inertia_characteristics_mim;
@@ -21,7 +21,6 @@ WR1: (SIZEOF(SELF.items) = 1) AND
  (SIZEOF( QUERY( i <* SELF.items | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
   (i.name = 'moments of inertia matrix') )) = 1); 
 WR2: SIZEOF( QUERY( i <* SELF.items | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
-  (SIZEOF(i\compound_representation_item.item_element) = 3) AND 
   ('INERTIA_CHARACTERISTICS_MIM' + '.LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element)) AND 
   value_range_aggregate_rep_item (i\compound_representation_item.item_element) )) = 1; 
 END_ENTITY; 
@@ -39,22 +38,9 @@ WHERE
 END_RULE;
 
 FUNCTION value_range_aggregate_rep_item (agg : AGGREGATE OF representation_item) : BOOLEAN; 
-  FUNCTION cri (agg : AGGREGATE OF representation_item) : BOOLEAN; 
   BEGIN 
-  IF (SIZEOF(agg) = 3) AND 
-	(SIZEOF(QUERY(i1 <* agg | ('INERTIA_CHARACTERISTICS_MIM' + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)) )) = 3) THEN 
+  IF (SIZEOF(QUERY(i1 <* agg | ('INERTIA_CHARACTERISTICS_MIM' + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)) )) = 6) THEN 
 	  RETURN (TRUE); 
-   ELSE 
-	RETURN (FALSE); 
-   END_IF; 
-   END; 
-   END_FUNCTION;
-
-   BEGIN 
-   IF ((SIZEOF(agg) = 3) AND
-	 (SIZEOF(QUERY(i <* agg | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
-	cri(i\compound_representation_item.item_element) )) = 1)) THEN 
-	RETURN (TRUE); 
    ELSE 
 	RETURN (FALSE); 
    END_IF; 

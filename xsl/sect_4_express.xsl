@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.17 2002/02/24 23:14:01 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.18 2002/03/04 07:50:08 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -17,6 +17,7 @@
 >
 
   <xsl:import href="express_link.xsl"/> 
+  <xsl:import href="express_description.xsl"/> 
 
   <xsl:output method="html"/>
 
@@ -2004,14 +2005,6 @@
 
 </xsl:template>
 
-<!-- to be implemented -->
-<xsl:template name="output_external_description">
-</xsl:template>
-
-<!-- to be implemented -->
-<xsl:template name="check_external_description">
-  <xsl:value-of select="'false'"/>
-</xsl:template>
 
 
 <xsl:template name="imported_constructs">

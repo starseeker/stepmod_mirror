@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.25 2002/02/24 23:14:02 robbod Exp $
+$Id: common.xsl,v 1.26 2002/03/04 07:54:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -754,6 +754,8 @@ $Id: common.xsl,v 1.25 2002/02/24 23:14:02 robbod Exp $
 
    <xsl:template name="get_href_from_express_ref">
      <xsl:param name="linkend"/>
+     <!-- the relative path to be added to the url -->
+     <xsl:param name="baselink" select="'../../../'"/>
     <!-- remove all whitespace -->
     <xsl:variable 
       name="nlinkend"
@@ -798,31 +800,31 @@ $Id: common.xsl,v 1.25 2002/02/24 23:14:02 robbod Exp $
         </xsl:when>
         <xsl:when test="$arm_mim_ir='ir_express'">
           <xsl:value-of 
-            select="concat('../../../resources/',$module,'/',
+            select="concat($baselink,'resources/',$module,'/',
                     $module,$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
         <xsl:when test="$arm_mim_ir='arm'">
           <xsl:value-of 
-            select="concat('../../../modules/',$module,
+            select="concat($baselink,'modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='arm_express'">
           <xsl:value-of 
-            select="concat('../../../modules/',$module,
+            select="concat($baselink,'modules/',$module,
                     '/arm',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='mim'">
           <xsl:value-of 
-            select="concat('../../../modules/',$module,
+            select="concat($baselink,'modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
 
         <xsl:when test="$arm_mim_ir='mim_express'">
           <xsl:value-of 
-            select="concat('../../../modules/',$module,
+            select="concat($baselink,'modules/',$module,
                     '/mim',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
       </xsl:choose>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.35 2002/03/04 07:54:14 robbod Exp $
+$Id: module.xsl,v 1.36 2002/03/11 17:17:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1490,8 +1490,20 @@ found in module ',$module )"/>
           <xsl:variable 
             name="normref" 
             select="substring-after($first,'normref:')"/>
-          <xsl:apply-templates 
-            select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
+          
+          <xsl:choose>
+            <xsl:when test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]">          
+            <xsl:apply-templates 
+              select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
+          </xsl:when>
+              <xsl:otherwise>
+                <xsl:call-template name="error_message">
+                  <xsl:with-param name="message">
+                    <xsl:value-of select="concat($normref, 'not found')"/>
+                  </xsl:with-param>
+                </xsl:call-template>
+              </xsl:otherwise>
+            </xsl:choose>
         </xsl:when>
 
         <xsl:when test="contains($first,'module:')">

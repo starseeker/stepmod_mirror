@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_matrix_view.xsl,v 1.7 2003/11/25 17:25:25 robbod Exp $
+$Id: select_matrix_view.xsl,v 1.8 2004/05/05 17:55:10 thendrix Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -217,9 +217,9 @@ $Id: select_matrix_view.xsl,v 1.7 2003/11/25 17:25:25 robbod Exp $
 
 					<xsl:variable name="subs">
 						<xsl:apply-templates select="$this-schema//entity[
-						contains($sel-items, concat(' ',@name,' '))]
+						contains($direct-list, concat(' ',@name,' '))]
 							| $called-schemas//entity[
-						contains($sel-items, concat(' ',@name,' '))]"
+						contains($direct-list, concat(' ',@name,' '))]"
 						mode="subtypes">
 							<xsl:with-param name="this-schema" select="$this-schema"/>
 							<xsl:with-param name="called-schemas" select="$called-schemas" />
@@ -227,8 +227,9 @@ $Id: select_matrix_view.xsl,v 1.7 2003/11/25 17:25:25 robbod Exp $
 							<xsl:with-param name="output" select="concat(' ',$sel-items,' ')" />
 						</xsl:apply-templates>
 					</xsl:variable>
+
+				<xsl:variable name="subs-list" select="concat(' ',$subs,' ')" />
 					
-					<xsl:variable name="subs-list" select="concat(' ',$subs,' ')" />
                       <xsl:for-each select="$all-entities" >
                         <xsl:sort select="@name" />
                         <xsl:if test="((position() - $start + 1) > 0) and (201 > (position()-$start + 1))" >
@@ -254,7 +255,7 @@ $Id: select_matrix_view.xsl,v 1.7 2003/11/25 17:25:25 robbod Exp $
                     </TBODY>
                   </TABLE>
                   <br/>
-
+		  
                   <xsl:if test="count($this-schema//entity | $called-schemas//entity) > $start + 200" >
                     
                     <xsl:call-template name="select-matrix" >
@@ -264,8 +265,10 @@ $Id: select_matrix_view.xsl,v 1.7 2003/11/25 17:25:25 robbod Exp $
                     </xsl:call-template>
 
                   </xsl:if>
-  
-</xsl:template>
+		  
+		  <br/>
+	  
+	  </xsl:template>
 
 
 <xsl:template match="type" mode="basedon">

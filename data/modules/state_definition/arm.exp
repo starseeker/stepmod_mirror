@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.9 2003/01/13 20:47:52 magnevs Exp $
+   $Id: arm.exp,v 1.10 2003/01/22 20:09:10 magnevs Exp $
    N1433 - ISO/CD-TS - 10303-1255 State_definition - EXPRESS ARM
 *)
 
@@ -20,7 +20,8 @@ TYPE state_definition_classified_select = SELECT BASED_ON classification_item WI
 END_TYPE;
 
 TYPE state_definition_condition = SELECT BASED_ON host_item WITH
-(State_definition);
+(State_definition,
+ State_definition_relationship);
 END_TYPE;
 
 TYPE state_definition_identification_item = SELECT BASED_ON identification_item WITH
@@ -41,14 +42,15 @@ SUBTYPE OF (State_cause_effect_definition);
 END_ENTITY;
 
 ENTITY Applied_state_definition_assignment;
-assigned_to : state_definition_of_item;
 described_state_definition : State_definition;
+assigned_to : state_definition_of_item;
+role : State_definition_role;
 END_ENTITY;
 
 ENTITY Composition_of_state_definition
 SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.related RENAMED part : SET [2 : ?] OF State_definition;
 SELF\State_definition_relationship.relating RENAMED whole : State_definition;
+SELF\State_definition_relationship.related RENAMED part : SET [2 : ?] OF State_definition;
 END_ENTITY;
 
 ENTITY Or_state_cause_effect_definition
@@ -71,7 +73,7 @@ ENTITY State_complement_definition
 SUBTYPE OF (State_definition_relationship);
 SELF\State_definition_relationship.relating RENAMED universe : State_definition;
 SELF\State_definition_relationship.related RENAMED set_1 : State_definition;
-SELF\State_definition_relationship.related RENAMED set_2 : State_definition;
+set_2 : State_definition;
 END_ENTITY;
 
 ENTITY State_definition;
@@ -84,6 +86,11 @@ name : STRING;
 description : STRING;
 relating : SET [1 : ?] OF State_definition;
 related : SET [1 : ?] OF State_definition;
+END_ENTITY;
+
+ENTITY State_definition_role;
+name : STRING;
+description : STRING;
 END_ENTITY;
 
 ENTITY State_proper_subset_definition

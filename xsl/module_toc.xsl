@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.25 2002/08/18 17:36:58 robbod Exp $
+$Id: module_toc.xsl,v 1.26 2002/08/22 15:08:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -26,15 +26,6 @@ $Id: module_toc.xsl,v 1.25 2002/08/18 17:36:58 robbod Exp $
 
   <xsl:apply-templates select="." mode="test_module_name"/>
 
-  <!-- 
-       PLCS specific menu bar - this should not used in the ISO documents
-       If this line in uncommented, then it has been checked in error
-       so comment out and check back in
-  <xsl:call-template name="PLCSmenubar">
-    <xsl:with-param name="plcs_dir" select="concat($module_root,'/../../../../plcsmod/')"/>
-    <xsl:with-param name="module_name" select="@name"/>
-  </xsl:call-template>
-       -->
 
   <xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
   <xsl:variable name="mim_schema_name" select="concat(@name,'_mim')"/>
@@ -181,7 +172,8 @@ $Id: module_toc.xsl,v 1.25 2002/08/18 17:36:58 robbod Exp $
                                     ' ARM entity definitions')"/>
             </A><BR/>
           </xsl:if>
-          
+
+         
           <!-- only output if there are imported entitys defined and 
                therefore a section -->
           <xsl:variable name="imported_entity_clause">
@@ -195,6 +187,22 @@ $Id: module_toc.xsl,v 1.25 2002/08/18 17:36:58 robbod Exp $
             <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_entity">
               <xsl:value-of select="concat($imported_entity_clause,
                                     ' ARM imported entity modifications')"/>
+            </A><BR/>
+          </xsl:if>
+
+
+          <!-- only output if there are subtype.constraint defined and 
+               therefore a section -->
+          <xsl:variable name="subtype_constraint_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'subtype.constraint'"/>
+              <xsl:with-param name="schema_name" select="$arm_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>          
+          <xsl:if test="$subtype_constraint_clause != 0">
+            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#subtype_constraints">
+              <xsl:value-of select="concat($subtype_constraint_clause,
+                                    ' ARM subtype constraints')"/>
             </A><BR/>
           </xsl:if>
 
@@ -383,6 +391,22 @@ $Id: module_toc.xsl,v 1.25 2002/08/18 17:36:58 robbod Exp $
             </A><BR/>
           </xsl:if>
           
+
+          <!-- only output if there are subtype.constraint defined and 
+               therefore a section -->
+          <xsl:variable name="subtype_constraint_mim_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'subtype.constraint'"/>
+              <xsl:with-param name="schema_name" select="$mim_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>          
+          <xsl:if test="$subtype_constraint_mim_clause != 0">
+            &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#subtype_constraints">
+              <xsl:value-of select="concat($subtype_constraint_mim_clause,
+                                    ' MIM subtype constraints')"/>
+            </A><BR/>
+          </xsl:if>
+
 
           <!-- only output if there are functions defined and therefore a
                section -->

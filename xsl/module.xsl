@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.100 2002/08/28 18:21:24 robbod Exp $
+$Id: module.xsl,v 1.101 2002/09/02 09:06:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1281,6 +1281,11 @@ o=isocs; s=central<br/>
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($arm_xml)/express/schema/entity"/>
+
+  <!-- display the EXPRESS for the subtype.contraints in the ARM.
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($arm_xml)/express/schema/subtype.constraint"/>
 
   <!-- display the EXPRESS for the functions in the ARM
        The template is in sect4_express.xsl -->

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.64 2002/08/22 15:08:18 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.65 2002/08/28 13:22:06 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1437,7 +1437,7 @@
 
 </xsl:template>
 
-<!-- P. Huau - addition processing of SUBTYPE_CONSTRAINT -->
+
 <xsl:template match="subtype.constraint">
   <xsl:variable 
     name="schema_name" 
@@ -1464,9 +1464,16 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
+          XXXXX NEED TO PROVIDE BOILERPLATE TEXT SUBTYPE CONSTRAINTS IN ARM
+          XXXX
+          This subclause specifies the application subtype constraints for
+          this module.  Each subtype constraints ...... 
+          The application subtype constraints and their definitions are
+          specified below. 
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <!-- no intro for the MIM -->
+          XXXXX NEED TO PROVIDE BOILERPLATE TEXT FOR SUBTYPE CONSTRAINTS IN
+          MIM XXXX
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1534,14 +1541,49 @@
   <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
 	<xsl:value-of select="@name"/></b></A>
   <xsl:text> FOR </xsl:text>
-	<xsl:value-of select="@entity_ref"/>
-  ;<br/>
+  <xsl:call-template name="link_list">
+    <xsl:with-param name="list" select="@entity"/>
+    <xsl:with-param name="suffix" select="', '"/>
+    <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+    <xsl:with-param name="clause" select="'section'"/>
+  </xsl:call-template>;<br/>
+
+  <xsl:variable name="sup_expr"
+    select="@super.expression"/>
+  <xsl:choose>
+    <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
+      <br/>
+      &#160;&#160;ABSTRACT SUPERTYPE
+      <xsl:if test="@super.expression">
+        OF&#160;<xsl:call-template name="link_super_expression_list">
+          <xsl:with-param name="list" select="$sup_expr"/>
+          <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+          <xsl:with-param name="clause" select="'section'"/>
+          <xsl:with-param name="indent" select="9"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:if test="@super.expression">
+&#160;&#160;<xsl:call-template name="link_super_expression_list">
+        <xsl:with-param name="list" select="$sup_expr"/>
+        <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+        <xsl:with-param name="clause" select="'section'"/>
+        <xsl:with-param name="indent" select="3"/>
+      </xsl:call-template>
+    </xsl:if>      
+    </xsl:otherwise>
+  </xsl:choose>;<br/>
+
+  <!--
     <xsl:if test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       &#160; ABSTRACT SUPERTYPE;<br/>
       </xsl:if>
    <xsl:if test="@super.expression">
         &#160; <xsl:value-of select="@super.expression"/>;<br/>
-    </xsl:if>      
+    </xsl:if>    
+    -->
+  
   END_SUBTYPE_CONSTRAINT;<br/>(*
 	    </code></p>
 </xsl:template>

@@ -1,5 +1,5 @@
 (*
-  $Id: person_organization_schema.exp,v 1.14 2004/11/10 12:09:32 mikeward Exp $
+  $Id: person_organization_schema.exp,v 1.15 2004/11/10 14:01:06 mikeward Exp $
   ISO TC184/SC4/WG12 N2887 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *) 
 
@@ -201,9 +201,8 @@ ENTITY position_in_organization_type;
   description : OPTIONAL text;
 END_ENTITY;
 
-FUNCTION acyclic_organization_relationship
- (relation : organization_relationship; relatives : SET OF organization; specific_relation : STRING) : BOOLEAN; 
-  LOCAL
+FUNCTION acyclic_organization_relationship (relation : organization_relationship; relatives : SET [1:?] OF organization; specific_relation : STRING):BOOLEAN;
+    LOCAL
       x : SET OF organization_relationship;
     END_LOCAL;
 
@@ -217,25 +216,7 @@ FUNCTION acyclic_organization_relationship
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-END_FUNCTION; 
-
-FUNCTION acyclic_organizational_project_relationship
- (relation : organizational_project_relationship; relatives : SET OF organizational_project; specific_relation : STRING) : BOOLEAN; 
-   LOCAL
-      x : SET OF organizational_project_relationship;
-    END_LOCAL;
-
-    IF relation.relating_organizational_project IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(op <* bag_to_set(USEDIN(relation.relating_organizational_project, 'PERSON_ORGANIZATION_SCHEMA.' + 'ORGANIZATIONAL_PROJECT_RELATIONSHIP.' + 'RELATED_ORGANIZATIONAL_PROJECT')) | specific_relation IN TYPEOF(op));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_organizational_project_relationship(x[i], relatives + relation.relating_organizational_project, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-END_FUNCTION; 
+  END_FUNCTION; 
 
 FUNCTION acyclic_organization_type_relationship
  (relation : organization_type_relationship; relatives : SET OF organization_type; specific_relation : STRING) : BOOLEAN; 
@@ -254,6 +235,23 @@ FUNCTION acyclic_organization_type_relationship
     END_REPEAT;
     RETURN (TRUE);
 END_FUNCTION; 
+
+FUNCTION acyclic_organizational_project_relationship (relation : organizational_project_relationship; relatives : SET [1:?] OF organizational_project; specific_relation : STRING):BOOLEAN;
+    LOCAL
+      x : SET OF organizational_project_relationship;
+    END_LOCAL;
+
+    IF relation.relating_organizational_project IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(op <* bag_to_set(USEDIN(relation.relating_organizational_project, 'PERSON_ORGANIZATION_SCHEMA.' + 'ORGANIZATIONAL_PROJECT_RELATIONSHIP.' + 'RELATED_ORGANIZATIONAL_PROJECT')) | specific_relation IN TYPEOF(op));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_organizational_project_relationship(x[i], relatives + relation.relating_organizational_project, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION; 
 
 FUNCTION acyclic_person_type_definition_relationship
  (relation : person_type_definition_relationship; relatives : SET OF person_type_definition; specific_relation : STRING) : BOOLEAN; 

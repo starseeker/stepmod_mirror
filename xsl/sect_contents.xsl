@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.23 2003/05/04 07:51:15 robbod Exp $
+$Id: sect_contents.xsl,v 1.24 2003/05/04 08:15:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -954,7 +954,9 @@ $Id: sect_contents.xsl,v 1.23 2003/05/04 07:51:15 robbod Exp $
   <xsl:variable name="mim_desc_xml" select="document($mim_xml)/express/@description.file"/>
 
   <h2>Tables</h2>
-  <xsl:apply-templates select="//table" mode="toc"/>
+  <xsl:apply-templates select="./purpose//table" mode="toc"/>
+  <xsl:apply-templates select="./inscope//table" mode="toc"/>
+  <xsl:apply-templates select="./outscope//table" mode="toc"/>
   <xsl:choose>
     <xsl:when test="$arm_desc_xml">
       <xsl:apply-templates select="document($arm_desc_xml)//table" mode="toc"/>
@@ -976,7 +978,9 @@ $Id: sect_contents.xsl,v 1.23 2003/05/04 07:51:15 robbod Exp $
       Table E.1 &#8212; ARM and MIM EXPRESS listings.
     </a>
   <br/>
-  <h2>Figures</h2>
+  <xsl:apply-templates select="./usage_guide//table" mode="toc"/>
+ 
+ <h2>Figures</h2>
   <!-- collect up the figures from the Module -->
   <xsl:apply-templates select="./purpose//figure" mode="toc"/>
   <xsl:apply-templates select="./inscope//figure" mode="toc"/>
@@ -1035,7 +1039,7 @@ $Id: sect_contents.xsl,v 1.23 2003/05/04 07:51:15 robbod Exp $
 
     <a href="{$href}">      
     <xsl:value-of 
-      select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title)"/>
+      select="concat($table_or_fig,' ',$number, ' &#8212; ', @caption, ./title)"/>
     </a>
   <br/>
 

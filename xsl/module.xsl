@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.93 2002/08/06 16:27:19 robbod Exp $
+$Id: module.xsl,v 1.94 2002/08/07 12:09:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2930,6 +2930,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 
   <xsl:variable name="def_section">
     <xsl:call-template name="length_normrefs_list">
+      <xsl:with-param name="module_number" select="$module_number"/>
       <xsl:with-param name="normrefs_list" select="$normrefs"/>
     </xsl:call-template>
   </xsl:variable>
@@ -3255,13 +3256,52 @@ $module_ok,' Check the normatives references')"/>
   <xsl:value-of select="$normref_list_ret"/>
 </xsl:template>
 
+
+<!-- Given the name of a module, check if there is a corresponding
+     normative reference there. If so, remove it. -->
+<xsl:template name="remove_module_from_normrefs_list">
+  <xsl:param name="normrefs_list"/>
+  <xsl:param name="module_number"/>
+
+  <xsl:variable name="nref" 
+    select="concat(',normref:ref10303-',$module_number)"/>
+
+  <xsl:variable name="pruned_normrefs_list">
+    <xsl:choose>
+      <xsl:when test="contains($normrefs_list,$nref)">
+        <xsl:variable 
+          name="before" 
+          select="substring-before($normrefs_list,$nref)"/>
+        <xsl:variable 
+          name="after" 
+          select="substring-after(substring-after($normrefs_list,$nref),',')"/>
+        <xsl:value-of select="concat($before,$after)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$normrefs_list"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:value-of select="$pruned_normrefs_list"/>
+</xsl:template>
+
 <!-- return the number of normrefs in the list -->
 <xsl:template name="length_normrefs_list">
   <xsl:param name="normrefs_list"/>
+  <xsl:param name="module_number"/>
+  <!-- check if the current module is included.
+       If so, remove the reference -->
+  <xsl:variable name="pruned_normrefs_list">
+    <xsl:call-template name="remove_module_from_normrefs_list">
+      <xsl:with-param name="normrefs_list" select="$normrefs_list"/>
+      <xsl:with-param name="module_number" select="$module_number"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <xsl:variable name="section1">
     <xsl:call-template name="count_substring">
       <xsl:with-param name="substring" select="','"/>
-      <xsl:with-param name="string" select="$normrefs_list"/>
+      <xsl:with-param name="string" select="$pruned_normrefs_list"/>
     </xsl:call-template>
   </xsl:variable>
   <xsl:value-of select="floor($section1 div 2)"/>

@@ -1,5 +1,5 @@
 (*
- $Id: arm_lf.exp,v 1.17 2005/01/17 15:25:06 robbod Exp $
+ $Id: arm_lf.exp,v 1.18 2005/01/17 16:04:43 robbod Exp $
  ISO TC184/SC4/WG3 N1560 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS ARM Long form
  Supersedes ISO TC184/SC4/WG3 N1400
 *) 
@@ -2043,8 +2043,7 @@ SUBTYPE OF (View_definition_usage);
   quantity :  OPTIONAL Value_with_unit;
   location_indicator :  OPTIONAL STRING;
 WHERE
-  WR1 : NOT EXISTS(quantity) OR NOT ('NUMBER' IN TYPEOF(quantity.
-    value_component)) XOR (quantity.value_component > 0);
+  WR1: NOT(EXISTS(quantity)) OR ((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component > 0));
 END_ENTITY; (* declared in: Assembly_structure_arm *)
  
 ENTITY Assembly_relationship_substitution;
@@ -4833,18 +4832,12 @@ END_FUNCTION; (* declared in: Document_properties_arm *)
  
 RULE document_definition_constraint FOR (Product_view_definition);
 WHERE
-  WR1 : SIZEOF(QUERY(dd <* Product_view_definition | NOT (
-    'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 'DOCUMENT_DEFINITION' IN 
-    TYPEOF(dd)) AND ('AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 
-    'DOCUMENT_VERSION' IN TYPEOF(dd.defined_version)))) = 0;
+  WR1: SIZEOF ( QUERY ( dd <* Product_view_definition | ( NOT ( 'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 'DOCUMENT_DEFINITION' IN TYPEOF (dd) ) ) AND ( 'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF (dd.defined_version)))) =0;
 END_RULE; (* declared in: Document_definition_arm *)
  
 RULE document_version_constraint FOR (Product_version);
 WHERE
-  WR1 : SIZEOF(QUERY(pv <* Product_version | NOT (
-    'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF(
-    pv)) AND ('AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 'DOCUMENT' IN TYPEOF
-    (pv.of_product)))) = 0;
+   WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF ( pv) ) ) AND ( 'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 'DOCUMENT' IN TYPEOF (pv.of_product)))) = 0 ;
 END_RULE; (* declared in: Document_and_version_identification_arm *)
  
 RULE part_version_constraint FOR (Product_version);
@@ -4857,10 +4850,7 @@ END_RULE; (* declared in: Part_and_version_identification_arm *)
  
 RULE part_view_definition_constraint FOR (Product_view_definition);
 WHERE
-  WR1 : SIZEOF(QUERY(pvd <* Product_view_definition | NOT (
-    'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 'PART_VIEW_DEFINITION' IN 
-    TYPEOF(pvd)) AND ('AP239_PRODUCT_LIFE_CYCLE_SUPPORT_ARM_LF.' + 
-    'PART_VERSION' IN TYPEOF(pvd.defined_version)))) = 0;
+  WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'PART_VIEW_DEFINITION_ARM.' + 'PART_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'PART_VIEW_DEFINITION_ARM.' + 'PART_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
 END_RULE; (* declared in: Part_view_definition_arm *)
  
 END_SCHEMA;

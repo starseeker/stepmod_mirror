@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.51 2005/02/09 09:37:54 seanbarker Exp $ -->
+<!-- $Id: issues.xml,v 1.52 2005/02/09 12:59:40 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="ap239_product_life_cycle_support">
@@ -1396,6 +1396,69 @@ application_interpreted_model_schema_name of 'automotive_design'.
    date="2005-01-15">
 <description>
 Added rule.
+</description>
+</comment>
+</issue>
+
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="RBN-32"
+   type="arm_lf"
+   linkend=""
+   status="closed"
+   category="minor_technical"
+   by="Rob Bodington"
+   date="05-03-02"
+   seds="no"
+   ballot_comment="no"
+   member_body="GB"
+   resolution="accept">
+<description>
+The SHTOLO algorithm changes the semantics of some where rules.
+
+
+RULE document_definition_constraint
+RULE document_version_constraint
+RULE part_view_definition_constraint 
+ENTITY Assembly_component_relationship
+
+The original is:
+
+
+ENTITY Assembly_component_relationship
+  ABSTRACT SUPERTYPE OF (ONEOF (Next_assembly_usage,
+                                Promissory_usage,
+                                Component_upper_level_identification))
+  SUBTYPE OF (View_definition_usage);
+  quantity : OPTIONAL Value_with_unit;
+  location_indicator : OPTIONAL STRING;
+WHERE
+  WR1: NOT(EXISTS(quantity)) OR ((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component > 0));
+END_ENTITY;
+
+The SHTOLO generated WR is:
+ENTITY Assembly_component_relationship
+ABSTRACT SUPERTYPE OF (ONEOF (Next_assembly_usage, Promissory_usage, 
+Component_upper_level_identification))
+SUBTYPE OF (View_definition_usage);
+  quantity :  OPTIONAL Value_with_unit;
+  location_indicator :  OPTIONAL STRING;
+WHERE
+  WR1 : NOT EXISTS(quantity) OR NOT ('NUMBER' IN TYPEOF(quantity.
+    value_component)) XOR (quantity.value_component > 0);
+END_ENTITY;
+
+You can see that there are a couple of parentheses different.
+
+
+</description>
+
+<comment
+   by="Rob Bodington"
+   date="05-03-02">
+<description>
+Updated the arm_lf manually
 </description>
 </comment>
 </issue>

@@ -32,41 +32,236 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
     </xsl:comment>
 
-    <project name="ballotchecks" default="all" basedir="../../..">
+    <project name="ballotchecks" default="all" basedir=".">
       <xsl:text>
       </xsl:text>
+
+      <target name="init">
+        <tstamp/>
+
+        <xsl:element name="dirname">
+          <xsl:attribute name="property">BALLOTDIR</xsl:attribute>
+          <xsl:attribute name="file">ballot_index.xml</xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="property">
+          <xsl:attribute name="name">BALLOTNAME</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="@name"/>
+          </xsl:attribute>
+        </xsl:element>
+
         <xsl:element name="property">
           <xsl:attribute name="name">MODULESDIR</xsl:attribute>
           <xsl:attribute name="value">
-              <xsl:value-of select="'data/modules/'"/>
+            <xsl:value-of select="'data/modules/'"/>
+          </xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="property">
+          <xsl:attribute name="name">UTILSDIR</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="'../../../utils/'"/>
           </xsl:attribute>
         </xsl:element>
 
         <xsl:element name="property">
-          <xsl:attribute name="name">UTILSDIR</xsl:attribute>
-          <xsl:attribute name="value">
-              <xsl:value-of select="'utils/'"/>
-          </xsl:attribute>
+          <xsl:attribute name="name">CHECKDIR</xsl:attribute>
+          <xsl:attribute name="value">${BALLOTDIR}\check_${BALLOTNAME}_${DSTAMP}</xsl:attribute>
         </xsl:element>
 
-        <xsl:variable name="outfile" select="concat(@name,'_ant_check_${DSTAMP}.txt')"/>
-        <target name="checks">
-          <tstamp/>
-          <echo>
-            Outputting to: <xsl:value-of select="concat('stepmod/',$outfile)"/>
-          </echo>
-          <xsl:apply-templates select="ballot_package/module">
-            <xsl:with-param name="outfile" select="$outfile" />
-            </xsl:apply-templates>
+        <xsl:element name="property">
+          <xsl:attribute name="name">ANTERR</xsl:attribute>
+          <xsl:attribute name="value">${CHECKDIR}\ant_check_${BALLOTNAME}_${DSTAMP}.txt</xsl:attribute>
+        </xsl:element>
+
+        <property name="EXPRESSCOMP" value="C:/apps/eep/Eep.exe"/>
+        <property name="EXPRESSARGS" value="-2 -i -w"/>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">EXPRESSDIR</xsl:attribute>
+          <xsl:attribute name="value">${CHECKDIR}\express</xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="property">
+          <xsl:attribute name="name">ARMEXPRESSFILE</xsl:attribute>
+          <xsl:attribute name="value">arm_${DSTAMP}v1.exp</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">ARMEXPRESS</xsl:attribute>
+          <xsl:attribute name="value">${EXPRESSDIR}\${ARMEXPRESSFILE}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">ARMERRFILE</xsl:attribute>
+          <xsl:attribute name="value">arm_${DSTAMP}v1_err.txt</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">ARMERR</xsl:attribute>
+          <xsl:attribute name="value">${EXPRESSDIR}\${ARMERRFILE}</xsl:attribute>
+        </xsl:element>
+        
+        <xsl:element name="property">
+          <xsl:attribute name="name">MIMEXPRESSFILE</xsl:attribute>
+          <xsl:attribute name="value">mim_resources_${DSTAMP}v1.exp</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">MIMEXPRESS</xsl:attribute>
+          <xsl:attribute name="value">${EXPRESSDIR}\${MIMEXPRESSFILE}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">MIMERRFILE</xsl:attribute>
+          <xsl:attribute name="value">mim_resources_${DSTAMP}v1_err.txt</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">MIMERR</xsl:attribute>
+          <xsl:attribute name="value">${EXPRESSDIR}\${MIMERRFILE}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">ZIPFILE</xsl:attribute>
+          <xsl:attribute name="value">${CHECKDIR}\check_${DSTAMP}.zip</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="mkdir">
+          <xsl:attribute name="dir">${CHECKDIR}</xsl:attribute>
+        </xsl:element>
+      </target>
+      <xsl:text>
+      </xsl:text>
+
+      <xsl:variable name="outfile" select="'${ANTERR}'"/>
+      <target name="checks" depends="init">
+        <echo>
+          Outputting to: stepmod/${ANTERR}
+      </echo>
+      <xsl:apply-templates select="ballot_package/module">
+        <xsl:with-param name="outfile" select="$outfile"/>
+      </xsl:apply-templates>
+      
+      <xsl:element name="fixcrlf">
+        <xsl:attribute name="srcdir">${CHECKDIR}</xsl:attribute>
+        <xsl:attribute name="eol">lf</xsl:attribute><xsl:attribute name="eof">remove</xsl:attribute>
+        <xsl:attribute name="includes">**/*.txt</xsl:attribute>
+      </xsl:element>
       </target>
 
+      <xsl:text>
+      </xsl:text>
 
-    <xsl:text>
-    </xsl:text>
+      <target name="getexpress" depends="init">
+        <echo>Copying Express to ${EXPRESSDIR}</echo>
+        <xsl:element name="exec">
+          <xsl:attribute name="executable">cscript</xsl:attribute>
+          <xsl:attribute name="dir">${UTILSDIR}</xsl:attribute>
+          <arg value="./getExpressIr.wsf"/>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSDIR}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${BALLOTDIR}/modlist.txt</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${BALLOTDIR}/irlist.txt</xsl:attribute>
+          </xsl:element>
+        </xsl:element>
+      </target>
 
-    <xsl:text>
-    </xsl:text>
+      <xsl:text>
+      </xsl:text>
 
+      <target name="compileexpress" depends="getexpress">
+        <echo>Compiling EXPRESS: ${ARMEXPRESS}</echo>
+        <xsl:element name="exec">
+          <xsl:attribute name="executable">${EXPRESSCOMP}</xsl:attribute>
+          <xsl:attribute name="dir">${EXPRESSDIR}</xsl:attribute>
+          <xsl:attribute name="output">${ARMERR}</xsl:attribute>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARGS}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${ARMEXPRESS}</xsl:attribute>
+          </xsl:element>
+        </xsl:element>
+
+        <xsl:element name="copy">
+          <xsl:attribute name="verbose">true</xsl:attribute>
+          <xsl:attribute name="overwrite">true</xsl:attribute>
+          <xsl:attribute name="file">${EXPRESSDIR}/errors.em</xsl:attribute>  
+          <xsl:attribute name="tofile">${CHECKDIR}/${ARMERRFILE}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="copy">
+          <xsl:attribute name="verbose">true</xsl:attribute>
+          <xsl:attribute name="overwrite">true</xsl:attribute>
+          <xsl:attribute name="file">${ARMEXPRESS}</xsl:attribute>  
+          <xsl:attribute name="todir">${CHECKDIR}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:text>
+        </xsl:text>        
+        <echo>Compiling EXPRESS: ${MIMEXPRESS}</echo>
+        <xsl:element name="exec">
+          <xsl:attribute name="executable">${EXPRESSCOMP}</xsl:attribute>
+          <xsl:attribute name="dir">${EXPRESSDIR}</xsl:attribute>
+          <xsl:attribute name="output">${MIMERR}</xsl:attribute>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARGS}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${MIMEXPRESS}</xsl:attribute>
+          </xsl:element>
+        </xsl:element>
+
+        <xsl:element name="copy">
+          <xsl:attribute name="verbose">true</xsl:attribute>
+          <xsl:attribute name="overwrite">true</xsl:attribute>
+          <xsl:attribute name="file">${EXPRESSDIR}/errors.em</xsl:attribute>  
+          <xsl:attribute name="tofile">${CHECKDIR}/${MIMERRFILE}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="copy">
+          <xsl:attribute name="verbose">true</xsl:attribute>
+          <xsl:attribute name="overwrite">true</xsl:attribute>
+          <xsl:attribute name="file">${MIMEXPRESS}</xsl:attribute>  
+          <xsl:attribute name="todir">${CHECKDIR}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:text>
+        </xsl:text>
+        <xsl:element name="fixcrlf">
+          <xsl:attribute name="srcdir">${CHECKDIR}</xsl:attribute>
+          <xsl:attribute name="eol">lf</xsl:attribute><xsl:attribute name="eof">remove</xsl:attribute>
+          <xsl:attribute name="includes">*.txt, **/*.exp</xsl:attribute>
+        </xsl:element>
+      </target>
+    
+      <xsl:text>
+      </xsl:text>
+
+      <target name="zip" depends="init">
+        <echo>Zipping: ${ZIPFILE}</echo>
+
+        <xsl:element name="zip">
+          <xsl:attribute name="zipfile">${ZIPFILE}</xsl:attribute>
+          <xsl:attribute name="basedir">${CHECKDIR}</xsl:attribute>
+          <xsl:attribute name="excludes">**/*.zip, express/**</xsl:attribute>
+          <xsl:attribute name="includes">ant_check*.txt, arm*.*, mim_resources*.*</xsl:attribute>
+        </xsl:element>
+      </target>
+
+      <xsl:text>
+      </xsl:text>
+      <target name="all" depends="checks, compileexpress, zip"/>
+
+
+      <xsl:text>
+      </xsl:text>
   </project>
 
   </xsl:template>
@@ -81,9 +276,8 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:attribute name="failifexecutionfails">
           <xsl:value-of select="'false'"/>
         </xsl:attribute>
-        <xsl:attribute name="output">
-          <xsl:value-of select="$outfile"/>
-        </xsl:attribute>
+        <xsl:attribute name="dir">${UTILSDIR}</xsl:attribute>
+        <xsl:attribute name="output">${ANTERR}</xsl:attribute>
         <xsl:attribute name="append">
           <xsl:value-of select="'true'"/>
         </xsl:attribute>
@@ -114,7 +308,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="arg">
           <xsl:attribute name="value">            
-          <xsl:value-of select="concat('${UTILSDIR}','build.xml')"/>
+          <xsl:value-of select="'build.xml'"/>
           </xsl:attribute>
         </xsl:element>
        <xsl:element name="arg">
@@ -136,6 +330,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:attribute name="failifexecutionfails">
           <xsl:value-of select="'false'"/>
         </xsl:attribute>
+        <xsl:attribute name="dir">${UTILSDIR}</xsl:attribute>
         <xsl:attribute name="output">
           <xsl:value-of select="$outfile"/>
         </xsl:attribute>
@@ -169,7 +364,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="arg">
           <xsl:attribute name="value">            
-          <xsl:value-of select="concat('${UTILSDIR}','build.xml')"/>
+          <xsl:value-of select="'build.xml'"/>
           </xsl:attribute>
         </xsl:element>
        <xsl:element name="arg">
@@ -191,6 +386,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:attribute name="failifexecutionfails">
           <xsl:value-of select="'false'"/>
         </xsl:attribute>
+        <xsl:attribute name="dir">${UTILSDIR}</xsl:attribute>
         <xsl:attribute name="output">
           <xsl:value-of select="$outfile"/>
         </xsl:attribute>
@@ -224,7 +420,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="arg">
           <xsl:attribute name="value">            
-          <xsl:value-of select="concat('${UTILSDIR}','build.xml')"/>
+          <xsl:value-of select="'build.xml'"/>
           </xsl:attribute>
         </xsl:element>
        <xsl:element name="arg">
@@ -246,6 +442,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:attribute name="failifexecutionfails">
           <xsl:value-of select="'false'"/>
         </xsl:attribute>
+        <xsl:attribute name="dir">${UTILSDIR}</xsl:attribute>
         <xsl:attribute name="output">
           <xsl:value-of select="$outfile"/>
         </xsl:attribute>
@@ -279,7 +476,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="arg">
           <xsl:attribute name="value">            
-          <xsl:value-of select="concat('${UTILSDIR}','build.xml')"/>
+          <xsl:value-of select="'build.xml'"/>
           </xsl:attribute>
         </xsl:element>
        <xsl:element name="arg">

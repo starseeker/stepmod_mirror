@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: sect_e_aam.xsl,v 1.5 2002/10/19 07:11:02 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	<xsl:import href="aam_descriptions.xsl"/>
 	 <xsl:output method="html"/>
+	
+	<xsl:template match="module"/>
+	
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="annex_header">
     			<xsl:with-param name="annex_no" select="'E'"/>
@@ -47,7 +50,7 @@
 			<xsl:variable name="fig_title" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>
 			<h4>
 				<a href="{$aam_href}">
-					E.<xsl:value-of select="$fig_no"/> - <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
+					Figure E.<xsl:value-of select="$fig_no"/> - <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
 				</a>
 			</h4>
 		</xsl:for-each>

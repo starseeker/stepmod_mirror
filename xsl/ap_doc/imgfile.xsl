@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: imgfile.xsl,v 1.5 2002/10/08 10:20:07 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../imgfile.xsl"/>
@@ -191,20 +191,20 @@
 						<xsl:when test="name(../..)='arm'">
 							<xsl:choose>
 								<xsl:when test="$number=1">
-									<xsl:value-of select="concat('Figure A.',$number, ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
+									<xsl:value-of select="concat('Figure F.',$number, ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
 								</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="concat('Figure A.',$number, ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
+									<xsl:value-of select="concat('Figure F.',$number, ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
 								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:when>
 						<xsl:when test="name(../..)='mim'">
 							<xsl:choose>
 								<xsl:when test="$number=1">
-									<xsl:value-of select="concat('Figure F.',$number, ' - aim Schema level EXPRESS-G diagram ',$number)"/>
+									<xsl:value-of select="concat('Figure A.',$number, ' - AIM Schema level EXPRESS-G diagram ',$number)"/>
 								</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="concat('Figure F.',$number, ' - aim Entity level EXPRESS-G diagram ',($number - 1))"/>
+									<xsl:value-of select="concat('Figure A.',$number, ' - AIM Entity level EXPRESS-G diagram ',($number - 1))"/>
 								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:when>
@@ -222,7 +222,7 @@
 							<xsl:variable name="fig_no" select="position()"/>
 							<xsl:variable name="node" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@node"/>
 							<xsl:variable name="fig_title" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>
-							E.<xsl:value-of select="$fig_no"/> - <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
+							Figure E.<xsl:value-of select="$fig_no"/> - <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
 						</xsl:when>
 					</xsl:choose>
 				</xsl:variable>
@@ -232,11 +232,13 @@
 	
 	<xsl:template match="imgfile" mode="nav_arrows">
 		<xsl:param name="file"/>
-			<xsl:if test="$file=@file">
-			<xsl:variable name="maphref" select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
+		<xsl:if test="$file=@file">
+			<xsl:if test="name(../..)='arm' or name(../..)='mim'">
+				<xsl:variable name="maphref" select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
 				<a href="{$maphref}">
 					<img align="middle" border="0" alt="Mapping table" src="../../../images/mapping.gif"/>
 				</a>
+			</xsl:if>
 			<xsl:variable name="home">
 				<xsl:choose>
 					<xsl:when test="name(../..)='arm'">
@@ -258,7 +260,14 @@
 				</xsl:choose>
 			</xsl:variable>
 			<a href="./{$home}">
-				<img align="middle" border="0" alt="Index of Express-G pages" src="../../../images/home.gif"/>
+				<xsl:choose>
+					<xsl:when test="name(../..)='arm' or name(../..)='mim'">
+						<img align="middle" border="0" alt="Index of Express-G pages" src="../../../images/home.gif"/>
+					</xsl:when>
+					<xsl:when test="name(../..)='aam'">
+						<img align="middle" border="0" alt="Index of IDEF0 pages" src="../../../images/home.gif"/>
+					</xsl:when>
+				</xsl:choose>
 			</a>
 			<xsl:variable name="img_position">
 				<xsl:number/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: application_protocol_toc.xsl,v 1.10 2002/10/08 10:20:08 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -18,6 +18,7 @@
 		</xsl:apply-templates>
 		<xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
 		<xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>
+		<xsl:variable name="ap_name" select="./@name"/>
 		<table border="1" cellspacing="1" width="100%">
 			<tr>
 				<td valign="TOP">
@@ -375,10 +376,12 @@
 					<p class="toc">
 						<a href="{$application_protocol_root}/sys/a_exp_aim_lf{$FILE_EXT}">
 							A AIM EXPRESS expanded listing
+							
 						</a>
 						<xsl:call-template name="ap_expressg_icon">
-							<xsl:with-param name="schema" select="concat(./@name, '_mim')"/>
+							<xsl:with-param name="schema" select="$aim_schema_name"/>
 							<xsl:with-param name="module_root" select="$application_protocol_root"/>
+							<xsl:with-param name="mod" select="$ap_name"/>
 						</xsl:call-template>
 						<br/>
 						<a href="{$application_protocol_root}/sys/b_imp_meth{$FILE_EXT}">
@@ -405,8 +408,9 @@
 							F Application reference model
 						</a>
 						<xsl:call-template name="ap_expressg_icon">
-							<xsl:with-param name="schema" select="concat(./@name,'_arm')"/>
+							<xsl:with-param name="schema" select="$arm_schema_name"/>
 							<xsl:with-param name="module_root" select="$application_protocol_root"/>
+							<xsl:with-param name="mod" select="$ap_name"/>
 						</xsl:call-template>
 						<br/>
 						<a href="{$application_protocol_root}/sys/g_exp{$FILE_EXT}">

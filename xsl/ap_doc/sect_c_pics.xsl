@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: sect_c_pics.xsl,v 1.3 2002/10/08 10:18:09 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	<xsl:output method="html"/>
+	
+	<xsl:template match="module"/>
 	
 	<xsl:template match="application_protocol">
 		<a name="pics"/>
@@ -16,7 +18,7 @@
     			<xsl:with-param name="aname" select="'annexc'"/>
 			<xsl:with-param name="informative" select="'normative'"/>
 		</xsl:call-template>
-		<xsl:variable name="schema_name" select="@name"/>
+		<xsl:variable name="ap_name" select="@name"/>
 		<xsl:variable name="iso_no" select="@std_no"/>	
 		 <p>
 			This clause list the optional elements of this part of ISO 10303.  An implementation may choose to support any combination of these optional elements.  However, certain combinations of options are likely to be implemented together.  These combinations are called conformance classes and are described in the subclauses of this annex.
@@ -90,7 +92,7 @@
 				<th>Preprocessor</th>
 				<th>Postprocessor</th>
 			</tr>
-			<xsl:for-each select="document('../../data/application_protocols/nut_and_bolt/ccs.xml')/conformance_classes/cc">
+			<xsl:for-each select="document(concat('../../data/application_protocols/', $ap_name, '/ccs.xml'))/conformance_classes/cc">
 				<tr>
 					<td align="left">
 						<xsl:value-of select="concat(@name, ' (CC', @identifier, ')')"/>

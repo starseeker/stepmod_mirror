@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.8 2002/10/08 10:20:08 mikeward Exp $
+     $Id: application_protocol.xsl,v 1.9 2002/10/28 18:18:24 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -2246,10 +2246,11 @@
       <xsl:with-param name="filename" select="@file"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:variable name="href" select="concat('../',$file)"/>
+<xsl:variable name="module" select="../../../../module/@name"/>
+  <xsl:variable name="href" select="concat('../../../modules/', $module, '/', $file)"/>
   <li>
     <a href="{$href}">
-      <xsl:apply-templates select="." mode="title"/>
+	<xsl:apply-templates select="." mode="title"/>
     </a>
   </li>
 </xsl:template>
@@ -2264,26 +2265,26 @@
         <xsl:choose>
           <xsl:when test="$number=1">
             <xsl:value-of 
-              select="concat('Figure C.',$number, 
+              select="concat('Figure F.',$number, 
                       ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
-              select="concat('Figure C.',$number, 
+              select="concat('Figure F.',$number, 
                       ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="name(../..)='aim'">
+      <xsl:when test="name(../..)='mim'">
         <xsl:choose>
           <xsl:when test="$number=1">
             <xsl:value-of 
-              select="concat('Figure D.',$number, 
+              select="concat('Figure A.',$number, 
                       ' - AIM Schema level EXPRESS-G diagram ',$number)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
-              select="concat('Figure D.',$number, 
+              select="concat('Figure A.',$number, 
                       ' - AIM Entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>

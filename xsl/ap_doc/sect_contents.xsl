@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: $
+$Id: sect_contents.xsl,v 1.4 2002/09/26 09:25:19 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../sect_contents.xsl"/>
@@ -448,20 +448,20 @@ $Id: $
 				<xsl:when test="name(../..)='arm'">
 					<xsl:choose>
 						<xsl:when test="$number=1">
-							<xsl:value-of select="concat('Figure A.',$number, ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
+							<xsl:value-of select="concat('Figure F.',$number, ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat('Figure A.',$number, ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
+							<xsl:value-of select="concat('Figure F.',$number, ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
 				<xsl:when test="name(../..)='mim'">
 					<xsl:choose>
 						<xsl:when test="$number=1">
-							<xsl:value-of select="concat('Figure F.',$number, ' - AIM Schema level EXPRESS-G diagram ',$number)"/>
+							<xsl:value-of select="concat('Figure A.',$number, ' - AIM Schema level EXPRESS-G diagram ',$number)"/>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat('Figure F.',$number, ' - AIM Entity level EXPRESS-G diagram ',($number - 1))"/>
+							<xsl:value-of select="concat('Figure A.',$number, ' - AIM Entity level EXPRESS-G diagram ',($number - 1))"/>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>

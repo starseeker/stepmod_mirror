@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_4_express.xsl,v 1.3 2002/10/08 10:19:07 mikeward Exp $
+     $Id: sect_4_express.xsl,v 1.4 2002/10/28 18:18:24 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../sect_4_express.xsl"/>
@@ -387,6 +387,7 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
+				
 				<xsl:when test="$clause='constant'">
 					<xsl:choose>
 						<xsl:when test="document(string($xml_file))/express/schema/constant">
@@ -414,7 +415,8 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
-				<xsl:when test="$clause='entity'">#
+				
+				<xsl:when test="$clause='entity'">
 					<xsl:choose>
 						<xsl:when test="document(string($xml_file))/express/schema/entity">
 							<xsl:call-template name="express_clause_number">
@@ -427,6 +429,7 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
+				
 				<xsl:when test="$clause='subtype.constraint'">
 					<xsl:choose>
 						<xsl:when test="document(string($xml_file))/express/schema/subtype.constraint">

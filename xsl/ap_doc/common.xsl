@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: common.xsl,v 1.7 2002/10/21 14:05:13 mikeward Exp $
+     $Id: common.xsl,v 1.8 2002/10/28 18:18:24 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../common.xsl"/>
@@ -272,12 +272,66 @@
   </div>
 </xsl:template>
 
-	<xsl:template name="expressg_icon"/>
+
+	<xsl:template match="entity|type|schema|constant" mode="expressg_icon">
+		<xsl:param name="original_schema"/>
+		<xsl:variable name="schema">
+			<xsl:choose>
+				<xsl:when test="$original_schema">
+					<xsl:value-of select="$original_schema"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="../@name"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="ap_module_dir">
+			<xsl:call-template name="ap_module_directory">
+				<xsl:with-param name="application_protocol" select="$schema"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="module_name">
+			<xsl:call-template name="module_name">
+				<xsl:with-param name="module" select="$schema"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="href_expg">
+			<xsl:choose>
+				<xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
+					<xsl:choose>
+						<xsl:when test="./graphic.element/@page">
+							<xsl:value-of select="concat('../../../modules/', $module_name, '/armexpg',./graphic.element/@page,$FILE_EXT)"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="concat('../../../modules/',$module_name,'/armexpg1',$FILE_EXT)"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+				<xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
+					<xsl:choose>
+						<xsl:when test="./graphic.element/@page">
+							<xsl:value-of select="concat('../../../modules/',$module_name,'/mimexpg',./graphic.element/@page,$FILE_EXT)"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="concat('../../../modules/',$module_name,'/mimexpg1',$FILE_EXT)"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:when>
+			</xsl:choose>
+		</xsl:variable>
+		&#160;&#160;
+		<a href="{$href_expg}">
+			<img align="middle" border="0" alt="EXPRESS-G" src="../../../../images/expg.gif"/>
+		</a>
+	</xsl:template>
+
+
 
 	<xsl:template name="ap_expressg_icon">
 		<xsl:param name="schema"/>
 		<xsl:param name="entity"/>
 		<xsl:param name="module_root" select="'..'"/>
+		<xsl:param name="mod"/>
 		<xsl:variable name="href_expg">
 			<xsl:choose>
 				<xsl:when test="$entity">
@@ -285,20 +339,20 @@
 						<xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
 							<xsl:choose>
 								<xsl:when test="./graphic.element/@page">
-									<xsl:value-of select="concat			('../../modules/nut_and_bolt/armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
+									<xsl:value-of select="concat('../../modules/', $mod, '/armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
 			                			</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="concat('../../../modules/nut_and_bolt/armexpg1',			$FILE_EXT)"/>
+									<xsl:value-of select="concat('../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
 								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:when>
 						<xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
 							<xsl:choose>
 								<xsl:when test="./graphic.element/@page">
-									<xsl:value-of select="concat				('../../modules/nut_and_bolt/mimexpg',./graphic.element/@page,$FILE_EXT)"/>
+									<xsl:value-of select="concat('../../modules/', $mod, '/mimexpg',./graphic.element/@page,$FILE_EXT)"/>
 								</xsl:when>
 								<xsl:otherwise>
-									<xsl:value-of select="concat('../../../modules/nut_and_bolt/mimexpg1',			$FILE_EXT)"/>
+									<xsl:value-of select="concat('../../modules/', $mod, '/mimexpg1', $FILE_EXT)"/>
 								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:when>
@@ -307,10 +361,10 @@
 				<xsl:otherwise>
 					<xsl:choose>
 						<xsl:when test="substring($schema, string-length($schema)-3)='_arm'">
-							<xsl:value-of select="concat	($module_root,'/../../modules/nut_and_bolt/armexpg1',	$FILE_EXT)"/>
+							<xsl:value-of select="concat	($module_root,'/../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
 						</xsl:when>
 						<xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
-							<xsl:value-of select="concat	($module_root,'/../../modules/nut_and_bolt/mimexpg1',	$FILE_EXT)"/>
+							<xsl:value-of select="concat	($module_root,'/../../modules/', $mod, '/mimexpg1', $FILE_EXT)"/>
 						</xsl:when>
 					</xsl:choose>
 				</xsl:otherwise>

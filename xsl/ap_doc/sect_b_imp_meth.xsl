@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: sect_b_imp_meth.xsl,v 1.3 2002/10/08 10:18:09 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	 <xsl:output method="html"/>
+	
+	<xsl:template match="module"/>
 	
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="annex_header">

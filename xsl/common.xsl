@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.111 2003/08/06 06:40:35 robbod Exp $
+$Id: common.xsl,v 1.112 2003/08/06 20:37:56 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1081,10 +1081,25 @@ $Id: common.xsl,v 1.111 2003/08/06 06:40:35 robbod Exp $
 
     <xsl:variable name="first_char"
       select="substring(translate($module,$LOWER,$UPPER),1,1)"/>
-
-    <xsl:variable name="module_name"
+    <xsl:variable name="module_name1"
       select="concat($first_char,
               translate(substring($module,2),'_',' '))"/>
+
+    <xsl:variable name="ap_sect1" select="substring($module_name1,1,2)"/>
+    <xsl:variable name="ap_sect2" select="translate(substring($module_name1,3,3),'0123456789','##########')"/>
+
+
+    <xsl:variable name="module_name">
+      <xsl:choose>
+        <xsl:when test="$ap_sect2='###' and $ap_sect1 = 'Ap'">
+          <xsl:value-of select="concat('AP',substring($module_name1,3))"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$module_name1"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:value-of select="$module_name"/>
 
   </xsl:template>

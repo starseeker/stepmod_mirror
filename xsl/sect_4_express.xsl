@@ -15,7 +15,6 @@
 >
 
   <xsl:import href="express_link.xsl"/> 
-  <xsl:import href="express_description.xsl"/> 
 
   <xsl:output method="html"/>
 
@@ -264,34 +263,21 @@
     </A>
   </h3>
   
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="./@name"/>
-  </xsl:call-template> 
-  <!-- output description from express -->
-  <p>
-    <xsl:choose>
-      <xsl:when test="./description">
-        <xsl:apply-templates select="./description"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../@name"/>
-            <xsl:with-param name="entity" select="./@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
+  <!-- output description -->
+    <p>
+      <xsl:choose>
+        <xsl:when test="./description">
+          <xsl:apply-templates select="./description"/>
+        </xsl:when>
+        <xsl:otherwise>
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
               select="concat('No description provided for ',$aname)"/>
           </xsl:call-template>
-        </xsl:if>
-      </xsl:otherwise>
-    </xsl:choose>
-  </p>
+        </xsl:otherwise>
+      </xsl:choose>
+    </p>
 
     <!-- output EXPRESS -->
     <p><u>EXPRESS specification:</u></p>
@@ -378,32 +364,17 @@
     </A>
   </h3>
   
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="./@name"/>
-  </xsl:call-template> 
-  <!-- output description from express -->
-
   <p>
     <xsl:choose>
       <xsl:when test="./description">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../@name"/>
-            <xsl:with-param name="entity" select="@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',$aname)"/>
-          </xsl:call-template>
-        </xsl:if>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </p>
@@ -540,31 +511,17 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template> 
-  <!-- output description from express -->
   <p>
     <xsl:choose>
       <xsl:when test="./description">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../@name"/>
-            <xsl:with-param name="entity" select="@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',@name)"/>
-          </xsl:call-template>
-        </xsl:if>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',@name)"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </p>
@@ -742,37 +699,19 @@
         <xsl:value-of select="@name"/>:
       </a>
     </b>
-
-  <!-- get description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../../@name"/>
-    <xsl:with-param name="entity" select="../@name"/>
-    <xsl:with-param name="attribute" select="@name"/>
-  </xsl:call-template>
-  
-  <!-- output description from express -->
-  <xsl:choose>
-    <xsl:when test="./description">
-      <xsl:apply-templates select="./description"/>
-    </xsl:when>
-    <xsl:otherwise>      
-      <xsl:variable name="external_description">
-        <xsl:call-template name="check_external_description">
-          <xsl:with-param name="schema" select="../../@name"/>
-          <xsl:with-param name="entity" select="../@name"/>
-          <xsl:with-param name="attribute" select="@name"/>
-        </xsl:call-template>        
-      </xsl:variable>
-      <xsl:if test="$external_description='false'">
+    <xsl:choose>
+      <xsl:when test="./description">
+        <xsl:apply-templates select="./description"/>
+      </xsl:when>
+      <xsl:otherwise>
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
-      </xsl:if>
-    </xsl:otherwise>
-  </xsl:choose>
-</blockquote>
+      </xsl:otherwise>
+    </xsl:choose>
+  </blockquote>
 </xsl:template>
 
 <xsl:template match="derived" mode="description">
@@ -797,32 +736,16 @@
         <xsl:value-of select="@name"/>:
       </a>
     </b>
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../../@name"/>
-    <xsl:with-param name="entity" select="../@name"/>
-    <xsl:with-param name="attribute" select="@name"/>
-  </xsl:call-template>
-  <!-- output description from express -->
     <xsl:choose>
       <xsl:when test="./description">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../../@name"/>
-            <xsl:with-param name="entity" select="../@name"/>
-            <xsl:with-param name="attribute" select="@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',$aname)"/>
-          </xsl:call-template>
-        </xsl:if>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </blockquote>
@@ -848,33 +771,16 @@
         <xsl:value-of select="@name"/>:
       </a>
     </b>
-
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../../@name"/>
-    <xsl:with-param name="entity" select="../@name"/>
-    <xsl:with-param name="attribute" select="@name"/>
-  </xsl:call-template>
-  <!-- output description from express -->
     <xsl:choose>
       <xsl:when test="./description">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../../@name"/>
-            <xsl:with-param name="entity" select="../@name"/>
-            <xsl:with-param name="attribute" select="@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',$aname)"/>
-          </xsl:call-template>
-        </xsl:if>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </blockquote>
@@ -902,33 +808,16 @@
         <xsl:value-of select="concat(@label,' : ')"/>
       </a>
     </b>
-    <!-- output description from external file -->
-    <xsl:call-template name="output_external_description">
-      <xsl:with-param name="schema" select="../../@name"/>
-      <xsl:with-param name="entity" select="../@name"/>
-      <xsl:with-param name="unique" select="./@name"/>
-    </xsl:call-template>
-    <!-- output description from express -->
-    
     <xsl:choose>
       <xsl:when test="./description">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../../@name"/>
-            <xsl:with-param name="entity" select="../@name"/>
-            <xsl:with-param name="unique" select="./@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',$aname)"/>
-          </xsl:call-template>
-        </xsl:if>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </blockquote>
@@ -955,33 +844,16 @@
         <xsl:value-of select="concat(@label,' : ')"/>
       </a>
     </b>
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../../@name"/>
-    <xsl:with-param name="entity" select="../@name"/>
-    <xsl:with-param name="where" select="./@name"/>
-  </xsl:call-template>
-  <!-- output description from express -->
-
     <xsl:choose>
       <xsl:when test="./description">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../../@name"/>
-            <xsl:with-param name="entity" select="../@name"/>
-            <xsl:with-param name="where" select="@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('No description provided for ',$aname)"/>
-          </xsl:call-template>
-        </xsl:if>
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </blockquote>
@@ -1041,32 +913,19 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
-  <!-- output description from express -->
+  <!-- output the description -->
   <xsl:choose>
     <xsl:when test="./description">
       <xsl:apply-templates select="./description"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:variable name="external_description">
-        <xsl:call-template name="check_external_description">
-          <xsl:with-param name="schema" select="../@name"/>
-          <xsl:with-param name="entity" select="@name"/>
-        </xsl:call-template>        
-      </xsl:variable>
-      <xsl:if test="$external_description='false'">
+      </xsl:when>
+      <xsl:otherwise>
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
-      </xsl:if>
-    </xsl:otherwise>
-  </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
 
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
@@ -1140,33 +999,21 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
   </h3>
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
-  <!-- output description from express -->
+
+  <!-- output the description -->
   <xsl:choose>
     <xsl:when test="./description">
       <xsl:apply-templates select="./description"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:variable name="external_description">
-        <xsl:call-template name="check_external_description">
-          <xsl:with-param name="schema" select="../@name"/>
-          <xsl:with-param name="entity" select="@name"/>
-        </xsl:call-template>        
-      </xsl:variable>
-      <xsl:if test="$external_description='false'">
+      </xsl:when>
+      <xsl:otherwise>
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
-      </xsl:if>
-    </xsl:otherwise>
-  </xsl:choose>
-  
+      </xsl:otherwise>
+    </xsl:choose>
+
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
   *)
@@ -1267,33 +1114,20 @@
     </A>
   </h3>
 
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
-  <!-- output description from express -->
+  <!-- output the description -->
   <xsl:choose>
     <xsl:when test="./description">
       <xsl:apply-templates select="./description"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:variable name="external_description">
-        <xsl:call-template name="check_external_description">
-          <xsl:with-param name="schema" select="../@name"/>
-          <xsl:with-param name="entity" select="@name"/>
-        </xsl:call-template>        
-      </xsl:variable>
-      <xsl:if test="$external_description='false'">
+      </xsl:when>
+      <xsl:otherwise>
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('No description provided for ',$aname)"/>
         </xsl:call-template>
-      </xsl:if>
-    </xsl:otherwise>
-  </xsl:choose>
-  
+      </xsl:otherwise>
+    </xsl:choose>
+
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
   *)

@@ -1,12 +1,120 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.17 2002/07/15 09:00:07 goset1 Exp $ -->
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
 <express
-   language_version="2"
-   rcs.date="$Date: 2002/07/15 09:00:07 $"
-   rcs.revision="$Revision: 1.17 $">
-  <schema name="classification_with_attributes_mim">
+  language_version="2"
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.22"
+    source="../data/modules/classification_with_attributes/mim.exp"/>
+
+  <schema name="Classification_with_attributes_mim">
+    <interface
+      kind="use"
+      schema="Class_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="External_class_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Measure_representation_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Plib_class_reference_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Part_and_version_identification_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Part_view_definition_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_definition_schema">
+      <interfaced.item
+        name="characterized_object"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="management_resources_schema">
+      <interfaced.item
+        name="classification_assignment"/>
+    </interface>
+
+    <type name="classification_item">
+      <select
+        extensible="YES"
+        genericentity="YES">
+      </select>
+
+    </type>
+    <entity
+      name="applied_classification_assignment"
+      supertypes="classification_assignment">
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="classification_item"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="NOT ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(SELF\classification_assignment.assigned_class)) XOR 	(SIZEOF( QUERY( it&lt;* SELF.items | 		SIZEOF(['CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASSIFICATION_ITEM'] * TYPEOF(it)) &lt;&gt; 1 ))= 0)">
+      </where>
+    </entity>
+
+    <entity
+      name="characterized_class"
+      supertypes="characterized_object class">
+    </entity>
+
+    <rule
+      name="restrict_applied_classification_assignment_role"
+      appliesto="applied_classification_assignment">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF( QUERY( aca &lt;* applied_classification_assignment | 	('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(aca.assigned_class)) AND 	NOT( aca.role.name IN ['definitional','non-definitional','']) )) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF( QUERY( aca &lt;* applied_classification_assignment | 	(aca.role.name IN ['definitional','non-definitional','']) AND 	NOT('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(aca.assigned_class)) )) = 0">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF( QUERY( aca &lt;* applied_classification_assignment | 	('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS_SYSTEM' IN TYPEOF(aca.assigned_class)) AND	 (aca.role.name &lt;&gt; 'class system membership') )) = 0">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF( QUERY( aca &lt;* applied_classification_assignment | 	(aca.role.name = 'class system membership') AND 	NOT ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS_SYSTEM' IN TYPEOF(aca.assigned_class)) )) = 0">
+      </where>
+
+    </rule>
+
   </schema>
+
 </express>

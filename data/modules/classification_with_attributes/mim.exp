@@ -1,0 +1,60 @@
+(* $Id: arm.exp,v 1.2 2002/08/13 14:48:58 goset1 Exp $
+N	ISO/WD 10303-	Classification with attributes - Express MIM *)
+
+
+SCHEMA Classification_with_attributes_mim;
+
+USE FROM Class_mim;
+
+USE FROM External_class_mim;
+	-- note: enables Class_wth_attributes to be an external_class
+
+USE FROM Measure_representation_mim;
+
+USE FROM Plib_class_reference_mim;
+	-- note: that inclusion extends class_source_select with Plib_class_reference
+
+USE FROM Part_and_version_identification_mim;
+
+USE FROM Part_view_definition_mim;
+
+USE FROM product_property_definition_schema (
+	characterized_object);
+
+USE FROM management_resources_schema (
+	classification_assignment);
+
+
+TYPE classification_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+ENTITY applied_classification_assignment
+SUBTYPE of (classification_assignment);
+   items : SET [1:?] OF classification_item; 
+WHERE
+WR1: NOT ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(SELF\classification_assignment.assigned_class)) XOR 
+	(SIZEOF( QUERY( it<* SELF.items | 
+		SIZEOF(['CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASSIFICATION_ITEM'] * TYPEOF(it)) <> 1 ))= 0);
+END_ENTITY;
+
+ENTITY characterized_class
+SUBTYPE OF (characterized_object, class);
+END_ENTITY;
+
+RULE restrict_applied_classification_assignment_role FOR (applied_classification_assignment); 
+WHERE 
+WR1: SIZEOF( QUERY( aca <* applied_classification_assignment | 
+	('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(aca.assigned_class)) AND 
+	NOT( aca.role.name IN ['definitional','non-definitional','']) )) = 0; 
+WR2: SIZEOF( QUERY( aca <* applied_classification_assignment | 
+	(aca.role.name IN ['definitional','non-definitional','']) AND 
+	NOT('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(aca.assigned_class)) )) = 0; 
+WR3: SIZEOF( QUERY( aca <* applied_classification_assignment | 
+	('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS_SYSTEM' IN TYPEOF(aca.assigned_class)) AND
+	 (aca.role.name <> 'class system membership') )) = 0; 
+WR4: SIZEOF( QUERY( aca <* applied_classification_assignment | 
+	(aca.role.name = 'class system membership') AND 
+	NOT ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS_SYSTEM' IN TYPEOF(aca.assigned_class)) )) = 0; 
+END_RULE;
+
+END_SCHEMA;

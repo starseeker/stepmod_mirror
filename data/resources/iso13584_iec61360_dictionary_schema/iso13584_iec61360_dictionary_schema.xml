@@ -1,0 +1,2032 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $" reference="ISO 13584-42">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.24"
+    source="iso13584_iec61360_dictionary_schema.exp"/>
+
+  <schema name="ISO13584_IEC61360_dictionary_schema">
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="person_organization_schema">
+      <interfaced.item
+        name="organization"/>
+      <interfaced.item
+        name="address"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="measure_schema">
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="ISO13584_IEC61360_language_resource_schema">
+    </interface>
+
+    <constant name="property_code_len"
+      expression="INTEGER := 14;">
+    </constant>
+    <constant name="class_code_len"
+      expression="INTEGER := 14;">
+    </constant>
+    <constant name="data_type_code_lenINTEGER"
+      expression="INTEGER := 14;">
+    </constant>
+    <constant name="supplier_code_len"
+      expression="INTEGER := 70;">
+    </constant>
+    <constant name="version_len"
+      expression="INTEGER := 9;">
+    </constant>
+    <constant name="revision_len"
+      expression="INTEGER := 3;">
+    </constant>
+    <constant name="value_code_len"
+      expression="INTEGER :=18;">
+    </constant>
+    <constant name="pref_name_len"
+      expression="INTEGER := 70;">
+    </constant>
+    <constant name="short_name_len"
+      expression="INTEGER := 15;">
+    </constant>
+    <constant name="syn_name_len"
+      expression="INTEGER := pref_name_len;">
+    </constant>
+    <constant name="DET_classification_len"
+      expression="INTEGER := 3;">
+    </constant>
+    <constant name="source_doc_len"
+      expression="INTEGER := 80;">
+    </constant>
+    <constant name="value_format_len"
+      expression="INTEGER := 80;">
+    </constant>
+    <constant name="sep_cv"
+      expression="STRING := '-';">
+    </constant>
+    <constant name="sep_id"
+      expression="STRING := '.';">
+    </constant>
+    <entity
+      name="basic_semantic_unit"
+      abstract.supertype="YES"
+      super.expression="(ONEOF(    supplier_BSU,    class_BSU,    property_BSU,    data_type_BSU,    supplier_related_BSU,    class_related_BSU))">
+      <explicit
+        name="code">
+        <typename
+          name="code_type"/>
+      </explicit>
+      <explicit
+        name="version">
+        <typename
+          name="version_type"/>
+      </explicit>
+      <derived
+        name="dic_identifier"
+        expression="code + sep_cv + version">
+        <typename
+          name="identifier"/>
+      </derived>
+      <inverse
+        name="definition"
+        entity="dictionary_element"
+        attribute="identified_by">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <inverse
+        name="referenced_by"
+        entity="content_item"
+        attribute="dictionary_definition">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+    </entity>
+
+    <entity
+      name="dictionary_element"
+      abstract.supertype="YES"
+      super.expression="(ONEOF(    supplier_element,    class_and_property_elements,    data_type_element))">
+      <explicit
+        name="identified_by">
+        <typename
+          name="basic_semantic_unit"/>
+      </explicit>
+      <explicit
+        name="time_stamps"
+        optional="YES">
+        <typename
+          name="dates"/>
+      </explicit>
+      <explicit
+        name="revision">
+        <typename
+          name="revision_type"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="content_item"
+      abstract.supertype="YES">
+      <explicit
+        name="dictionary_definition">
+        <typename
+          name="basic_semantic_unit"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="supplier_related_BSU"
+      abstract.supertype="YES"
+      supertypes="basic_semantic_unit">
+    </entity>
+
+    <entity
+      name="class_related_BSU"
+      abstract.supertype="YES"
+      supertypes="basic_semantic_unit">
+    </entity>
+
+    <entity
+      name="supplier_BSU_relationship"
+      abstract.supertype="YES">
+      <explicit
+        name="relating_supplier">
+        <typename
+          name="supplier_element"/>
+      </explicit>
+      <explicit
+        name="related_tokens">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="supplier_related_BSU"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="class_BSU_relationship"
+      abstract.supertype="YES">
+      <explicit
+        name="relating_class">
+        <typename
+          name="class"/>
+      </explicit>
+      <explicit
+        name="related_tokens">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="class_related_BSU"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="supplier_BSU"
+      supertypes="basic_semantic_unit">
+      <explicit
+        name="code">
+        <redeclaration
+          entity-ref="basic_semantic_unit"/>
+          <typename
+            name="supplier_code_type"/>
+        </explicit>
+        <derived
+          name="SELF\basic_semantic_unit.version"
+          expression="'1'">
+          <typename
+            name="version_type"/>
+        </derived>
+        <derived
+          name="absolute_id"
+          expression="SELF\basic_semantic_unit.code">
+          <typename
+            name="identifier"/>
+        </derived>
+        <unique
+          label="UR1">
+          <unique.attribute
+            attribute="absolute_id"/>
+        </unique>
+      </entity>
+
+      <entity
+        name="supplier_element"
+        supertypes="dictionary_element">
+        <explicit
+          name="identified_by">
+          <redeclaration
+            entity-ref="dictionary_element"/>
+            <typename
+              name="supplier_BSU"/>
+          </explicit>
+          <explicit
+            name="org">
+            <typename
+              name="organization"/>
+          </explicit>
+          <explicit
+            name="addr">
+            <typename
+              name="address"/>
+          </explicit>
+          <inverse
+            name="associated_items"
+            entity="supplier_BSU_relationship"
+            attribute="relating_supplier">
+            <inverse.aggregate
+              type="SET"
+              lower="0"
+              upper="?"/>
+          </inverse>
+        </entity>
+
+        <entity
+          name="class_BSU"
+          supertypes="basic_semantic_unit">
+          <explicit
+            name="code">
+            <redeclaration
+              entity-ref="basic_semantic_unit"/>
+              <typename
+                name="class_code_type"/>
+            </explicit>
+            <explicit
+              name="defined_by">
+              <typename
+                name="supplier_BSU"/>
+            </explicit>
+            <derived
+              name="absolute_id"
+              expression="defined_by.absolute_id + sep_id + dic_identifier">
+              <typename
+                name="identifier"/>
+            </derived>
+            <derived
+              name="known_visible_properties"
+              expression="compute_known_visible_properties(SELF)">
+              <aggregate
+                type="SET"
+                lower="0"
+                upper="?"/>
+              <typename
+                name="property_BSU"/>
+            </derived>
+            <derived
+              name="known_visible_data_types"
+              expression="compute_known_visible_data_types(SELF)">
+              <aggregate
+                type="SET"
+                lower="0"
+                upper="?"/>
+              <typename
+                name="data_type_BSU"/>
+            </derived>
+            <inverse
+              name="subclasses"
+              entity="class"
+              attribute="its_superclass">
+              <inverse.aggregate
+                type="SET"
+                lower="0"
+                upper="?"/>
+            </inverse>
+            <inverse
+              name="added_visible_propertiesSET"
+              entity="property_BSU"
+              attribute="name_scope">
+              <inverse.aggregate
+                type="SET"
+                lower="0"
+                upper="?"/>
+            </inverse>
+            <inverse
+              name="added_visible_data_typesSET"
+              entity="data_type_BSU"
+              attribute="name_scope">
+              <inverse.aggregate
+                type="SET"
+                lower="0"
+                upper="?"/>
+            </inverse>
+            <unique
+              label="UR1">
+              <unique.attribute
+                attribute="absolute_id"/>
+            </unique>
+          </entity>
+
+          <entity
+            name="class_and_property_elements"
+            abstract.supertype="YES"
+            super.expression="(ONEOF(    property_DET,     class))"
+            supertypes="dictionary_element">
+            <explicit
+              name="names">
+              <typename
+                name="item_names"/>
+            </explicit>
+            <explicit
+              name="definition">
+              <typename
+                name="definition_type"/>
+            </explicit>
+            <explicit
+              name="source_doc_of_definition"
+              optional="YES">
+              <typename
+                name="document"/>
+            </explicit>
+            <explicit
+              name="note"
+              optional="YES">
+              <typename
+                name="note_type"/>
+            </explicit>
+            <explicit
+              name="remark"
+              optional="YES">
+              <typename
+                name="remark_type"/>
+            </explicit>
+          </entity>
+
+          <entity
+            name="class"
+            abstract.supertype="YES"
+            super.expression="(item_class)"
+            supertypes="class_and_property_elements">
+            <explicit
+              name="identified_by">
+              <redeclaration
+                entity-ref="dictionary_element"/>
+                <typename
+                  name="class_BSU"/>
+              </explicit>
+              <explicit
+                name="its_superclass"
+                optional="YES">
+                <typename
+                  name="class_BSU"/>
+              </explicit>
+              <explicit
+                name="described_by">
+                <aggregate
+                  type="LIST"
+                  lower="0"
+                  upper="?"
+                  unique="YES"/>
+                <typename
+                  name="property_BSU"/>
+              </explicit>
+              <explicit
+                name="defined_types">
+                <aggregate
+                  type="SET"
+                  lower="0"
+                  upper="?"/>
+                <typename
+                  name="data_type_BSU"/>
+              </explicit>
+              <derived
+                name="subclasses"
+                expression="identified_by.subclasses">
+                <aggregate
+                  type="SET"
+                  lower="0"
+                  upper="?"/>
+                <typename
+                  name="class"/>
+              </derived>
+              <derived
+                name="known_applicable_properties"
+                expression="compute_known_applicable_properties(            SELF\dictionary_element.identified_by)">
+                <aggregate
+                  type="SET"
+                  lower="0"
+                  upper="?"/>
+                <typename
+                  name="property_BSU"/>
+              </derived>
+              <derived
+                name="known_applicable_data_types"
+                expression="compute_known_applicable_data_types(            SELF\dictionary_element.identified_by)">
+                <aggregate
+                  type="SET"
+                  lower="0"
+                  upper="?"/>
+                <typename
+                  name="data_type_BSU"/>
+              </derived>
+              <inverse
+                name="associated_items"
+                entity="class_BSU_relationship"
+                attribute="relating_class">
+                <inverse.aggregate
+                  type="SET"
+                  lower="0"
+                  upper="?"/>
+              </inverse>
+              <where
+                label="WR1"
+                expression="acyclic_superclass_relationship(SELF.identified_by, [])">
+              </where>
+              <where
+                label="WR2"
+                expression="NOT all_class_descriptions_reachable(        SELF\dictionary_element.identified_by)        OR (list_to_set(SELF.described_by) &lt;=         SELF\dictionary_element.identified_by        \class_BSU.known_visible_properties)">
+              </where>
+              <where
+                label="WR3"
+                expression="NOT all_class_descriptions_reachable(        SELF\dictionary_element.identified_by)        OR (SELF.defined_types &lt;=         SELF\dictionary_element.identified_by        \class_BSU.known_visible_data_types)">
+              </where>
+              <where
+                label="WR4"
+                expression="check_properties_applicability(SELF)">
+              </where>
+              <where
+                label="WR5"
+                expression="check_datatypes_applicability(SELF)">
+              </where>
+            </entity>
+
+            <entity
+              name="item_class"
+              super.expression="(ONEOF(component_class, material_class))"
+              supertypes="class">
+              <explicit
+                name="simplified_drawing"
+                optional="YES">
+                <typename
+                  name="graphics"/>
+              </explicit>
+              <explicit
+                name="sub_class_properties">
+                <aggregate
+                  type="SET"
+                  lower="0"
+                  upper="?"/>
+                <typename
+                  name="property_BSU"/>
+              </explicit>
+              <explicit
+                name="class_constant_values">
+                <aggregate
+                  type="SET"
+                  lower="0"
+                  upper="?"/>
+                <typename
+                  name="class_value_assignment"/>
+              </explicit>
+              <explicit
+                name="coded_name"
+                optional="YES">
+                <typename
+                  name="value_code_type"/>
+              </explicit>
+              <where
+                label="WR1"
+                expression="QUERY(p &lt;* sub_class_properties        | NOT(p IN SELF.described_by)) = []">
+              </where>
+              <where
+                label="WR2"
+                expression="NOT all_class_descriptions_reachable(SELF.identified_by) OR        (QUERY(va &lt;* class_constant_values | SIZEOF(QUERY(c &lt;*        va.super_class_defined_property.describes_classes |        is_subclass(SELF, c)         AND (va.super_class_defined_property         IN c\item_class.sub_class_properties))) &lt;&gt; 1) = [])">
+              </where>
+            </entity>
+
+            <entity
+              name="component_class"
+              supertypes="item_class">
+            </entity>
+
+            <entity
+              name="material_class"
+              supertypes="item_class">
+            </entity>
+
+            <entity
+              name="property_BSU"
+              supertypes="basic_semantic_unit">
+              <explicit
+                name="code">
+                <redeclaration
+                  entity-ref="basic_semantic_unit"/>
+                  <typename
+                    name="property_code_type"/>
+                </explicit>
+                <explicit
+                  name="name_scope">
+                  <typename
+                    name="class_BSU"/>
+                </explicit>
+                <derived
+                  name="absolute_id"
+                  expression="name_scope.defined_by.absolute_id        + sep_id + name_scope.dic_identifier        + sep_id + dic_identifier">
+                  <typename
+                    name="identifier"/>
+                </derived>
+                <inverse
+                  name="describes_classes"
+                  entity="class"
+                  attribute="described_by">
+                  <inverse.aggregate
+                    type="SET"
+                    lower="0"
+                    upper="?"/>
+                </inverse>
+                <unique
+                  label="UR1">
+                  <unique.attribute
+                    attribute="absolute_id"/>
+                </unique>
+                <where
+                  label="WR1"
+                  expression="QUERY(c &lt;* describes_classes |        NOT(is_subclass(c, name_scope.definition[1])))= []">
+                </where>
+              </entity>
+
+              <entity
+                name="property_DET"
+                abstract.supertype="YES"
+                super.expression="(ONEOF(    condition_DET, dependent_P_DET, non_dependent_P_DET))"
+                supertypes="class_and_property_elements">
+                <explicit
+                  name="identified_by">
+                  <redeclaration
+                    entity-ref="dictionary_element"/>
+                    <typename
+                      name="property_BSU"/>
+                  </explicit>
+                  <explicit
+                    name="preferred_symbol"
+                    optional="YES">
+                    <typename
+                      name="mathematical_string"/>
+                  </explicit>
+                  <explicit
+                    name="synonymous_symbols">
+                    <aggregate
+                      type="SET"
+                      lower="0"
+                      upper="2"/>
+                    <typename
+                      name="mathematical_string"/>
+                  </explicit>
+                  <explicit
+                    name="figure"
+                    optional="YES">
+                    <typename
+                      name="graphics"/>
+                  </explicit>
+                  <explicit
+                    name="det_classification"
+                    optional="YES">
+                    <typename
+                      name="DET_classification_type"/>
+                  </explicit>
+                  <explicit
+                    name="domain">
+                    <typename
+                      name="data_type"/>
+                  </explicit>
+                  <explicit
+                    name="formula"
+                    optional="YES">
+                    <typename
+                      name="mathematical_string"/>
+                  </explicit>
+                  <derived
+                    name="describes_classes"
+                    expression="identified_by.describes_classes">
+                    <aggregate
+                      type="SET"
+                      lower="0"
+                      upper="?"/>
+                    <typename
+                      name="class"/>
+                  </derived>
+                </entity>
+
+                <entity
+                  name="condition_DET"
+                  supertypes="property_DET">
+                </entity>
+
+                <entity
+                  name="dependent_P_DET"
+                  supertypes="property_DET">
+                  <explicit
+                    name="depends_on">
+                    <aggregate
+                      type="SET"
+                      lower="1"
+                      upper="?"/>
+                    <typename
+                      name="property_BSU"/>
+                  </explicit>
+                  <where
+                    label="WR1"
+                    expression="QUERY(p &lt;* depends_on | NOT(definition_available_implies(        p, ('ISO13584_IEC61360_DICTIONARY_SCHEMA.CONDITION_DET'        IN TYPEOF(p.definition[1]))))) = []">
+                  </where>
+                </entity>
+
+                <entity
+                  name="non_dependent_P_DET"
+                  supertypes="property_DET">
+                </entity>
+
+                <entity
+                  name="class_value_assignment">
+                  <explicit
+                    name="super_class_defined_property">
+                    <typename
+                      name="property_BSU"/>
+                  </explicit>
+                  <explicit
+                    name="assigned_value">
+                    <typename
+                      name="value_code_type"/>
+                  </explicit>
+                  <where
+                    label="WR1"
+                    expression="definition_available_implies(super_class_defined_property,         ('ISO13584_IEC61360_DICTIONARY_SCHEMA'        +'.NON_QUANTITATIVE_CODE_TYPE' IN TYPEOF(        super_class_defined_property.        definition[1]\property_DET.domain)))">
+                  </where>
+                  <where
+                    label="WR2"
+                    expression="definition_available_implies(super_class_defined_property,         (SIZEOF(QUERY(v &lt;*         super_class_defined_property.        definition[1]\property_DET.domain        \non_quantitative_code_type.domain.its_values |        assigned_value = v.value_code)) = 1))">
+                  </where>
+                </entity>
+
+                <entity
+                  name="data_type_BSU"
+                  supertypes="basic_semantic_unit">
+                  <explicit
+                    name="code">
+                    <redeclaration
+                      entity-ref="basic_semantic_unit"/>
+                      <typename
+                        name="data_type_code_type"/>
+                    </explicit>
+                    <explicit
+                      name="name_scope">
+                      <typename
+                        name="class_BSU"/>
+                    </explicit>
+                    <derived
+                      name="absolute_id"
+                      expression="name_scope.defined_by.absolute_id           + sep_id + name_scope.dic_identifier            + sep_id + dic_identifier">
+                      <typename
+                        name="identifier"/>
+                    </derived>
+                    <inverse
+                      name="defining_class"
+                      entity="class"
+                      attribute="defined_types">
+                      <inverse.aggregate
+                        type="SET"
+                        lower="0"
+                        upper="1"/>
+                    </inverse>
+                    <unique
+                      label="absolute_id">
+                      <unique.attribute
+                        attribute="absolute_id"/>
+                    </unique>
+                    <where
+                      label="WR1"
+                      expression="is_subclass(defining_class[1], name_scope.definition[1])">
+                    </where>
+                  </entity>
+
+                  <entity
+                    name="data_type_element"
+                    supertypes="dictionary_element">
+                    <explicit
+                      name="identified_by">
+                      <redeclaration
+                        entity-ref="dictionary_element"/>
+                        <typename
+                          name="data_type_BSU"/>
+                      </explicit>
+                      <explicit
+                        name="names">
+                        <typename
+                          name="item_names"/>
+                      </explicit>
+                      <explicit
+                        name="type_definition">
+                        <typename
+                          name="data_type"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="data_type"
+                      abstract.supertype="YES"
+                      super.expression="(ONEOF(    simple_type,    complex_type,    named_type))">
+                    </entity>
+
+                    <entity
+                      name="simple_type"
+                      abstract.supertype="YES"
+                      super.expression="(ONEOF(    number_type,    boolean_type,    string_type))"
+                      supertypes="data_type">
+                      <explicit
+                        name="value_format">
+                        <typename
+                          name="value_format_type"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="number_type"
+                      super.expression="(ONEOF(    int_type,    real_type))"
+                      supertypes="simple_type">
+                    </entity>
+
+                    <entity
+                      name="int_type"
+                      super.expression="(ONEOF(    int_measure_type,    int_currency_type,    non_quantitative_int_type))"
+                      supertypes="number_type">
+                    </entity>
+
+                    <entity
+                      name="int_measure_type"
+                      supertypes="int_type">
+                      <explicit
+                        name="unit">
+                        <typename
+                          name="dic_unit"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="int_currency_type"
+                      supertypes="int_type">
+                      <explicit
+                        name="currency"
+                        optional="YES">
+                        <typename
+                          name="currency_code"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="non_quantitative_int_type"
+                      supertypes="int_type">
+                      <explicit
+                        name="domain">
+                        <typename
+                          name="value_domain"/>
+                      </explicit>
+                      <where
+                        label="WR1"
+                        expression="QUERY(v &lt;* domain.its_values |         'ISO13584_IEC61360_DICTIONARY_SCHEMA.VALUE_CODE_TYPE' IN        TYPEOF(v.value_code)) = []">
+                      </where>
+                    </entity>
+
+                    <entity
+                      name="real_type"
+                      super.expression="(ONEOF(    real_measure_type,    real_currency_type))"
+                      supertypes="number_type">
+                    </entity>
+
+                    <entity
+                      name="real_measure_type"
+                      supertypes="real_type">
+                      <explicit
+                        name="unit">
+                        <typename
+                          name="dic_unit"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="real_currency_type"
+                      supertypes="real_type">
+                      <explicit
+                        name="currency"
+                        optional="YES">
+                        <typename
+                          name="currency_code"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="boolean_type"
+                      supertypes="simple_type">
+                    </entity>
+
+                    <entity
+                      name="string_type"
+                      supertypes="simple_type">
+                    </entity>
+
+                    <entity
+                      name="non_quantitative_code_type"
+                      supertypes="string_type">
+                      <explicit
+                        name="domain">
+                        <typename
+                          name="value_domain"/>
+                      </explicit>
+                      <where
+                        label="WR1"
+                        expression="QUERY(v &lt;* domain.its_values |         NOT('ISO13584_IEC61360_DICTIONARY_SCHEMA.VALUE_CODE_TYPE' IN        TYPEOF(v.value_code))) = []">
+                      </where>
+                    </entity>
+
+                    <entity
+                      name="complex_type"
+                      abstract.supertype="YES"
+                      super.expression="(ONEOF(    level_type,    class_instance_type,    entity_instance_type))"
+                      supertypes="data_type">
+                    </entity>
+
+                    <entity
+                      name="level_type"
+                      supertypes="complex_type">
+                      <explicit
+                        name="levels">
+                        <aggregate
+                          type="LIST"
+                          lower="1"
+                          upper="4"
+                          unique="YES"/>
+                        <typename
+                          name="level"/>
+                      </explicit>
+                      <explicit
+                        name="value_type">
+                        <typename
+                          name="simple_type"/>
+                      </explicit>
+                      <where
+                        label="WR1"
+                        expression="'ISO13584_IEC61360_DICTIONARY_SCHEMA.NUMBER_TYPE'        IN TYPEOF(value_type)">
+                      </where>
+                    </entity>
+
+                    <type name="level">
+                      <enumeration
+                        items="min nom typ max">
+                      </enumeration>
+
+
+                    </type>
+                    <entity
+                      name="class_instance_type"
+                      supertypes="complex_type">
+                      <explicit
+                        name="domain">
+                        <typename
+                          name="class_BSU"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="entity_instance_type"
+                      supertypes="complex_type">
+                      <explicit
+                        name="type_name">
+                        <aggregate
+                          type="SET"/>
+                        <builtintype
+                          type="STRING"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="placement_type"
+                      super.expression="(ONEOF(    axis1_placement_type,    axis2_placement_2d_type,    axis2_placement_3d_type))"
+                      supertypes="entity_instance_type">
+                      <where
+                        label="WR1"
+                        expression="'GEOMETRY_SCHEMA.PLACEMENT'         IN SELF\entity_instance_type.type_name">
+                      </where>
+                    </entity>
+
+                    <entity
+                      name="axis1_placement_type"
+                      supertypes="placement_type">
+                      <where
+                        label="WR1"
+                        expression="'GEOMETRY_SCHEMA.AXIS1_PLACEMENT' IN        SELF\entity_instance_type.type_name">
+                      </where>
+                    </entity>
+
+                    <entity
+                      name="axis2_placement_2d_type"
+                      supertypes="placement_type">
+                      <where
+                        label="WR1"
+                        expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_2D'        IN SELF\entity_instance_type.type_name">
+                      </where>
+                    </entity>
+
+                    <entity
+                      name="axis2_placement_3d_type"
+                      supertypes="placement_type">
+                      <where
+                        label="WR1"
+                        expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D'         IN SELF\entity_instance_type.type_name">
+                      </where>
+                    </entity>
+
+                    <entity
+                      name="named_type"
+                      supertypes="data_type">
+                      <explicit
+                        name="referred_type">
+                        <typename
+                          name="data_type_BSU"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="value_domain">
+                      <explicit
+                        name="its_values">
+                        <aggregate
+                          type="LIST"
+                          lower="2"
+                          upper="?"/>
+                        <typename
+                          name="dic_value"/>
+                      </explicit>
+                      <explicit
+                        name="source_doc_of_value_domain"
+                        optional="YES">
+                        <typename
+                          name="document"/>
+                      </explicit>
+                      <explicit
+                        name="languages"
+                        optional="YES">
+                        <typename
+                          name="present_translations"/>
+                      </explicit>
+                      <explicit
+                        name="terms">
+                        <aggregate
+                          type="LIST"
+                          lower="0"
+                          upper="?"/>
+                        <typename
+                          name="item_names"/>
+                      </explicit>
+                      <where
+                        label="WR1"
+                        expression="NOT EXISTS(languages) OR (QUERY(v &lt;* its_values |        languages :&lt;&gt;: v.meaning.languages) = [])">
+                      </where>
+                      <where
+                        label="WR2"
+                        expression="codes_are_unique(its_values)">
+                      </where>
+                    </entity>
+
+                    <type name="integer_type">
+                      <builtintype
+                        type="INTEGER">
+                      </builtintype>
+
+
+                    </type>
+                    <type name="value_type">
+                      <select
+                        selectitems="value_code_type integer_type">
+                      </select>
+
+                    </type>
+                    <entity
+                      name="dic_value">
+                      <explicit
+                        name="value_code">
+                        <typename
+                          name="value_type"/>
+                      </explicit>
+                      <explicit
+                        name="meaning">
+                        <typename
+                          name="item_names"/>
+                      </explicit>
+                      <explicit
+                        name="source_doc_of_value"
+                        optional="YES">
+                        <typename
+                          name="document"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="non_si_unit"
+                      supertypes="named_unit">
+                      <explicit
+                        name="name">
+                        <typename
+                          name="label"/>
+                      </explicit>
+                    </entity>
+
+                    <rule
+                      name="assert_ONEOF"
+                      appliesto="named_unit">
+                      <algorithm>
+                      </algorithm>
+
+                      <where
+                        label="QUERY"
+                        expression="QUERY(u &lt;* named_unit |         ('ISO13584_IEC61360_DICTIONARY_SCHEMA.NON_SI_UNIT'         IN TYPEOF(u)) AND        ('MEASURE_SCHEMA.SI_UNIT' IN TYPEOF(u))        OR ('ISO13584_IEC61360_DICTIONARY_SCHEMA.NON_SI_UNIT'         IN TYPEOF(u)) AND        ('MEASURE_SCHEMA.CONTEXT_DEPENDENT_UNIT' IN TYPEOF(u))        OR ('ISO13584_IEC61360_DICTIONARY_SCHEMA.NON_SI_UNIT'        IN TYPEOF(u)) AND        ('MEASURE_SCHEMA.CONVERSION_BASED_UNIT' IN TYPEOF(u))        ) = []">
+                      </where>
+
+                    </rule>
+
+                    <entity
+                      name="dic_unit">
+                      <explicit
+                        name="structured_representation">
+                        <typename
+                          name="unit"/>
+                      </explicit>
+                      <explicit
+                        name="string_representation"
+                        optional="YES">
+                        <typename
+                          name="mathematical_string"/>
+                      </explicit>
+                    </entity>
+
+                    <type name="class_code_type">
+                      <typename
+                        name="code_type"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) &lt;= class_code_len">
+                      </where>
+                    </type>
+                    <type name="code_type">
+                      <typename
+                        name="identifier"/>
+
+                      <where
+                        label="WR1"
+                        expression="NOT(SELF LIKE '*.*')">
+                      </where>
+                      <where
+                        label="NOT"
+                        expression="NOT(SELF LIKE '*-*')">
+                      </where>
+                      <where
+                        label="NOT"
+                        expression="NOT(SELF LIKE '* *')">
+                      </where>
+                      <where
+                        label="NOT"
+                        expression="NOT(SELF = '')">
+                      </where>
+                    </type>
+                    <type name="currency_code">
+                      <typename
+                        name="identifier"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) = 3">
+                      </where>
+                    </type>
+                    <type name="data_type_code_type">
+                      <typename
+                        name="code_type"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) = data_type_code_len">
+                      </where>
+                    </type>
+                    <type name="date_type">
+                      <builtintype
+                        type="STRING">
+                      </builtintype>
+
+
+                    </type>
+                    <type name="definition_type">
+                      <typename
+                        name="translatable_text"/>
+
+                    </type>
+                    <type name="DET_classification_type">
+                      <typename
+                        name="identifier"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) = DET_classification_len">
+                      </where>
+                    </type>
+                    <type name="note_type">
+                      <typename
+                        name="translatable_text"/>
+
+                    </type>
+                    <type name="pref_name_type">
+                      <typename
+                        name="translatable_label"/>
+
+                      <where
+                        label="WR1"
+                        expression="check_label_length(SELF, pref_name_len)">
+                      </where>
+                    </type>
+                    <type name="property_code_type">
+                      <typename
+                        name="code_type"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) &lt;= property_code_len">
+                      </where>
+                    </type>
+                    <type name="remark_type">
+                      <typename
+                        name="translatable_text"/>
+
+                    </type>
+                    <type name="revision_type">
+                      <typename
+                        name="code_type"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) &lt;= revision_len">
+                      </where>
+                    </type>
+                    <type name="short_name_type">
+                      <typename
+                        name="translatable_label"/>
+
+                      <where
+                        label="WR1"
+                        expression="check_label_length(SELF, short_name_len)">
+                      </where>
+                    </type>
+                    <type name="supplier_code_type">
+                      <typename
+                        name="code_type"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) &lt;= supplier_code_len">
+                      </where>
+                    </type>
+                    <type name="syn_name_type">
+                      <select
+                        selectitems="label_with_language label">
+                      </select>
+
+                      <where
+                        label="WR1"
+                        expression="check_syn_length(SELF, syn_name_len)">
+                      </where>
+                    </type>
+                    <type name="value_code_type">
+                      <typename
+                        name="identifier"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) &lt;= value_code_len">
+                      </where>
+                    </type>
+                    <type name="value_format_type">
+                      <typename
+                        name="identifier"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) &lt;= value_format_len">
+                      </where>
+                    </type>
+                    <type name="version_type">
+                      <typename
+                        name="code_type"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) &lt;= version_len">
+                      </where>
+                      <where
+                        label="EXISTS"
+                        expression="EXISTS(VALUE(SELF)) AND ('INTEGER' IN TYPEOF(VALUE(SELF)))        AND (VALUE(SELF) &gt;= 0)">
+                      </where>
+                    </type>
+                    <type name="source_doc_type">
+                      <typename
+                        name="identifier"/>
+
+                      <where
+                        label="WR1"
+                        expression="LENGTH(SELF) &lt;= source_doc_len">
+                      </where>
+                    </type>
+                    <entity
+                      name="dates">
+                      <explicit
+                        name="date_of_original_definition">
+                        <typename
+                          name="date_type"/>
+                      </explicit>
+                      <explicit
+                        name="date_of_current_version">
+                        <typename
+                          name="date_type"/>
+                      </explicit>
+                      <explicit
+                        name="date_of_current_revision"
+                        optional="YES">
+                        <typename
+                          name="date_type"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="document"
+                      abstract.supertype="YES">
+                    </entity>
+
+                    <entity
+                      name="graphics"
+                      abstract.supertype="YES">
+                    </entity>
+
+                    <entity
+                      name="identified_document"
+                      supertypes="document">
+                      <explicit
+                        name="document_identifier">
+                        <typename
+                          name="source_doc_type"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="item_names">
+                      <explicit
+                        name="preferred_name">
+                        <typename
+                          name="pref_name_type"/>
+                      </explicit>
+                      <explicit
+                        name="synonymous_names">
+                        <aggregate
+                          type="SET"/>
+                        <typename
+                          name="syn_name_type"/>
+                      </explicit>
+                      <explicit
+                        name="short_name">
+                        <typename
+                          name="short_name_type"/>
+                      </explicit>
+                      <explicit
+                        name="languages"
+                        optional="YES">
+                        <typename
+                          name="present_translations"/>
+                      </explicit>
+                      <explicit
+                        name="icon"
+                        optional="YES">
+                        <typename
+                          name="graphics"/>
+                      </explicit>
+                      <where
+                        label="WR1"
+                        expression="NOT(EXISTS(languages )) OR (        ('ISO13584_IEC61360_LANGUAGE_RESOURCE_SCHEMA'        + '.TRANSLATED_LABEL' IN TYPEOF(preferred_name))        AND (languages :=: preferred_name\translated_label.languages)        AND ('ISO13584_IEC61360_LANGUAGE_RESOURCE_SCHEMA'        + '.TRANSLATED_LABEL' IN TYPEOF(short_name))        AND (languages :=: short_name\translated_label.languages)        AND (QUERY(s &lt;* synonymous_names |        NOT('ISO13584_IEC61360_DICTIONARY_SCHEMA' +         '.LABEL_WITH_LANGUAGE' IN TYPEOF(s))) = []))">
+                      </where>
+                      <where
+                        label="WR2"
+                        expression="NOT EXISTS(languages) OR (QUERY(s &lt;* synonymous_names |        EXISTS(s.language) AND NOT(s.language IN        QUERY(l &lt;* languages.language_codes | TRUE        ))) = [])">
+                      </where>
+                      <where
+                        label="WR3"
+                        expression="at_most_two_synonyms_per_language(languages,         synonymous_names)">
+                      </where>
+                    </entity>
+
+                    <entity
+                      name="label_with_language">
+                      <explicit
+                        name="l">
+                        <typename
+                          name="label"/>
+                      </explicit>
+                      <explicit
+                        name="language">
+                        <typename
+                          name="language_code"/>
+                      </explicit>
+                    </entity>
+
+                    <entity
+                      name="mathematical_string">
+                      <explicit
+                        name="text_representation">
+                        <typename
+                          name="text"/>
+                      </explicit>
+                      <explicit
+                        name="SGML_representation"
+                        optional="YES">
+                        <typename
+                          name="text"/>
+                      </explicit>
+                    </entity>
+
+                    <function
+                      name="acyclic_superclass_relationship">
+                      <parameter
+                        name="current">
+                        <typename
+                          name="class_BSU"/>
+                      </parameter>
+                      <parameter
+                        name="visited">
+                        <aggregate
+                          type="SET"/>
+                        <typename
+                          name="class"/>
+                      </parameter>
+                      <builtintype
+                        type="LOGICAL"/>
+                      <algorithm>
+
+IF SIZEOF(current.definition) = 1 THEN 
+    IF current.definition[1] IN visited THEN
+        RETURN(FALSE);
+    
+    ELSE
+        IF EXISTS(current.definition[1]\class.its_superclass)
+        THEN 
+            RETURN(acyclic_superclass_relationship(
+                current.definition[1]\class.its_superclass,
+                visited + current.definition[1])); 
+        ELSE
+            RETURN(TRUE);
+        END_IF;
+    END_IF;
+ELSE
+    RETURN(UNKNOWN);
+END_IF;
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="at_most_two_synonyms_per_language">
+                      <parameter
+                        name="languages">
+                        <typename
+                          name="present_translations"/>
+                      </parameter>
+                      <parameter
+                        name="synonymous_names">
+                        <aggregate
+                          type="SET"/>
+                        <typename
+                          name="syn_name_type"/>
+                      </parameter>
+                      <builtintype
+                        type="BOOLEAN"/>
+                      <algorithm>
+
+IF EXISTS(languages) THEN
+    REPEAT i := 1 TO SIZEOF(languages.language_codes);
+        IF SIZEOF(QUERY(s &lt;* synonymous_names |
+            s.language = languages.language_codes[i])) &gt; 2
+        THEN
+            RETURN(FALSE);
+        END_IF;
+    END_REPEAT;
+    RETURN(TRUE);
+ELSE
+    RETURN(SIZEOF(synonymous_names) &lt;= 2);
+END_IF;
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="check_syn_length">
+                      <parameter
+                        name="s">
+                        <typename
+                          name="syn_name_type"/>
+                      </parameter>
+                      <parameter
+                        name="s_length">
+                        <builtintype
+                          type="INTEGER"/>
+                      </parameter>
+                      <builtintype
+                        type="BOOLEAN"/>
+                      <algorithm>
+
+IF 'ISO13584_IEC61360_DICTIONARY_SCHEMA.LABEL_WITH_LANGUAGE' 
+    IN TYPEOF(s)
+THEN 
+    RETURN(LENGTH(s.l) &lt;= s_length); 
+ELSE
+    RETURN(LENGTH(s) &lt;= s_length); 
+END_IF;
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="codes_are_unique">
+                      <parameter
+                        name="values">
+                        <aggregate
+                          type="LIST"/>
+                        <typename
+                          name="dic_value"/>
+                      </parameter>
+                      <builtintype
+                        type="BOOLEAN"/>
+                      <algorithm>
+LOCAL
+    ls: SET OF STRING := [];
+    li: SET OF INTEGER := [];
+END_LOCAL;
+
+IF('ISO13584_IEC61360_DICTIONARY_SCHEMA.VALUE_CODE_TYPE' IN 
+    TYPEOF(values[1].value_code))
+THEN
+    REPEAT i := 1 TO SIZEOF(values);
+        ls := ls + values[i].value_code;
+    END_REPEAT;
+
+    RETURN(SIZEOF(values) = SIZEOF(ls));
+ELSE
+    IF('ISO13584_IEC61360_DICTIONARY_SCHEMA.INTEGER_TYPE' IN 
+        TYPEOF(values[1].value_code))
+    THEN
+        REPEAT i := 1 TO SIZEOF(values);
+            li := li + values[i].value_code;
+        END_REPEAT;
+
+        RETURN(SIZEOF(values) = SIZEOF(li));
+    ELSE
+        RETURN(UNKNOWN);
+    END_IF;
+END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="definition_available_implies">
+                      <parameter
+                        name="BSU">
+                        <typename
+                          name="basic_semantic_unit"/>
+                      </parameter>
+                      <parameter
+                        name="expression">
+                        <builtintype
+                          type="LOGICAL"/>
+                      </parameter>
+                      <builtintype
+                        type="LOGICAL"/>
+                      <algorithm>
+
+RETURN(NOT(SIZEOF(BSU.definition) = 1) OR expression);
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="is_subclass">
+                      <parameter
+                        name="sub">
+                        <typename
+                          name="class"/>
+                      </parameter>
+                      <parameter
+                        name="super">
+                        <typename
+                          name="class"/>
+                      </parameter>
+                      <builtintype
+                        type="LOGICAL"/>
+                      <algorithm>
+    IF (NOT EXISTS(sub)) OR (NOT EXISTS(super)) THEN
+        RETURN(UNKNOWN);
+    END_IF;
+    
+    IF sub = super
+    THEN
+        RETURN(TRUE);
+    END_IF;
+    
+    IF NOT EXISTS(sub.its_superclass) 
+    THEN
+        
+        RETURN(FALSE); 
+    END_IF;
+    
+    IF SIZEOF(sub.its_superclass.definition) = 1 
+    THEN
+
+
+        IF (sub.its_superclass.definition[1] = super) 
+        THEN
+            RETURN(TRUE);
+        ELSE
+            RETURN(is_subclass(sub.its_superclass.definition[1],
+                super));
+        END_IF;
+    ELSE
+        RETURN(UNKNOWN);
+    END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="string_for_derived_unit">
+                      <parameter
+                        name="u">
+                        <typename
+                          name="derived_unit"/>
+                      </parameter>
+                      <builtintype
+                        type="STRING"/>
+                      <algorithm>
+
+    FUNCTION string_for_derived_unit_element(
+        u: derived_unit_element; neg_exp: BOOLEAN
+        ): STRING;
+        
+
+    
+    LOCAL
+        result: STRING;
+    END_LOCAL;
+        
+    result := string_for_named_unit(u.unit);
+    IF (u.exponent &lt;&gt; 0) 
+    THEN 
+        IF (u.exponent &gt; 0) OR NOT neg_exp 
+        THEN
+            result := result + '**' + FORMAT(
+                ABS(u.exponent), '2I')[2];
+        ELSE
+            result := result + '**' + FORMAT(u.exponent, '2I')[2];
+        END_IF;
+    END_IF;
+        RETURN(result); 
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="string_for_named_unit">
+                      <parameter
+                        name="u">
+                        <typename
+                          name="named_unit"/>
+                      </parameter>
+                      <builtintype
+                        type="STRING"/>
+                      <algorithm>
+
+IF 'MEASURE_SCHEMA.SI_UNIT' IN TYPEOF(u) THEN
+    RETURN(string_for_SI_unit(u));
+ELSE
+    IF 'MEASURE_SCHEMA.CONTEXT_DEPENDENT_UNIT' IN TYPEOF(u)
+    THEN
+        RETURN(u\context_dependent_unit.name);
+    ELSE
+        IF 'MEASURE_SCHEMA.CONVERSION_BASED_UNIT' IN TYPEOF(u)
+        THEN
+            RETURN(u\conversion_based_unit.name);
+        ELSE
+            IF 'ISO13584_IEC61360_DICTIONARY_SCHEMA'
+                +'.NON_SI_UNIT' IN TYPEOF(u)
+            THEN
+                RETURN(u\non_si_unit.name);
+            ELSE
+                RETURN('name_unknown');
+            END_IF;
+        END_IF;
+    END_IF;
+END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="string_for_SI_unit">
+                      <parameter
+                        name="unit">
+                        <typename
+                          name="si_unit"/>
+                      </parameter>
+                      <builtintype
+                        type="STRING"/>
+                      <algorithm>
+
+LOCAL
+    prefix_string, unit_string: STRING;
+END_LOCAL;
+
+IF EXISTS(unit.prefix) THEN
+    CASE unit.prefix OF
+        exa     : prefix_string := 'E';
+        peta        : prefix_string := 'P';
+        tera        : prefix_string := 'T';
+        giga        : prefix_string := 'G';
+        mega        : prefix_string := 'M';
+        kilo        : prefix_string := 'k';
+        hecto   : prefix_string := 'h';
+        deca        : prefix_string := 'da';
+        deci        : prefix_string := 'd';
+        centi   : prefix_string := 'c';
+        milli   : prefix_string := 'm';
+        micro   : prefix_string := 'u';
+        nano        : prefix_string := 'n';
+        pico        : prefix_string := 'p';
+        femto   : prefix_string := 'f';
+        atto        : prefix_string := 'a';
+    END_CASE;
+ELSE
+    prefix_string := '';
+END_IF;
+
+CASE unit.name OF
+    metre           : unit_string:= 'm'; 
+    gram                : unit_string := 'g'; 
+    second          : unit_string := 's'; 
+    ampere          : unit_string := 'A'; 
+    kelvin          : unit_string := 'K'; 
+    mole                : unit_string := 'mol'; 
+    candela         : unit_string := 'cd'; 
+    radian          : unit_string := 'rad'; 
+    steradian           : unit_string := 'sr'; 
+    hertz           : unit_string := 'Hz'; 
+    newton          : unit_string := 'N'; 
+    pascal          : unit_string := 'Pa'; 
+    joule           : unit_string := 'J'; 
+    watt                : unit_string := 'W'; 
+    coulomb         : unit_string := 'C'; 
+    volt                : unit_string := 'V'; 
+    farad           : unit_string := 'F'; 
+    ohm             : unit_string := 'Ohm';
+    siemens         : unit_string := 'S'; 
+    weber           : unit_string := 'Wb'; 
+    tesla           : unit_string := 'T'; 
+    henry           : unit_string := 'H'; 
+    degree_Celsius      : unit_string := 'Cel';
+    lumen           : unit_string := 'lm'; 
+    lux             : unit_string := 'lx'; 
+    becquerel           : unit_string := 'Bq'; 
+    gray                : unit_string := 'Gy';
+    sievert         : unit_string := 'Sv';
+END_CASE;
+
+RETURN(prefix_string + unit_string); 
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="string_for_unit">
+                      <parameter
+                        name="u">
+                        <typename
+                          name="unit"/>
+                      </parameter>
+                      <builtintype
+                        type="STRING"/>
+                      <algorithm>
+    IF 'MEASURE_SCHEMA.DERIVED_UNIT' IN TYPEOF(u) 
+    THEN
+        RETURN(string_for_derived_unit(u));
+    ELSE 
+        RETURN(string_for_named_unit(u));
+    END_IF;
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="all_class_descriptions_reachable">
+                      <parameter
+                        name="cl">
+                        <typename
+                          name="class_BSU"/>
+                      </parameter>
+                      <builtintype
+                        type="BOOLEAN"/>
+                      <algorithm>
+
+IF NOT EXISTS(cl)
+THEN
+    RETURN(UNKNOWN);
+END_IF;
+
+IF SIZEOF(cl.definition) = 0
+THEN
+    RETURN(FALSE);
+END_IF;
+
+IF NOT(EXISTS(cl.definition[1]\class.its_superclass))
+THEN
+    RETURN(TRUE);
+ELSE
+    RETURN(all_class_descriptions_reachable(
+        cl.definition[1]\class.its_superclass));
+END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="compute_known_visible_properties">
+                      <parameter
+                        name="cl">
+                        <typename
+                          name="class_BSU"/>
+                      </parameter>
+                      <aggregate
+                        type="SET"/>
+                      <typename
+                        name="property_BSU"/>
+                      <algorithm>
+LOCAL
+    s: SET OF property_BSU := [];
+END_LOCAL;
+
+s := s + USEDIN(cl, 'ISO13584_IEC61360_DICTIONARY_SCHEMA' + 
+    '.PROPERTY_BSU.NAME_SCOPE');
+IF SIZEOF(cl.definition) = 0
+THEN
+    RETURN(s);
+ELSE
+    IF EXISTS(cl.definition[1]\class.its_superclass) THEN
+        s := s + compute_known_visible_properties(
+            cl.definition[1]\class.its_superclass);
+    END_IF;
+    
+    RETURN(s);
+END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="compute_known_visible_data_types">
+                      <parameter
+                        name="cl">
+                        <typename
+                          name="class_BSU"/>
+                      </parameter>
+                      <aggregate
+                        type="SET"/>
+                      <typename
+                        name="data_type_BSU"/>
+                      <algorithm>
+LOCAL
+    s: SET OF data_type_BSU :=[ ];
+END_LOCAL;
+
+s := s + USEDIN(cl, 'ISO13584_IEC61360_DICTIONARY_SCHEMA' + 
+    '.DATA_TYPE_BSU.NAME_SCOPE');
+
+IF SIZEOF(cl.definition) = 0
+THEN
+    RETURN(s);
+ELSE
+    IF EXISTS(cl.definition[1]\class.its_superclass) 
+    THEN
+        s := s + compute_known_visible_data_types(
+            cl.definition[1]\class.its_superclass);
+    END_IF;
+
+    RETURN(s);
+END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="compute_known_applicable_properties">
+                      <parameter
+                        name="cl">
+                        <typename
+                          name="class_BSU"/>
+                      </parameter>
+                      <aggregate
+                        type="SET"/>
+                      <typename
+                        name="property_BSU"/>
+                      <algorithm>
+
+LOCAL 
+    s: SET OF property_BSU := [];
+END_LOCAL;
+
+IF SIZEOF(cl.definition)=0
+THEN 
+    RETURN(s);
+ELSE
+    REPEAT i := 1 TO SIZEOF(cl.definition[1]\class.described_by);
+        s := s + cl.definition[1]\class.described_by[i];
+    END_REPEAT;
+
+    IF EXISTS(cl.definition[1]\class.its_superclass) 
+    THEN 
+        s := s + compute_known_applicable_properties(
+            cl.definition[1]\class.its_superclass);
+    END_IF;
+
+    RETURN(s); 
+END_IF;
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="compute_known_applicable_data_types">
+                      <parameter
+                        name="cl">
+                        <typename
+                          name="class_BSU"/>
+                      </parameter>
+                      <aggregate
+                        type="SET"/>
+                      <typename
+                        name="data_type_BSU"/>
+                      <algorithm>
+LOCAL
+    s: SET OF data_type_BSU := [];
+END_LOCAL;
+
+IF SIZEOF(cl.definition) = 0
+THEN
+    RETURN(s);
+ELSE
+    REPEAT i := 1 TO SIZEOF(cl.definition[1]\class.defined_types);
+        s := s + cl.definition[1]\class.defined_types[i];
+    END_REPEAT;
+    
+    IF EXISTS(cl.definition[1]\class.its_superclass) 
+    THEN
+        s := s + compute_known_applicable_data_types(
+            cl.definition[1]\class.its_superclass);
+    END_IF;
+    
+    RETURN(s);
+END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="list_to_set">
+                      <parameter
+                        name="l">
+                        <aggregate
+                          type="LIST"
+                          lower="0"
+                          upper="?"/>
+                        <builtintype
+                          type="GENERIC"/>
+                      </parameter>
+                      <aggregate
+                        type="SET"/>
+                      <builtintype
+                        type="GENERIC"/>
+                      <algorithm>
+
+LOCAL
+    s: SET OF GENERIC: type_elem := [];
+END_LOCAL;
+
+REPEAT i := 1 TO SIZEOF(l);
+    s := s + l[i];
+END_REPEAT;
+
+RETURN(s);
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="check_properties_applicability">
+                      <parameter
+                        name="cl">
+                        <typename
+                          name="class"/>
+                      </parameter>
+                      <builtintype
+                        type="LOGICAL"/>
+                      <algorithm>
+LOCAL
+    inter: SET OF property_bsu := [];
+END_LOCAL;
+
+IF EXISTS(cl.its_superclass)
+THEN
+    IF (SIZEOF(cl.its_superclass.definition)=1)
+    THEN
+        inter := (list_to_set(cl.described_by) * 
+            cl.its_superclass.definition[1]\class.
+            known_applicable_properties);
+        RETURN(inter = []);
+    ELSE
+        RETURN(UNKNOWN);
+    END_IF;
+ELSE
+    RETURN(TRUE);
+END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                    <function
+                      name="check_datatypes_applicability">
+                      <parameter
+                        name="cl">
+                        <typename
+                          name="class"/>
+                      </parameter>
+                      <builtintype
+                        type="LOGICAL"/>
+                      <algorithm>
+LOCAL
+    inter: SET OF data_type_bsu := [];
+END_LOCAL;
+
+IF EXISTS(cl.its_superclass)
+THEN
+    IF (SIZEOF(cl.its_superclass.definition) = 1)
+    THEN
+        inter := cl.defined_types * 
+            cl.its_superclass.definition[1]\class.
+            known_applicable_data_types;
+        RETURN(inter = []);
+    ELSE
+        RETURN(UNKNOWN);
+    END_IF;
+ELSE
+    RETURN(TRUE);
+END_IF;
+
+                      </algorithm>
+
+                    </function>
+
+                  </schema>
+
+                </express>

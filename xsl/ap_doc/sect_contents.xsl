@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-
 <!--
 $Id: $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-
 	<xsl:import href="application_protocol.xsl"/>
-	
-	<!-- the stylesheet that allows different stylesheets to be applied -->
-	
 	<xsl:import href="application_protocol_clause.xsl"/>
-	
 	<xsl:output method="html"/>
-	
-	<!-- overwrites the template declared in module.xsl -->
-	
 	<xsl:template match="application_protocol">
 		<xsl:apply-templates select="../application_protocol" mode="contents"/>
 		<xsl:apply-templates select="../application_protocol" mode="contents_tables_figures"/>
@@ -32,14 +23,14 @@ $Id: $
 			</xsl:call-template>
 		</xsl:variable>
 		
-		<xsl:variable name="module_dir">
-			<xsl:call-template name="module_directory">
+		<xsl:variable name="ap_module_dir">
+			<xsl:call-template name="ap_module_directory">
       				<xsl:with-param name="application_protocol" select="@name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		
-		<xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
-		<xsl:variable name="aim_xml" select="concat($application_protocol_dir,'/aim.xml')"/>
+		<xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
+		<xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
 		
 		<h3>Contents</h3>
 		<p class="content"><A HREF="./1_scope{$FILE_EXT}">1 Scope</A></p>
@@ -64,10 +55,10 @@ $Id: $
 			<A HREF="./4_info_reqs{$FILE_EXT}">4 Information requirements</A>
 		</p>
 		<p class="content">
-			<A HREF="./4_info_reqs{$FILE_EXT}#uof">
-				<xsl:value-of select="concat('&#160;&#160;',' 4.1 Units of functionality')"/>
-			</A>
-		</p>
+    			&#160;&#160;
+    			<A HREF="./4_info_reqs{$FILE_EXT}#uof">4.1 Units of functionality</A>
+  		</p>
+		<h1>bugger</h1>
 		<xsl:variable name="interface_clause">
 			<xsl:call-template name="express_clause_present">
 				<xsl:with-param name="clause" select="'interface'"/>
@@ -95,7 +86,6 @@ $Id: $
 			</p>
 			<xsl:apply-templates select="document($arm_xml)/express/schema/constant" mode="contents"/>
 		</xsl:if>
-		
 		<xsl:variable name="imported_constant_clause">
 			<xsl:call-template name="express_clause_present">
 				<xsl:with-param name="clause" select="'imported_constant'"/>
@@ -109,14 +99,12 @@ $Id: $
 				</A>
 			</p>
 		</xsl:if>
-		
 		<xsl:variable name="type_clause">
 			<xsl:call-template name="express_clause_present">
 				<xsl:with-param name="clause" select="'type'"/>
 				<xsl:with-param name="schema_name" select="$arm_schema_name"/>
 			</xsl:call-template>
 		</xsl:variable>
-
 		<xsl:if test="$type_clause != 0">
 			<p class="content">
 				<A HREF="./4_info_reqs{$FILE_EXT}#types">
@@ -125,7 +113,6 @@ $Id: $
 			</p>
 			<xsl:apply-templates select="document($arm_xml)/express/schema/type" mode="contents"/>
 		</xsl:if>
-		
 		<xsl:variable name="imported_type_clause">
 			<xsl:call-template name="express_clause_present">
 				<xsl:with-param name="clause" select="'imported_type'"/>
@@ -177,41 +164,32 @@ $Id: $
 				<xsl:with-param name="schema_name" select="$arm_schema_name"/>
 			</xsl:call-template>
 		</xsl:variable>
-  <xsl:if test="$function_clause !=0">
-    <p class="content">
-      <A HREF="./4_info_reqs{$FILE_EXT}#functions">
-        <xsl:value-of select="concat('&#160; &#160;', $function_clause,
-                              ' ARM function definitions')"/>
-      </A>
-    </p>
-    <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/function" mode="contents"/>
-  </xsl:if>
-  <!-- only output if there are imported functions defined and 
-       therefore a section -->
-  <xsl:variable name="imported_function_clause">
-    <xsl:call-template name="express_clause_present">
-      <xsl:with-param name="clause" select="'imported_function'"/>
-      <xsl:with-param name="schema_name" select="$arm_schema_name"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:if test="$imported_function_clause != 0">
-    <p class="content">
-      <A HREF="./4_info_reqs{$FILE_EXT}#imported_function">
-        <xsl:value-of select="concat('&#160; &#160;', 
-                              $imported_function_clause,
-                              ' ARM imported function modifications')"/>
-      </A>
-    </p>
-  </xsl:if>
-  
-  <!-- only output if there are rules defined and therefore a
-       section -->
-  <xsl:variable name="rule_clause">
-    <xsl:call-template name="express_clause_present">
-      <xsl:with-param name="clause" select="'rule'"/>
-      <xsl:with-param name="schema_name" select="$arm_schema_name"/>
-    </xsl:call-template>
+		<xsl:if test="$function_clause !=0">
+			<p class="content">
+				<A HREF="./4_info_reqs{$FILE_EXT}#functions">
+					<xsl:value-of select="concat('&#160; &#160;', $function_clause, ' ARM function definitions')"/>
+				</A>
+			</p>
+			<xsl:apply-templates select="document($arm_xml)/express/schema/function" mode="contents"/>
+		</xsl:if>
+		<xsl:variable name="imported_function_clause">
+			<xsl:call-template name="express_clause_present">
+				<xsl:with-param name="clause" select="'imported_function'"/>
+				<xsl:with-param name="schema_name" select="$arm_schema_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:if test="$imported_function_clause != 0">
+			<p class="content">
+				<A HREF="./4_info_reqs{$FILE_EXT}#imported_function">
+					<xsl:value-of select="concat('&#160; &#160;', $imported_function_clause, ' ARM imported function modifications')"/>
+				</A>
+			</p>
+		</xsl:if>
+		<xsl:variable name="rule_clause">
+			<xsl:call-template name="express_clause_present">
+				<xsl:with-param name="clause" select="'rule'"/>
+				<xsl:with-param name="schema_name" select="$arm_schema_name"/>
+			</xsl:call-template>
   </xsl:variable>
   <xsl:if test="$rule_clause !=0">
     <p class="content">

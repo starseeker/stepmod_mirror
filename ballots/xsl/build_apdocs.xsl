@@ -571,7 +571,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
         &lt;menuitem
           item="AP index"
-          relative.url="<xsl:value-of select="concat($ap_doc_href,'/sys/contents.htm#index')"/>"/&gt;
+          relative.url="<xsl:value-of select="concat($ap_doc_href,'/sys/index_apdoc.htm')"/>"/&gt;
       &lt;/menubar&gt;
       </xsl:element>
   </xsl:template>

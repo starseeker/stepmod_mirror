@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-05T11:42:16" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-06T19:54:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
@@ -12,13 +12,13 @@
       <interface kind="use" schema="Part_template_extension_arm"/>
       <interface kind="use" schema="Component_grouping_arm"/>
       <interface kind="use" schema="Interconnect_module_usage_view_arm"/>
-      <interface kind="use" schema="Manufacturing_technology_arm"/>
+      <interface kind="use" schema="Fabrication_technology_arm"/>
       <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
       <interface kind="use" schema="Form_features_arm"/>
       <interface kind="use" schema="Part_template_2d_shape_arm"/>
-      <interface kind="use" schema="Functional_design_elaboration_arm"/>
+      <interface kind="use" schema="Physical_connectivity_definition_arm"/>
       <interface kind="use" schema="Interconnect_physical_requirement_allocation_arm"/>
-      <interface kind="use" schema="Layered_shape_arm"/>
+      <interface kind="use" schema="Extended_elemental_geometric_shape_arm"/>
       <interface kind="use" schema="Basic_curve_arm"/>
       <type name="bare_die_component_or_packaged_component">
          <select extensible="YES" genericentity="YES"/>
@@ -194,15 +194,15 @@
          </inverse>
       </entity>
       <entity name="Conductive_interconnect_element_terminal" supertypes="Laminate_component_feature">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="associated_component">
             <typename name="Conductive_interconnect_element"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
          <explicit name="connection" optional="YES">
             <typename name="Connection_zone_in_design_view"/>
-         </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
          </explicit>
          <explicit name="location">
             <typename name="Layer_connection_point"/>
@@ -428,12 +428,12 @@
          <where label="WR4" expression=" ( SIZEOF ( components ) = 0 ) "/>
       </entity>
       <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
-         <explicit name="related_view">
-            <typename name="Laminate_component"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
-         </explicit>
          <explicit name="relating_view">
             <typename name="Footprint_occurrence"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Laminate_component"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <explicit name="sub_assembly_reference_designation">
@@ -611,9 +611,9 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression=" ( ( SIZEOF ( padstack_occurrence_assembly ) = SIZEOF ( footprint_occurrence_assembly ) ) AND ( SIZEOF ( padstack_occurrence_assembly ) = 0 ) AND ( SIZEOF ( SELF \ definition_based_product_occurrence . occurrence_contexts ) &gt; 0 ) ) OR ( ( SIZEOF ( padstack_occurrence_assembly ) &lt;&gt; SIZEOF ( footprint_occurrence_assembly ) ) AND ( SIZEOF ( SELF \ definition_based_product_occurrence . occurrence_contexts ) = 0 ) ) "/>
-         <where label="WR3" expression=" NOT ( SIZEOF ( occurrence_contexts ) = 0 ) OR ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF ( SELF ) ) "/>
-         <where label="WR4" expression=" NOT ( SIZEOF ( occurrence_contexts ) = 0 ) OR ( SIZEOF ( SELF \ laminate_component . padstack_occurrence_assembly ) + SIZEOF ( SELF \ laminate_component . footprint_occurrence_assembly ) = 1 ) "/>
-         <where label="WR5" expression=" ( SIZEOF ( occurrence_contexts ) &gt; 0 ) OR ( ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF ( SELF ) ) AND ( SIZEOF ( SELF \ laminate_component . padstack_occurrence_assembly ) + SIZEOF ( SELF \ laminate_component . footprint_occurrence_assembly ) = 1 ) ) "/>
+         <where label="WR2" expression=" NOT ( SIZEOF ( occurrence_contexts ) = 0 ) OR ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF ( SELF ) ) "/>
+         <where label="WR3" expression=" NOT ( SIZEOF ( occurrence_contexts ) = 0 ) OR ( SIZEOF ( SELF \ laminate_component . padstack_occurrence_assembly ) + SIZEOF ( SELF \ laminate_component . footprint_occurrence_assembly ) = 1 ) "/>
+         <where label="WR4" expression=" ( SIZEOF ( occurrence_contexts ) &gt; 0 ) OR ( ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF ( SELF ) ) AND ( SIZEOF ( SELF \ laminate_component . padstack_occurrence_assembly ) + SIZEOF ( SELF \ laminate_component . footprint_occurrence_assembly ) = 1 ) ) "/>
       </entity>
       <entity name="Laminate_component_feature" abstract.supertype="YES" supertypes="Component_feature" super.expression="ONEOF (Conductive_interconnect_element_terminal, Laminate_component_interface_terminal, Laminate_component_join_terminal, Via_terminal)"/>
       <entity name="Laminate_component_interface_terminal" abstract.supertype="YES" supertypes="Laminate_component_feature"/>
@@ -639,11 +639,11 @@
          <where label="WR2" expression=" SIZEOF ( QUERY ( sar &lt;* SELF \ component_make_from_relationship . resultant_component . components | NOT ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF ( sar . related_component ) ) ) ) = 0 "/>
       </entity>
       <entity name="Laminate_layer">
-         <explicit name="extent">
-            <typename name="Inter_stratum_extent"/>
-         </explicit>
          <explicit name="name">
             <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="extent">
+            <typename name="Inter_stratum_extent"/>
          </explicit>
          <inverse name="layer_usage" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -678,14 +678,14 @@
          <where label="WR1" expression=" SIZEOF ( QUERY ( sar &lt;* SELF \ assembly_group_component . components | TYPEOF ( sar . related_component ) &lt;&gt; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT' ) ) = 0 "/>
       </entity>
       <entity name="Layer_connection_point" abstract.supertype="YES">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="location_2d" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
          <explicit name="location_3d" optional="YES">
             <typename name="Cartesian_point"/>
-         </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
          </explicit>
          <explicit name="resident_design_layer_stratum">
             <typename name="Design_layer_stratum"/>
@@ -715,11 +715,11 @@
          <where label="WR5" expression=" EXISTS ( reference_network ) "/>
       </entity>
       <entity name="Layout_junction">
-         <explicit name="associated_definition">
-            <typename name="Interconnect_module"/>
-         </explicit>
          <explicit name="name">
             <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Interconnect_module"/>
          </explicit>
          <explicit name="net">
             <typename name="Generic_physical_network"/>
@@ -773,12 +773,12 @@
          <where label="WR2" expression=" ( SIZEOF ( components ) = 0 ) "/>
       </entity>
       <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
-         <explicit name="related_view">
-            <typename name="Laminate_component"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
-         </explicit>
          <explicit name="relating_view">
             <typename name="Padstack_occurrence"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Laminate_component"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <explicit name="sub_assembly_reference_designation">
@@ -938,11 +938,11 @@
          <where label="WR1" expression=" SIZEOF ( [ 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE' , 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE' , 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' ] * TYPEOF ( SELF \ part_template_location_in_padstack_definition . template . associated_template_occurrence ) ) = 1 "/>
       </entity>
       <entity name="Stratum_surface">
-         <explicit name="of_stratum">
-            <typename name="Stratum"/>
-         </explicit>
          <explicit name="name">
             <typename name="stratum_surface_designation"/>
+         </explicit>
+         <explicit name="of_stratum">
+            <typename name="Stratum"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Stratum_surface" attribute="name"/>

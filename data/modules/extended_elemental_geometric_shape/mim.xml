@@ -1,12 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2004/10/11 20:17:49 $"
-   rcs.revision="$Revision: 1.41 $">
-  <schema name="Extended_elemental_geometric_shape_mim">
-  </schema>
+
+<express language_version="2" rcs.date="2005-01-06T19:57:02" rcs.revision="1.0" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_elemental_geometric_shape_mim schema_instance"/>
+   <schema name="Extended_elemental_geometric_shape_mim">
+      <interface kind="use" schema="Basic_geometry_mim"/>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="mapped_item"/>
+         <interfaced.item name="representation_item_relationship"/>
+         <interfaced.item name="representation_map"/>
+         <interfaced.item name="representation_relationship_with_transformation"/>
+         <interfaced.item name="transformation"/>
+      </interface>
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="vector"/>
+      </interface>
+      <entity name="shape_item_relationship" supertypes="representation_item representation_item_relationship">
+         <unique label="UR1">
+            <unique.attribute entity-ref="shape_item_relationship" attribute="relating_representation_item"/>
+            <unique.attribute entity-ref="shape_item_relationship" attribute="related_representation_item"/>
+         </unique>
+         <where label="WR1" expression=" SELF \ representation_item_relationship . relating_representation_item :&lt;&gt;: SELF \ representation_item_relationship . related_representation_item "/>
+         <where label="WR2" expression=" SIZEOF ( TYPEOF ( SELF ) - ( TYPEOF ( SELF \ representation_item || SELF \ representation_item_relationship || SELF \ shape_item_relationship ) ) ) = 0 "/>
+      </entity>
+      <rule name="feature_shape_definition_constraint" appliesto="shape_representation">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( sr &lt;* shape_representation | ( sr \ representation . name = 'zone shape' ) AND ( sr . context_of_items . coordinate_space_dimension = 3 ) AND NOT ( 'EXTENDED_ELEMENTAL_GEOMETRIC_SHAPE_MIM.' + 'MANIFOLD_SUBSURFACE_SHAPE_REPRESENTATION' IN TYPEOF ( sr ) ) ) ) = 0 "/>
+      </rule>
+   </schema>
 </express>

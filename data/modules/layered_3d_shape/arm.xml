@@ -2,17 +2,41 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-05T11:42:16" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-06T19:54:08" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_3d_shape_arm schema_instance"/>
    <schema name="Layered_3d_shape_arm">
       <interface kind="use" schema="Advanced_boundary_representation_arm"/>
       <interface kind="use" schema="Curve_swept_solid_arm"/>
       <interface kind="use" schema="Geometrically_bounded_surface_arm"/>
       <interface kind="use" schema="Layered_2d_shape_arm"/>
+      <interface kind="use" schema="Part_template_3d_shape_arm"/>
+      <interface kind="use" schema="Part_template_non_planar_shape_arm"/>
+      <interface kind="use" schema="Physical_unit_3d_shape_arm"/>
+      <type name="l3ds_part_template_or_physical_unit_shape_select">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_part_template_or_physical_unit_shape_select" selectitems="part_template_or_physical_unit_3d_shape_select"/>
+      </type>
+      <type name="part_template_or_physical_unit_3d_shape_select">
+         <select selectitems="Part_template_3d_shape Part_template_non_planar_2d_shape Physical_unit_3d_shape"/>
+      </type>
       <type name="three_dimensional_shape">
          <select selectitems="Advanced_brep_shape_representation Curve_swept_solid Geometrically_bounded_surface_shape_representation"/>
       </type>
       <entity name="Axis_placement_3d" supertypes="Axis_placement"/>
+      <entity name="Part_template_or_physical_unit_3d_shape_representation_relationship" supertypes="Geometric_model_relationship">
+         <explicit name="principal_part_shape">
+            <typename name="part_template_or_physical_unit_3d_shape_select"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+         </explicit>
+         <explicit name="related_part_shape">
+            <typename name="part_template_or_physical_unit_3d_shape_select"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Part_template_or_physical_unit_3d_shape_representation_relationship" attribute="principal_part_shape"/>
+            <unique.attribute entity-ref="Part_template_or_physical_unit_3d_shape_representation_relationship" attribute="related_part_shape"/>
+         </unique>
+         <where label="WR1" expression=" principal_part_shape :&lt;&gt;: related_part_shape "/>
+      </entity>
       <entity name="Shape_definition_3d_intersection" supertypes="Geometric_model_relationship">
          <explicit name="orientation_intersection_plane">
             <typename name="Axis_placement_3d"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-05T11:42:15" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-06T19:54:07" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_joint_arm schema_instance"/>
    <schema name="Fabrication_joint_arm">
       <interface kind="use" schema="Land_arm"/>
@@ -33,6 +33,26 @@
          <explicit name="associated_interconnect_module">
             <typename name="Interconnect_module"/>
          </explicit>
+      </entity>
+      <entity name="Passage_terminal_based_fabrication_joint_link">
+         <explicit name="associated_terminal">
+            <typename name="fabricated_feature_select"/>
+         </explicit>
+         <explicit name="precedent_point">
+            <typename name="Fabrication_joint"/>
+         </explicit>
+         <explicit name="subsequent_point">
+            <typename name="Fabrication_joint"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Passage_terminal_based_fabrication_joint_link" attribute="associated_terminal"/>
+            <unique.attribute entity-ref="Passage_terminal_based_fabrication_joint_link" attribute="precedent_point"/>
+            <unique.attribute entity-ref="Passage_terminal_based_fabrication_joint_link" attribute="subsequent_point"/>
+         </unique>
+         <where label="WR1" expression=" precedent_point &lt;&gt; subsequent_point "/>
+         <where label="WR2" expression=" precedent_point . fabrication_features_2 = associated_terminal "/>
+         <where label="WR3" expression=" subsequent_point . fabrication_features_1 = associated_terminal "/>
+         <where label="WR4" expression=" SIZEOF ( TYPEOF ( associated_terminal ) * [ 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL' , 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'VIA_TERMINAL' ] ) = 1 "/>
       </entity>
    </schema>
 </express>

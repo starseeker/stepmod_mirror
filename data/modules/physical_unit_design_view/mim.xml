@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-05T11:43:24" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-06T19:57:05" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_mim schema_instance"/>
    <schema name="Physical_unit_design_view_mim">
       <interface kind="use" schema="Feature_and_connection_zone_mim"/>
@@ -48,6 +48,14 @@
       </entity>
       <entity name="thermal_component" supertypes="component_definition"/>
       <entity name="thermal_component_shape_aspect" supertypes="component_shape_aspect"/>
+      <rule name="assembly_composition_relationship_unique_constraint" appliesto="assembly_component_usage">
+         <algorithm> LOCAL acr : BAG OF assembly_component_usage := QUERY ( acu &lt;* assembly_component_usage | ( acu \ product_definition_relationship . name = 'assembly composition' ) ) ; pu_bag : BAG OF physical_unit := [ ] ; acu_bag : BAG OF assembly_component_usage ; pass : BOOLEAN := TRUE ; cd_bag : BAG OF component_definition ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( acr ) by 1 ; IF EXISTS ( acr [ i ] . relating_product_definition ) THEN IF ( ( acr [ i ] . relating_product_definition . frame_of_reference . name = 'physical design' ) AND ( 'PHYSICAL_UNIT_USAGE_VIEW_MIM.' + 'PHYSICAL_UNIT' IN TYPEOF ( acr [ i ] . relating_product_definition ) ) ) THEN IF ( NOT ( acr [ i ] . relating_product_definition IN pu_bag ) ) THEN pu_bag := pu_bag + acr [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; cd_bag := [ ] ; acu_bag := QUERY ( acu &lt;* acr | ( acu . relating_product_definition :=: pu_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( acu_bag ) by 1 ; IF EXISTS ( acu_bag [ j ] . related_product_definition ) THEN IF ( 'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' + 'COMPONENT_DEFINITION' IN TYPEOF ( acu_bag [ j ] . related_product_definition ) ) THEN IF ( acu_bag [ j ] . related_product_definition IN cd_bag ) THEN pass := FALSE ; ESCAPE ; ELSE cd_bag := cd_bag + acu_bag [ j ] . related_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
+      <rule name="next_higher_assembly_relationship_unique_constraint" appliesto="next_assembly_usage_occurrence">
+         <algorithm> LOCAL pu_bag : BAG OF physical_unit := [ ] ; nauo_bag : BAG OF next_assembly_usage_occurrence ; pass : BOOLEAN := TRUE ; refdes_bag : BAG OF STRING ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( next_assembly_usage_occurrence ) by 1 ; IF EXISTS ( next_assembly_usage_occurrence [ i ] . relating_product_definition ) THEN IF ( ( next_assembly_usage_occurrence [ i ] . relating_product_definition . frame_of_reference . name = 'physical design' ) AND ( 'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' + 'PHYSICAL_UNIT' IN TYPEOF ( next_assembly_usage_occurrence [ i ] . relating_product_definition ) ) ) THEN IF ( NOT ( next_assembly_usage_occurrence [ i ] . relating_product_definition IN pu_bag ) ) THEN pu_bag := pu_bag + next_assembly_usage_occurrence [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; refdes_bag := [ ] ; nauo_bag := QUERY ( nauo &lt;* next_assembly_usage_occurrence | ( nauo . relating_product_definition :=: pu_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( nauo_bag ) by 1 ; IF EXISTS ( nauo_bag [ j ] . reference_designator ) THEN IF ( nauo_bag [ j ] . reference_designator IN refdes_bag ) THEN pass := FALSE ; ESCAPE ; ELSE refdes_bag := refdes_bag + nauo_bag [ j ] . reference_designator ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
       <function name="is_assembly_module_macro_occurrence">
          <parameter name="pd">
             <typename name="product_definition"/>

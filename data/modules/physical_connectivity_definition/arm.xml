@@ -1,12 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2004/10/11 20:17:49 $"
-   rcs.revision="$Revision: 1.41 $">
-  <schema name="Physical_connectivity_definition_arm">
-  </schema>
+
+<express language_version="2" rcs.date="2005-01-06T19:54:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_connectivity_definition_arm schema_instance"/>
+   <schema name="Physical_connectivity_definition_arm">
+      <interface kind="use" schema="Part_external_reference_arm"/>
+      <interface kind="use" schema="Requirement_decomposition_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
+      <interface kind="use" schema="Physical_component_feature_arm"/>
+      <type name="fde_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_requirement_assignment_item" selectitems="Physical_connectivity_element Physical_connectivity_definition Physical_connectivity_definition_relationship"/>
+      </type>
+      <type name="fde_specification_product_object_select">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_specification_product_object_select" selectitems="Physical_connectivity_element Physical_connectivity_definition"/>
+      </type>
+      <type name="termination_or_junction">
+         <select extensible="YES" genericentity="YES" selectitems="Component_terminal"/>
+      </type>
+      <entity name="Physical_connectivity_definition" super.expression="Physical_connectivity_structure_definition">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Physical_unit_network_definition"/>
+         </explicit>
+         <explicit name="associated_terminals">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="Physical_component_terminal"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Physical_connectivity_definition" attribute="name"/>
+            <unique.attribute entity-ref="Physical_connectivity_definition" attribute="associated_definition"/>
+         </unique>
+         <unique label="UR2">
+            <unique.attribute entity-ref="Physical_connectivity_definition" attribute="associated_terminals"/>
+         </unique>
+      </entity>
+      <entity name="Physical_connectivity_definition_relationship">
+         <explicit name="previous_definition">
+            <typename name="Physical_connectivity_definition"/>
+         </explicit>
+         <explicit name="current_definition">
+            <typename name="Physical_connectivity_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Physical_connectivity_element">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="start_terminus">
+            <typename name="termination_or_junction"/>
+         </explicit>
+         <explicit name="end_terminus">
+            <typename name="termination_or_junction"/>
+         </explicit>
+         <explicit name="connectivity_context">
+            <typename name="Physical_connectivity_structure_definition"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Physical_connectivity_element" attribute="name"/>
+            <unique.attribute entity-ref="Physical_connectivity_element" attribute="connectivity_context"/>
+         </unique>
+         <where label="WR1" expression=" start_terminus &lt;&gt; end_terminus "/>
+      </entity>
+      <entity name="Physical_connectivity_make_from_relationship">
+         <explicit name="reusable_definition">
+            <typename name="Physical_connectivity_definition"/>
+         </explicit>
+         <explicit name="resultant_definition">
+            <typename name="Physical_connectivity_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Physical_connectivity_structure_definition" supertypes="Physical_connectivity_definition">
+         <inverse name="structural_element" entity="Physical_connectivity_element" attribute="connectivity_context">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Physical_unit_network_definition" supertypes="Product_view_definition">
+         <where label="WR1" expression=" NOT ( 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.part_view_definition' IN TYPEOF ( SELF ) ) OR ( 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.part_design_view' IN TYPEOF ( SELF ) ) "/>
+      </entity>
+   </schema>
 </express>

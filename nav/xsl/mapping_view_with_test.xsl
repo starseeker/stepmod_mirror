@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.10 2003/07/28 07:29:58 robbod Exp $
+$Id: mapping_view_with_test.xsl,v 1.11 2003/08/07 18:32:59 thendrix Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -998,7 +998,8 @@ $Id: mapping_view_with_test.xsl,v 1.10 2003/07/28 07:29:58 robbod Exp $
             <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
             <xsl:with-param 
               name="message" 
-              select="concat('Error Map17: Constraint strings should use white space, not - _: ',quote)"/>
+              select="concat('Warning Map17: Constraint strings should use white space, not - _: ',
+                      quote, '#Except if an attribute or entity is being referenced')"/>
           </xsl:call-template>
         </xsl:if>
 

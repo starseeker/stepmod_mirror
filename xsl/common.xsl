@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.93 2003/05/23 20:25:07 robbod Exp $
+$Id: common.xsl,v 1.94 2003/05/27 08:04:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3109,6 +3109,7 @@ is case sensitive.')"/>
 
 
   <!-- display the expressg Icon for an express construct -->
+  <!-- Note replaced with code in expressg_icon.xsl -->
   <xsl:template match="entity|type|schema|constant|subtype.constraint" mode="expressg_icon">
     <!-- the entity may be being referenced from another module
          in which case the schema needs to be explicit.
@@ -3175,6 +3176,7 @@ is case sensitive.')"/>
   </xsl:template>
 
 
+  <!-- Note replaced with code in expressg_icon.xsl -->
   <xsl:template name="expressg_icon">
     <xsl:param name="schema"/>
     <xsl:param name="entity"/>

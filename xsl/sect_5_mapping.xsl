@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.67 2003/05/04 07:51:15 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.68 2003/05/06 06:40:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -459,9 +459,12 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
     <xsl:if test="$module_ok='true'">
       <xsl:variable name="entity_node"
         select="document($arm_xml)/express/schema/entity[@name=$arm_entity]"/>
+      <!-- 
+        Commented out as the current method of getting expressg link
+        assumes that all entities etc are in same module 
       <xsl:apply-templates select="$entity_node" mode="expressg_icon">
         <xsl:with-param name="original_schema" select="$schema_name"/>
-      </xsl:apply-templates>
+      </xsl:apply-templates> -->
     </xsl:if>
   </h2>
 <!--  <xsl:apply-templates select="." mode="output_mapping"/> -->
@@ -738,9 +741,12 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
       <xsl:variable name="ae" select="../@entity"/>
       <xsl:variable name="entity_node"
         select="document($arm_xml)/express/schema/entity[@name=$ae]"/>      
+      <!-- 
+        Commented out as the current method of getting expressg link
+        assumes that all entities etc are in same module 
       <xsl:apply-templates select="$entity_node" mode="expressg_icon">
         <xsl:with-param name="original_schema" select="$schema_name"/>
-      </xsl:apply-templates>
+      </xsl:apply-templates> -->
     </xsl:if>
   </h2>
 

@@ -146,7 +146,6 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       
       <xsl:element name="fixcrlf">
         <xsl:attribute name="srcdir">${CHECKDIR}</xsl:attribute>
-        <xsl:attribute name="eol">lf</xsl:attribute><xsl:attribute name="eof">remove</xsl:attribute>
         <xsl:attribute name="includes">**/*.txt</xsl:attribute>
       </xsl:element>
       </target>
@@ -236,7 +235,6 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:text>
         <xsl:element name="fixcrlf">
           <xsl:attribute name="srcdir">${CHECKDIR}</xsl:attribute>
-          <xsl:attribute name="eol">lf</xsl:attribute><xsl:attribute name="eof">remove</xsl:attribute>
           <xsl:attribute name="includes">*.txt, **/*.exp</xsl:attribute>
         </xsl:element>
       </target>
@@ -258,7 +256,6 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:text>
       </xsl:text>
       <target name="all" depends="checks, compileexpress, zip"/>
-
 
       <xsl:text>
       </xsl:text>

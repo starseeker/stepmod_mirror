@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
-<!-- $Id: classification_schema.xml,v 1.6 2002/07/14 16:43:46 robbod Exp $ -->
+<!-- $Id: classification_schema.xml,v 1.7 2002/07/16 14:00:17 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  reference="ISO/CD 10303-54"
-  rcs.date="$Date: 2002/07/14 16:43:46 $"
-  rcs.revision="$Revision: 1.6 $">
+  reference="ISO/DIS 10303-54"
+  rcs.date="$Date: 2002/07/16 14:00:17 $"
+  rcs.revision="$Revision: 1.7 $">
 
   <application
-    name="express2xml.js"
+    name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/classification_schema/classification_schema.exp"/>
+    url="www.eurostep.com"
+    version="1, 2, 1041, 2056"
+    source="express/foo1.exp"/>
 
   <schema name="classification_schema">
     <interface
@@ -22,72 +22,102 @@
       <interfaced.item
         name="classification_assignment"/>
     </interface>
-
     <interface
       kind="reference"
       schema="group_schema">
       <interfaced.item
         name="group"/>
     </interface>
-
-    <type name="classified_select">
+    <type name="classification_select">
       <select
-        extensible="YES">
-      </select>
-
+        extensible="YES"
+      />
     </type>
-    <entity
-      name="class"
-      super.expression="(ONEOF (    class_by_extension,    class_by_intension))"
-      supertypes="group">
-    </entity>
 
-    <entity
-      name="class_by_extension"
-      supertypes="class">
-    </entity>
+    <type name="complete_membership_select">
+      <select
+        extensible="YES"
+      />
+    </type>
 
-    <entity
-      name="class_by_intension"
-      supertypes="class">
-    </entity>
-
-    <entity
-      name="classification"
-      supertypes="classification_assignment">
+    <entity name="applied_classification_assignment"
+      supertypes="classification_assignment"
+    >
       <explicit
-        name="classified">
-        <typename
-          name="classified_select"/>
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="classification_select"/>
       </explicit>
+    </entity>
+
+    <entity name="class"
+      supertypes="group"
+      super.expression="ONEOF(class_by_extension, class_by_intension)"
+    >
+    </entity>
+
+    <entity name="class_by_extension"
+      supertypes="class"
+    >
+    </entity>
+
+    <entity name="class_by_intension"
+      supertypes="class"
+    >
+    </entity>
+
+    <entity name="classification"
+      supertypes="applied_classification_assignment"
+    >
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="1"
+        />
+        <typename name="classification_select"/>
+        <redeclaration
+          entity-ref="applied_classification_assignment"/>
+      </explicit>
+      <derived
+        name="classified"
+        expression="SELF\applied_classification_assignment.items[1]">
+        <typename name="classification_select"/>
+      </derived>
       <derived
         name="classifier"
         expression="SELF\classification_assignment.assigned_class">
-        <typename
-          name="class"/>
+        <typename name="class"/>
       </derived>
     </entity>
 
-    <entity
-      name="complete_membership"
-      supertypes="classification_assignment">
+    <entity name="complete_membership"
+      supertypes="classification_assignment"
+    >
       <explicit
         name="members">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="classified_select"/>
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
+        />
+        <typename name="complete_membership_select"/>
       </explicit>
       <derived
         name="containing_set"
         expression="SELF\classification_assignment.assigned_class">
-        <typename
-          name="class"/>
+        <typename name="class"/>
       </derived>
     </entity>
 
+    <subtype.constraint name="classification_or_complete_membership"
+      entity="classification_assignment"
+    >
+    </subtype.constraint>
+
   </schema>
+
 
 </express>

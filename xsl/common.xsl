@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.96 2003/06/06 16:46:35 robbod Exp $
+$Id: common.xsl,v 1.97 2003/06/07 20:52:06 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1440,7 +1440,8 @@ $Id: common.xsl,v 1.96 2003/06/06 16:46:35 robbod Exp $
         <!-- test that a valid value is given for construct -->
         <xsl:when test="$construct_tmp='example'
                         or $construct_tmp='note'
-                        or $construct_tmp='figure'">
+                        or $construct_tmp='figure'
+                        or $construct_tmp='table'">
           <xsl:choose>
             <!-- test that an id has been given -->
             <xsl:when test="$id!=''">
@@ -3122,7 +3123,6 @@ is case sensitive.')"/>
       <xsl:when test="$table_fig_node/ancestor::usage_guide[1]">
         <xsl:value-of select="concat('f_guide',$FILE_EXT)"/>
       </xsl:when>
-
     </xsl:choose>
   </xsl:template>
 

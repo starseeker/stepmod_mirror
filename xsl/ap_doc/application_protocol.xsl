@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.14 2003/02/19 17:51:56 goset1 Exp $
+     $Id: application_protocol.xsl,v 1.13 2003/02/06 22:35:11 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -24,16 +24,10 @@
   		</HTML>
 	</xsl:template>
 	
-	<xsl:template match="application_protocol">
-		<xsl:apply-templates select="." mode="foreword"/>
-	</xsl:template>
+	<!-- The templates for the display of each clause are partly in the files sect_xxx.xsl 
+	The concept of priority between homonym templates is used to display either the application protocol
+	file content or the ap module file content -->
 	
-		<!--	
-		<xsl:template match="module">
- xsl:apply-templates select="." mode="coverpage"/ 
-		<xsl:apply-templates/>
-	</xsl:template>
--->
 	<xsl:template match="application_protocol" mode="title">
 		<xsl:variable name="lpart">
 			<xsl:choose>
@@ -57,666 +51,25 @@
 		</xsl:choose>
 	</xsl:template>
 
-<xsl:template match="application_protocol" mode="coverpage">
-		<xsl:variable name="n_number" select="concat('ISO TC184/SC4/WG3&#160;N',./@wg.number)"/>
-		<xsl:variable name="date" 
-		select="translate(substring-before(substring-after(@rcs.date,'$Date: '),' '), '/','-')"/>
-		<table width="624">
-			<tr>
-				<td>
-					<h2>
-						<xsl:value-of select="$n_number"/>
-					</h2>
-				</td>
-				<td>&#x20;</td>
-				<td valign="top">
-					<b>Date:&#x20;</b>
-					<xsl:value-of select="$date"/>
-				</td>
-			</tr>
-			<xsl:variable name="test_wg_number">
-				<xsl:call-template name="test_wg_number">
-					<xsl:with-param name="wgnumber" select="./@wg.number"/>
-				</xsl:call-template>
-			</xsl:variable>
-			<xsl:if test="contains($test_wg_number,'Error')">
-				<tr>
-					<td>
-						<xsl:call-template name="error_message">
-							<xsl:with-param name="message">
-								<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/@wg.number - ', 	$test_wg_number)"/>
-							</xsl:with-param>
-						</xsl:call-template>
-					</td>
-				</tr>
-			</xsl:if>
-			<xsl:if test="@wg.number.supersedes">
-				<tr>
-					<td>
-						<h3>
-							Supersedes
-							<xsl:choose>
-								<xsl:when test="contains(@wg.number.supersedes, 'ISO')">
-									<xsl:value-of select="@wg.number.supersedes"/>
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="concat('ISO&#160;TC184/SC4/WG3&#160;N',@wg.number.supersedes)"/>
-								</xsl:otherwise>
-							</xsl:choose>
-						</h3>
-						<xsl:variable name="test_wg_number_supersedes">
-							<xsl:call-template name="test_wg_number">
-								<xsl:with-param name="wgnumber" select="./@wg.number.supersedes"/>
-							</xsl:call-template>
-						</xsl:variable>
-						<xsl:if test="contains($test_wg_number_supersedes,'Error')">
-							<tr>
-								<td>
-									<xsl:call-template name="error_message">
-										<xsl:with-param name="message">
-											<xsl:value-of select="concat('Error in module.xml/application_protocol/	@wg.number.supersedes - ', $test_wg_number_supersedes)"/>
-										</xsl:with-param>
-									</xsl:call-template>
-								</td>
-							</tr>
-						</xsl:if>
-						<xsl:if test="@wg.number.supersedes = @wg.number">
-							<xsl:call-template name="error_message">
-								<xsl:with-param name="message">
-									Error in module.xml/application_protocol/@wg.number.supersedes - 
-									Error WG-16: New WG number is the same as superseded WG number.
-								</xsl:with-param>
-							</xsl:call-template>
-						</xsl:if>
-					</td>
-				</tr>
-			</xsl:if>
-		</table>
-		
-	 <xsl:variable name="module_name">
-			<xsl:call-template name="protocol_display_name">
-				<xsl:with-param name="application_protocol" select="@title"/>
-			</xsl:call-template>
-		</xsl:variable>
-		
-		<xsl:variable name="stdnumber">
-			<xsl:call-template name="get_protocol_stdnumber">
-				<xsl:with-param name="application_protocol" select="."/>
-			</xsl:call-template>
-		</xsl:variable>
-		
-		<h4>
-			<xsl:value-of select="$stdnumber"/>
-			<br/>
-			Product data representation and exchange: Application protocol:
-			<xsl:value-of select="$module_name"/>
-		</h4>
-		<xsl:variable name="status" select="string(@status)"/>
-		<xsl:variable name="status_words">
-			<xsl:choose>
-				<xsl:when test="@status='CD'">
-					Committee Draft
-				</xsl:when>
-				<xsl:when test="@status='FDIS'">
-					Final Draft International Standard
-				</xsl:when>
-				<xsl:when test="@status='DIS'">
-					Draft International Standard
-				</xsl:when>
-				<xsl:when test="@status='IS'">
-					International Standard
-				</xsl:when>
-				<xsl:when test="@status='CD-TS'">
-					draft technical specification
-				</xsl:when>
-				<xsl:when test="@status='TS'">
-					technical specification
-				</xsl:when>
-				<xsl:when test="@status='WD'">
-					working draft
-				</xsl:when>
-				<xsl:otherwise>
-					application protocol status not set.
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
-		<table border="1" cellspacing="1" cellpadding="8" width="624">
-			<tr>
-				<td valign="TOP" colspan="2" height="26">
-					<h3>COPYRIGHT NOTICE:</h3>
-					<xsl:choose>
-						<xsl:when test="$status='CD'">
-							Committee Draft
-						</xsl:when>
-						<xsl:when test="$status='FDIS'">
-							Final Draft International Standard
-						</xsl:when>
-						<xsl:when test="$status='DIS'">
-							Draft International Standard
-						</xsl:when>
-						<xsl:when test="$status='IS'">
-							International Standard
-						</xsl:when>
-						<xsl:when test="$status='CD-TS'">
-							<p>
-								This ISO document is a Committee Draft Technical Specification and is copyright protected by ISO. While the reproduction of working drafts or Committee Drafts in any form for use by Participants in the ISO standards development process is permitted without prior written permission from ISO, neither this document nor any extract from it may be reproduced, stored or transmitted in any form for any other purpose without prior written permission from ISO.
-							</p>
-							<p>
-								Requests for permission to reproduce this document for the purposes of selling it should be addressed as shown below (via the ISO TC 184/SC4 Secretariat's member body) or to the ISO's member body in the country of the requestor
-							</p>
-							<p>
-								<div align="center">
-									Copyright Manager<br/>
-									ANSI<br/>
-									11 West 42nd Street<br/>
-									New York, New York 10036<br/>
-									USA<br/>
-									phone: +1-212-642-4900<br/>
-									fax: +1-212-398-0023<br/>
-								</div>
-							</p>
-							<p>
-								Reproduction for sales purposes may be subject to royalty payments or a licensing agreement.
-							</p>
-							<p>
-								Violators may be prosecuted.
-							</p>
-						</xsl:when>
-						<xsl:when test="$status='TS'">
-							<p>
-								This document is a Technical Specification and is copyright-protected by ISO. Except as permitted under the applicable laws of the user's country, neither this ISO document nor any extract from it may be reproduced, stored in a retrieval system or transmitted in any form or by any means, electronic, photocopying, recording, or otherwise, without prior written permission being secured.
-							</p>
-							<p>
-								Requests for permission to reproduce should be addressed to ISO at the address below or ISO's member body in the country of the requester:
-							</p>
-							<p>
-								<div align="center">
-									ISO copyright office<br/>
-									Case postale 56, CH-1211 Geneva 20<br/>
-									Tel. +41 22 749 01 11<br/>
-									Fax +41-22-734-10 79<br/>
-									E-mail copyright@iso.ch<br/>
-								</div>
-							</p>
-							<p>
-								Reproduction for sales purposes may be subject to royalty payments or a licensing agreement.
-							</p>
-							<p>
-								Violators may be prosecuted.
-							</p>
-						</xsl:when>
-						<xsl:when test="$status='WD'">
-							working draft
-						</xsl:when>
-						<xsl:otherwise>
-							application protocol status not set.
-						</xsl:otherwise>
-					</xsl:choose>
-				</td>
-			</tr>
-			<tr>
-				<td valign="TOP" colspan="2" height="88">
-					<h3>ABSTRACT:</h3>
-					This document is the <xsl:value-of select="$status_words"/> of the application protocol for <xsl:value-of select="$module_name"/>.
-					<h3>KEYWORDS:</h3>
-					<xsl:apply-templates select="./keywords"/>
-					<h3>COMMENTS TO READER:</h3>
-					<xsl:variable name="ballot_cycle_or_pub">
-						<xsl:choose>
-							<xsl:when test="$status='CD-TS'">
-								this ballot cycle
-							</xsl:when>
-							<xsl:when test="$status='TS'">
-								publication
-							</xsl:when>
-						</xsl:choose>
-					</xsl:variable>
-					This document has been reviewed using the internal review checklist (see <xsl:value-of select="concat('WG3	&#160;N',@checklist.internal_review)"/>),
-					<xsl:variable name="test_cl_internal_review">
-						<xsl:call-template name="test_wg_number">
-							<xsl:with-param name="wgnumber" select="./@checklist.internal_review"/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xsl:if test="contains($test_cl_internal_review,'Error')">
-						<p>
-							<xsl:call-template name="error_message">
-								<xsl:with-param name="message">
-									<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/	@checklist.internal_review - ', $test_cl_internal_review)"/>
-								</xsl:with-param>
-							</xsl:call-template>
-						</p>
-					</xsl:if>
-					the project leader checklist (see <xsl:value-of select="concat('WG3&#160;N',@checklist.project_leader)"/>),
-					<xsl:variable name="test_cl_project_leader">
-						<xsl:call-template name="test_wg_number">
-							<xsl:with-param name="wgnumber" select="./@checklist.project_leader"/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xsl:if test="contains($test_cl_project_leader,'Error')">
-						<p>
-							<xsl:call-template name="error_message">
-								<xsl:with-param name="message">
-									<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/	@checklist.project_leader - ', $test_cl_project_leader)"/>
-								</xsl:with-param>
-							</xsl:call-template>
-						</p>
-					</xsl:if>
-					and the convener checklist (see <xsl:value-of select="concat('WG3&#160;N',@checklist.convener)"/>),
-					<xsl:variable name="test_cl_convener">
-						<xsl:call-template name="test_wg_number">
-							<xsl:with-param name="wgnumber" select="./@checklist.convener"/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xsl:if test="contains($test_cl_convener,'Error')">
-						<p>
-							<xsl:call-template name="error_message">
-								<xsl:with-param name="message">
-									<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/@checklist.convener - ', $test_cl_convener)"/>
-								</xsl:with-param>
-							</xsl:call-template>
-						</p>
-					</xsl:if>
-					and has been determined to be ready for <xsl:value-of select="$ballot_cycle_or_pub"/>.
-				</td>
-			</tr>
-			<tr>
-				<td width="50%" valign="TOP" height="88">
-					<xsl:apply-templates select="./contacts/projlead"/>
-				</td>
-				<td width="50%" valign="TOP" height="88">
-					<xsl:apply-templates select="./contacts/editor"/>
-				</td>
-			</tr>
-		</table>
-</xsl:template>
-
-	<xsl:template match="projlead">
-		<xsl:variable name="ref" select="@ref"/>
-		<xsl:variable name="projlead" select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-		<b>
-			Project leader: 
-		</b>
-		<xsl:choose>
-			<xsl:when test="$projlead">
-				<xsl:apply-templates select="$projlead"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:call-template name="error_message">
-					<xsl:with-param name="message">
-						Error 1: No contact provided for project leader.
-					</xsl:with-param>
-				</xsl:call-template>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:template>
-
-	<xsl:template match="editor">
-		<xsl:variable name="ref" select="@ref"/>
-		<xsl:variable name="editor" select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-		<b>
-			Project editor: 
-		</b>
-		<xsl:choose>
-			<xsl:when test="$editor">
-				<xsl:apply-templates select="$editor"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:call-template name="error_message">
-					<xsl:with-param name="message">
-						Error 2: No contact provided for project editor.
-					</xsl:with-param>
-				</xsl:call-template>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:template>
-	
-	<xsl:template match="application_protocol" mode="foreword">
-	    <xsl:variable name="part_no">
-      <xsl:choose>
-        <xsl:when test="string-length(@part)>0">
-          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          ISO/TS 10303-XXXX
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-		<h3>
-			<a name="foreword">Foreword</a>
-		</h3>
+  <xsl:template match="inscope">
 		<p>
-		    ISO (the International Organization for Standardization) is a worldwide
-		    federation of national standards bodies (ISO member bodies). The work of
-		    preparing International Standards is normally carried out through ISO
-		    technical committees. Each member body interested in a subject for
-		    which a technical committee has been established has the right to be
-		    represented on that committee. International organizations,
-		    governmental and non-governmental, in liaison with ISO, also take
-		    part in the work. ISO collaborates closely with the International
-		    Electrotechnical Commission (IEC) on all matters of electrotechnical
-		    standardization.
-		</p>
-		<p>
-			International Standards are drafted in accordance with the rules given in the ISO/IEC Directives, Part 2.
-		</p>
-		<p>
-			    The main task of technical committees is to prepare International
-			    Standards. Draft International Standards adopted by the technical
-			    committees are circulated to the member bodies for voting. Publication as
-			    an International Standard requires approval by at least 75% of the member
-			    bodies casting a vote.
-		</p>
-		<p>
-			In other circumstances, particularly when there is an urgent market 
-			requirement for such documents, a technical committee may decide to publish 
-			other types of normative document: 
-		</p>
-		<ul>
-			<li>
-				an ISO Publicly Available Specification (ISO/PAS) represents an
-			      agreement between technical experts in an ISO working group and  is
-			      accepted for publication if it is approved by more than 50% 
-			      of the members of the parent committee casting a vote;
-			</li>
-		</ul>
-		<ul>
-			<li>
-				an ISO Technical Specification (ISO/TS) represents an agreement between 
-				the members of a technical committee and is accepted for
-			      publication if it is approved by 2/3 of the members of the committee
-			      casting a vote. 
-			</li>
-		</ul>
-		<p>
-			    An ISO/PAS or ISO/TS is reviewed every three years with a view to
-			    deciding whether it can be transformed into an International Standard.
-		</p>
-		<p>
-			Attention is drawn to the possibility that some of the elements of this
-			    part of ISO 10303 may be the subject of patent rights. ISO shall not be
-			    held responsible for identifying any or all such patent rights.
-		</p>
-		<p>
-			<xsl:choose>
-				<xsl:when test="string-length(@part)>0">
-					<xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
-				</xsl:when>
-				<xsl:otherwise>
-					ISO/TS 10303-
-					<font color="#FF0000">
-						<b>
-							XXXX
-						</b>
-					</font>
-				</xsl:otherwise>
-			</xsl:choose>
-			was prepared by Technical Committee ISO/TC 184, 
-			<i>Industrial automation systems and integration,</i>
-			Subcommittee SC4, <i>Industrial data.</i>
-		</p>
-		
-		<xsl:if test="string-length(@previous.revision.year)>0">
-    <xsl:variable name="this_edition">
-      <xsl:choose>
-        <xsl:when test="@version='2'">
-          second
-        </xsl:when>
-        <xsl:when test="@version='3'">
-          third
-        </xsl:when>
-        <xsl:when test="@version='4'">
-          fourth
-        </xsl:when>
-        <xsl:when test="@version='5'">
-          fifth
-        </xsl:when>
-        <xsl:when test="@version='6'">
-          sixth
-        </xsl:when>
-        <xsl:when test="@version='7'">
-          seventh
-        </xsl:when>
-        <xsl:when test="@version='8'">
-          eighth
-        </xsl:when>
-        <xsl:when test="@version='9'">
-          ninth
-        </xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="prev_edition">
-      <xsl:choose>
-        <xsl:when test="@version='2'">
-          first
-        </xsl:when>
-        <xsl:when test="@version='3'">
-          second
-        </xsl:when>
-        <xsl:when test="@version='4'">
-          third
-        </xsl:when>
-        <xsl:when test="@version='5'">
-          fourth
-        </xsl:when>
-        <xsl:when test="@version='6'">
-          fifth
-        </xsl:when>
-        <xsl:when test="@version='7'">
-          sixth
-        </xsl:when>
-        <xsl:when test="@version='8'">
-          seventh
-        </xsl:when>
-        <xsl:when test="@version='9'">
-          eighth
-        </xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:choose>
-      <xsl:when test="@previous.revision.cancelled='NO'">
-        This <xsl:value-of select="$this_edition"/> edition of  
-        <xsl:value-of select="$part_no"/> 
-        constitutes a technical revision of the
-        <xsl:value-of select="@previous.revision.year"/> edition  
-        (<xsl:value-of
-          select="@previous.revision.number"/>),
-        which is provisionally retained in order to support continued use
-        and maintenance of implementations based on the
-        <xsl:value-of select="$prev_edition"/> 
-        edition and to satisfy the normative references of other parts of
-        ISO 10303. 
-
-
-        <xsl:choose>
-          <!-- only changed a section of the document -->
-          <xsl:when test="@revision.complete='NO'">
-            <xsl:value-of select="@revision.scope"/>
-            of the <xsl:value-of select="$prev_edition"/> 
-            edition  
-            <xsl:choose>
-            <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                 then must be plural-->
-              <xsl:when test="contains(@revision.scope,'es')">
-                have
-              </xsl:when>
-              <xsl:otherwise>
-                has
-              </xsl:otherwise>
-            </xsl:choose>
-            been technically revised.
-          </xsl:when>
-          <xsl:otherwise>
-            <!-- complete revision so no extra text -->
-          </xsl:otherwise>
-        </xsl:choose>
-
-      </xsl:when>
-
-      <xsl:otherwise>
-        <!-- cancelled -->
-        This <xsl:value-of select="$this_edition"/> edition of 
-        <xsl:value-of select="$part_no"/> cancels and replaces the
-        <xsl:value-of select="@previous.revision.year"/> edition
-        (<xsl:value-of
-          select="@previous.revision.number"/>), 
-
-        <xsl:choose>
-          <!-- only changed a section of the document -->
-          <xsl:when test="@revision.complete='NO'">
-            of which 
-            <xsl:value-of select="@revision.scope"/>
-            <xsl:choose>
-            <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                 then must be plural-->
-              <xsl:when test="contains(@revision.scope,'es')">
-                have
-              </xsl:when>
-              <xsl:otherwise>
-                has
-              </xsl:otherwise>
-            </xsl:choose>
-            been technically revised.
-          </xsl:when>
-          <xsl:otherwise>
-            of which it constitutes a technical revision.
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:if>
-
-		<p>
-			    This International Standard is organized as a series of parts, each
-			    published separately. The structure of this International Standard is
-			    described in ISO 10303-1.
-  		</p>
-		<p>
-			    Each part of this International Standard is a
-			    member of one of the following series: description methods, implementation
-			    methods, conformance testing methodology and framework, integrated generic
-			    resources, integrated application resources, application protocols,
-			    abstract test suites, application interpreted constructs, and application
-			    modules. This part is a member of the application protocols series.
-		</p>
-		<p>
-			A complete list of parts of ISO 10303 is available from the Internet: 
-		</p>
-		<blockquote>
-			<a href="http://www.tc184-sc4.org/titles/STEP_Titles.rtf/">
-				&lt;http://www.tc184-sc4.org/titles/STEP_Titles.rtf/&gt;
-			</a>
-			.
-		</blockquote>
-		<p>
-			Annexes A, B, C and D form an integral part of this part of ISO 10303. Annexe E 
-			<i>
-				et seq
-			</i> 
-			are for information only.
-		</p> 
-	</xsl:template>
-	
-	<xsl:template match="purpose">
-		<h3>
-			<a name="introduction">
-				Introduction
-			</a>
-		</h3>
-		<p>
-		    ISO 10303 is an International Standard for the computer-interpretable 
-		    representation of product information and for the exchange of product data.
-		    The objective is to provide a neutral mechanism capable of describing
-		    products throughout their life cycle. This mechanism is suitable not only
-		    for neutral file exchange, but also as a basis for implementing and
-		    sharing product databases, and as a basis 
-		    for archiving.
-		</p>
-		<xsl:apply-templates/>
-		<p>
-			Clause 
-			<a href="1_scope{$FILE_EXT}">
-				1
-			</a> 
-			defines the scope of the application protocol and summarizes the functionality and data covered. Clause 
-			<a href="3_defs{$FILE_EXT}">
-				3
-			</a> 
-			lists the words defined in this part of ISO 10303 and gives pointers to words defined elsewhere. The information 
-			requirements of the application are specified in clause 
-			<a href="4_info_reqs{$FILE_EXT}">
-				4
-			</a> 
-			using terminology appropriate to the application. A graphical representation of the information requirements, referred 
-			to as the application reference model, is given in annex 
-			<a href="f_arm_expg{$FILE_EXT}">
-				F
-			</a>
-			. Resource constructs are interpreted to meet the information requirements. This interpretation produces the application 
-			interpreted model (AIM). This interpretation, given in 
-			<a href="5_mapping{$FILE_EXT}">
-				5.1
-			</a>
-			, shows the correspondence between the information requirements and the AIM. The short listing of the AIM specifies 
-			the interface to the resources and is given in 
-			<a href="5_aim{$FILE_EXT}">
-				5.2</a>.
+			<a name="inscope"/> 
+			The following are within the scope of this part of ISO 10303: 
 			</p>
-			<p>
-				In this International Standard, the same English language words may be
-				    used to refer to an object in the real world or concept, and as the
-				    name of an EXPRESS data type that represents this object or concept.
-			</p>
-			<p>
-				The following typographical convention is used to distinguish between
-				    these. If a word or phrase occurs in the same typeface as narrative
-				    text, the referent is the object or concept. If the word or phrase
-				    occurs in a bold typeface or as a hyperlink, the referent is the
-				    EXPRESS data type.
-			</p>
-			<p>
-				The name of an EXPRESS data type may be used to refer to the data type
-				    itself, or to an instance of the data type. The distinction between
-				    these uses is normally clear from the context. If there is a likelihood
-				    of ambiguity, either the phrase "entity data type" or "instance(s) of" is
-				    included in the text.
-			</p>
-			<p>
-				Double quotation marks " " denote quoted text. Single quotation marks ' ' denote particular text string values.
-			</p>
-		</xsl:template>
-		
-		<xsl:template match="inscope">
-			<xsl:call-template name="clause_header">
-				<xsl:with-param name="heading" select="'1 Scope'"/>
-				<xsl:with-param name="aname" select="'scope'"/>
-			</xsl:call-template>
-			<xsl:variable name="application_protocol_name">
-				<xsl:call-template name="module_display_name">
-					<xsl:with-param name="module" select="../@name"/>
-				</xsl:call-template>
-			</xsl:variable>
-			<p>
-				This part of ISO 10303 specifies the application protocol for 
-				<xsl:value-of select="$application_protocol_name"/>. 
-				<a name="inscope"/> 
-				The following are within scope of this part of ISO 10303: 
-			</p>
-			<ul>
+      <ul>
 				<xsl:apply-templates/>
 			</ul>
 		</xsl:template>
 		
-		<!-- xsl:template match="outscope">
-  <p>
+		<xsl:template match="outscope">
+   <p>
     <a name="outscope"/>
     The following are outside the scope of this part of ISO 10303: 
   </p>
   <ul>
     <xsl:apply-templates/>
   </ul>
-</xsl:template -->
+</xsl:template> 
 
 	<xsl:template match="module" mode="annexg">
 		<xsl:call-template name="annex_header">
@@ -728,10 +81,10 @@
 		<xsl:variable name="arm">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="concat('../../../modules/', @name, '/arm.xml')"/>
+					<xsl:value-of select="'g_exp_arm.xml'"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat('../../../modules/', @name, '/arm.htm')"/>
+					<xsl:value-of select="'g_exp_arm.htm'"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -739,10 +92,10 @@
 		<xsl:variable name="arm_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="concat('../../../modules/', @name, '/arm_lf.xml')"/>
+					<xsl:value-of select="'g_exp_arm_lf.xml'"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat('../../../modules/', @name, '/arm_lf.htm')"/>
+					<xsl:value-of select="'g_exp_arm_lf.htm'"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -750,14 +103,24 @@
 		<xsl:variable name="aim">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="concat('../../../modules/', @name, '/mim.xml')"/>
+					<xsl:value-of select="'g_exp_aim.xml'"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat('../../../modules/', @name, '/mim.htm')"/>
+					<xsl:value-of select="'g_exp_aim.htm'"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
 		
+		<xsl:variable name="aim_lf">
+			<xsl:choose>
+				<xsl:when test="$FILE_EXT='.xml'">
+					<xsl:value-of select="'g_exp_aim_lf.xml'"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'g_exp_aim_lf.htm'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
 		
 		<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 		<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -767,16 +130,20 @@
 		<xsl:variable name="parts_url" select="'http://www.tc184-sc4.org/EXPRESS/'"/>
 		<p>
 			This annex references a listing of the EXPRESS entity names and corresponding short names as specified or referenced in this part of ISO
-    10303. It also provides a listing of each EXPRESS schema specified in this part of ISO 10303 without comments nor other explanatory text. These
-    listings are available in computer-interpretable form in Table G.1 and can be found at the following URLs:
+    10303. This listing can also be found at the following URL:
 		</p>
-		
 		<blockquote>
 			Short names:&lt;
 			<a href="{$names_url}">
 				<xsl:value-of select="$names_url"/>
 			</a>
-			&gt;<br/>
+			&gt;<br/>		
+		</blockquote>
+		<p>
+		It also provides a listing of each EXPRESS schema specified in this part of ISO 10303 without comments nor other explanatory text. These
+    listings are available in computer-interpretable form from Table G.1 and can be found at the following URLs:
+		</p>
+		<blockquote>
 			EXPRESS:&lt;
 			<a href="{$parts_url}">
 				<xsl:value-of select="$parts_url"/>
@@ -804,22 +171,41 @@
 			<table border="1" cellspacing="1">
 				<tr>
 					<td>
-						<b>Description</b>
+						<b>
+							Description
+						</b>
 					</td>
 					<td>
-						<b>File</b>
+						<b>
+							File
+						</b>
 					</td>
 					<td>
-						<b>File</b>
+						<b>
+							File
+						</b>
 					</td>
 					<td>
-						<b>Identifier</b>
+						<b>
+							Identifier
+						</b>
 					</td>
 				</tr>
 				<tr>
+					<xsl:choose>
+						<xsl:when test="$FILE_EXT='.xml'">
 							<td>ARM short form EXPRESS</td>
+						</xsl:when>
+						<xsl:otherwise>
+							<td>
+								ARM short form EXPRESS
+							</td>
+						</xsl:otherwise>
+					</xsl:choose>
 					<td>
-						<a href="{$arm}"><xsl:value-of select="concat('arm',$FILE_EXT)"/></a>
+						<a href="{$arm}">
+							<xsl:value-of select="concat('arm',$FILE_EXT)"/>
+						</a>
 					</td>
 					<xsl:call-template name="output_express_links">
 						<xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
@@ -832,11 +218,22 @@
 					<xsl:apply-templates select="arm_lf" mode="annexg"/>
 				</tr>
 				<tr>
+					<xsl:choose>
+						<xsl:when test="$FILE_EXT='.xml'">
 							<td>
 								AIM short form EXPRESS
 							</td>
+						</xsl:when>
+						<xsl:otherwise>
+							<td>
+								AIM short form EXPRESS
+							</td>
+						</xsl:otherwise>
+					</xsl:choose>
 					<td>
-						<a href="{$aim}"><xsl:value-of select="concat('aim',$FILE_EXT)"/></a>
+						<a href="{$aim}">
+							<xsl:value-of select="concat('aim',$FILE_EXT)"/>
+						</a>
 					</td>
 					<xsl:call-template name="output_express_links">
 						<xsl:with-param name="wgnumber" select="./@wg.number.mim"/>
@@ -858,8 +255,7 @@
 		</p>
 		<p class="note">
 			<small>
-				NOTE&#160;&#160;The information provided in computer-interpretable form at the above URLs is informative. 
-				The information that is contained in the body of this part of ISO 10303 is normative.
+				NOTE&#160;&#160;The information provided in computer-interpretable form at the above URLs is informative. The information that is contained in the body of this part of ISO 10303 is normative.
 			</small>
 		</p>
 	</xsl:template>
@@ -892,7 +288,7 @@
 				<xsl:when test="contains($test_wg_number,'Error')">
 					<xsl:call-template name="error_message">
 						<xsl:with-param name="message">
-							<xsl:value-of select="concat('(Error in application_protocol.xml - application_protocol/@wg.number.',$type,' - ',
+							<xsl:value-of select="concat('(Error in application_protocol.xml/application_protocol/@wg.number.',$type,' - ',
                                   $test_wg_number)"/>
 						</xsl:with-param>
 					</xsl:call-template>
@@ -906,13 +302,13 @@
 	
 	<xsl:template match="arm_lf" mode="annexg">
 		<xsl:variable name="module_name" select="../@name"/>
-	  <xsl:variable name="arm_lf">
+		<xsl:variable name="arm_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="concat('../../../modules/', $module_name, '/arm_lf.xml')"/>
+					<xsl:value-of select="'g_exp_arm_lf.xml'"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat('../../../modules/', $module_name, '/arm_lf.htm')"/>
+					<xsl:value-of select="'g_exp_arm_lf.htm'"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -924,10 +320,14 @@
 				ARM long form EXPRESS
 			</td>
 			<td>
-				<a href="{$arm_lf}"><xsl:value-of select="concat('arm_lf',$FILE_EXT)"/></a>
+				<a href="{$arm_lf}">
+					<xsl:value-of select="concat('arm_lf',$FILE_EXT)"/>
+				</a>
 			</td>
 			<td>
-				<a href="{$arm_lf_exp}">arm_lf.exp</a>
+				<a href="{$arm_lf_exp}">
+					arm_lf.exp
+				</a>
 			</td>
 			<td align="center">
 				&#8212;
@@ -937,24 +337,22 @@
 	
 	<xsl:template match="mim_lf" mode="annexg">
 		<xsl:variable name="module_name" select="../@name"/>
-		
-	  <xsl:variable name="aim_lf">
+		<xsl:variable name="aim_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="concat('../../../modules/', $module_name, '/mim_lf.xml')"/>
+					<xsl:value-of select="'g_exp_aim_lf.xml'"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="concat('../../../modules/', $module_name, '/mim_lf.htm')"/>
+					<xsl:value-of select="'g_exp_aim_lf.htm'"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-
 		<xsl:variable name="aim_lf_exp">
 			<xsl:value-of select="concat('../../../modules/', $module_name, '/mim_lf.exp')"/>
 		</xsl:variable>
 		<tr>
 			<td>
-				AIM long form EXPRESS
+				ARM long form EXPRESS
 			</td>
 			<td>
 				<a href="{$aim_lf}">
@@ -962,7 +360,9 @@
 				</a>
 			</td>
 			<td>
-				<a href="{$aim_lf_exp}">aim_lf.exp</a>
+				<a href="{$aim_lf_exp}">
+					aim_lf.exp
+				</a>
 			</td>
 			<td align="center">
 				&#8212;
@@ -987,11 +387,7 @@
 		<xsl:variable name="part_name" select="../@name"/>
 		<xsl:variable name="sect_4" select="concat('../../../modules/', $part_name, '/sys/4_info_reqs', $FILE_EXT)"/>
 		<p>
-			This clause specifies the information requirements for the 
-			<b>
-				<xsl:value-of select="$current_application_protocol"/>
-			</b> 
-			application protocol.
+			This clause specifies the information requirements addressed by this part of ISO 10303.
 		</p>
 		<p>
 			The information requirements are defined using the terminology of the subject area of this 
@@ -1001,16 +397,22 @@
 		<p class="note">
 			<small>
 				NOTE&#160;1&#160;&#160;A graphical representation of the information requirements is given in 
-				<a href="{$f_expg}">
-					Annex F
-				</a>.
+				<a href="{$f_expg}">annex F</a>.
 			</small>
 		</p>
+		<xsl:variable name="e_aam" select="concat('./e_aam',$FILE_EXT)"/>
+				<p class="note">
+			<small>
+				NOTE&#160;2&#160;&#160;The information requirements correspond to those of the activities 
+				identified as being within the scope of this application protocol, in <a href="{$e_aam}">annex E</a>.
+			</small>
+		</p>
+		
 		<p class="note">
 			<small>
-				NOTE&#160;2&#160;&#160;The mapping specification is specified in 
-				<a href="{$sect51}#mapping">5.1</a>
-				. It shows how the information requirements are met, using common resources and 
+				NOTE&#160;3&#160;&#160;The mapping specification is specified in 
+				<a href="{$sect51}#mapping">clause 5.1</a>. 
+				It shows how the information requirements are met, using common resources and 
 				constructs imported into the AIM schema of this application protocol.
 			</small>
 		</p>
@@ -1052,47 +454,33 @@
 			<br/>
 			(*
 		</code>
-		<a name="uof" -->
-			<h3>
-				4.1 Fundamental concepts and assumptions
-			</h3>
-		<!-- /a -->
-		This subclause provides the context of the information requirements for this part ISO 10303.
+		-->
+			
+		<h3><a name="#41">4.1&#160;Fundamental concepts and assumptions</a></h3>
+
+		This subclause describes the fundamental concepts and assumptions related to the data structure defined within this part of ISO 10303.
+
 		<xsl:variable name="ap_file" select="concat($ap_dir, '/application_protocol.xml')"/>
 		<xsl:apply-templates select="document($ap_file)/application_protocol/fundamentals"/>
-		<h3>
-			4.2 Information requirements model
-		</h3>
-		<h4>
-			4.2.1 Model specification
-		</h4>
+		<h3><a name="#42">4.2&#160;Information requirements model</a></h3>
+		<h4>4.2.1&#160;Application reference model specification</h4>
 		<p>
 			The detailed information requirements for this AP are defined in 
-			<a href="{$sect_4}">
-				Clause 4 of ISO 10303-
-				<xsl:value-of select="$part_no"/>
-			</a>
-			.
+			<a href="{$sect_4}">Clause 4 of ISO 10303-<xsl:value-of select="$part_no"/></a>.
 		</p>
-		<note>
-			The Application Object  index contains a complete list of all Application objects identified in the information requirements in 
-			ISO 10303-
-			<xsl:value-of select="$part_no"/>
-			.
+		<note number="1">
+			The Application Object index contains a complete list of all Application objects identified in the information requirements in 
+			ISO 10303-<xsl:value-of select="$part_no"/>.
 		</note>
-		<note>
+		<note number="2">
 			The module index contains a complete list of all the modules used in this part of ISO 10303.
 		</note>
-		<h4>
-			4.2.2 Model overview
-		</h4>
+		<h4>4.2.2&#160;Model overview</h4>
 		<p>
-			The following sub clauses contain an overview of the requirements contained in ISO 10303-
+			The following sub-clauses contain an overview of the requirements contained in ISO 10303-
 			<xsl:value-of select="$part_no"/> as represented in the following list of modules:
 		</p>
-		<note>
-			These modules provide a business overview of the information requirements.
-		</note>
+
 		
 		<!-- xsl:apply-templates select="document('../../data/application_protocols/nut_and_bolt/sys/module_index.xml')"/ -->
 		
@@ -1139,44 +527,6 @@
 			(*
 			</code -->
 		</xsl:template>
-		
-		
-		
-		<!-- xsl:template match="uof" mode="toc">
-			<xsl:variable name="href" select="concat('#uof',@name)"/>
-			<li>
-				<a href="{$href}">
-					<xsl:choose>
-						<xsl:when test="position()!=last()">
-							<xsl:value-of select="concat(@name,';')"/>
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="concat(@name,'.')"/>
-						</xsl:otherwise>
-					</xsl:choose>
-				</a>
-			</li>
-		</xsl:template -->
-
-		<!-- xsl:template match="uoflink" mode="toc">
-			<xsl:variable name="application_protocol" select="@module"/>
-			<xsl:variable name="uof" select="@uof"/>
-			<xsl:variable name="xref" select="concat('#uof',$uof)"/>
-			<li>
-				<xsl:choose>
-					<xsl:when test="position()!=last()">
-						<a href="{$xref}">
-							<xsl:value-of select="concat($uof,';')"/>
-						</a>
-					</xsl:when>
-					<xsl:otherwise>
-						<a href="{$xref}">
-							<xsl:value-of select="concat($uof,'.')"/>
-						</a>
-					</xsl:otherwise>
-				</xsl:choose>
-			</li>
-		</xsl:template -->
 	
 	<xsl:template match="uof" mode="uof_toc">
 		<h3>
@@ -1213,21 +563,25 @@
 				<xsl:with-param name="module" select="/application_protocol/@name"/>
 			</xsl:call-template>
 		</xsl:variable>
+		<xsl:variable name="name" select="concat('uof',$uof)"/>	
 		<h3>
-			<xsl:variable name="name" select="concat('uof',$uof)"/>
 			<a name="{$name}">
 				<xsl:value-of select="concat('4.1.',position()+count(../uof),' ',$uof)"/>
 			</a>
 		</h3>
-		This UoF is defined in the
+		<p>
+		The <b>$name</b> UoF is defined in the
 		<a href="{$xref}">
 			<xsl:call-template name="module_display_name">
 				<xsl:with-param name="module" select="$application_protocol"/>
 			</xsl:call-template>
-		</a>
-		application protocol. The following application entities from this UoF are referenced in the 
+		</a> application protocol. 
+		</p>
+		<p>
+		The following application entities of this UoF are referenced in the 
 		<xsl:value-of select="$current_application_protocol"/>
 		application protocol:
+		</p>
 		<xsl:variable name="ap_mod_dir">
 			<xsl:call-template name="ap_module_directory">
 				<xsl:with-param name="application_protocol" select="$application_protocol"/>
@@ -1325,11 +679,8 @@
 			<a name="aim_express">5.2 AIM EXPRESS short listing</a>
 		</h3>
 		<p>
-			This clause specifies the EXPRESS schema that uses elements from the common resources or from the application
-    modules and contains the types, entity specializations, rules, and functions that are specific to this part of ISO 10303.
-		</p>
-		<p>
-			This clause also specifies the modifications that apply to the constructs imported from the common resources.
+This clause specifies the interpreted EXPRESS schema of this application protocol. It uses elements from the common resources or from the application
+    modules and defines the EXPRESS constructs that are specific to this part of ISO 10303.
 		</p>
 		<p>
 			The following restrictions apply to the use, in this schema, of constructs defined in common resources or in application modules:
@@ -1813,12 +1164,10 @@
 		<xsl:param name="module_number"/>
   		<xsl:param name="current_module"/>
 		<xsl:param name="normrefs"/>
-		
-	
 
-		
 		<xsl:choose>
-			<xsl:when test="$normrefs">				<xsl:variable name="first" select="substring-before(substring-after($normrefs,','),',')"/>
+			<xsl:when test="$normrefs">				
+			<xsl:variable name="first" select="substring-before(substring-after($normrefs,','),',')"/>
 				<xsl:variable name="rest" select="substring-after(substring-after($normrefs,','),',')"/>
 				<xsl:choose>
 					<xsl:when test="contains($first, 'normref:')">
@@ -2005,87 +1354,6 @@
 		</xsl:apply-templates>
 	</xsl:template>
 
-<!-- xsl:template name="output_resource_normref">
-  <xsl:param name="resource_schema"/>
-  <xsl:variable name="ir_ok">
-    <xsl:call-template name="check_resource_exists">
-      <xsl:with-param name="schema" select="$resource_schema"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="ir_ref">
-    <xsl:if test="$ir_ok='true'">
-      <xsl:value-of 
-        select="document(concat('../../data/resources/',
-                $resource_schema,'/',$resource_schema,'.xml'))/express/@reference"/>
-    </xsl:if>
-  </xsl:variable>
-
-  <p>
-    <xsl:call-template name="error_message">
-      <xsl:with-param name="message">
-        <xsl:value-of 
-          select="concat('Warning 8: AIM uses schema ', 
-                  $resource_schema, 
-                  'Make sure you include Integrated resource (',
-                  $ir_ref,
-                  ') that defines it as a normative reference. ',
-                  'Use: normref.inc')"/>
-      </xsl:with-param>
-      <xsl:with-param name="inline" select="'no'"/>
-    </xsl:call-template>
-  </p>
-</xsl:template -->
-
-<!-- xsl:template match="application_protocol" mode="normref">
-  <p>
-    <xsl:variable name="part">
-      <xsl:choose>
-        <xsl:when test="string-length(@part)>0">
-          <xsl:value-of select="@part"/>
-        </xsl:when>
-        <xsl:otherwise>
-          &lt;part&gt;
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="stdnumber">
-      <xsl:call-template name="get_module_stdnumber">
-        <xsl:with-param name="module" select="."/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    
-    <xsl:variable name="stdtitle"
-      select="concat('Industrial automation systems and integration',
-              '- Product data representation and exchange')"/>
-
-    <xsl:variable name="application_protocol_name">
-      <xsl:call-template name="module_display_name">
-        <xsl:with-param name="module" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="subtitle"
-      select="concat('- Part ',$part,': Application protocol: ', $application_protocol_name,'.')"/>
-    
-
-    <xsl:value-of select="$stdnumber"/>
-
-    <xsl:if test="@published='n'">
-      <sup>
-        <a href="#tobepub">
-          1
-        </a>
-      </sup>
-    </xsl:if>,&#160;
-    <i>
-      <xsl:value-of select="$stdtitle"/>
-      <xsl:value-of select="$subtitle"/>
-    </i>
-  </p>
-</xsl:template -->
-
 	<!-- DELETE? NO-->
 	<xsl:template match="normref">
 		<xsl:param name="current_module"/>
@@ -2189,16 +1457,6 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
-	
-	<!-- xsl:template match="term" mode="abbreviation">
-		<xsl:value-of select="normalize-space(.)"/>
-	</xsl:template -->
-
-
-	<!-- xsl:template match="term">
-		<xsl:value-of select="normalize-space(.)"/>
-	</xsl:template -->
-
 
 	<xsl:template name="output_terms">
 		<xsl:param name="application_protocol_number"/>
@@ -2301,9 +1559,7 @@
 									<h3>
 										<xsl:value-of select="concat('3.',$section_no, ' Terms defined in ', $stdnumber)"/>
 									</h3>
-									For the purposes of this part of ISO 10303, the following terms defined in 
-									<xsl:value-of select="$stdnumber"/> 
-									apply:
+For the purposes of this part of ISO 10303, the following terms defined in <xsl:value-of select="$stdnumber"/> apply:
 									<ul>
 										<xsl:apply-templates select="/module/normrefs/normref.inc[@module.name=$module]/term.ref" mode="module"/>
 									</ul>
@@ -2380,28 +1636,6 @@
 				<xsl:with-param name="normref_list" select="$normref_list1"/>
 			</xsl:call-template>
 		</xsl:variable>
-
-		  <!-- get all normrefs that define terms for which abbreviations are
-		       provided.
-		       Get the abbreviation.inc from abbreviations_default.xml, 
-		       get the referenced abbreviation from abbreviations.xml
-		       then get the normref in which the term is defined
-		
-		  <xsl:variable name="normref_list3">
-		    <xsl:call-template name="get_normrefs_from_abbr">
-		      <xsl:with-param 
-		        name="abbrvinc_nodes" 
-		        select="document('../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
-		      <xsl:with-param 
-		        name="normref_list" 
-		        select="$normref_list2"/>
-		    </xsl:call-template>    
-		  </xsl:variable>
-		
-		  <xsl:message>
-		    l3:<xsl:value-of select="$normref_list3"/>:l3
-		  </xsl:message>
-		  -->
 		
 		<xsl:value-of select="concat($normref_list2,',')"/>
 	</xsl:template>

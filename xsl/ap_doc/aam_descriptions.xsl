@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: aam_descriptions.xsl,v 1.3 2002/10/19 07:14:12 mikeward Exp $
+	$Id: aam_descriptions.xsl,v 1.4 2003/02/19 12:48:44 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -17,7 +17,7 @@
 	
 	<xsl:template match="idef0">
 	
-		<p>The viewpoint is that of <xsl:value-of select="viewpoint"/></p>
+		<p>The viewpoint is that of <xsl:value-of select="viewpoint"/>.</p>
 		
 		<h3>E.1 Application activity model definitions</h3>
 		

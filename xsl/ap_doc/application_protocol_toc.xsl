@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol_toc.xsl,v 1.13 2002/12/04 11:32:42 mikeward Exp $
+     $Id: application_protocol_toc.xsl,v 1.14 2002/12/13 09:48:41 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -44,8 +44,7 @@
 							</xsl:when>
 							<xsl:otherwise>
 								<a href="{$application_protocol_root}/sys/3_defs{$FILE_EXT}">
-									3 Terms and abbreviations
-								</a>
+									3 Terms and abbreviations</a>
 							</xsl:otherwise>
 						</xsl:choose>
 					</p>
@@ -54,7 +53,12 @@
 					<p class="toc">
 						<a href="{$application_protocol_root}/sys/4_info_reqs{$FILE_EXT}">4 Information requirements</a>
 						<br/>
-						<small>
+						<a href="{$application_protocol_root}/sys/4_info_reqs{$FILE_EXT}#41">4.1 Fundamentals concepts and assumptions</a>
+						<br/>
+						<a href="{$application_protocol_root}/sys/4_info_reqs{$FILE_EXT}#42">4.2 Information requirements model</a>
+						<br/>
+						
+<!--
 						<a href="{$application_protocol_root}/sys/4_info_reqs{$FILE_EXT}#uof">
 							<xsl:value-of select="concat('&#160;&#160;',' 4.1 Units of functionality')"/>
 						</a>
@@ -215,13 +219,15 @@
 							</a>
 							<br/>
 						</xsl:if>
-					</small>
+
+-->
+						
 					<a href="{$application_protocol_root}/sys/5_main{$FILE_EXT}">5 Application interpreted model</a>
 					<br/>
 					<small>
-						<a href="{$application_protocol_root}/sys/5_mapping{$FILE_EXT}">&#160; &#160;5.1 Mapping specification</a>
+						<a href="{$application_protocol_root}/sys/5_mapping{$FILE_EXT}">&#160;&#160;5.1 Mapping specification</a>
 						<br/>
-						<a href="{$application_protocol_root}/sys/5_aim{$FILE_EXT}#aim_express">&#160; &#160;5.2 AIM EXPRESS short listing</a>
+						<a href="{$application_protocol_root}/sys/5_aim{$FILE_EXT}#aim_express">&#160;&#160;5.2 AIM EXPRESS short listing</a>
 						<br/>
 						<xsl:variable name="constant_aim_clause">
 							<xsl:call-template name="express_clause_present">
@@ -370,7 +376,6 @@
 						</small>
 						<a href="{$application_protocol_root}/sys/6_ccs{$FILE_EXT}">6 Conformance requirements</a>
 						<br/>
-
 					</p>
 				</td>
 				<td valign="TOP">

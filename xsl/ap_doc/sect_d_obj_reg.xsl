@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: sect_d_obj_reg.xsl,v 1.5 2002/10/19 07:13:54 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -35,7 +35,7 @@
 		<xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
 		<xsl:variable name="schema_name" select="document($arm_xml)/express/schema/@name"/>
 		<xsl:variable name="object_reg" select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
-		<h3>D.1 Document Identification </h3>
+		<h3>D.1 Document identification </h3>
 		To provide for unambiguous identification of an information object in an open system, the object identifier
 		<p align="center">
 			<xsl:value-of select="concat($object_reg,' }' )"/>

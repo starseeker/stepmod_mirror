@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: common.xsl,v 1.9 2002/10/29 18:43:10 mikeward Exp $
+     $Id: common.xsl,v 1.10 2003/02/06 22:35:11 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../common.xsl"/>
@@ -87,8 +87,7 @@
 			</tr>
 			<tr>
 				<td valign="MIDDLE">
-					<B>
-						Application protocol:
+					<B>Application protocol:
 						<xsl:call-template name="protocol_display_name">
 							<xsl:with-param name="application_protocol" select="@name"/>
 						</xsl:call-template>
@@ -136,13 +135,13 @@
 								<img alt="module folder" border="0" align="middle" src="{$fldr_gif}"/>
 							</a>&#160;
 							<xsl:if test="@development.folder">
-								<xsl:variable name="prjmg_href" select="concat($module_root,'/',	@development.folder,'/projmg',$FILE_EXT)"/>
+								<xsl:variable name="prjmg_href" select="concat($module_root,'/',@development.folder,'/projmg',$FILE_EXT)"/>
 								<a href="{$prjmg_href}">
 									<img alt="project management summary" border="0" align="middle" src="{$proj_gif}"/>
 								</a>&#160;
-								<xsl:variable name="issue_href" select="concat($module_root,'/',	@development.folder,'/issues',$FILE_EXT)"/>
-								<xsl:variable name="issues_file" select="concat($ap_mod_dir,'/',	@development.folder,'/issues.xml')"/>
-								<xsl:variable name="open_issues" select="count(document($issues_file)/issues/issue	[@status!='closed'])"/>
+								<xsl:variable name="issue_href" select="concat($module_root,'/',@development.folder,'/issues',$FILE_EXT)"/>
+								<xsl:variable name="issues_file" select="concat($ap_mod_dir,'/',@development.folder,'/issues.xml')"/>
+								<xsl:variable name="open_issues" select="count(document($issues_file)/issues/issue[@status!='closed'])"/>
 								<xsl:variable name="total_issues" select="count(document($issues_file)/issues/issue)"/>
 								<xsl:variable name="issue_gif">
 									<xsl:choose>
@@ -228,7 +227,6 @@
 	
 	<xsl:template match="img">
   <xsl:param name="alt"/>
- 
 
   <xsl:variable name="src">
     <xsl:choose>
@@ -340,7 +338,7 @@
 							<xsl:choose>
 								<xsl:when test="./graphic.element/@page">
 									<xsl:value-of select="concat('../../modules/', $mod, '/armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
-			                			</xsl:when>
+			      </xsl:when>
 								<xsl:otherwise>
 									<xsl:value-of select="concat('../../modules/', $mod, '/armexpg1', $FILE_EXT)"/>
 								</xsl:otherwise>

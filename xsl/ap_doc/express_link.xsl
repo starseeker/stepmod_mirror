@@ -1,13 +1,12 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: $
+	$Id: express_link.xsl,v 1.2 2002/10/08 10:20:08 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../express_link.xsl"/>
 	<xsl:import href="common.xsl"/>
-	
-	
+
 	<xsl:template name="build_interface_xref_list">
 		<xsl:param name="interfaces"/>
 		<xsl:param name="indent" select="''"/>
@@ -43,10 +42,10 @@
 							<xsl:variable name="l2_xref_list">
 								<xsl:call-template name="get_objects_in_schema">
 									<xsl:with-param name="xref_list" select="$xref_list"/>
-		                					<xsl:with-param name="object_nodes" select="$l_schema_node/entity|$l_schema_node/type|		$l_schema_node/subtype.constraint|$l_schema_node/function|$l_schema_node/rule|$l_schema_node/procedure|		$l_schema_node/constant"/>
-		              				</xsl:call-template>
+		              <xsl:with-param name="object_nodes" select="$l_schema_node/entity|$l_schema_node/type|		$l_schema_node/subtype.constraint|$l_schema_node/function|$l_schema_node/rule|$l_schema_node/procedure|		$l_schema_node/constant"/>
+		            </xsl:call-template>
 							</xsl:variable>
-					            <xsl:variable name="if_schema" select="concat('|',$l_schema_node/interface/@schema)"/>
+					    <xsl:variable name="if_schema" select="concat('|',$l_schema_node/interface/@schema)"/>
 							<xsl:choose>
 								<xsl:when test="$l_schema_node/interface[not(contains($l2_xref_list,$if_schema))]">
 									<xsl:call-template name="build_interface_xref_list">

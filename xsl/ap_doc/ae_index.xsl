@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="document_xsl.xsl" ?>
 <!--
-$Id: arm_long_form.xsl,v 1.1 2002/10/24 17:46:10 robbod Exp $
+$Id: ae_index.xsl,v 1.1 2002/10/30 20:59:45 mikeward Exp $
 -->
 
 <xsl:stylesheet 
@@ -18,7 +18,8 @@ $Id: arm_long_form.xsl,v 1.1 2002/10/24 17:46:10 robbod Exp $
 	<xsl:variable name="relative_root" select="'../../../../'"/>
 	<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 	<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
-	<xsl:variable name="mod_file" select="concat('../../data/modules/',/application_protocol[1]/@name,'/module.xml')"/>
+	<xsl:variable name="mod_file" 
+				select="concat('../../data/modules/',/application_protocol[1]/@name,'/module.xml')"/>
 	<xsl:variable name="module_node" select="document($mod_file)"/>
 	
 	
@@ -31,7 +32,7 @@ $Id: arm_long_form.xsl,v 1.1 2002/10/24 17:46:10 robbod Exp $
   	<xsl:template match="express">
 	<xsl:variable name="ap_name" select="substring-before(translate(./schema/@name,$UPPER,$LOWER),'_arm')"/>
     	<h3>
-		<xsl:value-of select="concat('Index of ARM long form datatypes and source schemas for ', $ap_name, ' Application Protocol')"/>
+		<xsl:value-of select="concat('Index of ARM long form data types and source schemas for ', $ap_name, ' Application Protocol')"/>
 	</h3>
 	<xsl:variable name="arm_file" select="concat('../../data/modules/', $ap_name, '/arm.xml')"/>
 	<xsl:variable name="arm_node" select="document($arm_file)/express"/>
@@ -77,8 +78,7 @@ $Id: arm_long_form.xsl,v 1.1 2002/10/24 17:46:10 robbod Exp $
 				</xsl:apply-templates>
 			
 				<br/><h4>entities</h4>
-				
-                          <xsl:apply-templates select="$arm_node//entity | $dep-schemas//entity" mode="link">
+				<xsl:apply-templates select="$arm_node//entity | $dep-schemas//entity" mode="link">
 					<xsl:sort select="@name"/>
 				</xsl:apply-templates>
 
@@ -149,14 +149,11 @@ $Id: arm_long_form.xsl,v 1.1 2002/10/24 17:46:10 robbod Exp $
 
 
 		</xsl:when>
-
-              </xsl:choose>
+		</xsl:choose>
 
 	</blockquote>
 	
 	<br/>
-  
- 
 </xsl:template>
 
 
@@ -203,10 +200,7 @@ $Id: arm_long_form.xsl,v 1.1 2002/10/24 17:46:10 robbod Exp $
 					<xsl:with-param name="todo" select="$after" />
 					<xsl:with-param name="done" select="concat($done,' ',$this-schema,' ')" />
 				</xsl:call-template>
-
-	
-			</xsl:if>
-
+				</xsl:if>
 		</xsl:if>
 
 </xsl:template>

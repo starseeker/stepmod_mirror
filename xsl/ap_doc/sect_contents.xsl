@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.6 2003/02/08 21:33:08 goset1 Exp $
+$Id: sect_contents.xsl,v 1.7 2003/02/28 13:33:08 rugarcia Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../sect_contents.xsl"/>
@@ -59,9 +59,12 @@ $Id: sect_contents.xsl,v 1.6 2003/02/08 21:33:08 goset1 Exp $
 			<a href="./4_info_reqs{$FILE_EXT}">4 Information requirements</a>
 		</p>
 		<p class="content">
-    			&#160;&#160;
-    			<a href="./4_info_reqs{$FILE_EXT}#uof">4.1 Units of functionality</a>
-  		</p>
+&#160;&#160;<a href="./4_info_reqs{$FILE_EXT}#41">4.1 Fundamental concepts and assumptions</a>
+</p>
+<p class="content">
+&#160;&#160;<a href="./4_info_reqs{$FILE_EXT}#42">4.2 Information requirements model</a>
+</p>
+<!--
 		<xsl:variable name="interface_clause">
 			<xsl:call-template name="express_clause_present">
 				<xsl:with-param name="clause" select="'interface'"/>
@@ -240,6 +243,9 @@ $Id: sect_contents.xsl,v 1.6 2003/02/08 21:33:08 goset1 Exp $
 				</a>
 			</p>
 		</xsl:if>
+		
+		-->
+		
 		<p class="content">
 			<a href="./5_aim{$FILE_EXT}">5 Application interpreted model</a>
 		</p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol_clause.xsl,v 1.4 2002/10/08 10:20:08 mikeward Exp $
+     $Id: application_protocol_clause.xsl,v 1.5 2003/02/06 22:35:11 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module_clause.xsl"/>
@@ -10,9 +10,6 @@
 		<xsl:apply-templates select="./application_protocol_clause"/>
 	</xsl:template>
 	
-	<!--
-	<xsl:template match="module_clause"/>
-	-->
 	<xsl:template match="application_protocol_clause">
     <xsl:variable name="application_protocol_xml_file" 
 				select="concat('../../data/application_protocols/',@directory,'/application_protocol.xml')"/>
@@ -34,5 +31,5 @@
       	</body>
     		</html>
 	</xsl:template>
-	
+
 </xsl:stylesheet>

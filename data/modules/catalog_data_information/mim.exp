@@ -1,27 +1,76 @@
 (*
-   $Id: mim.exp,v 1.1 2003/04/04 12:23:26 rugarcia Exp $
+   $Id: mim.exp,v 1.2 2003/04/22 08:59:24 rugarcia Exp $
    ISO/TC184/SC4 WG12N1304 - ISO/CD-TS 10303-1351 catalog_data_information - EXPRESS MIM
 *)
 
 SCHEMA Catalog_data_information_mim;
 
+
+USE FROM Alias_identification_mim;
+
+USE FROM Alternative_solution_mim ;
+
+USE FROM Approval_arm_mim ;
+
+USE FROM Assembly_structure_mim ;
+
+USE FROM Certification_mim ;
+
 USE FROM Classification_with_attributes_mim;
 
-USE FROM Document_management_mim ;
+USE FROM Configuration_effectivity_mim ;
+
+USE FROM Contextual_shape_positioning_mim ;
+
+USE FROM Contract_mim ;
+
+USE FROM Date_time_mim ;
+
+USE FROM Date_time_assignment_mim ;
+
+USE FROM Dimension_tolerance_mim ;
+
+USE FROM Document_and_version_identification_mim ;
+
+USE FROM Document_assignment_mim ;
+
+USE FROM Document_definition_mim ;
+
+USE FROM Document_properties_mim ;
+
+USE FROM Document_structure_mim ;
 
 USE FROM Effectivity_application_mim ;
 
+USE FROM Effectivity_mim ;
+
+USE FROM Elemental_geometric_shape_mim ;
+
 USE FROM Event_mim ;
 
-USE FROM Expression_mim;
+USE FROM Event_assignment_mim ;
+
+USE FROM External_class_mim;
+
+USE FROM External_model_mim ;
 
 USE FROM External_properties_mim;
 
-USE FROM Incomplete_data_reference_mechanism_mim;
+USE FROM File_identification_mim ;
+
+USE FROM Foundation_representation_mim ;
+
+USE FROM Functional_breakdown_mim ;
+
+USE FROM Group_mim ;
+
+USE FROM Independent_property_mim;
 
 USE FROM Inertia_characteristics_mim;
 
 USE FROM Item_definition_structure_mim;
+
+USE FROM Management_resource_information_mim ;
 
 USE FROM Manufacturing_configuration_effectivity_mim;
 
@@ -29,13 +78,49 @@ USE FROM Material_aspects_mim;
 
 USE FROM Multi_linguism_mim;
 
-USE FROM Product_as_individual_mim;
+USE FROM Part_and_version_identification_mim;
 
-USE FROM Representation_with_uncertainty_mim;
+USE FROM Part_collection_mim ;
+
+USE FROM Part_definition_relationship_mim ;
+
+USE FROM Part_view_definition_mim ;
+
+USE FROM Person_organization_mim ;
+
+USE FROM Person_organization_assignment_mim ;
+
+USE FROM Plib_class_reference_mim ;
+
+USE FROM Product_breakdown_mim ;
+
+USE FROM Product_categorization_mim ;
+
+USE FROM Product_class_mim ;
+
+USE FROM Product_occurrence_mim ;
+
+USE FROM Product_replacement_mim ;
+
+USE FROM Product_view_definition_mim ;
+
+USE FROM product_view_definition_properties_mim ;
+
+USE FROM Product_view_definition_relationship_mim ;
+
+USE FROM Property_assignment_mim ;
+
+USE FROM Shape_property_assignment_mim ;
+
+USE FROM Specification_based_configuration_mim ;
 
 USE FROM Specification_control_mim;
 
+USE FROM Specified_product_mim ;
+
 USE FROM Time_interval_mim ;
+
+USE FROM Value_with_unit_mim ;
 
 USE FROM material_property_definition_schema(
 	property_definition_relationship);
@@ -200,8 +285,7 @@ TYPE date_and_time_item_236cc1   = EXTENSIBLE SELECT BASED_ON date_and_time_item
    property_definition,
    security_classification,
    security_classification_level,
-   shape_representation,
-   product_as_individual);
+   shape_representation);
 END_TYPE;
 
 TYPE date_item_236cc1  = EXTENSIBLE SELECT BASED_ON date_item WITH
@@ -241,8 +325,7 @@ TYPE date_item_236cc1  = EXTENSIBLE SELECT BASED_ON date_item WITH
    property_definition,
    security_classification,
    security_classification_level,
-   shape_representation,
-   product_as_individual);
+   shape_representation);
 END_TYPE;
 
 TYPE document_reference_item_236cc1  = EXTENSIBLE SELECT BASED_ON document_reference_item WITH
@@ -273,8 +356,7 @@ TYPE document_reference_item_236cc1  = EXTENSIBLE SELECT BASED_ON document_refer
    representation,
    security_classification,
    shape_aspect,
-   shape_aspect_relationship,
-   product_as_individual);
+   shape_aspect_relationship);
 END_TYPE;
 
 TYPE effectivity_item_236cc1  = EXTENSIBLE SELECT BASED_ON effectivity_item WITH
@@ -482,10 +564,7 @@ TYPE organization_item_236cc1  = EXTENSIBLE SELECT BASED_ON organization_item WI
    product_definition_relationship,
    product_definition_substitute,
    property_definition,
-   security_classification,
-   security_classification_level,
-   shape_representation,
-   product_as_individual);
+   shape_representation);
 END_TYPE;
 
 TYPE person_and_organization_item_236cc1  = EXTENSIBLE SELECT BASED_ON person_and_organization_item WITH
@@ -525,30 +604,9 @@ TYPE person_and_organization_item_236cc1  = EXTENSIBLE SELECT BASED_ON person_an
    property_definition,
    security_classification,
    security_classification_level,
-   shape_representation,
-   product_as_individual);
-END_TYPE;
-
-TYPE security_classification_item_236cc1  = EXTENSIBLE SELECT BASED_ON security_classification_item WITH
-  (assembly_component_usage_substitute,
-   class_system,
-   configuration_design,
-   configuration_effectivity,
-   configured_effectivity_assignment,
-   document_file,
-   general_property,
-   material_designation,
-   organizational_project,
-   product,
-   product_concept,
-   product_concept_feature,
-   product_concept_feature_category,
-   product_definition,
-   product_definition_formation,
-   product_definition_relationship,
-   property_definition,
    shape_representation);
 END_TYPE;
+
 
 TYPE time_interval_item_236cc1  = EXTENSIBLE SELECT BASED_ON time_interval_item WITH
   (alternate_product_relationship,
@@ -586,39 +644,7 @@ TYPE time_interval_item_236cc1  = EXTENSIBLE SELECT BASED_ON time_interval_item 
    security_classification_level,
    shape_representation);
 END_TYPE;
-
-ENTITY applied_ineffectivity_assignment 
-SUBTYPE OF (effectivity_assignment); 
-   items : SET [1:?] OF effectivity_item_236cc1; 
-WHERE 
-WR1: SIZEOF([schema_name + '.LOT_EFFECTIVITY', 
-schema_name + '.SERIAL_NUMBERED_EFFECTIVITY', 
-schema_name + '.PRODUCT_DEFINITION_EFFECTIVITY'] * TYPEOF(SELF.assigned_effectivity) ) = 0; 
-END_ENTITY; 
-
-ENTITY expression_conversion_based_unit 
-SUBTYPE OF (context_dependent_unit, variable_semantics); 
-INVERSE 
-   associated_variable_environment: environment FOR semantics; 
-END_ENTITY; 
-
-ENTITY language_assignment
-  SUBTYPE OF (classification_assignment);
-  SELF\classification_assignment.assigned_class: language;
-  items : SET [1:?] OF language_item;
-WHERE
-WR1: SELF.role.name ='language';
-WR2: SIZEOF (SELF.items) = SIZEOF ( QUERY ( i <* SELF.items |
-     ( schema_name + '.REPRESENTATION' IN TYPEOF ( i ) )
-     AND ( i\representation.name = 'document content' ) ) ) ;
-END_ENTITY;
-
-ENTITY named_unit_variable 
-SUBTYPE OF (named_unit, variable_semantics); 
-INVERSE 
-  associated_variable_environment: environment FOR semantics; 
-END_ENTITY; 
-
+  
 
 RULE approval_person_organization_requires_date_time 
     FOR (approval_person_organization);

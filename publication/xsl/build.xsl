@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.12 2004/11/15 13:30:52 robbod Exp $
+<!--  $Id: build.xsl,v 1.13 2004/11/15 14:53:19 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -2224,7 +2224,6 @@
           </xsl:apply-templates>
         </xsl:element>
       </xsl:if>
-
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${EEXPMIMXML}'"/>
@@ -2787,7 +2786,8 @@
         </xsl:apply-templates> 
       </xsl:variable>
 
-      <xsl:if test="string-length($dlongforms)>0">
+      <!-- RBN the test need to be run on the dependent modules       
+      <xsl:if test="string-length($dlongforms)>0"></xsl:if> -->
         <xsl:element name="style">
           <xsl:attribute name="includes">
             <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
@@ -2799,7 +2799,7 @@
             <xsl:with-param name="menu" select="$menu"/>
           </xsl:apply-templates>
         </xsl:element>
-      </xsl:if>
+
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2813,7 +2813,8 @@
         </xsl:apply-templates>
       </xsl:element>
       
-      <xsl:if test="string-length($dlongforms)>0">        
+      <!-- RBN the test need to be run on the dependent modules       
+           <xsl:if test="string-length($dlongforms)>0"></xsl:if> -->
         <xsl:element name="style">
           <xsl:attribute name="includes">
             <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
@@ -2825,7 +2826,7 @@
             <xsl:with-param name="menu" select="$menu"/>
           </xsl:apply-templates>
         </xsl:element>
-      </xsl:if>
+
 
 
       <xsl:element name="style">

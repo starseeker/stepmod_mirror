@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.2 2001/10/05 15:35:00 robbod Exp $
+$Id: module.xsl,v 1.3 2001/10/22 09:32:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -134,10 +134,10 @@ $Id: module.xsl,v 1.2 2001/10/05 15:35:00 robbod Exp $
   <xsl:variable name="arm">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        ../arm.xml
+        '../arm.xml'
       </xsl:when>
       <xsl:otherwise>
-        ../arm.htm
+        '../arm.htm'
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

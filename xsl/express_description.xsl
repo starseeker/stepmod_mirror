@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.17 2003/06/27 00:15:51 thendrix Exp $
+     $Id: express_description.xsl,v 1.18 2003/06/27 04:15:14 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -151,6 +151,13 @@ and  string is more than the schema name ( hence not the  schema )
         
       </xsl:if>
 
+      <!--      <xsl:call-template name ="error_message">
+        <xsl:with-param name="message">
+        <xsl:value-of select="concat('global_xref_list: ' , $global_xref_list)" />
+        </xsl:with-param>     
+ </xsl:call-template> -->
+
+
       <xsl:if test="not($description/b/text()) and not($description/express_ref)">
       <xsl:call-template name="error_message">
           <xsl:with-param 
@@ -161,11 +168,13 @@ and  string is more than the schema name ( hence not the  schema )
 
 
       <!-- if -->
-      <xsl:if test="not(contains('is',substring-before(normalize-space($description/text()[position()=2]),' ')))">
+      <!--      <xsl:if test="not(contains('is',substring-before(normalize-space($description/text()[position()=2]),' ')))"> -->
+<xsl:if test="not(contains('is',substring-before(substring-after(substring-after(normalize-space($description),' '),' '),' ')))">
       <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('Warning Ent3: ', $description/@linkend, '. Check that description starts with is ')"/>
+          <xsl:with-param  name="message"  >
+            <xsl:value-of select="concat('Warning Ent3: ', $description/@linkend, '. Check that the description starts with' )"/>
+          &quot;    <xsl:value-of select="concat(' A or an ',$entity,' is ')" />
+          &quot;  </xsl:with-param>
         </xsl:call-template>        
       </xsl:if>
 
@@ -181,39 +190,55 @@ and  string is more than the schema name ( hence not the  schema )
       <xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),concat('is a type of ',substring-before($supertypes,' '))))" >
         
         <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('Warning Ent5: ',$description/@linkend, ' check for is a type of ', $supertypes,'.')"/>
+          <xsl:with-param  name="message" >
+            <xsl:value-of select="concat('Warning Ent5: ',$description/@linkend, ' check for')" />
+
+&quot;              <xsl:value-of select="concat(' is a type of ', $supertypes,'.')" /> 
+      &quot; . Supertype(s) should be tagged as express_ref    </xsl:with-param>
         </xsl:call-template>        
         
       </xsl:if>
     </xsl:if>
-
+    
     <xsl:variable name="d" select="$description" />
       <xsl:variable name="p" select="$d//text()"/>
       <xsl:variable name="q" select="$d//b/text()" />
-      <xsl:variable name="q1" select="$d//express_ref/text()" />
-      <xsl:variable name="q2" select="$q | $q1" />
+        <xsl:variable name="q1" select="$d//express_ref/text()" />
+          <xsl:variable name="q2" select="$q | $q1" />
+            
+            <xsl:variable name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />
+              <!-- <xsl:call-template name="chktxt">
+                   <xsl:with-param name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />      
+                   </xsl:call-template>
+                   -->
+               
+                   <xsl:apply-templates select="$tnodes" mode="chktxt" />
+                 
+                 <xsl:apply-templates select="$description" />
+                   
+                 </xsl:if>  
+               </xsl:template>
+
+<!--  <xsl:template name="chktxt" >
+       <xsl:param name="tnodes"  />      
+         <xsl:if test="contains($tnodes,'_')">
+           <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Warning Ent6: ',' check for express identifier not bold nor linked ')"/>
+      </xsl:call-template>
+    </xsl:if>
+</xsl:template>  -->
 
 
-
-        <xsl:call-template name="chktxt">
-          <xsl:with-param name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />      
-          </xsl:call-template>
-         <xsl:apply-templates select="$description" />
-     
+<xsl:template match="text()" mode="chktxt" >
+  <xsl:if test="contains(.,'_')">
+    <xsl:call-template name="error_message">
+      <xsl:with-param 
+        name="message" 
+        select="concat('Warning Ent6: ',' check for express identifier not bold nor linked ')"/>
+    </xsl:call-template>
   </xsl:if>
-</xsl:template>
-
-<xsl:template name="chktxt" >
-         <xsl:param name="tnodes"  />      
-  <xsl:if test="contains($tnodes,'_')">
-      <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('Warning Ent6: ',' check for express identifier not bold nor linked ')"/>
-        </xsl:call-template>
-      </xsl:if>
 </xsl:template>
 
 

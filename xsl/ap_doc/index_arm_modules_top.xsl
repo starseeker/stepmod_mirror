@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_top.xsl,v 1.10 2003/07/31 08:57:56 robbod Exp $
+$Id: index_arm_modules_top.xsl,v 1.11 2003/08/01 08:58:23 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -135,7 +135,7 @@ $Id: index_arm_modules_top.xsl,v 1.10 2003/07/31 08:57:56 robbod Exp $
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
 
-	<h3>ARM Modules</h3>
+	<h3>Module ARMs</h3>
 	
 <!--	<TABLE width="}">
 		<TR >

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_modules_top.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
+$Id: index_mim_modules_top.xsl,v 1.8 2003/08/01 08:58:23 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -135,7 +135,7 @@ $Id: index_mim_modules_top.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
 
-	<h3>MIM Modules</h3>
+	<h3>Module MIMs</h3>
 	
 
 	<xsl:variable name="schema-names">

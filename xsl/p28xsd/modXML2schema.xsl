@@ -34,9 +34,9 @@
 		<xsl:text>&#xa;</xsl:text>
 		
 		<xsl:element name="xs:schema">
-			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:xs/', $schema_name)"/></xsl:attribute>
 			<xsl:copy-of select="document('../../dtd/part28/ex_namespace.xml')/*/namespace::ex"/>
 			<xsl:copy-of select="document(concat($directory_path, '/stepmod_namespace.xml'))/*/namespace::*"/>
+			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:xs/', $schema_name)"/></xsl:attribute>
 			<xsl:text>&#xa;</xsl:text>
 			
 			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>

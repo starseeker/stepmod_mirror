@@ -1,74 +1,29 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
+<!-- $Id: mim.xml,v 1.5 2003/02/05 23:03:32 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="mim_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.26"
-    source="../data/modules/alternative_solution/mim.exp"/>
-
-  <schema name="Alternative_solution_mim">
-    <interface
-      kind="use"
-      schema="Functional_breakdown_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Product_occurrence_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Person_organization_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Person_organization_assignment_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Physical_breakdown_mim">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="qualified_measure_schema">
-      <interfaced.item
-        name="measure_representation_item"/>
-    </interface>
-
-    <interface
-      kind="use"
-      schema="measure_schema">
-      <interfaced.item
-        name="ratio_measure_with_unit"/>
-    </interface>
-
-    <constant name="schema_name"
-      expression="STRING := 'ALTERNATIVE_SOLUTION_MIM';">
-    </constant>
-    <type name="organization_item_sol">
-      <select
-        basedon="organization_item"
-        selectitems="product_definition">
-      </select>
-
-    </type>
-    <rule
-      name="alternative_solution_requires_solution_definition"
-      appliesto="product_definition_formation">
-      <algorithm>
+<express language_version="2" description.file="mim_descriptions.xml" rcs.date="$Date: 2003/02/05 23:03:32 $" rcs.revision="$Revision: 1.5 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.26" source="../data/modules/alternative_solution/mim.exp"/>
+	<schema name="Alternative_solution_mim">
+		<interface kind="use" schema="Functional_breakdown_mim"/>
+		<interface kind="use" schema="Product_occurrence_mim"/>
+		<interface kind="use" schema="Person_organization_mim"/>
+		<interface kind="use" schema="Person_organization_assignment_mim"/>
+		<interface kind="use" schema="Physical_breakdown_mim"/>
+		<interface kind="use" schema="qualified_measure_schema">
+			<interfaced.item name="measure_representation_item"/>
+		</interface>
+		<interface kind="use" schema="measure_schema">
+			<interfaced.item name="ratio_measure_with_unit"/>
+		</interface>
+		<constant name="schema_name" expression="'ALTERNATIVE_SOLUTION_MIM'">
+			<builtintype type="STRING"/>
+		</constant>
+		<type name="organization_item_sol">
+			<select basedon="organization_item" selectitems="product_definition"/>
+		</type>
+		<rule name="alternative_solution_requires_solution_definition" appliesto="product_definition_formation">
+			<algorithm>
 LOCAL
   solution_versions: SET OF product_definition_formation := [];
 END_LOCAL;
@@ -76,71 +31,33 @@ END_LOCAL;
 	SIZEOF( QUERY( prpc &lt;* USEDIN(pdf.of_product, schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
 	prpc.name = 'alternative solution')) = 1);
       </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF( QUERY( pdf &lt;* solution_versions | SIZEOF( QUERY( pd &lt;* USEDIN(pdf, schema_name + '.PRODUCT_DEFINITION.FORMATION') |  pd.frame_of_reference.name = 'alternative definition')) &lt;&gt; 1))= 0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_alternative_definition"
-      appliesto="product_definition">
-      <algorithm>
+			<where label="WR1" expression="SIZEOF( QUERY( pdf &lt;* solution_versions | SIZEOF( QUERY( pd &lt;* USEDIN(pdf, schema_name + '.PRODUCT_DEFINITION.FORMATION') |  pd.frame_of_reference.name = 'alternative definition')) &lt;&gt; 1))= 0"/>
+		</rule>
+		<rule name="restrict_alternative_definition" appliesto="product_definition">
+			<algorithm>
 LOCAL
   solution_definitions: SET OF product_definition := [];
 END_LOCAL;
   solution_definitions :=  QUERY( pd &lt;* product_definition |
 	(pd.frame_of_reference.name = 'alternative definition'));
       </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | 	( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd ,	schema_name + '.PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 	pdr.name = 'solution alternative definition' ) ) &lt;&gt;1 ) ) ) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | 	NOT ( pd.name IN ['technical' , 'supplier' , 'technical supplier' , ''] ) ) ) = 0">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | 	( pd.name IN ['supplier' , 'technical supplier'] ) AND (	SIZEOF ( QUERY ( aoa &lt;* USEDIN ( pd.formation ,	schema_name + '.APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 	aoa.role.name = 'supplier' )) &lt;&gt;1 ) )) = 0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="solution_definition_requires_solution_category"
-      appliesto="product_definition">
-      <algorithm>
+			<where label="WR1" expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | 	( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd ,	schema_name + '.PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 	pdr.name = 'solution alternative definition' ) ) &lt;&gt;1 ) ) ) = 0"/>
+			<where label="WR2" expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | 	NOT ( pd.name IN ['technical' , 'supplier' , 'technical supplier' , ''] ) ) ) = 0"/>
+			<where label="WR3" expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | 	( pd.name IN ['supplier' , 'technical supplier'] ) AND (	SIZEOF ( QUERY ( aoa &lt;* USEDIN ( pd.formation ,	schema_name + '.APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 	aoa.role.name = 'supplier' )) &lt;&gt;1 ) )) = 0"/>
+		</rule>
+		<rule name="solution_definition_requires_solution_category" appliesto="product_definition">
+			<algorithm>
 LOCAL
   solution_definitions: SET OF product_definition := [];
 END_LOCAL;
   solution_definitions :=  QUERY( pd &lt;* product_definition |
 	(pd.frame_of_reference.name = 'alternative definition'));
       </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF( QUERY( pd &lt;* solution_definitions | (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 	prpc.name = 'alternative solution')) = 0 ) )) = 0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_product_definitions_for_base_element"
-      appliesto="product_definition_relationship">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |     ( pdr. name = 'solution alternative definition' ) AND 	( NOT( pdr. relating_product_definition.frame_of_reference.name     IN [ 'alternative definition' , 'functional definition' , 'conceptual definition' ] ) OR 	( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'alternative definition' ) ) ) ) =0">
-      </where>
-
-    </rule>
-
-  </schema>
-
+			<where label="WR1" expression="SIZEOF( QUERY( pd &lt;* solution_definitions | (SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 	prpc.name = 'alternative solution')) = 0 ) )) = 0"/>
+		</rule>
+		<rule name="restrict_product_definitions_for_base_element" appliesto="product_definition_relationship">
+			<algorithm/>
+			<where label="WR1" expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |     ( pdr. name = 'solution alternative definition' ) AND 	( NOT( pdr. relating_product_definition.frame_of_reference.name     IN [ 'alternative definition' , 'functional definition' , 'conceptual definition' ] ) OR 	( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'alternative definition' ) ) ) ) =0"/>
+		</rule>
+	</schema>
 </express>

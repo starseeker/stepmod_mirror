@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.7 2002/10/02 16:43:22 robbod Exp $
+$Id: developer.xsl,v 1.8 2002/11/26 10:13:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -83,6 +83,30 @@ $Id: developer.xsl,v 1.7 2002/10/02 16:43:22 robbod Exp $
       <xsl:with-param name="link_section" select="'introduction'"/>
       <xsl:with-param name="href" 
         select="concat('../../../modules/',@directory,'/sys/introduction',$FILE_EXT)"/>
+    </xsl:apply-templates>
+
+    <xsl:apply-templates 
+      select="$module_nodes/module" mode="linkend">
+      <xsl:with-param name="section" select="'Scope'"/>
+      <xsl:with-param name="link_section" select="'1_scope'"/>
+      <xsl:with-param name="href" 
+        select="concat('../../../modules/',@directory,'/sys/1_scope',$FILE_EXT,'#scope')"/>
+    </xsl:apply-templates>
+
+    <xsl:apply-templates 
+      select="$module_nodes/module" mode="linkend">
+      <xsl:with-param name="section" select="'In Scope'"/>
+      <xsl:with-param name="link_section" select="'1_inscope'"/>
+      <xsl:with-param name="href" 
+        select="concat('../../../modules/',@directory,'/sys/1_scope',$FILE_EXT,'#inscope')"/>
+    </xsl:apply-templates>
+
+    <xsl:apply-templates 
+      select="$module_nodes/module" mode="linkend">
+      <xsl:with-param name="section" select="'Out of Scope'"/>
+      <xsl:with-param name="link_section" select="'1_outscope'"/>
+      <xsl:with-param name="href" 
+        select="concat('../../../modules/',@directory,'/sys/1_scope',$FILE_EXT,'#outscope')"/>
     </xsl:apply-templates>
 
     <h3>References to ARM EXPRESS types</h3>

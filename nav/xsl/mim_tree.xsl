@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
+$Id: mim_tree.xsl,v 1.1 2002/11/25 17:07:57 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -141,9 +141,11 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
 <!-- get the list of schemas for this level that have not already been done -->
 
 			<xsl:variable name="my-kids" >
-				<xsl:apply-templates select="$mim-node//interface" mode="interface-schemas" >
-					<xsl:with-param name="done" select="$done" />
-				</xsl:apply-templates>
+				<xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))" >
+					<xsl:apply-templates select="$mim-node//interface" mode="interface-schemas" >
+						<xsl:with-param name="done" select="$done" />
+					</xsl:apply-templates>
+				</xsl:if>
 			</xsl:variable>
 
 			<blockquote>
@@ -168,8 +170,8 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
 
 <xsl:template match="interface" mode="interface-schemas" >
 	<xsl:param name="done" />
-	<xsl:if test="not(contains($done,@schema))" >
-		<xsl:value-of select="concat(' ',@schema,' ')" /> 
+	<xsl:if test="not(contains($done,concat(' ',@schema,' ')))" >
+		<xsl:value-of select="concat(' ',translate(@schema,$UPPER,$LOWER),' ')" /> 
 	</xsl:if>
 </xsl:template>
 
@@ -240,9 +242,11 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
 <!-- get the list of schemas for this level that have not already been done -->
 
 			<xsl:variable name="my-kids" >
-				<xsl:apply-templates select="$mim-node//interface" mode="interface-schemas" >
-					<xsl:with-param name="done" select="$done" />
-				</xsl:apply-templates>
+				<xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))" >
+					<xsl:apply-templates select="$mim-node//interface" mode="interface-schemas" >
+						<xsl:with-param name="done" select="$done" />
+					</xsl:apply-templates>
+				</xsl:if>
 			</xsl:variable>
 
 			<xsl:variable name="after" select="normalize-space(concat(substring-after($todo, $this-schema),$my-kids))" />

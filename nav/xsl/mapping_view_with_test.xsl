@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
+$Id: mapping_view_with_test.xsl,v 1.4 2003/01/31 08:14:04 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -56,6 +56,9 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 
   <xsl:variable name="schema-name" select="concat(/stylesheet_application[1]/@directory,'_mim')"/>
 
+  <xsl:variable name="pseudo-schema-name" select="concat(/stylesheet_application[1]/@directory,'_pseudo_long_form_mim')"/>
+
+
   <xsl:variable name="schemas" >
 	<xsl:choose>
 		<xsl:when test="$schema-name = translate($mim_schema_name,$UPPER,$LOWER)" >
@@ -70,22 +73,6 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 	</xsl:choose>
   </xsl:variable>
 
-<!--	<xsl:variable name="direct-items" >
-		<xsl:call-template name="mim-lf-recurse-pass1" >
-			<xsl:with-param name="schemas" select="$schemas"/>
-			<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')"/>
-		</xsl:call-template>
-	</xsl:variable>
-
-	<xsl:variable name="indirect-items" >
-	<xsl:call-template name="mim-lf-recurse-pass2" >
-			<xsl:with-param name="schemas" select="$schemas"/>
-			<xsl:with-param name="todo" select="concat(' ',normalize-space($direct-items),' ')"/>
-			<xsl:with-param name="output" select="concat(' ',normalize-space($direct-items),' ')"/>
-		</xsl:call-template>
-	</xsl:variable>
-
--->
 
   <xsl:template match="/" >
     <xsl:apply-templates select="./stylesheet_application"/>
@@ -1212,13 +1199,6 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 	
 	<p> PASS 1 - list of definitive entities and types
 	</p>
-	<blockquote>
-		<xsl:call-template name="mim-lf-recurse-pass1" >
-			<xsl:with-param name="schemas" select="$schemas"/>
-			<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')"/>
-		</xsl:call-template>
-	</blockquote>
-
 	<!-- collect result in a variable and normalize the space to get a todo list 
 	for completing the implicitly referenced entities and types -->
 
@@ -1229,24 +1209,38 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 		</xsl:call-template>
 	</xsl:variable>
 
+	<blockquote>
+<!--		<xsl:call-template name="mim-lf-recurse-pass1" >
+			<xsl:with-param name="schemas" select="$schemas"/>
+			<xsl:with-param name="todo" select="concat(' ',$schema-name,' ')"/>
+		</xsl:call-template>
+-->
+		<xsl:value-of select="$direct-items" />
+	</blockquote>
+
+
 	PASS 2 - further entities and types
 	<br/>
-	<blockquote>
-	
-	<xsl:call-template name="mim-lf-recurse-pass2" >
-		<xsl:with-param name="schemas" select="$schemas"/>
-		<xsl:with-param name="todo" select="concat(' ',normalize-space($direct-items),' ')"/>
-		<xsl:with-param name="output" select="concat(' ',normalize-space($direct-items),' ')"/>
-	</xsl:call-template>
-	</blockquote>
-	
+
 	<xsl:variable name="indirect-items" >
 	<xsl:call-template name="mim-lf-recurse-pass2" >
 			<xsl:with-param name="schemas" select="$schemas"/>
 			<xsl:with-param name="todo" select="concat(' ',normalize-space($direct-items),' ')"/>
 			<xsl:with-param name="output" select="concat(' ',normalize-space($direct-items),' ')"/>
-		</xsl:call-template>
+		</xsl:call-template> 
 	</xsl:variable>
+
+	<blockquote>
+<!--	<xsl:call-template name="mim-lf-recurse-pass2" >
+		<xsl:with-param name="schemas" select="$schemas"/>
+		<xsl:with-param name="todo" select="concat(' ',normalize-space($direct-items),' ')"/>
+		<xsl:with-param name="output" select="concat(' ',normalize-space($direct-items),' ')"/>
+	</xsl:call-template>
+-->
+		<xsl:value-of select="$indirect-items" />
+
+	</blockquote>
+	
 
 
 	<br/>
@@ -1371,7 +1365,7 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 	</blockquote>
 	<hr/>
 	<br/>
-	SCHEMA <xsl:value-of select="concat(/stylesheet_application[1]/@directory,'_pseudo_long_form_mim;')" />
+	SCHEMA <xsl:value-of select="$pseudo-schema-name" />
 	<br/>
 	<p>(* This schema has been derived from the MIM short form schema. It is in-development and has no official status!!!
 	<br/>
@@ -1434,41 +1428,51 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 -->
 	<xsl:if test="$current-schema" >
 
-			<xsl:if test="not(contains($done,concat(' ',$current-schema,' ')))" >
-				<xsl:apply-templates 
-					select="$schemas//schema[translate(@name,$UPPER,$LOWER)=$current-schema]/type" 
-					mode="schema-name"/>
-				<xsl:apply-templates 
-					select="$schemas//schema[translate(@name,$UPPER,$LOWER)=$current-schema]/entity" 
-					mode="schema-name"/>
-				<br/>
-			</xsl:if>
+		<xsl:if test="not(contains($done,concat(' ',$current-schema,' ')))" >
+			<xsl:apply-templates 
+				select="$schemas//schema[translate(@name,$UPPER,$LOWER)=$current-schema]/type" 
+				mode="schema-name"/>
+			<xsl:apply-templates 
+				select="$schemas//schema[translate(@name,$UPPER,$LOWER)=$current-schema]/entity" 
+				mode="schema-name"/>
+			<br/>
+		</xsl:if>
 
 <!-- deal with USE and references that list entities -->
 
-
-		<xsl:apply-templates 
-			select="$schemas//schema[translate(@name,$UPPER,$LOWER)=$current-schema]/interface[interfaced.item]" 
-			mode="used-items" >
-			<xsl:with-param name="done" select="$output" />
-		</xsl:apply-templates>
+		<xsl:if test="not(contains($done,concat(' ',$current-schema,' ')))" >
+			<xsl:apply-templates 
+				select="$schemas//schema[translate(@name,$UPPER,$LOWER)=
+				$current-schema]/interface[interfaced.item]" 
+				mode="used-items" >
+				<xsl:with-param name="done" select="$output" />
+			</xsl:apply-templates>
+		</xsl:if>
 
 
 	<xsl:variable name="used-entities" >
-		<xsl:apply-templates 
-			select="$schemas//schema[translate(@name,$UPPER,$LOWER)=$current-schema]/interface[interfaced.item]" 
-			mode="used-items" >
-			<xsl:with-param name="done" select="$output" />
-		</xsl:apply-templates>
+		<xsl:if test="not(contains($done,concat(' ',$current-schema,' ')))" >
+			<xsl:apply-templates 
+				select="$schemas//schema[translate(@name,$UPPER,$LOWER)=
+				$current-schema]/interface[interfaced.item]" 
+				mode="used-items" >
+				<xsl:with-param name="done" select="$output" />
+			</xsl:apply-templates>
+		</xsl:if>
 	</xsl:variable>
 
 
 <!-- deal with schemas that are used or referenced complete -->
 
 	<xsl:variable name="used-schemas" >
-		<xsl:apply-templates 
-			select="$schemas//schema[translate(@name,$UPPER,$LOWER)=$current-schema]/interface[not(interfaced.item)]" 
-			mode="no-used-items" />
+		<xsl:if test="not(contains($done,concat(' ',$current-schema,' ')))" >
+			<xsl:apply-templates 
+				select="$schemas//schema[translate(@name,$UPPER,$LOWER)=
+				$current-schema]/interface[not(interfaced.item)]" 
+				mode="no-used-items" >
+				<xsl:with-param name="done" select="$done" />
+			</xsl:apply-templates>
+		</xsl:if>
 	</xsl:variable>
 
 <!-- now recurse -->
@@ -1501,7 +1505,11 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 </xsl:template>
 
 <xsl:template match="interface" mode="no-used-items" >
-	<xsl:value-of select="concat(' ',@schema,' ')" />
+	<xsl:param name="done" select="' '"/>
+
+	<xsl:if test="not(contains($done, concat(' ',@schema,' ')))" >
+		<xsl:value-of select="concat(' ',@schema,' ')" />
+	</xsl:if>
 </xsl:template>
 
 <xsl:template name="mim-lf-recurse-pass2" >
@@ -1522,7 +1530,6 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 	YY<xsl:value-of select="$output"/>YY
 	<br/>
 -->
-
 	<xsl:if test="$current-item" >
 
 		<xsl:choose>
@@ -1543,18 +1550,22 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 <!-- add any dependent items that are not in done list to the todo list-->
 
 			<xsl:variable name="current-item-depends" >
-				<xsl:apply-templates 
-					select="$schemas//schema[translate(@name,$UPPER,$LOWER)=
-					$current-item-schema]/type[@name=$current-item-thing]" 
-					mode="dependent-items" >
-					<xsl:with-param name="schemas" select="$schemas"/>
-				</xsl:apply-templates>
-				<xsl:apply-templates 
-					select="$schemas//schema[translate(@name,$UPPER,$LOWER)=
-					$current-item-schema]/entity[@name=$current-item-thing]" 
-					mode="dependent-items" >
-					<xsl:with-param name="schemas" select="$schemas"/>
-				</xsl:apply-templates>
+				<xsl:if test="not(contains($done, concat(' ',$current-item,' ')))" >
+					<xsl:apply-templates 
+						select="$schemas//schema[translate(@name,$UPPER,$LOWER)=
+						$current-item-schema]/type[@name=$current-item-thing]" 
+						mode="dependent-items-restricted" >
+						<xsl:with-param name="schemas" select="$schemas"/>
+						<xsl:with-param name="done-list" select="$output"/>
+					</xsl:apply-templates>
+					<xsl:apply-templates 
+						select="$schemas//schema[translate(@name,$UPPER,$LOWER)=
+						$current-item-schema]/entity[@name=$current-item-thing]" 
+						mode="dependent-items-restricted" >
+						<xsl:with-param name="schemas" select="$schemas"/>
+						<xsl:with-param name="done-list" select="$output"/>
+					</xsl:apply-templates>
+				</xsl:if>
 			</xsl:variable>				
 
 <!--	AA<xsl:value-of select="$current-item-depends"/>BB -->
@@ -1662,6 +1673,96 @@ $Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
 	</xsl:choose>
 </xsl:template>
 
+<xsl:template match="type" mode="dependent-items-select-restricted" >
+	<xsl:param name="schemas" />
+	<xsl:param name="done-list" />
+
+	<xsl:choose>
+		<xsl:when test="select/@basedon" >
+			<!-- do nothing -->
+		</xsl:when>
+		<xsl:when test="select/@extensible='YES'" >
+			<!-- do nothing -->
+		</xsl:when>
+		<xsl:when test="select/@selectitems" >
+			<!-- filter out any item that is another select or a defined type and add to list -->
+			<xsl:variable name="this-items" select="concat(' ',select/@selectitems,' ')" />
+			<xsl:for-each select="$schemas//schema/type[contains($this-items,concat(' ',@name,' '))]" >
+				<xsl:if test="not(contains($done-list,concat(' ',../@name,'.',@name,' ')))" >
+					<xsl:apply-templates select="." mode="schema-name"/>
+				</xsl:if>
+				
+			</xsl:for-each>
+<!-- This should work but does not!
+			<xsl:apply-templates 
+				select="$schemas//schema/type[contains($this-items,concat(' ',@name,' '))]
+						[not(select/@basedon | select/@extensible)]" 
+				mode="schema-name"/>
+-->
+		</xsl:when>
+	</xsl:choose>
+</xsl:template>
+
+
+<xsl:template match="entity" mode="dependent-items-restricted" >
+	<xsl:param name="schemas" />
+	<xsl:param name="done-list" />
+
+<!-- list any supertypes -->
+
+	<xsl:if test="@supertypes" >
+		<xsl:variable name="supers" select="concat(' ',@supertypes,' ')" />
+		<xsl:for-each select="$schemas//schema/entity[contains($supers,concat(' ',@name,' '))]" >
+			<xsl:if test="not(contains($done-list,concat(' ',../@name,'.',@name,' ')))" >
+				<xsl:apply-templates select="." mode="schema-name"/>
+			</xsl:if>
+				
+		</xsl:for-each>
+	</xsl:if>
+	
+
+<!-- list any types used by attributes -->
+
+	<xsl:for-each select="explicit/typename | derived/typename" >
+		<xsl:variable name="typename" select="@name" />
+
+		<xsl:for-each select="$schemas//schema/*[@name=$typename][name()='entity' or name()='type']" >
+			<xsl:if test="not(contains($done-list,concat(' ',../@name,'.',@name,' ')))" >
+				<xsl:apply-templates select="." mode="schema-name"/>
+			</xsl:if>
+		</xsl:for-each>
+	</xsl:for-each>
+
+</xsl:template>
+
+<xsl:template match="type" mode="dependent-items-restricted" >
+	<xsl:param name="schemas" />
+	<xsl:param name="done-list" />
+
+	<xsl:choose>
+		<xsl:when test="select" >
+			<!-- do nothing as deal with select types later -->
+			<!-- ??? what about selects that are included as members in another select??? -->
+			<xsl:apply-templates select="." mode="dependent-items-select-restricted" >
+				<xsl:with-param name="schemas" select="$schemas"/>
+				<xsl:with-param name="done-list" select="$done-list"/>
+			</xsl:apply-templates>
+
+		</xsl:when>
+		<xsl:when test="typename" >
+			<xsl:variable name="this-type" select="typename/@name" />
+			<xsl:for-each select="$schemas//schema/*[@name=$this-type][name()='entity' or name()='type']" >
+				<xsl:if test="not(contains($done-list,concat(' ',../@name,'.',@name,' ')))" >
+					<xsl:apply-templates select="." mode="schema-name"/>
+				</xsl:if>
+			</xsl:for-each>
+		</xsl:when>
+		<xsl:when test="enumeration" >
+			<!-- do nothing as deal with enumeration types later ??? -->
+		</xsl:when>
+
+	</xsl:choose>
+</xsl:template>
 
 
 <xsl:template match="type" mode="code">
@@ -1790,6 +1891,16 @@ the tree and recursing up. Need to add wr to constrain out any types found in th
 		<br/>
 		(* Excess members: <xsl:value-of select="$excess-types" /> *)
 
+		<xsl:if test="string-length($excess-types) > 3" >
+			<br/>
+			WHERE
+			<br/>
+			<xsl:call-template name="excess-where-rule" >
+				<xsl:with-param name="excess-list" select="$excess-types"/>
+				<xsl:with-param name="the-schema" 
+					select="translate( $pseudo-schema-name, $LOWER,$UPPER)"/>
+			</xsl:call-template>
+		</xsl:if>
 
 			<br/>
 		    END_TYPE; 
@@ -2105,6 +2216,32 @@ Therefore only need to prune the list of members
 
 </xsl:template>
 
+<xsl:template name="excess-where-rule" >
+	<xsl:param name="excess-list" />
+	<xsl:param name="the-schema" />
+	<xsl:param name="count" select="1" />
+	
+
+	<!-- get first item in list -->
+
+	<xsl:variable name="first" select="substring-before(concat(normalize-space($excess-list),' '),' ')" />
+
+	<xsl:if test="$first" >
+
+
+		WR<xsl:value-of select="$count" />: NOT(
+		<xsl:value-of select="concat($the-schema,'.',translate($first,$LOWER,$UPPER),' ')" />
+		IN TYPEOF(SELF));
+		<br/>
+
+		<xsl:call-template name="excess-where-rule">
+			<xsl:with-param name="the-schema" select="$the-schema" />
+			<xsl:with-param name="excess-list" select="substring-after($excess-list,$first)" />
+		</xsl:call-template>
+
+	</xsl:if>
+
+</xsl:template>
 
 
 </xsl:stylesheet>

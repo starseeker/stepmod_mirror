@@ -1,4 +1,4 @@
-//  $Id: express2xml.js,v 1.32 2003/05/02 07:56:57 robbod Exp $
+//  $Id: express2xml2.js,v 1.7 2003/07/21 19:20:47 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -9,7 +9,6 @@
 //
 //  Open issues:
 //	Script does not handle SELF\ construct correctly - deletes it in most cases
-//	Comments are passed through to the xml file - is this correct?
 //
 //	function xmlEnumeration:
 //		Still to do ????
@@ -61,7 +60,8 @@ var indent = "";
 
 
 // ------------------------------------------------------------
-// function: Print debug text to screen
+// function debug()
+//	Print debug text to screen
 // ------------------------------------------------------------
 function debug(txt){
     WScript.Echo("Dbx: "+txt);
@@ -69,7 +69,8 @@ function debug(txt){
 
 
 // ------------------------------------------------------------
-// function: Print to command screen
+// function userMessage()
+//	Print to command screen
 // ------------------------------------------------------------
 function userMessage(msg){
     WScript.Echo(msg);
@@ -77,7 +78,8 @@ function userMessage(msg){
 
 
 // ------------------------------------------------------------
-// function: Print error message to command screen
+// function errorMessage()
+// 	Print error message to command screen
 // ------------------------------------------------------------
 function ErrorMessage(msg){
     var objShell = WScript.CreateObject("WScript.Shell");
@@ -86,7 +88,8 @@ function ErrorMessage(msg){
 
 
 // ------------------------------------------------------------
-// function: Return a statement terminated by ";"
+// function readStatement()
+// 	Return a statement terminated by ";"
 // ------------------------------------------------------------
 function readStatement(line, ts) {
     var pos;
@@ -96,29 +99,9 @@ function readStatement(line, ts) {
     }//end if
     
     else {
-    	//bypass any blank lines
-	while (line.match(/^\s*\n$/)){
-	   line = ts.ReadLine();
-           lNumber  = ts.Line;
-	}	
-	
-        line = " "+trim(line);
-        
-        // remove any  -- comments
-        pos = line.search("--");
-        if (pos != -1) {
-            if (pos >0) {	
-	    line = line.substr(0,pos)+" (* "+line.substr(pos+2)+" *)";
-	    }
-    	    else {
-    	        line = line.replace(/^--\s*/,"");
-    	        line = "(* "+line+" *)";
-    	    }
-        }
-	
 	pos = line.search(";")
 	if (pos == -1){
-	    var nextLine = ts.ReadLine();
+	    var nextLine = readNextLine(ts);
 	
 	    var reg = /^[A-Za-z]/;
 	    var ch  = nextLine.match(reg);
@@ -139,7 +122,8 @@ function readStatement(line, ts) {
 
 
 // ------------------------------------------------------------
-// function: Separate all , and ( ) with whitespace, remove all tabs etc
+// function normaliseStatement()
+// 	Separate all , and ( ) with whitespace, remove all tabs etc
 // ------------------------------------------------------------
 function normaliseStatement(statement) {
    
@@ -155,7 +139,14 @@ function normaliseStatement(statement) {
     statement = statement.replace(/\)/g," ) ");
     statement = statement.replace(/\t/g," ");
     statement = statement.replace(/^\s*/g,"");
-    
+//TEH added     
+    statement = statement.replace(/(\w)=/g,"$1 =");
+    statement = statement.replace(/=(\w)/g,"= $1");
+    statement = statement.replace(/=\'/g,"= \'");
+    statement = statement.replace(/:(\?)/g,": $1");
+    statement = statement.replace(/:(\w)/g,": $1");
+    statement = statement.replace(/(\w):/g,"$1 :");
+//end TEH added
     // replace double space with single space
     while (statement.search(/  /) != -1) {
         statement = statement.replace(/  /g," ");
@@ -168,7 +159,8 @@ function normaliseStatement(statement) {
 
 
 // ------------------------------------------------------------
-// function: Get the nth word of a string
+// function getWord()
+// 	Get the nth word of a string
 // ------------------------------------------------------------
 function getWord(n, statement) {
     statement = normaliseStatement(statement);
@@ -185,7 +177,8 @@ function getWord(n, statement) {
 
 
 // ------------------------------------------------------------
-// function: Return the contents of everything enclosed in ()
+// function getList() 
+//	Return the contents of everything enclosed in ()
 // ------------------------------------------------------------
 function getList(statement) {
     var list = normaliseStatement(statement);
@@ -204,7 +197,48 @@ function getList(statement) {
 
 
 // ------------------------------------------------------------
-// function list2array: Given a statement, extract the (list) into an array
+// function readNextLine()
+// 	read a line, bypass any comments or blank lines
+// ------------------------------------------------------------
+function readNextLine(ts) {
+    var line = ts.ReadLine();
+    lNumber  = ts.Line;	
+    line     = trim(line);
+    //debug ("1 "+line);
+
+    var blankLine = /^\s*$/;
+    var comment1  = /^\s*\(\*/;
+    var comment2  = /^--/;
+    
+    while (line.match(blankLine) || line.match(comment1) || line.match(comment2)){
+    	
+    	if (line.match(comment1)){
+    	    var com = readComment(line,ts);
+    	}
+    	
+        if(!(ts.AtEndOfStream)){
+		line    = ts.ReadLine();
+	        lNumber = ts.Line;	
+        	line    = trim(line);
+	}
+	else return(line);
+    }
+    
+    // remove any trailing -- comments
+    var pos = line.search(/--/);
+    if (pos != -1) {	
+        line = line.substr(0,pos);
+        line = trim(line);
+    }
+    
+    //debug ("2 "+line);
+    return (line);	
+}	
+	
+	
+// ------------------------------------------------------------
+// function list2array()
+// 	Given a statement, extract the (list) into an array
 // ------------------------------------------------------------
 function list2array(statement) {
     var arr  = -1;
@@ -225,7 +259,7 @@ function list2array(statement) {
 
 // ------------------------------------------------------------
 // deprecated function: list2arrayOld (replaced by list2array())
-// Given a statement, extract the (list) into an array
+// 	Given a statement, extract the (list) into an array
 // ------------------------------------------------------------
 //function list2arrayOld(statement) {
 //    var arr;
@@ -240,9 +274,10 @@ function list2array(statement) {
 
 
 // ------------------------------------------------------------
-// function: Given a string, return and array. 
-// Array[0] is the nth list in the string where n is the listNo
-// Array[1] is the rest of the strig after the list
+// function splitList()
+// 	Given a string, return and array. 
+// 	Array[0] is the nth list in the string where n is the listNo
+// 	Array[1] is the rest of the strig after the list
 // ------------------------------------------------------------
 function splitList(str, listNo) {
     var reg = /\(.*\)/;    
@@ -294,8 +329,9 @@ function splitList(str, listNo) {
 
 
 // ------------------------------------------------------------
-// function: Return true if an attribute statment is OPTIONAL
-//           It will be the first word after the colon.
+// function isOptional()
+// 	Return true if an attribute statment is OPTIONAL
+//      It will be the first word after the colon.
 // ------------------------------------------------------------
 function isOptional(statement) {
     statement = getAfterColon(statement);
@@ -307,7 +343,8 @@ function isOptional(statement) {
 
 
 // ------------------------------------------------------------
-// function: Return true if statment contains "SELF"
+// function isRedeclared()
+//	Return true if statement contains "SELF"
 // ------------------------------------------------------------
 function isRedeclared(statement) {
     var result = false;
@@ -319,7 +356,8 @@ function isRedeclared(statement) {
 
 
 // ------------------------------------------------------------
-// function: Return everything after the : removing the ;
+// function getAfterColon()
+//	Return everything after the : removing the ;
 // ------------------------------------------------------------
 function getAfterColon(statement) {
     var expr = "";
@@ -335,7 +373,8 @@ function getAfterColon(statement) {
 
 
 // ------------------------------------------------------------
-// function: Return everything after the := removing the ;
+// function getAfterEquals()
+// 	Return everything after the := removing the ;
 // ------------------------------------------------------------
 function getAfterEquals(statement) {
     var expr = "";
@@ -352,13 +391,15 @@ function getAfterEquals(statement) {
 
 
 // ------------------------------------------------------------
-// function: Return a statement terminated by ;
-//           calls recursive function to get the comment
+// function readComment()
+// 	Return a statement terminated by ;
+//      calls recursive function readCommentRecurse() to get the comment
 // ------------------------------------------------------------
 function readComment(line, ts) {
     var reg = /^\s*\(\*/;
     var pos = line.search(reg);
     var comment = -1;
+    
     if (pos != -1) {
 	//line = line.replace(/\(\*/,"");
 	comment = readCommentRecurse(line, ts);
@@ -368,7 +409,8 @@ function readComment(line, ts) {
 
 
 // ------------------------------------------------------------
-// Recursive function called by readComment.
+// function readCommentRecurse()
+// 	Recursive function called by readComment()
 // ------------------------------------------------------------
 function readCommentRecurse(line, ts) {
     var comment = "";
@@ -391,7 +433,8 @@ function readCommentRecurse(line, ts) {
 
 
 // ------------------------------------------------------------
-// function: Return the first word in the line or (*
+// function readToken()
+// 	Return the first word in the line or (*
 // ------------------------------------------------------------
 function readToken(line) {
     // get the first word
@@ -410,7 +453,7 @@ function readToken(line) {
     }
     if (!token) {
 	// Not a word, so check for {} statement
-	reg = /^\{/i;
+	reg = /^\{/;
 	token = line.match(reg);	
     }
     if (token) {
@@ -457,11 +500,12 @@ function readToken(line) {
 
 
 // ------------------------------------------------------------
-// function: Write the xml file header
+// function xmlFileHeader()
+// 	Write the xml file header
 // ------------------------------------------------------------
-function xmlXMLhdr(outTs) {
+function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.32 2003/05/02 07:56:57 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.7 2003/07/21 19:20:47 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -469,13 +513,14 @@ function xmlXMLhdr(outTs) {
 
 
 // ------------------------------------------------------------
-// function: Return the revision of this application
+// function getApplicationRevision()
+//	Return the revision of this application
 // ------------------------------------------------------------
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.32 $";
+    var appCVSRevision = "$Revision: 1.7 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -485,7 +530,8 @@ function getApplicationRevision() {
 
 
 // ------------------------------------------------------------
-// function: trim() Trim white space from both ends of a string
+// function trim()
+//	Trim white space from both ends of a string
 // ------------------------------------------------------------
 function trim(s) { 
     return s.replace(/(^\s+)|(\s+$)/g, "")
@@ -493,12 +539,12 @@ function trim(s) {
 
 
 // ------------------------------------------------------------
-// function: xmlApplication() 
+// function xmlApplication() 
 // ------------------------------------------------------------
 function xmlApplication(outTs) {
     var appRevision = getApplicationRevision();
     xmlOpenElement("<application",outTs);
-    xmlAttr("name","express2xml.js",outTs);
+    xmlAttr("name","express2xml2.js",outTs);
     xmlAttr("owner","Eurostep Limited",outTs);
     xmlAttr("url","http://www.eurostep.com",outTs);
     xmlAttr("version",appRevision,outTs);
@@ -509,7 +555,8 @@ function xmlApplication(outTs) {
 
 
 // ------------------------------------------------------------
-// function: xmlOpenSchema() Open the schema XML element
+// function xmlOpenSchema()
+//	Open the schema XML element
 // ------------------------------------------------------------
 function xmlOpenSchema(statement, outTs) {
     var schema = getWord(2,statement);
@@ -520,7 +567,8 @@ function xmlOpenSchema(statement, outTs) {
 
 
 // ------------------------------------------------------------
-// function: Close the schema XML element
+// function xmlCloseSchema()
+//	Close the schema XML element
 // ------------------------------------------------------------
 function xmlCloseSchema(outTs) {
     xmlCloseElement("</schema>",outTs);
@@ -528,7 +576,7 @@ function xmlCloseSchema(outTs) {
 
 
 // ------------------------------------------------------------
-// function: xml Constant
+// function xmlConstant()
 // ------------------------------------------------------------
 function xmlConstant(statement,expTs,outTs) {
     var name;
@@ -573,7 +621,7 @@ function xmlConstant(statement,expTs,outTs) {
     outTs.WriteLine(">");
     
     // GENERIC_ENTITY
-    reg3 = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+    reg3 = /\bBINARY\b|\bBOOLEAN\b|\bGENERIC_ENTITY\b|\bGENERIC\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
     
     var aggtype = type.match(reg3); 
 	
@@ -593,9 +641,10 @@ function xmlConstant(statement,expTs,outTs) {
     xmlCloseElement("</constant>",outTs);
     
     //get the next line
-    line      = expTs.ReadLine();
-    lNumber   = expTs.Line;
+    line      = readNextLine(expTs);
+    
     var token = readToken(line);
+    
     statement = readStatement(line,expTs);
 
     switch( token ) {
@@ -610,7 +659,7 @@ function xmlConstant(statement,expTs,outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function getAbstractSuper()
 // ------------------------------------------------------------
 function getAbstractSuper(statement) {
     statement = normaliseStatement(statement);
@@ -621,7 +670,7 @@ function getAbstractSuper(statement) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlAbstract()
 // ------------------------------------------------------------
 function xmlAbstract(outTs) {
     xmlAttr("abstract.supertype", "YES", outTs);
@@ -629,12 +678,11 @@ function xmlAbstract(outTs) {
 
 
 // ------------------------------------------------------------
-// function: xml super expression
-// Return the supertype expression.
-// Format may be:
-//  SUPERTYPE OF (ONEOF(next_assembly_usage_occurrence,
-//              specified_higher_usage_occurrence,promissory_usage_occurrence))
-//  SUBTYPE OF (product_definition_usage);
+// function xmlSuperExpression()
+// 	Return the supertype expression.
+// 	  Format may be:
+//  	    SUPERTYPE OF (ONEOF(next_assembly_usage_occurrence, specified_higher_usage_occurrence,promissory_usage_occurrence))
+//  	    SUBTYPE OF (product_definition_usage);
 // ------------------------------------------------------------
 function xmlSuperExpression(statement, outTs) {
     var reg = /.*SUPERTYPE OF/i;
@@ -654,7 +702,7 @@ function xmlSuperExpression(statement, outTs) {
 
 
 // ------------------------------------------------------------
-// function: xml supertypes
+// function xmlSupertypes()
 // ------------------------------------------------------------
 function xmlSupertypes(statement, outTs) {
     var reg = /.*SUBTYPE OF\b/i;
@@ -672,7 +720,8 @@ function xmlSupertypes(statement, outTs) {
 
 
 // ------------------------------------------------------------
-// function: Open the entity XML element
+// function xmlOpenEntity()
+//	Open the entity XML element
 // ------------------------------------------------------------
 function xmlOpenEntity(statement,outTs,expTs) {
     xmlOpenElement("<entity",outTs);
@@ -688,7 +737,8 @@ function xmlOpenEntity(statement,outTs,expTs) {
 
 
 // ------------------------------------------------------------
-// function: Close the entity XML element
+// function xmlCloseEntity
+//	Close the entity XML entity
 // ------------------------------------------------------------
 function xmlCloseEntity(outTs) {
     xmlCloseElement("</entity>",outTs);	
@@ -699,8 +749,7 @@ function xmlCloseEntity(outTs) {
 // function xmlEntityStructure()
 // ------------------------------------------------------------
 function xmlEntityStructure(outTs,expTs,mode) {
-    var l = expTs.ReadLine();
-    lNumber = expTs.Line;
+    var l = readNextLine(expTs);
     
     //if(mode == "unique") debug("unique: "+l);
     var token = readToken(l)+"";
@@ -769,10 +818,15 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	    expression = expression.replace(reg,"");
 	    expression = tidyExpression(expression);
 	    var typedef = rest.replace(/:=.*/,"");
-	    xmlAttr("name",name,outTs);
+	    xmlAttr("name",name.replace(/^.*\./,""),outTs);
 	    xmlAttr("expression",expression,outTs);
 	    outTs.WriteLine(">");
 	    xmlUnderlyingType(typedef,outTs);
+//TEH added 
+	    if (isRedeclared(name)) {
+		xmlRedeclaredAttribute(name.replace(/^.*\\/,"").replace(/\.$/,""), outTs);
+	    }
+//end TEH added
 	    xmlCloseElement("</derived>",outTs);
 	    
 	    // process the next attribute
@@ -824,8 +878,8 @@ function xmlEntityStructure(outTs,expTs,mode) {
 
 // ------------------------------------------------------------
 // function: getRedeclaredAttribute()
-// SELF\Representation.context_of_items : Geometric_coordinate_space;
-// Return the name of a redeclared attribute 
+// 	SELF\Representation.context_of_items : Geometric_coordinate_space;
+// 	Return the name of a redeclared attribute 
 // ------------------------------------------------------------
 function getRedeclaredAttribute(statement, outTs) {
     statement = trim(statement);
@@ -838,11 +892,11 @@ function getRedeclaredAttribute(statement, outTs) {
 
 // ------------------------------------------------------------
 // function: xmlRedeclaredAttribute()
-// SELF\Representation.context_of_items : Geometric_coordinate_space;
-// Output a redeclared attribute by matching on SELF\
+// 	SELF\Representation.context_of_items : Geometric_coordinate_space;
+// 	Output a redeclared attribute by matching on SELF\
 // ------------------------------------------------------------
 function xmlRedeclaredAttribute(statement, outTs) {
-    statement = statement.replace(/^\s*SELF\\/g,"");
+    statement = statement.replace(/^\s*SELF\\/,"");
     var entity_ref = statement.replace(/\..*/g,"");
     xmlOpenElement("<redeclaration",outTs);	
     xmlAttr("entity-ref",entity_ref,outTs);
@@ -851,7 +905,7 @@ function xmlRedeclaredAttribute(statement, outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlUnique() 
 // ------------------------------------------------------------
 function xmlUnique(statement, outTs) {
     var name = getWord(1,statement);
@@ -869,10 +923,22 @@ function xmlUnique(statement, outTs) {
     for (var i=0; i<arr.length; i++) {
     	
     	//is this the correct way to handle SELF\? SPF
-        arr[i] = arr[i].replace(/^SELF\\/,"");
+//TEH modified  - need to add entity-ref attr if SELF
+	if (isRedeclared(arr[i])){
+
+
+		var tmp = arr[i].replace(/^.*\./,"");
+    		var entity_ref = arr[i].replace(/\..*/g,"").replace(/^SELF\\/,"");
+
+	}
+//end TEH modified 
+        tmp = arr[i].replace(/^SELF\\/,"");
         
 	xmlOpenElement("<unique.attribute",outTs);
-	xmlAttr("attribute",arr[i],outTs);
+	if (isRedeclared(arr[i])){
+    		xmlAttr("entity-ref",entity_ref,outTs);
+	}
+	xmlAttr("attribute",arr[i].replace(/^.*\./,""),outTs);
 	xmlCloseAttr(outTs);
     }
     xmlCloseElement("</unique>",outTs);    
@@ -881,7 +947,7 @@ function xmlUnique(statement, outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function getInverseEntity()
 // ------------------------------------------------------------
 function getInverseEntity(statement) {
     statement=normaliseStatement(statement);
@@ -900,7 +966,7 @@ function getInverseEntity(statement) {
 
 
 // ------------------------------------------------------------
-// function
+// function getInverseAttr()
 // ------------------------------------------------------------
 function getInverseAttr(statement) {
     statement=normaliseStatement(statement);
@@ -912,10 +978,11 @@ function getInverseAttr(statement) {
 
 
 // ------------------------------------------------------------
-// function: Output elements for aggregate
+// function xmlAggregate()
+// 	Output elements for aggregate
 // ------------------------------------------------------------
 function xmlAggregate(statement, outTs) {
-    var reg = /\bSET|BAG|LIST|ARRAY\b/i;
+    var reg = /\bSET\b|\bBAG\b|\bLIST\b|\bARRAY\b/i;
     var agg = statement.match(reg);
     if (agg) {
     	agg = agg.toString();
@@ -935,7 +1002,7 @@ function xmlAggregate(statement, outTs) {
 //    debug("lower " + lower);
 
 
-// "if" added by TEH to enable else - which deals with implied bounds.
+// "if" added by TEH to enable else, which deals with implied bounds.
 // After experimenting with GE, I decide to coerce explicit bounds in all cases
 // rather than fix the display in the case where no bounds are in the express
 	if (bounds.length > 0) {
@@ -960,7 +1027,7 @@ function xmlAggregate(statement, outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlSuperExpression_cst()
 // ------------------------------------------------------------
 function xmlSuperExpression_cst(statement, outTs) {
     var superExpr = statement;
@@ -971,39 +1038,39 @@ function xmlSuperExpression_cst(statement, outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlSubtypeConstraint()
 // ------------------------------------------------------------
-function xmlSubtype_constraint(statement,outTs,expTs) {
+function xmlSubtypeConstraint(statement,outTs,expTs) {
     var constName = getWord(2,statement);
     var entity_ref = getWord(4,statement);
     xmlOpenElement("<subtype.constraint name=\""+constName+"\"",outTs);
     xmlAttr("entity",entity_ref,outTs);
-    xmlconstraint_structure(outTs, expTs, "supertype_expression");
+    xmlConstraintStructure(outTs, expTs, "supertype_expression");
 }
 
 
 // ------------------------------------------------------------
-// function
+// function xmlConstraintStructure()
 // ------------------------------------------------------------
-function xmlconstraint_structure(outTs,expTs,mode) {
-    var l = expTs.ReadLine();
-    lNumber = expTs.Line;
-    debug(l);
+function xmlConstraintStructure(outTs,expTs,mode) {
+    var l = readNextLine(expTs);
+    
+    //debug(l);
     var token = readToken(l)+"";
-    debug(token);
+    //debug(token);
     
     switch(token) {
     case "-1" :
 	// must have read an empty line
 	// process next statement
-	xmlconstraint_structure(outTs,expTs,mode);
+	xmlConstraintStructure(outTs,expTs,mode);
 	break;
 
     case "ABSTRACT SUPERTYPE" :	
 	xmlAbstract(outTs);
 	
 	// process next statement
-	xmlconstraint_structure(outTs,expTs,mode);
+	xmlConstraintStructure(outTs,expTs,mode);
 	break;
 
     case "TOTAL_OVER":
@@ -1012,7 +1079,7 @@ function xmlconstraint_structure(outTs,expTs,mode) {
 	xmlAttr("totalover",to_list,outTs);
 	
 	// process next statement							
-	xmlconstraint_structure(outTs,expTs,mode);
+	xmlConstraintStructure(outTs,expTs,mode);
         break;
 
     case "END_SUBTYPE_CONSTRAINT" :
@@ -1025,14 +1092,14 @@ function xmlconstraint_structure(outTs,expTs,mode) {
 	xmlSuperExpression_cst(statement,outTs);
         
         // process next statement
-	xmlconstraint_structure(outTs,expTs,mode);
+	xmlConstraintStructure(outTs,expTs,mode);
  	break;	
     }
 }
 
 
 // ------------------------------------------------------------
-// function
+// function xmlInterface()
 // ------------------------------------------------------------
 function xmlInterface(statement, outTs) {
     statement = normaliseStatement(statement);
@@ -1070,13 +1137,14 @@ function xmlInterface(statement, outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlUnderlyingType()
+// 	tage the underlying type
 // ------------------------------------------------------------
 function xmlUnderlyingType(statement,outTs) {
     statement = normaliseStatement(statement);
 
 // PH: Add aggregate for function parameters
-    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE\b/i;
+    var reg = /\bSET\b|\bBAG\b|\bLIST\b|\bARRAY\b|\bAGGREGATE\b/i;
     var agg = statement.match(reg);
     
     if (agg) {
@@ -1131,7 +1199,7 @@ function xmlUnderlyingType(statement,outTs) {
 	xmlCloseAttr(outTs); 
 
         // PH: GENERIC_ENTITY
-	reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+	reg = /\bBINARY\b|\bBOOLEAN\b|\bGENERIC_ENTITY\b|\bGENERIC\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
 	var aggtype = statement.match(reg);
 	
 	if (aggtype) {
@@ -1149,7 +1217,7 @@ function xmlUnderlyingType(statement,outTs) {
 	return;
     }
 
-    reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+    reg = /\bBINARY\b|\bBOOLEAN\b|\bGENERIC_ENTITY\b|GENERIC\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
     var type = statement.match(reg);
 
     if (type) {
@@ -1169,8 +1237,8 @@ function xmlUnderlyingType(statement,outTs) {
 
 
 // ----------------------------------------------------------
-// function: tidy express
-// Replace all <> in the expression
+// function tidyExpression()
+// 	Replace all <> in the expression
 // ------------------------------------------------------------
 function tidyExpression(expr) {
     expr = trim(expr);
@@ -1178,12 +1246,8 @@ function tidyExpression(expr) {
     expr = expr.replace(/</g,"&lt;");
     expr = expr.replace(/\"/g,"&quot;");
     
-    // put the comments back, since all < and > were replaced 
-    expr = expr.replace(/--&gt/g,"-->");
-    expr = expr.replace(/&lt;\!--/g,"<!--");
-    
-    // SPF: is this the correct way to handle SELF\?
-    expr = expr.replace(/^SELF\\/,"");
+    // SPF: hack - not correct way to handle SELF\
+//    expr = expr.replace(/^SELF\\/,"");
     
      // replace double space with single space
     while (expr.search(/  /) != -1) {
@@ -1199,7 +1263,8 @@ function tidyExpression(expr) {
 
 
 // ------------------------------------------------------------
-// function: Return the BASED_ON type
+// function getExtensibleBasedOn()
+//	Return the BASED_ON type
 // ------------------------------------------------------------
 function getExtensibleBasedOn(extensibleStatement) {
     extensibleStatement = normaliseStatement(extensibleStatement);
@@ -1217,8 +1282,8 @@ function getExtensibleBasedOn(extensibleStatement) {
 
 
 // ------------------------------------------------------------
-// function: xmlSelect()
-// genericentity (YES | NO) "NO"
+// function xmlSelect()
+// 	genericentity (YES | NO) "NO"
 // ------------------------------------------------------------
 function xmlSelect(statement,outTs) {    
     xmlOpenElement("<select",outTs);
@@ -1243,7 +1308,7 @@ function xmlSelect(statement,outTs) {
     var selectItems = getList(statement);
 
     if (selectItems) {
-    	selectItems = selectItems.toLowerCase();
+//    	selectItems = selectItems.toLowerCase();
 	xmlAttr("selectitems",selectItems,outTs);
     }
 
@@ -1253,8 +1318,8 @@ function xmlSelect(statement,outTs) {
 
 
 // ------------------------------------------------------------
-// function: xmlSelect()
-// genericentity (YES | NO) "YES"
+// function xmlSelect()
+//	genericentity (YES | NO) "YES"
 // ------------------------------------------------------------
 function xmlEnumeration(statement,outTs) {
     xmlOpenElement("<enumeration",outTs);
@@ -1285,7 +1350,8 @@ function xmlEnumeration(statement,outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlBuiltInType()
+// 	tag builtin type
 // ------------------------------------------------------------
 function xmlBuiltInType(typeType,statement,outTs) {
     xmlOpenElement("<builtintype",outTs);
@@ -1296,10 +1362,11 @@ function xmlBuiltInType(typeType,statement,outTs) {
 
 
 // ------------------------------------------------------------
-// function: Get type
+// function getType()
+//	Get the type and return
 // ------------------------------------------------------------
 function getType(statement) {
-    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE|SELECT|ENUMERATION|BINARY|BOOLEAN|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+    var reg = /\bSET\b|\bBAG\b|\bLIST\b|\bARRAY\b|\bAGGREGATE\b|\bSELECT\b|\bENUMERATION\b|\bBINARY\b|\bBOOLEAN\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
     var type = statement.match(reg);
     //debug("getType1:"+type);
     
@@ -1322,11 +1389,12 @@ function getType(statement) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlType()
+// 	identify the express type and process
 // ------------------------------------------------------------
 function xmlType(statement,outTs,expTs) {
     var typeName = getWord(2,statement);
-    typeName = typeName.toLowerCase();
+//    typeName = typeName.toLowerCase();
     xmlOpenElement("<type name=\""+typeName,outTs);
     outTs.WriteLine("\">");
     var typeType = getType(statement);
@@ -1388,59 +1456,59 @@ function xmlType(statement,outTs,expTs) {
 
 
 // ------------------------------------------------------------
-// function
+// dep function
 // ------------------------------------------------------------
-function xmlTypeStructureOld(xmlTs,expTs) {
-    var l = expTs.ReadLine();
-    //debug("L:"+l);
-    lNumber = expTs.Line;
-    var token = readToken(l);
-    switch( token ) {
-    case "END_TYPE" :	
-	xmlCloseElement("</type>",xmlTs);
-		break;
-    case "WHERE" :
-	// assumes WHERE is on new line
-	xmlTypeStructure(xmlTs,expTs);
-	break;
-
-    default :
-	// only called when in a where definition
-	var statement = readStatement(l,expTs);
-
-	//debug("ss:"+statement);
-	var name = getWord(1,statement);
-	
-	var expr = getAfterColon(statement);
-	var reg = /^\s*/;
-	expr = expr.replace(reg,"");
-	expr = tidyExpression(expr);
-	xmlOpenElement("<where",xmlTs);	
-	xmlAttr("label",name,xmlTs);
-	xmlAttr("expression",expr,xmlTs);
-	xmlTs.WriteLine(">");
-	xmlCloseElement("</where>",xmlTs);
-	xmlTypeStructure(xmlTs,expTs);
-	break;
-
-    }
-}
+//function xmlTypeStructureOld(xmlTs,expTs) {
+//    var l = expTs.ReadLine();
+//    //debug("L:"+l);
+//    lNumber = expTs.Line;
+//    var token = readToken(l);
+//    switch( token ) {
+//    case "END_TYPE" :	
+//	xmlCloseElement("</type>",xmlTs);
+//		break;
+//    case "WHERE" :
+//	// assumes WHERE is on new line
+//	xmlTypeStructure(xmlTs,expTs);
+//	break;
+//
+//    default :
+//	// only called when in a where definition
+//	var statement = readStatement(l,expTs);
+//
+//	//debug("ss:"+statement);
+//	var name = getWord(1,statement);
+//	
+//	var expr = getAfterColon(statement);
+//	var reg = /^\s*/;
+//	expr = expr.replace(reg,"");
+//	expr = tidyExpression(expr);
+//	xmlOpenElement("<where",xmlTs);	
+//	xmlAttr("label",name,xmlTs);
+//	xmlAttr("expression",expr,xmlTs);
+//	xmlTs.WriteLine(">");
+//	xmlCloseElement("</where>",xmlTs);
+//	xmlTypeStructure(xmlTs,expTs);
+//	break;
+//
+//    }
+//}
 
 
 // ------------------------------------------------------------
-// function
+// function xmlTypeStructure()	
 // ------------------------------------------------------------
 function xmlTypeStructure(xmlTs,expTs) {
-    var l = expTs.ReadLine();
+    var l = readNextLine(expTs);
     //debug("L:"+l);
-    lNumber = expTs.Line;
+
     var token = readToken(l);
     switch( token ) {
     case "END_TYPE" :	
 	xmlCloseElement("</type>",xmlTs);
 		break;
-	//case "WHERE" :
-	
+
+	//case "WHERE" :	
 	// assumes WHERE is on new line
 	//xmlTypeStructure(xmlTs,expTs);
 	//break;
@@ -1467,7 +1535,7 @@ function xmlTypeStructure(xmlTs,expTs) {
 
 
 // ------------------------------------------------------------
-// Object declaration: FunctionObj()
+// Object declaration FunctionObj()
 // ------------------------------------------------------------
 function FunctionObj(name) {
     this.name = name;
@@ -1478,7 +1546,7 @@ function FunctionObj(name) {
 
 
 // ------------------------------------------------------------
-// FunctionObj method: loadParamList()
+// FunctionObj method loadParamList()
 // ------------------------------------------------------------
 FunctionObj.prototype.loadParamList = function(paramList,expTs,outTs) {
     var closeParen = paramList.search(/\)/);
@@ -1493,8 +1561,8 @@ FunctionObj.prototype.loadParamList = function(paramList,expTs,outTs) {
 	this.loadAlgorithm("",expTs,outTs);
     }
     else {
-	var line = expTs.ReadLine();
-	lNumber = expTs.Line;
+	var line = readNextLine(expTs);
+	
 	paramList = paramList+line;
 	this.loadParamList(paramList,expTs,outTs);
     }    
@@ -1502,7 +1570,8 @@ FunctionObj.prototype.loadParamList = function(paramList,expTs,outTs) {
 
 
 // ------------------------------------------------------------
-// FunctionObj method: get the parameter list
+// FunctionObj method xmlParamList()
+//	get the parameter list
 // ------------------------------------------------------------
 FunctionObj.prototype.xmlParamList = function (outTs) {
     this.paramStr = trim(this.paramStr);
@@ -1513,7 +1582,7 @@ FunctionObj.prototype.xmlParamList = function (outTs) {
   // e.g., FUNCTION first_proj_axis(z_axis,arg : direction) : direction;
   // SPF: fine, but this only works for one more parameter
   
-  // delete everything after the ":" (SPF: why?)
+  // delete everything after the ":"
 	var params = paramArr1[i].replace(/:.*/,"");
 	
 	var paramArr2 = params.split(",");	
@@ -1537,7 +1606,8 @@ FunctionObj.prototype.xmlParamList = function (outTs) {
 
 
 // ------------------------------------------------------------
-// FunctionObj method: load return string
+// FunctionObj method loadRtnStr()
+//	return string
 // ------------------------------------------------------------
 FunctionObj.prototype.loadRtnStr = function (retStr,expTs,outTs) {
     this.rtnStr = readStatement(retStr,expTs);
@@ -1550,7 +1620,8 @@ FunctionObj.prototype.loadRtnStr = function (retStr,expTs,outTs) {
 
 
 // ------------------------------------------------------------
-// FunctionObj method: xml return string
+// FunctionObj method xmlRtnStr()
+//	xml return string
 // ------------------------------------------------------------
 FunctionObj.prototype.xmlRtnStr = function (outTs) {
     xmlUnderlyingType(this.rtnStr,outTs);	    
@@ -1558,50 +1629,43 @@ FunctionObj.prototype.xmlRtnStr = function (outTs) {
 
 
 // ------------------------------------------------------------
-// FunctionObj method:
+// FunctionObj method loadAlgorithm()
+// 	read in the algorithm and write in to the xml file
 // ------------------------------------------------------------
 FunctionObj.prototype.loadAlgorithm = function(algoStr,expTs,outTs) {
-    var line = expTs.ReadLine();
-    lNumber = expTs.Line;
+    var line = readNextLine(expTs);
     
-    var reg = /\bEND_FUNCTION|END_PROCEDURE|WHERE/;
+    // end of algorithm?
+    var reg = /\bEND_FUNCTION|END_PROCEDURE|WHERE/i;
     if (line.match(reg)) {
 	this.algorithm = algoStr+"\n";
     }
-    
+    //     
     else {
     	line = trim(line);
-    	
-    	// change -- comments to (* comments
-        var pos = line.search(/--/);
-        if (pos != -1) {
-            if (pos >0) {	
-	    line = line.substr(0,pos)+" (* "+line.substr(pos+2)+" *)";
-	    }
-    	    else {
-    	        line = line.replace(/^--\s*/,"");
-    	        line = "(* "+line+" *)";
-    	    }
-        }
 	algoStr = algoStr+"\n"+line;
 	this.loadAlgorithm(algoStr,expTs,outTs);
     }
+    // return -1 if there is no algorithm
+    if (algoStr == "") {
+    	return -1;
+    }	
 }
 
 
 // ------------------------------------------------------------
-// FunctionObj method:
+// FunctionObj method xmlAlgorithm()
 // ------------------------------------------------------------
 FunctionObj.prototype.xmlAlgorithm = function(outTs){
     xmlOpenElement("<algorithm",outTs);
     outTs.WriteLine(">");
-    outTs.Write(tidyExpression(this.algorithm));
+    outTs.WriteLine(tidyExpression(this.algorithm));
     xmlCloseElement("</algorithm>",outTs);
     }
 
 
 // ------------------------------------------------------------
-// function
+// function xmlFunction
 // ------------------------------------------------------------
 function xmlFunction(line,expTs,outTs) {
     var name = getWord(2,line);
@@ -1621,7 +1685,7 @@ function xmlFunction(line,expTs,outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlProcedure()
 // ------------------------------------------------------------
 function xmlProcedure(line,expTs,outTs) {
     var name = getWord(2,line);
@@ -1639,36 +1703,13 @@ function xmlProcedure(line,expTs,outTs) {
 
 
 // ------------------------------------------------------------
-// function: found WHERE 
+// function loadDomainRule()
+//	found a WHERE 
 // ------------------------------------------------------------
 function loadDomainRule(expTs,outTs) {
-    var line = expTs.ReadLine();
-    lNumber = expTs.Line;
-    //debug(line);
-
-     //check if this is a blank line and blow past it and any more blank lines
-     while (line.match(/^\s*$/)){
-     	 //debug("found a blank line");
-         line = expTs.ReadLine();
-         lNumber = expTs.Line;
-         //debug(line);
-     }
-     
-    line = trim(line);
-    	
-    while (line.match(/^--/)){
-    	line = line.replace(/^--\s*/,"");
-    	line = "<!-- "+line+" -->";
-    	outTs.WriteLine(line);
-    	
-    	line = expTs.ReadLine();
-        lNumber = expTs.Line;
-        //debug(line);
-        line = trim(line);
-    }
-        	
-    var reg1 = /\bEND_RULE/;
-
+    var line = readNextLine(expTs);
+     	
+    var reg1 = /\bEND_RULE/i;
     if (!line.match(reg1)) {
 	var statement = readStatement(line,expTs);
 	var name = getWord(1,statement);
@@ -1687,11 +1728,12 @@ function loadDomainRule(expTs,outTs) {
 
 
 // ------------------------------------------------------------
+// function loadRuleAlgorithm()
 // Read the file up to WHERE
 // ------------------------------------------------------------
 function loadRuleAlgorithm(body,expTs) {
-    var l = expTs.ReadLine();
-    lNumber = expTs.Line;
+    var l = readNextLine(expTs);
+
     var reg = /\bWHERE/i;
     if (!l.match(reg)) {
 	body = loadRuleAlgorithm(body+"\n"+l, expTs);
@@ -1701,7 +1743,7 @@ function loadRuleAlgorithm(body,expTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlRule()
 // ------------------------------------------------------------
 function xmlRule(line,expTs,outTs) {
     var statement = readStatement(line,expTs);
@@ -1713,9 +1755,10 @@ function xmlRule(line,expTs,outTs) {
     xmlAttr("name",name,outTs);
     xmlAttr("appliesto",appliesTo,outTs);
     outTs.WriteLine(">");
-    fnObj.loadAlgorithm("",expTs,outTs);
-    fnObj.xmlAlgorithm(outTs);
-
+    if (fnObj.loadAlgorithm("",expTs,outTs) != -1) {
+    	fnObj.xmlAlgorithm(outTs);
+    }
+    
     loadDomainRule(expTs,outTs);
 
     xmlCloseElement("</rule>",outTs);
@@ -1723,7 +1766,7 @@ function xmlRule(line,expTs,outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlOpenElement()
 // ------------------------------------------------------------
 function xmlOpenElement(xmlElement, outTs) {
     var txt = indent+xmlElement;
@@ -1733,7 +1776,8 @@ function xmlOpenElement(xmlElement, outTs) {
 
 
 // ------------------------------------------------------------
-// function
+// function xmlCloseElement()
+//	close xml element tag
 // ------------------------------------------------------------
 function xmlCloseElement(xmlElement, outTs) {
     if (indent.length >= 2) {
@@ -1754,12 +1798,13 @@ function xmlCloseElement(xmlElement, outTs) {
 
 
 // ------------------------------------------------------------
-// function: xmlAttr()
-// Output an indented attribute.
+// function xmlAttr()
+// 	Output an indented attribute
 // ------------------------------------------------------------
 function xmlAttr(name, value, outTs) {
-    // SPF: delete "SELF\", but this is not the correct way to process SELF\
-    value = value.replace(/SELF\\/,"");
+    // SPF: delete "SELF\" ISSUE: this is not the correct way to process SELF\
+    // xml will not validate with "SELF\" 
+   // value = value.replace(/SELF\\/,"");
     
     var txt = indent+name+'=\"'+value+'\"';
     outTs.WriteLine();
@@ -1768,7 +1813,8 @@ function xmlAttr(name, value, outTs) {
 
 
 // ------------------------------------------------------------
-// function: xml Close Attribute
+// function xmlCloseAttr()
+//	close attribute tag
 // ------------------------------------------------------------
 function xmlCloseAttr(outTs) {
     outTs.WriteLine("/>");    
@@ -1783,11 +1829,14 @@ function xmlCloseAttr(outTs) {
 
 
 // ------------------------------------------------------------
-// function: Output to xml
+// function Output2xml()
+//	this is the main routine
+//	read express file line, process, write to xml file
 // ------------------------------------------------------------
 function Output2xml(expFile, xmlFile, partnumber) {
-    userMessage("Reading EXPRESS: " + expFile);
-    userMessage("Writing XML: " + xmlFile);
+    userMessage("Reading EXPRESS from file: " + expFile);
+    userMessage("");
+    userMessage("      Writing XML to file: " + xmlFile);
     
     var fso   = new ActiveXObject("Scripting.FileSystemObject");
     var expF  = fso.GetFile(expFile);
@@ -1798,7 +1847,7 @@ function Output2xml(expFile, xmlFile, partnumber) {
     xmlF      = fso.GetFile(xmlFile);
     var xmlTs = xmlF.OpenAsTextStream(ForWriting, TristateUseDefault);
 
-    xmlXMLhdr(xmlTs);
+    xmlFileHeader(xmlTs);
     xmlOpenElement("<express",xmlTs);
     xmlAttr("language_version","2",xmlTs);
 
@@ -1810,8 +1859,8 @@ function Output2xml(expFile, xmlFile, partnumber) {
     }	
     
     // hacked by TEH: did not know how to indicate start of string in a regular expression
-    // SPF: start of word (string?) is b\
-    else if (expFile.match(/b\aic_/)) {
+    // SPF: start of word is \b
+    else if (expFile.match(/\baic_/i)) {
 	// an aic
 	// debug("found aic :" + partnumber);
 	if (partnumber) {
@@ -1839,8 +1888,9 @@ function Output2xml(expFile, xmlFile, partnumber) {
     xmlApplication(xmlTs);
     
     while (!expTs.AtEndOfStream) {
-	var l = trim(expTs.ReadLine());
-	lNumber = expTs.Line;
+
+	var l = readNextLine(expTs);
+
 	var token = readToken(l);
 
 	switch( token ) {
@@ -1888,16 +1938,16 @@ function Output2xml(expFile, xmlFile, partnumber) {
         // PH
 	case "SUBTYPE_CONSTRAINT":
 		var statement = readStatement(l,expTs);
-                xmlSubtype_constraint(statement,xmlTs,expTs);
+                xmlSubtypeConstraint(statement,xmlTs,expTs);
 		break;
-	case "(*" :
-		var comment = readComment(l, expTs);
+	//case "(*" :
+		//var comment = readComment(l, expTs);
 		//userMessage(comment);
-		break;
-	case "--" :
+		//break;
+	//case "--" :
 		//var comment = readDashComment(l, expTs);
 		//userMessage(comment);
-		break;
+		//break;
 	default :	
 	    //debug("default: "+token+"]");
 	    //debug(l);
@@ -1906,6 +1956,8 @@ function Output2xml(expFile, xmlFile, partnumber) {
     }//end while
 
     xmlCloseElement("</express>",xmlTs);
+    
+    //close the files
     expTs.Close();    
     xmlTs.Close();
 }//end function
@@ -1953,6 +2005,7 @@ function MainMim() {
 // Main program
 // -----------------------------------------------------------
 function Main() {
+    //get the command line arguments
     var cArgs = WScript.Arguments;
     
     // debug(cArgs.length);
@@ -1975,7 +2028,6 @@ function Main() {
     }
     userMessage("Warning: \n This script does not do any EXPRESS parsing, so if there are\n errors in the EXPRESS, then unexpected output may be produced.\n Furthermore, as the program is a string parser, assumptions have\n been made about the layout of the EXPRESS.\n It is advisable to display the resulting XML and compare with\n the orginal EXPRESS.\n\n");
     var module, expFile, type;
-
     if (cArgs.length > 1) {
 	switch(cArgs(1)) {
 	case "arm" :
@@ -1999,6 +2051,15 @@ function Main() {
 	case "mim_lf" :
 	    var module = cArgs(0);    
 	    expFile = '../data/modules/'+module+'/mim_lf.exp';
+	    currentExpFile=expFile;
+	    var xmlFile = expFile.replace("\.exp","\.xml");
+	    var partNo = "";
+	    Output2xml(expFile, xmlFile, partNo);
+	    break;
+
+	case "arm_lf" :
+	    var module = cArgs(0);    
+	    expFile = '../data/modules/'+module+'/arm_lf.exp';
 	    currentExpFile=expFile;
 	    var xmlFile = expFile.replace("\.exp","\.xml");
 	    var partNo = "";

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.89 2003/04/23 10:25:17 robbod Exp $
+$Id: common.xsl,v 1.90 2003/04/23 14:33:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2046,7 +2046,7 @@ $Id: common.xsl,v 1.89 2003/04/23 10:25:17 robbod Exp $
   <xsl:template name="output_comma_separated_list">
     <xsl:param name="string"/>
     <xsl:variable name="nstring" select="normalize-space($string)"/>
-        <xsl:choose>
+    <xsl:choose>
       <xsl:when test="contains($nstring,' ')">
         <xsl:variable
           name="first"
@@ -2056,7 +2056,7 @@ $Id: common.xsl,v 1.89 2003/04/23 10:25:17 robbod Exp $
           select="substring-after($nstring,' ')"/>
 
         <xsl:value-of select="concat($first,', ')"/>
-        <xsl:call-template name="output_string_with_linebreaks">
+        <xsl:call-template name="output_comma_separated_list">
           <xsl:with-param name="string" select="$rest"/>
         </xsl:call-template>
       </xsl:when>

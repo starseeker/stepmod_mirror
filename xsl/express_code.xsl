@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.32 2002/08/02 15:58:46 robbod Exp $
+     $Id: express_code.xsl,v 1.33 2002/08/05 09:41:09 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -430,29 +430,24 @@
       <br/>
       &#160;&#160;ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
-        OF&#160; <xsl:value-of select="$sup_expr"/>
-      <!--
-        <xsl:call-template name="link_super_expression_list">
+        OF&#160;<xsl:call-template name="link_super_expression_list">
           <xsl:with-param name="list" select="$sup_expr"/>
           <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
           <xsl:with-param name="clause" select="'section'"/>
-          <xsl:with-param name="indent1" select="25"/>
+          <xsl:with-param name="indent" select="25"/>
         </xsl:call-template>
--->
       </xsl:if>
     </xsl:when>
     <xsl:otherwise>
       <xsl:if test="@super.expression">
         <br/>
-        &#160; SUPERTYPE OF <xsl:value-of select="$sup_expr"/>
-        <!--
+        &#160; SUPERTYPE OF 
       <xsl:call-template name="link_super_expression_list">
         <xsl:with-param name="list" select="$sup_expr"/>
         <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
         <xsl:with-param name="clause" select="'section'"/>
-        <xsl:with-param name="indent1" select="16"/>
+        <xsl:with-param name="indent" select="16"/>
       </xsl:call-template>
--->
     </xsl:if>      
     </xsl:otherwise>
   </xsl:choose>

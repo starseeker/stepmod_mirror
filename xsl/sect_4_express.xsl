@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.56 2002/08/02 15:58:46 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.57 2002/08/05 09:41:09 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -340,48 +340,74 @@
         </xsl:variable>
         <xsl:variable name="module_file"
           select="concat($module_dir,'/module.xml')"/>
-        <xsl:variable name="penultimate"
-          select="count(document($module_file)/module/arm/express-g/imgfile)-1"/>
-        <xsl:variable name="annex">
-          <xsl:choose>
-            <xsl:when test="contains($schema_node/@name,'_arm')">
-              C
-            </xsl:when>
-            <xsl:otherwise>
-              D
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
 
-        See annex <xsl:value-of select="$annex"/>, 
         <xsl:choose>
-          <xsl:when
-            test="count(document($module_file)/module/arm/express-g/imgfile)=1">
-            figure
+          <xsl:when test="contains($schema_node/@name,'_arm')">
+            <xsl:variable name="penultimate"
+              select="count(document($module_file)/module/arm/express-g/imgfile)-1"/>
+            See annex <a href="c_arm_expg{$FILE_EXT}">C</a>, 
+            <xsl:choose>
+              <xsl:when
+                test="count(document($module_file)/module/arm/express-g/imgfile)=1">
+                figure
+              </xsl:when>
+              <xsl:otherwise>
+                figures
+              </xsl:otherwise>
+            </xsl:choose>
+            
+            <xsl:for-each select="document($module_file)/module/arm/express-g/imgfile">
+              <xsl:variable name="imgfile">
+                <xsl:call-template name="set_file_ext">
+                  <xsl:with-param name="filename" select="concat('../',@file)"/>   
+                </xsl:call-template>
+              </xsl:variable>
+              <a href="{$imgfile}">
+                <xsl:value-of select="concat('C.',position())"/>
+              </a>
+              <xsl:if test="position()!=last()">
+                <xsl:choose>
+                  <xsl:when test="position()!=$penultimate">, </xsl:when>
+                  <xsl:otherwise>and </xsl:otherwise>
+                </xsl:choose>
+              </xsl:if>
+            </xsl:for-each>
+            for a graphical representation of this schema.
           </xsl:when>
+
           <xsl:otherwise>
-            figures
+            <xsl:variable name="penultimate"
+              select="count(document($module_file)/module/mim/express-g/imgfile)-1"/>
+            See annex <a href="d_mim_expg{$FILE_EXT}">D</a>, 
+            <xsl:choose>
+              <xsl:when
+                test="count(document($module_file)/module/mim/express-g/imgfile)=1">
+                figure
+              </xsl:when>
+              <xsl:otherwise>
+                figures
+              </xsl:otherwise>
+            </xsl:choose>
+            
+            <xsl:for-each select="document($module_file)/module/mim/express-g/imgfile">
+              <xsl:variable name="imgfile">
+                <xsl:call-template name="set_file_ext">
+                  <xsl:with-param name="filename" select="concat('../',@file)"/>   
+                </xsl:call-template>
+              </xsl:variable>
+              <a href="{$imgfile}">
+                <xsl:value-of select="concat('D.',position())"/>
+              </a>
+              <xsl:if test="position()!=last()">
+                <xsl:choose>
+                  <xsl:when test="position()!=$penultimate">, </xsl:when>
+                  <xsl:otherwise>and </xsl:otherwise>
+                </xsl:choose>
+              </xsl:if>
+            </xsl:for-each>
+            for a graphical representation of this schema.            
           </xsl:otherwise>
         </xsl:choose>
-
-        <xsl:for-each
-select="document($module_file)/module/arm/express-g/imgfile">
-          <xsl:variable name="imgfile">
-            <xsl:call-template name="set_file_ext">
-              <xsl:with-param name="filename" select="concat('../',@file)"/>   
-            </xsl:call-template>
-          </xsl:variable>
-          <a href="{$imgfile}">
-            <xsl:value-of select="concat($annex,'.',position())"/>
-          </a>
-          <xsl:if test="position()!=last()">
-            <xsl:choose>
-              <xsl:when test="position()!=$penultimate">, </xsl:when>
-              <xsl:otherwise>and </xsl:otherwise>
-            </xsl:choose>
-          </xsl:if>
-        </xsl:for-each>
-        for a graphical representation of this schema.
       </small>
     </p>
 
@@ -944,29 +970,25 @@ select="document($module_file)/module/arm/express-g/imgfile">
       <br/>
       &#160;&#160;ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
-        OF&#160; <xsl:value-of select="$sup_expr"/>
-        <!-- not yet implemented
-        <xsl:call-template name="link_super_expression_list">
+        OF&#160;<xsl:call-template name="link_super_expression_list">
           <xsl:with-param name="list" select="$sup_expr"/>
           <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
           <xsl:with-param name="clause" select="'section'"/>
-          <xsl:with-param name="indent1" select="25"/>
+          <xsl:with-param name="indent" select="25"/>
         </xsl:call-template>
-        -->
+
       </xsl:if>
     </xsl:when>
     <xsl:otherwise>
       <xsl:if test="@super.expression">
       <br/>
-      &#160;SUPERTYPE OF <xsl:value-of select="$sup_expr"/>
-      <!-- not yet implemented
-      <xsl:call-template name="link_super_expression_list">
+      &#160;SUPERTYPE OF&#160;<xsl:call-template name="link_super_expression_list">
         <xsl:with-param name="list" select="$sup_expr"/>
         <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
         <xsl:with-param name="clause" select="'section'"/>
-        <xsl:with-param name="indent1" select="16"/>
+        <xsl:with-param name="indent" select="16"/>
       </xsl:call-template>
-      -->
+
     </xsl:if>      
     </xsl:otherwise>
   </xsl:choose>

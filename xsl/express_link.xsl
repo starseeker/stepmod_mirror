@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.9 2002/08/02 15:58:46 robbod Exp $
+     $Id: express_link.xsl,v 1.10 2002/08/05 09:41:09 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -636,75 +636,135 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
   <xsl:param name="list"/>
   <xsl:param name="object_used_in_schema_name"/>
   <xsl:param name="clause" select="section"/>
-  <xsl:param name="indent1" select="0"/>
-  <xsl:param name="indent2" select="0"/>
+  <xsl:param name="indent" select="0"/>
+  <xsl:param name="last_indent" select="0"/>
+  <xsl:param name="linebreak" select="'NO'"/>
   
-  <xsl:variable name="indent">
-    <xsl:value-of select="$indent1 + $indent2"/>
-  </xsl:variable>
-      
   <!-- replace all whitespace -->
-  <xsl:variable name="nlist1"
-    select="translate(normalize-space($list),' ','')"/>
-
-  <!-- cut any opening parenthesis -->
-  <xsl:variable name="open_paren">
-    <xsl:call-template name="get_open_paren">
-      <xsl:with-param name="str" select="$nlist1"/>
+  <xsl:variable name="nlist"
+    select="normalize-space($list)"/>
+  
+  <!-- get the first word before , or ( -->
+  <xsl:variable name="first">
+    <xsl:call-template name="get_word">
+      <xsl:with-param name="str" select="$nlist"/>
     </xsl:call-template>
   </xsl:variable>
-  
-  <xsl:variable name="nlist"
-    select="substring($nlist1,string-length($open_paren)+1)"/>
-  
+
+  <xsl:variable name="rest1">
+    <xsl:call-template name="get_after_word">
+      <xsl:with-param name="str" select="$nlist"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="prefix">
+    <xsl:variable name="prefixtmp">
+      <xsl:call-template name="get_before_word">
+        <xsl:with-param name="str" select="$nlist"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="normalize-space($prefixtmp)"/>
+  </xsl:variable>
+
+  <xsl:variable name="suffix">
+    <xsl:variable name="suffixtmp">
+      <xsl:call-template name="get_before_word">
+        <xsl:with-param name="str" select="$rest1"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="normalize-space($suffixtmp)"/>
+  </xsl:variable>
+
+  <xsl:variable name="next_word">
+    <xsl:call-template name="get_word">
+      <xsl:with-param name="str" select="$nlist"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="rest" select="substring-after($rest1,$suffix)"/>
+
   <xsl:choose>
 
     <!-- maybe passed an empty list, e.g. when called from an empty 
          extensible select. In which case, just return -->
     <xsl:when test="string-length($nlist)=0"/>
 
-    <xsl:when test="contains($nlist,',')">
+    <xsl:when test="string-length($next_word)>0">
 
-      <!-- get the first word before , or ( -->
-      <xsl:variable name="first">
-        <xsl:variable name="first_comma" 
-          select="substring-before($nlist,',')"/>
-        <xsl:variable name="first_paren" 
-          select="substring-before($nlist,'(')"/>
+
+      <xsl:variable name="new_indent">
         <xsl:choose>
-          <xsl:when test="(string-length($first_paren)>0) 
-            and (string-length($first_comma) > string-length($first_paren))">
-            <xsl:value-of select="$first_paren"/>
+          <xsl:when test="($first='ONEOF') 
+                          or ($first='AND') 
+                          or ($first='ANDOR')">
+            <xsl:value-of select="($indent - $last_indent)
+                                  + string-length($first) 
+                                  + string-length($prefix)
+                                  + string-length($suffix)"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="$first_comma"/>
+            <xsl:value-of select="$indent"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
 
-      <!-- get the rest of the string after the , or ( -->
-      <xsl:variable name="rest" 
-        select="substring($nlist,string-length($first)+2)"/>
+      <xsl:variable name="current_indent">
+        <xsl:choose>
+          <xsl:when test="($first='ONEOF') 
+                          or ($first='AND') 
+                          or ($first='ANDOR')">
+            <xsl:value-of select="($indent - $last_indent)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$indent"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
 
-      <xsl:variable name="separator" 
-        select="substring($nlist,string-length($first)+1,1)"/>
+      <xsl:variable name="new_last_indent">
+        <xsl:choose>
+          <xsl:when test="($first='ONEOF') 
+                          or ($first='AND') 
+                          or ($first='ANDOR')">
+            <xsl:value-of select="string-length($first) 
+                                  + string-length($prefix)
+                                  + string-length($suffix) + 1"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$last_indent"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
 
-      <br/>
-      <!-- indent -->
-      <xsl:call-template name="string_n_chars">
-        <xsl:with-param name="char" select="'&#160;'"/>
-        <xsl:with-param name="no_chars" select="$indent"/>
-      </xsl:call-template>
-
-      <xsl:value-of select="$open_paren"/>
-
+      <xsl:if test="$linebreak='YES'">
+        <br/>
+        <!-- indent -->
+        <xsl:call-template name="string_n_chars">
+          <xsl:with-param name="char" select="'&#160;'"/>
+          <xsl:with-param name="no_chars" select="$current_indent"/>
+        </xsl:call-template>          
+      </xsl:if>
+      
       <xsl:choose>
         <xsl:when test="($first='ONEOF') 
                         or ($first='AND') 
                         or ($first='ANDOR')">
-          <xsl:value-of select="$first"/>
+          <xsl:value-of select="$prefix"/>
+          <xsl:value-of select="$first"/>&#160;<xsl:value-of select="$suffix"/>
+          <xsl:call-template name="link_super_expression_list">
+            <xsl:with-param name="list" select="$rest"/>
+            <xsl:with-param 
+              name="object_used_in_schema_name" 
+              select="$object_used_in_schema_name"/>
+            <xsl:with-param name="clause" select="$clause"/>
+            <xsl:with-param name="indent" select="$new_indent"/>
+            <xsl:with-param name="last_indent" select="$new_last_indent"/>
+            <xsl:with-param name="linebreak" select="'NO'"/>
+          </xsl:call-template>
         </xsl:when>
+
         <xsl:otherwise>
+          <xsl:value-of select="$prefix"/>
           <xsl:call-template name="link_object">
             <xsl:with-param name="object_name" select="$first"/>
             <xsl:with-param 
@@ -712,59 +772,35 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
               select="$object_used_in_schema_name"/>
             <xsl:with-param name="clause" select="$clause"/>
           </xsl:call-template>
+          <xsl:value-of select="$suffix"/>
+          <xsl:variable name="new_linebreak">
+            <xsl:choose>
+              <xsl:when test="substring($suffix,1,1) = ','">
+                <xsl:value-of select="'YES'"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'NO'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+          <xsl:call-template name="link_super_expression_list">
+            <xsl:with-param name="list" select="$rest"/>
+            <xsl:with-param 
+              name="object_used_in_schema_name" 
+              select="$object_used_in_schema_name"/>
+            <xsl:with-param name="clause" select="$clause"/>
+            <xsl:with-param name="indent" select="$new_indent"/>
+            <xsl:with-param name="last_indent" select="$new_last_indent"/>
+            <xsl:with-param name="linebreak" select="'YES'"/>
+          </xsl:call-template>
+
         </xsl:otherwise>
       </xsl:choose>
-
-
-      <xsl:variable name="indent22">
-        <xsl:choose>
-          <xsl:when test="($first='ONEOF') 
-                          or ($first='AND') 
-                          or ($first='ANDOR')">
-            <xsl:value-of select="string-length($first)+1"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$indent2"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-
-      <xsl:value-of select="$separator"/>
-      
-      <xsl:call-template name="link_super_expression_list">
-        <xsl:with-param name="list" select="$rest"/>
-        <xsl:with-param 
-          name="object_used_in_schema_name" 
-          select="$object_used_in_schema_name"/>
-        <xsl:with-param name="clause" select="$clause"/>
-        <xsl:with-param name="indent1" select="$indent1"/>
-        <xsl:with-param name="indent2" select="$indent22"/>
-      </xsl:call-template>
-
     </xsl:when>
 
     <xsl:otherwise>
-      <!-- end of recursion -->
-      <br/>
-      <!-- indent -->
-      <xsl:call-template name="string_n_chars">
-        <xsl:with-param name="char" select="'&#160;'"/>
-        <xsl:with-param name="no_chars" select="$indent"/>
-      </xsl:call-template>
-
-      <xsl:variable name="object"
-        select="translate($nlist,')','')"/>
-
-      <xsl:call-template name="link_object">
-        <xsl:with-param name="object_name" select="$object"/>
-        <xsl:with-param 
-          name="object_used_in_schema_name" 
-          select="$object_used_in_schema_name"/>
-        <xsl:with-param name="clause" select="$clause"/>
-      </xsl:call-template>
-
-      <xsl:value-of select="substring-after($nlist,$object)"/>
-      
+      <!-- end of recursion so no more words -->
+      <xsl:value-of select="$nlist"/>      
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

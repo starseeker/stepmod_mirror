@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-24T15:05:20" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-03T15:26:50" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="model_parameter_mim schema_instance"/>
    <schema name="Model_parameter_mim">
       <interface kind="use" schema="Characteristic_mim"/>
@@ -12,7 +12,9 @@
       <interface kind="use" schema="Independent_property_mim"/>
       <interface kind="use" schema="Independent_property_representation_mim"/>
       <interface kind="use" schema="Product_identification_mim"/>
-      <interface kind="use" schema="management_resources_schema"/>
+      <interface kind="use" schema="management_resources_schema">
+         <interfaced.item name="group_assignment"/>
+      </interface>
       <type name="model_parameter_assigned_item">
          <select selectitems="unit"/>
       </type>
@@ -22,8 +24,8 @@
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="model_parameter_assigned_item"/>
          </explicit>
-         <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( aga &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_GROUP_ASSIGNMENT.ITEMS' ) | ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PARAMETER_TYPE' IN TYPEOF ( aga . assigned_group ) ) AND ( aga . assigned_group \ group . name IN [ 'string property type' , 'logical property type' , 'physical property type' , 'boolean property type' ] ) ) ) = 1 "/>
+         <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'MODEL_PARAMETER_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) = 1 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( aga &lt;* USEDIN ( SELF , 'MODEL_PARAMETER_MIM.' + 'APPLIED_GROUP_ASSIGNMENT.ITEMS' ) | ( 'MODEL_PARAMETER_MIM.' + 'PARAMETER_TYPE' IN TYPEOF ( aga . assigned_group ) ) AND ( aga . assigned_group \ group . name IN [ 'string property type' , 'logical property type' , 'physical property type' , 'boolean property type' ] ) ) ) = 1 "/>
       </entity>
       <entity name="parameter_assignment_override" supertypes="representation representation_relationship">
          <unique label="UR1">
@@ -34,25 +36,25 @@
          <where label="WR2" expression=" SELF \ representation_relationship . rep_1 &lt;&gt; SELF \ representation_relationship . rep_2 "/>
          <where label="WR3" expression=" SELF \ representation_relationship . name = '' "/>
          <where label="WR4" expression=" SELF \ representation . name = '' "/>
-         <where label="WR5" expression=" 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF ( SELF \ representation_relationship . rep_1 ) "/>
-         <where label="WR6" expression=" 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF ( SELF \ representation_relationship . rep_2 ) "/>
+         <where label="WR5" expression=" 'MODEL_PARAMETER_MIM.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF ( SELF \ representation_relationship . rep_1 ) "/>
+         <where label="WR6" expression=" 'MODEL_PARAMETER_MIM.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF ( SELF \ representation_relationship . rep_2 ) "/>
       </entity>
       <entity name="parameter_assignment_representation" supertypes="representation">
          <where label="WR1" expression=" SIZEOF ( SELF . items ) = 2 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( TYPEOF ( it ) * [ 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'MODEL_PARAMETER' ] ) = 1 ) ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( TYPEOF ( it ) * [ 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COORDINATED_REPRESENTATION_ITEM' ] ) = 1 ) ) ) &lt;= 1 "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( QUERY ( aga &lt;* USEDIN ( it , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_GROUP_ASSIGNMENT.ITEMS' ) | ( SIZEOF ( TYPEOF ( aga \ group_assignment . assigned_group ) * [ 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'CHARACTERISTIC_TYPE' ] ) = 1 ) ) ) = 1 ) ) ) &lt;= 1 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( TYPEOF ( it ) * [ 'MODEL_PARAMETER_MIM.' + 'MODEL_PARAMETER' ] ) = 1 ) ) ) = 1 "/>
+         <where label="WR3" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( TYPEOF ( it ) * [ 'MODEL_PARAMETER_MIM.' + 'COORDINATED_REPRESENTATION_ITEM' ] ) = 1 ) ) ) &lt;= 1 "/>
+         <where label="WR4" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( QUERY ( aga &lt;* USEDIN ( it , 'MODEL_PARAMETER_MIM.' + 'APPLIED_GROUP_ASSIGNMENT.ITEMS' ) | ( SIZEOF ( TYPEOF ( aga \ group_assignment . assigned_group ) * [ 'MODEL_PARAMETER_MIM.' + 'CHARACTERISTIC_TYPE' ] ) = 1 ) ) ) = 1 ) ) ) &lt;= 1 "/>
          <where label="WR5" expression=" SIZEOF ( TYPEOF ( SELF ) - TYPEOF ( SELF \ representation || SELF \ parameter_assignment_representation ) ) = 0 "/>
       </entity>
       <entity name="product_specific_parameter_value_assignment" supertypes="characterized_object product_related_product_category">
          <where label="WR1" expression=" SIZEOF ( SELF \ product_related_product_category . products ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( pd &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PROPERTY_DEFINITION.DEFINITION' ) | ( pd \ property_definition . description = 'assigned parameter' ) AND ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( SIZEOF ( [ 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' ] * TYPEOF ( pdr . used_representation ) ) = 1 ) ) ) = 1 ) ) ) = 1 "/>
-         <where label="WR3" expression=" NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'CHARACTERIZED_PRODUCT_CATEGORY' IN TYPEOF ( SELF ) ) "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( pd &lt;* USEDIN ( SELF , 'MODEL_PARAMETER_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) | ( pd \ property_definition . description = 'assigned parameter' ) AND ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'MODEL_PARAMETER_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( SIZEOF ( [ 'MODEL_PARAMETER_MIM.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' ] * TYPEOF ( pdr . used_representation ) ) = 1 ) ) ) = 1 ) ) ) = 1 "/>
+         <where label="WR3" expression=" NOT ( 'MODEL_PARAMETER_MIM.' + 'CHARACTERIZED_PRODUCT_CATEGORY' IN TYPEOF ( SELF ) ) "/>
          <where label="WR4" expression=" SELF \ characterized_object . name = SELF \ product_category . name "/>
       </entity>
       <entity name="schema_based_model_parameter" supertypes="model_parameter"/>
       <rule name="model_parameter_unique_constraint" appliesto="model_parameter">
-         <algorithm> LOCAL name_bag : BAG OF STRING := [ ] ; mp_bag : BAG OF model_parameter ; adr_bag : BAG OF applied_document_reference ; pass : BOOLEAN := TRUE ; d_bag : BAG OF document ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( model_parameter ) by 1 ; IF EXISTS ( model_parameter [ i ] \ representation_item . name ) THEN IF ( NOT ( model_parameter [ i ] \ representation_item . name IN name_bag ) ) THEN name_bag := name_bag + model_parameter [ i ] \ representation_item . name ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( name_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; mp_bag := QUERY ( mp &lt;* model_parameter | ( mp \ representation_item . name = name_bag [ i ] ) ) ; d_bag := [ ] ; REPEAT j := 1 to SIZEOF ( mp_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adr_bag := USEDIN ( mp_bag [ j ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ; REPEAT k := 1 to SIZEOF ( adr_bag ) by 1 ; IF EXISTS ( adr_bag [ k ] . assigned_document ) THEN IF ( adr_bag [ k ] . assigned_document IN d_bag ) THEN pass := FALSE ; ESCAPE ; ELSE d_bag := d_bag + adr_bag [ k ] . assigned_document ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <algorithm> LOCAL name_bag : BAG OF STRING := [ ] ; mp_bag : BAG OF model_parameter ; adr_bag : BAG OF applied_document_reference ; pass : BOOLEAN := TRUE ; d_bag : BAG OF document ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( model_parameter ) by 1 ; IF EXISTS ( model_parameter [ i ] \ representation_item . name ) THEN IF ( NOT ( model_parameter [ i ] \ representation_item . name IN name_bag ) ) THEN name_bag := name_bag + model_parameter [ i ] \ representation_item . name ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( name_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; mp_bag := QUERY ( mp &lt;* model_parameter | ( mp \ representation_item . name = name_bag [ i ] ) ) ; d_bag := [ ] ; REPEAT j := 1 to SIZEOF ( mp_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adr_bag := USEDIN ( mp_bag [ j ] , 'MODEL_PARAMETER_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ; REPEAT k := 1 to SIZEOF ( adr_bag ) by 1 ; IF EXISTS ( adr_bag [ k ] . assigned_document ) THEN IF ( adr_bag [ k ] . assigned_document IN d_bag ) THEN pass := FALSE ; ESCAPE ; ELSE d_bag := d_bag + adr_bag [ k ] . assigned_document ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
          <where label="WR1" expression=" pass "/>
       </rule>
    </schema>

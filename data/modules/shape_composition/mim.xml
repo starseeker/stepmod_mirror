@@ -2,21 +2,24 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-24T15:05:22" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-03T15:26:51" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="shape_composition_mim schema_instance"/>
    <schema name="Shape_composition_mim">
       <interface kind="use" schema="Shape_property_assignment_mim"/>
-      <interface kind="use" schema="shape_aspect_definition_schema"/>
-      <interface kind="use" schema="product_property_definition_schema"/>
-      <interface kind="use" schema="shape_dimension_schema"/>
+      <interface kind="use" schema="shape_aspect_definition_schema">
+         <interfaced.item name="composite_shape_aspect"/>
+      </interface>
+      <interface kind="use" schema="shape_dimension_schema">
+         <interfaced.item name="dimensional_location"/>
+      </interface>
       <entity name="composite_group_shape_aspect" supertypes="composite_shape_aspect"/>
       <entity name="composite_unit_shape_aspect" supertypes="composite_shape_aspect"/>
       <rule name="composite_shape_element_constraint" appliesto="composite_shape_aspect">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( csa &lt;* composite_shape_aspect | SIZEOF ( QUERY ( sar &lt;* USEDIN ( csa , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT' ) | ( sar \ shape_aspect_relationship . name = 'composing' ) ) ) &lt; 2 ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( csa &lt;* composite_shape_aspect | SIZEOF ( QUERY ( sar &lt;* USEDIN ( csa , 'SHAPE_COMPOSITION_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT' ) | ( sar \ shape_aspect_relationship . name = 'composing' ) ) ) &lt; 2 ) ) = 0 "/>
          <where label="WR2" expression=" SIZEOF ( QUERY ( csa &lt;* composite_shape_aspect | NOT ( ( SIZEOF ( TYPEOF ( csa ) ) &gt; 2 ) OR ( csa \ shape_aspect . description &lt;&gt; '' ) OR ( csa \ shape_aspect . name &lt;&gt; '' ) ) ) ) = 0 "/>
       </rule>
       <rule name="shape_element_composing_relationship_constraint" appliesto="shape_aspect_relationship">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'composing' ) AND ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COMPOSITE_SHAPE_ASPECT' IN TYPEOF ( sar . relating_shape_aspect ) ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'composing' ) AND ( 'SHAPE_COMPOSITION_MIM.' + 'COMPOSITE_SHAPE_ASPECT' IN TYPEOF ( sar . relating_shape_aspect ) ) ) ) = 0 "/>
       </rule>
       <rule name="shape_element_constituent_relationship_unique_constraint" appliesto="shape_aspect_relationship">
          <algorithm> LOCAL sar : BAG OF shape_aspect_relationship := QUERY ( r &lt;* shape_aspect_relationship | ( r \ shape_aspect_relationship . name IN [ 'constituent' , 'composing' , 'bare die terminal surface constituent relationship' , 'interconnect module terminal surface constituent relationship' , 'package terminal surface constituent relationship' ] ) ) ; sa_bag : BAG OF shape_aspect := [ ] ; sar_bag : BAG OF shape_aspect_relationship ; pass : BOOLEAN := TRUE ; rsa_bag : BAG OF shape_aspect ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( sar ) by 1 ; IF EXISTS ( sar [ i ] . relating_shape_aspect ) THEN IF ( NOT ( sar [ i ] . relating_shape_aspect IN sa_bag ) ) THEN sa_bag := sa_bag + sar [ i ] . relating_shape_aspect ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( sa_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; sar_bag := QUERY ( r &lt;* sar | ( r \ shape_aspect_relationship . relating_shape_aspect :=: sa_bag [ i ] ) ) ; rsa_bag := [ ] ; REPEAT j := 1 to SIZEOF ( sar_bag ) by 1 ; IF EXISTS ( sar_bag [ j ] . related_shape_aspect ) THEN IF ( sar_bag [ j ] . related_shape_aspect IN rsa_bag ) THEN pass := FALSE ; ESCAPE ; ELSE rsa_bag := rsa_bag + sar_bag [ j ] . related_shape_aspect ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
@@ -27,7 +30,7 @@
          <where label="WR1" expression=" pass "/>
       </rule>
       <rule name="subtype_mandatory_composite_shape_aspect" appliesto="composite_shape_aspect">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( csa &lt;* composite_shape_aspect | NOT ( SIZEOF ( [ 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COMPOSITE_GROUP_SHAPE_ASPECT' , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COMPOSITE_UNIT_SHAPE_ASPECT' ] * TYPEOF ( csa ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( csa &lt;* composite_shape_aspect | NOT ( SIZEOF ( [ 'SHAPE_COMPOSITION_MIM.' + 'COMPOSITE_GROUP_SHAPE_ASPECT' , 'SHAPE_COMPOSITION_MIM.' + 'COMPOSITE_UNIT_SHAPE_ASPECT' ] * TYPEOF ( csa ) ) = 1 ) ) ) = 0 "/>
       </rule>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-24T15:06:25" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-03T15:24:53" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_geometric_tolerance_arm schema_instance"/>
    <schema name="Extended_geometric_tolerance_arm">
       <interface kind="use" schema="Geometric_tolerance_arm"/>
@@ -65,7 +65,7 @@
       <type name="true_profile_representations">
          <select selectitems="Dimension_set Document_definition Rule_function three_dimensional_shape"/>
       </type>
-      <entity name="Apex" supertypes="Derived_shape_element"/>
+      <entity name="Apex" supertypes="Derived_non_feature_shape_element"/>
       <entity name="Boundary_size_characteristic" abstract.supertype="YES" super.expression="ONEOF (Diametrical_boundary_size_characteristic, Opposing_boundary_set_size_characteristic)">
          <explicit name="tolerance_value">
             <typename name="Length_data_element"/>
@@ -75,7 +75,7 @@
          </explicit>
       </entity>
       <entity name="Centre_axis" supertypes="Centre_of_symmetry"/>
-      <entity name="Centre_of_symmetry" abstract.supertype="YES" supertypes="Derived_shape_element" super.expression="ONEOF (Centre_axis, Centre_plane, Centre_point)"/>
+      <entity name="Centre_of_symmetry" abstract.supertype="YES" supertypes="Derived_non_feature_shape_element" super.expression="ONEOF (Centre_axis, Centre_plane, Centre_point)"/>
       <entity name="Centre_plane" supertypes="Centre_of_symmetry"/>
       <entity name="Centre_point" supertypes="Centre_of_symmetry"/>
       <entity name="Composite_linear_profile_refinement_tolerance" supertypes="Line_profile_tolerance">
@@ -112,7 +112,7 @@
       </entity>
       <entity name="Conical_tolerance_zone_definition" supertypes="Tolerance_zone_definition"/>
       <entity name="Curve_dimension" supertypes="Size_dimension"/>
-      <entity name="Datum_axis" supertypes="datum_shape_element"/>
+      <entity name="Datum_axis" supertypes="Datum_shape_element"/>
       <entity name="Datum_axis_and_tolerance_zone_orienting_relationship">
          <explicit name="oriented_tolerance_zone">
             <typename name="Tolerance_zone"/>
@@ -164,11 +164,11 @@
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
          <explicit name="precedent_datum">
-            <typename name="datum_shape_element"/>
+            <typename name="Datum_shape_element"/>
             <redeclaration entity-ref="Shape_element_relationship" old_name="relating"/>
          </explicit>
          <explicit name="subsequent_datum">
-            <typename name="datum_shape_element"/>
+            <typename name="Datum_shape_element"/>
             <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
          </explicit>
       </entity>
@@ -182,8 +182,8 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
-      <entity name="Datum_plane" supertypes="datum_shape_element"/>
-      <entity name="Datum_point" supertypes="datum_shape_element">
+      <entity name="Datum_plane" supertypes="Datum_shape_element"/>
+      <entity name="Datum_point" supertypes="Datum_shape_element">
          <explicit name="location_in_2d" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
@@ -197,6 +197,7 @@
          <where label="WR2" expression=" NOT ( EXISTS ( location_in_2d ) ) OR ( ( SIZEOF ( location_in_2d \ cartesian_point . coordinates ) ) = 2 ) "/>
          <where label="WR3" expression=" NOT ( EXISTS ( location_in_3d ) ) OR ( ( SIZEOF ( location_in_3d \ cartesian_point . coordinates ) ) = 3 ) "/>
       </entity>
+      <entity name="Datum_shape_element" supertypes="Datum Non_feature_shape_element"/>
       <entity name="Datum_target_set" supertypes="Datum_feature">
          <inverse name="included_datum_targets" entity="Datum_target_usage_in_datum_target_set_relationship" attribute="defined_datum_target_set">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -221,7 +222,7 @@
             <unique.attribute entity-ref="Datum_target_usage_in_datum_target_set_relationship" attribute="defined_datum_target_set"/>
          </unique>
       </entity>
-      <entity name="Derived_shape_element" abstract.supertype="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Apex, Centre_of_symmetry, Linear_extension, Geometric_intersection, Geometric_alignment, Tangent_shape_element)">
+      <entity name="Derived_non_feature_shape_element" abstract.supertype="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Apex, Centre_of_symmetry, Linear_extension, Geometric_intersection, Geometric_alignment, Tangent_shape_element)">
          <inverse name="deriving_relationships" entity="Shape_element_deriving_relationship" attribute="relating">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
@@ -327,8 +328,8 @@
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Geometric_alignment" supertypes="Derived_shape_element"/>
-      <entity name="Geometric_intersection" supertypes="Derived_shape_element"/>
+      <entity name="Geometric_alignment" supertypes="Derived_non_feature_shape_element"/>
+      <entity name="Geometric_intersection" supertypes="Derived_non_feature_shape_element"/>
       <entity name="Geometric_tolerance_qualifier" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_geometric_tolerance_qualifier, User_defined_geometric_tolerance_qualifier)">
          <explicit name="qualified_geometric_tolerances">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -348,7 +349,7 @@
             <typename name="Value_with_unit"/>
          </explicit>
       </entity>
-      <entity name="Linear_extension" supertypes="Derived_shape_element"/>
+      <entity name="Linear_extension" supertypes="Derived_non_feature_shape_element"/>
       <entity name="Maximum_dimension_representation" supertypes="Singular_dimension_representation"/>
       <entity name="Minimum_dimension_representation" supertypes="Singular_dimension_representation"/>
       <entity name="Opposing_boundary_set_size_characteristic" supertypes="Boundary_size_characteristic">
@@ -476,7 +477,7 @@
       <entity name="Shape_dimension_representation" abstract.supertype="YES" super.expression="ONEOF (Limit_dimension_representation, Singular_dimension_representation, Externally_defined_dimension_representation)"/>
       <entity name="Shape_element_deriving_relationship" supertypes="Shape_element_relationship">
          <explicit name="relating">
-            <typename name="Derived_shape_element"/>
+            <typename name="Derived_non_feature_shape_element"/>
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
          <unique label="UR1">
@@ -506,7 +507,7 @@
          </explicit>
       </entity>
       <entity name="Tangent_plane" supertypes="Tangent_shape_element"/>
-      <entity name="Tangent_shape_element" supertypes="Derived_shape_element" super.expression="Tangent_plane"/>
+      <entity name="Tangent_shape_element" supertypes="Derived_non_feature_shape_element" super.expression="Tangent_plane"/>
       <entity name="Theoretically_exact_dimension_representation" supertypes="Singular_dimension_representation"/>
       <entity name="Tolerance_specific_restraint_condition" supertypes="Restraint_condition">
          <explicit name="affected_tolerances">
@@ -623,7 +624,6 @@
          </explicit>
          <inverse name="zone_orientation" entity="Viewing_plane_based_orientation" attribute="viewing_plane_specification"/>
       </entity>
-      <entity name="Datum_shape_element" supertypes="Datum Non_feature_shape_element"/>
-      <subtype.constraint name="non_feature_shape_element_subtypes" entity="Non_feature_shape_element" super.expression="ONEOF (Derived_shape_element, Directed_axis, Positional_boundary, Positional_boundary_member, Tolerance_zone_boundary, Tolerance_zone_boundary_member, Viewing_plane, Seating_plane, Reference_graphic_registration_mark)"/>
+      <subtype.constraint name="egt_non_feature_shape_element_subtypes" entity="Non_feature_shape_element" super.expression="ONEOF (Derived_non_feature_shape_element, Directed_axis, Positional_boundary, Positional_boundary_member, Tolerance_zone_boundary, Tolerance_zone_boundary_member, Viewing_plane, Seating_plane, Reference_graphic_registration_mark)"/>
    </schema>
 </express>

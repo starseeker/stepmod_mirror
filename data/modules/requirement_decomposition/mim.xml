@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-24T15:05:21" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-03T15:26:51" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="requirement_decomposition_mim schema_instance"/>
    <schema name="Requirement_decomposition_mim">
       <interface kind="use" schema="Analytical_model_mim"/>
@@ -14,15 +14,22 @@
       <interface kind="use" schema="Product_rule_mim"/>
       <interface kind="use" schema="Requirement_view_definition_mim"/>
       <interface kind="use" schema="Specification_document_mim"/>
-      <interface kind="use" schema="Requirement_assignment_mim"/>
-      <interface kind="use" schema="Conductivity_material_aspects_mim"/>
+      <interface kind="use" schema="material_property_definition_schema">
+         <interfaced.item name="property_definition_relationship"/>
+      </interface>
+      <type name="rd_document_reference_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_document_reference_item" selectitems="requirements_property"/>
+      </type>
+      <type name="rd_groupable_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_groupable_item" selectitems="requirements_property"/>
+      </type>
       <entity name="material_electrical_conductivity_category" supertypes="group">
          <where label="WR1" expression=" SELF \ group . name IN [ 'conductive' , 'non conductive' , 'resistive' , 'semi conductive' ] "/>
       </entity>
       <entity name="requirement_allocation_group" supertypes="group property_definition_relationship">
          <where label="WR1" expression=" ( SIZEOF ( QUERY ( aga &lt;* QUERY ( ga &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) | 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF ( ga ) ) | ( SIZEOF ( [ 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT' , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT_DEFINITION_FORMATION' , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'CONFIGURATION_ITEM' ] * TYPEOF ( aga . items ) ) = 1 ) ) ) = 1 ) "/>
          <where label="WR2" expression=" 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'REQUIREMENTS_PROPERTY' IN TYPEOF ( SELF \ property_definition_relationship . relating_property_definition ) "/>
-         <where label="WR3" expression=" NOT ( SELF \ property_definition_relationship . related_property_definition . description = 'test requirement' ) OR ( SIZEOF ( QUERY ( aga &lt;* QUERY ( ga &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) | 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF ( ga ) ) | ( SIZEOF ( [ 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PROPERTY_DEFINITION_REPRESENTATION' ] * TYPEOF ( aga . items ) ) = 1 ) ) ) &gt;= 1 ) "/>
+         <where label="WR4" expression=" NOT ( SELF \ property_definition_relationship . related_property_definition . description = 'test requirement' ) OR ( SIZEOF ( QUERY ( aga &lt;* QUERY ( ga &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) | 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF ( ga ) ) | ( SIZEOF ( [ 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PROPERTY_DEFINITION_REPRESENTATION' ] * TYPEOF ( aga . items ) ) = 1 ) ) ) &gt;= 1 ) "/>
       </entity>
       <entity name="requirement_definition" supertypes="product_definition">
          <where label="WR1" expression=" ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN TYPEOF ( SELF ) ) ) OR ( SIZEOF ( QUERY ( docs &lt;* SELF \ product_definition_with_associated_documents . documentation_ids | docs . kind \ document_type . product_data_type = 'CAD filename' ) ) &lt;= 1 ) "/>

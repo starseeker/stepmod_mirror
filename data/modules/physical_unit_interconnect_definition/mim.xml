@@ -2,36 +2,48 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-24T15:05:21" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-03T15:26:51" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_interconnect_definition_mim schema_instance"/>
    <schema name="Physical_unit_interconnect_definition_mim">
       <interface kind="use" schema="Assembly_structure_mim"/>
       <interface kind="use" schema="Part_view_definition_mim"/>
-      <interface kind="use" schema="date_time_schema"/>
-      <interface kind="use" schema="document_schema"/>
-      <interface kind="use" schema="person_organization_schema"/>
-      <interface kind="use" schema="product_definition_schema"/>
-      <interface kind="use" schema="product_property_definition_schema"/>
+      <interface kind="use" schema="date_time_schema">
+         <interfaced.item name="date_time_role"/>
+         <interfaced.item name="date_role"/>
+      </interface>
+      <interface kind="use" schema="document_schema">
+         <interfaced.item name="document_type"/>
+      </interface>
+      <interface kind="use" schema="person_organization_schema">
+         <interfaced.item name="person_and_organization_role"/>
+         <interfaced.item name="organization_role"/>
+      </interface>
+      <interface kind="use" schema="product_definition_schema">
+         <interfaced.item name="product_definition_with_associated_documents"/>
+      </interface>
+      <interface kind="use" schema="product_property_definition_schema">
+         <interfaced.item name="property_definition"/>
+      </interface>
       <entity name="connector_based_interconnect_definition" supertypes="property_definition">
          <unique label="UR1">
             <unique.attribute entity-ref="connector_based_interconnect_definition" attribute="name"/>
             <unique.attribute entity-ref="connector_based_interconnect_definition" attribute="definition"/>
          </unique>
-         <where label="WR1" expression=" 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PHYSICAL_INTERCONNECT_DEFINITION' IN TYPEOF ( SELF \ property_definition . definition ) "/>
+         <where label="WR1" expression=" 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'PHYSICAL_INTERCONNECT_DEFINITION' IN TYPEOF ( SELF \ property_definition . definition ) "/>
       </entity>
       <entity name="physical_interconnection_definition" supertypes="property_definition">
          <unique label="UR1">
             <unique.attribute entity-ref="physical_interconnection_definition" attribute="name"/>
             <unique.attribute entity-ref="physical_interconnection_definition" attribute="definition"/>
          </unique>
-         <where label="WR1" expression=" 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION' IN TYPEOF ( SELF \ property_definition . definition ) "/>
+         <where label="WR1" expression=" 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION' IN TYPEOF ( SELF \ property_definition . definition ) "/>
       </entity>
       <entity name="physical_unit_interconnect_definition" supertypes="product_definition">
-         <where label="WR1" expression=" ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN TYPEOF ( SELF ) ) ) OR ( SIZEOF ( QUERY ( docs &lt;* SELF \ product_definition_with_associated_documents . documentation_ids | docs . kind \ document_type . product_data_type = 'CAD filename' ) ) &lt;= 1 ) "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( adta &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' ) | adta . role \ date_time_role . name = 'creation date' ) ) + SIZEOF ( QUERY ( ada &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_DATE_ASSIGNMENT.ITEMS' ) | ada . role \ date_role . name = 'creation date' ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS' ) ) = 1 "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( apoa &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | apoa . role \ person_and_organization_role . name = 'creator' ) ) + SIZEOF ( QUERY ( apoa &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | apoa . role \ organization_role . name = 'creator' ) ) &gt;= 1 "/>
-         <where label="WR5" expression=" SIZEOF ( USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS' ) ) = 1 "/>
+         <where label="WR1" expression=" ( NOT ( 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN TYPEOF ( SELF ) ) ) OR ( SIZEOF ( QUERY ( docs &lt;* SELF \ product_definition_with_associated_documents . documentation_ids | docs . kind \ document_type . product_data_type = 'CAD filename' ) ) &lt;= 1 ) "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( adta &lt;* USEDIN ( SELF , 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' ) | adta . role \ date_time_role . name = 'creation date' ) ) + SIZEOF ( QUERY ( ada &lt;* USEDIN ( SELF , 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'APPLIED_DATE_ASSIGNMENT.ITEMS' ) | ada . role \ date_role . name = 'creation date' ) ) = 1 "/>
+         <where label="WR3" expression=" SIZEOF ( USEDIN ( SELF , 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS' ) ) = 1 "/>
+         <where label="WR4" expression=" SIZEOF ( QUERY ( apoa &lt;* USEDIN ( SELF , 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | apoa . role \ person_and_organization_role . name = 'creator' ) ) + SIZEOF ( QUERY ( apoa &lt;* USEDIN ( SELF , 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | apoa . role \ organization_role . name = 'creator' ) ) &gt;= 1 "/>
+         <where label="WR5" expression=" SIZEOF ( USEDIN ( SELF , 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS' ) ) = 1 "/>
          <where label="WR6" expression=" SIZEOF ( TYPEOF ( SELF ) - ( TYPEOF ( SELF \ product_definition || SELF \ physical_unit_interconnect_definition ) ) ) = 0 "/>
          <where label="WR7" expression=" SELF . frame_of_reference . name IN [ 'physical interconnect design' ] "/>
       </entity>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.69 2002/08/12 11:57:25 robbod Exp $
+$Id: common.xsl,v 1.70 2002/08/12 13:22:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2496,6 +2496,170 @@ $Id: common.xsl,v 1.69 2002/08/12 11:57:25 robbod Exp $
     </xsl:variable>
     <xsl:value-of select="substring-before($str,$word)"/>
   </xsl:template>
+
+<xsl:template match="projlead">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="projlead"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <b>Project leader: </b>
+  <xsl:choose>
+    <xsl:when test="$projlead">
+      <xsl:apply-templates select="$projlead"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 1: No contact provided for project leader.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="projlead" mode="no_address">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="projlead"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <xsl:choose>
+    <xsl:when test="$projlead">
+      <xsl:apply-templates select="$projlead" mode="no_address"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 1: No contact provided for project leader.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="editor">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="editor"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <b>Project editor: </b>
+  <xsl:choose>
+    <xsl:when test="$editor">
+      <xsl:apply-templates select="$editor"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 2: No contact provided for project editor.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+<xsl:template match="editor" mode="no_address">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="editor"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <xsl:choose>
+    <xsl:when test="$editor">
+      <xsl:apply-templates select="$editor"  mode="no_address"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 2: No contact provided for project editor.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="contact">
+  <xsl:apply-templates select="firstname"/>
+  &#160;
+  <xsl:apply-templates select="lastname"/>
+  <br/>
+  <xsl:apply-templates select="." mode="address"/>
+  <br/>
+  <xsl:apply-templates select="phone"/>
+  <xsl:apply-templates select="fax"/>
+  <xsl:apply-templates select="email"/>
+</xsl:template>
+
+
+<xsl:template match="contact" mode="no_address">
+  <xsl:apply-templates select="firstname"/>
+  &#160;
+  <xsl:apply-templates select="lastname"/>
+  <br/>
+  <xsl:apply-templates select="phone"/>
+  <xsl:apply-templates select="email"/>
+</xsl:template>
+
+
+<xsl:template match="firstname | lastname">
+  <xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="contact" mode="address">
+  <b>Address: </b>
+  <xsl:apply-templates select="./affiliation"/>
+  <xsl:apply-templates select="./street"/>
+  <xsl:apply-templates select="./pobox"/>
+  <xsl:apply-templates select="./city"/>
+  <xsl:apply-templates select="./state"/>
+  <xsl:apply-templates select="./postcode"/>
+  <xsl:apply-templates select="./country"/>
+</xsl:template>
+
+
+<xsl:template match="affiliation">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="street">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="pobox">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="city">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="state">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="postcode">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="country">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="phone">
+  <b>Telephone: </b>
+  <xsl:value-of select="."/>
+  <br/>
+</xsl:template>
+
+<xsl:template match="fax">
+  <b>Telefacsimile: </b>
+  <xsl:value-of select="."/>
+  <br/>
+</xsl:template>
+
+<xsl:template match="email">
+  <xsl:variable name="mailto" select="concat('mailto:',.)"/>
+  <b>Electronic mail: </b>
+  <a href="{$mailto}">
+    <xsl:value-of select="."/>
+  </a>
+  <br/>
+</xsl:template>
+
 
 
 </xsl:stylesheet>

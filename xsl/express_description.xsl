@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.14 2003/06/24 22:09:57 thendrix Exp $
+     $Id: express_description.xsl,v 1.15 2003/06/25 23:57:00 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -146,7 +146,7 @@ and  string is more than the schema name ( hence not the  schema )
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent1:  description of entity ',$description/@linkend,  ' should start with A or An')"/>
+            select="concat('Warning Ent1: ',$description/@linkend,  '. Description of entity should start with A or An')"/>
         </xsl:call-template>        
         
       </xsl:if>
@@ -155,17 +155,17 @@ and  string is more than the schema name ( hence not the  schema )
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent2: should be at least one bold text or express ref in the description of entity ', $description/@linkend)"/>
+            select="concat('Warning Ent2:' , $description/@linkend, '. Should be at least one bold text or express ref in the description of entity ')"/>
         </xsl:call-template>        
       </xsl:if>
 
 
       <!-- if -->
-      <xsl:if test="not(contains(substring-before(normalize-space($description/text()[position()=2]),' '),'is')) and not(contains(substring-before(normalize-space($description/text()[position()=2]),' '),'represents'))">
+      <xsl:if test="not(contains('is',substring-before(normalize-space($description/text()[position()=2]),' ')))">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent3: check that description starts with is or represents ', $description/@linkend)"/>
+            select="concat('Warning Ent3: ', $description/@linkend, '. Check that description starts with is ')"/>
         </xsl:call-template>        
       </xsl:if>
 
@@ -173,12 +173,12 @@ and  string is more than the schema name ( hence not the  schema )
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent4: should be at least one bold text or express_ref in the entity description that contains the entity name ', $description/@linkend)"/>
+            select="concat('Warning Ent4: ',  $description/@linkend, '. There should be at least one bold text or express_ref in the entity description that contains the entity name. ')"/>
         </xsl:call-template>
         
       </xsl:if>
 
-<xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),'is a type'))" >
+<xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),concat('is a type of ',substring-before($supertypes,' '))))" >
   
       <xsl:call-template name="error_message">
           <xsl:with-param 

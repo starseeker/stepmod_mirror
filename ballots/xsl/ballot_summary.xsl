@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.4 2002/07/31 07:59:59 robbod Exp $
+$Id: ballot_summary.xsl,v 1.5 2002/07/31 14:10:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -73,7 +73,7 @@ $Id: ballot_summary.xsl,v 1.4 2002/07/31 07:59:59 robbod Exp $
       -->
       <table border="1">
         <tr>
-          <td><b>Ballot package</b></td>
+          <td><b>Module package</b></td>
           <td><b>Module</b></td>
           <td><b>Part</b></td>
           <td><b>Version</b></td>

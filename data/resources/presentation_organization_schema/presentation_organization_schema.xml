@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: presentation_organization_schema.xml,v 1.3 2002/02/08 08:29:05 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.10 2002/06/04 08:24:21 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/08 08:29:05 $"
-  rcs.revision="$Revision: 1.3 $">
+  reference="ISO 10303-46"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.10"
     source="../data/resources/presentation_organization_schema/presentation_organization_schema.exp"/>
 
   <schema name="presentation_organization_schema">
@@ -703,21 +704,22 @@
     <rule
       name="symbol_representation_rule"
       appliesto="presentation_representation_relationship">
-      <where label="WR1"
-        expression="SIZEOF(QUERY(each_1 &lt;* presentation_representation_relationship  |
+      <algorithm>
+WHERE
+  WR1: SIZEOF(QUERY(each_1 &lt;* presentation_representation_relationship  |
               NOT ('PRESENTATION_DEFINITION_SCHEMA.'+
               'SYMBOL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(each_1)) AND
          (SIZEOF(QUERY(each_2 &lt;* [each_1\representation_relationship.rep_1,
                                   each_1\representation_relationship.rep_2] |
          'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN TYPEOF(each_2)
          )) &gt; 0)
-                    )) = 0;"/>
+       )) = 0;
+      </algorithm>
+
     </rule>
 
     <function
       name="acyclic_presentation_representation_relationship">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="relation">
         <typename
@@ -730,6 +732,8 @@
         <typename
           name="presentation_representation"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
 
   LOCAL
@@ -765,13 +769,13 @@
 
     <function
       name="aspect_ratio">
-      <typename
-        name="positive_ratio_measure"/>
       <parameter
         name="p">
         <typename
           name="planar_box"/>
       </parameter>
+      <typename
+        name="positive_ratio_measure"/>
       <algorithm>
 (* if the dimensions of the planar_box are greater than zero,
       compute the aspect ratio and return the resulting value. *)

@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: kinematic_structure_schema.xml,v 1.2 2002/01/16 12:28:20 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.10 2002/06/04 08:24:21 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/01/16 12:28:20 $"
-  rcs.revision="$Revision: 1.2 $">
+  reference="ISO 10303-105"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.10"
     source="../data/resources/kinematic_structure_schema/kinematic_structure_schema.exp"/>
 
   <schema name="kinematic_structure_schema">
@@ -150,8 +151,12 @@
 
     </type>
     <type name="ypr_rotation">
+      <aggregate
+        type="ARRAY"
+        lower="ypr_index(yaw)"
+        upper="ypr_index(roll)"/>
       <typename
-        name="ARRAY [ypr_index(yaw) : ypr_index(roll)]                    OF plane_angle_measure"/>
+        name="plane_angle_measure"/>
 
     </type>
     <type name="kinematic_frame_background">
@@ -1765,13 +1770,13 @@
 
     <function
       name="ypr_index">
-      <builtintype
-        type="INTEGER"/>
       <parameter
         name="ypr">
         <typename
           name="ypr_enumeration"/>
       </parameter>
+      <builtintype
+        type="INTEGER"/>
       <algorithm>
   CASE ypr OF
     yaw    : RETURN (1);
@@ -1785,13 +1790,13 @@
 
     <function
       name="representation_of_link">
-      <typename
-        name="kinematic_link_representation"/>
       <parameter
         name="link">
         <typename
           name="kinematic_link"/>
       </parameter>
+      <typename
+        name="kinematic_link_representation"/>
       <algorithm>
   LOCAL
     link_rep_rel : BAG OF kinematic_link_representation_relation;
@@ -1811,8 +1816,6 @@
 
     <function
       name="suitably_based_mechanism">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="mbp">
         <typename
@@ -1823,6 +1826,8 @@
         <typename
           name="mechanism"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     kprop  : kinematic_property_definition;
@@ -1879,13 +1884,13 @@
 
     <function
       name="unique_link_usage">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="link">
         <typename
           name="kinematic_link"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     mechs  : SET OF mechanism;
@@ -1918,8 +1923,6 @@
 
     <function
       name="coordinated_pair_link_representation">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="link">
         <typename
@@ -1930,6 +1933,8 @@
         <typename
           name="rigid_placement"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     link_rep : kinematic_link_representation;
@@ -1952,8 +1957,6 @@
 
     <function
       name="frame_associated_to_background">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="frame">
         <typename
@@ -1964,6 +1967,8 @@
         <typename
           name="kinematic_frame_background"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     rep_bag : BAG OF kinematic_frame_background_representation;
@@ -2030,8 +2035,6 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
 
     <function
       name="plane_angle_for_pair_in_radian">
-      <typename
-        name="plane_angle_measure"/>
       <parameter
         name="pair">
         <typename
@@ -2042,6 +2045,8 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
         <typename
           name="plane_angle_measure"/>
       </parameter>
+      <typename
+        name="plane_angle_measure"/>
       <algorithm>
   LOCAL
     converted_angle : plane_angle_measure := angle;
@@ -2116,8 +2121,6 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
 
     <function
       name="convert_plane_angle_for_pair_from_radian">
-      <typename
-        name="plane_angle_measure"/>
       <parameter
         name="pair">
         <typename
@@ -2128,6 +2131,8 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
         <builtintype
           type="REAL"/>
       </parameter>
+      <typename
+        name="plane_angle_measure"/>
       <algorithm>
   LOCAL
     link_rep    : kinematic_link_representation
@@ -2204,8 +2209,6 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
 
     <function
       name="convert_spatial_to_ypr_rotation">
-      <typename
-        name="ypr_rotation"/>
       <parameter
         name="pair">
         <typename
@@ -2216,6 +2219,8 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
         <typename
           name="spatial_rotation"/>
       </parameter>
+      <typename
+        name="ypr_rotation"/>
       <algorithm>
   LOCAL
     axis       : direction;
@@ -2420,8 +2425,6 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
 
     <function
       name="assign_directed_link">
-      <typename
-        name="kinematic_link"/>
       <parameter
         name="joint">
         <typename
@@ -2432,6 +2435,8 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
         <builtintype
           type="BOOLEAN"/>
       </parameter>
+      <typename
+        name="kinematic_link"/>
       <algorithm>
    IF (orientation) THEN
       RETURN (joint.first_link);
@@ -2444,8 +2449,6 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
 
     <function
       name="connected_in_simple_loop">
-      <builtintype
-        type="BOOLEAN"/>
       <parameter
         name="relation_1">
         <typename
@@ -2456,6 +2459,8 @@ ass_bag := QUERY ( kfbra &lt;* USEDIN ( rep,
         <typename
           name="joint_logical_relationship"/>
       </parameter>
+      <builtintype
+        type="BOOLEAN"/>
       <algorithm>
   LOCAL
     next_jlr_in_loop_set : SET [1:?] OF joint_logical_relationship;

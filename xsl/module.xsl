@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.146 2003/05/27 08:04:13 robbod Exp $
+$Id: module.xsl,v 1.147 2003/05/29 15:26:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1157,6 +1157,7 @@ o=isocs; s=central<br/>
         </td>
 
         <xsl:call-template name="output_express_links">
+          <xsl:with-param name="module" select="/module/@name"/>
           <xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
           <xsl:with-param name="file" select="'arm.exp'"/>
         </xsl:call-template>        
@@ -1187,6 +1188,7 @@ o=isocs; s=central<br/>
           </a>
         </td>
         <xsl:call-template name="output_express_links">
+          <xsl:with-param name="module" select="/module/@name"/>
           <xsl:with-param name="wgnumber" 
             select="./@wg.number.mim"/>
           <xsl:with-param name="file" select="'mim.exp'"/>
@@ -1214,10 +1216,11 @@ o=isocs; s=central<br/>
 
 <xsl:template name="output_express_links">
   <xsl:param name="wgnumber"/>
+  <xsl:param name="module"/>
   <xsl:param name="file"/>
 
   <td>
-    <a href="../{$file}">
+    <a href="../../../modules/{$module}/{$file}">
       EXPRESS
       <!--  <xsl:value-of select="$file"/> -->
     </a>
@@ -1262,10 +1265,10 @@ o=isocs; s=central<br/>
   <xsl:variable name="arm_lf">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_arm_lf.xml'"/>
+        <xsl:value-of select="concat('../../../modules/',/module/@name,'/sys/e_exp_arm_lf.xml')"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="'e_exp_arm_lf.htm'"/>
+        <xsl:value-of select="concat('../../../modules/',/module/@name,'/sys/e_exp_arm_lf.htm')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -1286,6 +1289,7 @@ o=isocs; s=central<br/>
       </a>
     </td>
     <xsl:call-template name="output_express_links">
+      <xsl:with-param name="module" select="/module/@name"/>
       <xsl:with-param name="wgnumber" 
         select="../@wg.number.arm_lf"/>
       <xsl:with-param name="file" select="'arm_lf.exp'"/>
@@ -1297,10 +1301,10 @@ o=isocs; s=central<br/>
   <xsl:variable name="mim_lf">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_mim_lf.xml'"/>
+        <xsl:value-of select="concat('../../../modules/',/module/@name,'/sys/e_exp_mim_lf.xml')"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="'e_exp_mim_lf.htm'"/>
+        <xsl:value-of select="concat('../../../modules/',/module/@name,'/sys/e_exp_mim_lf.htm')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -1320,6 +1324,7 @@ o=isocs; s=central<br/>
       </a>
     </td>
     <xsl:call-template name="output_express_links">
+      <xsl:with-param name="module" select="/module/@name"/>
       <xsl:with-param name="wgnumber" 
         select="../@wg.number.mim_lf"/>
       <xsl:with-param name="file" select="'mim_lf.exp'"/>

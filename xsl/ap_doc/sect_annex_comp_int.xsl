@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
+$Id: sect_annex_comp_int.xsl,v 1.2 2003/05/29 15:25:29 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -58,7 +58,7 @@ $Id: sect_annex_comp_int.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
   
   <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
   <xsl:apply-templates select="$module_xml/module" mode="annexe"/>
-	</xsl:template>
+</xsl:template>
 
 	
 </xsl:stylesheet>

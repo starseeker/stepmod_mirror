@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_6_ccs.xsl,v 1.4 2002/10/29 18:43:10 mikeward Exp $
+     $Id: sect_6_ccs.xsl,v 1.5 2003/02/08 21:33:08 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
@@ -16,26 +16,33 @@
 			<xsl:with-param name="heading" select="'6 Conformance requirements'"/>
 			<xsl:with-param name="aname" select="'ccs'"/>
 		</xsl:call-template>
-		Conformance to this application protocol includes satisfying the requirements stated in this specification, the requirements of the implementation method(s) supported and the relevant requirements of the normative references.  
-		An implementation shall support at least one of the following implementation methods:
+				
+		<xsl:variable name="annB" select="concat('./b_imp_meth',$FILE_EXT)"/>
+		Conformance to this application protocol includes satisfying the requirements stated in this specification, 
+		the requirements of the implementation method(s) supported and the relevant requirements of the normative references.  
+		<p>A conforming implementation shall support at least one of the following implementation methods:</p>
 		<ul>
 			<xsl:for-each select="imp_meths/imp_meth">
+       <xsl:if test="@general!='y'">
 				<li>
-        				<xsl:choose>
-          					<xsl:when test="position()!=last()">
-           						<xsl:value-of select="concat('ISO 10303-', @part,';')"/>
-          					</xsl:when>
-          					<xsl:otherwise>
-            						<xsl:value-of select="concat('ISO 10303-', @part,'.')"/>        
-          					</xsl:otherwise>
-        				</xsl:choose>
-      				</li>
-			</xsl:for-each>
+
+        		<xsl:choose>
+          			<xsl:when test="position()!=last()">
+           			<xsl:value-of select="concat('ISO 10303-', @part,';')"/>
+          			</xsl:when>
+          	<xsl:otherwise>
+            		<xsl:value-of select="concat('ISO 10303-', @part,'.')"/>        
+          	</xsl:otherwise>
+        		</xsl:choose>
+      		</li>
+       </xsl:if>
+			 </xsl:for-each>
 		</ul>
-		<p>
-			Requirements with respect to implementation methods-specific requirements are specified in annex B.
-		</p>
-		The Protocol Implementation Conformance Statement (PICS) form lists the options or the combinations of options that may be included in the implementation.  This PICS form is provided in annex C.
+		<note>
+			Implementation methods-specific requirements are specified in <a href="{$annB}">
+annex B</a>.
+		</note>
+
 		<xsl:variable name="ap_dir">
 			<xsl:value-of select="@name"/>
 		</xsl:variable>
@@ -43,5 +50,6 @@
 			<xsl:value-of select="concat('../../data/application_protocols/', $ap_dir, '/ccs.xml')"/>
 		</xsl:variable>
 		<xsl:apply-templates select="document(string($ccs_path))/conformance_classes"/>
+
 	</xsl:template>
 </xsl:stylesheet>

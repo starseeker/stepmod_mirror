@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_c_pics.xsl,v 1.3 2002/10/08 10:18:09 mikeward Exp $
+     $Id: sect_c_pics.xsl,v 1.4 2002/10/29 18:43:10 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
@@ -21,10 +21,12 @@
 		<xsl:variable name="ap_name" select="@name"/>
 		<xsl:variable name="iso_no" select="@std_no"/>	
 		 <p>
-			This clause list the optional elements of this part of ISO 10303.  An implementation may choose to support any combination of these optional elements.  However, certain combinations of options are likely to be implemented together.  These combinations are called conformance classes and are described in the subclauses of this annex.
+			This clause lists the optional elements of this part of ISO 10303. 
+			An implementation may choose to support any combination of these optional elements.  However, certain combinations of options are likely to be implemented together.  These combinations are called conformance classes and are described in the subclauses of this annex.
 		</p>
 		<p>
-			This annex is in the form of a questionnaire.  This  questionnaire is intended to be filed in by the implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS form is referred to as a "PICS".
+			This annex is in the form of a questionnaire. 
+			This  questionnaire is intended to be filled in by an implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS form is referred to as a "PICS".
 		</p>
 		<h4>C.1 Protocol implementation identification</h4>
 		<table border="1">
@@ -74,6 +76,7 @@
 				</th>
 			</tr>
 			<xsl:for-each select="imp_meths/imp_meth">
+       <xsl:if test="@general!='y'">
 				<tr>
 					<th align="left">
 						ISO 10303 - <xsl:value-of select="@part"/>
@@ -83,6 +86,7 @@
 					<td>
 						&#160;			</td>
 				</tr>
+				</xsl:if>
 			</xsl:for-each>
 		</table>
 		<h4>C.3 Implemented conformance classes</h4>

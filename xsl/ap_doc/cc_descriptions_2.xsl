@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-	$Id: cc_descriptions_2.xsl,v 1.3 2003/02/17 08:32:23 robbod Exp $
+	$Id: cc_descriptions_2.xsl,v 1.4 2003/02/17 18:46:30 goset1 Exp $
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">	
+<xsl:import href="../common.xsl"/>		<!-- for text formatting templates -->
 	<xsl:output method="html"/>
 	
 	<xsl:template match="/">
@@ -17,27 +17,25 @@
 	
 	<xsl:template match="conformance_classes">
 	
-	 	<p>
+	<p>
 			This application protocol provides for a number of options that may be supported by an implementation.
-		</p>
-		<p>
 			These options have been grouped into the following conformance classes:
-		</p>	
+		</p>
 		<ul>
 			<xsl:for-each select="cc">
 				<li>
-	        			<xsl:choose>
-	          				<xsl:when test="position()!=last()">
-	           					<xsl:value-of select="concat(@name,';')"/>
-	          				</xsl:when>
-	          				<xsl:otherwise>
-	            					<xsl:value-of select="concat(@name,'.')"/>        
-	          				</xsl:otherwise>
-	        			</xsl:choose>
-	      			</li>
+	        		<xsl:choose>
+	          		<xsl:when test="position()!=last()">
+	           			<xsl:value-of select="concat(@name,';')"/>
+	          		</xsl:when>
+	          		<xsl:otherwise>
+	            			<xsl:value-of select="concat(@name,'.')"/>        
+	          		</xsl:otherwise>
+	        		</xsl:choose>
+	      	</li>
 			</xsl:for-each>
 	  	</ul>
-		<p>
+<p>
 Conformance to a particular class implies the following:</p>
 <ul>
 <li>an export processor shall write instances of entities defined in the MIM long-form schema and that belong to the considered conformance class, in conformance with the constraints specified in the mapping-table and in the MIM long-form schema;</li>
@@ -49,14 +47,14 @@ NOTE&#160;&#160;A conformance class specifies a minimum implementation level.
 A particular processor may write or read instances of entities that belong to more than one conformance class.
 </small>
 </p>
+<p>The Protocol Implementation Conformance Statement (PICS) form lists the options or the combinations of options that may be included in the implementation. 
+The PICS form is provided in annex C.</p>
 <p>
 <h3>6.1&#160;Scope of conformance classes</h3>
 		<xsl:for-each select="cc">
 			<h3>6.1.<xsl:value-of select="position()"/>&#160; 
 			<xsl:value-of select="concat('Conformance class for ', ./@name, ' (', ./@id, ')')"/></h3>
-			<p><xsl:value-of select="./description"/></p>
-			<xsl:apply-templates select="note"/>
-			<xsl:apply-templates select="example"/>
+			<xsl:apply-templates/> 
 		</xsl:for-each>
 		
 
@@ -261,7 +259,7 @@ Table 2 identifies the conformance classes to which each entity of the MIM long-
 							  <xsl:otherwise>
 								  <td>&#160;</td>
 							  </xsl:otherwise>
-						    </xsl:choose>							
+						    </xsl:choose>
 							</xsl:for-each>			
 			  	</tr>
 

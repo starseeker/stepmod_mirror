@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.13 2003/02/06 22:35:11 goset1 Exp $
+     $Id: application_protocol.xsl,v 1.16 2003/03/03 17:15:19 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -61,7 +61,7 @@
 			</ul>
 		</xsl:template>
 		
-		<xsl:template match="outscope">
+	<xsl:template match="outscope">
    <p>
     <a name="outscope"/>
     The following are outside the scope of this part of ISO 10303: 
@@ -71,25 +71,22 @@
   </ul>
 </xsl:template> 
 
-	<xsl:template match="module" mode="annexg">
+<!-- Annex G -->
+	<xsl:template match="application_protocol" mode="annexg">
 		<xsl:call-template name="annex_header">
 			<xsl:with-param name="annex_no" select="'G'"/>
 			<xsl:with-param name="heading" select="'Computer interpretable listings'"/>
 			<xsl:with-param name="aname" select="'annexg'"/>
 		</xsl:call-template>
 		
+			<xsl:variable name="ap_mod_dir">
+		 <xsl:value-of select="concat('../../../modules/',@module_name)"/>
+		</xsl:variable>
 		<xsl:variable name="arm">
-			<xsl:choose>
-				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_arm.xml'"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_arm.htm'"/>
-				</xsl:otherwise>
-			</xsl:choose>
+		 <xsl:value-of select="concat($ap_mod_dir,'/arm',$FILE_EXT)"/>
 		</xsl:variable>
 		
-		<xsl:variable name="arm_lf">
+<!-- 		<xsl:variable name="arm_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
 					<xsl:value-of select="'g_exp_arm_lf.xml'"/>
@@ -98,20 +95,13 @@
 					<xsl:value-of select="'g_exp_arm_lf.htm'"/>
 				</xsl:otherwise>
 			</xsl:choose>
-		</xsl:variable>
+		</xsl:variable> -->
 
-		<xsl:variable name="aim">
-			<xsl:choose>
-				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_aim.xml'"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_aim.htm'"/>
-				</xsl:otherwise>
-			</xsl:choose>
+		<xsl:variable name="mim">
+		 <xsl:value-of select="concat($ap_mod_dir,'/mim',$FILE_EXT)"/>
 		</xsl:variable>
 		
-		<xsl:variable name="aim_lf">
+<!-- 		<xsl:variable name="aim_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
 					<xsl:value-of select="'g_exp_aim_lf.xml'"/>
@@ -120,7 +110,7 @@
 					<xsl:value-of select="'g_exp_aim_lf.htm'"/>
 				</xsl:otherwise>
 			</xsl:choose>
-		</xsl:variable>
+		</xsl:variable> -->
 		
 		<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 		<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -129,19 +119,18 @@
 		<xsl:variable name="names_url" select="'http://www.tc184-sc4.org/Short_Names/'"/>
 		<xsl:variable name="parts_url" select="'http://www.tc184-sc4.org/EXPRESS/'"/>
 		<p>
-			This annex references a listing of the EXPRESS entity names and corresponding short names as specified or referenced in this part of ISO
-    10303. This listing can also be found at the following URL:
+This annex references a listing of the EXPRESS entity names and corresponding short names as specified or referenced in this part of ISO 10303. 
+This listing can also be found at the following URL:
 		</p>
 		<blockquote>
 			Short names:&lt;
 			<a href="{$names_url}">
 				<xsl:value-of select="$names_url"/>
-			</a>
-			&gt;<br/>		
+			</a>&gt;<br/>
 		</blockquote>
 		<p>
-		It also provides a listing of each EXPRESS schema specified in this part of ISO 10303 without comments nor other explanatory text. These
-    listings are available in computer-interpretable form from Table G.1 and can be found at the following URLs:
+This annex also provides a listing of the EXPRESS schemas, ARM and MIM short-form, that specify in a modular form, the data structures standardized within this part of ISO 10303. 
+These listings are available in computer-interpretable form from Table G.1 and can be found at the following URLs:
 		</p>
 		<blockquote>
 			EXPRESS:&lt;
@@ -153,7 +142,7 @@
 		<div align="center">
 			<a name="table_g1">
 				<b>
-					<xsl:choose>
+<!-- 					<xsl:choose>
 						<xsl:when test="./mim_lf or ./arm_lf">
 							Table G.1 &#8212; ARM to AIM EXPRESS short and long form listings
 						</xsl:when>
@@ -161,6 +150,8 @@
 							Table G.1 &#8212; ARM and MIM EXPRESS listings
 						</xsl:otherwise>
 					</xsl:choose>
+ -->
+							Table G.1 &#8212; ARM and MIM EXPRESS listings
 				</b>
 			</a>
 		</div>
@@ -192,16 +183,7 @@
 					</td>
 				</tr>
 				<tr>
-					<xsl:choose>
-						<xsl:when test="$FILE_EXT='.xml'">
-							<td>ARM short form EXPRESS</td>
-						</xsl:when>
-						<xsl:otherwise>
-							<td>
-								ARM short form EXPRESS
-							</td>
-						</xsl:otherwise>
-					</xsl:choose>
+					<td>EXPRESS ARM short form </td>
 					<td>
 						<a href="{$arm}">
 							<xsl:value-of select="concat('arm',$FILE_EXT)"/>
@@ -211,39 +193,30 @@
 						<xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
 						<xsl:with-param name="file" select="'arm.exp'"/>
 						<xsl:with-param name="file_name" select="'arm.exp'"/>
-						<xsl:with-param name="ap" select="$ap"/>
+						<xsl:with-param name="ap_module" select="@module_name"/>
 					</xsl:call-template>
 				</tr>
 				<tr>
 					<xsl:apply-templates select="arm_lf" mode="annexg"/>
 				</tr>
 				<tr>
-					<xsl:choose>
-						<xsl:when test="$FILE_EXT='.xml'">
-							<td>
-								AIM short form EXPRESS
-							</td>
-						</xsl:when>
-						<xsl:otherwise>
-							<td>
-								AIM short form EXPRESS
-							</td>
-						</xsl:otherwise>
-					</xsl:choose>
+					<td>EXPRESS MIM short form
+					</td>
+
 					<td>
-						<a href="{$aim}">
-							<xsl:value-of select="concat('aim',$FILE_EXT)"/>
+						<a href="{$mim}">
+							<xsl:value-of select="concat('mim',$FILE_EXT)"/>
 						</a>
 					</td>
 					<xsl:call-template name="output_express_links">
 						<xsl:with-param name="wgnumber" select="./@wg.number.mim"/>
 						<xsl:with-param name="file" select="'mim.exp'"/>
-						<xsl:with-param name="file_name" select="'aim.exp'"/>
-						<xsl:with-param name="ap" select="$ap"/>
+						<xsl:with-param name="file_name" select="'mim.exp'"/>
+						<xsl:with-param name="ap_module" select="@module_name"/>
 					</xsl:call-template>
 				</tr>
 				<tr>
-					<xsl:apply-templates select="mim_lf" mode="annexg"/>
+					<xsl:apply-templates select="." mode="annexg_aim_lf"/>
 				</tr>
 			</table>
 		</div>
@@ -264,12 +237,12 @@
 		<xsl:param name="wgnumber"/>
 		<xsl:param name="file"/>
 		<xsl:param name="file_name"/>
-		<xsl:param name="ap"/>
+		<xsl:param name="ap_module"/>
 		<td>
-			<a href="../../../modules/{$ap}/{$file}"><xsl:value-of select="$file_name"/></a>
+			<a href="../../../modules/{$ap_module}/{$file}"><xsl:value-of select="$file_name"/></a>
   		</td>
 		<td>
-			<xsl:variable name="test_wg_number">
+<!-- 			<xsl:variable name="test_wg_number">
 				<xsl:call-template name="test_wg_number">
 					<xsl:with-param name="wgnumber" select="$wgnumber"/>
 				</xsl:call-template>
@@ -296,12 +269,12 @@
 				<xsl:otherwise>
 					<xsl:value-of select="concat('WG3 N',$wgnumber)"/>
 				</xsl:otherwise>
-			</xsl:choose>
-		</td>
+			</xsl:choose>-->
+		</td> 
 	</xsl:template>
 	
-	<xsl:template match="arm_lf" mode="annexg">
-		<xsl:variable name="module_name" select="../@name"/>
+<!-- 	<xsl:template match="arm_lf" mode="annexg">
+		<xsl:variable name="module_name" select="../@module_name"/>
 		<xsl:variable name="arm_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
@@ -333,26 +306,32 @@
 				&#8212;
 			</td>
 		</tr>
-	</xsl:template>
+	</xsl:template> -->
 	
-	<xsl:template match="mim_lf" mode="annexg">
-		<xsl:variable name="module_name" select="../@name"/>
+	<xsl:template match="application_protocol" mode="annexg_aim_lf">
+			<xsl:variable name="test_wg_number">
+				<xsl:call-template name="test_wg_number">
+					<xsl:with-param name="wgnumber" select="@wg.number.mim"/>
+				</xsl:call-template>
+			</xsl:variable>
+					
+<!-- 		<xsl:variable name="module_name" select="../@module_name"/> -->
 		<xsl:variable name="aim_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_aim_lf.xml'"/>
+					<xsl:value-of select="'a_exp_aim_lf.xml'"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_aim_lf.htm'"/>
+					<xsl:value-of select="'a_exp_aim_lf.htm'"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-		<xsl:variable name="aim_lf_exp">
-			<xsl:value-of select="concat('../../../modules/', $module_name, '/mim_lf.exp')"/>
+		<xsl:variable name="aim_lf_exp" select="'../aim_lf.exp'"/> 
+<!-- 		<xsl:variable name="aim_lf_exp">
+			<xsl:value-of select="concat('../../../modules/', $module_name, '/aim_lf.exp')"/>
 		</xsl:variable>
-		<tr>
-			<td>
-				ARM long form EXPRESS
+ -->		<tr>
+			<td>EXPRESS AIM long form
 			</td>
 			<td>
 				<a href="{$aim_lf}">
@@ -365,7 +344,19 @@
 				</a>
 			</td>
 			<td align="center">
-				&#8212;
+			<xsl:choose>
+				<xsl:when test="contains($test_wg_number,'Error')">
+					<xsl:call-template name="error_message">
+						<xsl:with-param name="message">
+							<xsl:value-of select="concat('(Error in application_protocol.xml/application_protocol/@wg.number.mim',' - ',
+                                  $test_wg_number)"/>
+						</xsl:with-param>
+					</xsl:call-template>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="concat('WG3 N',@wg.number.mim)"/>
+				</xsl:otherwise>
+			</xsl:choose>
 			</td>
 		</tr>
 	</xsl:template>
@@ -378,56 +369,30 @@
 		</xsl:call-template>
 		<xsl:variable name="f_expg" select="concat('./f_arm_expg',$FILE_EXT)"/>
 		<xsl:variable name="sect51" select="concat('./5_mim',$FILE_EXT)"/>
+		
 		<xsl:variable name="current_application_protocol">
 			<xsl:call-template name="module_display_name">
 				<xsl:with-param name="module" select="../@name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="part_no" select="../@part"/>
-		<xsl:variable name="part_name" select="../@name"/>
-		<xsl:variable name="sect_4" select="concat('../../../modules/', $part_name, '/sys/4_info_reqs', $FILE_EXT)"/>
-		<p>
-			This clause specifies the information requirements addressed by this part of ISO 10303.
-		</p>
-		<p>
-			The information requirements are defined using the terminology of the subject area of this 
-			application protocol.
-		</p>
-		
-		<p class="note">
-			<small>
-				NOTE&#160;1&#160;&#160;A graphical representation of the information requirements is given in 
-				<a href="{$f_expg}">annex F</a>.
-			</small>
-		</p>
-		<xsl:variable name="e_aam" select="concat('./e_aam',$FILE_EXT)"/>
-				<p class="note">
-			<small>
-				NOTE&#160;2&#160;&#160;The information requirements correspond to those of the activities 
-				identified as being within the scope of this application protocol, in <a href="{$e_aam}">annex E</a>.
-			</small>
-		</p>
-		
-		<p class="note">
-			<small>
-				NOTE&#160;3&#160;&#160;The mapping specification is specified in 
-				<a href="{$sect51}#mapping">clause 5.1</a>. 
-				It shows how the information requirements are met, using common resources and 
-				constructs imported into the AIM schema of this application protocol.
-			</small>
-		</p>
 		<xsl:variable name="ap_module_dir">
 			<xsl:call-template name="ap_module_directory">
-				<xsl:with-param name="application_protocol" select="../@name"/>
+				<xsl:with-param name="application_protocol" select="../@module_name"/>
 			</xsl:call-template>
 		</xsl:variable>
+		<xsl:variable name="sect_4" select="concat('../../../modules/', $ap_module_dir, '/sys/4_info_reqs', $FILE_EXT)"/>
+		
 		<xsl:variable name="ap_dir">
 			<xsl:call-template name="application_protocol_directory">
 				<xsl:with-param name="application_protocol" select="../@name"/>
 			</xsl:call-template>
 		</xsl:variable>
+		
 		<xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
-		<xsl:variable name="schema_name" select="document($arm_xml)/express/schema/@name"/>
+		<xsl:variable name="ap_file" select="concat($ap_dir, '/application_protocol.xml')"/>
+		
+		<!--		<xsl:variable name="schema_name" select="document($arm_xml)/express/schema/@name"/>
 		<xsl:call-template name="check_schema_name">
 			<xsl:with-param name="arm_mim" select="'arm'"/>
 			<xsl:with-param name="schema_name" select="$schema_name"/>
@@ -437,7 +402,7 @@
 				<xsl:with-param name="section1" select="$schema_name"/>
 			</xsl:call-template>
 		</xsl:variable>
-		<!-- code>
+		 code>
 			<u>
 				EXPRESS specification: 
 			</u>
@@ -456,12 +421,9 @@
 		</code>
 		-->
 			
-		<h3><a name="#41">4.1&#160;Fundamental concepts and assumptions</a></h3>
 
-		This subclause describes the fundamental concepts and assumptions related to the data structure defined within this part of ISO 10303.
 
-		<xsl:variable name="ap_file" select="concat($ap_dir, '/application_protocol.xml')"/>
-		<xsl:apply-templates select="document($ap_file)/application_protocol/fundamentals"/>
+
 		<h3><a name="#42">4.2&#160;Information requirements model</a></h3>
 		<h4>4.2.1&#160;Application reference model specification</h4>
 		<p>
@@ -477,8 +439,7 @@
 		</note>
 		<h4>4.2.2&#160;Model overview</h4>
 		<p>
-			The following sub-clauses contain an overview of the requirements contained in ISO 10303-
-			<xsl:value-of select="$part_no"/> as represented in the following list of modules:
+			The following sub-clauses contain an overview of the requirements contained in ISO 10303-<xsl:value-of select="$part_no"/> as represented in the following list of modules:
 		</p>
 
 		
@@ -526,7 +487,7 @@
 			<br/>
 			(*
 			</code -->
-		</xsl:template>
+	</xsl:template>
 	
 	<xsl:template match="uof" mode="uof_toc">
 		<h3>
@@ -559,6 +520,7 @@
 		<xsl:variable name="uof" select="@uof"/>
 		<xsl:variable name="xref" select="concat('../../',$application_protocol,'/sys/4_info_reqs',$FILE_EXT,'#uof',$uof)"/>
 		<xsl:variable name="current_application_protocol">
+		
 			<xsl:call-template name="module_display_name">
 				<xsl:with-param name="module" select="/application_protocol/@name"/>
 			</xsl:call-template>
@@ -592,6 +554,7 @@
 				<xsl:with-param name="application_protocol" select="$application_protocol"/>
 			</xsl:call-template>
 		</xsl:variable>
+		
 		<xsl:choose>
 			<xsl:when test="$application_protocol_ok='true'">
 				<!-- check that the UoF is named correctly -->
@@ -695,7 +658,7 @@ This clause specifies the interpreted EXPRESS schema of this application protoco
 		</ul>
 		<xsl:variable name="ap_module_dir">
 			<xsl:call-template name="ap_module_directory">
-				<xsl:with-param name="application_protocol" select="../@name"/>
+				<xsl:with-param name="application_protocol" select="../@module_name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		
@@ -983,6 +946,7 @@ This clause specifies the interpreted EXPRESS schema of this application protoco
 		<xsl:param name="normrefs_list"/>
 		<xsl:param name="pruned_normrefs_list" select="''"/>
 		<xsl:param name="pruned_normrefs_ids" select="''"/>
+		
 		<xsl:choose>
 			<xsl:when test="$normrefs_list">
 				<xsl:variable name="first" select="substring-before(substring-after($normrefs_list,','),',')"/>
@@ -998,12 +962,15 @@ This clause specifies the interpreted EXPRESS schema of this application protoco
 						</xsl:when>
 						<xsl:when test="contains($first,'module:')">
 							<xsl:variable name="module" select="substring-after($first, 'module:')"/>
+							
 							<xsl:variable name="ap_mod_dir">
-		              				<xsl:call-template name="ap_module_directory">
-		      							<xsl:with-param name="application_protocol" select="$module"/>
-		    						</xsl:call-template>
+		            <xsl:call-template name="ap_module_directory">
+		      				<xsl:with-param name="application_protocol" select="$module"/>
+		    				</xsl:call-template>
 							</xsl:variable>
+							
 							<xsl:variable name="ap_module_xml" select="concat($ap_mod_dir,'/module.xml')"/>
+							
 							<xsl:variable name="normref">
 								<xsl:apply-templates select="document($ap_module_xml)/module" mode="prune_normrefs_list"/>
 							</xsl:variable>
@@ -1015,9 +982,9 @@ This clause specifies the interpreted EXPRESS schema of this application protoco
 						<xsl:when test="contains($first, 'application_protocol:')">
 							<xsl:variable name="application_protocol" select="substring-after($first, 'application_protocol:')"/>
 							<xsl:variable name="ap_mod_dir">
-		              				<xsl:call-template name="application_protocol_directory">
-		      							<xsl:with-param name="application_protocol" select="$application_protocol"/>
-		    						</xsl:call-template>
+		           <xsl:call-template name="application_protocol_directory">
+		      			<xsl:with-param name="application_protocol" select="$application_protocol"/>
+		    			 </xsl:call-template>
 							</xsl:variable>
 							<xsl:variable name="ap_xml" select="concat($ap_mod_dir,'/application_protocol.xml')"/>
 							<xsl:variable name="normref">
@@ -1097,14 +1064,6 @@ This clause specifies the interpreted EXPRESS schema of this application protoco
 			normative document referred to applies. Members of ISO and IEC maintain
 			registers of currently valid International Standards.
 		</p>
-		
-		<!-- xsl:apply-templates select="." mode="output_clause_issue">
-			<xsl:with-param name="clause" select="'normrefs'"/>
-		</xsl:apply-templates -->
-		
-		<!-- xsl:apply-templates select="./normrefs/normref.inc" mode="ap_refs">
-			<xsl:with-param name="current_application_protocol" select="$current_application_protocol"/>
-		</xsl:apply-templates -->
 		
 		<xsl:call-template name="output_default_normrefs">
 			<xsl:with-param name="module_number" select="$application_protocol_number"/>
@@ -1835,7 +1794,7 @@ For the purposes of this part of ISO 10303, the following terms defined in <xsl:
       <xsl:with-param name="filename" select="@file"/>
     </xsl:call-template>
   </xsl:variable>
-<xsl:variable name="module" select="../../../../module/@name"/>
+  <xsl:variable name="module" select="../../../../module/@name"/>
   <xsl:variable name="href" select="concat('../../../modules/', $module, '/', $file)"/>
   <li>
     <a href="{$href}">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
+$Id: ballot_issues_summary.xsl,v 1.2 2004/09/21 15:08:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -97,9 +97,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
     <xsl:apply-templates select="$ballot_index" mode="table">
       <xsl:with-param name="content" select="/ballot/@content"/>
       <xsl:with-param name="id_mode" select="/ballot/@id_mode"/>
+      <xsl:with-param name="filter_operator" select="normalize-space(/ballot/@filter_operator)"/>
       <xsl:with-param name="filter_member_body" select="normalize-space(/ballot/@filter_member_body)"/>
       <xsl:with-param name="filter_status" select="normalize-space(/ballot/@filter_status)"/>
       <xsl:with-param name="filter_ballot_comment" select="normalize-space(/ballot/@filter_ballot_comment)"/>
+      <xsl:with-param name="filter_ballot" select="normalize-space(/ballot/@filter_ballot)"/>
       <xsl:with-param name="filter_seds" select="normalize-space(/ballot/@filter_seds)"/>
       <xsl:with-param name="filter_category" select="normalize-space(/ballot/@filter_category)"/>
       <xsl:with-param name="filter_resolution" select="normalize-space(/ballot/@filter_resolution)"/>
@@ -110,9 +112,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
 <xsl:template match="ballot_index" mode="table">
   <xsl:param name="content"/>
   <xsl:param name="id_mode"/>
+  <xsl:param name="filter_operator"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
   <xsl:param name="filter_ballot_comment"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_category"/>
   <xsl:param name="filter_resolution"/>
@@ -153,7 +157,7 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
       <table>
         <tr>
           <td colspan="3">
-            Filtered:
+            Filtered with logical <xsl:value-of select="$filter_operator"/>
           </td>
         </tr>
         <tr>
@@ -201,6 +205,22 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="$filter_ballot_comment"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+        </tr>
+        <tr>
+          <td>&#160;</td>
+          <td>
+            filter_ballot:
+          </td>
+          <td>
+            <xsl:choose>
+              <xsl:when test="string-length($filter_ballot)=0">
+                -
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="$filter_ballot"/>
               </xsl:otherwise>
             </xsl:choose>
           </td>
@@ -286,6 +306,9 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
             Seds Id
           </th>
           <th width="47" valign="top" align="center">
+            Ballot
+          </th>
+          <th width="47" valign="top" align="center">
             Ballot Comment
           </th>
           <th width="47" valign="top" align="center">
@@ -322,9 +345,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
         <xsl:apply-templates select="./*/ap_doc">
           <xsl:with-param name="content" select="$content"/>
           <xsl:with-param name="id_mode" select="$id_mode"/>
+          <xsl:with-param name="filter_operator" select="$filter_operator"/>
           <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
           <xsl:with-param name="filter_status" select="$filter_status"/>
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
+          <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_category" select="$filter_category"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -333,9 +358,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
         <xsl:apply-templates select="./*/module">
           <xsl:with-param name="content" select="$content"/>
           <xsl:with-param name="id_mode" select="$id_mode"/>
+          <xsl:with-param name="filter_operator" select="$filter_operator"/>
           <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
           <xsl:with-param name="filter_status" select="$filter_status"/>
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
+          <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_category" select="$filter_category"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -344,9 +371,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
         <xsl:apply-templates select="./*/resource">
           <xsl:with-param name="content" select="$content"/>
           <xsl:with-param name="id_mode" select="$id_mode"/>
+          <xsl:with-param name="filter_operator" select="$filter_operator"/>
           <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
           <xsl:with-param name="filter_status" select="$filter_status"/>
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
+          <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_category" select="$filter_category"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -363,9 +392,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
 <xsl:template match="module">
   <xsl:param name="content"/>
   <xsl:param name="id_mode"/>
+  <xsl:param name="filter_operator"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
   <xsl:param name="filter_ballot_comment"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_category"/>
   <xsl:param name="filter_resolution"/>
@@ -415,9 +446,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
             <xsl:with-param name="project" select="$project"/>
             <xsl:with-param name="content" select="$content"/>
             <xsl:with-param name="id_mode" select="$id_mode"/>
+            <xsl:with-param name="filter_operator" select="$filter_operator"/>
             <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
             <xsl:with-param name="filter_status" select="$filter_status"/>
             <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
+            <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
             <xsl:with-param name="filter_seds" select="$filter_seds"/>
             <xsl:with-param name="filter_category" select="$filter_category"/>
             <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -455,9 +488,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
 <xsl:template match="resource">
   <xsl:param name="content"/>
   <xsl:param name="id_mode"/>
+  <xsl:param name="filter_operator"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
   <xsl:param name="filter_ballot_comment"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_category"/>
   <xsl:param name="filter_resolution"/>
@@ -491,9 +526,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
     <xsl:with-param name="project" select="$project"/>
     <xsl:with-param name="content" select="$content"/>
     <xsl:with-param name="id_mode" select="$id_mode"/>
+    <xsl:with-param name="filter_operator" select="$filter_operator"/>
     <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
     <xsl:with-param name="filter_status" select="$filter_status"/>
     <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
+    <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
     <xsl:with-param name="filter_seds" select="$filter_seds"/>
     <xsl:with-param name="filter_category" select="$filter_category"/>
     <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -505,9 +542,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
 <xsl:template match="ap_doc">
   <xsl:param name="content"/>
   <xsl:param name="id_mode"/>
+  <xsl:param name="filter_operator"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
   <xsl:param name="filter_ballot_comment"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_category"/>
   <xsl:param name="filter_resolution"/>
@@ -541,9 +580,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
     <xsl:with-param name="project" select="$project"/>
     <xsl:with-param name="content" select="$content"/>
     <xsl:with-param name="id_mode" select="$id_mode"/>
+    <xsl:with-param name="filter_operator" select="$filter_operator"/>
     <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
     <xsl:with-param name="filter_status" select="$filter_status"/>
     <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
+    <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
     <xsl:with-param name="filter_seds" select="$filter_seds"/>
     <xsl:with-param name="filter_category" select="$filter_category"/>
     <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -560,9 +601,11 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
   <xsl:param name="project"/>
   <xsl:param name="content"/>
   <xsl:param name="id_mode"/>
+  <xsl:param name="filter_operator"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
   <xsl:param name="filter_ballot_comment"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_category"/>
   <xsl:param name="filter_resolution"/>
@@ -592,13 +635,23 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-
+    
   <xsl:variable name="filter_country">
     <xsl:choose>
       <xsl:when test="$filter_member_body='GB'">
         <xsl:value-of select="'UK'"/>
       </xsl:when>
-      <xsl:otherwise>
+      <xsl:when test="string-length(normalize-space($filter_member_body))=0">
+        <xsl:choose>
+          <xsl:when test="$filter_operator='AND'">
+            <xsl:value-of select="''"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'NULLVALUE'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+        <xsl:otherwise>
         <xsl:value-of select="$filter_member_body"/>
       </xsl:otherwise>
     </xsl:choose>
@@ -607,7 +660,14 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
   <xsl:variable name="seds">
     <xsl:choose>
       <xsl:when test="string-length(normalize-space($filter_seds))=0">
-        <xsl:value-of select="''"/>
+        <xsl:choose>
+          <xsl:when test="$filter_operator='AND'">
+            <xsl:value-of select="''"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'NULLVALUE'"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:when test="@seds='yes'">
         <xsl:value-of select="'yes'"/>
@@ -620,7 +680,6 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
 
   <xsl:variable name="status">
     <xsl:choose>
-
       <xsl:when test="$content='open' and string-length(normalize-space($filter_status))=0">
         <!-- content is deprecated -->
         <xsl:choose>
@@ -634,7 +693,14 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
       </xsl:when>
 
       <xsl:when test="string-length(normalize-space($filter_status))=0">
-        <xsl:value-of select="''"/>
+        <xsl:choose>
+          <xsl:when test="$filter_operator='AND'">
+            <xsl:value-of select="''"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'NULLVALUE'"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
 
       <xsl:when test="@status='closed'">
@@ -668,7 +734,14 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
   <xsl:variable name="resolution">
     <xsl:choose>
       <xsl:when test="string-length(normalize-space($filter_resolution))=0">
-        <xsl:value-of select="''"/>
+        <xsl:choose>
+          <xsl:when test="$filter_operator='AND'">
+            <xsl:value-of select="''"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'NULLVALUE'"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:when test="@resolution='reject'">
         <xsl:value-of select="'reject'"/>
@@ -682,7 +755,14 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
   <xsl:variable name="ballot_comment">
     <xsl:choose>
       <xsl:when test="string-length(normalize-space($filter_ballot_comment))=0">
-        <xsl:value-of select="''"/>
+        <xsl:choose>
+          <xsl:when test="$filter_operator='AND'">
+            <xsl:value-of select="''"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'NULLVALUE'"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:when test="@ballot_comment='no'">
         <xsl:value-of select="'no'"/>
@@ -693,10 +773,36 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
     </xsl:choose>    
   </xsl:variable>
 
+  <xsl:variable name="ballot">
+    <xsl:choose>
+      <xsl:when test="string-length(normalize-space($filter_ballot))=0">
+        <xsl:choose>
+          <xsl:when test="$filter_operator='AND'">
+            <xsl:value-of select="''"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'NULLVALUE'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="normalize-space(@ballot)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+
   <xsl:variable name="category">
     <xsl:choose>
       <xsl:when test="string-length(normalize-space($filter_category))=0">
-        <xsl:value-of select="''"/>
+        <xsl:choose>
+          <xsl:when test="$filter_operator='AND'">
+            <xsl:value-of select="''"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="'NULLVALUE'"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="@category"/>
@@ -704,180 +810,248 @@ $Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
     </xsl:choose>
   </xsl:variable>
 
-  <xsl:if test="$ballot_comment = $filter_ballot_comment and
-                $country = $filter_country and
-                $seds = $filter_seds and
-                $category = $filter_category and
-                $status = $filter_status1 and
-                $resolution = $filter_resolution">
-    <tr>
-      <!-- Id -->
-      <td valign="top" align="left">
-        <xsl:value-of select="@id"/>
-      </td>
 
-      <!-- Country -->
-      <td valign="top" align="left">
-        <xsl:value-of select="@member_body"/>
+  <!-- DEBUG
+        <tr>
+          <td>ballot_comment:<xsl:value-of select="concat($ballot_comment,'=',$filter_ballot_comment,'[',$ballot_comment = $filter_ballot_comment,']')"/></td>
+          <td>ballot:<xsl:value-of select="concat($ballot,'=',$filter_ballot,'[',$ballot = $filter_ballot,']')"/></td>
+          <td>country:<xsl:value-of select="concat($country,'=',$filter_country,'[',$country = $filter_country,']')"/></td>
+          <td>seds:<xsl:value-of select="concat($seds,'=',$filter_seds,'[',$seds = $filter_seds,']')"/></td>
+          <td>category:<xsl:value-of select="concat($category,'=',$filter_category,'[',$category = $filter_category ,']')"/></td>
+          <td>status:<xsl:value-of select="concat($status,'=',$filter_status1,'[',$status = $filter_status1,']')"/></td>
+          <td>resolution:<xsl:value-of select="concat($resolution,'=',$filter_resolution,'[',$resolution = $filter_resolution,']')"/></td>
+        </tr>
 
-      </td>
+       -->
+  <xsl:choose>
+    <xsl:when test="$filter_operator='OR'">
+      <xsl:if test="$ballot_comment = $filter_ballot_comment or
+                    $ballot = $filter_ballot or
+                    $country = $filter_country or
+                    $seds = $filter_seds or
+                    $category = $filter_category or
+                    $status = $filter_status1 or
+                    $resolution = $filter_resolution">
+        <xsl:apply-templates select="." mode="output">
+          <xsl:with-param name="number" select="$number"/>
+          <xsl:with-param name="module" select="$module"/>
+          <xsl:with-param name="editor" select="$editor"/>
+          <xsl:with-param name="projlead" select="$projlead"/>
+          <xsl:with-param name="project" select="$project"/>
+        </xsl:apply-templates>
+      </xsl:if>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:if test="$ballot_comment = $filter_ballot_comment and
+                    $ballot = $filter_ballot and
+                    $country = $filter_country and
+                    $seds = $filter_seds and
+                    $category = $filter_category and
+                    $status = $filter_status1 and
+                    $resolution = $filter_resolution">
+        <xsl:apply-templates select="." mode="output">
+          <xsl:with-param name="number" select="$number"/>
+          <xsl:with-param name="module" select="$module"/>
+          <xsl:with-param name="editor" select="$editor"/>
+          <xsl:with-param name="projlead" select="$projlead"/>
+          <xsl:with-param name="project" select="$project"/>
+        </xsl:apply-templates>
+      </xsl:if>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
-      <!-- Part -->
-      <td valign="top" align="left">
-        <xsl:value-of select="concat('10303-',$number)"/>
-      </td>
+<xsl:template match="issue" mode="output">
+  <xsl:param name="number"/>
+  <xsl:param name="module"/>
+  <xsl:param name="editor"/>
+  <xsl:param name="projlead"/>
+  <xsl:param name="project"/>
+  <tr>
+    <!-- Id -->
+    <td valign="top" align="left">
+      <xsl:value-of select="@id"/>
+    </td>
 
-      <!-- Part name-->
-      <td valign="top" align="left">
-        <xsl:value-of select="$module"/>
-      </td>
+    <!-- Country -->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="string-length(@member_body)=0">
+          &#160;
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@member_body"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
 
-      <!--  Project leader -->
-      <td valign="top" align="left">
-        <xsl:value-of select="$projlead"/>
-      </td>
-      <!--  Editor -->
-      <td valign="top" align="left">
-        <xsl:value-of select="$editor"/>
-      </td>
+    <!-- Part -->
+    <td valign="top" align="left">
+      <xsl:value-of select="concat('10303-',$number)"/>
+    </td>
+    
+    <!-- Part name-->
+    <td valign="top" align="left">
+      <xsl:value-of select="$module"/>
+    </td>
 
-      <!-- Category -->
-      <td valign="top" align="left">
-        <xsl:value-of select="@category"/>
-      </td>
+    <!--  Project leader -->
+    <td valign="top" align="left">
+      <xsl:value-of select="$projlead"/>
+    </td>
+    <!--  Editor -->
+    <td valign="top" align="left">
+      <xsl:value-of select="$editor"/>
+    </td>
 
-      <!-- Seds-->
-      <td valign="top" align="left">
-        <xsl:variable name="nseds" select="translate(normalize-space(@seds),$UPPER,$LOWER)"/>
-        <xsl:choose>
-          <xsl:when test="string-length($nseds)=0">
-            no
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$nseds"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
+    <!-- Category -->
+    <td valign="top" align="left">
+      <xsl:value-of select="@category"/>
+    </td>
+    
+    <!-- Seds-->
+    <td valign="top" align="left">
+      <xsl:variable name="nseds" select="translate(normalize-space(@seds),$UPPER,$LOWER)"/>
+      <xsl:choose>
+        <xsl:when test="string-length($nseds)=0">
+          no
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nseds"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+    
+    <!-- Seds Id-->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="string-length($nseds)=0 or $nseds='no'">
+          &#160;
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@id"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+    
+    <!-- Ballot -->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="string-length(@ballot)=0">
+          &#160;
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="normalize-space(@ballot)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
 
-      <!-- Seds Id-->
-      <td valign="top" align="left">
-        <xsl:choose>
-          <xsl:when test="string-length($nseds)=0 or $nseds='no'">
-            &#160;
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="@id"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-
-      <!-- Ballot Comment -->
-      <td valign="top" align="left">
-        <xsl:variable name="nbc" select="translate(normalize-space(@ballot_comment),$UPPER,$LOWER)"/>
-        <xsl:choose>
-          <xsl:when test="string-length($nbc)=0">
-            no
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$nbc"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-
-      <!-- Ballot Comment Id -->
-      <td valign="top" align="left">
-        <xsl:choose>
-          <xsl:when test="$nbc='no'">
-            &#160;
-          </xsl:when>
-          <xsl:when test="string-length($nbc)=0">
-            &#160;
-          </xsl:when>
-          <xsl:when test="string-length(@ballot_comment_id)=0">
-            &#160;
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="@ballot_comment_id"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-
-      <!-- Raised by -->
-      <td valign="top" align="left">
-        <xsl:value-of select="@by"/>
-      </td>
-
-      <!-- Resolution -->
-      <td valign="top" align="left">
-        <xsl:choose>
-          <xsl:when test="string-length(@resolution)=0">
-            TBD
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="@resolution"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-
-      <!-- Status -->
-      <td valign="top" align="left">
-        <xsl:value-of select="@status"/>
-      </td>
-
-      <!-- Issue -->
-      <td valign="top" align="left">
-        <xsl:apply-templates select="./description"/>
-      </td>
-
-      <!-- Comments -->
-      <td valign="top" align="left">
-        <xsl:choose>
-          <xsl:when test="./comment">
-            <xsl:apply-templates select="./comment"/>
-          </xsl:when>
-          <xsl:otherwise>
-            &#160;
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-
-      <!-- Project Category -->
-      <td valign="top" align="left">
-        <xsl:choose>
-          <xsl:when test="string-length(./issue_management/@category)=0">
-            &#160;
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="./issue_management/@category"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-
-      <!-- Project Owner -->
-      <td valign="top" align="left">
-        <xsl:choose>
-          <xsl:when test="string-length(./issue_management/@project)=0">
-            &#160;
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="./issue_management/@project"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-
-      <!-- Project Priority -->
-      <td valign="top" align="left">
-        <xsl:choose>
-          <xsl:when test="string-length(./issue_management/@priority)=0">
-            &#160;
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="./issue_management/@priority"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-    </tr>
-  </xsl:if>
+    <!-- Ballot Comment -->
+    <td valign="top" align="left">
+      <xsl:variable name="nbc" select="translate(normalize-space(@ballot_comment),$UPPER,$LOWER)"/>
+      <xsl:choose>
+        <xsl:when test="string-length($nbc)=0">
+          no
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nbc"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+    
+    <!-- Ballot Comment Id -->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="$nbc='no'">
+          &#160;
+        </xsl:when>
+        <xsl:when test="string-length($nbc)=0">
+          &#160;
+        </xsl:when>
+        <xsl:when test="string-length(@ballot_comment_id)=0">
+          &#160;
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@ballot_comment_id"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+    
+    <!-- Raised by -->
+    <td valign="top" align="left">
+      <xsl:value-of select="@by"/>
+    </td>
+    
+    <!-- Resolution -->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="string-length(@resolution)=0">
+          TBD
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@resolution"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+    
+    <!-- Status -->
+    <td valign="top" align="left">
+      <xsl:value-of select="@status"/>
+    </td>
+    
+    <!-- Issue -->
+    <td valign="top" align="left">
+      <xsl:apply-templates select="./description"/>
+    </td>
+    
+    <!-- Comments -->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="./comment">
+          <xsl:apply-templates select="./comment"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &#160;
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+    
+    <!-- Project Category -->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="string-length(./issue_management/@category)=0">
+          &#160;
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="./issue_management/@category"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+    
+    <!-- Project Owner -->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="string-length(./issue_management/@project)=0">
+          &#160;
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="./issue_management/@project"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+    
+    <!-- Project Priority -->
+    <td valign="top" align="left">
+      <xsl:choose>
+        <xsl:when test="string-length(./issue_management/@priority)=0">
+          &#160;
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="./issue_management/@priority"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </td>
+  </tr>
 </xsl:template>
 
 <xsl:template match="issue" mode="resolution">

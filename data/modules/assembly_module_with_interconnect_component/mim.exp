@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.2 2004/11/19 08:24:47 budreckytej Exp $
+   $Id: mim.exp,v 1.3 2004/12/09 16:22:05 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module with interconnect component - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Assembly_module_with_interconnect_component_mim;
@@ -118,28 +118,5 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE; -- interconnect_component_join_terminal_unique_constraint
-
-FUNCTION is_interconnect_module_component_location ( cl: component_location) : BOOLEAN; 
-LOCAL
-  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
-  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
-END_LOCAL;
-IF sizeof (pdrs) = 1 THEN
-  IF (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
-     (pdrs[1].definition.definition)) AND
-  ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-  'COMPONENT_DEFINITION' IN TYPEOF 
-     (pdrs[1].definition.definition.related_product_definition)) AND
-   is_interconnect_module_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
-    RETURN (TRUE);
-  ELSE
-    RETURN (FALSE);
-  END_IF;
-ELSE
-    RETURN (FALSE);
-END_IF;
-END_FUNCTION;
 
 END_SCHEMA;

@@ -150,9 +150,17 @@ SUBTYPE_CONSTRAINT component_definition_subtypes FOR component_definition;
                 ANDOR (thermal_component) ANDOR (cable_component));
 END_SUBTYPE_CONSTRAINT;        
 
-TYPE ap210_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH 
-     (product_definition_formation);
-END_TYPE; --ap210_action_items
+SUBTYPE_CONSTRAINT component_terminal_subtypes FOR component_terminal;         
+  (ONEOF(assembly_module_macro_component_join_terminal,
+        interconnect_module_macro_component_join_terminal));
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT model_parameter_subtypes FOR model_parameter;         
+	(ONEOF(analytical_model_parameter,
+               category_model_parameter,
+               rule_function_domain_parameter,
+               rule_function_range_parameter));
+END_SUBTYPE_CONSTRAINT;               
 
 TYPE ap210_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
      (action,
@@ -214,17 +222,6 @@ TYPE ap210_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_a
       versioned_action_request);
 END_TYPE; --ap210_date_and_time_item
 
-TYPE ap210_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH 
-     (product_definition,
-      versioned_action_request,
-      directed_action,
-      approval_person_organization,
-      contract,
-	document,
-      security_classification,
-      certification);
-END_TYPE; --ap210_date_item
-
 TYPE ap210_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
      (action_method,
       assembly_component_usage,
@@ -265,17 +262,6 @@ TYPE ap210_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON d
       stratum_feature);
 END_TYPE; --ap210_document_reference_item
 
-TYPE ap210_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
-     (characterized_product_category,
-      configuration_item,
-      material_designation,
-      person_and_organization,
-      product,
-      product_concept,
-      product_definition_formation,
-      organization);
-END_TYPE; --ap210_identification_item
-
 TYPE ap210_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
      (applied_identification_assignment,
       configuration_item,
@@ -307,37 +293,15 @@ TYPE ap210_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED
 END_TYPE; --ap210_person_and_organization_item
 
 TYPE ap210_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
-    (descriptive_representation_item, -- ARM: assembly_item_number,
-
-     configuration_item, -- ARM: product_configuration,
-
-     product_definition, -- ARM: product_view_definition,
-
-     product_definition_formation, -- ARM: product_version,
-
-     product, -- ARM: product,
-
-     shape_aspect, -- ARM: part_feature,
-
-     physical_connectivity_element, -- ARM: physical_connectivity_element,
-
-     requirements_property, -- ARM: ee_requirement_occurrence,
-     
-     representation); -- ARM: component_external_reference,
-     
-
-     -- physical_connectivity_definition, -- ARM: physical_connectivity_definition, covered by shape_aspect
-     -- assembly_joint, -- ARM: assembly_joint, covered by shape_aspect
-     -- component_shape_aspect -- ARM: laminate_component, covered by shape_aspect
-     -- inter_stratum_feature -- ARM: inter_stratum_feature, covered by shape_aspect
-     -- stratum_feature -- ARM: stratum_feature, covered by shape_aspect
-     -- stratum_surface -- ARM: stratum_surface, covered by shape_aspect
-     -- many subtypes -- ARM: component_feature,
-     -- descriptive_representation_item, -- ARM: component_feature_external_reference, already covered
-     -- component_functional_unit, -- ARM: functional_unit, covered by product_definition
-     -- component_definition, -- ARM: assembly_component, covered by product_definition
-     -- stratum, -- ARM: stratum, covered by product_definition
-     
+    (descriptive_representation_item, 
+     configuration_item, 
+     product_definition, 
+     product_definition_formation, 
+     product, 
+     shape_aspect, 
+     physical_connectivity_element, 
+     requirements_property,      
+     representation); 
 END_TYPE; 
 
 TYPE ap210_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH 
@@ -349,16 +313,11 @@ TYPE ap210_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED
       product_definition);
 END_TYPE; --ap210_security_classification_item
 
-TYPE change_request_item = SELECT
-     (product_definition_formation,
-      representation_relationship);
-END_TYPE;
-
 TYPE document_identifier_assigned_item = SELECT
      (document);
 END_TYPE;
 
-TYPE frozen_assigned_item = SELECT
+TYPE ap210_frozen_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON frozen_assigned_item WITH 
      (alternate_product_relationship,
       applied_date_and_time_assignment,
       applied_document_reference,
@@ -431,7 +390,7 @@ TYPE group_assigned_item = SELECT
       stratum_surface);
 END_TYPE;
 
-TYPE managed_design_object = SELECT
+TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON managed_design_object WITH 
      (action,
       alternate_product_relationship,
       applied_approval_assignment,
@@ -535,32 +494,6 @@ TYPE owner_assigned_item = SELECT
       tolerance_zone_form);
 END_TYPE; -- owner_assigned_item
 
-TYPE person_assigned_item = SELECT
-     (document);
-END_TYPE;
-
-TYPE promissory_usage_in_product_model_assigned_item = SELECT
-     (product_concept,
-      product_definition);
-END_TYPE;
-
-TYPE replacement_from_item = SELECT
-     (product_definition_formation);
-END_TYPE;
-
-TYPE replacement_to_item = SELECT
-     (product_definition_formation);
-END_TYPE;
-
-TYPE start_request_item = SELECT
-     (product_definition_formation,
-      representation_relationship);
-END_TYPE;
-
-TYPE work_item = SELECT
-     (product_definition_formation);
-END_TYPE;
-	
 ENTITY material_functional_category
   SUBTYPE OF (group);
 WHERE
@@ -18893,32 +18826,30 @@ ELSE
     RETURN (FALSE);
 END_IF;
 END_FUNCTION;
-(*
-</EXPRESS.CODE>
 
-</FUNCTION.DEF>
-</FUNCTION.DEF.CL4>
+FUNCTION is_interconnect_module_component_location ( cl: component_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  'COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_interconnect_module_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
 
-<FUNCTION.DEF.CL4>
-<FUNCTION.DEF NAME="is_interconnect_module_component_location">
-<FUNCTION.DESCRIPTION>
-The is_interconnect_module_component_location function returns true if the component_location is the location of an implementation of the ARM concept of Interconnect_module_component.
-</FUNCTION.DESCRIPTION>
-<EXPRESS.CODE>
-*)
-(*
-</EXPRESS.CODE>
-
-</FUNCTION.DEF>
-</FUNCTION.DEF.CL4>
-
-<FUNCTION.DEF.CL4>
-<FUNCTION.DEF NAME="is_interconnect_module_design">
-<FUNCTION.DESCRIPTION>
-The is_interconnect_module_design function returns true if the product_definition is an implementation of the ARM concept of Interconnect_module.
-</FUNCTION.DESCRIPTION>
-<EXPRESS.CODE>
-*)
 FUNCTION is_interconnect_module_design ( pd : product_definition) : BOOLEAN; 
 LOCAL
   pass : BOOLEAN := FALSE;

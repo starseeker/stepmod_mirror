@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.0"
+    source="../data/modules/part_occurrence/arm.exp"/>
+
+  <schema name="Part_occurrence_arm">
+    <interface
+      kind="use"
+      schema="Part_structure_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Product_view_definition_structure_properties_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Shape_property_representation_arm">
+    </interface>
+
+    <entity
+      name="Part_occurrence"
+      supertypes="Assembly_component">
+      <inverse
+        name="location"
+        entity="template_instance"
+        attribute="ation">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="?"/>
+      </inverse>
+      <where
+        label="WR1"
+        expression="EXISTS(SELF\Assembly_component.location_indicator) OR EXISTS(location)">
+      </where>
+    </entity>
+
+    <entity
+      name="Part_instance"
+      supertypes="Assembly_component">
+      <explicit
+        name="assembly">
+        <typename
+          name="Assembly_component"/>
+      </explicit>
+      <explicit
+        name="sub_assembly">
+        <typename
+          name="Next_assembly_usage"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="assembly"/>
+        <unique.attribute
+          attribute="sub_assembly"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="SELF :&lt;&gt;: assembly">
+      </where>
+      <where
+        label="WR2"
+        expression="SELF\view_definition_relationship.view1 :=:       assembly.view1">
+      </where>
+      <where
+        label="WR3"
+        expression="SELF\view_definition_relationship.view2 :=:       sub_assembly.view2">
+      </where>
+      <where
+        label="WR4"
+        expression="assembly.view2 :=:       sub_assembly.view1">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

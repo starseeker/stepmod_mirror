@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.0"
+    source="../data/modules/event/arm.exp"/>
+
+  <schema name="Event_arm">
+    <interface
+      kind="use"
+      schema="Date_time_assignment_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Person_organisation_assignment_arm">
+    </interface>
+
+    <type name="event_item">
+      <select
+        extensible="YES"
+        selectitems="">
+      </select>
+
+    </type>
+    <type name="event_organisation_or_person_in_organisation_item">
+      <select
+        basedon="organisation_or_person_in_organisation_item"
+        selectitems="Event">
+      </select>
+
+    </type>
+    <type name="event_date_or_date_time_item">
+      <select
+        basedon="date_or_date_time_item"
+        selectitems="Event">
+      </select>
+
+    </type>
+    <entity
+      name="Event">
+      <explicit
+        name="id">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <inverse
+        name="identifer"
+        entity="Organisation_or_person_in_organisation_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <inverse
+        name="planned_date"
+        entity="date_or_date_time_select"
+        attribute="nned_date">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <inverse
+        name="actual_date"
+        entity="date_or_date_time_select"
+        attribute="ual_date">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+    </entity>
+
+    <entity
+      name="Event_assignment">
+      <explicit
+        name="assigned_event">
+        <typename
+          name="Event"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="event_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Event_relationship">
+      <explicit
+        name="relation_type">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="event1">
+        <typename
+          name="Event"/>
+      </explicit>
+      <explicit
+        name="event2">
+        <typename
+          name="Event"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Relative_event"
+      supertypes="Event">
+      <explicit
+        name="related_event">
+        <typename
+          name="Event"/>
+      </explicit>
+      <explicit
+        name="offset">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

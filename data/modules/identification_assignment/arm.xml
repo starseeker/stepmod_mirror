@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.0"
+    source="../data/modules/identification_assignment/arm.exp"/>
+
+  <schema name="Identification_assignment_arm">
+    <interface
+      kind="use"
+      schema="Person_organisation_assignment_arm">
+    </interface>
+
+    <type name="identification_item">
+      <select
+        extensible="YES"
+        selectitems="">
+      </select>
+
+    </type>
+    <type name="identification_organisation_or_person_in_organisation_item">
+      <select
+        basedon="organisation_or_person_in_organisation_item"
+        selectitems="Identification_assignment">
+      </select>
+
+    </type>
+    <entity
+      name="Identification_assignment">
+      <explicit
+        name="identifier">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="role"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="identification_item"/>
+      </explicit>
+      <inverse
+        name="owner"
+        entity="Organisation_or_person_in_organisation_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <where
+        label="WR1"
+        expression="SELF.owner.role = 'identification owner'">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

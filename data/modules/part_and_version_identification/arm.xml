@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.0"
+    source="../data/modules/part_and_version_identification/arm.exp"/>
+
+  <schema name="Part_and_version_identification_arm">
+    <interface
+      kind="use"
+      schema="Product_version_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Person_organisation_assignment_arm">
+    </interface>
+
+    <type name="part_version_organisation_or_person_in_organisation_item">
+      <select
+        basedon="organisation_or_person_in_organisation_item"
+        selectitems="Part_version">
+      </select>
+
+    </type>
+    <entity
+      name="Part"
+      supertypes="Product">
+      <where
+        label="WR1"
+        expression="SELF.product_type IN ['part', 'raw material']">
+      </where>
+    </entity>
+
+    <entity
+      name="Part_version"
+      supertypes="Product_version">
+      <inverse
+        name="supplier"
+        entity="Organisation_or_person_in_organisation_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+      <where
+        label="WR1"
+        expression="SELF.supplier.role = 'part supplier' OR NOT EXISTS(supplier)">
+      </where>
+      <where
+        label="WR2"
+        expression="SELF.of_product.product_type.name IN ['part', 'raw material']">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.0 2001-11-15 11:24:44+00 rob Exp rob $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.0"
+    source="../data/modules/effectivity/arm.exp"/>
+
+  <schema name="Effectivity_arm">
+    <interface
+      kind="use"
+      schema="Person_organisation_assignment_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Date_time_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Event_arm">
+    </interface>
+
+    <type name="effectivity_organisation_or_person_in_organisation_item">
+      <select
+        basedon="organisation_or_person_in_organisation_item"
+        selectitems="Effectivity">
+      </select>
+
+    </type>
+    <entity
+      name="Effectivity"
+      super.expression="(ONEOF (Serial_effectivity, Dated_effectivity,    Lot_effectivity, Time_interval_effectivity))">
+      <explicit
+        name="id">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <inverse
+        name="identifier"
+        entity="Organisation_or_person_in_organisation_assignment"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="1"/>
+      </inverse>
+    </entity>
+
+    <entity
+      name="Effectivity_relationship">
+      <explicit
+        name="relation_type">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="effectivity1">
+        <typename
+          name="Effectivity"/>
+      </explicit>
+      <explicit
+        name="effectivity2">
+        <typename
+          name="Effectivity"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Serial_effectivity"
+      supertypes="Effectivity">
+      <explicit
+        name="start">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="end"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Dated_effectivity"
+      supertypes="Effectivity">
+      <explicit
+        name="start_date">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="end_date"
+        optional="YES">
+        <typename
+          name="date_or_date_time_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Time_interval_effectivity"
+      supertypes="Effectivity">
+      <explicit
+        name="interval">
+        <typename
+          name="Time_interval"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Lot_effectivity"
+      supertypes="Effectivity">
+      <explicit
+        name="lot_id">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="lot_size">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

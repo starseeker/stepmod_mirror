@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
+<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,15 +12,10 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.24"
+    version="1.26"
     source="../data/modules/building_structure/arm.exp"/>
 
   <schema name="Building_structure_arm">
-    <interface
-      kind="use"
-      schema="Approval_arm">
-    </interface>
-
     <interface
       kind="use"
       schema="Building_item_arm">
@@ -41,30 +36,10 @@
       schema="Product_view_definition_relationship_arm">
     </interface>
 
-    <type name="assembly_functional_type">
-      <enumeration
-        items="roof stairway vertical_passage_enclosure">
-      </enumeration>
-
-
-    </type>
     <type name="assembly_item">
       <select
         selectitems="Item_assembly Building_item">
       </select>
-
-    </type>
-    <type name="assembly_type">
-      <select
-        selectitems="assembly_functional_type assembly_type_name">
-      </select>
-
-    </type>
-    <type name="assembly_type_name">
-      <builtintype
-        type="STRING">
-      </builtintype>
-
 
     </type>
     <type name="building_organization_or_person_in_organization_item">
@@ -74,34 +49,17 @@
       </select>
 
     </type>
-    <type name="relationship_functional_type">
-      <enumeration
-        items="space_to_element penetration touch">
-      </enumeration>
-
-
-    </type>
-    <type name="relationship_type">
-      <select
-        selectitems="relationship_functional_type relationship_type_name">
-      </select>
-
-    </type>
-    <type name="relationship_type_name">
-      <builtintype
-        type="STRING">
-      </builtintype>
-
-
-    </type>
     <entity
       name="Building"
       supertypes="Product_view_definition">
-      <explicit
-        name="status">
-        <typename
-          name="Approval_status"/>
-      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (bdpa &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_ARM.' +       'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |       bdpa.role = 'owner'))= 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_ARM.'+       'VIEW_DEFINITION_RELATIONSHIP.RELATING_VIEW') |       'BUILDING_STRUCTURE_ARM.BUILDING_SECTION'       IN TYPEOF (pdr.related_view))) &gt;= 1">
+      </where>
     </entity>
 
     <entity
@@ -130,82 +88,61 @@
         </entity>
 
         <entity
-          name="Building_organization_or_person_in_organization_assignment"
-          supertypes="organization_or_person_in_organization_assignment">
+          name="Building_section"
+          supertypes="Product_view_definition">
+          <where
+            label="WR1"
+            expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF,'BUILDING_STRUCTURE_ARM.'+       'VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') |       'BUILDING_STRUCTURE_ARM.BUILDING' IN       TYPEOF (pdr.relating_view))) = 1">
+          </where>
+        </entity>
+
+        <entity
+          name="Item_assembly"
+          supertypes="Product_view_definition">
+          <inverse
+            name="component_relationships"
+            entity="Assembly_component_relationship"
+            attribute="View_definition_relationship.relating_view">
+            <inverse.aggregate
+              type="SET"
+              lower="1"
+              upper="?"/>
+          </inverse>
+          <where
+            label="WR1"
+            expression="SIZEOF(component_relationships)= SIZEOF(QUERY(cr &lt;* component_relationships |	'ASSEMBLY_ITEM' IN TYPEOF(cr.related_view) ))">
+          </where>
+        </entity>
+
+        <entity
+          name="Item_proximity_relationship"
+          supertypes="View_definition_relationship">
           <explicit
-            name="items">
+            name="related_view RENAMED item">
             <redeclaration
-              entity-ref="organization_or_person_in_organization_assignment"/>
+              entity-ref="View_definition_relationship"/>
               <typename
-                name="building_organization_or_person_in_organization_item"/>
-            </explicit>
-          </entity>
-
-          <entity
-            name="Building_section"
-            supertypes="Product_view_definition">
-            <explicit
-              name="status">
-              <typename
-                name="Approval_status"/>
-            </explicit>
-          </entity>
-
-          <entity
-            name="Item_assembly"
-            supertypes="Product_view_definition">
-            <explicit
-              name="assembly_type">
-              <typename
-                name="assembly_type"/>
+                name="Building_item"/>
             </explicit>
             <explicit
-              name="components">
-              <aggregate
-                type="SET"
-                lower="1"
-                upper="?"/>
-              <typename
-                name="assembly_item"/>
-            </explicit>
-          </entity>
-
-          <entity
-            name="Item_proximity_relationship"
-            supertypes="View_definition_relationship">
-            <explicit
-              name="related_view RENAMED item">
+              name="relating_view RENAMED item_in_proximity">
               <redeclaration
                 entity-ref="View_definition_relationship"/>
                 <typename
                   name="Building_item"/>
               </explicit>
+            </entity>
+
+            <entity
+              name="Sublevel"
+              supertypes="Building_level">
               <explicit
-                name="relating_view RENAMED item_in_proximity">
-                <redeclaration
-                  entity-ref="View_definition_relationship"/>
-                  <typename
-                    name="Building_item"/>
-                </explicit>
-                <explicit
-                  name="relation_type RENAMED relationship_type">
-                  <redeclaration
-                    entity-ref="View_definition_relationship"/>
-                    <typename
-                      name="relationship_type"/>
-                  </explicit>
-                </entity>
+                name="belongs_to">
+                <typename
+                  name="Building_level"/>
+              </explicit>
+            </entity>
 
-                <entity
-                  name="Sublevel"
-                  supertypes="Building_level">
-                  <explicit
-                    name="belongs_to">
-                    <typename
-                      name="Building_level"/>
-                  </explicit>
-                </entity>
+          </schema>
 
-              </schema>
-
-            </express>
+        </express>

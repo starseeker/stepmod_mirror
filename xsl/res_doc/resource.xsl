@@ -870,7 +870,7 @@ o=isocs; s=central<br/>
   <div align="center">
     <a name="table_e1">
       <b>
-            Table C.1 &#8212; EXPRESS short form listings
+            Table C.1 &#8212; EXPRESS listings
       </b>
     </a>
   </div>
@@ -895,7 +895,7 @@ o=isocs; s=central<br/>
       </tr>
 
 
-
+      <xsl:variable name="wgnumber" select="./@wg.number.express"/>
 
       <xsl:for-each select="./schema" >
 
@@ -932,7 +932,7 @@ o=isocs; s=central<br/>
         <xsl:call-template name="output_express_links">
           <!-- I am told an IR does not require a WG number for each schema --> 
          <!--          <xsl:with-param name="wgnumber" select="./@wg.number.arm"/> -->
-          <xsl:with-param name="wgnumber" select="./@wg.number"/>
+          <xsl:with-param name="wgnumber" select="$wgnumber"/>
           <xsl:with-param name="file" select="concat($schema_file,'.exp')"/>
           <xsl:with-param name="express_exp" select="$express_exp" />
         </xsl:call-template>        
@@ -3184,3 +3184,6 @@ separated by spaces -->
 
 
 </xsl:stylesheet>
+
+
+

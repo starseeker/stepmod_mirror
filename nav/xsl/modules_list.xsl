@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
+$Id: modules_list.xsl,v 1.2 2002/09/06 21:24:27 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -57,11 +57,22 @@ $Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
 
 
 <xsl:template match="module">
-
+  <xsl:param name="part_no" select="'no'"/>
   <xsl:variable name="href" 
     select="concat('../data/modules/',@name,'/sys/introduction',$FILE_EXT)"/>
   <xsl:variable name="Menu" select="concat('Menu',@name)"/>
   <xsl:variable name="NoMenu" select="concat('NoMenu',@name)"/>
+
+  <xsl:variable name="part_name">
+    <xsl:choose>
+      <xsl:when test="$part_no='yes'">
+        <xsl:value-of select="concat(@part,':',@name)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@name"/>
+      </xsl:otherwise>
+    </xsl:choose>    
+  </xsl:variable>
   
   <div id="{$Menu}" style="display:none">
     <p class="menulist">
@@ -70,7 +81,7 @@ $Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
           border="false" align="middle"/>    
       </a>
       <a href="{$href}" target="content">
-        <xsl:value-of select="@name"/>
+        <xsl:value-of select="$part_name"/>
       </a>
     </p>
     <p class="menuitem">Summary</p>
@@ -107,7 +118,7 @@ $Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
           border="false" align="middle"/> 
       </a>
       <a href="{$href}" target="content">
-        <xsl:value-of select="@name"/>
+        <xsl:value-of select="$part_name"/>
       </a>
     </p>
   </div>

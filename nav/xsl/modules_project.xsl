@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
+$Id: modules_project.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an alphabetical list of modules.
@@ -15,6 +15,9 @@ $Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
   <xsl:import href="modules_list.xsl"/>
 
   <xsl:output method="html"/>
+
+  <xsl:variable name="contacts" select="document('../../data/basic/contacts.xml')"/>
+
 
 <xsl:template match="modules">
   <xsl:variable name="modules">
@@ -85,6 +88,7 @@ $Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
       <xsl:value-of select="@name"/>
     </xsl:attribute>
     <xsl:attribute name="part">
+      <xsl:value-of select="@part"/>
     </xsl:attribute>
     <xsl:attribute name="projlead">
       <xsl:apply-templates
@@ -95,9 +99,7 @@ $Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
 
 <xsl:template match="projlead" mode="name">
   <xsl:variable name="ref" select="@ref"/>
-  <xsl:variable name="projlead"
-    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-  <xsl:apply-templates select="$projlead" mode="name"/>
+  <xsl:apply-templates select="$contacts/contact.list/contact[@id=$ref]" mode="name"/>
 </xsl:template>
 
 <xsl:template match="contact" mode="name">

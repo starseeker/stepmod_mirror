@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_d_mim_expg.xsl,v 1.11 2003/02/28 17:49:19 robbod Exp $
+$Id: sect_d_mim_expg.xsl,v 1.12 2004/02/25 09:15:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -39,7 +39,7 @@ $Id: sect_d_mim_expg.xsl,v 1.11 2003/02/28 17:49:19 robbod Exp $
       <p>
         The following diagram provides a graphical representation of the 
         MIM EXPRESS short listing defined in 
-        <a href="{$href}">Clause 5.2</a>. 
+        Clause <a href="{$href}">5.2</a>. 
         The diagrams are presented in EXPRESS-G.
       </p>
       <p>
@@ -61,7 +61,7 @@ $Id: sect_d_mim_expg.xsl,v 1.11 2003/02/28 17:49:19 robbod Exp $
       <p>
         The following diagrams provide a graphical representation of the 
         MIM EXPRESS short listing defined in 
-        <a href="{$href}">Clause 5.2</a>. 
+        Clause <a href="{$href}">5.2</a>. 
         The diagrams are presented in EXPRESS-G.
       </p>
       <p>

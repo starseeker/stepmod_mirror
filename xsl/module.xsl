@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.185 2005/03/02 23:14:13 robbod Exp $
+$Id: module.xsl,v 1.186 2005/03/03 05:35:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1726,7 +1726,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
     <small>
       NOTE&#160;1&#160;&#160;A graphical representation of the information
       requirements is given in 
-      <a href="{$c_expg}">Annex C</a>.
+      Annex <a href="{$c_expg}">C</a>.
     </small>
   </p>
   <p class="note">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.87 2003/03/11 23:56:57 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.88 2003/03/13 19:17:05 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1827,33 +1827,7 @@
     </xsl:if>
   </h2>
 
-
-  <!-- output description from external file -->
-  <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="@name"/>
-  </xsl:call-template>
-  <!-- output description from express -->
-  <xsl:choose>
-    <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:variable name="external_description">
-        <xsl:call-template name="check_external_description">
-          <xsl:with-param name="schema" select="../@name"/>
-          <xsl:with-param name="entity" select="@name"/>
-        </xsl:call-template>        
-      </xsl:variable>
-      <xsl:if test="$external_description='false'">
-        <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('Error e10: No description provided for ',$aname)"/>
-        </xsl:call-template>
-      </xsl:if>
-    </xsl:otherwise>
-  </xsl:choose>
+  <xsl:apply-templates select="." mode="description"/>
 
   <!-- output express issues against supertype constraint -->
   <xsl:call-template name="output_express_issue">
@@ -1906,6 +1880,194 @@
     </xsl:if>      
   END_SUBTYPE_CONSTRAINT;<br/>(*
   </code></p>
+</xsl:template>
+
+<xsl:template match="subtype.constraint" mode="description">
+  <!--  output the boilerplate select descriptions for selects. -->
+  <xsl:variable name="description_file"
+    select="/express/@description.file"/>
+  <xsl:variable name="sc_description">
+    <xsl:choose>
+      <xsl:when test="$description_file">
+        <xsl:value-of select="document($description_file)/ext_descriptions/@describe.subtype_constraints"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'NO'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="one_of"
+    select="substring-before(normalize-space(@super.expression),'(')"/>
+  <xsl:variable name="sc_list" 
+    select="normalize-space( translate( substring-after(@super.expression,'('),',)',' '))"/>
+
+  <xsl:if test="$sc_description='YES'">
+    <xsl:choose>
+      <!-- an ABSTRACT ONEOF -->
+      <xsl:when test="(./@abstract.supertype='YES') and ($one_of = 'ONEOF')">
+        <p>
+          The
+          <b>
+            <xsl:value-of select="@name"/>
+          </b> 
+          constraint specifies that 
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="@entity"/>
+              <xsl:with-param name="object_used_in_schema_name" 
+                select="../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>
+          </b>
+          is an abstract supertype and that instances of subtypes of
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="@entity"/>
+              <xsl:with-param name="object_used_in_schema_name" 
+                select="../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>
+          </b>
+          shall not be simultaneously of type 
+          <xsl:call-template name="link_list">
+            <xsl:with-param name="list" select="$sc_list"/>
+            <xsl:with-param name="suffix" select="', '"/>
+            <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+            <xsl:with-param name="clause" select="'section'"/>
+            <xsl:with-param name="and_for_last_pair" select="'yes'"/>
+          </xsl:call-template>.
+        </p>
+      </xsl:when>
+      
+      <xsl:when test="($one_of = 'ONEOF')">
+        <p>
+          The
+          <b>
+            <xsl:value-of select="@name"/>
+          </b> 
+          constraint specifies that instances of subtypes of
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="@entity"/>
+              <xsl:with-param name="object_used_in_schema_name" 
+                select="../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>
+          </b>
+          shall not be simultaneously of type 
+          <xsl:call-template name="link_list">
+            <xsl:with-param name="list" select="$sc_list"/>
+            <xsl:with-param name="suffix" select="', '"/>
+            <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+            <xsl:with-param name="clause" select="'section'"/>
+            <xsl:with-param name="and_for_last_pair" select="'yes'"/>
+          </xsl:call-template>.
+        </p>
+      </xsl:when>
+
+      <!-- an ABSTRACT EXPRESSION -->
+      <xsl:when test="(./@abstract.supertype='YES') and ./@super.expression">
+        <p>
+          The
+          <b>
+            <xsl:value-of select="@name"/>
+          </b> 
+          constraint specifies that 
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="@entity"/>
+              <xsl:with-param name="object_used_in_schema_name" 
+                select="../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>
+          </b>
+          is an abstract supertype and that defines 
+          a constraint that applies to instances of subtypes of
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="@entity"/>
+              <xsl:with-param name="object_used_in_schema_name" 
+                select="../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>
+          </b>.
+        </p>
+      </xsl:when>
+
+      <!-- an subtype expression -->
+      <xsl:when test="./@super.expression">
+        <p>
+          The
+          <b>
+            <xsl:value-of select="@name"/>
+          </b> 
+          constraint specifies a constraint that applies to instances of subtypes of
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="@entity"/>
+              <xsl:with-param name="object_used_in_schema_name" 
+                select="../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>
+          </b>.
+        </p>
+      </xsl:when>
+
+      <!-- an ABSTRACT supertype -->
+      <xsl:when test="./@abstract.supertype='YES'">
+          The
+          <b>
+            <xsl:value-of select="@name"/>
+          </b> 
+          constraint specifies that 
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="@entity"/>
+              <xsl:with-param name="object_used_in_schema_name" 
+                select="../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>
+          </b>
+          is an abstract supertype.
+      </xsl:when>
+    </xsl:choose>
+
+  </xsl:if>
+
+  <!-- output description from external file -->
+  <xsl:call-template name="output_external_description">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="entity" select="@name"/>
+  </xsl:call-template>
+  <!-- output description from express -->
+  <xsl:choose>
+    <xsl:when test="string-length(./description)>0">
+      <xsl:apply-templates select="./description"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:variable name="external_description">
+        <xsl:call-template name="check_external_description">
+          <xsl:with-param name="schema" select="../@name"/>
+          <xsl:with-param name="entity" select="@name"/>
+        </xsl:call-template>        
+      </xsl:variable>
+      <xsl:if test="$external_description='false' and $sc_description!='YES'">
+        <xsl:variable name="aname">
+          <xsl:call-template name="express_a_name">
+            <xsl:with-param name="section1" select="../@name"/>
+            <xsl:with-param name="section2" select="@name"/>
+          </xsl:call-template>
+        </xsl:variable>
+
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error e10: No description provided for ',$aname)"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="function">

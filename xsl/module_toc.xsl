@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.32 2003/03/12 01:01:44 robbod Exp $
+$Id: module_toc.xsl,v 1.33 2003/03/13 19:16:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -531,13 +531,13 @@ $Id: module_toc.xsl,v 1.32 2003/03/12 01:01:44 robbod Exp $
               <xsl:when test="count($mim_schema_xml/subtype.constraint)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#subtype_constraints">
                 <xsl:value-of select="concat($subtype_constraint_mim_clause,
-                                      ' MIM subtype constraints')"/>
+                                      ' MIM subtype constraint definitions')"/>
               </A><BR/>
               </xsl:when>
               <xsl:otherwise>
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#subtype_constraints">
                 <xsl:value-of select="concat($subtype_constraint_mim_clause,
-                                      ' MIM subtype constraint')"/>
+                                      ' MIM subtype constraint definition')"/>
               </A><BR/>
             </xsl:otherwise>
             </xsl:choose>

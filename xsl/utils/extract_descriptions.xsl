@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: extract_descriptions.xsl,v 1.9 2002/11/06 23:24:54 thendrix Exp $
+     $Id: extract_descriptions.xsl,v 1.10 2003/01/09 12:10:39 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -59,15 +59,19 @@
       </xsl:choose>
     </xsl:attribute>
 		
-<xsl:attribute name="describe.selects">
- <xsl:value-of select="'YES'"/>
- </xsl:attribute>
+    <xsl:attribute name="describe.selects">
+      <xsl:value-of select="'YES'"/>
+    </xsl:attribute>
+
+    <xsl:attribute name="describe.subtype_constraints">
+      <xsl:value-of select="'YES'"/>
+    </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="'$Date: 2002/11/06 23:24:54 $'"/>
+    <xsl:value-of select="'$Date: 2003/01/09 12:10:39 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="'$Revision: 1.9 $'"/>
+    <xsl:value-of select="'$Revision: 1.10 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      

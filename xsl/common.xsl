@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.144 2004/12/17 18:51:05 thendrix Exp $
+$Id: common.xsl,v 1.145 2004/12/20 22:06:03 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1015,7 +1015,14 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 <xsl:template match="a">
   <a href="{@href}" target="_blank">
     <xsl:apply-templates/>
-    (<xsl:value-of select="@href"/>)
+    <xsl:choose>
+      <xsl:when test="string-length(text()) > 0" >
+      (<xsl:value-of select="@href"/>)
+    </xsl:when>
+    <xsl:otherwise>
+            <xsl:value-of select="@href"/>
+    </xsl:otherwise>
+    </xsl:choose>
   </a>
 </xsl:template>
 

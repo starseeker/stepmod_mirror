@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.5 2004/07/19 17:15:05 thendrix Exp $
+<!--  $Id: build.xsl,v 1.6 2004/10/12 00:50:39 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -2074,6 +2074,7 @@
       </xsl:element>
 
       <!-- move the cover page to SC4 cover page -->
+      <!-- RBN Commented out as per request from ISO
       <xsl:element name="move">
         <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
         <xsl:element name="fileset">
@@ -2081,7 +2082,7 @@
           <xsl:attribute name="includes">${COVERHTM}</xsl:attribute>
         </xsl:element>
         <mapper type="glob" from="*.htm" to="*_sc4.htm"/>
-      </xsl:element> 
+      </xsl:element>  -->
 
 
       <xsl:element name="style">
@@ -4455,7 +4456,9 @@
     </xsl:element>
 
     <!-- copy the application protocol abstracts -->
-    <xsl:element name="copy">
+    <!-- RBN - changed to move as per request from ISO 
+    <xsl:element name="copy"> -->
+    <xsl:element name="move">
       <xsl:attribute name="file">
         <xsl:value-of select="concat('${TMPDIR}/data/application_protocols/',@name,'/sys/abstract.htm')"/>
       </xsl:attribute>
@@ -4594,9 +4597,12 @@
       </xsl:element>
     </xsl:element>
 
+    <!-- RBN - changed to move as per request from ISO 
     <xsl:element name="copy">
+      -->
+    <xsl:element name="move">
       <xsl:attribute name="file">
-        <xsl:value-of select="concat('${TMPDIR}/data/modules/',@name,'/sys/abstract.htm')"/>
+        <xsl:value-of select="concat($module_dir,'/data/modules/',@name,'/sys/abstract.htm')"/>
       </xsl:attribute>
       <xsl:attribute name="tofile">
         <xsl:value-of select="concat($module_dir,'abstracts/abstract_',$module_xml/module/@part,'.htm')"/>
@@ -4727,8 +4733,11 @@
       </xsl:element>
     </xsl:element>
 
-    <!-- copy the application protocol abstracts -->
+    <!-- copy the resource_docs  abstracts -->
+    <!-- RBN - changed to move as per request from ISO 
     <xsl:element name="copy">
+      -->
+    <xsl:element name="move">
       <xsl:attribute name="file">
         <xsl:value-of select="concat('${TMPDIR}/data/resource_docs/',@name,'/sys/abstract.htm')"/>
       </xsl:attribute>

@@ -5,9 +5,51 @@
 
 SCHEMA Ap210_assembly_physical_design_arm;
    USE FROM AP210_product_data_management_arm;
-   USE FROM Assembly_module_design_arm;
+   USE FROM Altered_part_arm;
+   USE FROM Assembly_functional_interface_requirement_arm;
+   USE FROM Assembly_module_with_cable_component_arm;
+   USE FROM Assembly_module_with_subassembly_arm;
    USE FROM Assembly_shape_arm;
    USE FROM Assembly_2d_shape_arm;
    USE FROM Assembly_3d_shape_arm;
+   USE FROM Characteristic_arm;
+   USE FROM Cable_arm;
+
+(** Assembly_module_with_packaged_connector_component_arm and 
+Assembly_module_with_interconnect_component_arm  - most likely in some Assembly CC *)
+	SUBTYPE_CONSTRAINT component_interface_terminal_subtypes FOR Component_interface_terminal;     
+		(ONEOF (Packaged_connector_component_interface_terminal,
+		 Interconnect_component_interface_terminal));
+	END_SUBTYPE_CONSTRAINT;
+
+(** most likely some Assembly_module CC *)
+	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR Packaged_part; 
+	    (ONEOF (Minimally_defined_connector, -- Assembly_functional_interface_requirement_arm
+	 	Packaged_connector) ANDOR -- Packaged_connector_model_arm
+	 	Altered_packaged_part); -- Altered_part_arm
+	END_SUBTYPE_CONSTRAINT;
+	
+	(** It most likely should be in Assembly_module CC *)
+	SUBTYPE_CONSTRAINT physical_component_subtypes FOR Physical_component;  
+		(ONEOF (Assembly_module_component, --Assembly_module_with_subassembly_arm
+		Bare_die_component, -- Assembly_module_design_arm
+		Cable_component, -- Assembly_module_with_cable_component_arm
+		Interconnect_module_component, -- Assembly_module_with_interconnect_component_arm
+		Packaged_component, -- Assembly_module_design_arm
+		Routed_interconnect_component, -- Assembly_module_design_arm
+		Routed_physical_component)); -- Assembly_module_design_arm 
+	END_SUBTYPE_CONSTRAINT;
+	
+	(** It most likely should be in Assembly_module CC *)
+	SUBTYPE_CONSTRAINT part_usage_view_subtypes FOR Part_usage_view;  
+	    ONEOF (Package,
+		 Bare_die,
+		 Cable_usage_view,
+		 Packaged_part,
+		 Assembly_module_usage_view,
+		 Interconnect_module_usage_view);
+	END_SUBTYPE_CONSTRAINT;
+
+   
 END_SCHEMA;
 

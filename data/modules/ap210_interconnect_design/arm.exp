@@ -8,6 +8,50 @@ SCHEMA Ap210_interconnect_design_arm;
    USE FROM Interconnect_non_planar_shape_arm;
    USE FROM Interconnect_2d_shape_arm;
    USE FROM Interconnect_3d_shape_arm;
+   USE FROM Layered_interconnect_module_2d_design_arm;
+   USE FROM Layered_interconnect_module_3d_design_arm;   
+   USE FROM Pre_defined_datum_symbol_arm;
+   USE FROM Characteristic_arm;
    (** + 2D + 3D geometry 
    GL - in my opinion this geometry is indirectly accessed via Interconnect_shape_arm *)
+
+(** Most likely it is in CC Interconnect_module *)    
+	SUBTYPE_CONSTRAINT laminate_component_interface_terminal_subtypes FOR Laminate_component_interface_terminal; 
+		 (ONEOF (Non_functional_land_interface_terminal,
+		 Printed_connector_component_interface_terminal,
+		 Component_termination_passage_interface_terminal,
+		 Land_interface_terminal));
+	END_SUBTYPE_CONSTRAINT;
+
+(** Most likely it is in CC Interconnect_module *)    
+	SUBTYPE_CONSTRAINT laminate_component_join_terminal_subtypes FOR Laminate_component_join_terminal; 
+		 (ONEOF (Component_termination_passage_join_terminal,
+		 Land_join_terminal,
+		 Non_functional_land_join_terminal,
+		 Embedded_component_terminal,
+		 Printed_component_join_terminal));
+	END_SUBTYPE_CONSTRAINT;
+   
+(** It most likely should be in Interconnect_module CC *)
+SUBTYPE_CONSTRAINT planar_projected_shape_subtypes FOR planar_projected_shape;  
+	(ONEOF ((Assembly_component_2d_shape ANDOR
+	 (ONEOF (Part_template_planar_shape,
+	 Footprint_definition_shape,
+	 Padstack_definition_shape,
+	 Physical_unit_planar_shape))),
+	 Design_intent_modification_planar_shape,
+	 Stratum_feature_planar_shape,
+	 Stratum_planar_shape));
+END_SUBTYPE_CONSTRAINT; 
+
+(** Pre_defined_datum_symbol_arm and Layered_interconnect_module_3d_shape_arm are not linked in any way.
+Most likely it should be defined in Interconnect_module CC *)
+ SUBTYPE_CONSTRAINT shape_definition_3d_intersection_subtypes FOR shape_definition_3d_intersection;  
+	 (ONEOF (Edge_segment_cross_section,
+	 Pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship,
+	 Pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship,
+	 Pre_defined_parallel_datum_axis_symbol_3d_2d_relationship));
+ END_SUBTYPE_CONSTRAINT;  
+   
+   
 END_SCHEMA;

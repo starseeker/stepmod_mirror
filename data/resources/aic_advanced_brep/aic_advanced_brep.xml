@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.9"
+    source="aic_advanced_brep.exp"/>
+
+  <schema name="aic_advanced_brep">
+    <interface
+      kind="use"
+      schema="aic_topologically_bounded_surface">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="geometry_schema">
+      <interfaced.item
+        name="cartesian_transformation_operator_3d"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="geometric_model_schema">
+      <interfaced.item
+        name="manifold_solid_brep"/>
+      <interfaced.item
+        name="brep_with_voids"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="geometric_model_schema">
+      <interfaced.item
+        name="msb_shells"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="topology_schema">
+      <interfaced.item
+        name="closed_shell"/>
+      <interfaced.item
+        name="connected_face_set"/>
+      <interfaced.item
+        name="oriented_closed_shell"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="mapped_item"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_representation_schema">
+      <interfaced.item
+        name="shape_representation"/>
+    </interface>
+
+    <entity
+      name="advanced_brep_shape_representation"
+      supertypes="shape_representation">
+      <where
+        label="WR1"
+        expression="SIZEOF (  QUERY ( it &lt;* SELF.items| NOT ( SIZEOF ([ 'AIC_ADVANCED_BREP.MANIFOLD_SOLID_BREP', 'AIC_ADVANCED_BREP.FACETED_BREP', 'AIC_ADVANCED_BREP.MAPPED_ITEM', 'AIC_ADVANCED_BREP.AXIS2_PLACEMENT_3D' ] * TYPEOF (it)) = 1) )) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (  QUERY ( it &lt;* SELF.items| ( SIZEOF ([ 'AIC_ADVANCED_BREP.MANIFOLD_SOLID_BREP', 'AIC_ADVANCED_BREP.MAPPED_ITEM' ] * TYPEOF (it)) = 1) )) &gt; 0">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (  QUERY ( msb &lt;*  QUERY ( it &lt;* SELF.items| ('AIC_ADVANCED_BREP.MANIFOLD_SOLID_BREP' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( csh &lt;* msb_shells(msb)| NOT ( SIZEOF (  QUERY ( fcs &lt;* csh\connected_face_set.cfs_faces| NOT ('AIC_ADVANCED_BREP.ADVANCED_FACE' IN TYPEOF (fcs)) )) = 0) )) = 0) )) = 0">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF (  QUERY ( msb &lt;*  QUERY ( it &lt;* items| ('AIC_ADVANCED_BREP.MANIFOLD_SOLID_BREP' IN TYPEOF (it)) )| ('AIC_ADVANCED_BREP.ORIENTED_CLOSED_SHELL' IN TYPEOF (msb\manifold_solid_brep.outer)) )) = 0">
+      </where>
+      <where
+        label="WR5"
+        expression="SIZEOF (  QUERY ( brv &lt;*  QUERY ( it &lt;* items| ('AIC_ADVANCED_BREP.BREP_WITH_VOIDS' IN TYPEOF (it)) )| NOT ( SIZEOF (  QUERY ( csh &lt;* brv\brep_with_voids.voids| csh\oriented_closed_shell.orientation )) = 0) )) = 0">
+      </where>
+      <where
+        label="WR6"
+        expression="SIZEOF (  QUERY ( mi &lt;*  QUERY ( it &lt;* items| ('AIC_ADVANCED_BREP.MAPPED_ITEM' IN TYPEOF (it)) )| NOT ('AIC_ADVANCED_BREP.ADVANCED_BREP_SHAPE_REPRESENTATION' IN TYPEOF (mi\mapped_item.mapping_source.mapped_representation)) )) = 0">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

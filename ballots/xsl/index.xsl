@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: index.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
+$Id: index.xsl,v 1.2 2002/06/20 14:31:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the ballot packages
@@ -53,6 +53,26 @@ $Id: index.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
       <a href="{$xref}">
         <xsl:value-of select="@name"/>
       </a>
+      <xsl:variable name="bhome" 
+        select="concat('./ballots/',@name,'/')"/>
+      <ul>
+        <li>
+          <a href="{$bhome}ballot_list{$FILE_EXT}">
+            Ballot list
+          </a>
+        </li>
+        <li>
+          <a
+            href="{$bhome}ballot_checklist{$FILE_EXT}">
+            Ballot checklist
+          </a>
+        </li>
+        <li>
+          <a href="{$bhome}ballot_summary{$FILE_EXT}">
+            ISO summary
+          </a>
+        </li>
+      </ul>
     </li>
   </xsl:template>
 

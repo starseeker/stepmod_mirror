@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->
+<!-- $Id: express2xml.js,v 1.23 2002/09/24 16:42:56 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,7 +12,7 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.22"
+    version="1.23"
     source="../data/modules/external_properties/mim.exp"/>
 
   <schema name="External_properties_mim">
@@ -26,10 +26,113 @@
       schema="Plib_class_reference_mim">
     </interface>
 
+    <interface
+      kind="use"
+      schema="external_reference_schema">
+      <interfaced.item
+        name="externally_defined_item"/>
+      <interfaced.item
+        name="externally_defined_item_relationship"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="identifier"/>
+    </interface>
+
+    <type name="external_identification_for_plib_property">
+      <select
+        basedon="external_identification_item"
+        selectitems="externally_defined_general_property">
+      </select>
+
+    </type>
+    <type name="externally_versioned_item">
+      <select
+        extensible="YES"
+        genericentity="YES">
+      </select>
+
+    </type>
+    <type name="version_for_plib_property">
+      <select
+        basedon="externally_versioned_item"
+        selectitems="externally_defined_general_property">
+      </select>
+
+    </type>
     <entity
       name="externally_defined_general_property"
       supertypes="general_property externally_defined_item">
     </entity>
+
+    <rule
+      name="external_version_assignments_are_valid"
+      appliesto="applied_external_identification_assignment">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(aia &lt;* applied_external_identification_assignment | 		NOT external_version_assignment_is_valid(aia)))=0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="plib_property_reference_requires_version"
+      appliesto="externally_defined_general_property">
+      <algorithm>
+LOCAL
+  plib_properties : SET OF externally_defined_general_property := [];
+END_LOCAL;
+plib_properties :=  QUERY( edgp &lt;* externally_defined_general_property | 
+('EXTERNAL_PROPERTIES_MIM.KNOWN_SOURCE' IN TYPEOF(edgp.source) AND
+(known_source\pre_defined_item.name = 'ISO 13584 library') ); 
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF( QUERY( edgp &lt;* plib_properties | (SIZEOF( QUERY( edir &lt;* USEDIN(edgp, 'EXTERNAL_PROPERTIES_MIM.' + 'APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | (edir.role.name = 'version') )) &lt;&gt; 1) )) = 0">
+      </where>
+
+    </rule>
+
+    <function
+      name="external_version_assignment_is_valid">
+      <parameter
+        name="aia">
+        <typename
+          name="applied_external_identification_assignment"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+LOCAL
+  item: identification_item;
+  role: identification_role;
+END_LOCAL;
+
+role:= aia.role;
+IF role.name='version' THEN
+  REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
+    item:= aia.items[i];
+
+    IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.' + 'EXTERNALLY_VERSIONED_ITEM']*TYPEOF(item))=0) THEN
+-- item invalid if item does not belong to versionable types
+	RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+
+ELSE		-- case where aia does not convey a version id
+  RETURN(TRUE);
+END_IF;
+      </algorithm>
+
+    </function>
 
   </schema>
 

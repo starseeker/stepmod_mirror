@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.30 2002/02/12 09:46:25 robbod Exp $
+$Id: module.xsl,v 1.31 2002/02/13 11:56:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -692,7 +692,7 @@ $Id: module.xsl,v 1.30 2002/02/12 09:46:25 robbod Exp $
     The units of functionality and a description of the functions that
     each UoF supports are given below.  
   </p>
-  
+
   <xsl:apply-templates select="uof" mode="uof_toc"/>
 
   <xsl:apply-templates select="uoflink" mode="uof_toc"/>
@@ -814,7 +814,7 @@ $Id: module.xsl,v 1.30 2002/02/12 09:46:25 robbod Exp $
   <h3>
     <xsl:variable name="name" select="concat('uof',$uof)"/>
     <a name="{$name}">
-      <xsl:value-of select="concat('4.1.',position(),' ',$uof)"/>
+      <xsl:value-of select="concat('4.1.',position()+count(../uof),' ',$uof)"/>
     </a>
   </h3>
   This UoF is defined in the

@@ -2,28 +2,29 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_biblio.xsl,v 1.7 2002/09/13 08:33:25 robbod Exp $
-  Author:  Rob Bodington, Eurostep Limited
+$Id: sect_biblio.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+  Original Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
-  Purpose:
+  Purpose: Display of bibliography
+  	Adapted to work with resource documents by Tom Hendrix and Nigel Shaw
      
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-  <xsl:import href="module.xsl"/>
+  <xsl:import href="resource.xsl"/>
 
   <!-- 
        the stylesheet that allows different stylesheets to be applied 
        -->
-  <xsl:import href="module_clause.xsl"/>
+  <xsl:import href="resource_clause.xsl"/>
 
-  <xsl:import href="projmg/issues.xsl"/> 
+<!--  <xsl:import href="../projmg/issues.xsl"/> -->
 
   <xsl:output method="html"/>
 
-<!-- overwrites the template declared in module.xsl -->
-<xsl:template match="module">
+<!-- overwrites the template declared in resource.xsl -->
+<xsl:template match="resource">
   <div align="left">
     <h3>
       <A NAME="bibliography">Bibliography</A>
@@ -42,8 +43,11 @@ $Id: sect_biblio.xsl,v 1.7 2002/09/13 08:33:25 robbod Exp $
     </xsl:when>
     <xsl:otherwise>
       <!-- output the defaults -->
+      <!-- but the default is for modules so commented out -->
+<!--      
       <xsl:apply-templates 
         select="document('../data/basic/bibliography_default.xml')/bibliography/bibitem.inc"/>      
+-->
     </xsl:otherwise>
   </xsl:choose>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.5 2002/12/12 22:59:53 nigelshaw Exp $
+$Id: res_toc.xsl,v 1.6 2002/12/18 22:26:26 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -357,35 +357,38 @@ NEED TO FIX up the hrefs -->
         <A HREF="{$resdoc_root}/sys/d_expg{$FILE_EXT}">
           D EXPRESS-G diagrams
         </A>
-        <!-- This will output links to the ExpresG diagrams (1 2) 
+        <!-- This will output links to the Express-G diagrams (1 2) 
              not however allowed in ISO 
              <xsl:apply-templates select="mim/express-g/imgfile" mode="page_number">
                <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
              </xsl:apply-templates>
            -->
-        <xsl:call-template name="expressg_icon">
+<!--       <xsl:call-template name="expressg_icon">
           <xsl:with-param name="schema" select="concat(./@name,'_schema')"/>
           <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
         </xsl:call-template>
+-->
         <BR/>
 
-        <xsl:if test="./tech_discussion">
+        <xsl:if test="string-length(./tech_discussion) > 10">
         <!-- use #annexa to link direct -->
-          <A HREF="{$resdoc_root}/sys/tech_discussion{$FILE_EXT}">
+          <A HREF="{$resdoc_root}/sys/tech_discussion{$FILE_EXT}#tech_discssion">
             F  Technical discussion</A><BR/>
         </xsl:if>
-        <xsl:if test="./examples">
+        <xsl:if test="string-length(./examples) > 10">
         <!-- use #annexa to link direct -->
           <A HREF="{$resdoc_root}/sys/examples{$FILE_EXT}">
             G  Examples</A><BR/>
         </xsl:if>
-        <xsl:if test="./add_scope">
+        <xsl:if test="string-length(./add_scope) > 10">
         <!-- use #annexa to link direct -->
           <A HREF="{$resdoc_root}/sys/resource_doc#annexh{$FILE_EXT}">
             H  Additional scope</A><BR/>
         </xsl:if>
 
-        <A HREF="{$resdoc_root}/sys/biblio{$FILE_EXT}#bibliography">Bibliography</A>
+        <xsl:if test="./bibliography/*">
+	        <A HREF="{$resdoc_root}/sys/biblio{$FILE_EXT}#bibliography">Bibliography</A>
+	</xsl:if>
       </p>
       </TD>
     </TR>

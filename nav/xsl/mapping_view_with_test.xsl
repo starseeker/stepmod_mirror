@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
+$Id: mapping_view_with_test.xsl,v 1.1 2002/12/10 10:43:25 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -237,9 +237,9 @@ $Id: mapping_view.xsl,v 1.1 2002/10/31 13:01:45 nigelshaw Exp $
 	<blockquote>
 
 		<xsl:variable name="the-ent" select="@entity" />
-		<xsl:variable name="the-attr" select="@entity" />
+		<xsl:variable name="the-attr" select="@attribute" />
 	
-		<xsl:if test="not(@original_module)" >
+		<xsl:if test="not(@original_module) and not(@attribute)" >
 			<xsl:if test="not($arm_node//entity[@name=$the-ent])" >
 				<xsl:call-template name="error_message">
 				  <xsl:with-param name="inline" select="'yes'"/>
@@ -1681,7 +1681,7 @@ the tree and recursing up. Need to add wr to constrain out any types found in th
 				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 			          <xsl:with-param 
 			            name="message" 
-			            select="'Error Map22: SELECT Type based on not found'"/>
+			            select="concat('Error Map30: SELECT Type based on not found for ',./@name)"/>
 			</xsl:call-template>
 		</xsl:if>
 		<br/>

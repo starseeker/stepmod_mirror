@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.5 2003/10/23 09:06:26 robbod Exp $ -->
+<!-- $Id: issues.xml,v 1.6 2003/10/28 06:41:31 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="assembly_structure">
@@ -84,6 +84,41 @@ Closed per HM e-mail 2002-11-15
 <description>
 The mapping is incorrect. It should be an assertion to a
 Next_assembly_usage NOT an Assembly_component_relationship
+</description>
+</issue>
+
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="RBN-1"
+   type="arm"
+   linkend="Assembly_structure_arm.Assembly_component_relationship"
+   status="open"
+   category="minor_technical"
+   by="Trine Hansen"
+   date="03-11-03"
+   seds="yes">
+<description>
+  <p>
+    There is an error in: 
+  </p>
+  <screen>
+ENTITY Assembly_component_relationship 
+  ABSTRACT SUPERTYPE OF (ONEOF(Next_assembly_usage, Promissory_usage, 
+Component_upper_level_identification)) 
+  SUBTYPE OF (View_definition_usage); 
+  quantity           : OPTIONAL Value_with_unit; 
+  location_indicator : OPTIONAL STRING; 
+WHERE 
+  WR1: NOT(EXISTS(quantity)) XOR 
+        ((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component > 0)); END_ENTITY; 
+  </screen>
+  <p>
+    The first XOR in the where-rule should be an OR. Currently the rule
+    evaluates to UNKNOWN if the quantity attribute is not set. The expectation
+    is that it evaluates to TRUE! OR will fulfil that expectation. 
+  </p>
+
 </description>
 </issue>
 

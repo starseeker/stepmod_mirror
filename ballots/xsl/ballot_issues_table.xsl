@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_table.xsl,v 1.2 2004/08/31 07:16:02 robbod Exp $
+$Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -503,7 +503,7 @@ $Id: ballot_issues_table.xsl,v 1.2 2004/08/31 07:16:02 robbod Exp $
            
       <!-- SC4 part no -->
       <td valign="top" align="left">
-        <xsl:value-of select="concat('103030-',$number)"/>
+        <xsl:value-of select="concat('10303-',$number)"/>
         <br/>
         <xsl:value-of select="$module"/>
       </td>

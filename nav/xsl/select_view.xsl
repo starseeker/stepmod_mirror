@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.3 2002/11/21 13:08:48 nigelshaw Exp $
+$Id: select_view.xsl,v 1.4 2002/11/25 16:40:48 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -328,18 +328,19 @@ $Id: select_view.xsl,v 1.3 2002/11/21 13:08:48 nigelshaw Exp $
 <xsl:template match="explicit" mode="mapping-out">
 	<xsl:param name="this-select" />
 
+	<br/>
 	
 	For attribute: <xsl:value-of select="concat(' ',../@name,'.',@name)" />
 	<br/>
 	Select type extended by: <xsl:value-of select="$this-select/select/@selectitems" />
-
+	<br/>
 	<xsl:variable name="this-mod" select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
 	<xsl:variable name="this-attr" select="@name" />
 	<xsl:variable name="this-ent" select="../@name" />
 
 <!-- check if mapping has been defined in the current module-->
 
-	<xsl:if test="not($module_node//mapping/ae[@entity=$this-ent][@original_module=$this-mod]/aa[@attribute=$this-attr])" >
+	<xsl:if test="not($module_node//mapping_table/ae[@entity=$this-ent][@original_module=$this-mod]/aa[@attribute=$this-attr])" >
 	        <xsl:call-template name="error_message">
 		  <xsl:with-param name="inline" select="'yes'"/>
 		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>

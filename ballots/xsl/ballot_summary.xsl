@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.5 2002/07/31 14:10:10 robbod Exp $
+$Id: ballot_summary.xsl,v 1.6 2002/08/04 08:09:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -23,6 +23,9 @@ $Id: ballot_summary.xsl,v 1.5 2002/07/31 14:10:10 robbod Exp $
 
     <xsl:param name="stepmodhome" select="'../../..'"/>
 
+
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 
   <!-- force the application of the stylesheet to the file specified in the
        file attribute -->
@@ -79,6 +82,8 @@ $Id: ballot_summary.xsl,v 1.5 2002/07/31 14:10:10 robbod Exp $
           <td><b>Version</b></td>
           <td><b>Status</b></td>
           <td><b>Year</b></td>
+          <td><b>ARM EXPRESS</b></td>
+          <td><b>MIM EXPRESS</b></td>
         </tr>
         <xsl:apply-templates select="./*/module"/>
       </table>
@@ -189,6 +194,39 @@ $Id: ballot_summary.xsl,v 1.5 2002/07/31 14:10:10 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
         </td>
+
+
+        <xsl:variable name="status"
+          select="translate(translate($module_node/@status,$UPPER,$LOWER),'-_ ','')"/>        
+        <!-- ARM express -->
+        <td>
+          <xsl:variable name="armfile"
+            select="concat('part',
+                    $module_node/@part,
+                    $status, '_wg',
+                    $module_node/@sc4.working_group,'n',
+                    $module_node/@wg.number.arm,
+                    'arm.exp')"/>
+          <xsl:variable name="arm_href" select="concat('express/',$armfile)"/>
+          <a href="{$arm_href}">
+            <xsl:value-of select="$armfile"/>
+          </a>
+        </td>
+
+        <!-- MIM express -->
+        <td>
+          <xsl:variable name="mimfile"
+            select="concat('part',
+                    $module_node/@part,
+                    $status, '_wg',
+                    $module_node/@sc4.working_group,'n',
+                    $module_node/@wg.number.mim,
+                    'mim.exp')"/>
+          <xsl:variable name="mim_href" select="concat('express/',$mimfile)"/>
+          <a href="{$mim_href}">
+            <xsl:value-of select="$mimfile"/>
+          </a>
+        </td>
       </tr>
     </xsl:when>
 
@@ -206,6 +244,8 @@ $Id: ballot_summary.xsl,v 1.5 2002/07/31 14:10:10 robbod Exp $
             </xsl:with-param>
           </xsl:call-template>
         </td>
+        <td>&#160;</td>
+        <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>

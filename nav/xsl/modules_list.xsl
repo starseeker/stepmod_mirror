@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.18 2003/02/24 09:37:12 robbod Exp $
+$Id: modules_list.xsl,v 1.19 2003/03/11 13:37:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -18,7 +18,7 @@ $Id: modules_list.xsl,v 1.18 2003/02/24 09:37:12 robbod Exp $
 
 
   <!-- hack to disable module index while being developed -->
-  <xsl:variable name="index2" select="'YES'"/>
+  <xsl:variable name="index2" select="'NO'"/>
     
 
   <xsl:template match="/" >

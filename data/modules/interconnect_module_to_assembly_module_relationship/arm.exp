@@ -2,6 +2,40 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Interconnect module to assembly module relationship - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
 SCHEMA Interconnect_module_to_assembly_module_relationship_arm;
+
+USE FROM Layered_interconnect_module_design_arm;
+
+USE FROM Assembly_module_design_arm;
+
+USE FROM Interconnect_module_connection_routing_arm;
+
+ 	TYPE component_or_component_feature = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+	ENTITY Assembly_requirement_for_interconnect_relationship 
+ 		SUBTYPE OF (part_definition_relationship);
+			SELF\View_definition_relationship.related_view	: Interconnect_module;
+      SELF\View_definition_relationship.relating_view	: Assembly_module;
+	END_ENTITY;
+
+  ENTITY Component_feature_to_layout_feature_relationship;
+      related_stratum_concept : stratum_concept;
+      relating_feature        : component_or_component_feature;
+(** Need WR to contrain cardinality
+      requirement             : OPTIONAL Requirement_definition_property;
+*)      
+  END_ENTITY; -- component_feature_to_layout_feature_relationship
+   
+  ENTITY Component_based_annotation_symbol_placement_relationship
+    SUBTYPE OF (Component_feature_to_layout_feature_relationship);
+      SELF\component_feature_to_layout_feature_relationship.related_stratum_concept : special_symbol_laminate_component;
+  END_ENTITY; -- component_based_annotation_symbol_placement_relationship
+
+  ENTITY Component_based_annotation_text_relationship
+    SUBTYPE OF (Component_feature_to_layout_feature_relationship);
+      SELF\component_feature_to_layout_feature_relationship.related_stratum_concept : laminate_text_string_component;
+      message_type                                                                  : component_based_message_type;
+  END_ENTITY; -- component_based_annotation_text_relationship
+
 END_SCHEMA;

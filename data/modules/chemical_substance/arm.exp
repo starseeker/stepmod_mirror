@@ -2,6 +2,235 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Chemical substance - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
-SCHEMA Chemical_substance_arm;
-END_SCHEMA;
+
+(** chemical elements and compositions
+This part of ISO 10303 specifies an application module for the representation ... 
+... of substances such as chemical elements, chemical compounds and their composition.
+A Make_from_relationship may be used to relate
+Substance_view_definition to other kinds of Product_view_definition.
+*)
+SCHEMA Chemical_substance_arm;   
+ 
+USE FROM Value_with_unit_arm;
+
+USE FROM Person_organization_assignment_arm;
+
+USE FROM Product_view_definition_relationship_arm;
+
+USE FROM Part_view_definition_arm;
+
+REFERENCE FROM Product_identification_arm    --  ISO/TS 10303-1017 
+  (types_of_product);  
+ 
+ 
+CONSTANT 
+ 
+  -- normative reference: ISO 31-9, Annex A 
+  -- posistion is identical to Atomic number 
+  chemical_elements : LIST OF STRING := [
+      'HYDROGEN', -- 1 
+      'HELIUM', -- 2 
+ 
+      'LITHIUM', -- 3 
+      'BERYLLIUM', -- 4 
+      'BORON', -- 5 
+      'CARBON', -- 6 
+      'NITROGEN', -- 7 
+      'OXYGEN', -- 8 
+      'FLUORINE', -- 9 
+      'NEON', -- 10 
+       
+      'SODIUM', -- 11 
+      'MAGNESIUM', -- 12 
+      'ALUMINIUM', -- 13 
+      'SILICON', -- 14 
+      'PHOSPHORUS', -- 15 
+      'SULPHUR', -- 16 
+      'CHLORINE', -- 17 
+      'ARGON', -- 18 
+       
+      'POTASSIUM', -- 19 
+      'CALCIUM', -- 20 
+      'SCANDIUM', -- 21 
+      'TITANIUM', -- 22 
+      'VANADIUM', -- 23 
+      'CHROMIUM', -- 24 
+      'MANGANESE', -- 25 
+      'IRON', -- 26 
+      'COBALT', -- 27 
+      'NICKEL', -- 28 
+      'COPPER', -- 29 
+      'ZINC', -- 30 
+      'GALLIUM', -- 31 
+      'GERMANIUM', -- 32 
+      'ARSENIC', -- 33 
+      'SELENIUM', -- 34 
+      'BROMINE', -- 35 
+      'KRYPTON', -- 36 
+ 
+      'RUBIDIUM', -- 37 
+      'STRONTIUM', -- 38 
+      'YTTRIUM', -- 39 
+      'ZIRCONIUM', -- 40 
+      'NIOBIUM', -- 41 
+      'MOLYBDENUM', -- 42 
+      'TECHNETIUM', -- 43 
+      'RUTHENIUM', -- 44 
+      'RHODIUM', -- 45 
+      'PALLADIUM', -- 46 
+      'SILVER', -- 47 
+      'CADMIUM', -- 48 
+      'INDIUM', -- 49 
+      'TIN', -- 50 
+      'ANTIMONY', -- 51 
+      'TELLURIUM', -- 52 
+      'IODINE', -- 53 
+      'XENON', -- 54 
+       
+      'CAESIUM', -- 55 
+      'BARIUM', -- 56 
+      'LANTHANUM', -- 57 
+      'CERIUM', -- 58 
+      'PRASEODYMIUM', -- 59 
+      'NEODYMIUM', -- 60 
+      'PROMETHIUM', -- 61 
+      'SAMARIUM', -- 62 
+      'EUROPIUM', -- 63
+      'GADOLINIUM', -- 64 
+      'TERBIUM', -- 65 
+      'DYSPROSIUM', -- 66 
+      'HOLMIUM', -- 67 
+      'ERBIUM', -- 68 
+       
+      'THULIUM', -- 69 
+      'YTTERBIUM', -- 70 
+      'LUTETIUM', -- 71 
+      'HAFNIUM', -- 72 
+      'TANTALUM', -- 73 
+      'TUNGSTEN', -- 74 
+      'RHENIUM', -- 75 
+      'OSMIUM', -- 76 
+      'IRIDIUM', -- 77 
+      'PLATINUM', -- 78 
+      'GOLD', -- 79 
+      'MERCURY', -- 80 
+      'THALLIUM', -- 81 
+      'LEAD', -- 82 
+      'BISMUTH', -- 83 
+      'POLONIUM', -- 84 
+      'ASTATINE', -- 85 
+      'RADON', -- 86 
+      'FRANCIUM', -- 87 
+      'RADIUM', -- 88 
+      'ACTINIUM', -- 89 
+      'THORIUM', -- 90 
+      'PROTACTINIUM', -- 91 
+      'URANIUM', -- 92 
+      'NEPTUNIUM', -- 93 
+      'PLUTONIUM', -- 94 
+      'AMERICIUM', -- 95 
+      'CURIUM', -- 96 
+      'BERKELIUM', -- 97 
+      'CALIFORNIUM', -- 98 
+      'EINSTEINIUM', -- 99 
+      'FERMIUM', -- 100 
+      'MENDELEVIUM', -- 101 
+      'NOBELIUM', -- 102 
+      'LAWRENCIUM', -- 103 
+      'RUTHERFORODIUM', -- 104 
+      'DUBNIUM', -- 105 
+      'SEABORGIUM', -- 106 
+      'BOHRIUM', -- 107 
+      'HASSIUM', -- 108 
+      'MEITNERIUM', -- 109 
+      'DARMSTADTIUM', -- 110
+      'ROENTGENIUM']; -- 111
+  END_CONSTANT; 
+   
+  ENTITY Substance
+    SUPERTYPE OF (ONEOF(Chemical_element, Chemical_compound, Physical_particle))
+    SUBTYPE OF (Product);    
+  WHERE 
+     wr1: SIZEOF([ 'substance' ] * types_of_product(SELF))= 1 ; 
+  END_ENTITY; 
+   
+  ENTITY Chemical_element 
+    SUBTYPE OF (Substance); 
+  WHERE 
+     wr1: SIZEOF([ 'chemical element' ] * types_of_product(SELF))= 1 ; 
+     wr2: SELF/product.name in chemical_elements; 
+  END_ENTITY; 
+ 
+(** 
+A chemical compound is a substance formed from two or more chemical elements, with a fixed ratio determining the composition.  
+ 
+Example: Dihydrogen monoxide (water, H2O) is a compound composed of two hydrogen atoms for every oxygen atom. 
+ 
+Note 1: In general, this fixed ratio must be fixed due to some sort of physical property, rather than an arbitrary man-made selection. This is why materials such as brass, the superconductor YBCO, the semiconductor aluminium gallium arsenide, or chocolate are considered mixtures or alloys rather than compounds. 
+ 
+A defining characteristic of a compound is that it has a chemical formula. Formulas describe the ratio of atoms in a substance, and the number of atoms in a single molecule of the substance (thus the formula for ethene is C2H4 rather than CH2). The formula does not indicate that a compound is composed of molecules; for example, sodium chloride (table salt, NaCl) is an ionic compound.   
+ 
+Note 2: The representation of the chemical formula is outside the scope of this part of ISO 10303. 
+ 
+If available the CAS registry number shall be used for the id. In this case an organization instance with the name 'Chemical Abstracts Service' shall be used as id-owner. 
+ 
+Example 2: The CAS number of water is "7732-18-5". 
+ 
+*)   
+ 
+  ENTITY Chemical_compound 
+    SUBTYPE OF (Substance); 
+  WHERE 
+     WR1: SIZEOF([ 'chemical compound' ] * types_of_product(SELF))= 1 ; 
+     WR2: SIZEOF(QUERY(t <* SELF\organization_or_person_in_organization_assignment. items | t.role = 'id owner') = 1); 
+  END_ENTITY; 
+   
+ 
+(** A Physical_particle is a kind of substance from physics covering
+ radiation and all kinds of subatomic and elementary particles.
+
+ Example: electron, proton, photon and alpha particle are examples of Elementary_particle
+*)
+  ENTITY Physical_particle
+    SUBTYPE OF (Substance);
+  WHERE 
+     WR1: SIZEOF([ 'physical particle' ] * types_of_product(SELF))= 1 ;
+  END_ENTITY;
+
+   ENTITY Raw_material_definition_relationship
+      SUBTYPE OF (View_definition_relationship);
+     		SELF\View_definition_relationship.related_view RENAMED application : Part_view_definition;
+     		SELF\View_definition_relationship.relating_view RENAMED definition : Substance_view_definition;  
+   END_ENTITY;
+
+  ENTITY Substance_version 
+    SUBTYPE OF (Product_version); 
+    SELF\Product_version.of_product : Substance; 
+  END_ENTITY; 
+ 
+  
+  ENTITY Substance_view_definition 
+    SUBTYPE OF (Product_view_definition); 
+    SELF\Product_view_definition.defined_version : Substance_version; 
+  END_ENTITY; 
+
+  TYPE substance_composition_basis = EXTENSIBLE ENUMERATION OF ( 
+       VOLUME, 
+       WEIGHT, 
+       MOLES, 
+       ATOMS);      
+  END_TYPE; 
+   
+  ENTITY Substance_composition_relationship 
+    SUBTYPE OF (view_definition_relationship);
+      SELF\View_definition_relationship.related_view RENAMED constituent                : Substance; 
+      SELF\View_definition_relationship.relating_view RENAMED whole                     : Substance; 
+      composition_basis : Substance_composition_basis;
+      determinaion_method : STRING; 
+      amount : SET[1:?] OF Value_with_unit; 
+      (** unit shall be ratio, representing the fraction of 
+  WHERE 
+       WR1: ; --  unit shall be ratio *)
+  END_ENTITY; 
+ 
+END_SCHEMA; 

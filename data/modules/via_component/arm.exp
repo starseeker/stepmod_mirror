@@ -2,6 +2,48 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Via component - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
 SCHEMA Via_component_arm;
+
+USE FROM Layered_interconnect_module_design_arm;
+
+USE FROM Component_feature_arm;
+
+USE FROM Interconnect_module_connection_routing_arm;
+
+ SUBTYPE_CONSTRAINT via_subtypes FOR via;   
+ 	(ONEOF (blind_via,
+ 	buried_via,
+ 	interfacial_connection));
+ END_SUBTYPE_CONSTRAINT;  
+
+  ENTITY Blind_via
+    ABSTRACT SUPERTYPE OF (ONEOF (bonded_conductive_base_blind_via,
+ non_conductive_base_blind_via,
+ plated_conductive_base_blind_via))
+    SUBTYPE OF (via);
+  END_ENTITY; -- blind_via
+
+  ENTITY Bonded_conductive_base_blind_via
+    SUBTYPE OF (Blind_via);
+      features_join : stratum_feature_conductive_join;
+    UNIQUE
+    	ur1 : features_join;
+  END_ENTITY; -- bonded_conductive_base_blind_via
+
+  ENTITY Buried_via
+    SUBTYPE OF (via);
+  END_ENTITY; -- buried_via
+  
+  ENTITY Interfacial_connection
+    SUBTYPE OF (via);
+  END_ENTITY; -- interfacial_connection
+
+  ENTITY Non_conductive_base_blind_via
+    SUBTYPE OF (Blind_via);
+  END_ENTITY; -- non_conductive_base_blind_via
+
+  ENTITY Plated_conductive_base_blind_via
+    SUBTYPE OF (Blind_via);
+  END_ENTITY; -- plated_conductive_base_blind_via
+
 END_SCHEMA;

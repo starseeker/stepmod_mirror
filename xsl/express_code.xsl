@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.17 2002/06/02 07:12:37 robbod Exp $
+     $Id: express_code.xsl,v 1.18 2002/06/02 08:02:17 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -135,7 +135,7 @@
             <xsl:value-of
               select="document(concat($mod_dir,'/module.xml'))/module/@status"/>
           </xsl:variable>
-          <xsl:value-of select="concat('&#160;&#160;&#160;-- ISO/'$status,'&#160;10303-',$part)"/>
+          <xsl:value-of select="concat('&#160;&#160;&#160;-- ISO/',$status,'&#160;10303-',$part)"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">
@@ -167,7 +167,7 @@
 
           <xsl:choose>
             <xsl:when test="string-length($reference)>0">
-              <xsl:value-of select="concat('&#160;&#160;&#160;-- '$reference)"/>
+              <xsl:value-of select="concat('&#160;&#160;&#160;-- ',$reference)"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:call-template name="error_message">

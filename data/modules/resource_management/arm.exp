@@ -1,17 +1,3 @@
-{ iso standard 10303 part (11) version (4) }
-
-(******************************************************************************)
-(*                                                                            *)
-(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
-(*                                                                            *)
-(******************************************************************************)
-
-(* Original model: resource_management_arm.vsd *)
-(* Title: resource_management_arm *)
-(* Author: LEGY *)
-(* Comments :
- *)
-
 SCHEMA Resource_management_arm;
 
 USE FROM Activity_arm;
@@ -20,82 +6,83 @@ USE FROM Classification_arm;
 
 USE FROM Required_resource_arm;
 
+USE FROM Resource_as_realized_arm;
+
 USE FROM Resource_item_arm;
+
+USE FROM Scheme_arm;
 
 USE FROM State_observed_arm;
 
-USE FROM Time_interval_arm;
-
 USE FROM Value_with_unit_arm;
 
-TYPE allocated_item = SELECT 
-  (Managed_resource,
-   Resource_item);
-END_TYPE;
-
-TYPE allocated_resource_activity_item = SELECT BASED_ON activity_item WITH
-  (Allocated_resource);
-END_TYPE;
-
-TYPE allocated_resource_classified_select = SELECT BASED_ON classified_select WITH
-  (Allocated_required_resource_relationship,
-   Allocated_resource);
-END_TYPE;
-
-TYPE allocated_resource_time_interval_item = SELECT BASED_ON time_interval_item WITH
-  (Allocated_resource_by_time_interval);
-END_TYPE;
-
 TYPE managed_resource_activity_item = SELECT BASED_ON activity_item WITH
-  (Managed_resource);
+  (Resource_event);
 END_TYPE;
 
 TYPE managed_resource_classified_select = SELECT BASED_ON classified_select WITH
-  (Managed_resource,
-   Managed_resource_relationship,
+  (Resource_event,
+   Resource_event_relationship,
    Resource_location);
 END_TYPE;
 
+TYPE managed_resource_scheme_entry_item_select = SELECT BASED_ON scheme_entry_item_select WITH
+  (Resource_event);
+END_TYPE;
+
 TYPE managed_resource_state_of_select = SELECT BASED_ON state_of_select WITH
-  (Managed_resource);
+  (Resource_event);
+END_TYPE;
+
+TYPE resource_event_correspondence_item = SELECT 
+  (Required_resource,
+   Resource_as_realized);
 END_TYPE;
 
 TYPE resource_location_item = EXTENSIBLE SELECT ;
 END_TYPE;
 
-ENTITY Allocated_required_resource_relationship;
-  relating : Allocated_resource;
-  related : Required_resource;
+ENTITY Decreasing_resource_event
+SUBTYPE OF (Resource_event);
 END_ENTITY;
 
-ENTITY Allocated_resource;
-  item : allocated_item;
-END_ENTITY;
-
-ENTITY Allocated_resource_by_quantity
-SUBTYPE OF (Allocated_resource);
-  quantity : Value_with_unit;
-END_ENTITY;
-
-ENTITY Allocated_resource_by_time_interval
-SUBTYPE OF (Allocated_resource);
+ENTITY Increasing_resource_event
+SUBTYPE OF (Resource_event);
 END_ENTITY;
 
 ENTITY Managed_resource;
-  item : Resource_item;
+  name : STRING;
+  description : OPTIONAL STRING;
   quantity : OPTIONAL Value_with_unit;
+  item : Resource_item;
   location : OPTIONAL Resource_location;
 END_ENTITY;
 
-ENTITY Managed_resource_relationship;
-  relating : Managed_resource;
-  related : Managed_resource;
+ENTITY Resource_event;
+  name : STRING;
+  description : OPTIONAL STRING;
+  quantity : OPTIONAL Value_with_unit;
+  resource : Managed_resource;
+END_ENTITY;
+
+ENTITY Resource_event_correspondence_relationship;
+  name : STRING;
+  description : OPTIONAL STRING;
+  relating : Resource_event;
+  related : resource_event_correspondence_item;
+END_ENTITY;
+
+ENTITY Resource_event_relationship;
+  name : STRING;
+  description : OPTIONAL STRING;
+  relating : Resource_event;
+  related : Resource_event;
 END_ENTITY;
 
 ENTITY Resource_location;
   name : STRING;
   description : OPTIONAL STRING;
-  location : OPTIONAL resource_location_item;
+  location_item : OPTIONAL resource_location_item;
 END_ENTITY;
 
 END_SCHEMA;

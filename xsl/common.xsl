@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
+$Id: common.xsl,v 1.30 2002/03/28 13:11:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -10,8 +10,8 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-  <!-- 
-       Template to determine whether the output is XML or HTML 
+  <!--
+       Template to determine whether the output is XML or HTML
        Sets variable global FILE_EXT
        -->
   <xsl:import href="file_ext.xsl"/>
@@ -22,7 +22,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
   <xsl:output method="html"/>
 
 <!--
-     Output a cascading stylesheet. The stylesheet is specified in the 
+     Output a cascading stylesheet. The stylesheet is specified in the
      global parameter: output_css in parameter.xsl, so to prevent a
      cascading stylesheet being used set output_css to ''
      To override this and force a cascading stylesheet set
@@ -35,17 +35,17 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:when test="$override_css">
       <xsl:variable name="hpath"
       select="concat($path,$override_css)"/>
-      <link 
-        rel="stylesheet" 
-        type="text/css" 
+      <link
+        rel="stylesheet"
+        type="text/css"
         href="{$hpath}"/>
     </xsl:when>
     <xsl:when test="$output_css">
       <xsl:variable name="hpath"
         select="concat($path,$output_css)"/>
-      <link 
-        rel="stylesheet" 
-        type="text/css" 
+      <link
+        rel="stylesheet"
+        type="text/css"
         href="{$hpath}"/>
     </xsl:when>
   </xsl:choose>
@@ -75,7 +75,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
      is set, then RCS version control information is displayed
 -->
 <xsl:template match="module" mode="title">
-  <xsl:variable 
+  <xsl:variable
     name="lpart">
     <xsl:choose>
       <xsl:when test="string-length(@part)>0">
@@ -89,17 +89,17 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
 
   <xsl:choose>
     <xsl:when test="$output_rcs">
-      <xsl:variable 
+      <xsl:variable
         name="date"
         select="translate(@rcs.date,'$','')"/>
-      <xsl:variable 
+      <xsl:variable
         name="rev"
         select="translate(@rcs.revision,'$','')"/>
-      <xsl:value-of 
-        select="concat($lpart,' :- ',@name,'  (',$date,' ',$rev,')')"/>      
+      <xsl:value-of
+        select="concat($lpart,' :- ',@name,'  (',$date,' ',$rev,')')"/>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:value-of 
+      <xsl:value-of
         select="concat($lpart,' :- ',@name)"/>
     </xsl:otherwise>
   </xsl:choose>
@@ -112,17 +112,17 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:variable name="mod_dir">
       <xsl:call-template name="module_directory">
         <xsl:with-param name="module" select="$module"/>
-      </xsl:call-template>           
+      </xsl:call-template>
     </xsl:variable>
 
     <table cellspacing="0" border="0">
       <xsl:variable
-        name="module_file" 
+        name="module_file"
         select="concat($mod_dir,'/module.xml')"/>
-      <xsl:variable 
+      <xsl:variable
         name="module_date"
         select="translate(document($module_file)/module/@rcs.date,'$','')"/>
-      <xsl:variable 
+      <xsl:variable
       name="module_rev"
         select="translate(document($module_file)/module/@rcs.revision,'$','')"/>
       <tr>
@@ -130,7 +130,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
           <font size="-2">
             <xsl:value-of select="'module.xml'"/>
           </font>
-        </td> 
+        </td>
         <td>
           <font size="-2">
             <xsl:value-of select="concat('(',$module_date,' ',$module_rev,')')"/>
@@ -138,12 +138,12 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         </td>
         <td>&#160;&#160;</td>
       <xsl:variable
-        name="arm_file" 
+        name="arm_file"
         select="concat($mod_dir,'/arm.xml')"/>
-      <xsl:variable 
+      <xsl:variable
         name="arm_date"
         select="translate(document($arm_file)/express/@rcs.date,'$','')"/>
-      <xsl:variable 
+      <xsl:variable
         name="arm_rev"
         select="translate(document($arm_file)/express/@rcs.revision,'$','')"/>
 
@@ -158,14 +158,14 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
           </font>
         </td>
         <td>&#160;&#160;</td>
-      
+
       <xsl:variable
-        name="mim_file" 
+        name="mim_file"
         select="concat($mod_dir,'/mim.xml')"/>
-      <xsl:variable 
+      <xsl:variable
         name="mim_date"
         select="translate(document($mim_file)/express/@rcs.date,'$','')"/>
-      <xsl:variable 
+      <xsl:variable
         name="mim_rev"
         select="translate(document($mim_file)/express/@rcs.revision,'$','')"/>
 
@@ -181,7 +181,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         </td>
       </tr>
     </table>
-  </xsl:if>  
+  </xsl:if>
 </xsl:template>
 
 <!--
@@ -203,7 +203,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <TR>
       <TD valign="MIDDLE">
         <B>
-          Application module: 
+          Application module:
           <xsl:call-template name="module_display_name">
             <xsl:with-param name="module" select="@name"/>
           </xsl:call-template>
@@ -318,15 +318,15 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-  
-    
+
+
     <xsl:apply-templates select="./img"/>
     <center>
       <a name="{$aname}">
         <xsl:value-of select="concat('Figure ',$number,
                               ' - ')"/></a>&#160;&#160;<xsl:apply-templates select="./title"/>
     </center>
-    
+
   </xsl:template>
 
 <xsl:template match="title">
@@ -335,7 +335,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
 
 <xsl:template match="img">
   <!-- if the img has been defined in a separate file within the element
-       imgfile.content, then the src path is OK. 
+       imgfile.content, then the src path is OK.
        If the img has been defined in the module documentation, then the
        XSL has been invoked from a file in the sys directory, hence the
        path needs to go up to the module directory -->
@@ -376,17 +376,22 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
   <AREA shape="{$shape}" coords="{$coords}" href="{$href}"/>
 </xsl:template>
 
-<!-- 
-     An unordered list 
+<!--
+     An unordered list
      -->
 <xsl:template match="ul" >
   <ul>
     <xsl:apply-templates/>
   </ul>
 </xsl:template>
+<xsl:template match="UL" >
+  <ul>
+    <xsl:apply-templates/>
+  </ul>
+</xsl:template>
 
-<!-- 
-     An ordered list 
+<!--
+     An ordered list
      -->
 <xsl:template match="ol" >
   <xsl:variable
@@ -405,9 +410,25 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
+<xsl:template match="OL" >
+  <xsl:variable
+    name="type"
+    select="@type"/>
+  <xsl:choose>
+    <xsl:when test="$type">
+      <ol type="{$type}">
+        <xsl:apply-templates/>
+      </ol>
+    </xsl:when>
+    <xsl:otherwise>
+      <ol>
+        <xsl:apply-templates/>
+      </ol>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
-
-<!-- 
+<!--
      A list item
      -->
 <xsl:template match="li" >
@@ -415,8 +436,13 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:apply-templates/>
   </li>
 </xsl:template>
+<xsl:template match="LI" >
+  <li>
+    <xsl:apply-templates/>
+  </li>
+</xsl:template>
 
-<!-- 
+<!--
      A definition list
      -->
 <xsl:template match="dl">
@@ -425,7 +451,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
   </dl>
 </xsl:template>
 
-<!-- 
+<!--
      A definition term
      -->
 <xsl:template match="dt">
@@ -434,7 +460,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
   </dt>
 </xsl:template>
 
-<!-- 
+<!--
      A definition desription
      -->
 <xsl:template match="dd">
@@ -443,7 +469,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
   </dd>
 </xsl:template>
 
-<!-- 
+<!--
      A paragraph
      -->
 <xsl:template match="p">
@@ -459,10 +485,30 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         <xsl:apply-templates/>
       </p>
     </xsl:otherwise>
-  </xsl:choose>  
+  </xsl:choose>
+</xsl:template>
+<xsl:template match="P">
+  <!-- if a paragraph is specified immediately after NOTE of EXAMPLE, then
+       ignore it
+       -->
+  <xsl:choose>
+    <xsl:when test="position()=1 and (name(..)='note' or name(..)='example')" >
+      <xsl:apply-templates/>
+    </xsl:when>
+    <xsl:otherwise>
+      <p>
+        <xsl:apply-templates/>
+      </p>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="b">
+  <b>
+    <xsl:apply-templates/>
+  </b>
+</xsl:template>
+<xsl:template match="B">
   <b>
     <xsl:apply-templates/>
   </b>
@@ -473,10 +519,19 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:apply-templates/>
   </i>
 </xsl:template>
-
+<xsl:template match="I">
+  <i>
+    <xsl:apply-templates/>
+  </i>
+</xsl:template>
 
 <!-- subscript -->
 <xsl:template match="sub" >
+  <sub>
+    <xsl:apply-templates/>
+  </sub>
+</xsl:template>
+<xsl:template match="SUB" >
   <sub>
     <xsl:apply-templates/>
   </sub>
@@ -488,7 +543,11 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:apply-templates/>
   </sup>
 </xsl:template>
-
+<xsl:template match="SUP" >
+  <sup>
+    <xsl:apply-templates/>
+  </sup>
+</xsl:template>
 
 
 <xsl:template match="screen" >
@@ -507,18 +566,18 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
   <xsl:template name="remove_duplicates">
     <xsl:param name="list" />
     <xsl:call-template name="remove_duplicates_rec">
-      <xsl:with-param name="list" 
+      <xsl:with-param name="list"
         select="concat(normalize-space($list),' ')" />
       <xsl:with-param name="return_list" select="' '" />
-    </xsl:call-template>      
+    </xsl:call-template>
   </xsl:template>
   <xsl:template name="remove_duplicates_rec">
     <xsl:param name="list" />
     <xsl:param name="return_list" />
-    <xsl:variable 
+    <xsl:variable
       name="first"
       select="substring-before($list,' ')" />
-    <xsl:variable 
+    <xsl:variable
       name="rest"
       select="substring-after($list,' ')" />
     <xsl:choose>
@@ -538,13 +597,13 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         <xsl:call-template name="remove_duplicates_rec">
           <xsl:with-param name="list" select="$rest" />
           <xsl:with-param name="return_list" select="$return_list" />
-        </xsl:call-template>      
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
         <xsl:call-template name="remove_duplicates_rec">
           <xsl:with-param name="list" select="$rest" />
           <xsl:with-param name="return_list" select="concat($return_list,$first,' ')" />
-        </xsl:call-template>      
+        </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -555,7 +614,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
        -->
   <xsl:template name="check_module_exists">
     <xsl:param name="module"/>
-    
+
     <xsl:variable name="module_name">
       <xsl:call-template name="module_name">
         <xsl:with-param name="module" select="$module"/>
@@ -569,11 +628,11 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
             <xsl:value-of select="'true'"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of 
-              select="concat('ERROR:  the module', $module_name, 
+            <xsl:value-of
+              select="concat('ERROR:  the module', $module_name,
                       ' is not identified as a module in repository_index.xml')"/>
           </xsl:otherwise>
-        </xsl:choose>     
+        </xsl:choose>
       </xsl:variable>
       <xsl:value-of select="$ret_val"/>
   </xsl:template>
@@ -590,15 +649,15 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:param name="inline" select="'yes'"/>
     <xsl:param name="warning_gif"
       select="'../../../../images/warning.gif'"/>
-      
+
     <xsl:message>
       <xsl:value-of select="$message"/>
     </xsl:message>
     <xsl:if test="contains($INLINE_ERRORS,'yes')">
       <xsl:if test="contains($inline,'yes')">
-        <br/> 
-        <IMG 
-          SRC="{$warning_gif}" ALT="[warning:]" 
+        <br/>
+        <IMG
+          SRC="{$warning_gif}" ALT="[warning:]"
           align="absbottom" border="0"
           width="20" height="20"/>
         <font color="#FF0000" size="-1">
@@ -617,23 +676,23 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
        -->
   <xsl:template name="module_display_name">
     <xsl:param name="module"/>
-    
+
     <xsl:variable name="mod_dir">
       <xsl:call-template name="module_name">
         <xsl:with-param name="module" select="$module"/>
-      </xsl:call-template>           
+      </xsl:call-template>
     </xsl:variable>
     <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
     <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    
+
     <xsl:variable name="first_char"
       select="substring(translate($module,$LOWER,$UPPER),1,1)"/>
 
     <xsl:variable name="module_name"
-      select="concat($first_char, 
+      select="concat($first_char,
               translate(substring($module,2),'_',' '))"/>
     <xsl:value-of select="$module_name"/>
-    
+
   </xsl:template>
 
   <!-- given the name of a module, or module arm or mim schema
@@ -658,7 +717,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         <xsl:otherwise>
           <xsl:value-of select="string($module_lcase)"/>
         </xsl:otherwise>
-      </xsl:choose>      
+      </xsl:choose>
     </xsl:variable>
     <xsl:value-of select="$mod_name"/>
   </xsl:template>
@@ -671,7 +730,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:variable name="mod_dir">
       <xsl:call-template name="module_name">
         <xsl:with-param name="module" select="$module"/>
-      </xsl:call-template>           
+      </xsl:call-template>
     </xsl:variable>
     <xsl:value-of select="concat('../data/modules/',$mod_dir)"/>
   </xsl:template>
@@ -686,7 +745,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:param name="section3separator" select="'.'"/>
     <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
     <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    
+
     <xsl:variable name="s1"
       select="normalize-space(translate($section1,$UPPER,$LOWER))"/>
     <xsl:variable name="s2"
@@ -699,13 +758,13 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         <xsl:value-of select="concat($s1,'.',$s2,$section3separator,$s3)"/>
       </xsl:when>
       <xsl:when test="$s2">
-        <xsl:value-of select="concat($s1,'.',$s2)"/>    
+        <xsl:value-of select="concat($s1,'.',$s2)"/>
       </xsl:when>
       <xsl:when test="$s1">
-        <xsl:value-of select="$s1"/>    
+        <xsl:value-of select="$s1"/>
       </xsl:when>
     </xsl:choose>
-    
+
   </xsl:template>
 
 
@@ -743,10 +802,10 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:choose>
       <xsl:when test="$href=''">
         <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('express_ref linkend', 
-                    @linkend, 
+          <xsl:with-param
+            name="message"
+            select="concat('express_ref linkend',
+                    @linkend,
                     ' is incorrectly specified')"/>
         </xsl:call-template>
         <xsl:choose>
@@ -777,15 +836,15 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
      <!-- the relative path to be added to the url -->
      <xsl:param name="baselink" select="'../../../'"/>
     <!-- remove all whitespace -->
-    <xsl:variable 
+    <xsl:variable
       name="nlinkend"
       select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
 
-    <xsl:variable 
-      name="module" 
+    <xsl:variable
+      name="module"
       select="substring-before($nlinkend,':')"/>
 
-    <xsl:variable 
+    <xsl:variable
       name="nlinkend1"
       select="substring-before(substring-after($nlinkend,':'),':')"/>
 
@@ -805,50 +864,50 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
       </xsl:choose>
     </xsl:variable>
 
-    <xsl:variable 
-      name="express_ref" 
+    <xsl:variable
+      name="express_ref"
       select="translate(substring-after(substring-after($nlinkend,':'),':'),
               'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
 
     <xsl:variable name="href">
       <xsl:choose>
         <xsl:when test="$module='' or $arm_mim_ir=''">
-          <!-- 
-               error do nothing as the error will be picked up after the 
+          <!--
+               error do nothing as the error will be picked up after the
                href variable is set.
                -->
         </xsl:when>
         <xsl:when test="$arm_mim_ir='ir_express'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat($baselink,'resources/',$module,'/',
                     $module,$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
         <xsl:when test="$arm_mim_ir='arm'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat($baselink,'modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='arm_express'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat($baselink,'modules/',$module,
                     '/arm',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
         <xsl:when test="$arm_mim_ir='mim'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat($baselink,'modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
 
 
         <xsl:when test="$arm_mim_ir='mim_express'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat($baselink,'modules/',$module,
                     '/mim',$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
       </xsl:choose>
-    </xsl:variable> 
+    </xsl:variable>
     <xsl:value-of select="$href"/>
   </xsl:template>
 
@@ -890,14 +949,14 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
          example
          table
       <id> if a construct is given, then id is the identifier for the
-           construct. 
+           construct.
       -->
   <xsl:template match="module_ref">
     <!-- remove all whitespace -->
-    <xsl:variable 
+    <xsl:variable
       name="nlinkend"
       select="translate(@linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
-    
+
     <xsl:variable name="module">
       <xsl:choose>
         <xsl:when test="contains($nlinkend,':')">
@@ -909,7 +968,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
       </xsl:choose>
     </xsl:variable>
 
-    <xsl:variable 
+    <xsl:variable
       name="nlinkend1"
       select="substring-after($nlinkend,':')"/>
 
@@ -923,7 +982,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    
+
     <!-- now check that section is a valid reference -->
     <xsl:variable name="section">
       <xsl:choose>
@@ -955,7 +1014,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
           <xsl:value-of select="$section_tmp"/>
         </xsl:when>
         <xsl:otherwise>
-          <!-- 
+          <!--
                error - will be picked up after the  href variable is set.
                -->
           <xsl:value-of select="'error'"/>
@@ -963,7 +1022,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
       </xsl:choose>
     </xsl:variable>
 
-    <xsl:variable 
+    <xsl:variable
       name="nlinkend2"
       select="substring-after($nlinkend1,':')"/>
 
@@ -977,8 +1036,8 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    
-    <xsl:variable 
+
+    <xsl:variable
       name="nlinkend3"
       select="substring-after($nlinkend2,':')"/>
 
@@ -998,14 +1057,14 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         <!-- test that a valid value is given for construct -->
         <xsl:when test="$construct_tmp='example'
                         or $construct_tmp='note'
-                        or $construct_tmp='figure'">          
+                        or $construct_tmp='figure'">
           <xsl:choose>
             <!-- test that an id has been given -->
             <xsl:when test="$id!=''">
-              <xsl:value-of select="concat('#',$construct_tmp,':',$id)"/>   
+              <xsl:value-of select="concat('#',$construct_tmp,':',$id)"/>
             </xsl:when>
             <xsl:otherwise>
-              <!-- 
+              <!--
                    error - will be picked up after the  href variable is set.
                    -->
               <xsl:value-of select="'error'"/>
@@ -1013,9 +1072,9 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
           </xsl:choose>
         </xsl:when>
         <xsl:when test="$construct_tmp=''"/>
-          
+
         <xsl:otherwise>
-          <!-- 
+          <!--
                error - will be picked up after the  href variable is set.
                -->
           <xsl:value-of select="'error'"/>
@@ -1027,42 +1086,42 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:variable name="href">
       <xsl:choose>
         <xsl:when test="$module=''">
-          <!-- 
-               error do nothing as the error will be picked up after the 
+          <!--
+               error do nothing as the error will be picked up after the
                href variable is set.
                -->
         </xsl:when>
         <xsl:when test="$section='error'">
-          <!-- 
-               error do nothing as the error will be picked up after the 
+          <!--
+               error do nothing as the error will be picked up after the
                href variable is set.
                -->
         </xsl:when>
         <xsl:when test="$construct='error'">
-          <!-- 
-               error do nothing as the error will be picked up after the 
+          <!--
+               error do nothing as the error will be picked up after the
                href variable is set.
                -->
         </xsl:when>
         <xsl:when test="$section=''">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,'/sys/introduction',
                     $FILE_EXT)"/>
         </xsl:when>
         <xsl:when test="$section='introduction'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,'/sys/introduction',
                     $FILE_EXT,$construct)"/>
         </xsl:when>
         <xsl:when test="$section='1_scope'">
           <xsl:choose>
             <xsl:when test="$construct">
-              <xsl:value-of 
+              <xsl:value-of
                 select="concat('../../../modules/',$module,
-                        '/sys/1_scope',$FILE_EXT,$construct)"/>              
+                        '/sys/1_scope',$FILE_EXT,$construct)"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of 
+              <xsl:value-of
                 select="concat('../../../modules/',$module,
                         '/sys/1_scope',$FILE_EXT,'#scope')"/>
             </xsl:otherwise>
@@ -1072,12 +1131,12 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         <xsl:when test="$section='1_inscope'">
           <xsl:choose>
             <xsl:when test="$construct=''">
-              <xsl:value-of 
+              <xsl:value-of
                 select="concat('../../../modules/',$module,
                         '/sys/1_scope',$FILE_EXT,'#inscope')"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of 
+              <xsl:value-of
                 select="concat('../../../modules/',$module,
                         '/sys/1_scope',$FILE_EXT,$construct)"/>
             </xsl:otherwise>
@@ -1087,12 +1146,12 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         <xsl:when test="$section='1_outscope'">
           <xsl:choose>
             <xsl:when test="$construct=''">
-              <xsl:value-of 
+              <xsl:value-of
                 select="concat('../../../modules/',$module,
                         '/sys/1_scope',$FILE_EXT,'#outscope')"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of 
+              <xsl:value-of
                 select="concat('../../../modules/',$module,
                         '/sys/1_scope',$FILE_EXT,$construct)"/>
             </xsl:otherwise>
@@ -1101,102 +1160,102 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
 
 
         <xsl:when test="$section='2_normrefs'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/2_refs',$FILE_EXT)"/>
         </xsl:when>
         <xsl:when test="$section='3_definition'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/3_defs',$FILE_EXT)"/>
         </xsl:when>
         <xsl:when test="$section='3_abbreviations'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/3_defs',$FILE_EXT)"/>
         </xsl:when>
         <xsl:when test="$section='4_uof'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#uof')"/>
         </xsl:when>
         <xsl:when test="$section='4_interfaces'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#interfaces')"/>
         </xsl:when>
         <xsl:when test="$section='4_constants'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#constants')"/>
         </xsl:when>
         <xsl:when test="$section='4_types'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#types')"/>
         </xsl:when>
         <xsl:when test="$section='4_entities'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#entities')"/>
         </xsl:when>
         <xsl:when test="$section='4_rules'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#rules')"/>
         </xsl:when>
         <xsl:when test="$section='4_functions'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#functions')"/>
         </xsl:when>
         <xsl:when test="$section='4_procedures'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/4_info_reqs',$FILE_EXT,'#procedures')"/>
         </xsl:when>
         <xsl:when test="$section='5_mapping'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#mapping')"/>
         </xsl:when>
         <xsl:when test="$section='5_mim_express'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#mim_express')"/>
         </xsl:when>
         <xsl:when test="$section='5_interfaces'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#interfaces')"/>
         </xsl:when>
         <xsl:when test="$section='5_constants'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#constants')"/>
         </xsl:when>
         <xsl:when test="$section='5_types'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#types')"/>
         </xsl:when>
         <xsl:when test="$section='5_entities'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#entities')"/>
         </xsl:when>
         <xsl:when test="$section='5_rules'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#rules')"/>
         </xsl:when>
         <xsl:when test="$section='5_functions'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#functions')"/>
         </xsl:when>
         <xsl:when test="$section='5_procedures'">
-          <xsl:value-of 
+          <xsl:value-of
             select="concat('../../../modules/',$module,
                     '/sys/5_mim',$FILE_EXT,'#procedures')"/>
         </xsl:when>
@@ -1204,26 +1263,26 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         <xsl:when test="$section='f_usage_guide'">
           <xsl:choose>
             <xsl:when test="$construct">
-              <xsl:value-of 
+              <xsl:value-of
                 select="concat('../../../modules/',$module,
                     '/sys/f_guide',$FILE_EXT,$construct)"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of 
+              <xsl:value-of
                 select="concat('../../../modules/',$module,
                         '/sys/f_guide',$FILE_EXT,'#annexf')"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
-          <!-- 
+          <!--
                error - will be picked up after the  href variable is set.
                -->
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
 
-    <!-- debug 
+    <!-- debug
     [sect:<xsl:value-of select="$section"/>]
     [module:<xsl:value-of select="$module"/>]
     [href:<xsl:value-of select="$href"/>]
@@ -1232,10 +1291,10 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
     <xsl:choose>
       <xsl:when test="$href=''">
         <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('module_ref linkend ', 
-                    $nlinkend, 
+          <xsl:with-param
+            name="message"
+            select="concat('module_ref linkend ',
+                    $nlinkend,
                     ' is incorrectly specified')"/>
         </xsl:call-template>
         <xsl:apply-templates/>
@@ -1265,7 +1324,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
         </xsl:variable>
-        
+
         <xsl:call-template name="count_substring">
           <xsl:with-param name="substring" select="$substring"/>
           <xsl:with-param name="string" select="$rest"/>
@@ -1285,16 +1344,16 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
        -->
   <xsl:template name="output_string_with_linebreaks">
     <xsl:param name="string"/>
-    
-    <xsl:variable name="nstring" 
+
+    <xsl:variable name="nstring"
       select="translate( $string,'&#xA;&#xD;','&#xA;')"/>
 
     <xsl:choose>
       <xsl:when test="contains($nstring,'&#xA;')">
-        <xsl:variable 
+        <xsl:variable
           name="first"
           select="substring-before($nstring,'&#xA;')"/>
-        <xsl:variable 
+        <xsl:variable
           name="rest"
           select="substring-after($nstring,'&#xA;')"/>
 
@@ -1336,7 +1395,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    
+
     <xsl:variable name="language">
       <xsl:choose>
         <xsl:when test="string-length($module/@language)">
@@ -1347,7 +1406,7 @@ $Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    
+
     <xsl:variable name="pub_year">
       <xsl:choose>
         <xsl:when test="string-length($module/@publication.year)">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.123 2003/11/25 17:17:27 robbod Exp $
+$Id: common.xsl,v 1.124 2004/02/05 07:42:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -828,6 +828,22 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
      for the punctuation of a list
      -->
 <xsl:template match="li|LI">
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
+  <!-- make sure that the LI is in a UL OL or INSCOPE -->
+  <xsl:variable name="parent" select="translate(name(..),$UPPER,$LOWER)"/>
+
+  <xsl:choose>
+    <xsl:when test="not($parent='ul' or $parent='ol' or $parent='ul' or $parent='inscope' or $parent='outscope' or $parent='abstract')">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error LI1: The parent element of &lt;li&gt;, must be a &lt;ul&gt;,&lt;ol&gt;, &lt;inscope&gt;, &lt;outscope&gt; not ',$parent)"/>
+            </xsl:call-template>
+    </xsl:when>
+  </xsl:choose>
+
   <xsl:choose>
     <xsl:when test="$ERROR_CHECK_LIST_ITEMS = 'NO'">
       <li>

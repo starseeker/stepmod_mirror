@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.34 2002/02/24 23:14:01 robbod Exp $
+$Id: module.xsl,v 1.35 2002/03/04 07:54:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2174,7 +2174,7 @@ defines it. Use: normref.inc')"/>
       </xsl:choose>
     </xsl:variable>
 
-    <xsl:variable name="orgname" select="'ISO'"/>
+    <xsl:variable name="orgname" select="'ISO/TS'"/>
     <xsl:variable name="stdnumber"
       select="concat($orgname,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
     <xsl:value-of select="$stdnumber"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.79 2002/10/22 10:02:50 robbod Exp $
+$Id: common.xsl,v 1.80 2002/11/27 13:27:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2774,7 +2774,7 @@ is case sensitive.')"/>
 
 
   <!-- display the expressg Icon for an express construct -->
-  <xsl:template match="entity|type|schema|constant" mode="expressg_icon">
+  <xsl:template match="entity|type|schema|constant|subtype.constraint" mode="expressg_icon">
     <!-- the entity may be being referenced from another module
          in which case the schema needs to be explicit.
          This only happens in the mapping tables when and ARM object is

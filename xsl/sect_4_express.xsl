@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.75 2002/11/14 15:10:31 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.76 2002/12/11 07:58:38 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1572,7 +1572,9 @@
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-		<xsl:if test="substring($schema_name, string-length($schema_name)-3)='_arm'">
+    <xsl:apply-templates select="." mode="expressg_icon"/>
+
+    <xsl:if test="substring($schema_name, string-length($schema_name)-3)='_arm'">
       <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
       <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
       <xsl:variable name="sc_map_aname"
@@ -1580,7 +1582,7 @@
 
       <xsl:variable name="maphref" 
         select="concat('./5_mapping',$FILE_EXT,'#',$sc_map_aname)"/>
-      &#160;<a href="{$maphref}"><img align="middle" border="0" 
+      <a href="{$maphref}"><img align="middle" border="0" 
           alt="Mapping table" src="../../../../images/mapping.gif"/></a>
     </xsl:if>
   </h3>

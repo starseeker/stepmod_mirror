@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-17T16:24:18" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_functional_interface_requirement_arm schema_instance"/>
+   <schema name="Assembly_functional_interface_requirement_arm">
+      <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
+      <interface kind="use" schema="Product_view_definition_arm"/>
+      <interface kind="use" schema="Functional_specification_arm"/>
+      <interface kind="use" schema="Requirement_assignment_arm"/>
+      <interface kind="use" schema="Requirement_decomposition_arm"/>
+      <interface kind="use" schema="Assembly_physical_interface_requirement_arm"/>
+      <type name="mating_connector_definition_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <entity name="Interface_requirement_occurrence" supertypes="Design_requirement_occurrence">
+         <explicit name="reference_protocol" optional="YES">
+            <typename name="Protocol_physical_layer_definition"/>
+         </explicit>
+         <explicit name="interface_to_next_higher_assembly" optional="YES">
+            <typename name="Next_higher_assembly_interface_requirement"/>
+         </explicit>
+      </entity>
+      <entity name="Protocol_physical_layer_definition" supertypes="Product_view_definition">
+         <derived name="reference_document" expression=" SELF \ product_view_definition . documentation ">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Document_definition"/>
+         </derived>
+         <explicit name="media_functional_definition" optional="YES">
+            <typename name="Functional_unit_usage_view"/>
+         </explicit>
+         <explicit name="media_functional_characterization" optional="YES">
+            <typename name="Functional_specification_definition"/>
+         </explicit>
+         <explicit name="media_connector" optional="YES">
+            <typename name="Minimally_defined_connector"/>
+         </explicit>
+         <explicit name="host_xmt_functional_characterization" optional="YES">
+            <typename name="Functional_specification_definition"/>
+         </explicit>
+         <explicit name="host_rcv_functional_characterization" optional="YES">
+            <typename name="Functional_specification_definition"/>
+         </explicit>
+         <explicit name="host_functional_definition">
+            <typename name="Functional_unit_usage_view"/>
+         </explicit>
+         <explicit name="host_connector" optional="YES">
+            <typename name="Minimally_defined_connector"/>
+         </explicit>
+         <where label="WR3" expression=" EXISTS ( host_functional_definition ) OR EXISTS ( media_functional_definition ) "/>
+         <where label="WR2" expression=" SIZEOF ( SELF \ product_view_definition . documentation ) = 1 "/>
+         <where label="WR1" expression=" EXISTS ( SELF \ product_view_definition . documentation ) "/>
+      </entity>
+      <entity name="Protocol_requirement_allocation_to_part_terminal" supertypes="Requirement_assignment">
+         <explicit name="protocol_signal">
+            <typename name="Functional_unit_usage_view_terminal_definition"/>
+         </explicit>
+         <explicit name="assigned_requirement">
+            <typename name="Interface_requirement_occurrence"/>
+            <redeclaration entity-ref="Requirement_assignment" old_name="assigned_requirement"/>
+         </explicit>
+         <explicit name="assigned_to">
+            <typename name="Part_terminal"/>
+            <redeclaration entity-ref="Requirement_assignment" old_name="assigned_to"/>
+         </explicit>
+         <where label="WR2" expression=" protocol_signal IN SELF \ requirement_assignment . assigned_requirement . reference_protocol . host_functional_definition \ functional_unit_usage_view . access_mechanism "/>
+         <where label="WR1" expression=" EXISTS ( SELF \ requirement_assignment . assigned_requirement . reference_protocol ) "/>
+      </entity>
+      <entity name="Mating_connector_termination">
+         <explicit name="signal_definition" optional="YES">
+            <typename name="Ee_requirement_occurrence"/>
+         </explicit>
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="accessed_connector">
+            <typename name="Mating_connector_component"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="mating_connector_definition_select"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Mating_connector_termination" attribute="definition"/>
+            <unique.attribute entity-ref="Mating_connector_termination" attribute="accessed_connector"/>
+         </unique>
+      </entity>
+      <entity name="Minimally_defined_connector" supertypes="Packaged_part">
+         <inverse name="terminal" entity="Shape_element" attribute="containing_shape">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
+         <explicit name="used_package">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Package_external_reference"/>
+            <redeclaration entity-ref="Packaged_part" old_name="used_package"/>
+         </explicit>
+         <where label="WR4" expression=" NOT ( 'AP210_ARM.ALTERED_PACKAGED_PART' IN TYPEOF ( SELF ) ) "/>
+         <where label="WR3" expression=" NOT EXISTS ( SELF \ packaged_part . potting_compound ) "/>
+         <where label="WR2" expression=" NOT EXISTS ( SELF \ packaged_part . implemented_function ) "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( t &lt;* SELF \ packaged_part . access_mechanisms | ( 'AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF ( t ) ) ) ) &gt;= 0 "/>
+      </entity>
+      <entity name="Termination_constraint">
+         <explicit name="termination_usage_constraint">
+            <typename name="Ee_requirement_occurrence"/>
+         </explicit>
+         <explicit name="constrained_termination">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="Mating_connector_termination"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.41 2004/11/08 16:24:33 robbod Exp $
+$Id: sect_contents.xsl,v 1.42 2004/12/21 01:37:44 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -292,7 +292,7 @@ $Id: sect_contents.xsl,v 1.41 2004/11/08 16:24:33 robbod Exp $
         <xsl:with-param name="short" select="'no'"/>
         <xsl:with-param name="annex_file"  select="'annex_changes'"/>
         <xsl:with-param name="annex_letter"  select="$al_changes"/>
-      <xsl:with-param name="max-depth" select="3"/>
+      <xsl:with-param name="max-depth" select="2"/>
       <xsl:with-param name="current-depth" select="0"/>
 
       </xsl:apply-templates>

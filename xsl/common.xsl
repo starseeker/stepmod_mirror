@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.42 2002/05/30 15:09:07 robbod Exp $
+$Id: common.xsl,v 1.43 2002/05/31 08:36:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -701,8 +701,32 @@ $Id: common.xsl,v 1.42 2002/05/30 15:09:07 robbod Exp $
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of
-              select="concat('ERROR c1:  the module ', $module_name,
+              select="concat(' The module ', $module_name,
                       ' is not identified as a module in repository_index.xml')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+
+  <!-- given the name of a schema, check to see whether it has bee
+       included in the repository_index.xml file as an
+       integrated resource
+       Return true or if not found, an error message.
+       -->
+  <xsl:template name="check_resource_exists">
+    <xsl:param name="schema"/>
+
+    <xsl:variable name="ret_val">
+        <xsl:choose>
+          <xsl:when
+            test="document('../repository_index.xml')/repository_index/resources/resource[@name=$schema]">
+            <xsl:value-of select="'true'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of
+              select="concat(' The schema ', $schema,
+                      ' is not identified as a resource in repository_index.xml')"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>

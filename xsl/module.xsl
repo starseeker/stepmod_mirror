@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.58 2002/05/31 08:36:46 robbod Exp $
+$Id: module.xsl,v 1.59 2002/05/31 08:44:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1033,8 +1033,8 @@ $Id: module.xsl,v 1.58 2002/05/31 08:36:46 robbod Exp $
           <xsl:otherwise>
             <xsl:call-template name="error_message">
               <xsl:with-param name="message">
-                <xsl:value-of select="concat(' The UoF ',$uof,' cannot be
-found in module ',$module )"/>
+                <xsl:value-of select="concat('Error 18: The UoF ',$uof,
+                                      ' cannot be found in module ',$module )"/>
               </xsl:with-param>
             </xsl:call-template>
           </xsl:otherwise>

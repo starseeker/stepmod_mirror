@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.19 2005/01/10 08:40:14 kovaliovas Exp $
+   $Id: arm.exp,v 1.20 2005/01/16 17:26:36 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly technology - EXPRESS ARM *)
 
 SCHEMA Assembly_technology_arm;
@@ -72,16 +72,13 @@ USE FROM Product_identification_extension_arm;
       bonded_feature_2                        : Part_feature;
     INVERSE
       default_shape : SET[0:1] OF default_assembly_bond_shape FOR characterized_bond_definition;
-	  bond_category	: External_source_identification FOR item;      
+	  bond_category	: External_source_identification FOR item;
+	  bond_material : material_identification FOR items;      
     UNIQUE
       UR1 : name;
     WHERE
       WR1 : bonded_feature_1 <> bonded_feature_2;
-	  WR2 : SIZEOF(QUERY(mi <* USEDIN(SELF,
-	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
-	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
-	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
+      WR2 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material);
   END_ENTITY;
 
   ENTITY Assembly_joint

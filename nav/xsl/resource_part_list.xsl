@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: resource_part_list.xsl,v 1.4 2002/12/12 02:00:46 thendrix Exp $
+$Id: resource_part_list.xsl,v 1.5 2002/12/12 23:16:06 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of resource parts
@@ -141,7 +141,7 @@ $Id: resource_part_list.xsl,v 1.4 2002/12/12 02:00:46 thendrix Exp $
         	&#160;&#160;<a href="{$schema_dir}" target="content"><xsl:value-of select="@name"/></a>
 		<br/>
         	<xsl:variable name="schema_expg" 
-	          select="concat('../data/resources/',@name,'/'@name,'expg1',$FILE_EXT)"/>
+	          select="concat('../data/resources/',@name,'/',@name,'expg1',$FILE_EXT)"/>
 		&#160;&#160;&#160;&#160;<a href="{$schema_expg}" target="content">EXPRESS-G</a>
 		<br/>
         	<xsl:variable name="schema_dev" 

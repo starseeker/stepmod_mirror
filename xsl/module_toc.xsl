@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.7 2002/03/04 07:54:14 robbod Exp $
+$Id: module_toc.xsl,v 1.8 2002/04/02 17:05:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -448,8 +448,15 @@ $Id: module_toc.xsl,v 1.7 2002/03/04 07:54:14 robbod Exp $
         <A HREF="a_short_names{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
         <A HREF="b_obj_reg{$FILE_EXT}#annexb">B Information requirements object
         registration</A><BR/>
-        <A HREF="c_arm_expg{$FILE_EXT}#annexc">C ARM EXPRESS-G</A><BR/>
-        <A HREF="d_mim_expg{$FILE_EXT}#annexd">D MIM EXPRESS-G</A><BR/>
+        <A HREF="c_arm_expg{$FILE_EXT}#annexc">C ARM EXPRESS-G</A>
+        <xsl:apply-templates 
+          select="arm/express-g/imgfile" mode="page_number"/>
+        <BR/>
+
+        <A HREF="d_mim_expg{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
+        <xsl:apply-templates 
+          select="arm/express-g/imgfile" mode="page_number"/>
+        <BR/>
         <A HREF="e_exp{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS
 listings</A><BR/>
         <xsl:if test="./usage_guide">
@@ -499,5 +506,40 @@ listings</A><BR/>
   </TABLE>
 </xsl:template>
 
+<xsl:template match="imgfile" mode="page_number">
+  <xsl:variable name="href">
+    <xsl:call-template name="set_file_ext">
+      <xsl:with-param name="filename" select="concat('../',@file)"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:choose>
+    <xsl:when test="position()=1">
+      &#x20;(
+      <small>
+        <a href="{$href}">
+          <xsl:value-of select="position()"/>
+        </a>
+      </small>,
+    </xsl:when>
+    <xsl:when test="position()=last()">
+      &#x20;
+      <small>
+        <a href="{$href}">
+          <xsl:value-of select="position()"/>
+        </a>
+      </small>)
+    </xsl:when>
+    <xsl:otherwise>
+      &#x20;
+      <small>
+        <a href="{$href}">
+          <xsl:value-of select="position()"/>
+        </a>
+      </small>,
+    </xsl:otherwise>
+  </xsl:choose>
+  
+</xsl:template>
 
 </xsl:stylesheet>

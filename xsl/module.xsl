@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.149 2003/06/01 13:59:39 robbod Exp $
+$Id: module.xsl,v 1.150 2003/06/02 10:13:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -403,7 +403,14 @@ o=isocs; s=central<br/>
       </xsl:if>
 
       This document has been reviewed using the internal review checklist 
-      (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.internal_review)"/>),
+      <xsl:choose>
+        <xsl:when test="@checklist.working_group">
+          (see <xsl:value-of select="concat('WG',@checklist.working_group,'&#160;N',@checklist.internal_review)"/>),
+        </xsl:when>
+        <xsl:otherwise>
+          (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.internal_review)"/>),
+        </xsl:otherwise>
+      </xsl:choose>
       <!-- test the checklist WG number for checklist.internal_review -->
       <xsl:variable name="test_cl_internal_review">
         <xsl:call-template name="test_wg_number">
@@ -425,8 +432,16 @@ o=isocs; s=central<br/>
 
 
       the project leader checklist 
-      (see <xsl:value-of
-      select="concat('WG',$wg_group,'&#160;N',@checklist.project_leader)"/>),
+      <xsl:choose>
+        <xsl:when test="@checklist.working_group">
+          (see <xsl:value-of
+          select="concat('WG',@checklist.working_group,'&#160;N',@checklist.project_leader)"/>),
+        </xsl:when>
+        <xsl:otherwise>
+          (see <xsl:value-of
+          select="concat('WG',$wg_group,'&#160;N',@checklist.project_leader)"/>),          
+        </xsl:otherwise>
+      </xsl:choose>
 
       <!-- test the checklist WG number for checklist.project_leader -->
       <xsl:variable name="test_cl_project_leader">
@@ -448,7 +463,15 @@ o=isocs; s=central<br/>
       </xsl:if>
 
       and the convener checklist
-      (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.convener)"/>),
+      <xsl:choose>
+        <xsl:when test="@checklist.working_group">
+          (see <xsl:value-of select="concat('WG',@checklist.working_group,'&#160;N',@checklist.convener)"/>),          
+        </xsl:when>
+        <xsl:otherwise>
+          (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.convener)"/>),
+        </xsl:otherwise>
+      </xsl:choose>
+
 
       <!-- test the checklist WG number for checklist.convener -->
       <xsl:variable name="test_cl_convener">

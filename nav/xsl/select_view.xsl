@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.16 2003/04/26 23:40:20 nigelshaw Exp $
+$Id: select_view.xsl,v 1.17 2003/06/26 13:33:12 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -190,6 +190,7 @@ $Id: select_view.xsl,v 1.16 2003/04/26 23:40:20 nigelshaw Exp $
 				<xsl:value-of select="select/@selectitems" />
 				<xsl:if test="select/@selectitems"> <br/>
 				</xsl:if>
+				
 				<xsl:variable name="based-on-down" >
 					<xsl:apply-templates select="$this-schema//type[@name=$this_base] 
 								| $called-schemas//type[@name=$this_base]"
@@ -199,7 +200,7 @@ $Id: select_view.xsl,v 1.16 2003/04/26 23:40:20 nigelshaw Exp $
 						<xsl:with-param name="done" select="concat(' ',$this_select,' ')" />
 					</xsl:apply-templates>
 				</xsl:variable>
-				<xsl:value-of select="based-on-down" />
+				<xsl:value-of select="$based-on-down" />
 
 				<!-- check if select items overlaps with already included types from lower selects -->
 				<!-- should also check against subtypes of previous items ??? -->
@@ -733,7 +734,7 @@ $Id: select_view.xsl,v 1.16 2003/04/26 23:40:20 nigelshaw Exp $
 	<xsl:param name="done" select="' '" />
 
 	<xsl:variable name="this_select" select="@name" />
-	<xsl:variable name="this_base" select="@basedon" />
+	<xsl:variable name="this_base" select="select/@basedon" />
 
 	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
 	
@@ -741,9 +742,8 @@ $Id: select_view.xsl,v 1.16 2003/04/26 23:40:20 nigelshaw Exp $
 			<xsl:value-of select="concat(' ',select/@selectitems)" /> 
 			<br/>
 		</xsl:if>
-
-		<xsl:apply-templates select="$this-schema//type[select/@name=$this_base] 
-							| $called-schemas//type[select/@name=$this_base]" 
+		<xsl:apply-templates select="$this-schema//type[select][@name=$this_base] 
+							| $called-schemas//type[select][@name=$this_base]" 
 						mode="basedon-down">
 			<xsl:with-param name="this-schema" select="$this-schema"/>
 			<xsl:with-param name="called-schemas" select="$called-schemas" />

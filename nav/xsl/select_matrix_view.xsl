@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_matrix_view.xsl,v 1.1 2003/03/10 19:19:49 nigelshaw Exp $
+$Id: select_matrix_view.xsl,v 1.2 2003/06/26 13:33:12 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -392,8 +392,8 @@ $Id: select_matrix_view.xsl,v 1.1 2003/03/10 19:19:49 nigelshaw Exp $
 			<br/>
 		</xsl:if>
 
-		<xsl:apply-templates select="$this-schema//type[select/@name=$this_base] 
-							| $called-schemas//type[select/@name=$this_base]" 
+		<xsl:apply-templates select="$this-schema//type[select][@name=$this_base] 
+							| $called-schemas//type[select][@name=$this_base]" 
 						mode="basedon-down">
 			<xsl:with-param name="this-schema" select="$this-schema"/>
 			<xsl:with-param name="called-schemas" select="$called-schemas" />

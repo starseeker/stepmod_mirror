@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.66 2002/09/04 16:27:29 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.67 2002/09/05 07:48:21 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1295,7 +1295,7 @@
     </xsl:choose>
   </p>
   <!-- output any issues against inverse attribute -->
-  <xsl:call-template name="output_external_description">
+  <xsl:call-template name="output_express_issue">
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>

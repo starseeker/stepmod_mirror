@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.14 2002/05/21 16:43:06 robbod Exp $
+$Id: module_toc.xsl,v 1.15 2002/05/30 08:37:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -59,7 +59,22 @@ $Id: module_toc.xsl,v 1.14 2002/05/21 16:43:06 robbod Exp $
         <A HREF="{$module_root}/sys/introduction{$FILE_EXT}#intro">Introduction</A><BR/>
         <A HREF="{$module_root}/sys/1_scope{$FILE_EXT}#scope">1 Scope</A><BR/>
         <A HREF="{$module_root}/sys/2_refs{$FILE_EXT}#nref">2 Normative references</A><BR/>
-        <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}#defns">3 Terms, definitions and abbreviations</A>
+        
+        <!-- Assumption that every module use a set of terms and
+             abbreviations from the normref.inc so only check for local
+             definitions aka terms -->
+        <xsl:choose>
+          <xsl:when test="./definition/term">
+            <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}#defns">
+              3 Terms, definitions and abbreviations
+            </A>
+          </xsl:when>
+          <xsl:otherwise>
+            <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}#defns">
+              3 Terms and abbreviations
+            </A>            
+          </xsl:otherwise>
+        </xsl:choose>
       </p>
       </TD>
       <TD valign="TOP">

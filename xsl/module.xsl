@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.55 2002/05/30 08:33:05 robbod Exp $
+$Id: module.xsl,v 1.56 2002/05/30 15:06:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -135,6 +135,8 @@ $Id: module.xsl,v 1.55 2002/05/30 08:33:05 robbod Exp $
     <xsl:value-of select="$module_name"/>
   </h4>
   
+  
+  <xsl:variable name="status" select="string(@status)"/>
   <xsl:variable name="status_words">
     <xsl:choose>
       <xsl:when test="@status='CD'">
@@ -168,38 +170,100 @@ $Id: module.xsl,v 1.55 2002/05/30 08:33:05 robbod Exp $
     <tr>
       <td valign="TOP" colspan="2" height="26">
         <h3>COPYRIGHT NOTICE:</h3>
-        <p>
-          This ISO document is a 
-          <xsl:value-of select="$status_words"/>          
-          and is copyright protected by ISO. While the reproduction of draft
-          technical specifications in any form for use by Participants in
-          the ISO standards development process is permitted without prior
-          permission from ISO, neither this document nor any extract from
-          it may be reproduced, stored or transmitted in any form for any
-          other purpose without prior written permission from ISO. 
-        </p>
-        <p>
-          Requests for permission to reproduce this document for the
-          purposes of selling it should be addressed as shown below (via
-          the ISO TC 184/SC4 Secretariat's member body) or to ISO's member
-          body in the country of the requester.  
-        </p>
-        <center>
-          Copyright Manager<br/>
-          ANSI<br/>
-          11 West 42nd Street<br/>
-          New York, New York 10036<br/>
-          USA<br/>
-          phone: +1-212-642-4900<br/>
-          fax: +1-212-398-0023<br/>
-        </center>
-        <p>
-          Reproduction for sales purposes may be subject to
-          royalty payments or a licensing agreement.
-        </p>
-        <p>
-          Violators may be prosecuted.
-        </p>
+
+        <xsl:choose>
+          <xsl:when test="$status='CD'">
+            Committee Draft
+          </xsl:when>
+          <xsl:when test="$status='FDIS'">
+            Final Draft International Standard
+          </xsl:when>
+          <xsl:when test="$status='DIS'">
+            Draft International Standard
+          </xsl:when>
+          <xsl:when test="$status='IS'">
+            International Standard
+          </xsl:when>
+
+          <xsl:when test="$status='CD-TS'">
+            <p>
+              This ISO document is a Draft Technical Specification and is
+              copyright protected by ISO. While the reproduction of draft 
+              technical specifications in any form for use by Participants in
+              the ISO standards development process is permitted without prior
+              permission from ISO, neither this document nor any extract from
+              it may be reproduced, stored or transmitted in any form for any
+              other purpose without prior written permission from ISO. 
+            </p>
+            <p>
+              Requests for permission to reproduce this document for the
+              purposes of selling it should be addressed as shown below (via
+              the ISO TC 184/SC4 Secretariat's member body) or to ISO's member
+              body in the country of the requester.  
+            </p>
+            <p>
+              <center>
+              Copyright Manager<br/>
+              ISO Central Secretariat<br/>
+              1 rue de Varembe<br/>
+              1211 Geneva 20 Switzerland<br/>
+              telephone: +41 22 749 0111<br/>
+              telefacsimile: +41 22 734 0179<br/>
+              Internet: central@isocs.iso.ch<br/>
+              </center>
+            </p>
+            <p>
+              Reproduction for sales purposes may be subject to
+              royalty payments or a licensing agreement.
+            </p>
+            <p>
+              Violators may be prosecuted.
+            </p>
+          </xsl:when>
+
+
+          <xsl:when test="$status='TS'">
+            <p>
+              This document is a Technical Specification and is
+              copyright-protected by ISO. Except as permitted under the
+              applicable laws of the user's country, neither this ISO
+              document nor any extract from it may be reproduced, stored in
+              a retrieval system or transmitted in any form or by 
+              any means, electronic, photocopying, recording, or otherwise,
+              without prior written permission being secured.  
+            </p>
+            <p>
+              Requests for permission to reproduce should be addressed to
+              ISO at the address below or ISO's member body in the 
+              country of the requester:
+            </p>
+            <p>
+            <center>
+              Copyright Manager<br/>
+              ISO Central Secretariat<br/>
+              1 rue de Varembe<br/>
+              1211 Geneva 20 Switzerland<br/>
+              telephone: +41 22 749 0111<br/>
+              telefacsimile: +41 22 734 0179<br/>
+              Internet: central@isocs.iso.ch<br/>
+            </center>
+          </p>
+            <p>
+              Reproduction for sales purposes may be subject to
+              royalty payments or a licensing agreement.
+            </p>
+            <p>
+              Violators may be prosecuted.
+            </p>
+          </xsl:when>
+
+          <xsl:when test="$status='WD'">
+            working draft 
+          </xsl:when>
+          <xsl:otherwise>
+            module status not set.
+          </xsl:otherwise>
+        </xsl:choose>
       </td>
     </tr>
     <tr>

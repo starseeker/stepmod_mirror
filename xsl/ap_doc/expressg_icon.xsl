@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
+$Id: expressg_icon.xsl,v 1.1 2003/06/06 11:31:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -97,6 +97,7 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
     <xsl:param name="entity"/>
     <xsl:param name="module_root" select="'..'"/>
     <xsl:param name="expressg"/>
+    <xsl:param name="target"/>
     <xsl:variable name="module_dir">
       <xsl:call-template name="module_directory">
         <xsl:with-param name="module" select="$schema"/>
@@ -126,7 +127,7 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
             </xsl:call-template>    
           </xsl:when>
           <xsl:otherwise>
-            &#160;&#160;<a href="{$href_expg}">
+            &#160;&#160;<a href="{$href_expg}" target="{$target}">
             <img align="middle" border="0" 
               alt="EXPRESS-G" src="{$module_root}/../../../images/expg_small.gif"/>
           </a>
@@ -144,7 +145,7 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
           </xsl:when>
         </xsl:choose>        
       </xsl:variable>
-      &#160;&#160;<a href="{$href_expg}">
+      &#160;&#160;<a href="{$href_expg}" target="{$target}">
       <img align="middle" border="0" 
         alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
        </a>
@@ -161,6 +162,7 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
          being remapped from another module. -->
     <xsl:param name="original_schema"/>
     <xsl:param name="module_root" select="'..'"/>
+    <xsl:param name="target" select="'content'"/>
     <xsl:param name="expressg"/>
 
     <xsl:variable name="schema">
@@ -183,6 +185,7 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
       <xsl:with-param name="entity" select="$entity"/>
       <xsl:with-param name="module_root" select="$module_root"/>
       <xsl:with-param name="expressg" select="$expressg"/>
+      <xsl:with-param name="target" select="$target"/>
     </xsl:call-template>
 
   </xsl:template>

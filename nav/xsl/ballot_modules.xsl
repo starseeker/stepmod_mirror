@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_modules.xsl,v 1.2 2002/12/24 16:54:11 robbod Exp $
+$Id: ballot_modules.xsl,v 1.3 2003/01/20 13:07:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display a list of ballot packages.
@@ -61,7 +61,6 @@ $Id: ballot_modules.xsl,v 1.2 2002/12/24 16:54:11 robbod Exp $
 
   <xsl:variable name="bhome" 
     select="concat('../ballots/ballots/',@name,'/')"/>
-
   <div id="{$Menu}" style="display:none">
     <p class="menulist">
       <a href="javascript:swap({$NoMenu}, {$Menu});">
@@ -73,39 +72,52 @@ $Id: ballot_modules.xsl,v 1.2 2002/12/24 16:54:11 robbod Exp $
       </a>
     </p>
     
-    <p class="menuitem">
+    <p class="menuitem1">
       <a href="{$bhome}ballot_list{$FILE_EXT}" target="content">
         Ballot list
       </a>
     </p>
     
-    <p class="menuitem">
+    <p class="menuitem1">
       <a href="{$bhome}ballot_summary{$FILE_EXT}" target="content">
         ISO index
       </a>
     </p>
 
-    <p class="menuitem">
+    <p class="menuitem1">
       <a href="{$bhome}ballot_checklist{$FILE_EXT}" target="content">
         Ballot checklist
       </a>
     </p>
     
-    <p class="menuitem">
+    <p class="menuitem1">
       <a href="{$bhome}ballot_shortnames{$FILE_EXT}" target="content">
         Shortnames in ballot.
       </a>
     </p>
 
-    <p class="menuitem">
+    <p class="menuitem1">
       <a href="{$bhome}ballot_issues{$FILE_EXT}" target="content">
         Issues against ballot.
       </a>
     </p>
 
-    <p class="menuitem">
+    <p class="menuitem1">
+      <a href="{$bhome}ballot_issues_form_all{$FILE_EXT}" target="content">
+        Ballot issue form - all.
+      </a>
+    </p>
+    <p class="menuitem1">
+      <a href="{$bhome}ballot_issues_form_open{$FILE_EXT}" target="content">
+        Ballot issue form - open.
+      </a>
+    </p>
+
+
+
+    <p class="menuitem1">
       <a href="{$bhome}ballot_cvs_tags{$FILE_EXT}" target="content">
-        CVS tags for ballot.
+        CVS tags for ballot.xxx
       </a>
     </p>
   </div>

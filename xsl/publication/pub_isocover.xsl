@@ -355,6 +355,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <p class="fdcopy" align="center" 
               style="margin-bottom:3.0pt;text-align:center; line-height:13.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt: 0pt 0pt 0pt 0pt">
               <b style="mso-bidi-font-weight:normal">
+              <a name="copyright"/>
                 Copyright notice
               </b>
             </p>
@@ -647,6 +648,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <p class="fdcopy" align="center" 
               style='margin-bottom:3.0pt;text-align:center; line-height:13.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt: 0pt 0pt 0pt 0pt'>
               <b style='mso-bidi-font-weight:normal'>
+                <a name="copyright"/>
                 Copyright notice
               </b>
             </p>

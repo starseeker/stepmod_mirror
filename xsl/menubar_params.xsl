@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: menubar_params.xsl,v 1.1 2002/06/23 07:51:46 robbod Exp $
+     $Id: menubar_params.xsl,v 1.2 2002/06/26 15:11:21 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep
@@ -25,12 +25,12 @@
   <xsl:param name="menubar_file" select="'menubar_default.xml'"/>
   -->
 
-  <xsl:param name="menubar_file" select="'../plcsmod/menubar.xml'"/>
   <!--
+  <xsl:param name="menubar_file" select="'../plcsmod/menubar.xml'"/>
   -->
 
-  <!--
+
   <xsl:param name="menubar_file" select="'./ballots/ballots/pdm_ballot_072002/menubar_ballot.xml'"/>
-  -->
+  <!--  -->
 
 </xsl:stylesheet>

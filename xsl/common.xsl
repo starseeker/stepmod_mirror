@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.53 2002/06/21 09:35:52 robbod Exp $
+$Id: common.xsl,v 1.54 2002/06/23 07:50:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1699,7 +1699,7 @@ $Id: common.xsl,v 1.53 2002/06/21 09:35:52 robbod Exp $
     <xsl:param name="module_root"/>
     <xsl:param name="module_name"/>
     <small>
-      <xsl:apply-templates select="menuitem|menubreak">
+      <xsl:apply-templates select="menuitem|menubreak|menuspace">
         <xsl:with-param name="module_root" select="$module_root"/>
         <xsl:with-param name="module_name" select="$module_name"/>
     </xsl:apply-templates>
@@ -1708,6 +1708,10 @@ $Id: common.xsl,v 1.53 2002/06/21 09:35:52 robbod Exp $
 
   <xsl:template match="menubreak">
     <br/>
+  </xsl:template>
+
+  <xsl:template match="menuspace">
+    <xsl:value-of select="."/>
   </xsl:template>
 
   <xsl:template match="menuitem">
@@ -1820,9 +1824,14 @@ $Id: common.xsl,v 1.53 2002/06/21 09:35:52 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
 
-    <xsl:if test="position() != last()">
-      &#160;&#124;&#160;
-    </xsl:if>        
+    <xsl:choose>
+      <xsl:when test="string-length(@img)!= 0">
+        &#160;&#160;&#160;
+      </xsl:when>
+      <xsl:when test="position() != last()">
+        &#160;&#124;&#160;        
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
   <!-- check the schema name starts with Upper case and rest is lower case

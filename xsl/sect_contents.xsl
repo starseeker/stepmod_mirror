@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
+$Id: sect_contents.xsl,v 1.19 2003/03/11 23:56:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -49,38 +49,35 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
   <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
 
-  <h3>Contents</h3>
+  <h2>Contents</h2>
     <!-- Don't think these are required
   <p class="content"><A HREF="./cover{$FILE_EXT}">Cover page</A></p>
   <p class="content"><A HREF="./foreword{$FILE_EXT}">Foreword</A></p>
   <p class="content"><A
   HREF="./introduction{$FILE_EXT}">Introduction</A></p>
 -->
-  <p class="content"><A HREF="./1_scope{$FILE_EXT}">1 Scope</A></p>
-  <p class="content"><A HREF="./2_refs{$FILE_EXT}">2 Normative references</A></p>
+  <A HREF="./1_scope{$FILE_EXT}">1 Scope</A><br/>
+  <A HREF="./2_refs{$FILE_EXT}">2 Normative references</A><br/>
 
   <xsl:choose>
     <xsl:when test="./definition/term">
       <!-- use #defns to link direct -->
-      <p class="content">
-        <A HREF="./3_defs{$FILE_EXT}">
+          <A HREF="./3_defs{$FILE_EXT}">
           3 Terms, definitions and abbreviations
         </A>
-      </p>
+        <br/>
     </xsl:when>
     <xsl:otherwise>
       <!-- use #defns to link direct -->
-      <p class="content">
-        <A HREF="./3_defs{$FILE_EXT}">
+         <A HREF="./3_defs{$FILE_EXT}">
           3 Terms and abbreviations
         </A>
-      </p>
+        <br/>
     </xsl:otherwise>
   </xsl:choose>
   
-  <p class="content">
     <A HREF="./4_info_reqs{$FILE_EXT}">4 Information requirements</A>
-  </p>
+    <br/>
   
   <!-- no longer have UoFs
   <p class="content">
@@ -99,22 +96,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$interface_clause != 0">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/interface)>1">          
-        <p class="content">
-          &#160; &#160;
+        &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#interfaces">
             <xsl:value-of select="concat($interface_clause,
                                   ' Required AM ARMs')"/>
           </A>
-        </p>
+          <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#interfaces">
             <xsl:value-of select="concat($interface_clause,
                                   ' Required AM ARM')"/>
           </A>
-        </p>        
+          
       </xsl:otherwise>
     </xsl:choose>
   </xsl:if>
@@ -130,23 +125,21 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$constant_clause != 0">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/constant)>1">
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#constants">
             <xsl:value-of select="concat($constant_clause,
                                   ' ARM constant definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#constants">
             <xsl:value-of select="concat($constant_clause,
                                   ' ARM constant definition')"/>
           </A>
-        </p>
-      </xsl:otherwise>
+            <br/>
+          </xsl:otherwise>
     </xsl:choose>
 
     <xsl:apply-templates 
@@ -162,13 +155,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_constant_clause != 0">
-    <p class="content">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_constant">
         <xsl:value-of select="concat($imported_constant_clause,
                               ' ARM imported constant modifications')"/>
       </A>
-    </p>
+      <br/>
   </xsl:if>
 
 
@@ -184,22 +176,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$type_clause != 0">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/type)>1">
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#types">
             <xsl:value-of select="concat($type_clause,
                                   ' ARM type definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#types">
             <xsl:value-of select="concat($type_clause,
                                   ' ARM type definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -215,13 +205,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_type_clause != 0">
-    <p class="content">
       &#160; &#160; 
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_type">
         <xsl:value-of select="concat($imported_type_clause,
                               ' ARM imported type modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
 
 
@@ -236,22 +225,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$entity_clause != 0">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/entity)>1">
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#entities">
             <xsl:value-of select="concat($entity_clause,
                                   ' ARM entity definitions')"/>
           </A>
-        </p>
+          <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#entities">
             <xsl:value-of select="concat($entity_clause,
                                   ' ARM entity definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -267,13 +254,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_entity_clause != 0">
-    <p class="content">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_entity">
         <xsl:value-of select="concat($imported_entity_clause,
                               ' ARM imported entity modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
 
@@ -288,22 +274,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$subtype_constraint_clause != 0">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/subtype.constraint)>1">
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#subtype_constraints">
             <xsl:value-of select="concat($subtype_constraint_clause,
                                   ' ARM subtype constraint definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#subtype_constraints">
             <xsl:value-of select="concat($subtype_constraint_clause,
                                   ' ARM subtype constraint definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -322,22 +306,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$function_clause !=0">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/function)>1">
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#functions">
             <xsl:value-of select="concat($function_clause,
                                   ' ARM function definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#functions">
             <xsl:value-of select="concat($function_clause,
                                   ' ARM function definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -352,13 +334,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_function_clause != 0">
-    <p class="content">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_function">
         <xsl:value-of select="concat($imported_function_clause,
                               ' ARM imported function modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
   <!-- only output if there are rules defined and therefore a
@@ -372,22 +353,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$rule_clause !=0">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/rule)>1">
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#rules">
             <xsl:value-of select="concat($rule_clause,
                                   'ARM rule definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#rules">
             <xsl:value-of select="concat($rule_clause,
                                   'ARM rule definition')"/>
           </A>
-        </p>
+        <p/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -402,13 +381,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_rule_clause != 0">
-    <p class="content">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_rule">
         <xsl:value-of select="concat($imported_rule_clause,
                               ' ARM imported rule modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
   <!-- only output if there are procedures defined and therefore a
@@ -422,22 +400,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$procedure_clause != 0">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/procedure)>1">
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#procedures">
             <xsl:value-of select="concat($procedure_clause,
                                   ' ARM procedure definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160;
           <A HREF="./4_info_reqs{$FILE_EXT}#procedures">
             <xsl:value-of select="concat($procedure_clause,
                                   ' ARM procedure definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -452,30 +428,26 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_procedure_clause != 0">
-    <p class="content">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_procedure">
         <xsl:value-of select="concat($imported_procedure_clause,
                               ' ARM imported procedure modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
   <!-- Output clause 5 index -->
   <!-- use #mim to link direct -->
-  <p class="content">
     <A HREF="./5_main{$FILE_EXT}">5 Module interpreted model</A>
-  </p>
-  <p class="content">
+  <br/>
     &#160; &#160;
     <A HREF="./5_mapping{$FILE_EXT}">5.1 Mapping specification</A>
-  </p>
+  <br/>
   <xsl:apply-templates select="./mapping_table/ae" mode="toc"/>
 
-  <p class="content">
     &#160; &#160;
     <A HREF="./5_mim{$FILE_EXT}#mim_express">5.2 MIM EXPRESS short listing</A>
-  </p>
+  <br/>
   
   <!-- only output if there are constants defined and therefore a
        section -->
@@ -489,22 +461,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$constant_mim_clause != 0">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/constant)>1">
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#constants">
             <xsl:value-of select="concat($constant_mim_clause,
                                   ' MIM constant definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#constants">
             <xsl:value-of select="concat($constant_mim_clause,
                                   ' MIM constant definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -519,13 +489,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_constant_mim_clause != 0">
-    <p class="content">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_constant">
         <xsl:value-of select="concat($imported_constant_mim_clause,
                               ' MIM imported constant modifications')"/>
       </A>
-    </p>
+    <vr/>
   </xsl:if>
   
   
@@ -540,22 +509,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$type_mim_clause != 0">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/type)>1">
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#types">
             <xsl:value-of select="concat($type_mim_clause,
                                   ' MIM type definitions')"/>
           </A>
-        </p>
+          <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
-          &#160; &#160; &#160;
+                  &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#types">
             <xsl:value-of select="concat($type_mim_clause,
                                   ' MIM type definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -570,13 +537,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_mim_type_clause != 0">
-    <p class="content">
       &#160; &#160; &#160;                              
       <A HREF="./5_mim{$FILE_EXT}#imported_type">
         <xsl:value-of select="concat($imported_mim_type_clause,
                               ' MIM imported type modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
   <!-- only output if there are entitys defined and therefore a
@@ -590,22 +556,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$entity_mim_clause != 0">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/entity)>1">
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#entities">
             <xsl:value-of select="concat($entity_mim_clause,
                                   ' MIM entity definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#entities">
             <xsl:value-of select="concat($entity_mim_clause,
                                   ' MIM entity definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -621,13 +585,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_mim_entity_clause != 0">
-    <p class="content">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_entity">
         <xsl:value-of select="concat($imported_mim_entity_clause,
                               ' MIM imported entity modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
     <!-- only output if there are subtype_constraints defined and therefore a
@@ -641,22 +604,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$subtype_constraint_mim_clause != 0">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/subtype.constraint)>1">
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#subtype_constraints">
             <xsl:value-of select="concat($subtype_constraint_mim_clause,
                                   ' MIM subtype constraint definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#subtype_constraints">
             <xsl:value-of select="concat($subtype_constraint_mim_clause,
                                   ' MIM subtype constraint definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -674,22 +635,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$function_mim_clause != 0">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/function)>1">
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#functions">
             <xsl:value-of select="concat($function_mim_clause,
                                   ' MIM function definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#functions">
             <xsl:value-of select="concat($function_mim_clause,
                                   ' MIM function definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -704,13 +663,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_mim_function_clause != 0">
-    <p class="content">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_function">
         <xsl:value-of select="concat($imported_mim_function_clause,
                               ' MIM imported function modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
   
@@ -725,22 +683,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$rule_mim_clause != 0">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/rule)>1">
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#rules">
             <xsl:value-of select="concat($rule_mim_clause,
                                   ' MIM rule definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#rules">
             <xsl:value-of select="concat($rule_mim_clause,
                                   ' MIM rule definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:apply-templates 
@@ -755,13 +711,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_mim_rule_clause != 0">
-    <p class="content">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_rule">
         <xsl:value-of select="concat($imported_mim_rule_clause,
                               ' MIM imported rule modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
   <!-- only output if there are procedures defined and therefore a
@@ -775,22 +730,20 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:if test="$procedure_mim_clause != 0">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/procedure)>1">
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#procedures">
             <xsl:value-of select="concat($procedure_mim_clause,
                                   ' MIM procedure definitions')"/>
           </A>
-        </p>
+        <br/>
       </xsl:when>
       <xsl:otherwise>
-        <p class="content">
           &#160; &#160; &#160;
           <A HREF="./5_mim{$FILE_EXT}#procedures">
             <xsl:value-of select="concat($procedure_mim_clause,
                                   ' MIM procedure definition')"/>
           </A>
-        </p>
+        <br/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:if>          
@@ -803,48 +756,41 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$imported_mim_procedure_clause != 0">
-    <p class="content">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_procedure">
         <xsl:value-of select="concat($imported_mim_procedure_clause,
                               ' MIM imported procedure modifications')"/>
       </A>
-    </p>
+    <br/>
   </xsl:if>
   
   <!-- use #annexa to link direct -->
-  <p class="content">
     <A HREF="./a_short_names{$FILE_EXT}">A AM MIM
     short names</A>
-  </p>
+  <br/>
   <!-- use #annexb to link direct -->
-  <p class="content">
     <A HREF="./b_obj_reg{$FILE_EXT}">B Information requirements object
     registration</A>
-  </p>
+  <br/>
   
   <!-- use #annexc to link direct -->
-  <p class="content">
     <A HREF="./c_arm_expg{$FILE_EXT}">C ARM EXPRESS-G</A>
-  </p>
+    <br/>
   
   <!-- use #annexd to link direct -->
-  <p class="content">
     <A HREF="./d_mim_expg{$FILE_EXT}">D MIM EXPRESS-G</A>
-  </p>
+    <br/>
   
   <!-- use #annexe to link direct -->
-  <p class="content">
     <A HREF="./e_exp{$FILE_EXT}">E AM ARM and MIM EXPRESS
     listings</A>
-  </p>
+  <br/>
   <xsl:if test="./usage_guide">
     <!-- use #annexa to link direct -->
-    <p class="content">
       <A HREF="./f_guide{$FILE_EXT}">
         F Application module implementation and usage guide
       </A>
-    </p>
+    <br/>
 		<xsl:apply-templates 
       select="./usage_guide/guide_subclause" mode="contents"/>
   </xsl:if>
@@ -915,7 +861,6 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     <xsl:apply-templates select="." mode="count"/>
   </xsl:variable>
 
-  <p class="content">
     &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
     <xsl:choose>
       <xsl:when test="$no_nodes > 1">
@@ -929,13 +874,11 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
         </a>
       </xsl:otherwise>
     </xsl:choose>
-  </p>
+  <br/>
 </xsl:template>
 
 <xsl:template match="guide_subclause" mode="contents">
-  <p class="content">
-	
-	  <xsl:variable name="xref">
+  <xsl:variable name="xref">
        <xsl:value-of select="concat('./f_guide',$FILE_EXT,'#',@title)"/>
     </xsl:variable>
 
@@ -943,12 +886,15 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     <A HREF="{$xref}">
       <xsl:value-of select="concat('F.', position(), ' ', @title)"/>
     </A>
-  </p>
+  <br/>
 </xsl:template>
 
 <xsl:template match="imgfile" mode="expressg_figure">
   <xsl:variable name="number">
     <xsl:number/>
+  </xsl:variable>
+  <xsl:variable name="total">
+    <xsl:value-of select="count(../imgfile)-1"/>
   </xsl:variable>
   <xsl:variable name="fig_no">
     <xsl:choose>
@@ -957,12 +903,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' &#8212; ARM schema level EXPRESS-G diagram ',$number)"/>
+                      ' &#8212; ARM schema level EXPRESS-G diagram ',$number, ' of 1')"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' &#8212; ARM entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' &#8212; ARM entity level EXPRESS-G diagram ',($number - 1),' of ',$total)"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -971,12 +917,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' &#8212; MIM schema level EXPRESS-G diagram ',$number)"/>
+                      ' &#8212; MIM schema level EXPRESS-G diagram ',$number,' of ',$total)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' &#8212; MIM entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' &#8212; MIM entity level EXPRESS-G diagram ',($number - 1),' of ',$total)"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -988,9 +934,8 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:variable name="href" select="concat('../',$file)"/>
-  <p class="content">
     <a href="{$href}"><xsl:value-of select="$fig_no"/></a>
-  </p>
+  <br/>
 </xsl:template>
 
 
@@ -1007,7 +952,7 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
   <xsl:variable name="mim_desc_xml" select="document($mim_xml)/express/@description.file"/>
 
-  <h3>Tables</h3>
+  <h2>Tables</h2>
   <xsl:apply-templates select="//table" mode="toc"/>
   <xsl:choose>
     <xsl:when test="$arm_desc_xml">
@@ -1026,12 +971,11 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:otherwise>
   </xsl:choose>
   <xsl:apply-templates select="./mim/shortnames" mode="toc"/>
-  <p class="content">
     <a href="./e_exp{$FILE_EXT}#table_e1">
       Table E.1 &#8212; ARM and MIM EXPRESS listings.
     </a>
-  </p>
-  <h3>Figures</h3>
+  <br/>
+  <h2>Figures</h2>
   <!-- collect up the figures from the Module -->
   <xsl:apply-templates select="./purpose//figure" mode="toc"/>
   <xsl:apply-templates select="./inscope//figure" mode="toc"/>
@@ -1088,12 +1032,11 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
-  <p class="content">
     <a href="{$href}">      
     <xsl:value-of 
       select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title)"/>
     </a>
-  </p>
+  <br/>
 
 </xsl:template>
 
@@ -1106,6 +1049,7 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     <xsl:value-of select="@publication.year"/>
   </p>
   -->
+  <a name="copyright"/>
   <p>
     All rights reserved. Unless otherwise specified, no part of this
     publication may be reproduced or utilized in any form or by any means,
@@ -1141,13 +1085,12 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     <xsl:number/>
   </xsl:variable>
 
-  <p class="content">
     &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
     <a href="{$ae_xref}">
       <xsl:value-of
         select="concat('5.1.',$sect_no,' ',$ae_aname)"/>
     </a>
-  </p>
+  <br/>
 
   <!-- no need to go to this depth - there is a bug in the link with
        inherited attributes as well 
@@ -1177,7 +1120,6 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
     select="concat('./4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
 
   <xsl:variable name="sect_no" select="concat($sect,'.',position())"/>
-  <p class="content">
     <xsl:text>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</xsl:text>
     <xsl:choose>
       <xsl:when test="@assertion_to">
@@ -1193,17 +1135,16 @@ $Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
         </a>
       </xsl:otherwise>
     </xsl:choose>
-  </p>
+  <br/>
 </xsl:template>
 -->
 
 
 <xsl:template match="shortnames" mode="toc">
-  <p class="content">
     <a href="./a_short_names{$FILE_EXT}#table_a1">
       Table A.1 &#8212; MIM short names of entities
     </a>
-  </p>
+  <br/>
 </xsl:template>
 
 </xsl:stylesheet>

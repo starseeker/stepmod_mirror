@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.86 2003/03/11 14:48:12 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.87 2003/03/11 23:56:57 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -153,11 +153,11 @@
       </xsl:choose>      
     </xsl:variable>
   
-    <h3>
+    <h2>
       <A NAME="interfaces">
         <xsl:value-of select="$clause_header"/>
       </A>
-    </h3>
+    </h2>
 
     <xsl:value-of select="$clause_intro"/>
     <xsl:if test="contains($schema_name,'_arm')">
@@ -542,11 +542,11 @@
       </xsl:choose>      
     </xsl:variable>
 
-    <h3>
+    <h2>
       <A NAME="constants">
         <xsl:value-of select="$clause_header"/>
       </A>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -567,7 +567,7 @@
       <xsl:with-param name="section2" select="@name"/>
     </xsl:call-template>
   </xsl:variable>    
-  <h3>
+  <h2>
     <!-- only number section if more than one constant -->
     <xsl:choose>
       <xsl:when test="count(../constant) > 1 ">
@@ -581,7 +581,7 @@
         </a>
       </xsl:otherwise>
     </xsl:choose>
-  </h3>
+  </h2>
 
   <!-- output description from express --> 
   <!-- output description from external file -->
@@ -725,11 +725,11 @@
 
   <xsl:if test="position()=1">
     <!-- first entity so output the intro -->
-    <h3>
+    <h2>
       <a name="types">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -744,20 +744,20 @@
   <!-- only number section if more than one type -->
   <xsl:choose>
     <xsl:when test="count(../type) > 1 ">
-      <h3>
+      <h2>
         <a name="{$aname}">
           <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
         </a>
         <xsl:apply-templates select="." mode="expressg_icon"/>
-      </h3>      
+      </h2>      
     </xsl:when>
     <xsl:otherwise>
-      <h3>
+      <h2>
         <a name="{$aname}">
           <xsl:value-of select="@name"/>
         </a>
         <xsl:apply-templates select="." mode="expressg_icon"/>
-      </h3>      
+      </h2>      
     </xsl:otherwise>
   </xsl:choose>
 
@@ -1078,11 +1078,11 @@
       </xsl:choose>      
     </xsl:variable>
 
-    <h3>
+    <h2>
       <a name="entities">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h3>
+    </h2>
 
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
@@ -1094,7 +1094,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <h3>
+  <h2>
     <!-- only number section if more than one entity -->
     <xsl:choose>
       <xsl:when test="count(../entity) > 1 ">
@@ -1123,7 +1123,7 @@
           alt="Mapping table" src="../../../../images/mapping.gif"/>
       </a>
     </xsl:if>
-  </h3>
+  </h2>
 
   <xsl:choose>
     <xsl:when 
@@ -1782,11 +1782,11 @@
       </xsl:choose>      
     </xsl:variable>
 
-    <h3>
+    <h2>
       <a name="subtype_constraints">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -1797,7 +1797,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <h3>
+  <h2>
   <!-- only number section if more than one sub type constraint -->
   <xsl:choose>
     <xsl:when test="count(../subtype.constraint) > 1 ">      
@@ -1825,7 +1825,7 @@
       <a href="{$maphref}"><img align="middle" border="0" 
           alt="Mapping table" src="../../../../images/mapping.gif"/></a>
     </xsl:if>
-  </h3>
+  </h2>
 
 
   <!-- output description from external file -->
@@ -1978,11 +1978,11 @@
       </xsl:choose>      
     </xsl:variable>
 
-    <h3>
+    <h2>
       <a name="functions">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -1993,11 +1993,11 @@
     </xsl:call-template>
   </xsl:variable>
              
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-  </h3>
+  </h2>
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -2120,12 +2120,12 @@
       </xsl:choose>      
     </xsl:variable>
 
-    <h3>
+    <h2>
       <a name="procedures">
         <xsl:value-of 
           select="$clause_header"/>
       </a>
-      </h3> 
+      </h2> 
       <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -2136,11 +2136,11 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-  </h3>
+  </h2>
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -2351,11 +2351,11 @@
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
-    <h3>
+    <h2>
       <a name="rules">
         <xsl:value-of select="$clause_header"/>
       </a>
-    </h3>
+    </h2>
     <xsl:value-of select="$clause_intro"/>
   </xsl:if>
 
@@ -2366,11 +2366,11 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <h3>
+  <h2>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-  </h3>
+  </h2>
 
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
@@ -2836,8 +2836,7 @@
            clause -->
       <xsl:when test="contains($schema_name,'_arm')">
         <xsl:choose>
-          <xsl:when
-            test="document(string($xml_file))/express/schema/interface">
+          <xsl:when test="document(string($xml_file))/express/schema/interface">
             1
           </xsl:when>
           <xsl:otherwise>
@@ -2849,7 +2848,6 @@
         0
       </xsl:otherwise>
     </xsl:choose>
-
   </xsl:variable>
 
   <xsl:variable name="constant_clause">
@@ -3015,7 +3013,7 @@
   <xsl:variable name="clause_number">
     <xsl:choose>
       <xsl:when test="$clause='interface'">
-        <xsl:value-of select="$interface_clause"/>
+        <xsl:value-of select="number($interface_clause)"/>
       </xsl:when>
 
       <xsl:when test="$clause='constant'">
@@ -3175,11 +3173,11 @@
         </xsl:variable>
 
         <xsl:variable name="aname" select="concat('imported_',$lkind)"/>
-        <h3>
+        <h2>
           <A NAME="{$aname}">
             <xsl:value-of select="$clause_header"/>
           </A>
-        </h3>
+        </h2>
         <xsl:apply-templates select="$desc_item"/>                    
       </xsl:if>
 </xsl:template>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_mim.xsl,v 1.3 2002/08/02 15:58:46 robbod Exp $
+$Id: sect_e_exp_mim.xsl,v 1.4 2002/12/24 09:56:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the MIM short form express 
@@ -83,7 +83,7 @@ $Id: sect_e_exp_mim.xsl,v 1.3 2002/08/02 15:58:46 robbod Exp $
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
   <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Annex E - MIM EXPRESS'"/>
+    <xsl:with-param name="heading" select="''"/>
     <xsl:with-param name="aname" select="'annexe-mim-express'"/>
   </xsl:call-template>
   

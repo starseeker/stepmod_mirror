@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.83 2003/02/06 22:29:52 goset1 Exp $
+$Id: common.xsl,v 1.84 2003/03/09 16:51:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -88,6 +88,7 @@ $Id: common.xsl,v 1.83 2003/02/06 22:29:52 goset1 Exp $
     </xsl:choose>
   </xsl:variable>
 
+  <!-- no longer permitted
   <xsl:choose>
     <xsl:when test="$output_rcs">
       <xsl:variable
@@ -103,8 +104,132 @@ $Id: common.xsl,v 1.83 2003/02/06 22:29:52 goset1 Exp $
       <xsl:value-of
         select="concat($lpart,' :- ',@name)"/>
     </xsl:otherwise>
-  </xsl:choose>
+  </xsl:choose> -->
+  <xsl:choose>
+    <xsl:when test="$output_rcs">
+      <xsl:value-of
+        select="concat(@status,' ',$lpart,' :- ',@name)"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of
+        select="concat($lpart,' :- ',@name)"/>
+    </xsl:otherwise>
+  </xsl:choose> 
 </xsl:template>
+
+
+<xsl:template match="module" mode="meta_data">
+  <xsl:param name="clause"/>
+  <link rel = "schema.DC"
+    href    = "http://www.dublincore.org/documents/2003/02/04/dces/"/>
+
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
+    
+  <xsl:variable name="stdnumber">
+    <xsl:call-template name="get_module_pageheader">
+      <xsl:with-param name="module" select="."/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="module_title">
+    <xsl:value-of select="concat('Product data representation and exchange: Application module: ', $module_name)"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Title'"/>
+    <xsl:with-param name="content" select="$module_title"/>
+  </xsl:call-template>
+
+  <xsl:variable name="dc.dates"
+    select="normalize-space(substring-after((translate(@rcs.date,'$','')),'Date: '))"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Dates'"/>
+    <xsl:with-param name="content" select="$dc.dates"/>
+  </xsl:call-template>
+
+  <xsl:variable name="editor_ref" select="./contacts/editor/@ref"/>
+  <xsl:variable name="editor_contact"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$editor_ref]"/>
+  <xsl:variable name="dc.contributor">
+    <xsl:value-of select="normalize-space(concat($editor_contact/lastname,', ',$editor_contact/firstname))"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Contributor'"/>
+    <xsl:with-param name="content" select="$dc.contributor"/>
+  </xsl:call-template>
+
+  <xsl:variable name="projlead_ref" select="./contacts/projlead/@ref"/>
+  <xsl:variable name="projlead_contact"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$projlead_ref]"/>
+  <xsl:variable name="dc.creator">
+    <xsl:value-of select="normalize-space(concat($projlead_contact/lastname,', ',$projlead_contact/firstname))"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Creator'"/>
+    <xsl:with-param name="content" select="$dc.creator"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Description'"/>
+    <xsl:with-param name="content" select="concat('The application module ',$module_name)"/>
+  </xsl:call-template>
+
+  <xsl:variable name="keywords">
+    <xsl:apply-templates select="./keywords"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Subject'"/>
+    <xsl:with-param name="content" select="normalize-space($keywords)"/>
+  </xsl:call-template>
+
+  <xsl:variable name="wg_group">
+    <xsl:call-template name="get_module_wg_group"/>
+  </xsl:variable>  
+  <xsl:variable name="id"
+    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+  <xsl:variable name="clause_of">
+    <xsl:if test="$clause">
+      <xsl:value-of select="concat('Clause of ',$clause)"/>
+    </xsl:if>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Identifier'"/>
+    <xsl:with-param name="content" select="$id"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.module.rcs.date'"/>
+    <xsl:with-param name="content" select="translate(./@rcs.date,'$','')"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.module.rcs.revision'"/>
+    <xsl:with-param name="content" select="translate(./@rcs.revision,'$','')"/>
+  </xsl:call-template>
+
+  <!-- now get meta data for arm and mim -->
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+  <xsl:variable name="arm_express" select="document($arm_xml)/express"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.arm.rcs.revision'"/>
+    <xsl:with-param name="content" select="translate($arm_express/@rcs.revision,'$','')"/>
+  </xsl:call-template>
+
+  <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
+  <xsl:variable name="mim_express" select="document($mim_xml)/express"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.mim.rcs.revision'"/>
+    <xsl:with-param name="content" select="translate($mim_express/@rcs.date,'$','')"/>
+  </xsl:call-template>
+  </xsl:template>
+
 
   <!-- output RCS version control information -->
 <xsl:template name="rcs_output">
@@ -326,11 +451,11 @@ $Id: common.xsl,v 1.83 2003/02/06 22:29:52 goset1 Exp $
 <xsl:template name="clause_header">
   <xsl:param name="heading"/>
   <xsl:param name="aname"/>
-  <H3>
+  <H2>
     <A NAME="{$aname}">
       <xsl:value-of select="$heading"/>
     </A>
-  </H3>
+  </H2>
 </xsl:template>
 
 <!-- output the Annex heading -->

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_mim_lf.xsl,v 1.4 2003/02/24 18:09:25 robbod Exp $
+$Id: sect_e_exp_mim_lf.xsl,v 1.5 2003/03/09 16:51:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the MIM long form express 
@@ -83,7 +83,7 @@ $Id: sect_e_exp_mim_lf.xsl,v 1.4 2003/02/24 18:09:25 robbod Exp $
 <xsl:template match="module">
   <!-- debug <xsl:value-of select="$global_xref_list"/> -->
   <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Annex E - MIM Long form EXPRESS'"/>
+    <xsl:with-param name="heading" select="''"/>
     <xsl:with-param name="aname" select="'annexe-mim_lf-express'"/>
   </xsl:call-template>
   

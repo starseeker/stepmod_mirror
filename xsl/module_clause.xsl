@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_clause.xsl,v 1.5 2002/03/04 07:54:14 robbod Exp $
+$Id: module_clause.xsl,v 1.6 2003/03/11 23:56:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -33,6 +33,9 @@ $Id: module_clause.xsl,v 1.5 2002/03/04 07:54:14 robbod Exp $
         <xsl:call-template name="output_css">
           <xsl:with-param name="path" select="'../../../../css/'"/>
         </xsl:call-template>
+
+        <xsl:apply-templates select="$module_xml/module" mode="meta_data"/>
+
         <TITLE>
           <!-- output the module page title -->
           <xsl:apply-templates 

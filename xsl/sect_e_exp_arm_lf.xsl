@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_arm_lf.xsl,v 1.2 2003/02/24 18:09:23 robbod Exp $
+$Id: sect_e_exp_arm_lf.xsl,v 1.3 2003/03/09 16:51:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM long form express 
@@ -83,7 +83,7 @@ $Id: sect_e_exp_arm_lf.xsl,v 1.2 2003/02/24 18:09:23 robbod Exp $
 <xsl:template match="module">
   <!-- debug <xsl:value-of select="$global_xref_list"/> -->
   <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Annex E - ARM Long form EXPRESS'"/>
+    <xsl:with-param name="heading" select="''"/>
     <xsl:with-param name="aname" select="'annexe-arm_lf-express'"/>
   </xsl:call-template>
   

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_arm.xsl,v 1.5 2002/12/24 09:56:35 robbod Exp $
+$Id: sect_e_exp_arm.xsl,v 1.6 2003/03/09 16:51:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM short form express 
@@ -95,7 +95,7 @@ $Id: sect_e_exp_arm.xsl,v 1.5 2002/12/24 09:56:35 robbod Exp $
 <xsl:template match="module">
   <!-- debug <xsl:value-of select="$global_xref_list"/> -->
   <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Annex E - ARM EXPRESS'"/>
+    <xsl:with-param name="heading" select="''"/>
     <xsl:with-param name="aname" select="'annexe-arm-express'"/>
   </xsl:call-template>
   

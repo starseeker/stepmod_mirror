@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.9 2002/07/16 07:45:12 goset1 Exp $
+$Id: express.xsl,v 1.10 2002/08/09 08:55:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -86,9 +86,9 @@ $Id: express.xsl,v 1.9 2002/07/16 07:45:12 goset1 Exp $
     </HEAD>
     <BODY>
   <!-- debug <xsl:value-of select="$global_xref_list"/> -->
-    <h3>
+    <h2>
       <xsl:value-of select="concat('Schema: ',./express/schema/@name)"/>
-    </h3>
+    </h2>
   		<xsl:if test="./express/@reference">
 	    <p><i>Source : <xsl:value-of select="./express/@reference"/></i></p>
 			</xsl:if>

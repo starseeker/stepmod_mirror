@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.61 2003/02/21 09:30:01 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.62 2003/02/25 09:39:59 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -110,9 +110,9 @@ $Id: sect_5_mapping.xsl,v 1.61 2003/02/21 09:30:01 robbod Exp $
        SC4 do not like the index of mapping tables at the top
        <xsl:apply-templates select="./mapping_table" mode="toc"/>
        -->
-  <h3>
+  <h2>
     <a name="mapping">5.1 Mapping specification</a>
-  </h3>
+  </h2>
   <xsl:call-template name="mapping_syntax"/>
   <a name="mappings"/>
   <xsl:apply-templates select="./mapping_table" mode="check_all_arm_mapped"/>
@@ -432,7 +432,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
     <xsl:apply-templates select="." mode="map_attr_aname"/>  
   </xsl:variable>
 
-  <h3>
+  <h2>
     <a name="{$ae_map_aname}">
       <xsl:value-of select="concat('5.1.',$sect_no,' ')"/>
     </a>
@@ -446,7 +446,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
         <xsl:with-param name="original_schema" select="$schema_name"/>
       </xsl:apply-templates>
     </xsl:if>
-  </h3>
+  </h2>
 <!--  <xsl:apply-templates select="." mode="output_mapping"/> -->
 
   <!-- output any issues against the mapping -->
@@ -674,7 +674,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
     <xsl:apply-templates select="." mode="map_attr_aname"/>  
   </xsl:variable>
 
-  <h3>
+  <h2>
     <a name="{$aa_map_aname}"/>
     <xsl:choose>
       <xsl:when test="@assertion_to">
@@ -719,7 +719,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
         <xsl:with-param name="original_schema" select="$schema_name"/>
       </xsl:apply-templates>
     </xsl:if>
-  </h3>
+  </h2>
 
   <!-- output any issues against the mapping -->
   <xsl:apply-templates select="."  mode="output_mapping_issue"/>
@@ -998,7 +998,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
   <xsl:choose>
     <xsl:when test="@id">
       <p/>
-      <xsl:value-of select="concat('#',@id,'&#160;&#160;&#160;')"/>
+      <xsl:value-of select="concat('#',@id,':&#160;&#160;&#160;')"/>
       <xsl:apply-templates select="./description"/>
       <p/>
     </xsl:when>
@@ -1326,12 +1326,12 @@ the mapping specification')"/>
   <xsl:variable name="sc_count" select="count(//sc)" />
   <xsl:variable name="ae_count" select="count(//ae)" />
 
-  <h3>
+  <h2>
     <a name="{$sc_map_aname}">
       <xsl:value-of select="concat('5.1.',$ae_count+position(),' ')"/>
     </a>
     <a href="{$sc_xref}"><xsl:value-of select="$sc"/></a>
-  </h3>
+  </h2>
 
   <!-- output any issues against the mapping -->
   <!-- commmented out below because it is not found 

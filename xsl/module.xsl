@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.132 2003/03/11 23:56:56 robbod Exp $
+$Id: module.xsl,v 1.133 2003/03/12 01:01:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -369,6 +369,7 @@ o=isocs; s=central<br/>
 
       
       <h3>COMMENTS TO READER:</h3>
+
       <xsl:variable name="ballot_cycle_or_pub">
         <xsl:choose>
           <xsl:when test="$status='CD-TS'">
@@ -493,7 +494,7 @@ o=isocs; s=central<br/>
     </xsl:when>
     <xsl:otherwise>
       <P>
-        This part of ISO 10303 specifies the application module for 
+        This part of ISO 10303 specifies the application module
         <xsl:value-of select="$module_name"/>.
       </P>
       <P>
@@ -529,16 +530,29 @@ o=isocs; s=central<br/>
 
 
 <xsl:template match="keywords">
-  <xsl:if test="not(contains(.,'STEP'))">
-    STEP, 
-  </xsl:if>
-  <xsl:if test="not(contains(.,'10303'))">
-    ISO 10303,  
-  </xsl:if>
-  <xsl:if test="not(contains(.,'module'))">
-    module, 
-  </xsl:if>  
-  <xsl:value-of select="."/>
+  <xsl:variable name="keywords1">
+    <xsl:if test="not(contains(.,'STEP'))">
+      STEP, 
+    </xsl:if>    
+  </xsl:variable>
+
+  <xsl:variable name="keywords2">
+    <xsl:if test="not(contains(.,'10303'))">
+      ISO 10303,  
+    </xsl:if>
+  </xsl:variable>
+
+  <xsl:variable name="keywords3">
+    <xsl:if test="not(contains(.,'module'))">
+      module, 
+    </xsl:if>
+  </xsl:variable>
+
+  <xsl:variable name="keywords4">
+    <xsl:value-of select="."/>
+  </xsl:variable>
+
+  <xsl:value-of select="normalize-space(concat($keywords1, $keywords2, $keywords3, $keywords4))"/>
 </xsl:template>
 
 <!-- Outputs the foreword -->
@@ -554,11 +568,11 @@ o=isocs; s=central<br/>
       </xsl:choose>
     </xsl:variable>
 
-  <h3>
+  <h2>
     <a name="foreword">
       Foreword
     </a>
-  </h3>
+  </h2>
   <p>
     ISO (the International Organization for Standardization) is a worldwide
     federation of national standards bodies (ISO member bodies). The work of
@@ -598,9 +612,6 @@ o=isocs; s=central<br/>
       accepted for publication if it is approved by more than 50% 
       of the members of the parent committee casting a vote;
     </li>  
-  </ul>
-  
-  <ul>
     <li>
       an ISO Technical Specification (ISO/TS) represents an agreement between
       the members of a technical committee and is accepted for
@@ -804,96 +815,20 @@ o=isocs; s=central<br/>
   <p>
     <!-- <hr width="100" size="2" align="left"/> -->
     <a name="10303-1">
-      1) A future edition of ISO 10303-1 will describe the application
+      <sup>1)</sup>A future edition of ISO 10303-1 will describe the application
       modules series.
     </a>
   </p>
 
 </xsl:template>
 
-<!-- foreword as in n1112 
-<xsl:template match="module" mode="foreword">
-  <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Foreword'"/>
-    <xsl:with-param name="aname" select="'foreword'"/>
-  </xsl:call-template>
-<p>
-  ISO (the International Organization for Standardization) is a worldwide
-  federation of national standards bodies (ISO member bodies). The work of
-  preparing International Standards is normally carried out through ISO
-  technical committees. Each member body interested in a subject for which
-  a technical committee has been established has the right to be
-  represented on that committee. International organizations, governmental 
-  and non-governmental, in liaison with ISO, also take part in the
-  work. ISO collaborates closely with the International Electrotechnical
-  Commission (IEC) on all matters of electrotechnical standardization.
-</p>
-<p>
-  The main task of technical committees is to prepare International
-  Standards. Draft International Standards adopted by the technical
-  committees are circulated to the member bodies for voting. Publication as
-  an International Standard requires approval by at least 75% of the member
-  bodies casting a vote. 
-</p>
-<p>
-  In other circumstances, particularly when there is an urgent market
-  requirement for such documents, a technical committee may decide to publish
-  other types of normative documents:
-  <ul>
-    <li>
-      an ISO Publicly Available Specification (ISO/PAS) represents an
-      agreement between technical experts in an ISO working group and is
-      accepted for publication if it is approved by more than 50% of the
-      members of the parent committee casting a vote; 
-    </li>
-    <li>
-      an ISO Technical Specification (ISO/TS) represents an agreement
-      between the members of a technical committee and is accepted for
-      publication if it is approved for publication if it is approved by
-      2/3 of the members of the committee casting a vote. 
-    </li>
-  </ul>
-</p>
-<p>
-  An ISO/PAS or ISO/TS is reviewed every three years with a view to deciding
-  whether it can be transformed into an International Standard ISO/TS
-  10303-28 was prepared by Technical Committee 184, <i>Industrial
-  automation systems and integration, Subcommittee SC4, Industrial data.</i>
-</p>
-<p>
-  This International Standard is organized as a series of parts, each
-  published separately. The parts of ISO 10303 fall into one of the
-  following series: description methods, integrated resources, application
-  interpreted constructs, application modules, application protocols, 
-  abstract test suites, implementation methods, and conformance testing.
-  The series are described in ISO 10303-1<sup>1</sup>. 
-  A complete list of parts of ISO 10303 is available from the Internet:
-  <blockquote>
-    <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.rtf/">
-      &lt;http://www.tc184-sc4.org/titles/STEP_Titles.rtf/&gt;
-    </A>.
-  </blockquote>
-</p>
-<p>
-  This part of ISO 10303 is a member of the application modules series.
-  Annexes &lt;normative annex list&gt; form an integral part of this part
-  of ISO 10303. Annexes &lt;informative annex list&gt; are for information
-  only. 
-</p>
-<p>
-  <sup>1</sup>A future edition of ISO 10303-1 will describe the application
-  modules series.
-</p>
-
-</xsl:template>
--->
 
 <xsl:template match="purpose">
-  <h3>
+  <h2>
     <a name="introduction">
       Introduction
     </a>
-  </h3>
+  </h2>
 
   <xsl:if test="not( string-length(normalize-space(.)) > 85)" >
         <xsl:call-template name="error_message">
@@ -993,7 +928,7 @@ o=isocs; s=central<br/>
     </xsl:call-template>           
   </xsl:variable>
   <p>
-    This part of ISO 10303 specifies the application module for 
+    This part of ISO 10303 specifies the application module
     <xsl:value-of select="$module_name"/>.
     <a name="inscope"/>
     The following are within the scope of this part of ISO 10303: 
@@ -1086,19 +1021,19 @@ o=isocs; s=central<br/>
     listings are available in computer-interpretable form in Table E.1 and can
     be found at the following URLs:
   </p>
-  <blockquote>
-    Short names:
-    &lt;<a href="{$names_url}">
-      <xsl:value-of select="$names_url"/>
-    </a>&gt;
-
-    <br/>
-    EXPRESS: 
-    &lt;<a href="{$parts_url}">
-      <xsl:value-of select="$parts_url"/>
-    </a>&gt;
-  </blockquote>
-  
+  <table>
+    <tr>
+      <td>&#160;&#160;</td>
+      <td>Short names:</td>
+      <td>&lt;<a href="{$names_url}"><xsl:value-of select="$names_url"/></a>&gt;</td>
+  </tr>
+  <tr>
+    <td>&#160;&#160;</td>
+    <td>EXPRESS:</td>
+     <td>&lt;<a href="{$parts_url}"><xsl:value-of select="$parts_url"/></a>&gt;</td>
+   </tr>
+  </table>
+  <p/>
   <div align="center">
     <a name="table_e1">
       <b>
@@ -1394,11 +1329,11 @@ o=isocs; s=central<br/>
   </code>
 
   <!-- Note a UoF section is no longer required so this is commented out 
-  <h3>
+  <h2>
     <a name="uof">
       4.1&#160;Unit of functionality
     </a>
-  </h3>
+  </h2>
   <xsl:apply-templates select="." mode="uof"/> -->
 
 
@@ -1539,7 +1474,7 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <xsl:template match="uof" mode="uof_toc">
-  <h3>
+  <h2>
     <xsl:variable name="name" select="concat('uof',@name)"/>
     <!-- only number section if more than one UOF -->
     <xsl:choose>
@@ -1554,7 +1489,7 @@ o=isocs; s=central<br/>
         </a>        
       </xsl:otherwise>
     </xsl:choose>
-  </h3>
+  </h2>
 
   <!-- The <xsl:value-of select="@name"/> UoF specifies -->
   <xsl:choose>
@@ -1591,12 +1526,12 @@ o=isocs; s=central<br/>
       <xsl:with-param name="module" select="/module/@name"/>
     </xsl:call-template>           
   </xsl:variable>
-  <h3>
+  <h2>
     <xsl:variable name="name" select="concat('uof',$uof)"/>
     <a name="{$name}">
       <xsl:value-of select="concat('4.1.',position()+count(../uof),' ',$uof)"/>
     </a>
-  </h3>
+  </h2>
   This UoF is defined in the
   <a href="{$xref}">
     <xsl:call-template name="module_display_name">
@@ -1743,9 +1678,9 @@ o=isocs; s=central<br/>
   </xsl:call-template>
 
 
-  <h3>
+  <h2>
     <a name="mapping">5.1 Mapping specification</a>
-  </h3>
+  </h2>
   <xsl:choose>
     <xsl:when test="string-length(../mapping_table)>0">
       <xsl:apply-templates select="../mapping_table" mode="toc"/>
@@ -1756,9 +1691,9 @@ o=isocs; s=central<br/>
   </xsl:choose>
   -->
 
-  <h3>
+  <h2>
     <a name="mim_express">5.2 MIM EXPRESS short listing</a>
-  </h3>
+  </h2>
   <p>
     This clause specifies the EXPRESS schema derived from the mapping
     table. 
@@ -1952,10 +1887,10 @@ o=isocs; s=central<br/>
   <xsl:variable name="sect_no">
     <xsl:number/>
   </xsl:variable>
-  <h3>
+  <h2>
     <xsl:value-of select="concat('5.1.',$sect_no,' ')"/>
     <a href="{$xref}"><xsl:value-of select="@entity"/></a>
-  </h3>
+  </h2>
 </xsl:template>
 
 
@@ -2417,7 +2352,7 @@ o=isocs; s=central<br/>
 <xsl:template name="output_normrefs">
   <xsl:param name="module_number"/>
   <xsl:param name="current_module"/>
-  <h3>2 Normative references</h3>
+  <h2>2 Normative references</h2>
   The following normative documents contain provisions which, through
   reference in this text, constitute provisions of this International
   Standard. For dated references, subsequent amendments to, or revisions of,
@@ -2605,7 +2540,7 @@ o=isocs; s=central<br/>
   <xsl:if test="$footnote='y'">
     <p>
       <a name="tobepub">
-        1) To be published.
+        <sup>1)</sup> To be published.
       </a>      
     </p>
   </xsl:if>
@@ -2725,7 +2660,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
   <xsl:if test="$footnote='y'">
     <p>
       <a name="derogation">
-        2) Reference applicable during ballot or review period.
+        <sup>2)</sup> Reference applicable during ballot or review period.
       </a>      
     </p>
   </xsl:if>
@@ -2992,11 +2927,11 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
      -->
 <xsl:template name="output_abbreviations">
   <xsl:param name="section"/>
-  <h3>
+  <h2>
     <a name="abbrv">
       <xsl:value-of select="concat('3.',$section)"/> Abbreviations
     </a>
-  </h3>
+  </h2>
 
   <!-- output any issues -->
   <xsl:apply-templates select="." mode="output_clause_issue">
@@ -3213,10 +3148,10 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
           <xsl:variable name="part_no" 
             select="substring-after($normref/stdref/stdnumber,'-')"/>
           <xsl:if test="$module_number!=$part_no">
-            <h3>
+            <h2>
             <xsl:value-of select="concat('3.',$section_no,
                                   ' Terms defined in ',$stdnumber)"/>
-            </h3>
+            </h2>
             For the purposes of this part of ISO 10303, 
             the following terms defined in 
             <xsl:value-of select="$stdnumber"/>
@@ -3279,10 +3214,10 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
                 
                 <!-- output the section header for the normative reference
                      that is defining terms -->              
-                <h3>
+                <h2>
                   <xsl:value-of select="concat('3.',$section_no,
                                         ' Terms defined in ', $stdnumber)"/>
-                </h3>
+                </h2>
                 For the purposes of this part of ISO 10303, 
                 the following terms defined in 
                 <xsl:value-of select="$stdnumber"/>
@@ -3517,12 +3452,12 @@ $module_ok,' Check the normatives references')"/>
     select="concat('ISO/',$module/@status,'&#160;10303-',$module/@part)"/>
 
 
-  <h3>
+  <h2>
     <xsl:value-of select="concat($section,' Other terms and definitions')"/>
     <!--
     <xsl:value-of select="concat($section,' Terms defined in',$stdnumber)"/>
     -->
-</h3>
+</h2>
   </xsl:template>
 
 
@@ -3707,8 +3642,8 @@ $module_ok,' Check the normatives references')"/>
 		<xsl:value-of select="@title"/>
 		</xsl:variable>
 		
-		<a name="{$title}"><H3><xsl:value-of select="concat('F.',$sect_no,' ')"/>
-			<xsl:value-of select="@title"/></H3></a>			
+		<a name="{$title}"><H2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></H2></a>			
 		 <xsl:apply-templates/>
 </xsl:template>
 
@@ -3720,8 +3655,8 @@ $module_ok,' Check the normatives references')"/>
 		<xsl:value-of select="@title"/>
 		</xsl:variable>
 	
-		<A name="{$title}"><H3><xsl:value-of select="concat('F.',$sect_no,' ')"/>
-			<xsl:value-of select="@title"/></H3></A>
+		<A name="{$title}"><H2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></H2></A>
 			
 			<xsl:variable name="sect_sup">
 		<xsl:value-of select="concat('F.',$sect_no,'.')"/>
@@ -3767,6 +3702,9 @@ $module_ok,' Check the normatives references')"/>
   <xsl:variable name="number">
     <xsl:number/>
   </xsl:variable>
+  <xsl:variable name="total">
+    <xsl:value-of select="count(../imgfile)-1"/>
+  </xsl:variable>
   <xsl:variable name="fig_no">
     <xsl:choose>
       <xsl:when test="name(../..)='arm'">
@@ -3774,12 +3712,12 @@ $module_ok,' Check the normatives references')"/>
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' &#8212; ARM schema level EXPRESS-G diagram ',$number)"/>
+                      ' &#8212; ARM schema level EXPRESS-G diagram ',$number,' of 1')"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' &#8212; ARM entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' &#8212; ARM entity level EXPRESS-G diagram ',($number - 1),' of ',$total)"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -3788,12 +3726,12 @@ $module_ok,' Check the normatives references')"/>
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' &#8212; MIM schema level EXPRESS-G diagram ',$number)"/>
+                      ' &#8212; MIM schema level EXPRESS-G diagram ',$number,' of 1')"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' &#8212; MIM entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' &#8212; MIM entity level EXPRESS-G diagram ',($number - 1),' of ',$total)"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

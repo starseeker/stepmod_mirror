@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.21 2002/09/27 07:51:32 robbod Exp $
+$Id: imgfile.xsl,v 1.22 2003/03/11 23:56:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -33,13 +33,18 @@ $Id: imgfile.xsl,v 1.21 2002/09/27 07:51:32 robbod Exp $
   </xsl:variable>
 
   <xsl:variable name="module_file" select="concat($module_dir,'/module.xml')"/>
+  <xsl:variable name="module" select="@module"/>
+  <xsl:variable name="self" select="."/>
+  <xsl:variable name="module_xml" select="document($module_file)/module"/>
+
+
 
   <!-- if a file is specified then can deduce the figure title -->
   <xsl:variable name="fig_title">
     <xsl:choose>
       <xsl:when test="./@file">
         <xsl:apply-templates 
-          select="document($module_file)/module/*/express-g/imgfile"
+          select="$module_xml/*/express-g/imgfile"
           mode="title">
           <xsl:with-param name="file" select="@file"/>
         </xsl:apply-templates>
@@ -53,22 +58,12 @@ $Id: imgfile.xsl,v 1.21 2002/09/27 07:51:32 robbod Exp $
   <HTML>
     <HEAD>
       <TITLE>
-        <xsl:choose>
-          <xsl:when test="@module">
-            <xsl:value-of select="concat(@module,' : ',$fig_title)"/>
-          </xsl:when>
-          <xsl:otherwise>
-            @module not specified.
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:apply-templates select="$module_xml" mode="title"/>
       </TITLE>
+      <xsl:apply-templates select="$module_xml" mode="meta_data"/>
     </HEAD>
 
     <body>
-      <xsl:variable name="module" select="@module"/>
-      <xsl:variable name="self" select="."/>
-      <xsl:variable name="module_xml" select="document($module_file)/module"/>
-
       <xsl:choose>
         <xsl:when test="@module">
           <xsl:apply-templates 
@@ -140,6 +135,9 @@ $Id: imgfile.xsl,v 1.21 2002/09/27 07:51:32 robbod Exp $
     <xsl:variable name="number">
       <xsl:number/>
     </xsl:variable>
+    <xsl:variable name="total">
+      <xsl:value-of select="count(../imgfile)-1"/>
+    </xsl:variable>
     <xsl:variable name="fig_no">
       <xsl:choose>
         <xsl:when test="name(../..)='arm'">
@@ -147,12 +145,13 @@ $Id: imgfile.xsl,v 1.21 2002/09/27 07:51:32 robbod Exp $
             <xsl:when test="$number=1">
               <xsl:value-of 
                 select="concat('Figure C.',$number, 
-                        ' &#8212; ARM schema level EXPRESS-G diagram ',$number)"/>
+                        ' &#8212; ARM schema level EXPRESS-G diagram
+                        ',$number,' of 1')"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of 
                 select="concat('Figure C.',$number, 
-                        ' &#8212; ARM entity level EXPRESS-G diagram ',($number - 1))"/>
+                        ' &#8212; ARM entity level EXPRESS-G diagram ',($number - 1),' of ',$total)"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
@@ -161,12 +160,12 @@ $Id: imgfile.xsl,v 1.21 2002/09/27 07:51:32 robbod Exp $
             <xsl:when test="$number=1">
               <xsl:value-of 
                 select="concat('Figure D.',$number, 
-                        ' &#8212; MIM schema level EXPRESS-G diagram ',$number)"/>
+                        ' &#8212; MIM schema level EXPRESS-G diagram ',$number,' of 1')"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of 
                 select="concat('Figure D.',$number, 
-                        ' &#8212; MIM entity level EXPRESS-G diagram ',($number - 1))"/>
+                        ' &#8212; MIM entity level EXPRESS-G diagram ',($number - 1),' of ',$total)"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>

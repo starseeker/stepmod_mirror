@@ -4,7 +4,7 @@
   href="../../../xsl/express.xsl"
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Position_in_organization_v5.vsd" />
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Position_in_organization_v7.vsd" />
 <schema name="Position_in_organization_arm">
 <description>
       The definition of a position in an organization and the relationships between positions and organizations.
@@ -15,48 +15,34 @@
 </interface>
 <interface kind="use" schema="Type_of_person_arm">
 </interface>
+<type name="person_or_organization">
+<select selectitems="Organization Person" />
+<graphic.element page="2" xcoord="467" ycoord="212" />
+</type>
 <type name="Position_context_item">
 <select extensible="YES" selectitems="Organization Position_group Project" />
-<graphic.element page="2" xcoord="474" ycoord="481" />
+<graphic.element page="2" xcoord="446" ycoord="496" />
 </type>
-<entity name="Direct_supervision_relationship">
+<type name="position_item">
+<select extensible="YES" />
+<graphic.element page="6" xcoord="510" ycoord="240" />
+</type>
+<type name="position_select">
+<select selectitems="Person_or_organization_in_position Position Position_group Position_type Position_type_in_organization" />
+<graphic.element page="6" xcoord="325" ycoord="382" />
+</type>
+<entity name="Person_or_organization_in_position">
 <description>
-        A direct supervision relationship is a coordinating mechanism to control the flow of authority between positions, a superior and his/her subordinates. The superior issues instructions and monitors the performance of the subordinates.
+        A person or organization may hold more than one position within an organization or organizations.
+<example>
+A person can hold two positions in an organization: Production Manager and Safety Officier.
+</example>
 
-<note>
-Together, the supervision relationships of a superior with his/her subordinates constitute the structure of an organization.
-</note>
-</description>
-<explicit name="organization" optional="YES">
-<description>
-          The organization that is defines the direct supervision relationship.
-        </description>
-<typename name="Organization" />
-</explicit>
-<explicit name="subordinate">
-<description>
-          The position that is the subordinate.
-        </description>
-<typename name="Position" />
-</explicit>
-<explicit name="superior">
-<description>
-          The position that is the superior.
-        </description>
-<typename name="Position" />
-</explicit>
-<graphic.element page="2" xcoord="283" ycoord="474" />
-</entity>
-<entity name="Person_in_position">
-<description>
-        A position is held by a person. A person may hold more than one position within an organization or organizations.
+A position in an organization can be held by more than one person or organization.
 
-<eg>
-Bill Gates holds two positions at Microsoft: Chairman and Chief Architect.
-</eg>
-<note>
-There can be max. 1 effective person_in_position for one position.
-</note>
+<example>
+Two people can hold the same position in a job-share scheme.
+</example>
 </description>
 <explicit name="description" optional="YES">
 <description>
@@ -70,11 +56,8 @@ There can be max. 1 effective person_in_position for one position.
         </description>
 <builtintype type="STRING" />
 </explicit>
-<explicit name="person">
-<description>
-          The person who holds the position.
-        </description>
-<typename name="Person" />
+<explicit name="person_or_organization">
+<typename name="person_or_organization" />
 </explicit>
 <explicit name="position">
 <description>
@@ -82,7 +65,7 @@ There can be max. 1 effective person_in_position for one position.
         </description>
 <typename name="Position" />
 </explicit>
-<graphic.element page="2" xcoord="467" ycoord="248" />
+<graphic.element page="2" xcoord="467" ycoord="290" />
 </entity>
 <entity name="Position">
 <description>
@@ -125,17 +108,30 @@ Service Engineer
         </description>
 <typename name="Position_type" />
 </explicit>
-<graphic.element page="2" xcoord="467" ycoord="403" />
+<graphic.element page="2" xcoord="467" ycoord="375" />
+</entity>
+<entity name="Position_assignment">
+<explicit name="items">
+<aggregate type="SET" lower="0" upper="?" />
+<typename name="position_item" />
+</explicit>
+<explicit name="position">
+<typename name="position_select" />
+</explicit>
+<explicit name="role">
+<typename name="Position_role" />
+</explicit>
+<graphic.element page="6" xcoord="510" ycoord="375" />
 </entity>
 <entity name="Position_group">
 <description>
-        A group collecting people in their positions to cooperate in a mutually beneficial outcome without formal supervision relationships.
+        A group collecting people in their positions to cooperate in an assignment.
 
-<eg>
+<example>
 People representing utility companies who cooperate with each other to coordinate road works.
-</eg>
+</example>
 </description>
-<graphic.element page="2" xcoord="396" ycoord="177" />
+<graphic.element page="2" xcoord="637" ycoord="545" />
 </entity>
 <entity name="Position_group_relationship">
 <description>
@@ -153,15 +149,67 @@ People representing utility companies who cooperate with each other to coordinat
         </description>
 <typename name="Position" />
 </explicit>
-<graphic.element page="2" xcoord="382" ycoord="318" />
+<graphic.element page="2" xcoord="637" ycoord="446" />
+</entity>
+<entity name="Position_relationship">
+<description>
+        Examples of relationships between positions are
+
+<example>
+Superior / Subordinate
+</example>
+<example>
+Superceded by
+</example>
+</description>
+<explicit name="organization" optional="YES">
+<description>
+          The organization that is defines the direct supervision relationship.
+        </description>
+<typename name="Organization" />
+</explicit>
+<explicit name="related_position">
+<description>
+          The position that is the child of the relationship.
+        </description>
+<typename name="Position" />
+</explicit>
+<explicit name="relating_position">
+<description>
+          The position that is parent of the relationship.
+        </description>
+<typename name="Position" />
+</explicit>
+<graphic.element page="2" xcoord="283" ycoord="460" />
+</entity>
+<entity name="Position_role">
+<explicit name="description" optional="YES">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="name">
+<builtintype type="STRING" />
+</explicit>
+<graphic.element page="6" xcoord="510" ycoord="517" />
 </entity>
 <entity name="Position_type">
 <description>
-        A position type is a recognized kind of position. It enables a person to be assigned to tasks.
+        A position type is a recognized kind of position.
 
-<eg>
-CEO, manager, service engineer, programmer, aircraft engineering technician propulsion
-</eg>
+<example>
+Chief Executive Officer
+</example>
+<example>
+Manager
+</example>
+<example>
+Service engineer
+</example>
+<example>
+Programmer
+</example>
+<example>
+Aircraft engineering technician propulsion
+</example>
 </description>
 <explicit name="description" optional="YES">
 <builtintype type="STRING" />
@@ -169,7 +217,7 @@ CEO, manager, service engineer, programmer, aircraft engineering technician prop
 <explicit name="name">
 <builtintype type="STRING" />
 </explicit>
-<graphic.element page="2" xcoord="184" ycoord="362" />
+<graphic.element page="2" xcoord="184" ycoord="318" />
 </entity>
 <entity name="Position_type_in_organization">
 <explicit name="organization">
@@ -190,7 +238,7 @@ CEO, manager, service engineer, programmer, aircraft engineering technician prop
 <explicit name="type_of_person">
 <typename name="Type_of_person" />
 </explicit>
-<graphic.element page="2" xcoord="184" ycoord="262" />
+<graphic.element page="2" xcoord="184" ycoord="233" />
 </entity>
 <graphic.element page="1" xcoord="396" ycoord="531" />
 </schema>

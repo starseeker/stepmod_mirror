@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: summary.xsl,v 1.3 2002/10/02 16:43:22 robbod Exp $
+$Id: summary.xsl,v 1.4 2003/01/10 16:02:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -383,7 +383,7 @@ $Id: summary.xsl,v 1.3 2002/10/02 16:43:22 robbod Exp $
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="./@name"/>
+    <xsl:with-param name="type" select="./@name"/>
   </xsl:call-template> 
   <!-- output description from express -->
 

@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.30 2003/01/14 13:47:04 robbod Exp $
+   $Id: mim.exp,v 1.1 2003/02/03 08:28:29 goset1 Exp $
    N - ISO/CD-TS - 10303- inertia_characteristics - EXPRESS MIM*)
 
 SCHEMA Inertia_characteristics_mim;
@@ -14,19 +14,15 @@ USE FROM representation_schema
 	(compound_representation_item,
 	list_representation_item); 
 
-CONSTANT 
-  schema_name : STRING := 'INERTIA_CHARACTERISTICS_MIM';
-END_CONSTANT;
-
 ENTITY moments_of_inertia_representation 
 SUBTYPE OF (representation); 
 WHERE 
 WR1: (SIZEOF(SELF.items) = 1) AND 
- (SIZEOF( QUERY( i <* SELF.items | (schema_name + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
+ (SIZEOF( QUERY( i <* SELF.items | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
   (i.name = 'moments of inertia matrix') )) = 1); 
-WR2: SIZEOF( QUERY( i <* SELF.items | (schema_name + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
+WR2: SIZEOF( QUERY( i <* SELF.items | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
   (SIZEOF(i\compound_representation_item.item_element) = 3) AND 
-  (schema_name + '.LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element)) AND 
+  ('INERTIA_CHARACTERISTICS_MIM' + '.LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element)) AND 
   value_range_aggregate_rep_item (i\compound_representation_item.item_element) )) = 1; 
 END_ENTITY; 
 
@@ -37,7 +33,7 @@ WHERE
 	( r.name ='centre of mass' ) AND 
 	( ( SIZEOF ( r.items ) <>1 ) OR 
 	(SIZEOF ( QUERY ( i <* r.items | 
-	( schema_name + '.POINT' IN TYPEOF ( i ) ) AND 
+	( 'INERTIA_CHARACTERISTICS_MIM' + '.POINT' IN TYPEOF ( i ) ) AND 
 	( i.name = 'centre point' ) )) <>1 ) ) ) ) 
 	=0;
 END_RULE;
@@ -46,7 +42,7 @@ FUNCTION value_range_aggregate_rep_item (agg : AGGREGATE OF representation_item)
   FUNCTION cri (agg : AGGREGATE OF representation_item) : BOOLEAN; 
   BEGIN 
   IF (SIZEOF(agg) = 3) AND 
-	(SIZEOF(QUERY(i1 <* agg | (schema_name + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)) )) = 3) THEN 
+	(SIZEOF(QUERY(i1 <* agg | ('INERTIA_CHARACTERISTICS_MIM' + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)) )) = 3) THEN 
 	  RETURN (TRUE); 
    ELSE 
 	RETURN (FALSE); 
@@ -56,7 +52,7 @@ FUNCTION value_range_aggregate_rep_item (agg : AGGREGATE OF representation_item)
 
    BEGIN 
    IF ((SIZEOF(agg) = 3) AND
-	 (SIZEOF(QUERY(i <* agg | (schema_name + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
+	 (SIZEOF(QUERY(i <* agg | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
 	cri(i\compound_representation_item.item_element) )) = 1)) THEN 
 	RETURN (TRUE); 
    ELSE 

@@ -1,41 +1,87 @@
-<?xml version="1.0"?>
-<!-- $Id: mim.xml,v 1.1 2003/02/03 08:28:29 goset1 Exp $ -->
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml2.js,v 1.3 2003/05/02 07:56:57 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" description.file="mim_descriptions.xml" rcs.date="$Date: 2003/02/03 08:28:29 $" rcs.revision="$Revision: 1.1 $">
-	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.26" source="../data/modules/inertia_characteristics/mim.exp"/>
-	<schema name="Inertia_characteristics_mim">
-		<interface kind="use" schema="Elemental_geometric_shape_mim"/>
-		<interface kind="use" schema="Shape_property_assignment_mim"/>
-		<interface kind="use" schema="Value_with_unit_mim"/>
-		<constant name="schema_name" expression="'INERTIA_CHARACTERISTICS_MIM'">
-			<builtintype type="STRING"/>
-		</constant>
-		<entity name="moments_of_inertia_representation" supertypes="representation">
-			<where label="WR1" expression="(SIZEOF(SELF.items) = 1) AND  (SIZEOF( QUERY( i &lt;* SELF.items | (schema_name + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND   (i.name = 'moments of inertia matrix') )) = 1)"/>
-			<where label="WR2" expression="SIZEOF( QUERY( i &lt;* SELF.items | (schema_name + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND   (SIZEOF(i\compound_representation_item.item_element) = 3) AND   (schema_name + '.LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element)) AND   value_range_aggregate_rep_item (i\compound_representation_item.item_element) )) = 1"/>
-		</entity>
-		<rule name="restrict_centre_of_mass_representation" appliesto="representation">
-			<algorithm/>
-			<where label="WR1" expression="SIZEOF ( QUERY ( r &lt;* representation | 	( r.name ='centre of mass' ) AND 	( ( SIZEOF ( r.items ) &lt;&gt;1 ) OR 	(SIZEOF ( QUERY ( i &lt;* r.items | 	( schema_name + '.POINT' IN TYPEOF ( i ) ) AND 	( i.name = 'centre point' ) )) &lt;&gt;1 ) ) ) ) 	=0"/>
-		</rule>
-		<function name="value_range_aggregate_rep_item">
-			<parameter name="agg">
-				<aggregate type="AGGREGATE"/>
-				<typename name="representation_item"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-  FUNCTION cri (agg : AGGREGATE OF representation_item) : BOOLEAN; 
-  BEGIN 
-  IF (SIZEOF(agg) = 3) AND 
-	(SIZEOF(QUERY(i1 &lt;* agg | (schema_name + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)) )) = 3) THEN 
-	  RETURN (TRUE); 
-   ELSE 
-	RETURN (FALSE); 
-   END_IF; 
-   END; 
+<express
+  language_version="2"
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.3"
+    source="../data/modules/inertia_characteristics/mim.exp"/>
+
+  <schema name="Inertia_characteristics_mim">
+
+    <interface
+      kind="use"
+      schema="Elemental_geometric_shape_mim">
+    </interface>
+    <interface
+      kind="use"
+      schema="Shape_property_assignment_mim">
+    </interface>
+    <interface
+      kind="use"
+      schema="Value_with_unit_mim">
+    </interface>
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="compound_representation_item"/>
+      <interfaced.item
+        name="list_representation_item"/>
+    </interface>
+    <entity
+      name="moments_of_inertia_representation"
+      supertypes="representation">
+      <where
+        label="WR1"
+        expression="(SIZEOF(SELF.items) = 1) AND(SIZEOF(QUERY(i &lt;* SELF.items | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND(i.name = 'moments of inertia matrix'))) = 1)">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(QUERY(i &lt;* SELF.items | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND(SIZEOF(i\compound_representation_item.item_element) = 3) AND('INERTIA_CHARACTERISTICS_MIM' + '.LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element)) AND value_range_aggregate_rep_item (i\compound_representation_item.item_element))) = 1">
+      </where>
+    </entity>
+
+    <rule
+      name="restrict_centre_of_mass_representation"
+      appliesto="representation">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (r &lt;* representation |(r.name ='centre of mass') AND((SIZEOF (r.items) &lt;&gt;1) OR(SIZEOF (QUERY (i &lt;* r.items |('INERTIA_CHARACTERISTICS_MIM' + '.POINT' IN TYPEOF (i)) AND(i.name = 'centre point'))) &lt;&gt;1))))=0">
+      </where>
+    </rule>
+
+    <function
+      name="value_range_aggregate_rep_item">
+      <parameter
+        name="agg">
+        <aggregate
+          type="AGGREGATE"/>
+        <typename
+          name="representation_item"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+FUNCTION cri (agg : AGGREGATE OF representation_item) : BOOLEAN;
+BEGIN
+IF (SIZEOF(agg) = 3) AND
+(SIZEOF(QUERY(i1 &lt;* agg | ('INERTIA_CHARACTERISTICS_MIM' + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)))) = 3) THEN
+RETURN (TRUE);
+ELSE
+RETURN (FALSE);
+END_IF;
+END;
       </algorithm>
-		</function>
-	</schema>
+    </function>
+
+  </schema>
 </express>

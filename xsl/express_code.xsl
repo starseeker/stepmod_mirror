@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.16 2002/05/19 07:55:13 robbod Exp $
+     $Id: express_code.xsl,v 1.17 2002/06/02 07:12:37 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -59,8 +59,20 @@
         <xsl:with-param name="schema_name" select="@schema"/>
         <xsl:with-param name="clause" select="'annexe'"/>
       </xsl:call-template>
-      <xsl:apply-templates select="./interfaced.item" mode="code"/>;
-      <xsl:apply-templates select="." mode="source"/><br/><br/>
+
+      <xsl:choose>
+        <xsl:when test="./interfaced.item">
+          <!-- if interface items then out put source tail comment now -->
+          <xsl:apply-templates select="." mode="source"/>
+          <xsl:apply-templates select="./interfaced.item" mode="code"/>;
+          <br/><br/>          
+        </xsl:when>
+        <xsl:otherwise>;
+          <xsl:apply-templates select="." mode="source"/>
+          <br/><br/>
+        </xsl:otherwise>
+      </xsl:choose>      
+
     </xsl:when>
     <xsl:when test="@kind='use'">
       USE FROM
@@ -69,8 +81,20 @@
         <xsl:with-param name="schema_name" select="@schema"/>
         <xsl:with-param name="clause" select="'annexe'"/>
       </xsl:call-template>
-      <xsl:apply-templates select="./interfaced.item" mode="code"/>;
-      <xsl:apply-templates select="." mode="source"/><br/><br/>
+
+      <xsl:choose>
+        <xsl:when test="./interfaced.item">
+          <!-- if interface items then out put source tail comment now -->
+          <xsl:apply-templates select="." mode="source"/>
+          <xsl:apply-templates select="./interfaced.item" mode="code"/>;
+          <br/><br/>          
+        </xsl:when>
+        <xsl:otherwise>;
+          <xsl:apply-templates select="." mode="source"/>
+          <br/><br/>
+        </xsl:otherwise>
+      </xsl:choose>      
+
     </xsl:when>
     <xsl:otherwise>
       <xsl:call-template name="error_message">
@@ -170,11 +194,15 @@
 
 
 <xsl:template match="interfaced.item" mode="code">
-  <xsl:if test="position()=1">
-    (<br/>
-  </xsl:if>
+  <xsl:choose>
+    <xsl:when test="position()=1">
+      <br/>&#160;&#160;(
+    </xsl:when>
+    <xsl:otherwise>
+        &#160;&#160;
+    </xsl:otherwise>
+  </xsl:choose>
 
-  &#160;&#160;
   <xsl:call-template name="link_object">
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 

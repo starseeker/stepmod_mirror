@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.26 2005/01/14 09:04:13 liutkus Exp $
+   $Id: arm.exp,v 1.27 2005/01/19 11:06:25 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Extended geometric tolerance - EXPRESS ARM
 *)
 
@@ -65,7 +65,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);
 
 	TYPE egt_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
 	    (Restraint_condition,
-	  	Statistical_dimensional_tolerance,
+	  	Statistical_dimensional_location,
+	  	Statistical_dimensional_size,
 	  	Statistical_geometric_tolerance);
 	END_TYPE; 
 
@@ -563,7 +564,17 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);
       dimension_value : Value_with_unit;
   END_ENTITY;
 
-  ENTITY Statistical_dimensional_tolerance
+  ENTITY Statistical_dimensional_location
+    SUBTYPE OF (Geometric_dimension);
+      alternate_dimension             : OPTIONAL Geometric_dimension;
+	DERIVE
+  		statistical_control_requirement: SET[0:?] OF Requirement_view_definition :=
+  		get_rvd(SELF, 'statistical control requirement');
+	WHERE
+   		WR1 : EXISTS (statistical_control_requirement) AND SIZEOF(statistical_control_requirement) = 1;
+  END_ENTITY;
+
+  ENTITY Statistical_dimensional_size
     SUBTYPE OF (Geometric_dimension);
       alternate_dimension             : OPTIONAL Geometric_dimension;
 	DERIVE

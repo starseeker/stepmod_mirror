@@ -1,13 +1,16 @@
-//$Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $
-// JScript to convert an Express file to an XML file
-// cscript express2xml.js <express.exp>
-// cscript express2xml.js <module> arm
-// cscript express2xml.js <module> mim
-// cscript express2xml.js <module> mim_lf
-// cscript express2xml.js <module> module
-// cscript express2xml.js <resource> resource
-// e.g
-// cscript express2xml.js part_and_version_identification arm
+//$Id: express2xml.js,v 1.7 2002/01/31 18:37:35 robbod Exp $
+//  Author: Rob Bodington, Eurostep Limited
+//  Owner:  Developed by Eurostep and supplied to NIST under contract.
+//  Purpose:
+//    JScript to convert an Express file to an XML file
+//    cscript express2xml.js <express.exp>
+//    cscript express2xml.js <module> arm
+//    cscript express2xml.js <module> mim
+//    cscript express2xml.js <module> mim_lf
+//    cscript express2xml.js <module> module
+//    cscript express2xml.js <resource> resource
+//    e.g
+//    cscript express2xml.js part_and_version_identification arm
 
 // ------------------------------------------------------------
 // Global variables
@@ -308,7 +311,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.7 2002/01/31 18:37:35 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -318,7 +321,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.6 $";
+    var appCVSRevision = "$Revision: 1.7 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();

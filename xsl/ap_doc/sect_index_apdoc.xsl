@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_index_apdoc.xsl,v 1.5 2004/11/27 18:05:33 robbod Exp $
+	$Id: sect_index_apdoc.xsl,v 1.6 2004/12/29 07:51:12 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -42,7 +42,7 @@
       </xsl:apply-templates>
       <xsl:apply-templates select="//purpose//module_ref" mode="get_modref_object">
         <xsl:with-param name="section" select="'Introduction'"/>
-        <xsl:with-param name="href" select="concat('Introduction',$FILE_EXT)"/>
+        <xsl:with-param name="href" select="concat('introduction',$FILE_EXT)"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="//fundamentals//module_ref" mode="get_modref_object">
         <xsl:with-param name="section" select="'4.1'"/>

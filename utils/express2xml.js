@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $
+//$Id: express2xml.js,v 1.10 2002/06/04 08:24:21 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -313,7 +313,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.10 2002/06/04 08:24:21 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -323,7 +323,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.9 $";
+    var appCVSRevision = "$Revision: 1.10 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -1039,11 +1039,22 @@ function Output2xml(expFile, xmlFile, partnumber) {
     xmlOpenElement("<express",xmlTs);
     xmlAttr("language_version","2",xmlTs);
 
-    if (expFile.match(/_schema.exp$/)) {
+    if (expFile.match(/_schema.exp$/) ) {
 	// An integrated resource
-	if (partnumber) {
+	    if (partnumber) {
 	    xmlAttr("reference",partnumber,xmlTs);
 	}	
+
+//hacked by TEH. Did not know how to indicate start of  string in a RE
+    } else if (expFile.match(/aic_/)) {
+	// an aic
+		//userMessage("found aic :" + partnumber);
+	    if (partnumber) {
+		//userMessage("found partno: " +  partnumber);
+	    xmlAttr("reference",partnumber,xmlTs);
+	}	
+// End hack by TEH plus or minus a curly bracket.
+
     } else if (expFile.match(/arm.exp$/)) {
 	xmlAttr("description.file","arm_descriptions.xml",xmlTs);
     } else if (expFile.match(/mim.exp$/)) {

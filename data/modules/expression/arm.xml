@@ -1,577 +1,195 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.30 2003/02/25 06:04:24 thendrix Exp $ -->
+<!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by olavo (UNINOVA) -->
+<!-- $Id: arm.xml,v 1.15 2003/03/17 10:07:24 rugarcia Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.30"
-    source="../data/modules/expression/arm.exp"/>
-
-  <schema name="Expression_arm">
-    <interface
-      kind="use"
-      schema="Generic_expression_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Numeric_function_arm">
-    </interface>
-
-    <entity
-      name="Expression"
-      abstract.supertype="YES"
-      super.expression="(ONEOF (Numeric_expression,Boolean_expression,String_expression))"
-      supertypes="Generic_expression">
-    </entity>
-
-    <entity
-      name="Numeric_variable"
-      super.expression="(ONEOF (Int_numeric_variable,			          Real_numeric_variable))"
-      supertypes="Simple_numeric_expression Variable">
-      <where
-        label="WR1"
-        expression="('EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(SELF) ) OR	('EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(SELF) )">
-      </where>
-    </entity>
-
-    <entity
-      name="Int_numeric_variable"
-      supertypes="Numeric_variable">
-    </entity>
-
-    <entity
-      name="Real_numeric_variable"
-      supertypes="Numeric_variable">
-    </entity>
-
-    <entity
-      name="Boolean_variable"
-      supertypes="Simple_boolean_expression Variable">
-    </entity>
-
-    <entity
-      name="String_variable"
-      supertypes="Simple_string_expression Variable">
-    </entity>
-
-    <entity
-      name="Numeric_expression"
-      abstract.supertype="YES"
-      super.expression="(ONEOF (Simple_numeric_expression,				Unary_numeric_expression,				Binary_numeric_expression,				Multiple_arity_numeric_expression,				Length_function,				Value_function))"
-      supertypes="Expression">
-      <derived
-        name="is_int"
-        expression="Is_int_expr (SELF)">
-        <builtintype
-          type="BOOLEAN"/>
-      </derived>
-      <derived
-        name="sql_mappable"
-        expression="Is_sql_mappable (SELF)">
-        <builtintype
-          type="BOOLEAN"/>
-      </derived>
-    </entity>
-
-    <entity
-      name="Simple_numeric_expression"
-      abstract.supertype="YES"
-      super.expression="(ONEOF (Literal_number, Numeric_variable))"
-      supertypes="Numeric_expression Simple_generic_expression">
-    </entity>
-
-    <entity
-      name="Literal_number"
-      abstract.supertype="YES"
-      super.expression="(ONEOF (Int_literal, Real_literal))"
-      supertypes="Simple_numeric_expression Generic_literal">
-      <explicit
-        name="the_value">
-        <builtintype
-          type="NUMBER"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Int_literal"
-      supertypes="Literal_number">
-      <explicit
-        name="the_value">
-        <builtintype
-          type="INTEGER"/>
-        <redeclaration
-          entity-ref="Literal_number"/>
-        </explicit>
-      </entity>
-
-      <entity
-        name="Real_literal"
-        supertypes="Literal_number">
-        <explicit
-          name="the_value">
-          <builtintype
-            type="REAL"/>
-          <redeclaration
-            entity-ref="Literal_number"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="Multiple_arity_numeric_expression"
-          abstract.supertype="YES"
-          super.expression="(ONEOF (Plus_expression,				Mult_expression,				Multiple_arity_function_call))"
-          supertypes="Numeric_expression Multiple_arity_generic_expression">
-          <explicit
-            name="operands">
-            <aggregate
-              type="LIST"
-              lower="2"
-              upper="?"/>
-            <typename
-              name="Numeric_expression"/>
-            <redeclaration
-              entity-ref="Multiple_arity_generic_expression"/>
-            </explicit>
-          </entity>
-
-          <entity
-            name="Plus_expression"
-            supertypes="Multiple_arity_numeric_expression">
-          </entity>
-
-          <entity
-            name="Mult_expression"
-            supertypes="Multiple_arity_numeric_expression">
-          </entity>
-
-          <entity
-            name="Multiple_arity_function_call"
-            abstract.supertype="YES"
-            super.expression="(ONEOF (Maximum_function, 				Minimum_function))"
-            supertypes="Multiple_arity_numeric_expression">
-          </entity>
-
-          <entity
-            name="Binary_numeric_expression"
-            abstract.supertype="YES"
-            super.expression="(ONEOF (Minus_expression,				Div_expression,				Mod_expression,				Slash_expression,				Power_expression,				Binary_function_call))"
-            supertypes="Numeric_expression Binary_generic_expression">
-            <explicit
-              name="operands">
-              <aggregate
-                type="LIST"
-                lower="2"
-                upper="2"/>
-              <typename
-                name="Numeric_expression"/>
-              <redeclaration
-                entity-ref="Binary_generic_expression"/>
-              </explicit>
-            </entity>
-
-            <entity
-              name="Minus_expression"
-              supertypes="Binary_numeric_expression">
-            </entity>
-
-            <entity
-              name="Div_expression"
-              supertypes="Binary_numeric_expression">
-            </entity>
-
-            <entity
-              name="Mod_expression"
-              supertypes="Binary_numeric_expression">
-            </entity>
-
-            <entity
-              name="Slash_expression"
-              supertypes="Binary_numeric_expression">
-            </entity>
-
-            <entity
-              name="Power_expression"
-              supertypes="Binary_numeric_expression">
-            </entity>
-
-            <entity
-              name="Binary_function_call"
-              supertypes="Binary_numeric_expression">
-            </entity>
-
-            <entity
-              name="Unary_numeric_expression"
-              abstract.supertype="YES"
-              super.expression="(Unary_function_call)"
-              supertypes="Numeric_expression Unary_generic_expression">
-              <explicit
-                name="operand">
-                <typename
-                  name="Numeric_expression"/>
-                <redeclaration
-                  entity-ref="Unary_generic_expression"/>
-                </explicit>
-              </entity>
-
-              <entity
-                name="String_expression"
-                abstract.supertype="YES"
-                super.expression="(ONEOF (Simple_string_expression,				Index_expression,				Substring_expression,				Concat_expression,				Format_function,				String_defined_function))"
-                supertypes="Expression">
-              </entity>
-
-              <entity
-                name="Simple_string_expression"
-                abstract.supertype="YES"
-                super.expression="(ONEOF (String_literal,String_variable))"
-                supertypes="String_expression Simple_generic_expression">
-              </entity>
-
-              <entity
-                name="String_literal"
-                supertypes="Simple_string_expression Generic_literal">
-                <explicit
-                  name="the_value">
-                  <builtintype
-                    type="STRING"/>
-                </explicit>
-              </entity>
-
-              <entity
-                name="Index_expression"
-                supertypes="String_expression Binary_generic_expression">
-                <derived
-                  name="operand"
-                  expression="SELF\binary_generic_expression.operands[1]">
-                  <typename
-                    name="Generic_expression"/>
-                </derived>
-                <derived
-                  name="index"
-                  expression="SELF\binary_generic_expression.operands[2]">
-                  <typename
-                    name="Generic_expression"/>
-                </derived>
-                <where
-                  label="WR1"
-                  expression="('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(operand))		AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(index))">
-                </where>
-                <where
-                  label="WR2"
-                  expression="is_int_expr (index)">
-                </where>
-              </entity>
-
-              <entity
-                name="Substring_expression"
-                supertypes="String_expression multiple_arity_generic_expression">
-                <derived
-                  name="operand"
-                  expression="SELF\Multiple_arity_generic_expression.operands[1]">
-                  <typename
-                    name="Generic_expression"/>
-                </derived>
-                <derived
-                  name="index1"
-                  expression="SELF\Multiple_arity_generic_expression.operands[2]">
-                  <typename
-                    name="Generic_expression"/>
-                </derived>
-                <derived
-                  name="index2"
-                  expression="SELF\Multiple_arity_generic_expression.operands[3]">
-                  <typename
-                    name="Generic_expression"/>
-                </derived>
-                <where
-                  label="WR1"
-                  expression="('EXPRESSION_ARM.STRING_EXPRESSION' 					IN TYPEOF(operand))			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 					IN TYPEOF(index1))			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 					IN TYPEOF(index2))">
-                </where>
-                <where
-                  label="WR2"
-                  expression="SIZEOF(SELF\Multiple_arity_generic_expression.operands)=3">
-                </where>
-                <where
-                  label="WR3"
-                  expression="is_int_expr (index1)">
-                </where>
-                <where
-                  label="WR4"
-                  expression="is_int_expr (index2)">
-                </where>
-              </entity>
-
-              <entity
-                name="Concat_expression"
-                supertypes="String_expression Multiple_arity_generic_expression">
-                <explicit
-                  name="operands">
-                  <aggregate
-                    type="LIST"
-                    lower="2"
-                    upper="?"/>
-                  <typename
-                    name="String_expression"/>
-                  <redeclaration
-                    entity-ref="multiple_arity_generic_expression"/>
-                  </explicit>
-                </entity>
-
-                <entity
-                  name="Format_function"
-                  supertypes="String_expression binary_generic_expression">
-                  <derived
-                    name="value_to_format"
-                    expression="SELF\Binary_generic_expression.operands[1]">
-                    <typename
-                      name="Generic_expression"/>
-                  </derived>
-                  <derived
-                    name="format_string"
-                    expression="SELF\Binary_generic_expression.operands[2]">
-                    <typename
-                      name="Generic_expression"/>
-                  </derived>
-                  <where
-                    label="WR1"
-                    expression="(('EXPRESSION_ARM.NUMERIC_EXPRESSION') 					IN TYPEOF(value_to_format)) 			AND (('EXPRESSION_ARM.STRING_EXPRESSION') 					IN TYPEOF(format_string))">
-                  </where>
-                </entity>
-
-                <entity
-                  name="Boolean_expression"
-                  abstract.supertype="YES"
-                  super.expression="(ONEOF (Simple_boolean_expression,				Unary_boolean_expression,				Binary_boolean_expression,				Multiple_arity_boolean_expression,				Comparison_expression,				Interval_expression,				Boolean_defined_function))"
-                  supertypes="Expression">
-                </entity>
-
-                <entity
-                  name="Simple_boolean_expression"
-                  abstract.supertype="YES"
-                  super.expression="(ONEOF (Boolean_literal, Boolean_variable))"
-                  supertypes="Boolean_expression Simple_generic_expression">
-                </entity>
-
-                <entity
-                  name="Boolean_literal"
-                  supertypes="Simple_boolean_expression Generic_literal">
-                  <explicit
-                    name="the_value">
-                    <builtintype
-                      type="BOOLEAN"/>
-                  </explicit>
-                </entity>
-
-                <entity
-                  name="Unary_boolean_expression"
-                  abstract.supertype="YES"
-                  super.expression="(ONEOF (Not_expression, Odd_function))"
-                  supertypes="Boolean_expression Unary_generic_expression">
-                </entity>
-
-                <entity
-                  name="Not_expression"
-                  supertypes="Unary_boolean_expression">
-                  <explicit
-                    name="operand">
-                    <typename
-                      name="Boolean_expression"/>
-                    <redeclaration
-                      entity-ref="Unary_generic_expression"/>
-                    </explicit>
-                  </entity>
-
-                  <entity
-                    name="Binary_boolean_expression"
-                    abstract.supertype="YES"
-                    super.expression="(ONEOF (Xor_expression, Equals_expression))"
-                    supertypes="Boolean_expression Binary_generic_expression">
-                  </entity>
-
-                  <entity
-                    name="Multiple_arity_boolean_expression"
-                    abstract.supertype="YES"
-                    super.expression="(ONEOF (And_expression, Or_expression))"
-                    supertypes="Boolean_expression Multiple_arity_generic_expression">
-                    <explicit
-                      name="operands">
-                      <aggregate
-                        type="LIST"
-                        lower="2"
-                        upper="?"/>
-                      <typename
-                        name="Boolean_expression"/>
-                      <redeclaration
-                        entity-ref="Multiple_arity_generic_expression"/>
-                      </explicit>
-                    </entity>
-
-                    <entity
-                      name="Xor_expression"
-                      supertypes="Binary_boolean_expression">
-                      <explicit
-                        name="operands">
-                        <aggregate
-                          type="LIST"
-                          lower="2"
-                          upper="2"/>
-                        <typename
-                          name="Boolean_expression"/>
-                        <redeclaration
-                          entity-ref="Binary_generic_expression"/>
-                        </explicit>
-                      </entity>
-
-                      <entity
-                        name="Equals_expression"
-                        supertypes="Binary_boolean_expression">
-                      </entity>
-
-                      <entity
-                        name="And_expression"
-                        supertypes="Multiple_arity_boolean_expression">
-                      </entity>
-
-                      <entity
-                        name="Or_expression"
-                        supertypes="Multiple_arity_boolean_expression">
-                      </entity>
-
-                      <entity
-                        name="Comparison_expression"
-                        abstract.supertype="YES"
-                        super.expression="(ONEOF (Comparison_equal,				Comparison_greater,				Comparison_greater_equal,				Comparison_less,				Comparison_less_equal,				Comparison_not_equal,				Like_expression))"
-                        supertypes="Boolean_expression Binary_generic_expression">
-                        <explicit
-                          name="operands">
-                          <aggregate
-                            type="LIST"
-                            lower="2"
-                            upper="2"/>
-                          <typename
-                            name="Expression"/>
-                          <redeclaration
-                            entity-ref="Binary_generic_expression"/>
-                          </explicit>
-                          <where
-                            label="WR1"
-                            expression="(	('NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION' 		IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND  	('NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION' 		IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR 	(('BOOLEAN_EXPRESSION_ARM.BOOLEAN_EXPRESSION' 		IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND 	('BOOLEAN_EXPRESSION_ARM.BOOLEAN_EXPRESSION'		IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR	(('STRING_EXPRESSION_ARM.STRING_EXPRESSION'		IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND 	('STRING_EXPRESSION_ARM.STRING_EXPRESSION' 		IN TYPEOF(SELF\Binary_generic_expression.operands[2])))">
-                          </where>
-                        </entity>
-
-                        <entity
-                          name="Comparison_equal"
-                          supertypes="Comparison_expression">
-                        </entity>
-
-                        <entity
-                          name="Comparison_greater"
-                          supertypes="Comparison_expression">
-                        </entity>
-
-                        <entity
-                          name="Comparison_greater_equal"
-                          supertypes="Comparison_expression">
-                        </entity>
-
-                        <entity
-                          name="Comparison_less"
-                          supertypes="Comparison_expression">
-                        </entity>
-
-                        <entity
-                          name="Comparison_less_equal"
-                          supertypes="Comparison_expression">
-                        </entity>
-
-                        <entity
-                          name="Comparison_not_equal"
-                          supertypes="Comparison_expression">
-                        </entity>
-
-                        <entity
-                          name="Like_expression"
-                          supertypes="Comparison_expression">
-                          <where
-                            label="WR1"
-                            expression="('EXPRESSION_ARM.STRING_EXPRESSION' 		IN TYPEOF(SELF\Comparison_expression.operands[1])) AND 		('EXPRESSION_ARM.STRING_EXPRESSION' 		IN TYPEOF(SELF\Comparison_expression.operands[2]))">
-                          </where>
-                        </entity>
-
-                        <entity
-                          name="Interval_expression"
-                          supertypes="Boolean_expression Multiple_arity_generic_expression">
-                          <derived
-                            name="interval_low"
-                            expression="SELF\Multiple_arity_generic_expression.operands[1]">
-                            <typename
-                              name="Generic_expression"/>
-                          </derived>
-                          <derived
-                            name="interval_item"
-                            expression="SELF\Multiple_arity_generic_expression.operands[2]">
-                            <typename
-                              name="Generic_expression"/>
-                          </derived>
-                          <derived
-                            name="interval_high"
-                            expression="SELF\Multiple_arity_generic_expression.operands[3]">
-                            <typename
-                              name="Generic_expression"/>
-                          </derived>
-                          <where
-                            label="WR1"
-                            expression="('EXPRESSION_ARM.EXPRESSION' 				IN TYPEOF(interval_low))		AND ('EXPRESSION_ARM.EXPRESSION' 				IN TYPEOF(interval_item) )		AND ('EXPRESSION_ARM.EXPRESSION' 				IN TYPEOF(interval_high))">
-                          </where>
-                          <where
-                            label="WR2"
-                            expression="(('EXPRESSION_ARM.STRING_EXPRESSION' 				IN TYPEOF (SELF.interval_low)) 			AND ('EXPRESSION_ARM.STRING_EXPRESSION'  				IN TYPEOF (SELF.interval_high)) 			AND ('EXPRESSION_ARM.STRING_EXPRESSION' 				IN TYPEOF (SELF.interval_item))) 		OR		(('EXPRESSION_ARM.STRING_EXPRESSION' 			IN TYPEOF(SELF.interval_low)) 			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 				IN TYPEOF(SELF.interval_item)) 			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 				IN TYPEOF(SELF.interval_high)))">
-                          </where>
-                        </entity>
-
-                        <entity
-                          name="Sql_mappable_defined_function"
-                          abstract.supertype="YES"
-                          supertypes="Defined_function">
-                        </entity>
-
-                        <entity
-                          name="Defined_function"
-                          abstract.supertype="YES"
-                          super.expression="((ONEOF (Numeric_defined_function,				String_defined_function,				Boolean_defined_function)				)				ANDOR Sql_mappable_defined_function)">
-                        </entity>
-
-                        <entity
-                          name="String_defined_function"
-                          abstract.supertype="YES"
-                          supertypes="Defined_function String_expression">
-                        </entity>
-
-                        <entity
-                          name="Boolean_defined_function"
-                          abstract.supertype="YES"
-                          supertypes="Defined_function Boolean_expression">
-                        </entity>
-
-                        <function
-                          name="Is_int_expr">
-                          <parameter
-                            name="arg">
-                            <typename
-                              name="Numeric_expression"/>
-                          </parameter>
-                          <builtintype
-                            type="BOOLEAN"/>
-                          <algorithm>
+<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/03/17 10:07:24 $" rcs.revision="$Revision: 1.15 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.30" source="../data/modules/expression/arm.exp"/>
+	<schema name="Expression_arm">
+		<interface kind="use" schema="Numeric_function_arm"/>
+		<entity name="Expression" abstract.supertype="YES" super.expression="(ONEOF (Numeric_expression,Boolean_expression,String_expression))" supertypes="Generic_expression"/>
+		<entity name="Numeric_variable" super.expression="(ONEOF (Int_numeric_variable,			          Real_numeric_variable))" supertypes="Simple_numeric_expression Variable">
+			<where label="WR1" expression="('EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(SELF) ) OR	('EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(SELF) )"/>
+		</entity>
+		<entity name="Int_numeric_variable" supertypes="Numeric_variable"/>
+		<entity name="Real_numeric_variable" supertypes="Numeric_variable"/>
+		<entity name="Boolean_variable" supertypes="Simple_boolean_expression Variable"/>
+		<entity name="String_variable" supertypes="Simple_string_expression Variable"/>
+		<entity name="Numeric_expression" abstract.supertype="YES" super.expression="(ONEOF (Simple_numeric_expression,				Unary_numeric_expression,				Binary_numeric_expression,				Multiple_arity_numeric_expression,				Length_function,				Value_function))" supertypes="Expression">
+			<derived name="is_int" expression="Is_int_expr (SELF)">
+				<builtintype type="BOOLEAN"/>
+			</derived>
+			<derived name="sql_mappable" expression="Is_sql_mappable (SELF)">
+				<builtintype type="BOOLEAN"/>
+			</derived>
+		</entity>
+		<entity name="Simple_numeric_expression" abstract.supertype="YES" super.expression="(ONEOF (Literal_number, Numeric_variable))" supertypes="Numeric_expression Simple_generic_expression"/>
+		<entity name="Literal_number" abstract.supertype="YES" super.expression="(ONEOF (Int_literal, Real_literal))" supertypes="Simple_numeric_expression Generic_literal">
+			<explicit name="the_value">
+				<builtintype type="NUMBER"/>
+			</explicit>
+		</entity>
+		<entity name="Int_literal" supertypes="Literal_number">
+			<explicit name="the_value">
+				<builtintype type="INTEGER"/>
+				<redeclaration entity-ref="Literal_number"/>
+			</explicit>
+		</entity>
+		<entity name="Real_literal" supertypes="Literal_number">
+			<explicit name="the_value">
+				<builtintype type="REAL"/>
+				<redeclaration entity-ref="Literal_number"/>
+			</explicit>
+		</entity>
+		<entity name="Multiple_arity_numeric_expression" abstract.supertype="YES" super.expression="(ONEOF (Plus_expression,				Mult_expression,				Multiple_arity_function_call))" supertypes="Numeric_expression Multiple_arity_generic_expression">
+			<explicit name="operands">
+				<aggregate type="LIST" lower="2" upper="?"/>
+				<typename name="Numeric_expression"/>
+				<redeclaration entity-ref="Multiple_arity_generic_expression"/>
+			</explicit>
+		</entity>
+		<entity name="Plus_expression" supertypes="Multiple_arity_numeric_expression"/>
+		<entity name="Mult_expression" supertypes="Multiple_arity_numeric_expression"/>
+		<entity name="Multiple_arity_function_call" abstract.supertype="YES" super.expression="(ONEOF (Maximum_function, 				Minimum_function))" supertypes="Multiple_arity_numeric_expression"/>
+		<entity name="Binary_numeric_expression" abstract.supertype="YES" super.expression="(ONEOF (Minus_expression,				Div_expression,				Mod_expression,				Slash_expression,				Power_expression,				Binary_function_call))" supertypes="Numeric_expression Binary_generic_expression">
+			<explicit name="operands">
+				<aggregate type="LIST" lower="2" upper="2"/>
+				<typename name="Numeric_expression"/>
+				<redeclaration entity-ref="Binary_generic_expression"/>
+			</explicit>
+		</entity>
+		<entity name="Minus_expression" supertypes="Binary_numeric_expression"/>
+		<entity name="Div_expression" supertypes="Binary_numeric_expression"/>
+		<entity name="Mod_expression" supertypes="Binary_numeric_expression"/>
+		<entity name="Slash_expression" supertypes="Binary_numeric_expression"/>
+		<entity name="Power_expression" supertypes="Binary_numeric_expression"/>
+		<entity name="Binary_function_call" supertypes="Binary_numeric_expression"/>
+		<entity name="Unary_numeric_expression" abstract.supertype="YES" super.expression="(Unary_function_call)" supertypes="Numeric_expression Unary_generic_expression">
+			<explicit name="operand">
+				<typename name="Numeric_expression"/>
+				<redeclaration entity-ref="Unary_generic_expression"/>
+			</explicit>
+		</entity>
+		<entity name="String_expression" abstract.supertype="YES" super.expression="(ONEOF (Simple_string_expression,				Index_expression,				Substring_expression,				Concat_expression,				Format_function,				String_defined_function))" supertypes="Expression"/>
+		<entity name="Simple_string_expression" abstract.supertype="YES" super.expression="(ONEOF (String_literal,String_variable))" supertypes="String_expression Simple_generic_expression"/>
+		<entity name="String_literal" supertypes="Simple_string_expression Generic_literal">
+			<explicit name="the_value">
+				<builtintype type="STRING"/>
+			</explicit>
+		</entity>
+		<entity name="Index_expression" supertypes="String_expression Binary_generic_expression">
+			<derived name="operand" expression="SELF\binary_generic_expression.operands[1]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<derived name="index" expression="SELF\binary_generic_expression.operands[2]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<where label="WR1" expression="('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(operand))		AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(index))"/>
+			<where label="WR2" expression="is_int_expr (index)"/>
+		</entity>
+		<entity name="Substring_expression" supertypes="String_expression multiple_arity_generic_expression">
+			<derived name="operand" expression="SELF\Multiple_arity_generic_expression.operands[1]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<derived name="index1" expression="SELF\Multiple_arity_generic_expression.operands[2]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<derived name="index2" expression="SELF\Multiple_arity_generic_expression.operands[3]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<where label="WR1" expression="('EXPRESSION_ARM.STRING_EXPRESSION' 					IN TYPEOF(operand))			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 					IN TYPEOF(index1))			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 					IN TYPEOF(index2))"/>
+			<where label="WR2" expression="SIZEOF(SELF\Multiple_arity_generic_expression.operands)=3"/>
+			<where label="WR3" expression="is_int_expr (index1)"/>
+			<where label="WR4" expression="is_int_expr (index2)"/>
+		</entity>
+		<entity name="Concat_expression" supertypes="String_expression Multiple_arity_generic_expression">
+			<explicit name="operands">
+				<aggregate type="LIST" lower="2" upper="?"/>
+				<typename name="String_expression"/>
+				<redeclaration entity-ref="multiple_arity_generic_expression"/>
+			</explicit>
+		</entity>
+		<entity name="Format_function" supertypes="String_expression binary_generic_expression">
+			<derived name="value_to_format" expression="SELF\Binary_generic_expression.operands[1]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<derived name="format_string" expression="SELF\Binary_generic_expression.operands[2]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<where label="WR1" expression="(('EXPRESSION_ARM.NUMERIC_EXPRESSION') 					IN TYPEOF(value_to_format)) 			AND (('EXPRESSION_ARM.STRING_EXPRESSION') 					IN TYPEOF(format_string))"/>
+		</entity>
+		<entity name="Boolean_expression" abstract.supertype="YES" super.expression="(ONEOF (Simple_boolean_expression,				Unary_boolean_expression,				Binary_boolean_expression,				Multiple_arity_boolean_expression,				Comparison_expression,				Interval_expression,				Boolean_defined_function))" supertypes="Expression"/>
+		<entity name="Simple_boolean_expression" abstract.supertype="YES" super.expression="(ONEOF (Boolean_literal, Boolean_variable))" supertypes="Boolean_expression Simple_generic_expression"/>
+		<entity name="Boolean_literal" supertypes="Simple_boolean_expression Generic_literal">
+			<explicit name="the_value">
+				<builtintype type="BOOLEAN"/>
+			</explicit>
+		</entity>
+		<entity name="Unary_boolean_expression" abstract.supertype="YES" super.expression="(ONEOF (Not_expression, Odd_function))" supertypes="Boolean_expression Unary_generic_expression"/>
+		<entity name="Not_expression" supertypes="Unary_boolean_expression">
+			<explicit name="operand">
+				<typename name="Boolean_expression"/>
+				<redeclaration entity-ref="Unary_generic_expression"/>
+			</explicit>
+		</entity>
+		<entity name="Binary_boolean_expression" abstract.supertype="YES" super.expression="(ONEOF (Xor_expression, Equals_expression))" supertypes="Boolean_expression Binary_generic_expression"/>
+		<entity name="Multiple_arity_boolean_expression" abstract.supertype="YES" super.expression="(ONEOF (And_expression, Or_expression))" supertypes="Boolean_expression Multiple_arity_generic_expression">
+			<explicit name="operands">
+				<aggregate type="LIST" lower="2" upper="?"/>
+				<typename name="Boolean_expression"/>
+				<redeclaration entity-ref="Multiple_arity_generic_expression"/>
+			</explicit>
+		</entity>
+		<entity name="Xor_expression" supertypes="Binary_boolean_expression">
+			<explicit name="operands">
+				<aggregate type="LIST" lower="2" upper="2"/>
+				<typename name="Boolean_expression"/>
+				<redeclaration entity-ref="Binary_generic_expression"/>
+			</explicit>
+		</entity>
+		<entity name="Equals_expression" supertypes="Binary_boolean_expression"/>
+		<entity name="And_expression" supertypes="Multiple_arity_boolean_expression"/>
+		<entity name="Or_expression" supertypes="Multiple_arity_boolean_expression"/>
+		<entity name="Comparison_expression" abstract.supertype="YES" super.expression="(ONEOF (Comparison_equal,				Comparison_greater,				Comparison_greater_equal,				Comparison_less,				Comparison_less_equal,				Comparison_not_equal,				Like_expression))" supertypes="Boolean_expression Binary_generic_expression">
+			<explicit name="operands">
+				<aggregate type="LIST" lower="2" upper="2"/>
+				<typename name="Expression"/>
+				<redeclaration entity-ref="Binary_generic_expression"/>
+			</explicit>
+			<where label="WR1" expression="(	('NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION' 		IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND  	('NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION' 		IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR 	(('BOOLEAN_EXPRESSION_ARM.BOOLEAN_EXPRESSION' 		IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND 	('BOOLEAN_EXPRESSION_ARM.BOOLEAN_EXPRESSION'		IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR	(('STRING_EXPRESSION_ARM.STRING_EXPRESSION'		IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND 	('STRING_EXPRESSION_ARM.STRING_EXPRESSION' 		IN TYPEOF(SELF\Binary_generic_expression.operands[2])))"/>
+		</entity>
+		<entity name="Comparison_equal" supertypes="Comparison_expression"/>
+		<entity name="Comparison_greater" supertypes="Comparison_expression"/>
+		<entity name="Comparison_greater_equal" supertypes="Comparison_expression"/>
+		<entity name="Comparison_less" supertypes="Comparison_expression"/>
+		<entity name="Comparison_less_equal" supertypes="Comparison_expression"/>
+		<entity name="Comparison_not_equal" supertypes="Comparison_expression"/>
+		<entity name="Like_expression" supertypes="Comparison_expression">
+			<where label="WR1" expression="('EXPRESSION_ARM.STRING_EXPRESSION' 		IN TYPEOF(SELF\Comparison_expression.operands[1])) AND 		('EXPRESSION_ARM.STRING_EXPRESSION' 		IN TYPEOF(SELF\Comparison_expression.operands[2]))"/>
+		</entity>
+		<entity name="Interval_expression" supertypes="Boolean_expression Multiple_arity_generic_expression">
+			<derived name="interval_low" expression="SELF\Multiple_arity_generic_expression.operands[1]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<derived name="interval_item" expression="SELF\Multiple_arity_generic_expression.operands[2]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<derived name="interval_high" expression="SELF\Multiple_arity_generic_expression.operands[3]">
+				<typename name="Generic_expression"/>
+			</derived>
+			<where label="WR1" expression="('EXPRESSION_ARM.EXPRESSION' 				IN TYPEOF(interval_low))		AND ('EXPRESSION_ARM.EXPRESSION' 				IN TYPEOF(interval_item) )		AND ('EXPRESSION_ARM.EXPRESSION' 				IN TYPEOF(interval_high))"/>
+			<where label="WR2" expression="(('EXPRESSION_ARM.STRING_EXPRESSION' 				IN TYPEOF (SELF.interval_low)) 			AND ('EXPRESSION_ARM.STRING_EXPRESSION'  				IN TYPEOF (SELF.interval_high)) 			AND ('EXPRESSION_ARM.STRING_EXPRESSION' 				IN TYPEOF (SELF.interval_item))) 		OR		(('EXPRESSION_ARM.STRING_EXPRESSION' 			IN TYPEOF(SELF.interval_low)) 			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 				IN TYPEOF(SELF.interval_item)) 			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 				IN TYPEOF(SELF.interval_high)))"/>
+		</entity>
+		<entity name="Sql_mappable_defined_function" abstract.supertype="YES" supertypes="Defined_function"/>
+		<entity name="Defined_function" abstract.supertype="YES" super.expression="((ONEOF (Numeric_defined_function,				String_defined_function,				Boolean_defined_function)				)				ANDOR Sql_mappable_defined_function)"/>
+		<entity name="String_defined_function" abstract.supertype="YES" supertypes="Defined_function String_expression"/>
+		<entity name="Boolean_defined_function" abstract.supertype="YES" supertypes="Defined_function Boolean_expression"/>
+		<function name="Is_int_expr">
+			<parameter name="arg">
+				<typename name="Numeric_expression"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
 
 LOCAL
 	i: INTEGER;
@@ -687,19 +305,13 @@ END_IF ;
 RETURN (FALSE);
 
                           </algorithm>
-
-                        </function>
-
-                        <function
-                          name="Is_sql_mappable">
-                          <parameter
-                            name="arg">
-                            <typename
-                              name="expression"/>
-                          </parameter>
-                          <builtintype
-                            type="BOOLEAN"/>
-                          <algorithm>
+		</function>
+		<function name="Is_sql_mappable">
+			<parameter name="arg">
+				<typename name="expression"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
 
 LOCAL
 	i: INTEGER;
@@ -856,9 +468,6 @@ END_IF;
 
 	RETURN (FALSE);
                           </algorithm>
-
-                        </function>
-
-                      </schema>
-
-                    </express>
+		</function>
+	</schema>
+</express>

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!-- $Id: mim.xml,v 1.6 2002/02/13 09:44:02 robbod Exp $ -->
+<!-- $Id: mim.xml,v 1.7 2002/03/04 07:45:59 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 09:44:02 $"
-  rcs.revision="$Revision: 1.6 $">
+  rcs.date="$Date: 2002/03/04 07:45:59 $"
+  rcs.revision="$Revision: 1.7 $">
 
   <application
     name="express2xml.js"
@@ -51,52 +51,43 @@
 
     </type>
     <rule
-      name="product_requires_product_category"
-      appliesto="product product_related_product_category">
+      name="product_requires_actors"
+      appliesto="product">
       <description>
-        The <b>product_requires_product_category</b> rule specifies that all
-        instances of product shall have at least 1 associated
-        <b>product_related_product_category</b> instance. 
+        The <b>product_requires_actors</b> rule specifies that every
+        instance of <b>product</b> shall be referred to by at least one 
+        instance of <b>applied_organization_assignment</b> or of
+  <b>applied_person_and_organization_assignment</b>. 
       </description>
       <where label="WR1"
-        expression="SIZEOF (QUERY (prod &lt;* product |
-       NOT (SIZEOF (QUERY (prpc &lt;* product_related_product_category |
-                   (prod IN prpc.products))) &gt;= 1))) = 0;">
+        expression="SIZEOF(QUERY(prod &lt;* product | 
+        SIZEOF(USEDIN(prod,'PRODUCT_IDENTIFICATION_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS'))+
+        SIZEOF(USEDIN(prod,'PRODUCT_IDENTIFICATION_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS'))
+   =0))=0">
+
         <description>
-          Each instance of product shall be associated to at least one
-          instance of <b>product_related_product_category</b>.
+          There shall not be any instance of product that is not referred to by any instance of <b>applied_organization_assignment</b> or of
+  <b>applied_person_and_organization_assignment</b>.
         </description>
       </where>
     </rule>
-
     <rule
-      name="restrict_product_category_name"
-      appliesto="product_category">
-        <description>
-          The <b>restrict_product_category_name</b> rule specifies that each
-          instance of product_category shall have a name of 'assembly',
-          'detail', 'part', 'raw material', 'document', 'functionality', or
-          'requirement' or the <b>description</b> value shall exist. 
-        </description>
-
+      name="product_has_id_owner"
+      appliesto="product">
+      <description>
+        The <b>product_has_id_owner</b> rule specifies that all
+        instances of <b>product</b> shall have an organization or a person in an organization that is the owner of the product identifier. 
+      </description>
       <where label="WR1"
-        expression="SIZEOF(QUERY(pc &lt;* product_category | (NOT (pc.name IN ['assembly','detail','part', 'raw material', 'document','functionality','requirement'])) AND (NOT (EXISTS(pc.description))))=&quot;0&quot;">
-        <description><p>Each instance of <b>product_category</b> shall have a name of 'part',
-          'raw material', 'document', 'functionality', or 'requirement' or
-          the <b>description</b> value shall exist.</p>
-          <p>The value 'assembly' identifies a part that consists of a collection of other parts which are put together to satisfy a particular function.</p>
-
-<p>The value 'detail' identifies a part that exists at the lowest level of the bill of materials structure or does not have a parts list.</p>
-
-<p>The value 'document' specifies the item plays the role of a document.</p>
-
-<p>The value 'part' specifies the item plays the role of a part.</p>
-
-<p>The value 'raw material' specifies the item plays the role of raw material.</p>
-
-<p>The value 'requirement' specifies this type of classification is used to indicate that for an Item certain regulations have to be considered.</p>
-
-
+        expression="SIZEOF(QUERY(prod &lt;* product | 
+        (SIZEOF(QUERY(apoa &lt;* USEDIN(prod,'PRODUCT_IDENTIFICATION_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') | apoa\
+         person_and_organization_assignment.role.name = 'id owner')) +
+        (SIZEOF(QUERY(apoa &lt;* USEDIN(prod,'PRODUCT_IDENTIFICATION_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') | apoa\
+         organization_assignment.role.name = 'id owner'))
+         &lt;&gt; 1)) = 0">
+        <description>
+          There shall not be any instance of <b>product</b> that is not referred to by exactly one instance of <b>applied_organization_assignment</b> or of
+  <b>applied_person_and_organization_assignment</b> with role 'id owner'.
         </description>
       </where>
     </rule>

@@ -1,4 +1,4 @@
-(* N727 - ISO/CD TS - 10303-1017 Product identification - EXPRESS ARM *)
+(* N727 - ISO/TS - 10303-1017 Product identification - EXPRESS ARM *)
    
 SCHEMA Product_identification_arm;
 
@@ -17,19 +17,18 @@ ENTITY Product;
   id                        : STRING;
   name                      : STRING;
   description               : OPTIONAL STRING;
-  product_type              : Product_category;
-  categories                : SET [1:?] OF Product_category;
 INVERSE
-  identifier                : Organisation_or_person_in_organisation_assignment FOR items;
-UNIQUE
-  UR1: id, identifier, product_type;
+  actors : SET[1:?] OF Organization_or_person_in_organization_assignment FOR items;
 WHERE
-  WR1: SELF.identifer.role = 'id owner';
-  WR2: SELF.product_type.name IN ['part', 'raw material',
-       'document', 'functionality', 'requirement']; 
+WR1: SIZEOF(QUERY(pooa <* actors| pooa.role.name = 'id owner'))=1;
 END_ENTITY;
 
-   
+END_ENTITY;
+
+ENTITY Product_category_assignment; 
+  category : Product_category;
+  products : SET[1:?] OF Product;
+END_ENTITY;
+  
 END_SCHEMA;
 
-(* Last update -  15 Aug 2001 *)

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.5 2002/03/04 07:45:59 robbod Exp $ -->
+<!-- $Id: arm.xml,v 1.6 2002/03/15 16:39:32 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/03/04 07:45:59 $"
-  rcs.revision="$Revision: 1.5 $">
+  rcs.date="$Date: 2002/03/15 16:39:32 $"
+  rcs.revision="$Revision: 1.6 $">
 
   <application
     name="express2xml.js"
@@ -36,18 +36,28 @@
     <entity
       name="Product">
       <description><p>A <b>Product</b> represents a product or a type of product. A product is identified by an identifier provided by an organization or a person in an organization.</p>
+<note id="1">The definition of the domain of uniqueness and the mechanism for guaranteeing the uniqueness of product id are outside the scope of this application module.</note>
 
-<note><p>A product belongs to one or more categories and may have zero or more versions.</p></note>
+<note id="2">Products that this entity data type can represent, include:
+<ul>
+<li>products existing in the real world;</li>
+<li>products that may come into existence as a consequence of some realization process. This includes parts and documents;</li>
+<li>products that are functions.</li>
+</ul>
+</note>
+<example id="1">The SS Titanic is a product that could be represented by the entity data type Product.</example>
+<example id="2">Lifeboat is a class of products that could be represented by the entity data type Product. Each
+lifeboat on the SS Titanic is a member of this class.</example>
+<note id="3">A product may have zero or more versions.</note>
 
-<note><p>The definition of the domain of uniqueness and the mechanism for guaranteeing the uniqueness of product id are outside the scope of this application module.</p></note>
       </description>
       <explicit
         name="id">
         <builtintype
           type="STRING"/>
         <description>the identifier that distinguishes the product.
-        <note><p> The meaning of this attribute can be defined in the annotated EXPRESS schemas that use or specialize
-this entity, or in an agreement of common understanding between the partners sharing this information.</p></note>
+        <note>A particular codification for the values of this attribute may be specified in the EXPRESS schemas that use or specialize
+this entity, or in an agreement of common understanding between the partners sharing this information.</note>
 
 <example><p>Part numbers, stock item numbers, and serial numbers are examples of product identifiers.</p></example>
 </description>
@@ -61,44 +71,50 @@ this entity, or in an agreement of common understanding between the partners sha
       <explicit
         name="description"
         optional="YES">
-        <description>the text which describes the product.</description>
+        <description>the text which describes the product. The value of the attribute need not be specified.</description>
         <builtintype
           type="STRING"/>
       </explicit>
-      <explicit
-        name="categories">
-        <description>the instances of the Product_category entity data type that identify categories to which the product belongs.
-        <example><p>The <b>product</b> may belong to categories named 'part', 'raw material', 'document', 'functionality', or 'requirement'.</p></example>
-<note><p>In some early phase of design, a product may not yet be categorized.</p></note>
-
-</description>
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-        <typename
-          name="Product_category"/>
-      </explicit>
       <inverse
         name="actors"
-        entity="Organization_or_person_in_organization_assignment"
+         entity="Organization_or_person_in_organization_assignment"
         attribute="items">
-        <description>the instances of the entity data types organization and person_in_organization that identify actors of the definition of the product.</description>
+       <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <description>the instances of the <b>Organization_or_person_in_organization_assignment</b> entity data type that identify actors of the characterization of the product.</description>
       </inverse>
 
       <where
         label="WR1"
-        expression="SIZEOF(actors)>=1;">
-        <description>The product shall have at least one person or organization that has a role on it.</description>
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF(QUERY(pooa &lt;* actors| pooa.role.name = 'id owner'))=1;">
-        <description>There shall be exactly one actor that is responsible for the designation of the product id.</description>
+        expression="SIZEOF(QUERY(pooa &lt;* actors| pooa.role.name = 'id owner'))=1">
+        <description>there shall be exactly one actor that is responsible for the designation of the product id.</description>
       </where>
 
     </entity>
-
-  </schema>
+    <entity
+      name="Product_category_assignment">
+      <description><p>A <b>Product_category_assignment</b> is the inclusion of one or more products in a product category.</p>
+<note>Usually, products are classified in categories of products. However, at some early phase of design, a product may not yet be categorized.</note>
+<example>A product may belong to categories named 'part', 'raw material', 'document', 'functionality', or 'requirement'.</example>      </description>
+       <explicit
+        name="category">
+        <description>The <b>Product_category</b> that contains the products.</description>
+         <typename
+          name="Product_category"/>
+      </explicit>
+       <explicit
+        name="products">
+        <description>The instances of <b>Product</b> which identify the members of the product category.</description>
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="Product"/>
+      </explicit>
+    </entity>
+ </schema>
 
 </express>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.127 2004/06/25 23:16:35 thendrix Exp $
+$Id: common.xsl,v 1.128 2004/06/30 16:33:17 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3071,9 +3071,6 @@ is case sensitive.')"/>
       mb:<xsl:value-of select="$rel_menubar_file"/>
     </xsl:message>  -->
     <!-- no idea why I need to force a string here -->
-    <xsl:message>
-      [<xsl:value-of select="string($rel_menubar_file)"/>]
-    </xsl:message>
     <xsl:apply-templates
       select="document(string($rel_menubar_file))/menubar">
       <xsl:with-param name="module_root" select="$module_root"/>

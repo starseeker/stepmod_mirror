@@ -2,80 +2,53 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-28T09:41:01" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="styled_curve_arm schema_instance"/>
-   <schema name="Styled_curve_arm">
-      <interface kind="use" schema="Basic_curve_arm"/>
-      <interface kind="use" schema="Value_with_unit_extension_arm"/>
-      <type name="curve_font_or_scaled_curve_font_select">
-         <select selectitems="Curve_style_font_and_scaling curve_style_font_select"/>
-      </type>
-      <type name="curve_style_font_select">
-         <select selectitems="Solid_curve Externally_defined_curve_font Curve_style_font"/>
-      </type>
-      <type name="extend_or_chord_2_extend_or_truncate_or_round">
-         <enumeration items="truncate chord_2_extend round extend"/>
-      </type>
-      <type name="extend_or_truncate">
-         <enumeration items="truncate extend"/>
-      </type>
-      <type name="square_or_round">
-         <enumeration items="square round"/>
-      </type>
-      <type name="styled_area_representation">
-         <select extensible="YES" genericentity="YES" selectitems="Styled_curve_occurrence"/>
-      </type>
-      <entity name="Curve_style">
-         <explicit name="curve_font" optional="YES">
-            <typename name="curve_font_or_scaled_curve_font_select"/>
+   <schema name="STYLED_CURVE_ARM">
+      <interface kind="use" schema="COLOUR_ARM"/>
+      <interface kind="use" schema="ELEMENTAL_GEOMETRIC_SHAPE_ARM"/>
+      <entity name="curve_appearance">
+         <explicit name="colour">
+            <typename name="colour"/>
+         </explicit>
+         <explicit name="font">
+            <typename name="curve_font"/>
+         </explicit>
+         <explicit name="width">
+            <builtintype type="REAL"/>
          </explicit>
       </entity>
-      <entity name="Curve_style_font"/>
-      <entity name="Curve_style_font_and_scaling">
-         <explicit name="name">
+      <entity name="curve_font" super.expression="ONEOF (externally_defined_curve_font, predefined_curve_font, user_defined_curve_font)">
+         <explicit name="curve_font_name">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="curve_font">
-            <typename name="curve_style_font_select"/>
-         </explicit>
-         <explicit name="curve_font_scaling">
-            <builtintype type="INTEGER"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Curve_style_font_and_scaling" attribute="name"/>
-         </unique>
       </entity>
-      <entity name="Curve_style_parameters">
-         <explicit name="name">
+      <entity name="curve_font_pattern">
+         <explicit name="on_segment">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="off_segment">
+            <builtintype type="REAL"/>
+         </explicit>
+      </entity>
+      <entity name="externally_defined_curve_font" supertypes="curve_font">
+         <explicit name="curve_font_reference">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="corner_style">
-            <typename name="extend_or_chord_2_extend_or_truncate_or_round"/>
-         </explicit>
-         <explicit name="curve_width">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="end_extension">
-            <typename name="extend_or_truncate"/>
-         </explicit>
-         <explicit name="end_style">
-            <typename name="square_or_round"/>
-         </explicit>
-         <explicit name="width_uncertainty">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Curve_style_parameters" attribute="name"/>
-         </unique>
       </entity>
-      <entity name="Externally_defined_curve_font"/>
-      <entity name="Solid_curve"/>
-      <entity name="Styled_curve_occurrence">
-         <explicit name="styled_curve">
-            <typename name="Curve"/>
+      <entity name="predefined_curve_font" supertypes="curve_font">
+         <where label="wr1" expression=" self . curve_font_name in [ 'continuous' , 'chain' , 'chain double dash' , 'dashed' , 'dotted' ] "/>
+      </entity>
+      <entity name="solid_curve_font" supertypes="predefined_curve_font">
+         <where label="wr1" expression=" self . curve_font_name in [ 'continuous' ] "/>
+      </entity>
+      <entity name="user_defined_curve_font" supertypes="curve_font">
+         <explicit name="pattern">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="curve_font_pattern"/>
          </explicit>
-         <explicit name="of_curve_style">
-            <typename name="Curve_style"/>
+         <explicit name="segment_symbol">
+            <typename name="geometric_model"/>
          </explicit>
       </entity>
    </schema>

@@ -2,61 +2,61 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-09T16:05:02" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_part_black_box_model_arm schema_instance"/>
-   <schema name="Packaged_part_black_box_model_arm">
-      <interface kind="use" schema="Conductivity_material_aspects_arm"/>
-      <interface kind="use" schema="Functional_assignment_to_part_arm"/>
-      <interface kind="use" schema="Network_functional_usage_view_arm"/>
-      <interface kind="use" schema="Package_arm"/>
-      <interface kind="use" schema="Part_external_reference_arm"/>
-      <interface kind="use" schema="Physical_unit_usage_view_arm"/>
+   <schema name="PACKAGED_PART_BLACK_BOX_MODEL_ARM">
+      <interface kind="use" schema="CONDUCTIVITY_MATERIAL_ASPECTS_ARM"/>
+      <interface kind="use" schema="FUNCTIONAL_ASSIGNMENT_TO_PART_ARM"/>
+      <interface kind="use" schema="NETWORK_FUNCTIONAL_USAGE_VIEW_ARM"/>
+      <interface kind="use" schema="PACKAGE_ARM"/>
+      <interface kind="use" schema="PART_EXTERNAL_REFERENCE_ARM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_USAGE_VIEW_ARM"/>
       <type name="package_or_package_external_reference">
-         <select selectitems="Package Package_external_reference"/>
+         <select selectitems="package package_external_reference"/>
       </type>
       <type name="ppbbm_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Packaged_part"/>
+         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="packaged_part"/>
       </type>
-      <entity name="Packaged_part" supertypes="Part_usage_view">
+      <entity name="packaged_part" supertypes="part_usage_view">
          <explicit name="used_package">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="package_or_package_external_reference"/>
          </explicit>
          <explicit name="implemented_function" optional="YES">
-            <typename name="Functional_unit_usage_view"/>
+            <typename name="functional_unit_usage_view"/>
          </explicit>
-         <inverse name="access_mechanisms" entity="Packaged_part_terminal" attribute="associated_definition">
+         <inverse name="access_mechanisms" entity="packaged_part_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
-         <where label="WR1" expression="NOT (EXISTS(implemented_function) XOR (SIZEOF(access_mechanisms) &gt; 0))"/>
-         <where label="WR2" expression="single_package_version(SELF)"/>
+         <where label="wr1" expression=" not ( exists ( implemented_function ) xor ( sizeof ( access_mechanisms ) &gt; 0 ) ) "/>
+         <where label="wr2" expression=" single_package_version ( self ) "/>
       </entity>
-      <entity name="Packaged_part_join_terminal" supertypes="Packaged_part_terminal"/>
-      <entity name="Packaged_part_terminal" abstract.supertype="YES" supertypes="Part_terminal">
+      <entity name="packaged_part_join_terminal" supertypes="packaged_part_terminal"/>
+      <entity name="packaged_part_terminal" abstract.supertype="YES" supertypes="part_terminal">
          <explicit name="terminal_of_package">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Package_terminal"/>
+            <typename name="package_terminal"/>
          </explicit>
          <explicit name="associated_definition">
-            <typename name="Packaged_part"/>
-            <redeclaration entity-ref="Part_feature"/>
+            <typename name="packaged_part"/>
+            <redeclaration entity-ref="part_feature"/>
          </explicit>
-         <where label="WR1" expression="disjoint_package_terminals(SELF)"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Part_feature.precedent_feature)"/>
+         <where label="wr1" expression=" disjoint_package_terminals ( self ) "/>
+         <where label="wr2" expression=" not exists ( self \ part_feature . precedent_feature ) "/>
       </entity>
       <function name="disjoint_package_terminals">
          <parameter name="input">
-            <typename name="Packaged_part_terminal"/>
+            <typename name="packaged_part_terminal"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>RETURN(TRUE);</algorithm>
+         <algorithm> return ( true ) ; </algorithm>
       </function>
       <function name="single_package_version">
          <parameter name="input">
-            <typename name="Packaged_part"/>
+            <typename name="packaged_part"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>RETURN(TRUE);</algorithm>
+         <algorithm> return ( true ) ; </algorithm>
       </function>
    </schema>
 </express>

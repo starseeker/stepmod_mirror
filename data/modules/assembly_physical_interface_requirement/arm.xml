@@ -2,54 +2,55 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-28T09:40:56" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:07" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_physical_interface_requirement_arm schema_instance"/>
-   <schema name="Assembly_physical_interface_requirement_arm">
-      <interface kind="use" schema="Advanced_boundary_representation_arm"/>
-      <interface kind="use" schema="Assembly_functional_interface_requirement_arm"/>
-      <interface kind="use" schema="Curve_swept_solid_arm"/>
-      <interface kind="use" schema="Geometrically_bounded_surface_arm"/>
-      <interface kind="use" schema="Physical_unit_3d_shape_arm"/>
-      <interface kind="use" schema="Product_view_definition_arm"/>
-      <interface kind="reference" schema="Requirement_decomposition_arm">
+   <schema name="ASSEMBLY_PHYSICAL_INTERFACE_REQUIREMENT_ARM">
+      <interface kind="use" schema="ADVANCED_BOUNDARY_REPRESENTATION_ARM"/>
+      <interface kind="use" schema="ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_ARM"/>
+      <interface kind="use" schema="CURVE_SWEPT_SOLID_ARM"/>
+      <interface kind="use" schema="GEOMETRICALLY_BOUNDED_SURFACE_ARM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_3D_SHAPE_ARM"/>
+      <interface kind="use" schema="PRODUCT_VIEW_DEFINITION_ARM"/>
+      <interface kind="use" schema="PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM"/>
+      <interface kind="reference" schema="REQUIREMENT_DECOMPOSITION_ARM">
          <interfaced.item name="get_requirement_definition_property"/>
          <interfaced.item name="get_rvd"/>
       </interface>
       <type name="apir_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Mating_connector_termination Termination_constraint"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="mating_connector_termination termination_constraint"/>
       </type>
       <type name="mating_connector_definition_select">
-         <select selectitems="Packaged_part_terminal Printed_part_template_terminal"/>
+         <select selectitems="packaged_part_terminal printed_part_template_terminal"/>
       </type>
-      <entity name="Interface_requirement_occurrence" supertypes="Design_requirement_occurrence">
+      <entity name="interface_requirement_occurrence" supertypes="design_requirement_occurrence">
          <explicit name="interface_to_next_higher_assembly" optional="YES">
-            <typename name="Next_higher_assembly_interface_requirement"/>
+            <typename name="next_higher_assembly_interface_requirement"/>
          </explicit>
          <explicit name="reference_protocol" optional="YES">
-            <typename name="Protocol_physical_layer_definition"/>
+            <typename name="protocol_physical_layer_definition"/>
          </explicit>
       </entity>
-      <entity name="Mating_connector_component">
+      <entity name="mating_connector_component">
          <explicit name="definition">
-            <typename name="Product_view_definition"/>
+            <typename name="product_view_definition"/>
          </explicit>
          <explicit name="reference_designation" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <inverse name="placement_context" entity="Mating_connector_placement_relationship" attribute="placed_connector"/>
+         <inverse name="placement_context" entity="mating_connector_placement_relationship" attribute="placed_connector"/>
       </entity>
-      <entity name="Mating_connector_placement_relationship">
+      <entity name="mating_connector_placement_relationship">
          <explicit name="placed_connector">
-            <typename name="Mating_connector_component"/>
+            <typename name="mating_connector_component"/>
          </explicit>
          <explicit name="interface_context">
-            <typename name="Next_higher_assembly_interface_requirement"/>
+            <typename name="next_higher_assembly_interface_requirement"/>
          </explicit>
          <explicit name="connector_placement">
-            <typename name="Axis_placement"/>
+            <typename name="axis_placement"/>
          </explicit>
       </entity>
-      <entity name="Mating_connector_termination">
+      <entity name="mating_connector_termination">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -57,50 +58,50 @@
             <typename name="mating_connector_definition_select"/>
          </explicit>
          <explicit name="accessed_connector">
-            <typename name="Mating_connector_component"/>
+            <typename name="mating_connector_component"/>
          </explicit>
-         <derived name="signal_definition" expression="get_rvd(SELF, 'signal definition')">
+         <derived name="signal_definition" expression=" get_rvd ( self , 'signal definition' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Requirement_view_definition"/>
+            <typename name="requirement_view_definition"/>
          </derived>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Mating_connector_termination" attribute="definition"/>
-            <unique.attribute entity-ref="Mating_connector_termination" attribute="accessed_connector"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="mating_connector_termination" attribute="definition"/>
+            <unique.attribute entity-ref="mating_connector_termination" attribute="accessed_connector"/>
          </unique>
-         <where label="WR1" expression="NOT EXISTS (signal_definition) OR SIZEOF(signal_definition) = 1"/>
+         <where label="wr1" expression=" not exists ( signal_definition ) or sizeof ( signal_definition ) = 1 "/>
       </entity>
-      <entity name="Next_higher_assembly_interface_requirement">
+      <entity name="next_higher_assembly_interface_requirement">
          <explicit name="shape">
             <typename name="three_dimensional_shape"/>
          </explicit>
          <explicit name="version_of_next_higher_assembly">
-            <typename name="Product_version"/>
+            <typename name="product_version"/>
          </explicit>
       </entity>
-      <entity name="Protocol_requirement_allocation_to_part_terminal" supertypes="Requirement_assignment">
+      <entity name="protocol_requirement_allocation_to_part_terminal" supertypes="requirement_assignment">
          <explicit name="assigned_to">
-            <typename name="Part_terminal"/>
-            <redeclaration entity-ref="Requirement_assignment"/>
+            <typename name="part_terminal"/>
+            <redeclaration entity-ref="requirement_assignment"/>
          </explicit>
          <explicit name="protocol_signal">
-            <typename name="Functional_unit_usage_view_terminal_definition"/>
+            <typename name="functional_unit_usage_view_terminal_definition"/>
          </explicit>
-         <derived name="assigned_requirement_property" expression="get_requirement_definition_property(SELF, 'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_ARM.'+'INTERFACE_REQUIREMENT_OCCURRENCE')">
-            <typename name="Requirement_definition_property"/>
+         <derived name="assigned_requirement_property" expression=" get_requirement_definition_property ( self , 'assembly_functional_interface_requirement_arm.' + 'interface_requirement_occurrence' ) ">
+            <typename name="requirement_definition_property"/>
          </derived>
-         <where label="WR1" expression="EXISTS(SELF\Requirement_assignment.assigned_requirement\Interface_requirement_occurrence.reference_protocol)"/>
-         <where label="WR2" expression="protocol_signal IN SELF\Requirement_assignment.assigned_requirement\Interface_requirement_occurrence.reference_protocol.host_functional_definition\Functional_unit_usage_view.access_mechanism"/>
+         <where label="wr1" expression=" exists ( self \ requirement_assignment . assigned_requirement \ interface_requirement_occurrence . reference_protocol ) "/>
+         <where label="wr2" expression=" protocol_signal in self \ requirement_assignment . assigned_requirement \ interface_requirement_occurrence . reference_protocol . host_functional_definition \ functional_unit_usage_view . access_mechanism "/>
       </entity>
-      <entity name="Termination_constraint">
+      <entity name="termination_constraint" supertypes="constraint_occurrence">
          <explicit name="constrained_termination">
             <aggregate type="SET" lower="2" upper="?"/>
-            <typename name="Mating_connector_termination"/>
+            <typename name="mating_connector_termination"/>
          </explicit>
-         <derived name="termination_usage_constraint" expression="get_rvd(SELF, 'termination usage constraint')">
+         <derived name="termination_usage_constraint" expression=" get_rvd ( self , 'termination usage constraint' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Requirement_view_definition"/>
+            <typename name="requirement_view_definition"/>
          </derived>
-         <where label="WR1" expression="NOT EXISTS (termination_usage_constraint) OR SIZEOF(termination_usage_constraint) = 1"/>
+         <where label="wr1" expression=" not exists ( termination_usage_constraint ) or sizeof ( termination_usage_constraint ) = 1 "/>
       </entity>
    </schema>
 </express>

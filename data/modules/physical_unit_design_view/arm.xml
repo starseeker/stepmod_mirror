@@ -2,100 +2,103 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:25:16" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_arm schema_instance"/>
-   <schema name="Physical_unit_design_view_arm">
-      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
-      <interface kind="use" schema="Item_definition_structure_arm"/>
-      <interface kind="use" schema="Part_view_definition_arm"/>
-      <interface kind="use" schema="Physical_unit_usage_view_arm"/>
-      <interface kind="use" schema="Part_occurrence_arm"/>
+   <schema name="PHYSICAL_UNIT_DESIGN_VIEW_ARM">
+      <interface kind="use" schema="FEATURE_AND_CONNECTION_ZONE_ARM"/>
+      <interface kind="use" schema="ITEM_DEFINITION_STRUCTURE_ARM"/>
+      <interface kind="use" schema="PART_VIEW_DEFINITION_ARM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_USAGE_VIEW_ARM"/>
+      <interface kind="use" schema="PART_OCCURRENCE_ARM"/>
+      <type name="physical_unit">
+         <select selectitems="part_usage_view part_design_view"/>
+      </type>
       <type name="physical_unit_or_part_template_or_fp_or_pd">
-         <select extensible="YES" genericentity="YES" selectitems="Part_view_definition"/>
+         <select extensible="YES" genericentity="YES" selectitems="part_view_definition"/>
       </type>
       <type name="pudv_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Assembly_item_number Assembly_component_relationship"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="assembly_item_number assembly_component_relationship"/>
       </type>
-      <entity name="Assembly_alternate_product" supertypes="Alternate_product_relationship">
+      <entity name="assembly_alternate_product" supertypes="alternate_product_relationship">
          <explicit name="basis_context">
-            <typename name="Part_design_view"/>
+            <typename name="part_design_view"/>
          </explicit>
       </entity>
-      <entity name="Assembly_component" supertypes="Definition_based_product_occurrence Item_shape">
+      <entity name="assembly_component" supertypes="definition_based_product_occurrence item_shape">
          <explicit name="derived_from">
             <typename name="physical_unit_or_part_template_or_fp_or_pd"/>
-            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+            <redeclaration entity-ref="definition_based_product_occurrence"/>
          </explicit>
-         <derived name="described_element" expression="SELF">
+         <derived name="described_element" expression=" self ">
             <typename name="shapeable_item"/>
-            <redeclaration entity-ref="Item_shape"/>
+            <redeclaration entity-ref="item_shape"/>
          </derived>
-         <inverse name="occurrence_contexts" entity="Assembly_component_relationship" attribute="related_view">
+         <inverse name="occurrence_contexts" entity="assembly_component_relationship" attribute="related_view">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
-            <redeclaration entity-ref="Product_occurrence"/>
+            <redeclaration entity-ref="product_occurrence"/>
          </inverse>
-         <where label="WR1" expression="NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR ((('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))))"/>
+         <where label="wr1" expression=" not ( exists ( self \ definition_based_product_occurrence . derived_from ) ) or ( ( ( 'physical_unit_design_view_arm.footprint_occurrence' in typeof ( self ) ) and ( 'physical_unit_design_view_arm.footprint_definition' in typeof ( derived_from ) ) ) or ( not ( 'physical_unit_design_view_arm.footprint_occurrence' in typeof ( self ) ) and not ( 'physical_unit_design_view_arm.footprint_definition' in typeof ( self \ definition_based_product_occurrence . derived_from ) ) ) or ( ( 'physical_unit_design_view_arm.padstack_occurrence' in typeof ( self ) ) and ( 'physical_unit_design_view_arm.padstack_definition' in typeof ( self \ definition_based_product_occurrence . derived_from ) ) ) or ( not ( 'physical_unit_design_view_arm.padstack_occurrence' in typeof ( self ) ) and not ( 'physical_unit_design_view_arm.padstack_definition' in typeof ( self \ definition_based_product_occurrence . derived_from ) ) ) ) "/>
       </entity>
-      <entity name="Assembly_item_number">
+      <entity name="assembly_item_number">
          <explicit name="assembly_usage">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Assembly_component_relationship"/>
+            <typename name="assembly_component_relationship"/>
          </explicit>
          <explicit name="item_number">
             <builtintype type="STRING"/>
          </explicit>
-         <derived name="assembly" expression="assembly_usage[1].related_view">
-            <typename name="Part_design_view"/>
+         <derived name="assembly" expression=" assembly_usage [ 1 ] . related_view ">
+            <typename name="part_design_view"/>
          </derived>
-         <derived name="part" expression="assembly_usage[1].relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product">
-            <typename name="Product"/>
+         <derived name="part" expression=" assembly_usage [ 1 ] . relating_view \ definition_based_product_occurrence . derived_from \ product_view_definition . defined_version . of_product ">
+            <typename name="product"/>
          </derived>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Assembly_item_number" attribute="assembly"/>
-            <unique.attribute entity-ref="Assembly_item_number" attribute="item_number"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="assembly_item_number" attribute="assembly"/>
+            <unique.attribute entity-ref="assembly_item_number" attribute="item_number"/>
          </unique>
-         <where label="WR1" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.related_view = assembly))) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( au &lt;* assembly_usage | not ( au . relating_view \ definition_based_product_occurrence . derived_from \ product_view_definition . defined_version . of_product = part ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( au &lt;* assembly_usage | not ( au . related_view = assembly ) ) ) = 0 "/>
       </entity>
-      <entity name="Component_make_from_relationship" supertypes="View_definition_relationship">
+      <entity name="component_make_from_relationship" supertypes="view_definition_relationship">
          <explicit name="reusable_component">
-            <typename name="Assembly_component"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+            <typename name="assembly_component"/>
+            <redeclaration entity-ref="view_definition_relationship" old_name="relating_view"/>
          </explicit>
          <explicit name="resultant_component">
-            <typename name="Assembly_component"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+            <typename name="assembly_component"/>
+            <redeclaration entity-ref="view_definition_relationship" old_name="related_view"/>
          </explicit>
-         <where label="WR1" expression="resultant_component &lt;&gt; reusable_component"/>
+         <where label="wr1" expression=" resultant_component &lt;&gt; reusable_component "/>
       </entity>
-      <entity name="Component_to_physical_usage_view_assignment" supertypes="View_definition_relationship">
+      <entity name="component_to_physical_usage_view_assignment" supertypes="view_definition_relationship">
          <explicit name="design_view_component">
-            <typename name="Assembly_component"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+            <typename name="assembly_component"/>
+            <redeclaration entity-ref="view_definition_relationship" old_name="relating_view"/>
          </explicit>
          <explicit name="usage_view_component">
-            <typename name="Assembly_component"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+            <typename name="assembly_component"/>
+            <redeclaration entity-ref="view_definition_relationship" old_name="related_view"/>
          </explicit>
-         <where label="WR1" expression="design_view_component &lt;&gt; usage_view_component"/>
+         <where label="wr1" expression=" design_view_component &lt;&gt; usage_view_component "/>
       </entity>
-      <entity name="Connection_zone_in_design_view" supertypes="Connection_zone">
-         <derived name="associated_definition" expression="containing_shape.described_element">
-            <typename name="Part_design_view"/>
+      <entity name="connection_zone_in_design_view" supertypes="connection_zone">
+         <derived name="associated_definition" expression=" containing_shape . described_element ">
+            <typename name="part_design_view"/>
          </derived>
       </entity>
-      <entity name="Part_design_view" supertypes="Item_shape Part_view_definition">
+      <entity name="part_design_view" supertypes="item_shape part_view_definition">
          <explicit name="usage_view" optional="YES">
-            <typename name="Part_usage_view"/>
+            <typename name="part_usage_view"/>
          </explicit>
-         <derived name="described_element" expression="SELF">
+         <derived name="described_element" expression=" self ">
             <typename name="shapeable_item"/>
-            <redeclaration entity-ref="Item_shape"/>
+            <redeclaration entity-ref="item_shape"/>
          </derived>
-         <where label="WR1" expression="('PHYSICAL_UNIT_DESIGN_VIEW_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view)"/>
+         <where label="wr1" expression=" ( 'physical_unit_design_view_arm.layout_macro_definition' in typeof ( self ) ) or exists ( usage_view ) "/>
       </entity>
-      <entity name="Physical_component" supertypes="Assembly_component Definition_based_part_occurrence"/>
-      <entity name="Thermal_component" supertypes="Assembly_component"/>
-      <subtype.constraint name="pudv_connection_zone_subtypes" entity="Connection_zone" super.expression="ONEOF (Connection_zone_in_usage_view, Connection_zone_in_design_view)"/>
+      <entity name="physical_component" supertypes="assembly_component definition_based_part_occurrence"/>
+      <entity name="thermal_component" supertypes="assembly_component"/>
+      <subtype.constraint name="pudv_connection_zone_subtypes" entity="connection_zone" super.expression="ONEOF (connection_zone_in_usage_view, connection_zone_in_design_view)"/>
    </schema>
 </express>

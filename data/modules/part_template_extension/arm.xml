@@ -2,96 +2,127 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-28T09:41:00" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_arm schema_instance"/>
-   <schema name="Part_template_extension_arm">
-      <interface kind="use" schema="Fabrication_technology_arm"/>
-      <interface kind="use" schema="Styled_curve_arm"/>
-      <interface kind="use" schema="Styled_text_arm"/>
-      <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
-      <entity name="Default_trace_template" supertypes="Trace_template">
+   <schema name="PART_TEMPLATE_EXTENSION_ARM">
+      <interface kind="use" schema="FABRICATION_TECHNOLOGY_ARM"/>
+      <interface kind="use" schema="STYLED_TEXT_ARM"/>
+      <interface kind="use" schema="LAYERED_INTERCONNECT_MODULE_DESIGN_ARM"/>
+      <type name="extend_or_chord_2_extend_or_truncate_or_round">
+         <enumeration items="truncate chord_2_extend round extend"/>
+      </type>
+      <type name="extend_or_truncate">
+         <enumeration items="truncate extend"/>
+      </type>
+      <type name="square_or_round">
+         <enumeration items="square round"/>
+      </type>
+      <entity name="curve_style_parameters">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="corner_style">
+            <typename name="extend_or_chord_2_extend_or_truncate_or_round"/>
+         </explicit>
+         <explicit name="curve_width">
+            <typename name="length_data_element"/>
+         </explicit>
+         <explicit name="end_extension">
+            <typename name="extend_or_truncate"/>
+         </explicit>
+         <explicit name="end_style">
+            <typename name="square_or_round"/>
+         </explicit>
+         <explicit name="width_uncertainty">
+            <typename name="length_data_element"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="curve_style_parameters" attribute="name"/>
+         </unique>
+      </entity>
+      <entity name="default_trace_template" supertypes="trace_template">
          <explicit name="of_stratum_technology">
-            <typename name="Stratum_technology"/>
+            <typename name="stratum_technology"/>
          </explicit>
       </entity>
-      <entity name="Part_text_template" supertypes="Template_definition">
+      <entity name="part_text_template" supertypes="template_definition">
          <explicit name="font" optional="YES">
             <typename name="font_select"/>
          </explicit>
          <explicit name="maximum_font_positive_horizontal_extent" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="maximum_font_positive_vertical_extent" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="maximum_font_negative_horizontal_extent" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="maximum_font_negative_vertical_extent" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="slant_angle" optional="YES">
-            <typename name="Angle_data_element"/>
+            <typename name="angle_data_element"/>
          </explicit>
          <explicit name="stroke_width" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
-         <where label="WR1" expression="EXISTS(maximum_font_positive_horizontal_extent) OR EXISTS(maximum_font_positive_vertical_extent) OR EXISTS(maximum_font_negative_horizontal_extent) OR EXISTS(maximum_font_negative_vertical_extent) OR EXISTS(slant_angle) OR EXISTS(stroke_width) OR EXISTS(font)"/>
+         <where label="wr1" expression=" exists ( maximum_font_positive_horizontal_extent ) or exists ( maximum_font_positive_vertical_extent ) or exists ( maximum_font_negative_horizontal_extent ) or exists ( maximum_font_negative_vertical_extent ) or exists ( slant_angle ) or exists ( stroke_width ) or exists ( font ) "/>
       </entity>
-      <entity name="Reference_packaged_part_interconnect_implementation" supertypes="Interconnect_module">
-         <where label="WR1" expression="SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product,&#10; 'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | NOT (SIZEOF(QUERY(epcr &lt;* USEDIN(prpc,&#10; 'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY') | (epcr.sub_category\Product_category.name = 'template model'))) = 1))) = 0"/>
+      <entity name="reference_packaged_part_interconnect_implementation" supertypes="interconnect_module">
+         <where label="wr1" expression=" sizeof ( query ( prpc &lt;* usedin ( self \ product_view_definition . defined_version . of_product , 'part_template_extension_arm.product_category_assignment.products' ) | not ( sizeof ( query ( epcr &lt;* usedin ( prpc , 'part_template_extension_arm.product_category_hierarchy.super_category' ) | ( epcr . sub_category \ product_category . name = 'template model' ) ) ) = 1 ) ) ) = 0 "/>
       </entity>
-      <entity name="Snowball_template" supertypes="Material_addition_feature_template">
+      <entity name="snowball_template" supertypes="material_addition_feature_template">
          <explicit name="snowball_start_distance">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="snowball_end_distance" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="snowball_initial_spacing" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="snowball_end_spacing" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="snowball_initial_radius">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="snowball_end_radius" optional="YES">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="snowball_quantity_per_trace">
             <builtintype type="INTEGER"/>
          </explicit>
-         <where label="WR1" expression="NOT (snowball_quantity_per_trace &gt; 1) OR (EXISTS(snowball_initial_spacing) AND EXISTS(snowball_end_spacing) AND EXISTS(snowball_end_distance) AND EXISTS(snowball_end_radius))"/>
-         <where label="WR2" expression="(SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_PLANAR_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0) AND &#10;            (SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0) AND &#10;            (SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.' + 'PART_TEMPLATE_NON_PLANAR_2D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+         <where label="wr1" expression=" not ( snowball_quantity_per_trace &gt; 1 ) or ( exists ( snowball_initial_spacing ) and exists ( snowball_end_spacing ) and exists ( snowball_end_distance ) and exists ( snowball_end_radius ) ) "/>
+         <where label="wr2" expression=" ( sizeof ( usedin ( self , 'fabrication_technology_arm.part_template_planar_shape.' + 'shape_characterized_part_template' ) ) = 0 ) and ( sizeof ( usedin ( self , 'fabrication_technology_arm.part_template_3d_shape.' + 'shape_characterized_part_template' ) ) = 0 ) and ( sizeof ( usedin ( self , 'fabrication_technology_arm.' + 'part_template_non_planar_2d_shape.' + 'shape_characterized_part_template' ) ) = 0 ) "/>
       </entity>
-      <entity name="Special_symbol_part_template" supertypes="Template_definition">
+      <entity name="special_symbol_part_template" supertypes="template_definition">
          <explicit name="of_stratum_technology" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Stratum_technology"/>
+            <typename name="stratum_technology"/>
          </explicit>
       </entity>
-      <entity name="Teardrop_by_angle_template" supertypes="Material_addition_feature_template">
+      <entity name="teardrop_by_angle_template" supertypes="material_addition_feature_template">
          <explicit name="teardrop_angle">
-            <typename name="Angle_data_element"/>
+            <typename name="angle_data_element"/>
          </explicit>
-         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_PLANAR_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0) AND &#10;            (SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0) AND &#10;            (SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.' + 'PART_TEMPLATE_NON_PLANAR_2D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+         <where label="wr1" expression=" ( sizeof ( usedin ( self , 'fabrication_technology_arm.part_template_planar_shape.' + 'shape_characterized_part_template' ) ) = 0 ) and ( sizeof ( usedin ( self , 'fabrication_technology_arm.part_template_3d_shape.' + 'shape_characterized_part_template' ) ) = 0 ) and ( sizeof ( usedin ( self , 'fabrication_technology_arm.' + 'part_template_non_planar_2d_shape.' + 'shape_characterized_part_template' ) ) = 0 ) "/>
       </entity>
-      <entity name="Teardrop_by_length_template" supertypes="Material_addition_feature_template">
+      <entity name="teardrop_by_length_template" supertypes="material_addition_feature_template">
          <explicit name="teardrop_taper_start_distance">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
          <explicit name="teardrop_taper_end_distance">
-            <typename name="Length_data_element"/>
+            <typename name="length_data_element"/>
          </explicit>
-         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_PLANAR_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0) AND &#10;            (SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0) AND &#10;            (SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.' + 'PART_TEMPLATE_NON_PLANAR_2D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+         <where label="wr1" expression=" ( sizeof ( usedin ( self , 'fabrication_technology_arm.part_template_planar_shape.' + 'shape_characterized_part_template' ) ) = 0 ) and ( sizeof ( usedin ( self , 'fabrication_technology_arm.part_template_3d_shape.' + 'shape_characterized_part_template' ) ) = 0 ) and ( sizeof ( usedin ( self , 'fabrication_technology_arm.' + 'part_template_non_planar_2d_shape.' + 'shape_characterized_part_template' ) ) = 0 ) "/>
       </entity>
-      <entity name="Trace_template" supertypes="Template_definition" super.expression="Default_trace_template">
+      <entity name="trace_template" supertypes="template_definition" super.expression="default_trace_template">
          <explicit name="trace_style">
-            <typename name="Curve_style_parameters"/>
+            <typename name="curve_style_parameters"/>
          </explicit>
       </entity>
-      <subtype.constraint name="material_addition_feature_template_subtypes" entity="Material_addition_feature_template" super.expression="ONEOF (Snowball_template, Teardrop_by_angle_template, Teardrop_by_length_template)"/>
+      <subtype.constraint name="material_addition_feature_template_subtypes" entity="material_addition_feature_template" super.expression="ONEOF (snowball_template, teardrop_by_angle_template, teardrop_by_length_template)"/>
    </schema>
 </express>

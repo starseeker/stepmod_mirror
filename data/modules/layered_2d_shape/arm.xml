@@ -2,51 +2,47 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-28T09:40:59" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_2d_shape_arm schema_instance"/>
-   <schema name="Layered_2d_shape_arm">
-      <interface kind="use" schema="Constructive_solid_geometry_2d_arm"/>
-      <interface kind="use" schema="Extended_elemental_geometric_shape_arm"/>
-      <interface kind="use" schema="Part_template_2d_shape_arm"/>
-      <interface kind="use" schema="Physical_unit_2d_shape_arm"/>
-      <type name="l2ds_part_template_or_physical_unit_shape_select">
-         <select extensible="YES" genericentity="YES" basedon="part_template_or_physical_unit_shape_select" selectitems="part_template_or_physical_unit_2d_shape_select"/>
-      </type>
+   <schema name="LAYERED_2D_SHAPE_ARM">
+      <interface kind="use" schema="CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM"/>
+      <interface kind="use" schema="EXTENDED_ELEMENTAL_GEOMETRIC_SHAPE_ARM"/>
+      <interface kind="use" schema="WIREFRAME_2D_ARM"/>
       <type name="part_template_or_physical_unit_2d_shape_select">
-         <select selectitems="Part_template_planar_shape Physical_unit_planar_shape"/>
+         <select extensible="YES" genericentity="YES"/>
       </type>
-      <entity name="Part_template_or_physical_unit_2d_shape_representation_relationship" supertypes="Geometric_model_relationship">
+      <entity name="part_template_or_physical_unit_2d_shape_representation_relationship" supertypes="geometric_model_relationship">
          <explicit name="principal_part_shape">
             <typename name="part_template_or_physical_unit_2d_shape_select"/>
-            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+            <redeclaration entity-ref="geometric_model_relationship" old_name="rep_1"/>
          </explicit>
          <explicit name="related_part_shape">
             <typename name="part_template_or_physical_unit_2d_shape_select"/>
-            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
+            <redeclaration entity-ref="geometric_model_relationship" old_name="rep_2"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Part_template_or_physical_unit_2d_shape_representation_relationship" attribute="principal_part_shape"/>
-            <unique.attribute entity-ref="Part_template_or_physical_unit_2d_shape_representation_relationship" attribute="related_part_shape"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="part_template_or_physical_unit_2d_shape_representation_relationship" attribute="principal_part_shape"/>
+            <unique.attribute entity-ref="part_template_or_physical_unit_2d_shape_representation_relationship" attribute="related_part_shape"/>
          </unique>
-         <where label="WR1" expression="principal_part_shape :&lt;&gt;: related_part_shape"/>
+         <where label="wr1" expression=" principal_part_shape :&lt;&gt;: related_part_shape "/>
       </entity>
-      <entity name="Planar_projected_shape" supertypes="Planar_shape Feature_shape_definition"/>
-      <entity name="Planar_shape" abstract.supertype="YES" supertypes="Geometric_model" super.expression="Planar_projected_shape">
-         <where label="WR1" expression="SELF\Geometric_model.context_of_items.dimension_count = 2"/>
+      <entity name="planar_projected_shape" supertypes="planar_shape feature_shape_definition"/>
+      <entity name="planar_shape" abstract.supertype="YES" supertypes="geometric_model" super.expression="planar_projected_shape">
+         <where label="wr1" expression=" self \ geometric_model . context_of_items . dimension_count = 2 "/>
       </entity>
-      <entity name="Reference_geometric_representation_relationship" supertypes="Geometric_model_relationship">
+      <entity name="reference_geometric_representation_relationship" supertypes="geometric_model_relationship">
          <explicit name="related_feature_shape_placement" optional="YES">
             <typename name="axis_placement_or_cto2d"/>
          </explicit>
          <explicit name="related_feature_shape">
-            <typename name="Feature_shape_definition"/>
-            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+            <typename name="feature_shape_definition"/>
+            <redeclaration entity-ref="geometric_model_relationship" old_name="rep_1"/>
          </explicit>
          <explicit name="resultant_feature_shape">
-            <typename name="Feature_shape_definition"/>
-            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
+            <typename name="feature_shape_definition"/>
+            <redeclaration entity-ref="geometric_model_relationship" old_name="rep_2"/>
          </explicit>
-         <where label="WR1" expression="EXISTS(related_feature_shape_placement) OR (related_feature_shape.context_of_items :=: resultant_feature_shape.context_of_items)"/>
+         <where label="wr1" expression=" exists ( related_feature_shape_placement ) or ( related_feature_shape . context_of_items :=: resultant_feature_shape . context_of_items ) "/>
       </entity>
    </schema>
 </express>

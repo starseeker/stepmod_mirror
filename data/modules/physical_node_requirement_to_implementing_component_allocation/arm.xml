@@ -2,131 +2,78 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-28T09:41:00" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_node_requirement_to_implementing_component_allocation_arm schema_instance"/>
-   <schema name="Physical_node_requirement_to_implementing_component_allocation_arm">
-      <interface kind="use" schema="Assembly_module_with_packaged_connector_component_arm"/>
-      <interface kind="use" schema="Assembly_technology_arm"/>
-      <interface kind="use" schema="Component_feature_arm"/>
-      <interface kind="use" schema="Functional_assignment_to_part_arm"/>
-      <interface kind="use" schema="Interface_component_arm"/>
-      <interface kind="use" schema="Packaged_connector_model_arm"/>
-      <interface kind="use" schema="Physical_connectivity_definition_arm"/>
-      <interface kind="use" schema="Physical_unit_design_view_arm"/>
-      <entity name="Physical_node_requirement_to_implementing_component_allocation">
+   <schema name="PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM">
+      <interface kind="use" schema="ASSEMBLY_MODULE_WITH_PACKAGED_CONNECTOR_COMPONENT_ARM"/>
+      <interface kind="use" schema="ASSEMBLY_TECHNOLOGY_ARM"/>
+      <interface kind="use" schema="COMPONENT_FEATURE_ARM"/>
+      <interface kind="use" schema="FUNCTIONAL_ASSIGNMENT_TO_PART_ARM"/>
+      <interface kind="use" schema="INTERFACE_COMPONENT_ARM"/>
+      <interface kind="use" schema="PACKAGED_CONNECTOR_MODEL_ARM"/>
+      <interface kind="use" schema="PHYSICAL_CONNECTIVITY_DEFINITION_ARM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_DESIGN_VIEW_ARM"/>
+      <entity name="physical_node_requirement_to_implementing_component_allocation">
          <explicit name="physical_node_requirement">
-            <typename name="Physical_connectivity_definition"/>
+            <typename name="physical_connectivity_definition"/>
          </explicit>
          <explicit name="implementation_component">
-            <typename name="Assembly_component"/>
+            <typename name="assembly_component"/>
          </explicit>
          <explicit name="implementation_interface_joint_set" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Interface_mounted_join"/>
+            <typename name="interface_mounted_join"/>
          </explicit>
          <explicit name="implementation_joint_set" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Assembly_joint"/>
+            <typename name="assembly_joint"/>
          </explicit>
-         <derived name="implementation_connection_definition_1" expression="get_pctd(implementation_component,&#10; implementation_joint_set)">
+         <derived name="implementation_connection_definition_1" expression=" get_pctd ( implementation_component , implementation_joint_set ) ">
             <aggregate type="SET" lower="0" upper="1"/>
-            <typename name="Part_connected_terminals_definition"/>
+            <typename name="part_connected_terminals_definition"/>
          </derived>
-         <derived name="implementation_connection_definition_2" expression="get_pctr(implementation_component,&#10; implementation_interface_joint_set)">
+         <derived name="implementation_connection_definition_2" expression=" get_pctr ( implementation_component , implementation_interface_joint_set ) ">
             <aggregate type="SET" lower="0" upper="1"/>
-            <typename name="Packaged_connector_terminal_relationship"/>
+            <typename name="packaged_connector_terminal_relationship"/>
          </derived>
-         <where label="WR1" expression="EXISTS(implementation_interface_joint_set) XOR EXISTS(implementation_joint_set)"/>
-         <where label="WR2" expression="(SIZEOF(implementation_connection_definition_1) + SIZEOF(implementation_connection_definition_2) = 1) OR (('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(implementation_component)) AND ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN TYPEOF(get_cit(implementation_component,&#10; implementation_joint_set)))) OR ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF(implementation_component))"/>
-         <where label="WR3" expression="SIZEOF(QUERY(pct &lt;* physical_node_requirement.associated_terminals | pct\Component_feature.associated_component = implementation_component)) = 0"/>
+         <where label="wr1" expression=" exists ( implementation_interface_joint_set ) xor exists ( implementation_joint_set ) "/>
+         <where label="wr2" expression=" ( sizeof ( implementation_connection_definition_1 ) + sizeof ( implementation_connection_definition_2 ) = 1 ) or ( ( 'physical_node_requirement_to_implementing_component_allocation_arm.interface_component' in typeof ( implementation_component ) ) and ( 'physical_node_requirement_to_implementing_component_allocation_arm.physical_component_interface_terminal' in typeof ( get_cit ( implementation_component , implementation_joint_set ) ) ) ) or ( 'physical_node_requirement_to_implementing_component_allocation_arm.routed_interconnect_component' in typeof ( implementation_component ) ) "/>
+         <where label="wr3" expression=" sizeof ( query ( pct &lt;* physical_node_requirement . associated_terminals | pct \ component_feature . associated_component = implementation_component ) ) = 0 "/>
       </entity>
       <function name="get_cit">
          <parameter name="ac">
-            <typename name="Assembly_component"/>
+            <typename name="assembly_component"/>
          </parameter>
          <parameter name="ajb">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Assembly_joint"/>
+            <typename name="assembly_joint"/>
          </parameter>
-         <typename name="Physical_component_interface_terminal"/>
-         <algorithm>LOCAL
-      cf  : LIST[1:?] OF component_feature := [];
-      cit : Physical_component_interface_terminal;
-    END_LOCAL;
-
-    REPEAT i := 1 TO 2 BY 1;
-      cf[1] := ajb[1].assembly_features_1;
-      cf[2] := ajb[1].assembly_features_2;
-      IF ac :=: cf[i].associated_component THEN
-        IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(cf[i].associated_component)) THEN
-          RETURN(cf[i]);
-        ELSE
-          RETURN(?);
-        END_IF;
-      ELSE
-        RETURN(?);
-      END_IF;
-    END_REPEAT;
-    RETURN(?);</algorithm>
+         <typename name="physical_component_interface_terminal"/>
+         <algorithm> local cf : list [ 1 : ? ] of component_feature := [ ] ; cit : physical_component_interface_terminal ; end_local ; repeat i := 1 to 2 by 1 ; cf [ 1 ] := ajb [ 1 ] . assembly_features_1 ; cf [ 2 ] := ajb [ 1 ] . assembly_features_2 ; if ac :=: cf [ i ] . associated_component then if ( 'physical_node_requirement_to_implementing_component_allocation_arm.interface_component' in typeof ( cf [ i ] . associated_component ) ) then return ( cf [ i ] ) ; else return ( ? ) ; end_if ; else return ( ? ) ; end_if ; end_repeat ; return ( ? ) ; </algorithm>
       </function>
       <function name="get_pctd">
          <parameter name="ac">
-            <typename name="Assembly_component"/>
+            <typename name="assembly_component"/>
          </parameter>
          <parameter name="ajb">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Assembly_joint"/>
+            <typename name="assembly_joint"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Part_connected_terminals_definition"/>
-         <algorithm>LOCAL
-      cf   : LIST[1:?] OF Component_feature;
-      pctd : SET OF part_connected_terminals_definition := [];
-    END_LOCAL;
-
-    REPEAT i := 1 TO 2 BY 1;
-      cf[1] := ajb[1].assembly_features_1;
-      cf[2] := ajb[1].assembly_features_2;
-      IF ac :=: cf[i].associated_component THEN
-        IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PART_TERMINAL' IN TYPEOF(cf[i].definition)) THEN
-          pctd := cf[i].definition.connection_requirement;
-          RETURN(pctd);
-        ELSE
-          RETURN(pctd);
-        END_IF;
-      ELSE
-        RETURN(pctd);
-      END_IF;
-    END_REPEAT;
-    RETURN(?);</algorithm>
+         <typename name="part_connected_terminals_definition"/>
+         <algorithm> local cf : list [ 1 : ? ] of component_feature ; pctd : set of part_connected_terminals_definition := [ ] ; end_local ; repeat i := 1 to 2 by 1 ; cf [ 1 ] := ajb [ 1 ] . assembly_features_1 ; cf [ 2 ] := ajb [ 1 ] . assembly_features_2 ; if ac :=: cf [ i ] . associated_component then if ( 'physical_node_requirement_to_implementing_component_allocation_arm.part_terminal' in typeof ( cf [ i ] . definition ) ) then pctd := cf [ i ] . definition . connection_requirement ; return ( pctd ) ; else return ( pctd ) ; end_if ; else return ( pctd ) ; end_if ; end_repeat ; return ( ? ) ; </algorithm>
       </function>
       <function name="get_pctr">
          <parameter name="ac">
-            <typename name="Assembly_component"/>
+            <typename name="assembly_component"/>
          </parameter>
          <parameter name="imjb">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Interface_mounted_join"/>
+            <typename name="interface_mounted_join"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Packaged_connector_terminal_relationship"/>
-         <algorithm>LOCAL
-      cf   : Component_feature;
-      pctr : SET OF packaged_connector_terminal_relationship := [];
-    END_LOCAL;
-
-    cf := imjb[1].connection_to_interconnect_module_component;
-    IF ac :=: cf.associated_component THEN
-      IF ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(cf.definition)) THEN
-        pctr := cf.definition.external_connector_function;
-        RETURN(pctr);
-      ELSE
-        RETURN(pctr);
-      END_IF;
-    ELSE
-      RETURN(pctr);
-    END_IF;
-    RETURN(?);</algorithm>
+         <typename name="packaged_connector_terminal_relationship"/>
+         <algorithm> local cf : component_feature ; pctr : set of packaged_connector_terminal_relationship := [ ] ; end_local ; cf := imjb [ 1 ] . connection_to_interconnect_module_component ; if ac :=: cf . associated_component then if ( 'physical_node_requirement_to_implementing_component_allocation_arm.packaged_part_interface_terminal' in typeof ( cf . definition ) ) then pctr := cf . definition . external_connector_function ; return ( pctr ) ; else return ( pctr ) ; end_if ; else return ( pctr ) ; end_if ; return ( ? ) ; </algorithm>
       </function>
    </schema>
 </express>

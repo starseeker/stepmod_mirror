@@ -2,19 +2,19 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-28T09:40:49" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="analytical_model_arm schema_instance"/>
-   <schema name="Analytical_model_arm">
-      <interface kind="use" schema="Model_parameter_arm"/>
-      <interface kind="use" schema="Specification_document_arm"/>
-      <interface kind="use" schema="Value_with_unit_extension_arm"/>
-      <interface kind="use" schema="Software_arm"/>
-      <interface kind="use" schema="Document_structure_arm"/>
-      <interface kind="reference" schema="Product_identification_arm">
+   <schema name="ANALYTICAL_MODEL_ARM">
+      <interface kind="use" schema="MODEL_PARAMETER_ARM"/>
+      <interface kind="use" schema="SPECIFICATION_DOCUMENT_ARM"/>
+      <interface kind="use" schema="VALUE_WITH_UNIT_EXTENSION_ARM"/>
+      <interface kind="use" schema="SOFTWARE_ARM"/>
+      <interface kind="use" schema="DOCUMENT_STRUCTURE_ARM"/>
+      <interface kind="reference" schema="PRODUCT_IDENTIFICATION_ARM">
          <interfaced.item name="types_of_product"/>
       </interface>
       <type name="am_external_identification_item">
-         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Digital_analytical_model_vector_port"/>
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="digital_analytical_model_vector_port"/>
       </type>
       <type name="analytical_model_port_assignment_select">
          <select extensible="YES" genericentity="YES"/>
@@ -25,194 +25,194 @@
       <type name="signal_flow_direction">
          <enumeration items="unknown_direction not_applicable output_direction input_direction bidirectional"/>
       </type>
-      <entity name="Across_port_variable" supertypes="Analog_port_variable">
-         <where label="WR1" expression="EXISTS(SELF\Analog_port_variable.unit_of_measure)"/>
+      <entity name="across_port_variable" supertypes="analog_port_variable">
+         <where label="wr1" expression=" exists ( self \ analog_port_variable . unit_of_measure ) "/>
       </entity>
-      <entity name="Analog_analytical_model_port" supertypes="Analytical_model_port">
-         <inverse name="signal_variable" entity="Analog_port_variable" attribute="associated_port">
+      <entity name="analog_analytical_model_port" supertypes="analytical_model_port">
+         <inverse name="signal_variable" entity="analog_port_variable" attribute="associated_port">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Analog_port_variable" super.expression="ONEOF (Through_port_variable, Across_port_variable, Transform_port_variable)">
+      <entity name="analog_port_variable" super.expression="ONEOF (through_port_variable, across_port_variable, transform_port_variable)">
          <explicit name="associated_port">
-            <typename name="Analog_analytical_model_port"/>
+            <typename name="analog_analytical_model_port"/>
          </explicit>
          <explicit name="variable_name">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="unit_of_measure" optional="YES">
-            <typename name="Unit"/>
+            <typename name="unit"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Analog_port_variable" attribute="variable_name"/>
-            <unique.attribute entity-ref="Analog_port_variable" attribute="associated_port"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="analog_port_variable" attribute="variable_name"/>
+            <unique.attribute entity-ref="analog_port_variable" attribute="associated_port"/>
          </unique>
       </entity>
-      <entity name="Analytical_model" supertypes="Software">
-         <where label="WR1" expression="SIZEOF([ 'analytical model' ] * types_of_product(SELF))= 1"/>
+      <entity name="analytical_model" supertypes="software">
+         <where label="wr1" expression=" sizeof ( [ 'analytical model' ] * types_of_product ( self ) ) = 1 "/>
       </entity>
-      <entity name="Analytical_model_application" supertypes="Representation">
+      <entity name="analytical_model_application" supertypes="representation">
          <explicit name="model_parameter_assignment">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Parameter_assignment"/>
+            <typename name="parameter_assignment"/>
          </explicit>
          <explicit name="model_representation">
-            <typename name="Analytical_model_definition"/>
+            <typename name="analytical_model_definition"/>
          </explicit>
          <explicit name="analytical_model_application_name">
             <builtintype type="STRING"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Analytical_model_application" attribute="analytical_model_application_name"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="analytical_model_application" attribute="analytical_model_application_name"/>
          </unique>
       </entity>
-      <entity name="Analytical_model_definition" supertypes="Software_definition">
+      <entity name="analytical_model_definition" supertypes="software_definition">
          <explicit name="defined_version">
-            <typename name="Analytical_model_version"/>
-            <redeclaration entity-ref="Product_view_definition"/>
+            <typename name="analytical_model_version"/>
+            <redeclaration entity-ref="product_view_definition"/>
          </explicit>
          <explicit name="representation_language">
-            <typename name="Language_reference_manual"/>
+            <typename name="language_reference_manual"/>
          </explicit>
          <explicit name="source_code">
-            <typename name="Software_definition"/>
+            <typename name="software_definition"/>
          </explicit>
-         <inverse name="access_mechanism" entity="Analytical_model_port" attribute="accessed_analytical_model">
+         <inverse name="access_mechanism" entity="analytical_model_port" attribute="accessed_analytical_model">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <inverse name="parameter" entity="Analytical_model_parameter" attribute="accessed_analytical_model">
+         <inverse name="parameter" entity="analytical_model_parameter" attribute="accessed_analytical_model">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <inverse name="reference_document" entity="Document_assignment" attribute="is_assigned_to"/>
+         <inverse name="reference_document" entity="document_assignment" attribute="is_assigned_to"/>
       </entity>
-      <entity name="Analytical_model_make_from_relationship" supertypes="Document_definition_relationship">
+      <entity name="analytical_model_make_from_relationship" supertypes="document_definition_relationship">
          <explicit name="reusable_model">
-            <typename name="Analytical_model_definition"/>
+            <typename name="analytical_model_definition"/>
          </explicit>
          <explicit name="resultant_model">
-            <typename name="Analytical_model_definition"/>
+            <typename name="analytical_model_definition"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Analytical_model_make_from_relationship" attribute="reusable_model"/>
-            <unique.attribute entity-ref="Analytical_model_make_from_relationship" attribute="resultant_model"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="analytical_model_make_from_relationship" attribute="reusable_model"/>
+            <unique.attribute entity-ref="analytical_model_make_from_relationship" attribute="resultant_model"/>
          </unique>
-         <where label="WR1" expression="reusable_model :&lt;&gt;: resultant_model"/>
+         <where label="wr1" expression=" reusable_model :&lt;&gt;: resultant_model "/>
       </entity>
-      <entity name="Analytical_model_parameter" supertypes="Model_parameter">
+      <entity name="analytical_model_parameter" supertypes="model_parameter">
          <explicit name="accessed_analytical_model">
-            <typename name="Analytical_model_definition"/>
+            <typename name="analytical_model_definition"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Analytical_model_parameter" attribute="id"/>
-            <unique.attribute entity-ref="Analytical_model_parameter" attribute="accessed_analytical_model"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="analytical_model_parameter" attribute="id"/>
+            <unique.attribute entity-ref="analytical_model_parameter" attribute="accessed_analytical_model"/>
          </unique>
       </entity>
-      <entity name="Analytical_model_port" super.expression="Analytical_model_vector_port ANDOR ONEOF (Analog_analytical_model_port, Digital_analytical_model_port)">
+      <entity name="analytical_model_port" super.expression="analytical_model_vector_port ANDOR ONEOF (analog_analytical_model_port, digital_analytical_model_port)">
          <explicit name="accessed_analytical_model">
-            <typename name="Analytical_model_definition"/>
+            <typename name="analytical_model_definition"/>
          </explicit>
          <explicit name="port_name">
             <builtintype type="STRING"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Analytical_model_port" attribute="port_name"/>
-            <unique.attribute entity-ref="Analytical_model_port" attribute="accessed_analytical_model"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="analytical_model_port" attribute="port_name"/>
+            <unique.attribute entity-ref="analytical_model_port" attribute="accessed_analytical_model"/>
          </unique>
       </entity>
-      <entity name="Analytical_model_port_assignment">
+      <entity name="analytical_model_port_assignment">
          <explicit name="assigned_analytical_model_port">
-            <typename name="Analytical_model_port"/>
+            <typename name="analytical_model_port"/>
          </explicit>
          <explicit name="assigned_item">
             <typename name="analytical_model_port_assignment_select"/>
          </explicit>
          <explicit name="associated_analytical_model_application">
-            <typename name="Analytical_model_application"/>
+            <typename name="analytical_model_application"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Analytical_model_port_assignment" attribute="assigned_analytical_model_port"/>
-            <unique.attribute entity-ref="Analytical_model_port_assignment" attribute="assigned_item"/>
-            <unique.attribute entity-ref="Analytical_model_port_assignment" attribute="associated_analytical_model_application"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="analytical_model_port_assignment" attribute="assigned_analytical_model_port"/>
+            <unique.attribute entity-ref="analytical_model_port_assignment" attribute="assigned_item"/>
+            <unique.attribute entity-ref="analytical_model_port_assignment" attribute="associated_analytical_model_application"/>
          </unique>
-         <where label="WR1" expression="assigned_analytical_model_port.accessed_analytical_model =&#10;   associated_analytical_model_application.model_representation"/>
+         <where label="wr1" expression=" assigned_analytical_model_port . accessed_analytical_model = associated_analytical_model_application . model_representation "/>
       </entity>
-      <entity name="Analytical_model_port_make_from_relationship">
+      <entity name="analytical_model_port_make_from_relationship">
          <explicit name="associated_make_from">
-            <typename name="Analytical_model_make_from_relationship"/>
+            <typename name="analytical_model_make_from_relationship"/>
          </explicit>
          <explicit name="reusable_feature">
-            <typename name="Analytical_model_port"/>
+            <typename name="analytical_model_port"/>
          </explicit>
          <explicit name="resultant_feature">
-            <typename name="Analytical_model_port"/>
+            <typename name="analytical_model_port"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Analytical_model_port_make_from_relationship" attribute="reusable_feature"/>
-            <unique.attribute entity-ref="Analytical_model_port_make_from_relationship" attribute="resultant_feature"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="analytical_model_port_make_from_relationship" attribute="reusable_feature"/>
+            <unique.attribute entity-ref="analytical_model_port_make_from_relationship" attribute="resultant_feature"/>
          </unique>
-         <where label="WR1" expression="reusable_feature :&lt;&gt;: resultant_feature"/>
-         <where label="WR2" expression="reusable_feature.accessed_analytical_model :&lt;&gt;: resultant_feature.accessed_analytical_model"/>
+         <where label="wr1" expression=" reusable_feature :&lt;&gt;: resultant_feature "/>
+         <where label="wr2" expression=" reusable_feature . accessed_analytical_model :&lt;&gt;: resultant_feature . accessed_analytical_model "/>
       </entity>
-      <entity name="Analytical_model_scalar_port" supertypes="Analytical_model_vector_port">
-         <where label="WR1" expression="SIZEOF(SELF\Analytical_model_vector_port.element_port) = 1"/>
-         <where label="WR2" expression="SELF = SELF\Analytical_model_vector_port.element_port[1]"/>
+      <entity name="analytical_model_scalar_port" supertypes="analytical_model_vector_port">
+         <where label="wr1" expression=" sizeof ( self \ analytical_model_vector_port . element_port ) = 1 "/>
+         <where label="wr2" expression=" self = self \ analytical_model_vector_port . element_port [ 1 ] "/>
       </entity>
-      <entity name="Analytical_model_vector_port" supertypes="Analytical_model_port" super.expression="Analytical_model_scalar_port">
+      <entity name="analytical_model_vector_port" supertypes="analytical_model_port" super.expression="analytical_model_scalar_port">
          <explicit name="element_port">
             <aggregate type="LIST" lower="1" upper="?"/>
-            <typename name="Analytical_model_scalar_port"/>
+            <typename name="analytical_model_scalar_port"/>
          </explicit>
-         <derived name="size" expression="SIZEOF(element_port)">
+         <derived name="size" expression=" sizeof ( element_port ) ">
             <builtintype type="INTEGER"/>
          </derived>
       </entity>
-      <entity name="Analytical_model_version" supertypes="Software_version">
+      <entity name="analytical_model_version" supertypes="software_version">
          <explicit name="of_product">
-            <typename name="Analytical_model"/>
-            <redeclaration entity-ref="Product_version"/>
+            <typename name="analytical_model"/>
+            <redeclaration entity-ref="product_version"/>
          </explicit>
       </entity>
-      <entity name="Digital_analytical_model_port" supertypes="Analytical_model_port">
+      <entity name="digital_analytical_model_port" supertypes="analytical_model_port">
          <explicit name="nominal_signal_flow_direction">
             <typename name="signal_flow_direction"/>
          </explicit>
          <explicit name="port_type">
             <typename name="model_parameter_type"/>
          </explicit>
-         <where label="WR1" expression="not_applicable &lt;&gt; nominal_signal_flow_direction"/>
-         <where label="WR2" expression="numeric_property_type &lt;&gt; port_type"/>
-         <where label="WR3" expression="physical_property_type &lt;&gt; port_type"/>
-         <where label="WR4" expression="unknown_direction &lt;&gt; nominal_signal_flow_direction"/>
+         <where label="wr1" expression=" not_applicable &lt;&gt; nominal_signal_flow_direction "/>
+         <where label="wr2" expression=" numeric_property_type &lt;&gt; port_type "/>
+         <where label="wr3" expression=" physical_property_type &lt;&gt; port_type "/>
+         <where label="wr4" expression=" unknown_direction &lt;&gt; nominal_signal_flow_direction "/>
       </entity>
-      <entity name="Digital_analytical_model_scalar_port" supertypes="Digital_analytical_model_vector_port Analytical_model_scalar_port"/>
-      <entity name="Digital_analytical_model_vector_port" abstract.supertype="YES" supertypes="Digital_analytical_model_port Analytical_model_vector_port">
-         <inverse name="data_encoding_method" entity="External_source_identification" attribute="item"/>
-         <where label="WR1" expression="SELF\Digital_analytical_model_port.port_type = model_parameter_type.string_property_type"/>
+      <entity name="digital_analytical_model_scalar_port" supertypes="digital_analytical_model_vector_port analytical_model_scalar_port"/>
+      <entity name="digital_analytical_model_vector_port" abstract.supertype="YES" supertypes="digital_analytical_model_port analytical_model_vector_port">
+         <inverse name="data_encoding_method" entity="external_source_identification" attribute="item"/>
+         <where label="wr1" expression=" self \ digital_analytical_model_port . port_type = model_parameter_type . string_property_type "/>
       </entity>
-      <entity name="Terminal_pair_port_equivalence_relationship">
+      <entity name="terminal_pair_port_equivalence_relationship">
          <explicit name="equivalent_port">
-            <typename name="Analytical_model_port"/>
+            <typename name="analytical_model_port"/>
          </explicit>
          <explicit name="scalar_ports">
-            <typename name="Analytical_model_vector_port"/>
+            <typename name="analytical_model_vector_port"/>
          </explicit>
-         <where label="WR1" expression="(SIZEOF (scalar_ports.element_port) = 2)"/>
+         <where label="wr1" expression=" ( sizeof ( scalar_ports . element_port ) = 2 ) "/>
       </entity>
-      <entity name="Through_port_variable" supertypes="Analog_port_variable">
-         <where label="WR1" expression="EXISTS(SELF\Analog_port_variable.unit_of_measure)"/>
+      <entity name="through_port_variable" supertypes="analog_port_variable">
+         <where label="wr1" expression=" exists ( self \ analog_port_variable . unit_of_measure ) "/>
       </entity>
-      <entity name="Transform_port_variable" supertypes="Analog_port_variable">
+      <entity name="transform_port_variable" supertypes="analog_port_variable">
          <explicit name="nominal_signal_flow_direction">
             <typename name="signal_flow_direction"/>
          </explicit>
-         <where label="WR1" expression="not_applicable &lt;&gt; nominal_signal_flow_direction"/>
-         <where label="WR2" expression="bidirectional &lt;&gt; nominal_signal_flow_direction"/>
+         <where label="wr1" expression=" not_applicable &lt;&gt; nominal_signal_flow_direction "/>
+         <where label="wr2" expression=" bidirectional &lt;&gt; nominal_signal_flow_direction "/>
       </entity>
-      <rule name="analytical_model_definition_constraint" appliesto="Product_view_definition">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0"/>
+      <rule name="analytical_model_definition_constraint" appliesto="product_view_definition">
+         <where label="wr1" expression=" sizeof ( query ( pvd &lt;* product_view_definition | ( not ( 'analytical_model_arm.' + 'analytical_model_definition' in typeof ( pvd ) ) ) and ( 'analytical_model_arm.' + 'analytical_model_version' in typeof ( pvd . defined_version ) ) ) ) = 0 "/>
       </rule>
-      <rule name="analytical_model_version_constraint" appliesto="Product_version">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pv) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( pv.of_product) ) ) ) =0"/>
+      <rule name="analytical_model_version_constraint" appliesto="product_version">
+         <where label="wr1" expression=" sizeof ( query ( pv &lt;* product_version | ( not ( 'analytical_model_arm.' + 'analytical_model_version' in typeof ( pv ) ) ) and ( 'analytical_model_arm.' + 'analytical_model' in typeof ( pv . of_product ) ) ) ) = 0 "/>
       </rule>
    </schema>
 </express>

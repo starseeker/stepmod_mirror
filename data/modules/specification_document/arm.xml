@@ -2,26 +2,26 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-28T09:41:01" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:27:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
-   <schema name="Specification_document_arm">
-      <interface kind="use" schema="Characteristic_arm"/>
-      <interface kind="use" schema="Configuration_item_arm"/>
-      <interface kind="use" schema="Document_assignment_arm"/>
-      <interface kind="use" schema="Encoded_text_representation_arm"/>
-      <interface kind="use" schema="Person_organization_assignment_arm"/>
+   <schema name="SPECIFICATION_DOCUMENT_ARM">
+      <interface kind="use" schema="CHARACTERISTIC_ARM"/>
+      <interface kind="use" schema="CONFIGURATION_ITEM_ARM"/>
+      <interface kind="use" schema="DOCUMENT_ASSIGNMENT_ARM"/>
+      <interface kind="use" schema="ENCODED_TEXT_REPRESENTATION_ARM"/>
+      <interface kind="use" schema="PERSON_ORGANIZATION_ASSIGNMENT_ARM"/>
       <type name="specification_product_object_select">
-         <select extensible="YES" genericentity="YES" selectitems="Product_configuration Product_view_definition Product_version Product"/>
+         <select extensible="YES" genericentity="YES" selectitems="product_configuration product_view_definition product_version product"/>
       </type>
-      <entity name="Design_specification" supertypes="Specification_definition" super.expression="Interface_specification"/>
-      <entity name="Fabrication_technology_specification" supertypes="Process_specification"/>
-      <entity name="Interface_specification" supertypes="Design_specification"/>
-      <entity name="Language_reference_manual" supertypes="Specification_definition"/>
-      <entity name="Material_specification" supertypes="Specification_definition"/>
-      <entity name="Process_specification" supertypes="Specification_definition"/>
-      <entity name="Specification_allocation">
+      <entity name="design_specification" supertypes="specification_definition" super.expression="interface_specification"/>
+      <entity name="fabrication_technology_specification" supertypes="process_specification"/>
+      <entity name="interface_specification" supertypes="design_specification"/>
+      <entity name="language_reference_manual" supertypes="specification_definition"/>
+      <entity name="material_specification" supertypes="specification_definition"/>
+      <entity name="process_specification" supertypes="specification_definition"/>
+      <entity name="specification_allocation">
          <explicit name="allocated_specification">
-            <typename name="Specification_definition"/>
+            <typename name="specification_definition"/>
          </explicit>
          <explicit name="target_product_object">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -33,24 +33,24 @@
          <explicit name="identifier_in_target_context" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <derived name="the_context" expression="target_product_object[1]">
+         <derived name="the_context" expression=" target_product_object [ 1 ] ">
             <typename name="specification_product_object_select"/>
          </derived>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Specification_allocation" attribute="identifier_in_target_context"/>
-            <unique.attribute entity-ref="Specification_allocation" attribute="the_context"/>
+         <unique label="ur1">
+            <unique.attribute entity-ref="specification_allocation" attribute="identifier_in_target_context"/>
+            <unique.attribute entity-ref="specification_allocation" attribute="the_context"/>
          </unique>
-         <where label="WR1" expression="NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1)"/>
+         <where label="wr1" expression=" not exists ( identifier_in_target_context ) or ( sizeof ( target_product_object ) = 1 ) "/>
       </entity>
-      <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
-         <derived name="source" expression="QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') )">
+      <entity name="specification_definition" supertypes="document_definition" super.expression="ONEOF (design_specification, process_specification, material_specification, test_specification, language_reference_manual)">
+         <derived name="source" expression=" query ( temp &lt;* usedin ( self , 'person_organization_assignment_arm.' + 'organization_or_person_in_organization_assignment.items' ) | ( temp . role = 'document source' ) ) ">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Organization_or_person_in_organization_assignment"/>
+            <typename name="organization_or_person_in_organization_assignment"/>
          </derived>
-         <where label="WR1" expression="EXISTS (source) AND sizeof(source) = 1"/>
+         <where label="wr1" expression=" exists ( source ) and sizeof ( source ) = 1 "/>
       </entity>
-      <entity name="Surface_finish_specification" supertypes="Material_specification"/>
-      <entity name="Test_specification" supertypes="Specification_definition"/>
+      <entity name="surface_finish_specification" supertypes="material_specification"/>
+      <entity name="test_specification" supertypes="specification_definition"/>
       <function name="get_document_definition">
          <parameter name="input">
             <typename name="documented_element_select"/>
@@ -62,22 +62,8 @@
             <builtintype type="STRING"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Document_definition"/>
-         <algorithm>LOCAL
-	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
-	da : SET[0:?] OF Document_assignment :=[];
-END_LOCAL;
-	da := (QUERY(dr &lt;* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
-	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
-
-	-- iterate over da
-	REPEAT i := 1 to SIZEOF(da) by 1;
-		IF(type_name IN TYPEOF (da[i].assigned_document))THEN
-			dd := dd + da[i].assigned_document;
-		END_IF;
-	END_REPEAT;
-
-	RETURN(dd);</algorithm>
+         <typename name="document_definition"/>
+         <algorithm> local dd : set [ 0 : ? ] of document_definition := [ ] ; da : set [ 0 : ? ] of document_assignment := [ ] ; end_local ; da := ( query ( dr &lt;* usedin ( input , 'document_assignment_arm.' + 'document_assignment.is_assigned_to' ) | ( dr . role = role ) ) ) ; repeat i := 1 to sizeof ( da ) by 1 ; if ( type_name in typeof ( da [ i ] . assigned_document ) ) then dd := dd + da [ i ] . assigned_document ; end_if ; end_repeat ; return ( dd ) ; </algorithm>
       </function>
    </schema>
 </express>

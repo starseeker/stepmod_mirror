@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.12 2003/05/06 21:26:15 thendrix Exp $
+$Id: express.xsl,v 1.13 2003/05/07 00:42:06 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -89,11 +89,12 @@ $Id: express.xsl,v 1.12 2003/05/06 21:26:15 thendrix Exp $
         <xsl:attribute name="background">
             <xsl:value-of select="concat('../../../images/',$background_image)"/>
           </xsl:attribute>
-
+          <!-- can only use this for Internet explorer, so not valid HTML
           <xsl:attribute name="bgproperties" >
-            <xsl:value-of select="'fixed'" />
-            </xsl:attribute>
-</xsl:if>
+            <xsl:value-of select="'fixed'"/>
+          </xsl:attribute>
+          -->
+        </xsl:if>
 
   <!-- debug <xsl:value-of select="$global_xref_list"/> -->
     <h2>
@@ -128,9 +129,10 @@ $Id: express.xsl,v 1.12 2003/05/06 21:26:15 thendrix Exp $
         <xsl:attribute name="background">
           <xsl:value-of select="concat('../../../../images/',$background_image)"/>
         </xsl:attribute>
+        <!-- can only use this for Internet explorer, so not valid HTML
         <xsl:attribute name="bgproperties" >
         <xsl:value-of select="'fixed'" />
-        </xsl:attribute>
+        </xsl:attribute> -->
       </xsl:if>
       <xsl:apply-templates select="./schema" mode="code"/>
     </xsl:element>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: mapping.xsl,v 1.8 2003/05/06 21:26:15 thendrix Exp $
+$Id: mapping.xsl,v 1.9 2003/07/30 11:42:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display a mapping table that is stored in a stand alone file
@@ -20,9 +20,10 @@ $Id: mapping.xsl,v 1.8 2003/05/06 21:26:15 thendrix Exp $
         <xsl:attribute name="background">
           <xsl:value-of select="concat('../../../../images/',$background_image)"/>
         </xsl:attribute>
+          <!-- can only use this for Internet explorer, so not valid HTML
         <xsl:attribute name="bgproperties" >
           <xsl:value-of select="'fixed'" />
-          </xsl:attribute>
+          </xsl:attribute> -->
         </xsl:if>
         <xsl:apply-templates select="//module/mapping_table/ae" mode="specification"/>
       </xsl:element>

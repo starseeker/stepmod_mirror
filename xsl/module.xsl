@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.158 2003/08/11 16:48:42 robbod Exp $
+$Id: module.xsl,v 1.159 2003/08/15 07:14:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -42,9 +42,10 @@ $Id: module.xsl,v 1.158 2003/08/11 16:48:42 robbod Exp $
         <xsl:attribute name="background">
           <xsl:value-of select="concat('../../../../images/',$background_image)"/>
         </xsl:attribute>
+        <!-- can only use this for Internet explorer, so not valid HTML
         <xsl:attribute name="bgproperties" >
           <xsl:value-of select="'fixed'" />
-          </xsl:attribute>
+          </xsl:attribute> -->
         </xsl:if>
         
         <xsl:apply-templates select="./module" mode="TOCsinglePage"/>

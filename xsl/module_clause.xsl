@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_clause.xsl,v 1.7 2003/03/13 19:16:58 robbod Exp $
+$Id: module_clause.xsl,v 1.8 2003/05/06 21:26:14 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -48,9 +48,10 @@ $Id: module_clause.xsl,v 1.7 2003/03/13 19:16:58 robbod Exp $
         <xsl:attribute name="background">
             <xsl:value-of select="concat('../../../../images/',$background_image)"/>
           </xsl:attribute>
+          <!-- can only use this for Internet explorer, so not valid HTML
           <xsl:attribute name="bgproperties" >
             <xsl:value-of select="'fixed'" />
-            </xsl:attribute>
+            </xsl:attribute> -->
           </xsl:if>
 
         <!-- debug <xsl:message><xsl:value-of select="$global_xref_list"/></xsl:message> -->

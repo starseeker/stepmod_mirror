@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.24 2003/05/04 08:15:03 robbod Exp $
+$Id: imgfile.xsl,v 1.25 2003/05/06 21:26:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -68,9 +68,10 @@ $Id: imgfile.xsl,v 1.24 2003/05/04 08:15:03 robbod Exp $
         <xsl:attribute name="background">
             <xsl:value-of select="concat('../../../images/',$background_image)"/>
           </xsl:attribute>
+          <!-- can only use this for Internet explorer, so not valid HTML
           <xsl:attribute name="bgproperties" >
             <xsl:value-of select="'fixed'" />
-            </xsl:attribute>
+            </xsl:attribute> -->
           </xsl:if>
       <xsl:choose>
         <xsl:when test="@module">

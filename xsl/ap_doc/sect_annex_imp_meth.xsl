@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_imp_meth.xsl,v 1.4 2003/06/29 13:03:20 robbod Exp $
+$Id: sect_annex_imp_meth.xsl,v 1.5 2004/09/25 07:41:38 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -39,34 +39,38 @@ $Id: sect_annex_imp_meth.xsl,v 1.4 2003/06/29 13:03:20 robbod Exp $
         </xsl:choose>
       </xsl:for-each>
     </xsl:variable>					
-
-    The implementation method defines what types of exchange behaviour are
-    required with respect to this part of ISO 10303. Conformance to this
-    part of ISO 10303 shall be realized in an exchange structure. The file
-    format shall be encoded according to the syntax and EXPRESS
-    language mapping defined in 
-    <xsl:value-of select="$imp_meths_phrase"/>
-    and in the MIM referenced in 
-    <a href="annex_exp_lf{$FILE_EXT}">A.2</a>
-    of this part of ISO 10303.
-
-    <xsl:for-each select="imp_meths/imp_meth">		
-    <xsl:variable name="sect_no">
-      <xsl:number/>
-    </xsl:variable>
+    <p>
+      The implementation method defines what types of exchange behaviour are
+      required with respect to this part of ISO 10303. Conformance to this
+      part of ISO 10303 shall be realized in an exchange structure. The file
+      format shall be encoded according to the syntax and EXPRESS
+      language mapping defined in 
+      <xsl:value-of select="$imp_meths_phrase"/>
+      and in the MIM referenced in 
+      <a href="annex_exp_lf{$FILE_EXT}">A.2</a>
+      of this part of ISO 10303.
+    </p>      
+    <xsl:for-each select="imp_meths/imp_meth">
+      <xsl:variable name="sect_no">
+        <xsl:number/>
+      </xsl:variable>
 		
-    <xsl:choose>
-      <xsl:when test="@general='y'">
-        <h2>
-          <xsl:value-of select="concat('C.',$sect_no,' ')"/>
-          General requirements
-        </h2>
+      <xsl:choose>
+        <xsl:when test="@general='y'">
+          <h2>
+            <a name="c{$sect_no}">
+              <xsl:value-of select="concat('C.',$sect_no,' ')"/>
+              General requirements
+            </a>
+          </h2>
         </xsl:when>
         <xsl:otherwise>
           <h2>
-            <xsl:value-of select="concat('C.',$sect_no,' ')"/>
-            Requirements specific to the implementation method defined in 
-            <xsl:value-of select="concat('ISO 10303-', @part)"/>
+            <a name="c{$sect_no}">
+              <xsl:value-of select="concat('C.',$sect_no,' ')"/>
+              Requirements specific to the implementation method defined in 
+              <xsl:value-of select="concat('ISO 10303-', @part)"/>
+            </a>
           </h2>
         </xsl:otherwise>
       </xsl:choose>			

@@ -1,5 +1,5 @@
 (*
-  $Id: arm.exp,v 1.5 2003/01/30 16:59:08 nigelshaw Exp $
+  $Id: arm.exp,v 1.6 2003/02/07 10:14:55 nigelshaw Exp $
 ISO TC184/SC4/WG12 N1451 - ISO/CD-TS 10303-1262 Task specification - EXPRESS ARM
 *) 
 
@@ -8,12 +8,16 @@ SCHEMA Task_specification_arm;
 
 USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
 
+USE FROM Condition_arm;    -- ISO/CD-TS 10303-1253
+
 USE FROM State_definition_arm;    -- ISO/CD-TS 10303-1255
 
 USE FROM State_observed_arm;    -- ISO/CD-TS 10303-1256
 
 
-TYPE condition_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+TYPE constraint_context = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Task, 
+    Task_method);
 END_TYPE; 
 
 TYPE state_or_state_definition_select = SELECT
@@ -47,7 +51,7 @@ END_ENTITY;
 
 ENTITY Decision_point
   SUBTYPE OF (Structured_task_method);
-  condition : condition_select;
+  condition : Condition;
   true_case_method : OPTIONAL Task_method;
   false_case_method : OPTIONAL Task_method;
   unknown_case_method : OPTIONAL Task_method;
@@ -68,7 +72,7 @@ END_ENTITY;
 
 ENTITY Method_constraint
   SUBTYPE OF (Task_method_relationship);
-  applies_in : OPTIONAL Task_method;
+  applies_in : OPTIONAL constraint_context;
 END_ENTITY;
 
 ENTITY Repeat_count
@@ -78,12 +82,12 @@ END_ENTITY;
 
 ENTITY Repeat_until
   SUBTYPE OF (Looping_method);
-  condition : condition_select;
+  condition : Condition;
 END_ENTITY;
 
 ENTITY Repeat_while
   SUBTYPE OF (Looping_method);
-  condition : condition_select;
+  condition : Condition;
 END_ENTITY;
 
 ENTITY Simultaneous_methods

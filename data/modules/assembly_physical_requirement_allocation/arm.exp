@@ -1,6 +1,56 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 08:40:05 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly physical requirement allocation - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Assembly_physical_requirement_allocation_arm;
-END_SCHEMA;
+
+USE FROM Requirement_assignment_arm;	
+
+USE FROM Requirement_decomposition_arm;	
+
+USE FROM Interface_component_arm;
+
+-- Problematic
+USE FROM Physical_unit_design_view_arm (thermal_component);
+
+USE FROM Assembly_physical_interface_requirement_arm (mating_connector_component);
+
+USE FROM Shield_arm;
+
+ 	TYPE component_or_feature = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+   ENTITY Assembly_requirement_allocation
+    SUBTYPE OF (requirement_assignment);
+      SELF\requirement_assignment.assigned_to : component_or_feature;
+  END_ENTITY; -- assembly_requirement_allocation
+ 
+  ENTITY Assembly_separation_requirement_allocation
+    SUBTYPE OF (Assembly_requirement_allocation);
+      disjoint_assignment : SET[1:?] OF component_or_feature;
+  END_ENTITY; -- assembly_separation_requirement_allocation
+
+  ENTITY Electromagnetic_compatibility_requirement_allocation
+    SUPERTYPE OF (shield_allocation)
+    SUBTYPE OF (Assembly_requirement_allocation);
+  END_ENTITY; -- electromagnetic_compatibility_requirement_allocation
+
+  ENTITY Interface_component_allocation;
+      mating_solution    : interface_component;
+      mating_requirement : mating_connector_component;
+  END_ENTITY; -- interface_component_allocation
+
+  ENTITY Shield_allocation
+    SUBTYPE OF (Electromagnetic_compatibility_requirement_allocation);
+      SELF\requirement_assignment.assigned_to : shield;
+      SELF\requirement_assignment.assigned_requirement : electromagnetic_requirement_occurrence;
+  END_ENTITY; -- shield_allocation
+
+  ENTITY Thermal_requirement_allocation
+    SUBTYPE OF (Assembly_requirement_allocation);
+      SELF\requirement_assignment.assigned_to : thermal_component;
+      SELF\requirement_assignment.assigned_requirement : thermal_requirement_occurrence;
+  END_ENTITY; -- thermal_requirement_allocation
+
+END_SCHEMA; -- Assembly_physical_requirement_allocation_arm

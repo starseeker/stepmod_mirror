@@ -1,6 +1,56 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/18 16:23:36 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 08:11:32 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module usage view - EXPRESS ARM
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Assembly_module_usage_view_arm;
-END_SCHEMA;
+
+
+USE FROM Part_terminal_arm;
+
+-- USE FROM Physical_unit_usage_view_arm;
+
+USE FROM Extended_geometric_tolerance_arm;
+
+USE FROM Network_functional_usage_view_arm;
+
+USE FROM Packaged_connector_model_arm;
+
+
+  ENTITY Assembly_module_interface_terminal
+    SUBTYPE OF (Assembly_module_terminal);
+  END_ENTITY; -- assembly_module_interface_terminal
+
+  ENTITY Assembly_module_terminal
+    SUPERTYPE OF (assembly_module_interface_terminal ANDOR
+ pca_terminal)
+    SUBTYPE OF (part_terminal);
+      SELF\part_feature.associated_definition : assembly_module_usage_view;
+      reference_terminal                      : OPTIONAL packaged_part_interface_terminal;
+      related_connector                       : OPTIONAL next_assembly_usage;
+      terminal_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+    WHERE
+      WR1 : NOT EXISTS(related_connector) OR (SELF\shape_element.containing_shape = related_connector\assembly_component_relationship.related_view);
+      WR2 : EXISTS(related_connector.location_indicator);
+  END_ENTITY; -- assembly_module_terminal
+
+  ENTITY Assembly_module_usage_view
+    SUPERTYPE OF (pca_usage_view)
+    SUBTYPE OF (part_usage_view, assembly_definition);
+      implemented_function              : functional_unit_usage_view;
+      maximum_negative_component_height : OPTIONAL datum_based_length_measure;
+      maximum_positive_component_height : OPTIONAL datum_based_length_measure;
+    INVERSE
+      access_mechanisms : SET[2:?] OF assembly_module_terminal FOR associated_definition;
+  END_ENTITY; -- assembly_module_usage_view
+
+  ENTITY Pca_terminal
+    SUBTYPE OF (Assembly_module_terminal);
+      SELF\part_feature.associated_definition : pca_usage_view;
+  END_ENTITY; -- pca_terminal
+
+  ENTITY Pca_usage_view
+    SUBTYPE OF (Assembly_module_usage_view);
+  END_ENTITY; -- pca_usage_view
+
+END_SCHEMA; -- Assembly_module_usage_view_arm

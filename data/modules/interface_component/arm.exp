@@ -2,6 +2,24 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Interface component - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Interface_component_arm;
-END_SCHEMA;
+
+USE FROM Physical_unit_design_view_arm (physical_component);
+
+USE FROM Physical_component_feature_arm;
+ 
+  ENTITY Interface_component
+--    SUPERTYPE OF (packaged_connector_component)
+    SUBTYPE OF (physical_component);
+    INVERSE
+      access_mechanism : SET[1:?] OF component_interface_terminal FOR associated_component;
+  END_ENTITY; -- interface_component
+
+  ENTITY Component_interface_terminal
+    ABSTRACT SUPERTYPE 
+    SUBTYPE OF (physical_component_feature);
+      SELF\component_feature.associated_component : interface_component;
+  END_ENTITY; -- component_interface_terminal
+
+END_SCHEMA; -- Interface_component_arm

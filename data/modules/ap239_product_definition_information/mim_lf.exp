@@ -1,5 +1,5 @@
 (*
- $Id: mim_lf.exp,v 1.2 2003/04/25 14:01:41 robbod Exp $
+ $Id: mim_lf.exp,v 1.3 2003/04/25 14:15:24 robbod Exp $
  ISO TC184/SC4/WG3 N1224 - ISO/CD-TS 10303-1292 Ap239 product definition information - EXPRESS MIM Long form
 *)
 
@@ -8025,6 +8025,21 @@ SCHEMA ap239_product_definition_information_mim_lf;
              alias_assignment_is_valid(aia)) )) = 0);
 
   END_RULE; -- aliases_are_valid
+
+RULE restrict_product_category_for_product FOR
+    (product);
+WHERE
+  WR1:  SIZEOF(QUERY(p <* product |
+               SIZEOF(QUERY(prpc <* USEDIN(p,'AP239_PRODUCT_DEFINITION_INFORMATION_MIM_LF.' +
+                      'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
+                 prpc.name IN ['breakdown element','breakdown','conceptual product',
+			       'document','envelope','functional breakdown',
+			       'functionality','hybrid breakdown','hybrid breakdown',
+			       'hybrid element','interface connector','interface specification',
+			       'message','part','physical breakdown','raw material',
+			       'requirement','slot','system breakdown','system element',
+			       'tool','zone breakdown','zone element'] ) ) <> 1 )) = 0;
+END_RULE;
 
   FUNCTION above_plane(
                p1, p2, p3, p4: cartesian_point

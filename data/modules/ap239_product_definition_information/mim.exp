@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.5 2003/04/14 16:13:20 robbod Exp $
+ $Id: mim.exp,v 1.6 2003/04/24 14:04:37 robbod Exp $
  ISO TC184/SC4/WG3 N1181 - ISO/CD-TS 10303-1292 Ap239 product definition information - EXPRESS MIM
 *) 
 
@@ -425,5 +425,20 @@ SUBTYPE_CONSTRAINT restrict_product_definition_relationship_subtypes FOR product
          product_in_slot,
          slot_on_product);
 END_SUBTYPE_CONSTRAINT;
+
+RULE restrict_product_category_for_product FOR
+    (product);
+WHERE
+  WR1:  SIZEOF(QUERY(p <* product |
+               SIZEOF(QUERY(prpc <* USEDIN(p,'AP239_PRODUCT_DEFINITION_INFORMATION.' +
+                      'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
+                 prpc.name IN ['breakdown element','breakdown','conceptual product',
+			       'document','envelope','functional breakdown',
+			       'functionality','hybrid breakdown','hybrid breakdown',
+			       'hybrid element','interface connector','interface specification',
+			       'message','part','physical breakdown','raw material',
+			       'requirement','slot','system breakdown','system element',
+			       'tool','zone breakdown','zone element'] ) ) <> 1 )) = 0;
+END_RULE;
 
 END_SCHEMA;  -- Ap239_product_definition_information_mim

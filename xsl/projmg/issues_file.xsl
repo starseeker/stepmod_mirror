@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: issues_file.xsl,v 1.13 2003/04/23 14:51:28 robbod Exp $
+     $Id: issues_file.xsl,v 1.14 2003/05/14 17:44:50 thendrix Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -343,17 +343,25 @@
         <xsl:call-template name="resolve_linkend"/>
       </i>
     <br/>
-    <i>
-      <xsl:if test="@seds='yes'">
+    <xsl:if test="@seds='yes'">
+      <i>
         Registered in the 
         <a href="http://www.tc184-sc4.org/private/Projects/maindisp.cfm">
           SC4 database
         </a>
         as SEDS: 
         <xsl:value-of select="@id"/>
-      </xsl:if>
-    </i>
-    <br/>
+      </i>
+      <br/>
+    </xsl:if>
+    <xsl:if test="@ballot_comment='yes'">
+      <i>
+        Registered as a Ballot comment by:
+        <xsl:value-of select="@member_body"/>
+      </i>
+      <br/>
+    </xsl:if>
+
     </p>
     <xsl:apply-templates />
   </xsl:template>

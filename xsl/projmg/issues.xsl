@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.9 2003/04/16 09:58:53 robbod Exp $
+     $Id: issues.xsl,v 1.10 2003/04/23 14:51:28 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -194,17 +194,26 @@
         </a>
       </b> 
       <br/>
-      <i>
-        <xsl:if test="@seds='yes'">
+      <xsl:if test="@seds='yes'">
+        <i>
           Registered in the 
           <a href="http://www.tc184-sc4.org/private/Projects/maindisp.cfm">
             SC4 database
           </a>
           as SEDS: 
           <xsl:value-of select="@id"/>
-        </xsl:if>
-      </i>
-      <br/>
+        </i>
+        <br/>
+      </xsl:if>
+
+      <xsl:if test="@ballot_comment='yes'">
+        <i>
+          Registered as a Ballot comment by:
+          <xsl:value-of select="@member_body"/>
+        </i>
+        <br/>
+      </xsl:if>
+      
       <xsl:apply-templates/>
     </span>
   </blockquote>

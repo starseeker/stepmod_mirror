@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_code.xsl,v 1.1 2001/11/21 08:13:50 robbod Exp $
+     $Id: express_code.xsl,v 1.2 2001/11/21 15:35:29 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -112,13 +112,15 @@
       <xsl:with-param name="section2" select="@name"/>
     </xsl:call-template>
   </xsl:variable>    
-
   <br/>
-   <A NAME="{$aname}">CONSTANT</A>
-  <br/>
-  &#160;&#160;<xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/><br/>
-  END_CONSTANT;
-  <br/>
+  <xsl:if test="position()=1">CONSTANT</xsl:if>
+  <A NAME="{$aname}"></A>
+  &#160;&#160;<xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/>
+  <xsl:if test="position()=last()">
+    <br/>
+    END_CONSTANT;
+    <br/>
+  </xsl:if>
 </xsl:template>
 
 
@@ -266,8 +268,16 @@
 </xsl:template>
 
 <xsl:template match="explicit" mode="code">
-  &#160;&#160; 
-  <xsl:value-of select="concat(@name, ' : ')"/>
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+ &#160;&#160; 
+  <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:if test="@optional='YES'">
     OPTIONAL 
   </xsl:if>
@@ -277,23 +287,39 @@
 
 
 <xsl:template match="derived" mode="code">
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <xsl:if test="position()=1">
     &#160;&#160;DERIVE<br/>
   </xsl:if>
   &#160;&#160;&#160;
   <!-- need to clarify the XML for derive --> 
-  <xsl:value-of select="concat(@name, ' : ')"/>
+  <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:apply-templates select="./aggregate" mode="code"/>
   <xsl:apply-templates select="./*" mode="underlying"/>
   <xsl:value-of select="concat(' : ',@expression,';')"/><br/>
 </xsl:template>
 
 <xsl:template match="inverse" mode="code">
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <xsl:if test="position()=1">
     &#160;&#160;INVERSE<br/>
   </xsl:if>
   &#160;&#160;&#160;
-  <xsl:value-of select="concat(@name, ' : ')"/>
+  <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:apply-templates select="./inverse.aggregate" mode="code"/>;<br/>
 </xsl:template>
 
@@ -309,12 +335,20 @@
 </xsl:template>
 
 <xsl:template match="unique" mode="code">
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="concat('ur:',@label)"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <xsl:if test="position()=1">
     &#160;&#160; 
     UNIQUE<br/>
   </xsl:if>
   &#160;&#160;&#160;
-  <xsl:value-of select="concat(@label, ': ')"/>
+  <A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ')"/></A>
   <xsl:apply-templates select="./unique.attribute" mode="code"/>
   <br/>
 </xsl:template>
@@ -344,11 +378,19 @@
 </xsl:template>
 
 <xsl:template match="where" mode="code">
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="concat('wr:',@label)"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <xsl:if test="position()=1">
     &#160;&#160;WHERE<br/>
   </xsl:if>  
   &#160;&#160;&#160;
-  <xsl:value-of select="concat(@label, ': ', @expression, ';')"/>
+  <A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ', @expression, ';')"/></A>
   <br/>
 </xsl:template>
 

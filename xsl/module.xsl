@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.48 2002/04/26 16:44:37 robbod Exp $
+$Id: module.xsl,v 1.49 2002/04/29 13:07:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -702,7 +702,12 @@ $Id: module.xsl,v 1.48 2002/04/26 16:44:37 robbod Exp $
     </xsl:when>
     <xsl:otherwise>
       <p>
+        <!--
         This part of ISO 10303 uses no other units of functionality. 
+             -->
+        This part of ISO 10303 uses the units of functionality defined in
+        the application modules that are imported with the USE FROM statements
+        specified in clause 4.2  
       </p>        
     </xsl:otherwise>
   </xsl:choose>

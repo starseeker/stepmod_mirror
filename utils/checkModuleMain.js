@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.11 2004/10/20 08:33:34 robbod Exp $
+//$Id: checkModuleMain.js,v 1.12 2004/10/20 09:38:09 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -446,7 +446,7 @@ function checkModule(moduleName) {
 	checkModuleStringAttribute(moduleName, modNode, 'status');
 	checkModuleStringAttribute(moduleName, modNode, 'language');
 	checkModuleNumericAttribute(moduleName, modNode, 'publication.year');
-	checkModuleNumericAttribute(moduleName, modNode, 'publication.date');
+	checkModuleStringAttribute(moduleName, modNode, 'publication.date');
 	checkModuleStringAttribute(moduleName, modNode, 'published');
 	
 	// Checking EXPRESS-G
@@ -602,7 +602,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.11 2004/10/20 08:33:34 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.12 2004/10/20 09:38:09 robbod Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.23 2003/03/27 01:53:18 thendrix Exp $
+$Id: resource.xsl,v 1.24 2003/03/27 21:08:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -241,7 +241,7 @@ $Id: resource.xsl,v 1.23 2003/03/27 01:53:18 thendrix Exp $
         <xsl:choose>
           <xsl:when test="$status='CD'">
             <p>
-            This ISO document is a working draft or Committee Draft 
+            This ISO document is a Committee Draft 
             and is copyright protected by ISO. While the reproduction 
             of working drafts or Committee Drafts in any form for use 
             by Participants in the ISO standards development process 

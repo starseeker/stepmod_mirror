@@ -1,4 +1,9 @@
-SCHEMA ap239_part_definition_information_lf;
+(*
+ $Id: arm_lf.exp,v 1.4 2003/03/10 01:46:43 robbod Exp $
+ ISO TC184/SC4/WG3 N1251 - ISO/CD-TS 10303-1293 Ap239 part definition information - EXPRESS ARM Long form
+*) 
+
+SCHEMA ap239_part_definition_information_arm_lf;
 
   TYPE alias_identification_item = SELECT
     (interface_connector_as_planned,
@@ -2187,7 +2192,7 @@ SCHEMA ap239_part_definition_information_lf;
       SELF\identification_assignment.role : STRING := 'alias';
     WHERE
       wr1: (SIZEOF(QUERY ( item <* SELF\identification_assignment.items | 
-               (NOT ('AP239_PART_DEFINITION_INFORMATION_LF.ALIAS_IDENTIFICATION_ITEM' 
+               (NOT ('AP239_PART_DEFINITION_INFORMATION_ARM_LF.ALIAS_IDENTIFICATION_ITEM' 
                IN TYPEOF(item))) )) = 0);
   END_ENTITY; -- alias_identification
 
@@ -2271,8 +2276,8 @@ SCHEMA ap239_part_definition_information_lf;
       ur1 : described_element;
     WHERE
       wr1: (SIZEOF([
-               'AP239_PART_DEFINITION_INFORMATION_LF.DOCUMENT_DEFINITION',
-               'AP239_PART_DEFINITION_INFORMATION_LF.FILE'] * TYPEOF(SELF\
+               'AP239_PART_DEFINITION_INFORMATION_ARM_LF.DOCUMENT_DEFINITION',
+               'AP239_PART_DEFINITION_INFORMATION_ARM_LF.FILE'] * TYPEOF(SELF\
                assigned_property.described_element)) = 1);
   END_ENTITY; -- assigned_document_property
 
@@ -2296,7 +2301,7 @@ SCHEMA ap239_part_definition_information_lf;
       translation_language : language;
     WHERE
       wr1: (SIZEOF(QUERY ( ci <* considered_instances | (SIZEOF(
-               QUERY ( ata <* USEDIN(ci,'AP239_PART_DEFINITION_INFORMATION_LF.ATTRIBUTE_TRANSLATION_ASSIGNMENT.CONSIDERED_INSTANCES')
+               QUERY ( ata <* USEDIN(ci,'AP239_PART_DEFINITION_INFORMATION_ARM_LF.ATTRIBUTE_TRANSLATION_ASSIGNMENT.CONSIDERED_INSTANCES')
                 | ((ata.considered_attribute = considered_attribute) AND (
                ata.translation_language :=: translation_language)) )) > 1) )) 
                = 0);
@@ -2527,7 +2532,7 @@ SCHEMA ap239_part_definition_information_lf;
   ENTITY document_location_identification
     SUBTYPE OF (external_source_identification);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_LF.DOCUMENT_DEFINITION' IN 
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_ARM_LF.DOCUMENT_DEFINITION' IN 
                TYPEOF(SELF\external_source_identification.item));
   END_ENTITY; -- document_location_identification
 
@@ -2535,8 +2540,8 @@ SCHEMA ap239_part_definition_information_lf;
     SUBTYPE OF (representation);
       SELF\representation.items : SET [1:?] OF descriptive_or_numerical;
     WHERE
-      wr1: (SIZEOF(QUERY ( pr <* USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_LF.PROPERTY_REPRESENTATION.REP')
-                | ('AP239_PART_DEFINITION_INFORMATION_LF.ASSIGNED_PROPERTY' 
+      wr1: (SIZEOF(QUERY ( pr <* USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_ARM_LF.PROPERTY_REPRESENTATION.REP')
+                | ('AP239_PART_DEFINITION_INFORMATION_ARM_LF.ASSIGNED_PROPERTY' 
                IN TYPEOF(pr.property)) )) > 0);
       wr2: (SELF\representation.context_of_items.kind = 
                'document parameters');
@@ -2554,7 +2559,7 @@ SCHEMA ap239_part_definition_information_lf;
   ENTITY duration
     SUBTYPE OF (value_with_unit);
     WHERE
-      wr1: (('AP239_PART_DEFINITION_INFORMATION_LF.' + 'TIME_UNIT') IN 
+      wr1: (('AP239_PART_DEFINITION_INFORMATION_ARM_LF.' + 'TIME_UNIT') IN 
                TYPEOF(SELF\value_with_unit.unit));
   END_ENTITY; -- duration
 
@@ -2627,7 +2632,7 @@ SCHEMA ap239_part_definition_information_lf;
   ENTITY file_location_identification
     SUBTYPE OF (external_item_identification);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_LF.FILE' IN TYPEOF(SELF\
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_ARM_LF.FILE' IN TYPEOF(SELF\
                external_source_identification.item));
   END_ENTITY; -- file_location_identification
 
@@ -2824,7 +2829,7 @@ SCHEMA ap239_part_definition_information_lf;
         value_range_with_global_unit,value_with_tolerances))
     SUBTYPE OF (representation_item);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_LF.PROPERTY_VALUE_REPRESENTATION.ITEMS')) 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_ARM_LF.PROPERTY_VALUE_REPRESENTATION.ITEMS')) 
                > 0);
   END_ENTITY; -- measure_item
 
@@ -2860,7 +2865,7 @@ SCHEMA ap239_part_definition_information_lf;
     SUBTYPE OF (measure_item);
       value_component : measure_value;
     WHERE
-      wr1: (SIZEOF(QUERY ( pvr <* USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_LF.PROPERTY_VALUE_REPRESENTATION.ITEMS')
+      wr1: (SIZEOF(QUERY ( pvr <* USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_ARM_LF.PROPERTY_VALUE_REPRESENTATION.ITEMS')
                 | EXISTS(pvr.units) )) > 0);
   END_ENTITY; -- numerical_item_with_global_unit
 
@@ -3537,7 +3542,7 @@ SCHEMA ap239_part_definition_information_lf;
       category_assignments : BAG OF product_category_assignment;
       categories           : SET OF STRING := [];
     END_LOCAL;
-    category_assignments := USEDIN(obj,'AP239_PART_DEFINITION_INFORMATION_LF.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+    category_assignments := USEDIN(obj,'AP239_PART_DEFINITION_INFORMATION_ARM_LF.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
     REPEAT i := LOINDEX(category_assignments) TO HIINDEX(
         category_assignments) BY 1;
       categories := categories + category_assignments[i].category.name;
@@ -3582,4 +3587,4 @@ SCHEMA ap239_part_definition_information_lf;
 
   END_FUNCTION; -- valid_document_property_representation
 
-END_SCHEMA; -- ap239_part_definition_information_lf
+END_SCHEMA; -- ap239_part_definition_information_arm_lf

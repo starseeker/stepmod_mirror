@@ -83,6 +83,9 @@
 			<xsl:for-each select="$configuration//ex:entity">
 				<xsl:variable name="synthetic_entity_name" select="./@name"/>
 				<xsl:variable name="supertypes" select="./@select"/>
+					
+				
+				
 				<xsl:call-template name="inheritance-free_mapping">
 					<xsl:with-param name="raw_entity_name_param" select="$synthetic_entity_name"/>
 					<xsl:with-param name="corrected_entity_name_param" select="$synthetic_entity_name"/>
@@ -94,6 +97,7 @@
 		</xsl:element>
 		<xsl:text>&#xa;</xsl:text>
 	</xsl:template>
+	
 	<xsl:template match="explicit" mode="keys">
 		<xsl:variable name="raw_entity_name" select="../@name"/>
 		<xsl:variable name="raw_attribute_name" select="./@name"/>
@@ -521,17 +525,20 @@
 			</xsl:otherwise>
 		</xsl:choose -->
 	</xsl:template>
+	
 	<xsl:template name="inheritance-free_mapping">
 		<xsl:param name="raw_entity_name_param"/>
 		<xsl:param name="corrected_entity_name_param"/>
 		<xsl:param name="abstractness_param"/>
 		<xsl:param name="base_type_of_optional_array_param"/>
 		<xsl:param name="raw_supertype_name_param"/>
+		
 		<xsl:variable name="corrected_supertype_name">
 			<xsl:call-template name="put_into_lower_case">
 				<xsl:with-param name="raw_item_name_param" select="$raw_supertype_name_param"/>
 			</xsl:call-template>
 		</xsl:variable>
+		
 		<xsl:variable name="ext_base_sub_grp">
 			<xsl:choose>
 				<xsl:when test="$raw_supertype_name_param">
@@ -542,6 +549,7 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
+		
 		<xsl:choose>
 			<xsl:when test="$base_type_of_optional_array_param='true'">
 			</xsl:when>
@@ -561,6 +569,7 @@
 								<xsl:call-template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
 									<xsl:with-param name="raw_entity_param" select="$raw_entity_name_param"/>
 									<xsl:with-param name="redeclared_attributes_param" select="string(' ')"/>
+									<xsl:with-param name="supertypes_list_param" select="$raw_supertype_name_param"/>
 								</xsl:call-template>
 
 								<!-- xsl:apply-templates select="explicit"/ -->
@@ -599,6 +608,7 @@
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
+	
 	<xsl:template match="explicit">
 		<xsl:variable name="optionality">
 			<xsl:choose>
@@ -1086,7 +1096,7 @@
 											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>
-									<xsl:otherwise></xsl:otherwise>
+									<xsl:otherwise><xs:element name="{$corrected_target_name}" type="{$namespace_prefix}{$corrected_target_name}"/></xsl:otherwise>
 								</xsl:choose>
 							</xsl:when>
 							<xsl:when test="$attribute_node_param/builtintype">
@@ -1200,7 +1210,7 @@
 								</xsl:choose>
 							</xsl:when>
 							<xsl:otherwise>
-						
+								<xs:element name="{$corrected_target_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
 							</xsl:otherwise>
 						</xsl:choose>
 					</xsl:when>
@@ -1354,9 +1364,20 @@
 	<xsl:template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
 		<xsl:param name="raw_entity_param"/>
 		<xsl:param name="redeclared_attributes_param"/>
-		<xsl:variable name="next_supertype_name" select="//entity[@name=$raw_entity_param]/@supertypes"/>
+		<xsl:param name="supertypes_list_param"/>
+		
+		<xsl:variable name="long_form" select="document(concat($directory_path, '/arm_lf.xml'))"/>
+		<xsl:variable name="raw_entity_param_with_spaces" select="concat(' ', $raw_entity_param, ' ')"/>
+		<xsl:variable name="supertype_name_list_with_spaces" select="concat(' ', $supertypes_list_param, ' ')"/>
+
+		<xsl:variable name="next_supertype_name_list">
+			<xsl:for-each select="$long_form//entity[contains($supertype_name_list_with_spaces, concat(' ', ./@name, ' '))]">
+				<xsl:value-of select="concat(./@supertypes, ' ')"/>
+			</xsl:for-each>
+		</xsl:variable>
+		
 		<xsl:variable name="new_list_of_redeclared_attributes">
-			<xsl:for-each select="//entity[@name=$raw_entity_param]/explicit/redeclaration">
+			<xsl:for-each select="$long_form//entity[contains($raw_entity_param_with_spaces, concat(' ', @name, ' '))]/explicit/redeclaration">
 				<xsl:choose>
 					<xsl:when test="./@old_name">
 						<xsl:value-of select="string(concat(' ', ../../@name, ./@old_name, ' '))"/>
@@ -1365,8 +1386,10 @@
 				<xsl:value-of select="string(concat(' ', ../@name, ' '))"/>
 			</xsl:for-each>
 		</xsl:variable>
+
 		<xsl:variable name="extended_list_of_redeclared_attributes" select="concat(' ', normalize-space($redeclared_attributes_param), ' ', normalize-space($new_list_of_redeclared_attributes), ' ')"/>
-		<xsl:for-each select="//entity[@name=$next_supertype_name]/explicit">
+		
+		<xsl:for-each select="$long_form//entity[contains($supertype_name_list_with_spaces, concat(' ', @name, ' '))]/explicit">
 			<xsl:variable name="raw_attribute_name" select="./@name"/>
 			<xsl:variable name="normalized_raw_attribute_name_w_spaces" select="concat(' ', normalize-space($raw_attribute_name), ' ')"/>
 			<xsl:choose>
@@ -1375,93 +1398,18 @@
 					<xsl:call-template name="deal_with_attributes">
 							<xsl:with-param name="attribute_node_param" select="."/>
 					</xsl:call-template>
-					<!-- xsl:variable name="corrected_attribute_name">
-						<xsl:call-template name="put_into_lower_case">
-							<xsl:with-param name="raw_item_name_param" select="$raw_attribute_name"/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xsl:variable name="optionality">
-						<xsl:choose>
-							<xsl:when test="./@optional = 'YES'">
-								<xsl:value-of select="number(0)"/>
-							</xsl:when>
-							<xsl:otherwise>
-								<xsl:value-of select="number(1)"/>
-							</xsl:otherwise>
-						</xsl:choose>
-					</xsl:variable>
-					<xsl:choose>
-						<xsl:when test="./typename">
-							<xsl:variable name="target" select="./typename/@name"/>
-							<xsl:variable name="corrected_target_name">
-								<xsl:call-template name="put_into_lower_case">
-									<xsl:with-param name="raw_item_name_param" select="$target"/>
-								</xsl:call-template>
-							</xsl:variable>
-							<xsl:choose>
-								<xsl:when test="$target = //type[select]/@name">
-									<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
-										<xs:complexType>
-											<xs:group ref="{$namespace_prefix}{$corrected_target_name}"/>
-										</xs:complexType>
-									</xs:element>
-									<xsl:text>&#xa;</xsl:text>
-									<xsl:text>&#xa;</xsl:text>
-								</xsl:when>
-								<xsl:when test="$target = //entity/@name">
-									<xsl:variable name="subtypes_exist">
-										<xsl:call-template name="check_whether_subtypes_exist">
-											<xsl:with-param name="entity_name_param" select="$target"/>
-										</xsl:call-template>
-									</xsl:variable>
-									<xsl:choose>
-										<xsl:when test="contains($subtypes_exist, 'YES')">
-											<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
-												<xs:complexType>
-													<xs:choice>
-														<xs:group ref="{$namespace_prefix}{$corrected_target_name}-group"/>
-													</xs:choice>
-												</xs:complexType>
-											</xs:element>
-										</xsl:when>
-										<xsl:otherwise>
-											<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
-												<xs:complexType>
-													<xs:choice>
-														<xs:element ref="{$namespace_prefix}{$corrected_target_name}"/>
-													</xs:choice>
-												</xs:complexType>
-											</xs:element>
-										</xsl:otherwise>
-									</xsl:choose>
-									<xsl:text>&#xa;</xsl:text>
-									<xsl:text>&#xa;</xsl:text>
-								</xsl:when>
-								<xsl:otherwise>
-									<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$optionality}"/>
-									<xsl:text>&#xa;</xsl:text>
-									<xsl:text>&#xa;</xsl:text>
-								</xsl:otherwise>
-							</xsl:choose>
-						</xsl:when>
-						<xsl:when test="./builtintype">
-							<xsl:call-template name="generate_attribute_to_simple_datatype">
-								<xsl:with-param name="type_param" select="."/>
-								<xsl:with-param name="optionality_param" select="$optionality"/>
-								<xsl:with-param name="attribute_name_param" select="$corrected_attribute_name"/>
-							</xsl:call-template>
-						</xsl:when>
-					</xsl:choose -->
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:for-each>
-		<xsl:if test="$next_supertype_name">
+		
+		<xsl:if test="string-length($next_supertype_name_list) &gt; 0">
 			<xsl:call-template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
-				<!-- xsl:with-param name="raw_supertype_param" select="$next_supertype_name"/ -->
-				<xsl:with-param name="raw_entity_param" select="$next_supertype_name"/>
+				<xsl:with-param name="raw_entity_param" select="$supertypes_list_param"/>
 				<xsl:with-param name="redeclared_attributes_param" select="$extended_list_of_redeclared_attributes"/>
+				<xsl:with-param name="supertypes_list_param" select="$next_supertype_name_list"/>
 			</xsl:call-template>
 		</xsl:if>
+		
 	</xsl:template>
 	
 	<xsl:template name="collect_attributes_from_supertypes">

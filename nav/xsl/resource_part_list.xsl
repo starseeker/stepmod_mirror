@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: resource_part_list.xsl,v 1.5 2002/12/12 23:16:06 nigelshaw Exp $
+$Id: resource_part_list.xsl,v 1.6 2002/12/16 15:30:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of resource parts
@@ -88,8 +88,7 @@ $Id: resource_part_list.xsl,v 1.5 2002/12/12 23:16:06 nigelshaw Exp $
         <xsl:value-of select="$part_name"/>
       </a>
     </p>
-
-    <!-- ISO view menu (OPEN) -->
+   <!-- ISO view menu (OPEN) -->
     <div id="{$Menu}ISO" style="display:none">
       <p class="menulist">
         <a href="javascript:swap({$NoMenu}ISO, {$Menu}ISO);">
@@ -98,12 +97,15 @@ $Id: resource_part_list.xsl,v 1.5 2002/12/12 23:16:06 nigelshaw Exp $
         </a>
         <a href="{$iso_href}" target="content">ISO view</a>
       </p>
+        <xsl:variable name="cover" 
+          select="concat('../data/resource_docs/',@name,'/sys/isocover',$FILE_EXT)"/>
+    <p class="menuitem2">
+      <a href="{$cover}" target="content">Cover</a>
+    </p>
       <xsl:variable name="scope" 
         select="concat('../data/resource_docs/',@name,'/sys/1_scope',$FILE_EXT)"/>
-      <xsl:variable name="express_g" 
-        select="concat('../data/resource_docs/',@name,'/sys/d_expg',$FILE_EXT)"/>
-      <p class="menuitem">
-        &#160;&#160;<a href="{$scope}" target="content">Scope</a>
+      <p class="menuitem2">
+        <a href="{$scope}" target="content">Scope</a>
         &#160;
         <a href="{$iso_href}" target="content">Introduction</a>
         &#160;
@@ -140,8 +142,10 @@ $Id: resource_part_list.xsl,v 1.5 2002/12/12 23:16:06 nigelshaw Exp $
 	          select="concat('../data/resource_docs/',$this_resource/@name,'/sys/',position()+3,'_schema',$FILE_EXT)"/>
         	&#160;&#160;<a href="{$schema_dir}" target="content"><xsl:value-of select="@name"/></a>
 		<br/>
+        	<xsl:variable name="first_expg" 
+                  select="substring-before(./express-g/imgfile/@file,'.xml')"/>
         	<xsl:variable name="schema_expg" 
-	          select="concat('../data/resources/',@name,'/',@name,'expg1',$FILE_EXT)"/>
+	          select="concat('../data/resources/',@name,'/',$first_expg,$FILE_EXT)"/>
 		&#160;&#160;&#160;&#160;<a href="{$schema_expg}" target="content">EXPRESS-G</a>
 		<br/>
         	<xsl:variable name="schema_dev" 

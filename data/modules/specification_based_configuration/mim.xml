@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->
+<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,7 +12,7 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.22"
+    version="1.24"
     source="../data/modules/specification_based_configuration/mim.exp"/>
 
   <schema name="Specification_based_configuration_mim">
@@ -36,6 +36,98 @@
       schema="Product_breakdown_mim">
     </interface>
 
-  </schema>
+    <interface
+      kind="use"
+      schema="management_resources_schema">
+      <interfaced.item
+        name="effectivity_context_assignment"/>
+    </interface>
 
-</express>
+    <type name="configured_effectivity_context_item">
+      <select
+        selectitems="product_concept_feature_association">
+      </select>
+
+    </type>
+    <type name="configured_effectivity_item">
+      <select
+        extensible="YES"
+        genericentity="YES"
+        selectitems="product_definition">
+      </select>
+
+    </type>
+    <entity
+      name="configured_effectivity_context_assignment"
+      supertypes="effectivity_context_assignment">
+      <explicit
+        name="assigned_effectivity_assignment">
+        <redeclaration
+          entity-ref="effectivity_context_assignment"/>
+          <typename
+            name="configured_effectivity_assignment"/>
+        </explicit>
+        <explicit
+          name="items">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="configured_effectivity_context_item"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="SIZEOF(SELF.items) = 1">
+        </where>
+      </entity>
+
+      <entity
+        name="configured_effectivity_assignment"
+        supertypes="effectivity_assignment">
+        <explicit
+          name="items">
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
+          <typename
+            name="configured_effectivity_item"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="(SIZEOF(['SPECIFICATION_BASED_CONFIGURATION_MIM.EFFECTIVITY'] * TYPEOF(SELF.assigned_effectivity) ) = 1)  AND (SELF.assigned_effectivity.id = 'configuration validity')">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF(SELF.items) = 1">
+        </where>
+        <where
+          label="WR3"
+          expression="SIZEOF( QUERY( i &lt;* SELF.items | NOT ('SPECIFICATION_BASED_CONFIGURATION_MIM.PRODUCT_DEFINITION' IN TYPEOF(i))  OR NOT (i\product_definition.frame_of_reference.name IN ['conceptual definition','part occurrence', 'functional definition','alternative definition']) )) = 0">
+        </where>
+        <where
+          label="WR4"
+          expression="SELF.role.name IN ['design', 'usage']">
+        </where>
+        <where
+          label="WR5"
+          expression="(SELF.role.name &lt;&gt; 'design')  OR (SIZEOF( QUERY( i &lt;* SELF.items | ('SPECIFICATION_BASED_CONFIGURATION_MIM.PRODUCT_DEFINITION' IN TYPEOF(i)) AND (i\product_definition.frame_of_reference.name = 'part occurrence') )) = 0)">
+        </where>
+        <where
+          label="WR6"
+          expression="(SELF.role.name &lt;&gt; 'usage') OR (SIZEOF( QUERY( i &lt;* SELF.items | ('SPECIFICATION_BASED_CONFIGURATION_MIM.PRODUCT_DEFINITION' IN TYPEOF(i)) AND (i\product_definition.frame_of_reference.name = 'conceptual definition') )) = 0)">
+        </where>
+        <where
+          label="WR7"
+          expression="SELF.role.description IN ['exception', 'inherited', 'local']">
+        </where>
+        <where
+          label="WR8"
+          expression="SIZEOF( QUERY( x &lt;* USEDIN(SELF,'SPECIFICATION_BASED_CONFIGURATION_MIM.' + 'EFFECTIVITY_CONTEXT_ASSIGNMENT.ASSIGNED_EFFECTIVITY_ASSIGNMENT') | 'SPECIFICATION_BASED_CONFIGURATION_MIM.CONFIGURED_EFFECTIVITY_CONTEXT_ASSIGNMENT' IN TYPEOF(x) )) = 1">
+        </where>
+      </entity>
+
+    </schema>
+
+  </express>

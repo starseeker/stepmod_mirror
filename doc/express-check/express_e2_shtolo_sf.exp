@@ -58,10 +58,16 @@ SCHEMA s1;
    ENTITY nail;
    END_ENTITY;
 
-   ENTITY organization;
+   ENTITY organization
+(* JH begin *)
+     SUBTYPE OF (e2);
+(* JH end *)
    END_ENTITY;
 
-   ENTITY person;
+   ENTITY person
+(* JH begin *)
+     SUBTYPE OF (e1);
+(* JH end *)
       role_of_person : STRING;
    END_ENTITY;
 
@@ -74,7 +80,10 @@ SCHEMA s1;
    ENTITY product;
    END_ENTITY;
 
-   ENTITY product_category;
+   ENTITY product_category
+(* JH begin *)
+     SUBTYPE OF (e1);
+(* JH end *)
    END_ENTITY;
 
    ENTITY product_to_category_relationship
@@ -103,8 +112,12 @@ SCHEMA s1;
    ENTITY e_is_out;
    END_ENTITY;
    
-  RULE r1 FOR (e1_is_in, e_is_out);
-    WHERE f1(e2_is_in);
+-- JH  RULE r1 FOR (e1_is_in, e_is_out);
+  RULE r1 FOR (e2_is_in);
+    WHERE
+(* JH begin *)
+        f1(e2_is_in[1]);
+(* JH end *)
   END_RULE;
 
   FUNCTION f1(par1: e2_is_in): BOOLEAN;
@@ -125,7 +138,16 @@ END_SCHEMA;
 
 SCHEMA s2;
 
-   USE FROM s1(e1_is_in, attachment_method, general_approval, product_to_category_relationship,approval, step_expert,xml_expert);
+   USE FROM s1(approval, 
+               attachment_method,
+(* JH begin *)
+               colour,
+(* JH end *)
+               e1_is_in,
+               general_approval, 
+               product_to_category_relationship,
+               step_expert,
+               xml_expert);
 
    TYPE canadian_flag = ENUMERATION BASED_ON colour WITH (red, white);
    END_TYPE;
@@ -174,6 +196,9 @@ SCHEMA s3;
 
 END_SCHEMA;
 
+(* JH begin *)
+(*
+(* JH end *)
 SCHEMA s4 'version_1';
 
    USE FROM s2;
@@ -184,6 +209,9 @@ SCHEMA s4 'version_1';
    END_TYPE;
 
 END_SCHEMA;
+(* JH begin *)
+*)
+(* JH end *)
 
 SCHEMA s4 'version_2';
 
@@ -193,16 +221,3 @@ SCHEMA s4 'version_2';
    END_TYPE;
 
 END_SCHEMA;
-
-
-
-
-
-
-
-
-
-
-
-
-

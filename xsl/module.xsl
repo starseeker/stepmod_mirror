@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.8 2001/11/15 18:15:55 robbod Exp $
+$Id: module.xsl,v 1.9 2001/11/16 08:41:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -567,7 +567,11 @@ $Id: module.xsl,v 1.8 2001/11/15 18:15:55 robbod Exp $
 
   <!-- get the default normrefs out of the normrefs.xml database -->
   <xsl:apply-templates 
-    select="document('../data/basic/normrefs.xml')/normref.list/normref"/>
+    select="document('../data/basic/normrefs.xml')/normref.list/normref[@id='ref10303-1.1994']"/>
+  <xsl:apply-templates 
+    select="document('../data/basic/normrefs.xml')/normref.list/normref[@id='ref10303-11.1994']"/>
+  <xsl:apply-templates 
+    select="document('../data/basic/normrefs.xml')/normref.list/normref[@id='ref8824-1.1995']"/>
 
   <!-- output any normrefs defined in the module-->
   <xsl:apply-templates select="./normref.inc"/>

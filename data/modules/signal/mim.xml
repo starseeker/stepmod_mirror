@@ -2,44 +2,47 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:05" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:31" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="signal_mim schema_instance"/>
-   <schema name="Signal_mim">
-      <interface kind="use" schema="Characteristic_mim"/>
-      <interface kind="use" schema="Extended_measure_representation_mim"/>
-      <interface kind="use" schema="External_item_identification_assignment_mim"/>
-      <interface kind="use" schema="product_property_definition_schema">
+   <schema name="SIGNAL_MIM">
+      <interface kind="use" schema="CHARACTERISTIC_MIM"/>
+      <interface kind="use" schema="EXTENDED_MEASURE_REPRESENTATION_MIM"/>
+      <interface kind="use" schema="EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM"/>
+      <interface kind="use" schema="PRODUCT_PROPERTY_DEFINITION_SCHEMA">
          <interfaced.item name="characterized_object"/>
          <interfaced.item name="property_definition"/>
       </interface>
-      <interface kind="use" schema="material_property_definition_schema">
+      <interface kind="use" schema="MATERIAL_PROPERTY_DEFINITION_SCHEMA">
          <interfaced.item name="property_definition_relationship"/>
       </interface>
-      <interface kind="use" schema="group_schema">
+      <interface kind="use" schema="GROUP_SCHEMA">
          <interfaced.item name="group"/>
       </interface>
-      <interface kind="use" schema="document_schema">
+      <interface kind="use" schema="DOCUMENT_SCHEMA">
          <interfaced.item name="document_usage_constraint"/>
       </interface>
+      <type name="s_external_identification_item">
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="composite_signal_property_relationship property_definition signal"/>
+      </type>
       <entity name="composite_signal_property_relationship" supertypes="property_definition property_definition_relationship">
-         <where label="WR1" expression="SELF\property_definition_relationship.related_property_definition.definition :&lt;&gt;:&#10;       SELF\property_definition_relationship.relating_property_definition.definition"/>
-         <where label="WR2" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\property_definition_relationship ||&#10;       SELF\composite_signal_property_relationship || SELF\property_definition)) = 0"/>
-         <where label="WR3" expression="SELF\property_definition_relationship.related_property_definition.name =&#10;       'signal property'"/>
-         <where label="WR4" expression="SELF\property_definition_relationship.relating_property_definition.name =&#10;       'composite signal property'"/>
-         <where label="WR5" expression="SELF\property_definition.name = ''"/>
-         <where label="WR6" expression="SELF\property_definition.description = ''"/>
-         <where label="WR7" expression="SELF\property_definition_relationship.name = ''"/>
-         <where label="WR8" expression="SELF\property_definition_relationship.description = ''"/>
-         <where label="WR9" expression="('SIGNAL_MIM.' +&#10;       'CHARACTERIZED_OBJECT' IN TYPEOF(SELF\property_definition.definition)) AND&#10;       (SELF\property_definition.definition.description = 'aggregate operation')"/>
-         <where label="WR10" expression="'SIGNAL_MIM.' +&#10;       'EXTERNAL_DEFINITION' IN TYPEOF(SELF\property_definition.definition)"/>
+         <where label="wr1" expression=" self \ property_definition_relationship . related_property_definition . definition :&lt;&gt;: self \ property_definition_relationship . relating_property_definition . definition "/>
+         <where label="wr2" expression=" sizeof ( typeof ( self ) - typeof ( self \ property_definition_relationship || self \ composite_signal_property_relationship || self \ property_definition ) ) = 0 "/>
+         <where label="wr3" expression=" self \ property_definition_relationship . related_property_definition . name = 'signal property' "/>
+         <where label="wr4" expression=" self \ property_definition_relationship . relating_property_definition . name = 'composite signal property' "/>
+         <where label="wr5" expression=" self \ property_definition . name = '' "/>
+         <where label="wr6" expression=" self \ property_definition . description = '' "/>
+         <where label="wr7" expression=" self \ property_definition_relationship . name = '' "/>
+         <where label="wr8" expression=" self \ property_definition_relationship . description = '' "/>
+         <where label="wr9" expression=" ( 'signal_mim.' + 'characterized_object' in typeof ( self \ property_definition . definition ) ) and ( self \ property_definition . definition . description = 'aggregate operation' ) "/>
+         <where label="wr10" expression=" 'signal_mim.' + 'external_definition' in typeof ( self \ property_definition . definition ) "/>
       </entity>
       <entity name="signal" supertypes="characterized_object">
-         <where label="WR1" expression="SIZEOF (QUERY (aca &lt;* USEDIN (SELF,&#10;       'SIGNAL_MIM.' + &#10;       'APPLIED_CLASSIFICATION_ASSIGNMENT.ITEMS') |&#10;       'SIGNAL_MIM.' +&#10;       'SIGNAL_CATEGORY' IN&#10;       TYPEOF (aca.assigned_group))) &gt;= 1"/>
-         <where label="WR2" expression="(SIZEOF (QUERY (ada &lt;* USEDIN (SELF,&#10;       'SIGNAL_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       SIZEOF (QUERY (duc &lt;* USEDIN (ada.assigned_document,&#10;       'SIGNAL_MIM.' +&#10;       'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |&#10;       duc\document_usage_constraint.subject_element = 'signal category')) = 1)) = 1)"/>
-         <where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'SIGNAL_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1"/>
+         <where label="wr1" expression=" sizeof ( query ( aca &lt;* usedin ( self , 'signal_mim.' + 'applied_classification_assignment.items' ) | 'signal_mim.' + 'signal_category' in typeof ( aca . assigned_group ) ) ) &gt;= 1 "/>
+         <where label="wr2" expression=" ( sizeof ( query ( ada &lt;* usedin ( self , 'signal_mim.' + 'applied_document_reference.items' ) | sizeof ( query ( duc &lt;* usedin ( ada . assigned_document , 'signal_mim.' + 'document_usage_constraint.source' ) | duc \ document_usage_constraint . subject_element = 'signal category' ) ) = 1 ) ) = 1 ) "/>
+         <where label="wr3" expression=" sizeof ( usedin ( self , 'signal_mim.' + 'applied_document_reference.items' ) ) = 1 "/>
       </entity>
       <entity name="signal_category" supertypes="group">
-         <where label="WR1" expression="SELF\group.description IN ['signal characteristic category', &#10;       'signal property category']"/>
+         <where label="wr1" expression=" self \ group . description in [ 'signal characteristic category' , 'signal property category' ] "/>
       </entity>
    </schema>
 </express>

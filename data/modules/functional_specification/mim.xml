@@ -2,30 +2,33 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:00" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:30" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_specification_mim schema_instance"/>
-   <schema name="Functional_specification_mim">
-      <interface kind="use" schema="External_item_identification_assignment_mim"/>
-      <interface kind="use" schema="Network_functional_design_view_mim"/>
-      <interface kind="use" schema="Signal_mim"/>
-      <interface kind="use" schema="Specification_document_mim"/>
-      <interface kind="use" schema="application_context_schema">
+   <schema name="FUNCTIONAL_SPECIFICATION_MIM">
+      <interface kind="use" schema="EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM"/>
+      <interface kind="use" schema="NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM"/>
+      <interface kind="use" schema="SIGNAL_MIM"/>
+      <interface kind="use" schema="SPECIFICATION_DOCUMENT_MIM"/>
+      <interface kind="use" schema="APPLICATION_CONTEXT_SCHEMA">
          <interfaced.item name="application_context_element"/>
       </interface>
       <type name="fs_document_reference_item">
          <select extensible="YES" genericentity="YES" basedon="document_reference_item" selectitems="representation"/>
       </type>
+      <type name="fs_external_identification_item">
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="functional_specification"/>
+      </type>
       <entity name="functional_specification" supertypes="representation">
-         <where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'FUNCTIONAL_SPECIFICATION_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;       (rr\representation_relationship.name = 'functional characteristic category') AND&#10;       ('FUNCTIONAL_SPECIFICATION_MIM.' +&#10;       'EXTERNAL_DEFINITION' IN&#10;       TYPEOF (rr.rep_1.items[1])))) = 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'FUNCTIONAL_SPECIFICATION_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;       (rr\representation_relationship.name = 'characterizing signal' +&#10;       'for functional specification')&#10;       )) = 1"/>
-         <where label="WR3" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'FUNCTIONAL_SPECIFICATION_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;       (rr\representation_relationship.name = 'reference signal for' +&#10;        'functional specification') &#10;       )) = 1"/>
-         <where label="WR4" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\functional_specification)) = 0"/>
-         <where label="WR5" expression="SELF\representation.name = ''"/>
-         <where label="WR6" expression="SIZEOF(QUERY( pdr &lt;* USEDIN (SELF,&#10;       'FUNCTIONAL_SPECIFICATION_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |&#10;       ('FUNCTIONAL_SPECIFICATION_MIM.' +&#10;        'COMPONENT_FUNCTIONAL_UNIT' IN TYPEOF (pdr.definition.definition)) &#10;        )) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( rr &lt;* usedin ( self , 'functional_specification_mim.' + 'representation_relationship.rep_2' ) | ( rr \ representation_relationship . name = 'functional characteristic category' ) and ( 'functional_specification_mim.' + 'external_definition' in typeof ( rr . rep_1 . items [ 1 ] ) ) ) ) = 1 "/>
+         <where label="wr2" expression=" sizeof ( query ( rr &lt;* usedin ( self , 'functional_specification_mim.' + 'representation_relationship.rep_1' ) | ( rr \ representation_relationship . name = 'characterizing signal' + 'for functional specification' ) ) ) = 1 "/>
+         <where label="wr3" expression=" sizeof ( query ( rr &lt;* usedin ( self , 'functional_specification_mim.' + 'representation_relationship.rep_1' ) | ( rr \ representation_relationship . name = 'reference signal for' + 'functional specification' ) ) ) = 1 "/>
+         <where label="wr4" expression=" sizeof ( typeof ( self ) - typeof ( self \ representation || self \ functional_specification ) ) = 0 "/>
+         <where label="wr5" expression=" self \ representation . name = '' "/>
+         <where label="wr6" expression=" sizeof ( query ( pdr &lt;* usedin ( self , 'functional_specification_mim.' + 'property_definition_representation.used_representation' ) | ( 'functional_specification_mim.' + 'component_functional_unit' in typeof ( pdr . definition . definition ) ) ) ) = 0 "/>
       </entity>
       <entity name="functional_specification_definition" supertypes="functional_unit">
-         <where label="WR1" expression="SELF.frame_of_reference\application_context_element.name =&#10;             'functional network design'"/>
-         <where label="WR2" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'FUNCTIONAL_SPECIFICATION_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'FUNCTIONAL_SPECIFICATION_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       ('FUNCTIONAL_SPECIFICATION_MIM.' +&#10;       'FUNCTIONAL_SPECIFICATION' IN TYPEOF (pdr.used_representation))&#10;       )) &gt; 0))) &gt; 0"/>
+         <where label="wr1" expression=" self . frame_of_reference \ application_context_element . name = 'functional network design' "/>
+         <where label="wr2" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'functional_specification_mim.' + 'property_definition.definition' ) | ( sizeof ( query ( pdr &lt;* usedin ( pd , 'functional_specification_mim.' + 'property_definition_representation.definition' ) | ( 'functional_specification_mim.' + 'functional_specification' in typeof ( pdr . used_representation ) ) ) ) &gt; 0 ) ) ) &gt; 0 "/>
       </entity>
    </schema>
 </express>

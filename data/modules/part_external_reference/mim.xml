@@ -2,132 +2,26 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:02" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:30" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_external_reference_mim schema_instance"/>
-   <schema name="Part_external_reference_mim">
-      <interface kind="use" schema="Physical_layout_template_mim"/>
+   <schema name="PART_EXTERNAL_REFERENCE_MIM">
+      <interface kind="use" schema="PHYSICAL_LAYOUT_TEMPLATE_MIM"/>
       <rule name="package_external_reference_constraint" appliesto="representation">
-         <where label="WR1" expression="SIZEOF (QUERY (rep &lt;* representation |&#10;        (rep\representation.name = 'package external reference') AND &#10;        (SIZEOF (QUERY (dri &lt;* rep.items |&#10;        NOT(('PART_EXTERNAL_REFERENCE_MIM.' +&#10;        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND&#10;        (dri\representation_item.name = 'design owner')))) = 1)))=0"/>
-         <where label="WR2" expression="SIZEOF (QUERY (rep &lt;* representation |&#10;        (rep\representation.name = 'package external reference') AND &#10;        (SIZEOF (QUERY (dri &lt;* rep.items |&#10;        NOT(('PART_EXTERNAL_REFERENCE_MIM.' +&#10;        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND&#10;        (dri\representation_item.name = 'part number')))) = 1)))=0"/>
-         <where label="WR3" expression="SIZEOF (QUERY (rep &lt;* representation |&#10;        (rep\representation.name = 'package external reference') AND &#10;        (SIZEOF (QUERY (dri &lt;* rep.items |&#10;        NOT(('PART_EXTERNAL_REFERENCE_MIM.' +&#10;        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND&#10;        (dri\representation_item.name = 'revision code')))) = 1)))=0"/>
-         <where label="WR4" expression="SIZEOF (QUERY (rep &lt;* representation |&#10;        (rep\representation.name = 'package external reference') AND &#10;        (SIZEOF (QUERY (dri &lt;* rep.items |&#10;        NOT(('PART_EXTERNAL_REFERENCE_MIM.' +&#10;        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND&#10;        (dri\representation_item.name = 'product definition id')))) = 1)))=0"/>
+         <where label="wr1" expression=" sizeof ( query ( rep &lt;* representation | ( rep \ representation . name = 'package external reference' ) and ( sizeof ( query ( dri &lt;* rep . items | not ( ( 'part_external_reference_mim.' + 'descriptive_representation_item' in typeof ( dri ) ) and ( dri \ representation_item . name = 'design owner' ) ) ) ) = 1 ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( rep &lt;* representation | ( rep \ representation . name = 'package external reference' ) and ( sizeof ( query ( dri &lt;* rep . items | not ( ( 'part_external_reference_mim.' + 'descriptive_representation_item' in typeof ( dri ) ) and ( dri \ representation_item . name = 'part number' ) ) ) ) = 1 ) ) ) = 0 "/>
+         <where label="wr3" expression=" sizeof ( query ( rep &lt;* representation | ( rep \ representation . name = 'package external reference' ) and ( sizeof ( query ( dri &lt;* rep . items | not ( ( 'part_external_reference_mim.' + 'descriptive_representation_item' in typeof ( dri ) ) and ( dri \ representation_item . name = 'revision code' ) ) ) ) = 1 ) ) ) = 0 "/>
+         <where label="wr4" expression=" sizeof ( query ( rep &lt;* representation | ( rep \ representation . name = 'package external reference' ) and ( sizeof ( query ( dri &lt;* rep . items | not ( ( 'part_external_reference_mim.' + 'descriptive_representation_item' in typeof ( dri ) ) and ( dri \ representation_item . name = 'product definition id' ) ) ) ) = 1 ) ) ) = 0 "/>
       </rule>
       <rule name="package_terminal_external_reference_constraint" appliesto="descriptive_representation_item">
-         <where label="WR1" expression="SIZEOF(QUERY(dri &lt;* descriptive_representation_item |&#10;       (dri\representation_item.name = 'package terminal external reference')&#10;       AND (SIZEOF(QUERY(rep &lt;* USEDIN(dri,&#10;       'PART_EXTERNAL_REFERENCE_MIM.'&#10;       + 'REPRESENTATION.ITEMS') |&#10;       (rep\representation.name = 'package external reference'))) = 0)&#10;       )) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( dri &lt;* descriptive_representation_item | ( dri \ representation_item . name = 'package terminal external reference' ) and ( sizeof ( query ( rep &lt;* usedin ( dri , 'part_external_reference_mim.' + 'representation.items' ) | ( rep \ representation . name = 'package external reference' ) ) ) = 0 ) ) ) = 0 "/>
       </rule>
       <rule name="package_terminal_external_reference_unique_constraint" appliesto="descriptive_representation_item">
-         <algorithm>LOCAL
-  pter : BAG OF descriptive_representation_item := 
-                QUERY( dri &lt;* descriptive_representation_item
-| (dri\representation_item.name = 'package terminal external reference') );
-  desc_bag : BAG OF STRING := [];
-  dri_bag : BAG OF descriptive_representation_item;
-  rep_bag : BAG OF representation;
-  pass : BOOLEAN := TRUE;
-  r_bag : BAG OF representation;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(pter) by 1;
-  IF EXISTS( pter[i]\descriptive_representation_item.description ) THEN
-    IF ( NOT ( pter[i]\descriptive_representation_item.description IN desc_bag )) THEN
-      desc_bag := desc_bag + pter[i]\descriptive_representation_item.description;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(desc_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  r_bag := [];
-  dri_bag := QUERY( dri &lt;* pter | (dri\descriptive_representation_item.description = desc_bag[i]) );
-  REPEAT j := 1 to SIZEOF(dri_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    rep_bag := QUERY( r &lt;* USEDIN( dri_bag[j],
-'PART_EXTERNAL_REFERENCE_MIM.' +
-'REPRESENTATION.ITEMS' ) | (r\representation.name = 'package external reference') );
-    REPEAT k := 1 to SIZEOF(rep_bag) by 1;
-      IF EXISTS( rep_bag[k] ) THEN
-        IF ( rep_bag[k] IN r_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          r_bag := r_bag + rep_bag[k];
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local pter : bag of descriptive_representation_item := query ( dri &lt;* descriptive_representation_item | ( dri \ representation_item . name = 'package terminal external reference' ) ) ; desc_bag : bag of string := [ ] ; dri_bag : bag of descriptive_representation_item ; rep_bag : bag of representation ; pass : boolean := true ; r_bag : bag of representation ; end_local ; repeat i := 1 to sizeof ( pter ) by 1 ; if exists ( pter [ i ] \ descriptive_representation_item . description ) then if ( not ( pter [ i ] \ descriptive_representation_item . description in desc_bag ) ) then desc_bag := desc_bag + pter [ i ] \ descriptive_representation_item . description ; end_if ; end_if ; end_repeat ; repeat i := 1 to sizeof ( desc_bag ) by 1 ; if ( not pass ) then escape ; end_if ; r_bag := [ ] ; dri_bag := query ( dri &lt;* pter | ( dri \ descriptive_representation_item . description = desc_bag [ i ] ) ) ; repeat j := 1 to sizeof ( dri_bag ) by 1 ; if ( not pass ) then escape ; end_if ; rep_bag := query ( r &lt;* usedin ( dri_bag [ j ] , 'part_external_reference_mim.' + 'representation.items' ) | ( r \ representation . name = 'package external reference' ) ) ; repeat k := 1 to sizeof ( rep_bag ) by 1 ; if exists ( rep_bag [ k ] ) then if ( rep_bag [ k ] in r_bag ) then pass := false ; escape ; else r_bag := r_bag + rep_bag [ k ] ; end_if ; end_if ; end_repeat ; end_repeat ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
       <rule name="part_terminal_external_reference_unique_constraint" appliesto="representation">
-         <algorithm>LOCAL
-  pter : BAG OF representation := QUERY( r &lt;* representation |
-(r\representation.name = 'part terminal external reference'));
-  fn_bag : BAG OF STRING := [];
-  ft_bag : BAG OF STRING := [];
-  r_bag : BAG OF representation;
-  pdr_bag : BAG OF property_definition_representation;
-  pass : BOOLEAN := TRUE;
-  ptd_bag : BAG OF part_template_definition;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(pter) by 1;
-  REPEAT j := 1 to SIZEOF(pter[i].items) by 1;
-    IF ( 'PART_EXTERNAL_REFERENCE_MIM.' +
-'DESCRIPTIVE_REPRESENTATION_ITEM' IN 
-TYPEOF(pter[i].items[j]) ) THEN
-      IF ( (pter[i].items[j]\representation_item.name = 'feature name') AND 
-      (NOT ( pter[i].items[j]\descriptive_representation_item.description 
-                                                  IN fn_bag )) ) THEN
-        fn_bag := fn_bag + pter[i].items[j]\descriptive_representation_item.description;
-      END_IF;
-      IF ( (pter[i].items[j]\representation_item.name = 'feature type') AND 
-      (NOT ( pter[i].items[j]\descriptive_representation_item.description 
-                 IN ft_bag )) ) THEN
-        ft_bag := ft_bag + 
-        pter[i].items[j]\descriptive_representation_item.description;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(fn_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  REPEAT j := 1 to SIZEOF(ft_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    r_bag := QUERY( r &lt;* pter | ((SIZEOF(
-QUERY(ri &lt;* r.items | ((ri\descriptive_representation_item.description =
-ft_bag[j]) AND (ri\representation_item.name = 'feature type')) ) )&gt;0) AND 
-(SIZEOF(QUERY(ri &lt;* r.items |
-((ri\descriptive_representation_item.description = fn_bag[i]) AND 
-         (ri\representation_item.name = 'feature name')) ) )&gt;0)) );
-    ptd_bag := [];
-    REPEAT k := 1 to SIZEOF(r_bag) by 1;
-      IF ( NOT pass ) THEN ESCAPE;
-      END_IF;
-      pdr_bag := USEDIN( r_bag[k], 
-'PART_EXTERNAL_REFERENCE_MIM.' +
-'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION' );
-      REPEAT l:= 1 to SIZEOF(pdr_bag) by 1;
-        IF EXISTS( pdr_bag[l].definition.definition ) THEN
-          IF ( 'PART_EXTERNAL_REFERENCE_MIM.' +
-'PHYSICAL_UNIT' IN TYPEOF( pdr_bag[l].definition.definition ) ) THEN
-            IF ( pdr_bag[l].definition.definition IN ptd_bag ) THEN
-              pass := FALSE;
-              ESCAPE;
-            ELSE
-              ptd_bag := ptd_bag + pdr_bag[l].definition.definition;
-            END_IF;
-          END_IF;
-        END_IF;
-      END_REPEAT;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local pter : bag of representation := query ( r &lt;* representation | ( r \ representation . name = 'part terminal external reference' ) ) ; fn_bag : bag of string := [ ] ; ft_bag : bag of string := [ ] ; r_bag : bag of representation ; pdr_bag : bag of property_definition_representation ; pass : boolean := true ; ptd_bag : bag of part_template_definition ; end_local ; repeat i := 1 to sizeof ( pter ) by 1 ; repeat j := 1 to sizeof ( pter [ i ] . items ) by 1 ; if ( 'part_external_reference_mim.' + 'descriptive_representation_item' in typeof ( pter [ i ] . items [ j ] ) ) then if ( ( pter [ i ] . items [ j ] \ representation_item . name = 'feature name' ) and ( not ( pter [ i ] . items [ j ] \ descriptive_representation_item . description in fn_bag ) ) ) then fn_bag := fn_bag + pter [ i ] . items [ j ] \ descriptive_representation_item . description ; end_if ; if ( ( pter [ i ] . items [ j ] \ representation_item . name = 'feature type' ) and ( not ( pter [ i ] . items [ j ] \ descriptive_representation_item . description in ft_bag ) ) ) then ft_bag := ft_bag + pter [ i ] . items [ j ] \ descriptive_representation_item . description ; end_if ; end_if ; end_repeat ; end_repeat ; repeat i := 1 to sizeof ( fn_bag ) by 1 ; if ( not pass ) then escape ; end_if ; repeat j := 1 to sizeof ( ft_bag ) by 1 ; if ( not pass ) then escape ; end_if ; r_bag := query ( r &lt;* pter | ( ( sizeof ( query ( ri &lt;* r . items | ( ( ri \ descriptive_representation_item . description = ft_bag [ j ] ) and ( ri \ representation_item . name = 'feature type' ) ) ) ) &gt; 0 ) and ( sizeof ( query ( ri &lt;* r . items | ( ( ri \ descriptive_representation_item . description = fn_bag [ i ] ) and ( ri \ representation_item . name = 'feature name' ) ) ) ) &gt; 0 ) ) ) ; ptd_bag := [ ] ; repeat k := 1 to sizeof ( r_bag ) by 1 ; if ( not pass ) then escape ; end_if ; pdr_bag := usedin ( r_bag [ k ] , 'part_external_reference_mim.' + 'property_definition_representation.used_representation' ) ; repeat l := 1 to sizeof ( pdr_bag ) by 1 ; if exists ( pdr_bag [ l ] . definition . definition ) then if ( 'part_external_reference_mim.' + 'physical_unit' in typeof ( pdr_bag [ l ] . definition . definition ) ) then if ( pdr_bag [ l ] . definition . definition in ptd_bag ) then pass := false ; escape ; else ptd_bag := ptd_bag + pdr_bag [ l ] . definition . definition ; end_if ; end_if ; end_if ; end_repeat ; end_repeat ; end_repeat ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
    </schema>
 </express>

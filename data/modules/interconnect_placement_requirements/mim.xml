@@ -2,27 +2,30 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:00" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:30" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_placement_requirements_mim schema_instance"/>
-   <schema name="Interconnect_placement_requirements_mim">
-      <interface kind="use" schema="Assembly_component_placement_requirements_mim"/>
-      <interface kind="use" schema="Characteristic_mim"/>
-      <interface kind="use" schema="Land_mim"/>
-      <interface kind="use" schema="Layered_interconnect_module_3d_shape_mim"/>
-      <interface kind="use" schema="Layered_interconnect_module_design_mim"/>
-      <interface kind="use" schema="Non_feature_shape_element_mim"/>
-      <interface kind="use" schema="Part_template_extension_mim"/>
-      <interface kind="use" schema="Requirement_decomposition_mim"/>
+   <schema name="INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM">
+      <interface kind="use" schema="ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM"/>
+      <interface kind="use" schema="CHARACTERISTIC_MIM"/>
+      <interface kind="use" schema="LAND_MIM"/>
+      <interface kind="use" schema="LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM"/>
+      <interface kind="use" schema="LAYERED_INTERCONNECT_MODULE_DESIGN_MIM"/>
+      <interface kind="use" schema="NON_FEATURE_SHAPE_ELEMENT_MIM"/>
+      <interface kind="use" schema="PART_TEMPLATE_EXTENSION_MIM"/>
+      <interface kind="use" schema="REQUIREMENT_DECOMPOSITION_MIM"/>
+      <type name="ipr_requirement_assigned_item">
+         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="group_shape_aspect"/>
+      </type>
       <entity name="interconnect_module_design_object_category" supertypes="characterized_object">
-         <where label="WR1" expression="SELF\characterized_object.description IN &#10;       ['cutout category', &#10;       'fill area category', &#10;       'inter stratum feature category', &#10;       'stratum feature category', &#10;       'via category']"/>
+         <where label="wr1" expression=" self \ characterized_object . description in [ 'cutout category' , 'fill area category' , 'inter stratum feature category' , 'stratum feature category' , 'via category' ] "/>
       </entity>
       <rule name="interconnect_module_constraint_region_constraint" appliesto="group_shape_aspect">
-         <where label="WR1" expression="SIZEOF(QUERY(gsa &lt;* group_shape_aspect |&#10;       NOT(gsa\shape_aspect.description =&#10;       'interconnect module constraint region')&#10;       OR NOT (SIZEOF (QUERY (pd &lt;* USEDIN (gsa,&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       ('INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.' +&#10;       'SHAPE_REPRESENTATION' IN &#10;       TYPEOF (pdr.used_representation)) AND&#10;       (('INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.' +&#10;       'CSG_2D_SHAPE_REPRESENTATION' IN &#10;       TYPEOF (pdr.used_representation)) OR&#10;       (pdr.used_representation.context_of_items\geometric_representation_context.coordinate_space_dimension = 3))&#10;       )) = 1))) = 0)&#10;       )) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( gsa &lt;* group_shape_aspect | not ( gsa \ shape_aspect . description = 'interconnect module constraint region' ) or not ( sizeof ( query ( pd &lt;* usedin ( gsa , 'interconnect_placement_requirements_mim.' + 'property_definition.definition' ) | not ( sizeof ( query ( pdr &lt;* usedin ( pd , 'interconnect_placement_requirements_mim.' + 'property_definition_representation.definition' ) | ( 'interconnect_placement_requirements_mim.' + 'shape_representation' in typeof ( pdr . used_representation ) ) and ( ( 'interconnect_placement_requirements_mim.' + 'csg_2d_shape_representation' in typeof ( pdr . used_representation ) ) or ( pdr . used_representation . context_of_items \ geometric_representation_context . coordinate_space_dimension = 3 ) ) ) ) = 1 ) ) ) = 0 ) ) ) = 0 "/>
       </rule>
       <rule name="layout_spacing_requirement_non_conforming_design_object_constraint" appliesto="shape_aspect_relationship">
-         <where label="WR1" expression="SIZEOF(QUERY(sar &lt;* shape_aspect_relationship |&#10;       (sar\shape_aspect_relationship.name = 'layout spacing requirement violation')&#10;       AND (SIZEOF([&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.'&#10;       + 'COMPONENT_TERMINAL',&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.'&#10;       + 'COMPONENT_INTERFACE_TERMINAL',&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.'&#10;       + 'STRATUM_FEATURE'] * TYPEOF(sar.related_shape_aspect)&#10;       ) = 0))) = 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(sar &lt;* shape_aspect_relationship |&#10;       (sar\shape_aspect_relationship.name = 'layout spacing requirement violation')&#10;       AND (SIZEOF([&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.'&#10;       + 'COMPONENT_TERMINAL',&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.'&#10;       + 'COMPONENT_INTERFACE_TERMINAL',&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.'&#10;       + 'STRATUM_FEATURE'] * TYPEOF(sar.relating_shape_aspect)&#10;       ) = 0))) = 0"/>
-         <where label="WR3" expression="SIZEOF(QUERY(sar &lt;* shape_aspect_relationship |&#10;       (sar\shape_aspect_relationship.name = 'layout spacing requirement violation')&#10;       AND NOT(SIZEOF(QUERY(grp &lt;* USEDIN(sar,&#10;       'INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.'&#10;       + 'PROPERTY_DEFINITION.DEFINITION') |&#10;       ('INTERCONNECT_PLACEMENT_REQUIREMENTS_MIM.'&#10;       + 'GROUP' IN TYPEOF(grp))&#10;       AND (grp\group.name = 'layout spacing requirements property')&#10;       )) = 1))) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'layout spacing requirement violation' ) and ( sizeof ( [ 'interconnect_placement_requirements_mim.' + 'component_terminal' , 'interconnect_placement_requirements_mim.' + 'component_interface_terminal' , 'interconnect_placement_requirements_mim.' + 'stratum_feature' ] * typeof ( sar . related_shape_aspect ) ) = 0 ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'layout spacing requirement violation' ) and ( sizeof ( [ 'interconnect_placement_requirements_mim.' + 'component_terminal' , 'interconnect_placement_requirements_mim.' + 'component_interface_terminal' , 'interconnect_placement_requirements_mim.' + 'stratum_feature' ] * typeof ( sar . relating_shape_aspect ) ) = 0 ) ) ) = 0 "/>
+         <where label="wr3" expression=" sizeof ( query ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'layout spacing requirement violation' ) and not ( sizeof ( query ( grp &lt;* usedin ( sar , 'interconnect_placement_requirements_mim.' + 'property_definition.definition' ) | ( 'interconnect_placement_requirements_mim.' + 'group' in typeof ( grp ) ) and ( grp \ group . name = 'layout spacing requirements property' ) ) ) = 1 ) ) ) = 0 "/>
       </rule>
    </schema>
 </express>

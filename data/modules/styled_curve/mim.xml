@@ -2,24 +2,25 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:05" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:31" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="styled_curve_mim schema_instance"/>
-   <schema name="Styled_curve_mim">
-      <interface kind="use" schema="Basic_curve_mim"/>
-      <interface kind="use" schema="Value_with_unit_extension_mim"/>
-      <interface kind="use" schema="presentation_definition_schema">
+   <schema name="STYLED_CURVE_MIM">
+      <interface kind="use" schema="BASIC_CURVE_MIM"/>
+      <interface kind="use" schema="CURVE_APPEARANCE_MIM"/>
+      <interface kind="use" schema="VALUE_WITH_UNIT_EXTENSION_MIM"/>
+      <interface kind="use" schema="PRESENTATION_DEFINITION_SCHEMA">
          <interfaced.item name="annotation_curve_occurrence"/>
          <interfaced.item name="annotation_occurrence"/>
       </interface>
-      <interface kind="use" schema="presentation_appearance_schema">
+      <interface kind="use" schema="PRESENTATION_APPEARANCE_SCHEMA">
          <interfaced.item name="presentation_style_assignment"/>
          <interfaced.item name="presentation_style_select"/>
          <interfaced.item name="styled_item"/>
       </interface>
-      <interface kind="use" schema="representation_schema">
+      <interface kind="use" schema="REPRESENTATION_SCHEMA">
          <interfaced.item name="parametric_representation_context"/>
       </interface>
-      <interface kind="use" schema="presentation_appearance_schema">
+      <interface kind="use" schema="PRESENTATION_APPEARANCE_SCHEMA">
          <interfaced.item name="curve_style"/>
          <interfaced.item name="curve_style_font"/>
          <interfaced.item name="curve_style_font_and_scaling"/>
@@ -28,56 +29,15 @@
       </interface>
       <entity name="solid_curve_font" supertypes="pre_defined_curve_font"/>
       <rule name="curve_style_font_and_scaling_unique_constraint" appliesto="curve_style_font_and_scaling">
-         <algorithm>LOCAL
-  r : BAG OF curve_style_font_and_scaling := 
-                         QUERY (r &lt;* curve_style_font_and_scaling | TRUE);
-  pass : BOOLEAN := TRUE;
-  name_bag : BAG OF string := [];
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF (r) by 1;
-  IF EXISTS( r[i]\curve_style_font_and_scaling.name ) THEN
-    IF (r[i]\curve_style_font_and_scaling.name IN name_bag) THEN
-      pass := FALSE;
-      ESCAPE;
-    ELSE
-      name_bag := name_bag + r[i]\curve_style_font_and_scaling.name;
-    END_IF;
-  END_IF;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local r : bag of curve_style_font_and_scaling := query ( r &lt;* curve_style_font_and_scaling | true ) ; pass : boolean := true ; name_bag : bag of string := [ ] ; end_local ; repeat i := 1 to sizeof ( r ) by 1 ; if exists ( r [ i ] \ curve_style_font_and_scaling . name ) then if ( r [ i ] \ curve_style_font_and_scaling . name in name_bag ) then pass := false ; escape ; else name_bag := name_bag + r [ i ] \ curve_style_font_and_scaling . name ; end_if ; end_if ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
       <rule name="curve_style_requires_length_measure_with_unit" appliesto="curve_style">
-         <where label="WR1" expression="SIZEOF(QUERY(cs &lt;* curve_style |&#10;       NOT('STYLED_CURVE_MIM.'&#10;        + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(cs))&#10;       )) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( cs &lt;* curve_style | not ( 'styled_curve_mim.' + 'length_measure_with_unit' in typeof ( cs ) ) ) ) = 0 "/>
       </rule>
       <rule name="curve_style_unique_constraint" appliesto="representation">
-         <algorithm>LOCAL
-  cs : BAG OF representation := QUERY( r &lt;* representation |
-((r\representation.name = 'curve style parameters') AND (r.context_of_items\representation_context.context_type =
-'curve style parametric context')) );
-  pass : BOOLEAN := TRUE;
-  desc_bag : BAG OF STRING := [];
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(cs) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  REPEAT j := 1 to SIZEOF(cs[i].items) by 1;
-    IF ( ('STYLED_CURVE_MIM.' +
-'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(cs[i].items[j])) AND
-(cs[i].items[j]\representation_item.name = 'curve style name') ) THEN
-      IF EXISTS( cs[i].items[j]\descriptive_representation_item.description ) THEN
-        IF ( cs[i].items[j]\descriptive_representation_item.description IN desc_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          desc_bag := desc_bag + cs[i].items[j]\descriptive_representation_item.description;
-        END_IF;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local cs : bag of representation := query ( r &lt;* representation | ( ( r \ representation . name = 'curve style parameters' ) and ( r . context_of_items \ representation_context . context_type = 'curve style parametric context' ) ) ) ; pass : boolean := true ; desc_bag : bag of string := [ ] ; end_local ; repeat i := 1 to sizeof ( cs ) by 1 ; if ( not pass ) then escape ; end_if ; repeat j := 1 to sizeof ( cs [ i ] . items ) by 1 ; if ( ( 'styled_curve_mim.' + 'descriptive_representation_item' in typeof ( cs [ i ] . items [ j ] ) ) and ( cs [ i ] . items [ j ] \ representation_item . name = 'curve style name' ) ) then if exists ( cs [ i ] . items [ j ] \ descriptive_representation_item . description ) then if ( cs [ i ] . items [ j ] \ descriptive_representation_item . description in desc_bag ) then pass := false ; escape ; else desc_bag := desc_bag + cs [ i ] . items [ j ] \ descriptive_representation_item . description ; end_if ; end_if ; end_if ; end_repeat ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
    </schema>
 </express>

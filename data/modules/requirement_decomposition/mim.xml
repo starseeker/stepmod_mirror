@@ -2,23 +2,23 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:04" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:31" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="requirement_decomposition_mim schema_instance"/>
-   <schema name="Requirement_decomposition_mim">
-      <interface kind="use" schema="Analytical_model_mim"/>
-      <interface kind="use" schema="Characteristic_mim"/>
-      <interface kind="use" schema="Conductivity_material_aspects_mim"/>
-      <interface kind="use" schema="Elemental_geometric_shape_mim"/>
-      <interface kind="use" schema="Functional_specification_mim"/>
-      <interface kind="use" schema="Part_and_version_identification_mim"/>
-      <interface kind="use" schema="Product_rule_mim"/>
-      <interface kind="use" schema="Requirement_assignment_mim"/>
-      <interface kind="use" schema="Requirement_view_definition_mim"/>
-      <interface kind="use" schema="Specification_document_mim"/>
-      <interface kind="use" schema="material_property_definition_schema">
+   <schema name="REQUIREMENT_DECOMPOSITION_MIM">
+      <interface kind="use" schema="ANALYTICAL_MODEL_MIM"/>
+      <interface kind="use" schema="CHARACTERISTIC_MIM"/>
+      <interface kind="use" schema="CONDUCTIVITY_MATERIAL_ASPECTS_MIM"/>
+      <interface kind="use" schema="ELEMENTAL_GEOMETRIC_SHAPE_MIM"/>
+      <interface kind="use" schema="FUNCTIONAL_SPECIFICATION_MIM"/>
+      <interface kind="use" schema="PART_AND_VERSION_IDENTIFICATION_MIM"/>
+      <interface kind="use" schema="PRODUCT_RULE_MIM"/>
+      <interface kind="use" schema="REQUIREMENT_ASSIGNMENT_MIM"/>
+      <interface kind="use" schema="REQUIREMENT_VIEW_DEFINITION_MIM"/>
+      <interface kind="use" schema="SPECIFICATION_DOCUMENT_MIM"/>
+      <interface kind="use" schema="MATERIAL_PROPERTY_DEFINITION_SCHEMA">
          <interfaced.item name="property_definition_relationship"/>
       </interface>
-      <interface kind="reference" schema="support_resource_schema">
+      <interface kind="reference" schema="SUPPORT_RESOURCE_SCHEMA">
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="rd_document_reference_item">
@@ -28,111 +28,42 @@
          <select extensible="YES" genericentity="YES" basedon="groupable_item" selectitems="requirements_property"/>
       </type>
       <entity name="material_electrical_conductivity_category" supertypes="group">
-         <where label="WR1" expression="SELF\group.name IN ['conductive', 'non conductive', 'resistive',  &#10;       'semi conductive']"/>
+         <where label="wr1" expression=" self \ group . name in [ 'conductive' , 'non conductive' , 'resistive' , 'semi conductive' ] "/>
       </entity>
       <entity name="requirement_allocation_group" supertypes="group property_definition_relationship">
-         <where label="WR1" expression="(SIZEOF (QUERY (aga &lt;* QUERY (ga &lt;* USEDIN (SELF, &#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'APPLIED_GROUP_ASSIGNMENT' IN&#10;       TYPEOF (ga)) |&#10;       (SIZEOF (['REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PRODUCT',&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PRODUCT_DEFINITION_FORMATION',&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'CONFIGURATION_ITEM'] * TYPEOF (aga.items)) = 1))) = 1)"/>
-         <where label="WR2" expression="'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'REQUIREMENTS_PROPERTY' IN TYPEOF &#10;   (SELF\property_definition_relationship.relating_property_definition)"/>
-         <where label="WR3" expression="NOT(SELF\property_definition_relationship.related_property_definition.description = 'test requirement') OR&#10;       (SIZEOF (QUERY (aga &lt;* QUERY (ga &lt;* USEDIN (SELF,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'APPLIED_GROUP_ASSIGNMENT' IN&#10;       TYPEOF (ga)) |&#10;       (SIZEOF (['REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION'] * TYPEOF (aga.items)) = 1))) &gt;= 1)"/>
+         <where label="wr1" expression=" ( sizeof ( query ( aga &lt;* query ( ga &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'group_assignment.assigned_group' ) | 'requirement_decomposition_mim.' + 'applied_group_assignment' in typeof ( ga ) ) | ( sizeof ( [ 'requirement_decomposition_mim.' + 'product' , 'requirement_decomposition_mim.' + 'product_definition_formation' , 'requirement_decomposition_mim.' + 'configuration_item' ] * typeof ( aga . items ) ) = 1 ) ) ) = 1 ) "/>
+         <where label="wr2" expression=" 'requirement_decomposition_mim.' + 'requirements_property' in typeof ( self \ property_definition_relationship . relating_property_definition ) "/>
+         <where label="wr3" expression=" not ( self \ property_definition_relationship . related_property_definition . description = 'test requirement' ) or ( sizeof ( query ( aga &lt;* query ( ga &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'group_assignment.assigned_group' ) | 'requirement_decomposition_mim.' + 'applied_group_assignment' in typeof ( ga ) ) | ( sizeof ( [ 'requirement_decomposition_mim.' + 'property_definition_representation' ] * typeof ( aga . items ) ) = 1 ) ) ) &gt;= 1 ) "/>
       </entity>
       <entity name="requirement_definition" supertypes="product_definition">
-         <where label="WR1" expression="(NOT ('REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN &#10;       TYPEOF (SELF))) OR&#10;       (SIZEOF (QUERY (docs &lt;* &#10;       SELF\product_definition_with_associated_documents.&#10;        documentation_ids |&#10;       docs.kind\document_type.product_data_type = 'CAD filename')) &lt;= 1)"/>
-         <where label="WR2" expression="SIZEOF (QUERY (adta &lt;* USEDIN (SELF, &#10;       'REQUIREMENT_DECOMPOSITION_MIM.' + &#10;       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |&#10;       adta.role\date_time_role.name = 'creation date')) + &#10;       SIZEOF (QUERY (ada &lt;* USEDIN (SELF, &#10;       'REQUIREMENT_DECOMPOSITION_MIM.' + &#10;       'APPLIED_DATE_ASSIGNMENT.ITEMS') |&#10;       ada.role\date_role.name = 'creation date')) = 1"/>
-         <where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1"/>
-         <where label="WR4" expression="SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\person_and_organization_role.name = 'creator')) +&#10;       SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\organization_role.name = 'creator')) &gt;= 1"/>
-         <where label="WR5" expression="SIZEOF (USEDIN (SELF, &#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1"/>
-         <where label="WR6" expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||&#10;       SELF\requirement_definition))) = 0"/>
-         <where label="WR7" expression="SIZEOF (QUERY (prpc &lt;* USEDIN (SELF.formation.of_product,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +&#10;       'PRODUCTS') |&#10;       prpc\product_category.name = 'requirements model')) &gt;= 1"/>
+         <where label="wr1" expression=" ( not ( 'requirement_decomposition_mim.' + 'product_definition_with_associated_documents' in typeof ( self ) ) ) or ( sizeof ( query ( docs &lt;* self \ product_definition_with_associated_documents . documentation_ids | docs . kind \ document_type . product_data_type = 'cad filename' ) ) &lt;= 1 ) "/>
+         <where label="wr2" expression=" sizeof ( query ( adta &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'applied_date_and_time_assignment.items' ) | adta . role \ date_time_role . name = 'creation date' ) ) + sizeof ( query ( ada &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'applied_date_assignment.items' ) | ada . role \ date_role . name = 'creation date' ) ) = 1 "/>
+         <where label="wr3" expression=" sizeof ( usedin ( self , 'requirement_decomposition_mim.' + 'applied_approval_assignment.items' ) ) = 1 "/>
+         <where label="wr4" expression=" sizeof ( query ( apoa &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'applied_person_and_organization_assignment.items' ) | apoa . role \ person_and_organization_role . name = 'creator' ) ) + sizeof ( query ( apoa &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'applied_organization_assignment.items' ) | apoa . role \ organization_role . name = 'creator' ) ) &gt;= 1 "/>
+         <where label="wr5" expression=" sizeof ( usedin ( self , 'requirement_decomposition_mim.' + 'applied_security_classification_assignment.items' ) ) = 1 "/>
+         <where label="wr6" expression=" sizeof ( typeof ( self ) - ( typeof ( self \ product_definition || self \ requirement_definition ) ) ) = 0 "/>
+         <where label="wr7" expression=" sizeof ( query ( prpc &lt;* usedin ( self . formation . of_product , 'requirement_decomposition_mim.' + 'product_related_product_category.' + 'products' ) | prpc \ product_category . name = 'requirements model' ) ) &gt;= 1 "/>
       </entity>
       <entity name="requirements_property" supertypes="property_definition">
-         <where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'requirements property composition')) &lt;= 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       SIZEOF (QUERY (it &lt;* pdr.used_representation.items |&#10;       ('REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'DESCRIPTIVE_REPRESENTATION_ITEM' IN&#10;       TYPEOF (it)) AND&#10;       (it\representation_item.name = 'requirements description'))) = 1)) &lt;= 1"/>
-         <where label="WR3" expression="SIZEOF (QUERY (dr &lt;* USEDIN (SELF,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'EE_SPECIFICATION' IN &#10;       TYPEOF (dr.assigned_document))) &gt;= 1"/>
-         <where label="WR4" expression="NOT(EXISTS(SELF\property_definition.description)) OR&#10;       (NOT (SELF\property_definition.description IN ['constraint', &#10;        'part based constraint']) OR&#10;       (SIZEOF (QUERY (dc &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'design constraint') |&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'RULE_DEFINITION' IN &#10;       TYPEOF (dc.relating_property_definition.definition))) = 1))"/>
-         <where label="WR5" expression="NOT(EXISTS(SELF\property_definition.description)) OR&#10;       (NOT (SELF\property_definition.description = &#10;          'part based constraint') OR&#10;       (SIZEOF (QUERY (cp &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'constraining part') |&#10;       ('REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP' IN&#10;       TYPEOF (cp.relating_property_definition.definition)) AND&#10;       (cp.relating_property_definition.definition\product_definition_relationship.name = &#10;       'constraining part') AND&#10;   (cp.relating_property_definition.definition.related_product_definition.&#10;       frame_of_reference.name = 'design requirement'))) = 1))"/>
-         <where label="WR6" expression="NOT(EXISTS(SELF\property_definition.description)) OR&#10;       (NOT (SELF\property_definition.description = &#10;         'interface requirement') OR&#10;       (SIZEOF (QUERY (itnha &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'interface to next higher assembly') |&#10;       ('REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PRODUCT_DEFINITION' IN&#10;       TYPEOF (itnha.relating_property_definition.definition)) AND&#10;    (itnha.relating_property_definition.definition.frame_of_reference.name&#10;       = 'design requirement') AND&#10;       (SIZEOF (QUERY (hai &lt;* QUERY (pdr &lt;* &#10;       USEDIN (itnha.relating_property_definition.definition,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' + &#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'higher assembly interface') |&#10;       SIZEOF (QUERY (pdr &lt;* USEDIN (hai,&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       'REQUIREMENT_DECOMPOSITION_MIM.' +&#10;       'SPECIFIED_HIGHER_USAGE_OCCURRENCE'  &#10;       IN TYPEOF (pdr))) = 1)) = 1))) = 1))"/>
+         <where label="wr1" expression=" sizeof ( query ( pdr &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'property_definition_relationship.related_property_definition' ) | pdr \ property_definition_relationship . name = 'requirements property composition' ) ) &lt;= 1 "/>
+         <where label="wr2" expression=" sizeof ( query ( pdr &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'property_definition_representation.definition' ) | sizeof ( query ( it &lt;* pdr . used_representation . items | ( 'requirement_decomposition_mim.' + 'descriptive_representation_item' in typeof ( it ) ) and ( it \ representation_item . name = 'requirements description' ) ) ) = 1 ) ) &lt;= 1 "/>
+         <where label="wr3" expression=" sizeof ( query ( dr &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'applied_document_reference.items' ) | 'requirement_decomposition_mim.' + 'ee_specification' in typeof ( dr . assigned_document ) ) ) &gt;= 1 "/>
+         <where label="wr4" expression=" not ( exists ( self \ property_definition . description ) ) or ( not ( self \ property_definition . description in [ 'constraint' , 'part based constraint' ] ) or ( sizeof ( query ( dc &lt;* query ( pdr &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'property_definition_relationship.related_property_definition' ) | pdr \ property_definition_relationship . name = 'design constraint' ) | 'requirement_decomposition_mim.' + 'rule_definition' in typeof ( dc . relating_property_definition . definition ) ) ) = 1 ) ) "/>
+         <where label="wr5" expression=" not ( exists ( self \ property_definition . description ) ) or ( not ( self \ property_definition . description = 'part based constraint' ) or ( sizeof ( query ( cp &lt;* query ( pdr &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'property_definition_relationship.related_property_definition' ) | pdr \ property_definition_relationship . name = 'constraining part' ) | ( 'requirement_decomposition_mim.' + 'product_definition_relationship' in typeof ( cp . relating_property_definition . definition ) ) and ( cp . relating_property_definition . definition \ product_definition_relationship . name = 'constraining part' ) and ( cp . relating_property_definition . definition . related_product_definition . frame_of_reference . name = 'design requirement' ) ) ) = 1 ) ) "/>
+         <where label="wr6" expression=" not ( exists ( self \ property_definition . description ) ) or ( not ( self \ property_definition . description = 'interface requirement' ) or ( sizeof ( query ( itnha &lt;* query ( pdr &lt;* usedin ( self , 'requirement_decomposition_mim.' + 'property_definition_relationship.related_property_definition' ) | pdr \ property_definition_relationship . name = 'interface to next higher assembly' ) | ( 'requirement_decomposition_mim.' + 'product_definition' in typeof ( itnha . relating_property_definition . definition ) ) and ( itnha . relating_property_definition . definition . frame_of_reference . name = 'design requirement' ) and ( sizeof ( query ( hai &lt;* query ( pdr &lt;* usedin ( itnha . relating_property_definition . definition , 'requirement_decomposition_mim.' + 'product_definition_relationship.relating_product_definition' ) | pdr \ product_definition_relationship . name = 'higher assembly interface' ) | sizeof ( query ( pdr &lt;* usedin ( hai , 'requirement_decomposition_mim.' + 'product_definition_relationship.related_product_definition' ) | 'requirement_decomposition_mim.' + 'specified_higher_usage_occurrence' in typeof ( pdr ) ) ) = 1 ) ) = 1 ) ) ) = 1 ) ) "/>
       </entity>
       <rule name="operational_requirement_occurrence_relationship_constraint" appliesto="property_definition_relationship">
-         <where label="WR1" expression="SIZEOF(QUERY(pdr &lt;* property_definition_relationship |&#10;       ((pdr\property_definition_relationship.name = 'and operation')&#10;        OR (pdr\property_definition_relationship.name = 'or operation'))&#10;       AND NOT('REQUIREMENT_DECOMPOSITION_MIM.'&#10;        + 'REQUIREMENTS_PROPERTY' IN &#10;                             TYPEOF(pdr.related_property_definition))&#10;       )) = 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(pdr &lt;* property_definition_relationship |&#10;       ((pdr\property_definition_relationship.name = 'and operation')&#10;        OR (pdr\property_definition_relationship.name = 'or operation'))&#10;       AND NOT('REQUIREMENT_DECOMPOSITION_MIM.'&#10;        + 'REQUIREMENTS_PROPERTY' IN &#10;                           TYPEOF(pdr.relating_property_definition))&#10;       )) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( pdr &lt;* property_definition_relationship | ( ( pdr \ property_definition_relationship . name = 'and operation' ) or ( pdr \ property_definition_relationship . name = 'or operation' ) ) and not ( 'requirement_decomposition_mim.' + 'requirements_property' in typeof ( pdr . related_property_definition ) ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( pdr &lt;* property_definition_relationship | ( ( pdr \ property_definition_relationship . name = 'and operation' ) or ( pdr \ property_definition_relationship . name = 'or operation' ) ) and not ( 'requirement_decomposition_mim.' + 'requirements_property' in typeof ( pdr . relating_property_definition ) ) ) ) = 0 "/>
       </rule>
       <rule name="requirements_property_constraint" appliesto="product_definition descriptive_representation_item requirements_property">
-         <algorithm>LOCAL
-ri : BAG OF descriptive_representation_item := 
-         QUERY (dri &lt;* descriptive_representation_item 
-                              | dri\representation_item.name = 
-                                          'requirements name');
-pd : BAG OF product_definition:=
-         QUERY(tpd &lt;* product_definition
-               | ('REQUIREMENT_DECOMPOSITION_MIM.' +
-                  'APPLICATION_CONTEXT_ELEMENT' IN
-                  TYPEOF(tpd.frame_of_reference)) AND
-                  (tpd.frame_of_reference.name IN ['requirement',
-                                                   'design requirement',
-                                                   'assembly requirement'])
-                  AND
-                  (tpd.name = 'requirements model'));
-
-r : BAG OF representation := [];
-pdr : BAG OF property_definition_representation := [];
-pass1 : BOOLEAN := TRUE;
-
-rp : BAG OF property_definition := [];
-pass2 : BOOLEAN := TRUE;
-
-END_LOCAL;
-  (* WR1 Test *)
-  REPEAT i := 1 to SIZEOF (ri) by 1;
-     r := [];
-     pdr := [];
-     r := (USEDIN(ri[i],
-         'REQUIREMENT_DECOMPOSITION_MIM.' +
-             'REPRESENTATION.ITEMS'));
-     pass1 := (SIZEOF(r) = 1);
-     IF (NOT pass1) THEN ESCAPE; END_IF;
-
-     pdr := (USEDIN(r[1],
-             'REQUIREMENT_DECOMPOSITION_MIM.' +
-             'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
-     pass1 := (SIZEOF(pdr) = 1);
-     IF (NOT pass1) THEN ESCAPE; END_IF;
-
-     pass1 := ('REQUIREMENT_DECOMPOSITION_MIM.' +
-             'REQUIREMENTS_PROPERTY' IN TYPEOF(pdr[1].definition));
-     IF (NOT pass1) THEN ESCAPE; END_IF;
-  END_REPEAT;
-  (* WR2 Test *)
-  REPEAT i := 1 to SIZEOF (pd) by 1;
-     rp := [];
-     IF (NOT pass2) THEN ESCAPE; END_IF;
-     rp := QUERY(rp &lt;* USEDIN(pd[i],
-             'REQUIREMENT_DECOMPOSITION_MIM.' +
-             'PROPERTY_DEFINITION.DEFINITION') |
-             'REQUIREMENT_DECOMPOSITION_MIM.' +
-             'REQUIREMENTS_PROPERTY' IN TYPEOF(rp));
-     pass2 := (SIZEOF(rp) = 1);
-  END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass1"/>
-         <where label="WR2" expression="pass2"/>
+         <algorithm> local ri : bag of descriptive_representation_item := query ( dri &lt;* descriptive_representation_item | dri \ representation_item . name = 'requirements name' ) ; pd : bag of product_definition := query ( tpd &lt;* product_definition | ( 'requirement_decomposition_mim.' + 'application_context_element' in typeof ( tpd . frame_of_reference ) ) and ( tpd . frame_of_reference . name in [ 'requirement' , 'design requirement' , 'assembly requirement' ] ) and ( tpd . name = 'requirements model' ) ) ; r : bag of representation := [ ] ; pdr : bag of property_definition_representation := [ ] ; pass1 : boolean := true ; rp : bag of property_definition := [ ] ; pass2 : boolean := true ; end_local ; repeat i := 1 to sizeof ( ri ) by 1 ; r := [ ] ; pdr := [ ] ; r := ( usedin ( ri [ i ] , 'requirement_decomposition_mim.' + 'representation.items' ) ) ; pass1 := ( sizeof ( r ) = 1 ) ; if ( not pass1 ) then escape ; end_if ; pdr := ( usedin ( r [ 1 ] , 'requirement_decomposition_mim.' + 'property_definition_representation.used_representation' ) ) ; pass1 := ( sizeof ( pdr ) = 1 ) ; if ( not pass1 ) then escape ; end_if ; pass1 := ( 'requirement_decomposition_mim.' + 'requirements_property' in typeof ( pdr [ 1 ] . definition ) ) ; if ( not pass1 ) then escape ; end_if ; end_repeat ; repeat i := 1 to sizeof ( pd ) by 1 ; rp := [ ] ; if ( not pass2 ) then escape ; end_if ; rp := query ( rp &lt;* usedin ( pd [ i ] , 'requirement_decomposition_mim.' + 'property_definition.definition' ) | 'requirement_decomposition_mim.' + 'requirements_property' in typeof ( rp ) ) ; pass2 := ( sizeof ( rp ) = 1 ) ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass1 "/>
+         <where label="wr2" expression=" pass2 "/>
       </rule>
       <rule name="requirements_property_unique_constraint" appliesto="descriptive_representation_item requirements_property">
-         <algorithm>LOCAL
-desc_bag : BAG OF STRING := [];
-pass1 : BOOLEAN := TRUE;
-pdr : BAG OF property_definition_representation := [];
-rep : BAG OF representation := [];
-pd : BAG OF product_definition := [];
-
-END_LOCAL;
-  REPEAT i := 1 to SIZEOF (requirements_property) by 1;
-     IF (NOT pass1) THEN ESCAPE; END_IF;
-     IF ('REQUIREMENT_DECOMPOSITION_MIM.' +
-         'PRODUCT_DEFINITION' IN TYPEOF(requirements_property[i].definition))
-      THEN pd := pd + requirements_property[i].definition;
-     END_IF;
-  END_REPEAT;
-  IF (instance_unique(pd) = FALSE ) THEN pass1 := FALSE; END_IF;</algorithm>
-         <where label="WR1" expression="pass1"/>
+         <algorithm> local desc_bag : bag of string := [ ] ; pass1 : boolean := true ; pdr : bag of property_definition_representation := [ ] ; rep : bag of representation := [ ] ; pd : bag of product_definition := [ ] ; end_local ; repeat i := 1 to sizeof ( requirements_property ) by 1 ; if ( not pass1 ) then escape ; end_if ; if ( 'requirement_decomposition_mim.' + 'product_definition' in typeof ( requirements_property [ i ] . definition ) ) then pd := pd + requirements_property [ i ] . definition ; end_if ; end_repeat ; if ( instance_unique ( pd ) = false ) then pass1 := false ; end_if ; </algorithm>
+         <where label="wr1" expression=" pass1 "/>
       </rule>
       <function name="instance_unique">
          <parameter name="the_bag">
@@ -140,21 +71,7 @@ END_LOCAL;
             <builtintype type="GENERIC"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-
-      the_set : SET OF GENERIC : intype := [];
-      i : INTEGER ;
-      pass : BOOLEAN := TRUE;
-END_LOCAL ;
-
-      IF SIZEOF (the_bag) &gt; 0 THEN
-                  the_set := bag_to_set(the_bag);
-      END_IF ;
-      IF NOT(SIZEOF(the_set) = SIZEOF(the_bag)) THEN
-       pass := FALSE;
-      END_IF;
-
-      RETURN (pass);</algorithm>
+         <algorithm> local the_set : set of generic : intype := [ ] ; i : integer ; pass : boolean := true ; end_local ; if sizeof ( the_bag ) &gt; 0 then the_set := bag_to_set ( the_bag ) ; end_if ; if not ( sizeof ( the_set ) = sizeof ( the_bag ) ) then pass := false ; end_if ; return ( pass ) ; </algorithm>
       </function>
    </schema>
 </express>

@@ -2,193 +2,73 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:03" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:31" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_mim schema_instance"/>
-   <schema name="Physical_unit_design_view_mim">
-      <interface kind="use" schema="Feature_and_connection_zone_mim"/>
-      <interface kind="use" schema="Item_definition_structure_mim"/>
-      <interface kind="use" schema="Part_occurrence_mim"/>
-      <interface kind="use" schema="Part_view_definition_mim"/>
-      <interface kind="use" schema="Physical_unit_usage_view_mim"/>
-      <interface kind="use" schema="application_context_schema">
+   <schema name="PHYSICAL_UNIT_DESIGN_VIEW_MIM">
+      <interface kind="use" schema="FEATURE_AND_CONNECTION_ZONE_MIM"/>
+      <interface kind="use" schema="ITEM_DEFINITION_STRUCTURE_MIM"/>
+      <interface kind="use" schema="PART_OCCURRENCE_MIM"/>
+      <interface kind="use" schema="PART_VIEW_DEFINITION_MIM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_USAGE_VIEW_MIM"/>
+      <interface kind="use" schema="APPLICATION_CONTEXT_SCHEMA">
          <interfaced.item name="application_context_element"/>
       </interface>
+      <type name="pudv_requirement_assigned_item">
+         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="assembly_component_usage descriptive_representation_item"/>
+      </type>
       <entity name="assembly_component" supertypes="component_definition product_definition_shape"/>
       <entity name="component_definition" supertypes="product_definition">
-         <where label="WR1" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (sr_pdr &lt;* QUERY (pdr &lt;* USEDIN (pd,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'SHAPE_REPRESENTATION'&#10;       IN TYPEOF (pdr.used_representation)) |&#10;       sr_pdr.used_representation\representation.name = 'planar projected shape')) &#10;       &lt;= 1))) = 0"/>
-         <where label="WR2" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (sr_pdr &lt;* QUERY (pdr &lt;* USEDIN (pd,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'SHAPE_REPRESENTATION'&#10;       IN TYPEOF (pdr.used_representation)) |&#10;       sr_pdr.used_representation\representation.name = '3d bound volume shape')) &#10;       &lt;= 1))) = 0"/>
-         <where label="WR3" expression="(NOT (SELF\product_definition.description = &#10;                                         'bare die component')) OR&#10;       (SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated part') |&#10;       (SIZEOF (['PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'BARE_DIE',&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'EXTERNALLY_DEFINED_BARE_DIE',&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'LIBRARY_DEFINED_BARE_DIE'] *&#10;       TYPEOF (ip.relating_product_definition)) = 1) AND&#10;       (ip.relating_product_definition.frame_of_reference.name =&#10;       'physical design usage'))) = 1)"/>
-         <where label="WR4" expression="NOT(is_assembly_module_occurrence(SELF))&#10;       OR&#10;       (SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated part') |&#10;       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PHYSICAL_UNIT' IN&#10;       TYPEOF (ip.relating_product_definition)) AND&#10;       (ip.relating_product_definition.frame_of_reference.name =&#10;       'physical design usage') AND&#10;       (ip.relating_product_definition\product_definition.name = &#10;          'assembly module')&#10;       )) = 1)"/>
-         <where label="WR5" expression="NOT(is_assembly_module_occurrence(SELF))&#10;       OR&#10;       (SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (QUERY (sa &lt;* USEDIN (pd,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'SHAPE_ASPECT.OF_SHAPE') |&#10;       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'COMPONENT_TERMINAL' IN &#10;       TYPEOF (sa)) AND&#10;       (sa\shape_aspect.description = 'assembly module component terminal'))) &#10;       &gt;= 2)) &gt;= 1)"/>
-         <where label="WR6" expression="NOT(is_interconnect_module_occurrence(SELF))&#10;       OR&#10;       (SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated part') |&#10;       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PHYSICAL_UNIT' IN&#10;       TYPEOF (ip.relating_product_definition)) AND&#10;       (ip.relating_product_definition.frame_of_reference.name =&#10;       'physical design usage') AND&#10;        (SELF\product_definition.name = 'interconnect module')&#10;       )) = 1)"/>
-         <where label="WR8" expression="(NOT (SELF\product_definition.description = 'mating connector')) OR&#10;       (SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       pdr.used_representation\representation.name  = &#10;       'mating connector placement')) = 1)) = 1)"/>
-         <where label="WR9" expression="(NOT (SELF\product_definition.description = 'mating connector')) OR&#10;       ((SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') | &#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF(pdr))) = 0) AND&#10;       (SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | &#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF(pdr))) = 0))"/>
-         <where label="WR10" expression="SIZEOF(QUERY(pdr &lt;* USEDIN(SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;        NOT(NOT(pdr\product_definition_relationship.name = 'instantiated part')&#10;        OR &#10;        (SELF.formation :=: &#10;        pdr.relating_product_definition.formation))))&#10;        = 0"/>
-         <where label="WR11" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (sr_pdr &lt;* QUERY (pdr &lt;* USEDIN (pd,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'SHAPE_REPRESENTATION'&#10;       IN TYPEOF (pdr.used_representation)) |&#10;       (sr_pdr.used_representation\representation.name = &#10;        'part template non planar 2d shape')&#10;       OR&#10;       (sr_pdr.used_representation\representation.name = 'non planar 2d shape')&#10;       OR&#10;       (sr_pdr.used_representation\representation.name = &#10;        'open shell based surface'))) &#10;       &lt;= 1))) = 0"/>
-         <where label="WR13" expression="NOT(is_assembly_module_macro_occurrence(SELF))&#10;       OR&#10;       (SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'design definition') |&#10;       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PHYSICAL_UNIT' IN&#10;       TYPEOF (ip.relating_product_definition)) AND&#10;       (ip.relating_product_definition.frame_of_reference.name =&#10;       'physical design') AND&#10;       (ip.relating_product_definition\product_definition.name = &#10;           'assembly module')&#10;       )) = 1)"/>
-         <where label="WR14" expression="NOT(is_interconnect_module_macro_occurrence(SELF))&#10;        OR&#10;       (SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'design definition') |&#10;       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PHYSICAL_UNIT' IN&#10;       TYPEOF (ip.relating_product_definition)) AND&#10;       (ip.relating_product_definition.frame_of_reference.name =&#10;       'physical design') AND&#10;       (ip.relating_product_definition\product_definition.name = &#10;             'interconnect module')&#10;        )) = 1)"/>
-         <where label="WR15" expression="SIZEOF(QUERY(pdr &lt;* USEDIN(SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;        ((pdr\product_definition_relationship.name = 'instantiated definition')&#10;        AND&#10;        (NOT(SELF.formation :=:&#10;        pdr.relating_product_definition.formation)))))&#10;        = 0"/>
-         <where label="WR16" expression="(NOT (SELF\product_definition.description =&#10;                                         'routed interconnect component')) OR&#10;       ((SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated part') |&#10;       (SIZEOF (['PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +&#10;       'PHYSICAL_UNIT'] *&#10;       TYPEOF (ip.relating_product_definition)) = 1) AND&#10;       (ip.relating_product_definition.frame_of_reference.name =&#10;       'physical design usage'))) = 1) AND&#10;       (SELF.frame_of_reference.name = 'physical occurrence'))"/>
+         <where label="wr1" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'property_definition.definition' ) | not ( sizeof ( query ( sr_pdr &lt;* query ( pdr &lt;* usedin ( pd , 'physical_unit_design_view_mim.' + 'property_definition_representation.definition' ) | 'physical_unit_design_view_mim.' + 'shape_representation' in typeof ( pdr . used_representation ) ) | sr_pdr . used_representation \ representation . name = 'planar projected shape' ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'property_definition.definition' ) | not ( sizeof ( query ( sr_pdr &lt;* query ( pdr &lt;* usedin ( pd , 'physical_unit_design_view_mim.' + 'property_definition_representation.definition' ) | 'physical_unit_design_view_mim.' + 'shape_representation' in typeof ( pdr . used_representation ) ) | sr_pdr . used_representation \ representation . name = '3d bound volume shape' ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="wr3" expression=" ( not ( self \ product_definition . description = 'bare die component' ) ) or ( sizeof ( query ( ip &lt;* query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'instantiated part' ) | ( sizeof ( [ 'physical_unit_design_view_mim.' + 'bare_die' , 'physical_unit_design_view_mim.' + 'externally_defined_bare_die' , 'physical_unit_design_view_mim.' + 'library_defined_bare_die' ] * typeof ( ip . relating_product_definition ) ) = 1 ) and ( ip . relating_product_definition . frame_of_reference . name = 'physical design usage' ) ) ) = 1 ) "/>
+         <where label="wr4" expression=" not ( is_assembly_module_occurrence ( self ) ) or ( sizeof ( query ( ip &lt;* query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'instantiated part' ) | ( 'physical_unit_design_view_mim.' + 'physical_unit' in typeof ( ip . relating_product_definition ) ) and ( ip . relating_product_definition . frame_of_reference . name = 'physical design usage' ) and ( ip . relating_product_definition \ product_definition . name = 'assembly module' ) ) ) = 1 ) "/>
+         <where label="wr5" expression=" not ( is_assembly_module_occurrence ( self ) ) or ( sizeof ( query ( pd &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'property_definition.definition' ) | sizeof ( query ( sa &lt;* usedin ( pd , 'physical_unit_design_view_mim.' + 'shape_aspect.of_shape' ) | ( 'physical_unit_design_view_mim.' + 'component_terminal' in typeof ( sa ) ) and ( sa \ shape_aspect . description = 'assembly module component terminal' ) ) ) &gt;= 2 ) ) &gt;= 1 ) "/>
+         <where label="wr6" expression=" not ( is_interconnect_module_occurrence ( self ) ) or ( sizeof ( query ( ip &lt;* query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'instantiated part' ) | ( 'physical_unit_design_view_mim.' + 'physical_unit' in typeof ( ip . relating_product_definition ) ) and ( ip . relating_product_definition . frame_of_reference . name = 'physical design usage' ) and ( self \ product_definition . name = 'interconnect module' ) ) ) = 1 ) "/>
+         <where label="wr8" expression=" ( not ( self \ product_definition . description = 'mating connector' ) ) or ( sizeof ( query ( pd &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'property_definition.definition' ) | sizeof ( query ( pdr &lt;* usedin ( pd , 'physical_unit_design_view_mim.' + 'property_definition_representation.definition' ) | pdr . used_representation \ representation . name = 'mating connector placement' ) ) = 1 ) ) = 1 ) "/>
+         <where label="wr9" expression=" ( not ( self \ product_definition . description = 'mating connector' ) ) or ( ( sizeof ( query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.relating_product_definition' ) | 'physical_unit_design_view_mim.' + 'next_assembly_usage_occurrence' in typeof ( pdr ) ) ) = 0 ) and ( sizeof ( query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | 'physical_unit_design_view_mim.' + 'next_assembly_usage_occurrence' in typeof ( pdr ) ) ) = 0 ) ) "/>
+         <where label="wr10" expression=" sizeof ( query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | not ( not ( pdr \ product_definition_relationship . name = 'instantiated part' ) or ( self . formation :=: pdr . relating_product_definition . formation ) ) ) ) = 0 "/>
+         <where label="wr11" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'property_definition.definition' ) | not ( sizeof ( query ( sr_pdr &lt;* query ( pdr &lt;* usedin ( pd , 'physical_unit_design_view_mim.' + 'property_definition_representation.definition' ) | 'physical_unit_design_view_mim.' + 'shape_representation' in typeof ( pdr . used_representation ) ) | ( sr_pdr . used_representation \ representation . name = 'part template non planar 2d shape' ) or ( sr_pdr . used_representation \ representation . name = 'non planar 2d shape' ) or ( sr_pdr . used_representation \ representation . name = 'open shell based surface' ) ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="wr13" expression=" not ( is_assembly_module_macro_occurrence ( self ) ) or ( sizeof ( query ( ip &lt;* query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'design definition' ) | ( 'physical_unit_design_view_mim.' + 'physical_unit' in typeof ( ip . relating_product_definition ) ) and ( ip . relating_product_definition . frame_of_reference . name = 'physical design' ) and ( ip . relating_product_definition \ product_definition . name = 'assembly module' ) ) ) = 1 ) "/>
+         <where label="wr14" expression=" not ( is_interconnect_module_macro_occurrence ( self ) ) or ( sizeof ( query ( ip &lt;* query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'design definition' ) | ( 'physical_unit_design_view_mim.' + 'physical_unit' in typeof ( ip . relating_product_definition ) ) and ( ip . relating_product_definition . frame_of_reference . name = 'physical design' ) and ( ip . relating_product_definition \ product_definition . name = 'interconnect module' ) ) ) = 1 ) "/>
+         <where label="wr15" expression=" sizeof ( query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | ( ( pdr \ product_definition_relationship . name = 'instantiated definition' ) and ( not ( self . formation :=: pdr . relating_product_definition . formation ) ) ) ) ) = 0 "/>
+         <where label="wr16" expression=" ( not ( self \ product_definition . description = 'routed interconnect component' ) ) or ( ( sizeof ( query ( ip &lt;* query ( pdr &lt;* usedin ( self , 'physical_unit_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'instantiated part' ) | ( sizeof ( [ 'physical_unit_design_view_mim.' + 'physical_unit' ] * typeof ( ip . relating_product_definition ) ) = 1 ) and ( ip . relating_product_definition . frame_of_reference . name = 'physical design usage' ) ) ) = 1 ) and ( self . frame_of_reference . name = 'physical occurrence' ) ) "/>
       </entity>
       <entity name="thermal_component" supertypes="assembly_component"/>
       <rule name="assembly_composition_relationship_unique_constraint" appliesto="assembly_component_usage">
-         <algorithm>LOCAL
-  acr : BAG OF assembly_component_usage := 
- QUERY( acu &lt;* assembly_component_usage |
-(acu\product_definition_relationship.name = 'assembly composition') );
-  pu_bag : BAG OF physical_unit := [];
-  acu_bag : BAG OF assembly_component_usage;
-  pass : BOOLEAN := TRUE;
-  cd_bag : BAG OF component_definition;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(acr) by 1;
-  IF EXISTS( acr[i].relating_product_definition ) THEN
-    IF( (acr[i].relating_product_definition.frame_of_reference.name = 
-         'physical design')
-AND ('PHYSICAL_UNIT_USAGE_VIEW_MIM.' +
-'PHYSICAL_UNIT' IN TYPEOF(acr[i].relating_product_definition)) ) THEN
-      IF ( NOT ( acr[i].relating_product_definition IN pu_bag )) THEN
-        pu_bag := pu_bag + acr[i].relating_product_definition;
-      END_IF;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(pu_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  cd_bag := [];
-  acu_bag := QUERY( acu &lt;* acr | (acu.relating_product_definition :=: 
-                               pu_bag[i]) );
-  REPEAT j := 1 to SIZEOF(acu_bag) by 1;
-    IF EXISTS( acu_bag[j].related_product_definition ) THEN
-      IF ( 'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-'COMPONENT_DEFINITION' IN 
-             TYPEOF(acu_bag[j].related_product_definition) ) THEN
-        IF ( acu_bag[j].related_product_definition IN cd_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          cd_bag := cd_bag + acu_bag[j].related_product_definition;
-        END_IF;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local acr : bag of assembly_component_usage := query ( acu &lt;* assembly_component_usage | ( acu \ product_definition_relationship . name = 'assembly composition' ) ) ; pu_bag : bag of physical_unit := [ ] ; acu_bag : bag of assembly_component_usage ; pass : boolean := true ; cd_bag : bag of component_definition ; end_local ; repeat i := 1 to sizeof ( acr ) by 1 ; if exists ( acr [ i ] . relating_product_definition ) then if ( ( acr [ i ] . relating_product_definition . frame_of_reference . name = 'physical design' ) and ( 'physical_unit_usage_view_mim.' + 'physical_unit' in typeof ( acr [ i ] . relating_product_definition ) ) ) then if ( not ( acr [ i ] . relating_product_definition in pu_bag ) ) then pu_bag := pu_bag + acr [ i ] . relating_product_definition ; end_if ; end_if ; end_if ; end_repeat ; repeat i := 1 to sizeof ( pu_bag ) by 1 ; if ( not pass ) then escape ; end_if ; cd_bag := [ ] ; acu_bag := query ( acu &lt;* acr | ( acu . relating_product_definition :=: pu_bag [ i ] ) ) ; repeat j := 1 to sizeof ( acu_bag ) by 1 ; if exists ( acu_bag [ j ] . related_product_definition ) then if ( 'physical_unit_design_view_mim.' + 'component_definition' in typeof ( acu_bag [ j ] . related_product_definition ) ) then if ( acu_bag [ j ] . related_product_definition in cd_bag ) then pass := false ; escape ; else cd_bag := cd_bag + acu_bag [ j ] . related_product_definition ; end_if ; end_if ; end_if ; end_repeat ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
       <rule name="next_higher_assembly_relationship_unique_constraint" appliesto="next_assembly_usage_occurrence">
-         <algorithm>LOCAL
-  pu_bag : BAG OF physical_unit := [];
-  nauo_bag : BAG OF next_assembly_usage_occurrence;
-  pass : BOOLEAN := TRUE;
-  refdes_bag : BAG OF STRING;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(next_assembly_usage_occurrence) by 1;
-  IF EXISTS( next_assembly_usage_occurrence[i].relating_product_definition )
-                                                               THEN
-    IF( 
-(next_assembly_usage_occurrence[i].
-                relating_product_definition.frame_of_reference.name 
-                                                  = 'physical design')
-AND ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-'PHYSICAL_UNIT' 
-     IN TYPEOF(next_assembly_usage_occurrence[i].
-                                relating_product_definition)) ) THEN
-      IF ( NOT ( next_assembly_usage_occurrence[i].
-                                  relating_product_definition 
-                                              IN pu_bag )) THEN
-        pu_bag := pu_bag + 
-             next_assembly_usage_occurrence[i].relating_product_definition;
-      END_IF;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(pu_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  refdes_bag := [];
-  nauo_bag := QUERY( nauo &lt;* next_assembly_usage_occurrence | 
-                  (nauo.relating_product_definition :=: pu_bag[i]) );
-  REPEAT j := 1 to SIZEOF(nauo_bag) by 1;
-    IF EXISTS( nauo_bag[j].reference_designator ) THEN
-      IF ( nauo_bag[j].reference_designator IN refdes_bag ) THEN
-        pass := FALSE;
-        ESCAPE;
-      ELSE
-        refdes_bag := refdes_bag + nauo_bag[j].reference_designator;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local pu_bag : bag of physical_unit := [ ] ; nauo_bag : bag of next_assembly_usage_occurrence ; pass : boolean := true ; refdes_bag : bag of string ; end_local ; repeat i := 1 to sizeof ( next_assembly_usage_occurrence ) by 1 ; if exists ( next_assembly_usage_occurrence [ i ] . relating_product_definition ) then if ( ( next_assembly_usage_occurrence [ i ] . relating_product_definition . frame_of_reference . name = 'physical design' ) and ( 'physical_unit_design_view_mim.' + 'physical_unit' in typeof ( next_assembly_usage_occurrence [ i ] . relating_product_definition ) ) ) then if ( not ( next_assembly_usage_occurrence [ i ] . relating_product_definition in pu_bag ) ) then pu_bag := pu_bag + next_assembly_usage_occurrence [ i ] . relating_product_definition ; end_if ; end_if ; end_if ; end_repeat ; repeat i := 1 to sizeof ( pu_bag ) by 1 ; if ( not pass ) then escape ; end_if ; refdes_bag := [ ] ; nauo_bag := query ( nauo &lt;* next_assembly_usage_occurrence | ( nauo . relating_product_definition :=: pu_bag [ i ] ) ) ; repeat j := 1 to sizeof ( nauo_bag ) by 1 ; if exists ( nauo_bag [ j ] . reference_designator ) then if ( nauo_bag [ j ] . reference_designator in refdes_bag ) then pass := false ; escape ; else refdes_bag := refdes_bag + nauo_bag [ j ] . reference_designator ; end_if ; end_if ; end_repeat ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
       <function name="is_assembly_module_macro_occurrence">
          <parameter name="pd">
             <typename name="product_definition"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-  pass : BOOLEAN := FALSE;
-END_LOCAL;
-IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
-IF ((pd\product_definition.name = 'assembly module') AND
-   (pd.frame_of_reference\application_context_element.name = 'macro occurrence'))
-THEN
-    RETURN (TRUE);
-END_IF;
-RETURN (pass);</algorithm>
+         <algorithm> local pass : boolean := false ; end_local ; if not ( exists ( pd \ product_definition . name ) ) then return ( false ) ; end_if ; if ( ( pd \ product_definition . name = 'assembly module' ) and ( pd . frame_of_reference \ application_context_element . name = 'macro occurrence' ) ) then return ( true ) ; end_if ; return ( pass ) ; </algorithm>
       </function>
       <function name="is_assembly_module_occurrence">
          <parameter name="pd">
             <typename name="product_definition"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-  pass : BOOLEAN := FALSE;
-END_LOCAL;
-IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
-IF ((pd\product_definition.name = 'assembly module') AND
-   (pd.frame_of_reference\application_context_element.name = 'physical occurrence'))
-THEN
-    RETURN (TRUE);
-END_IF;
-RETURN (pass);</algorithm>
+         <algorithm> local pass : boolean := false ; end_local ; if not ( exists ( pd \ product_definition . name ) ) then return ( false ) ; end_if ; if ( ( pd \ product_definition . name = 'assembly module' ) and ( pd . frame_of_reference \ application_context_element . name = 'physical occurrence' ) ) then return ( true ) ; end_if ; return ( pass ) ; </algorithm>
       </function>
       <function name="is_interconnect_module_macro_occurrence">
          <parameter name="pd">
             <typename name="product_definition"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-  pass : BOOLEAN := FALSE;
-END_LOCAL;
-IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
-IF ((pd\product_definition.name = 'interconnect module') AND
-   (pd.frame_of_reference\application_context_element.name = 'macro occurrence'))
-THEN
-    RETURN (TRUE);
-END_IF;
-RETURN (pass);</algorithm>
+         <algorithm> local pass : boolean := false ; end_local ; if not ( exists ( pd \ product_definition . name ) ) then return ( false ) ; end_if ; if ( ( pd \ product_definition . name = 'interconnect module' ) and ( pd . frame_of_reference \ application_context_element . name = 'macro occurrence' ) ) then return ( true ) ; end_if ; return ( pass ) ; </algorithm>
       </function>
       <function name="is_interconnect_module_occurrence">
          <parameter name="pd">
             <typename name="product_definition"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-  pass : BOOLEAN := FALSE;
-END_LOCAL;
-IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
-IF ((pd\product_definition.name = 'interconnect module') AND
-   (pd.frame_of_reference\application_context_element.name = 'physical occurrence'))
-THEN
-    RETURN (TRUE);
-END_IF;
-RETURN (pass);</algorithm>
+         <algorithm> local pass : boolean := false ; end_local ; if not ( exists ( pd \ product_definition . name ) ) then return ( false ) ; end_if ; if ( ( pd \ product_definition . name = 'interconnect module' ) and ( pd . frame_of_reference \ application_context_element . name = 'physical occurrence' ) ) then return ( true ) ; end_if ; return ( pass ) ; </algorithm>
       </function>
    </schema>
 </express>

@@ -2,38 +2,38 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:02" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:30" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layout_macro_definition_mim schema_instance"/>
-   <schema name="Layout_macro_definition_mim">
-      <interface kind="use" schema="Fabrication_joint_mim"/>
-      <interface kind="use" schema="Layered_interconnect_module_with_printed_component_design_mim"/>
-      <interface kind="use" schema="Physical_unit_design_view_mim"/>
-      <interface kind="use" schema="Printed_physical_layout_template_mim"/>
-      <interface kind="use" schema="application_context_schema">
+   <schema name="LAYOUT_MACRO_DEFINITION_MIM">
+      <interface kind="use" schema="FABRICATION_JOINT_MIM"/>
+      <interface kind="use" schema="LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM"/>
+      <interface kind="use" schema="PHYSICAL_UNIT_DESIGN_VIEW_MIM"/>
+      <interface kind="use" schema="PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM"/>
+      <interface kind="use" schema="APPLICATION_CONTEXT_SCHEMA">
          <interfaced.item name="application_context_element"/>
       </interface>
       <entity name="layout_macro_component" supertypes="printed_component">
-         <where label="WR1" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (pt_occ &lt;* QUERY (sa &lt;* USEDIN (pd,&#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'SHAPE_ASPECT.OF_SHAPE') |&#10;       sa\shape_aspect.description = 'layout macro component shape aspect') |&#10;       SIZEOF (QUERY (it &lt;* QUERY (sar &lt;* USEDIN (pt_occ,&#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'instantiated template') |&#10;       ('LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN&#10;       TYPEOF (it.relating_shape_aspect))&#10;       )) = 1)) = 1))) = 0"/>
-         <where label="WR2" expression="SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'design definition') |&#10;       (SIZEOF (['LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'LAYOUT_MACRO_DEFINITION'] *&#10;       TYPEOF (ip.relating_product_definition)) = 1)&#10;       )) = 1"/>
-         <where label="WR3" expression="SELF\product_definition.description &lt;&gt; 'printed connector component'"/>
+         <where label="wr1" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'layout_macro_definition_mim.' + 'property_definition.definition' ) | not ( sizeof ( query ( pt_occ &lt;* query ( sa &lt;* usedin ( pd , 'layout_macro_definition_mim.' + 'shape_aspect.of_shape' ) | sa \ shape_aspect . description = 'layout macro component shape aspect' ) | sizeof ( query ( it &lt;* query ( sar &lt;* usedin ( pt_occ , 'layout_macro_definition_mim.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'instantiated template' ) | ( 'layout_macro_definition_mim.' + 'layout_macro_floor_plan_template' in typeof ( it . relating_shape_aspect ) ) ) ) = 1 ) ) = 1 ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( ip &lt;* query ( pdr &lt;* usedin ( self , 'layout_macro_definition_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'design definition' ) | ( sizeof ( [ 'layout_macro_definition_mim.' + 'layout_macro_definition' ] * typeof ( ip . relating_product_definition ) ) = 1 ) ) ) = 1 "/>
+         <where label="wr3" expression=" self \ product_definition . description &lt;&gt; 'printed connector component' "/>
       </entity>
       <entity name="layout_macro_definition" supertypes="physical_unit">
-         <where label="WR1" expression="EXISTS(SELF\product_definition.name)"/>
-         <where label="WR2" expression="SIZEOF (QUERY (du &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.' +&#10;       'RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'design usage') |&#10;       (SIZEOF (['LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'INTERCONNECT_DEFINITION', &#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'EXTERNALLY_DEFINED_INTERCONNECT_DEFINITION', &#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'LIBRARY_DEFINED_INTERCONNECT_DEFINITION'] *&#10;       TYPEOF (du.relating_product_definition)) = 1) AND&#10;       (du.relating_product_definition.frame_of_reference.name = &#10;       'physical design usage') AND&#10;       (du.relating_product_definition\product_definition.name = 'interconnect module')&#10;       )) = 0"/>
-         <where label="WR3" expression="SELF.frame_of_reference\application_context_element.name = 'physical design'"/>
-         <where label="WR4" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (pt_occ &lt;* QUERY (sa &lt;* USEDIN (pd,&#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'SHAPE_ASPECT.OF_SHAPE') |&#10;       sa\shape_aspect.description = 'layout macro definition shape aspect') |&#10;       SIZEOF (QUERY (it &lt;* QUERY (sar &lt;* USEDIN (pt_occ,&#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'floor layout view') |&#10;       ('LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN&#10;       TYPEOF (it.relating_shape_aspect))&#10;       )) = 1)) = 1))) = 0"/>
+         <where label="wr1" expression=" exists ( self \ product_definition . name ) "/>
+         <where label="wr2" expression=" sizeof ( query ( du &lt;* query ( pdr &lt;* usedin ( self , 'layout_macro_definition_mim.' + 'product_definition_relationship.' + 'related_product_definition' ) | pdr \ product_definition_relationship . name = 'design usage' ) | ( sizeof ( [ 'layout_macro_definition_mim.' + 'interconnect_definition' , 'layout_macro_definition_mim.' + 'externally_defined_interconnect_definition' , 'layout_macro_definition_mim.' + 'library_defined_interconnect_definition' ] * typeof ( du . relating_product_definition ) ) = 1 ) and ( du . relating_product_definition . frame_of_reference . name = 'physical design usage' ) and ( du . relating_product_definition \ product_definition . name = 'interconnect module' ) ) ) = 0 "/>
+         <where label="wr3" expression=" self . frame_of_reference \ application_context_element . name = 'physical design' "/>
+         <where label="wr4" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'layout_macro_definition_mim.' + 'property_definition.definition' ) | not ( sizeof ( query ( pt_occ &lt;* query ( sa &lt;* usedin ( pd , 'layout_macro_definition_mim.' + 'shape_aspect.of_shape' ) | sa \ shape_aspect . description = 'layout macro definition shape aspect' ) | sizeof ( query ( it &lt;* query ( sar &lt;* usedin ( pt_occ , 'layout_macro_definition_mim.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'floor layout view' ) | ( 'layout_macro_definition_mim.' + 'layout_macro_floor_plan_template' in typeof ( it . relating_shape_aspect ) ) ) ) = 1 ) ) = 1 ) ) ) = 0 "/>
       </entity>
       <entity name="layout_macro_definition_terminal_to_usage_terminal_assignment" supertypes="shape_aspect shape_aspect_relationship">
-         <unique label="UR1">
+         <unique label="ur1">
             <unique.attribute entity-ref="layout_macro_definition_terminal_to_usage_terminal_assignment" attribute="name"/>
          </unique>
-         <where label="WR1" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect_relationship ||&#10;       SELF\layout_macro_definition_terminal_to_usage_terminal_assignment ||&#10;       SELF\shape_aspect)) = 0"/>
-         <where label="WR2" expression="'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_TERMINAL' IN &#10;       TYPEOF(SELF\shape_aspect_relationship.relating_shape_aspect)"/>
-         <where label="WR3" expression="SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description&#10;       IN ['component termination passage join terminal',&#10;           'conductive interconnect element terminal',&#10;           'land join terminal',&#10;           'non functional land join terminal',&#10;           'printed component join terminal',&#10;           'via terminal']"/>
-         <where label="WR4" expression="SIZEOF(USEDIN(SELF, &#10;       'LAYOUT_MACRO_DEFINITION_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT')) &lt;= 1"/>
+         <where label="wr1" expression=" sizeof ( typeof ( self ) - typeof ( self \ shape_aspect_relationship || self \ layout_macro_definition_terminal_to_usage_terminal_assignment || self \ shape_aspect ) ) = 0 "/>
+         <where label="wr2" expression=" 'layout_macro_definition_mim.' + 'printed_part_template_terminal' in typeof ( self \ shape_aspect_relationship . relating_shape_aspect ) "/>
+         <where label="wr3" expression=" self \ shape_aspect_relationship . related_shape_aspect \ shape_aspect . description in [ 'component termination passage join terminal' , 'conductive interconnect element terminal' , 'land join terminal' , 'non functional land join terminal' , 'printed component join terminal' , 'via terminal' ] "/>
+         <where label="wr4" expression=" sizeof ( usedin ( self , 'layout_macro_definition_mim.' + 'shape_aspect_relationship.relating_shape_aspect' ) ) &lt;= 1 "/>
       </entity>
       <entity name="layout_macro_floor_plan_template" supertypes="part_template_definition">
-         <where label="WR1" expression="NOT(SELF\product_definition.description IN&#10;      ['component termination passage template',&#10;       'component termination passage template',&#10;       'default trace template',&#10;       'inter stratum feature template',&#10;       'printed connector template',&#10;       'printed part cross section template',&#10;       'printed part template',&#10;       'trace template',&#10;       'unsupported passage template',&#10;       'via template',&#10;       'non conductive cross section template'])"/>
+         <where label="wr1" expression=" not ( self \ product_definition . description in [ 'component termination passage template' , 'component termination passage template' , 'default trace template' , 'inter stratum feature template' , 'printed connector template' , 'printed part cross section template' , 'printed part template' , 'trace template' , 'unsupported passage template' , 'via template' , 'non conductive cross section template' ] ) "/>
       </entity>
    </schema>
 </express>

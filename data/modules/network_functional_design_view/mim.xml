@@ -2,180 +2,75 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:02" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-30T15:55:30" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="network_functional_design_view_mim schema_instance"/>
-   <schema name="Network_functional_design_view_mim">
-      <interface kind="use" schema="Model_parameter_mim"/>
-      <interface kind="use" schema="Network_functional_usage_view_mim"/>
-      <interface kind="use" schema="Part_occurrence_mim"/>
-      <interface kind="use" schema="Requirement_assignment_mim"/>
-      <interface kind="use" schema="material_property_definition_schema">
+   <schema name="NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM">
+      <interface kind="use" schema="MODEL_PARAMETER_MIM"/>
+      <interface kind="use" schema="NETWORK_FUNCTIONAL_USAGE_VIEW_MIM"/>
+      <interface kind="use" schema="PART_OCCURRENCE_MIM"/>
+      <interface kind="use" schema="REQUIREMENT_ASSIGNMENT_MIM"/>
+      <interface kind="use" schema="MATERIAL_PROPERTY_DEFINITION_SCHEMA">
          <interfaced.item name="property_definition_relationship"/>
       </interface>
-      <interface kind="reference" schema="support_resource_schema">
+      <interface kind="reference" schema="SUPPORT_RESOURCE_SCHEMA">
          <interfaced.item name="bag_to_set"/>
       </interface>
+      <type name="nfdv_requirement_assigned_item">
+         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="component_functional_unit"/>
+      </type>
       <entity name="bus_element_link" supertypes="product_definition product_definition_relationship">
-         <unique label="UR1">
+         <unique label="ur1">
             <unique.attribute entity-ref="bus_element_link" attribute="related_product_definition"/>
             <unique.attribute entity-ref="bus_element_link" attribute="relating_product_definition"/>
          </unique>
-         <where label="WR1" expression="SELF\product_definition_relationship.related_product_definition :&lt;&gt;:&#10;       SELF\product_definition_relationship.relating_product_definition"/>
-         <where label="WR2" expression="('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'BUS_STRUCTURAL_DEFINITION' IN&#10;       TYPEOF (SELF\product_definition_relationship.related_product_definition)) OR&#10;       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'NETWORK_NODE_DEFINITION' IN&#10;       TYPEOF (SELF\product_definition_relationship.related_product_definition))"/>
-         <where label="WR3" expression="('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'BUS_STRUCTURAL_DEFINITION' IN&#10;       TYPEOF (SELF\product_definition_relationship.relating_product_definition)) OR&#10;       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'NETWORK_NODE_DEFINITION' IN&#10;       TYPEOF (SELF\product_definition_relationship.relating_product_definition))"/>
-         <where label="WR4" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||&#10;       SELF\product_definition_relationship ||&#10;       SELF\bus_element_link)) = 0"/>
-         <where label="WR5" expression="NOT EXISTS(SELF\product_definition.name) OR &#10;        (SELF\product_definition.name = '')"/>
-         <where label="WR6" expression="SELF\product_definition_relationship.name = ''"/>
-         <where label="WR7" expression="SIZEOF(USEDIN(SELF, &#10;             'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) &gt;= 1"/>
+         <where label="wr1" expression=" self \ product_definition_relationship . related_product_definition :&lt;&gt;: self \ product_definition_relationship . relating_product_definition "/>
+         <where label="wr2" expression=" ( 'network_functional_design_view_mim.' + 'bus_structural_definition' in typeof ( self \ product_definition_relationship . related_product_definition ) ) or ( 'network_functional_design_view_mim.' + 'network_node_definition' in typeof ( self \ product_definition_relationship . related_product_definition ) ) "/>
+         <where label="wr3" expression=" ( 'network_functional_design_view_mim.' + 'bus_structural_definition' in typeof ( self \ product_definition_relationship . relating_product_definition ) ) or ( 'network_functional_design_view_mim.' + 'network_node_definition' in typeof ( self \ product_definition_relationship . relating_product_definition ) ) "/>
+         <where label="wr4" expression=" sizeof ( typeof ( self ) - typeof ( self \ product_definition || self \ product_definition_relationship || self \ bus_element_link ) ) = 0 "/>
+         <where label="wr5" expression=" not exists ( self \ product_definition . name ) or ( self \ product_definition . name = '' ) "/>
+         <where label="wr6" expression=" self \ product_definition_relationship . name = '' "/>
+         <where label="wr7" expression=" sizeof ( usedin ( self , 'network_functional_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) ) &gt;= 1 "/>
       </entity>
       <entity name="bus_structural_definition" supertypes="product_definition">
-         <where label="WR1" expression="SIZEOF (QUERY (bce &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'bus composition') |&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'BUS_ELEMENT_LINK' IN&#10;       TYPEOF (bce.related_product_definition))) &gt;= 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (QUERY (pdr &lt;* USEDIN (pd, &#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = &#10;       'functional unit network terminal definition bus assignment')) &#10;       &lt;= 1)) &lt;= 1"/>
-         <where label="WR3" expression="consistent_bus_structural_definition(bag_to_set(QUERY( pdr &lt;* USEDIN(SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'BUS_ELEMENT_LINK' IN TYPEOF(pdr.related_product_definition))))"/>
+         <where label="wr1" expression=" sizeof ( query ( bce &lt;* query ( pdr &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'product_definition_relationship.relating_product_definition' ) | pdr \ product_definition_relationship . name = 'bus composition' ) | 'network_functional_design_view_mim.' + 'bus_element_link' in typeof ( bce . related_product_definition ) ) ) &gt;= 1 "/>
+         <where label="wr2" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'property_definition.definition' ) | sizeof ( query ( pdr &lt;* usedin ( pd , 'network_functional_design_view_mim.' + 'property_definition_relationship.relating_property_definition' ) | pdr \ property_definition_relationship . name = 'functional unit network terminal definition bus assignment' ) ) &lt;= 1 ) ) &lt;= 1 "/>
+         <where label="wr3" expression=" consistent_bus_structural_definition ( bag_to_set ( query ( pdr &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'product_definition_relationship.relating_product_definition' ) | 'network_functional_design_view_mim.' + 'bus_element_link' in typeof ( pdr . related_product_definition ) ) ) ) "/>
       </entity>
       <entity name="component_functional_terminal" supertypes="shape_aspect">
-         <where label="WR1" expression="'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'COMPONENT_FUNCTIONAL_UNIT' IN&#10;       TYPEOF (SELF.of_shape.definition)"/>
-         <where label="WR2" expression="SIZEOF (QUERY (it &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'instantiated terminal') |&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION'&#10;       IN TYPEOF (it.relating_shape_aspect))) = 1"/>
-         <where label="WR3" expression="SIZEOF (QUERY (futba &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'functional unit terminal bus assignment') |&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'BUS_STRUCTURAL_DEFINITION' IN &#10;       TYPEOF (futba.relating_property_definition.definition))) &lt;= 1"/>
-         <where label="WR4" expression="SIZEOF (QUERY (futna &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'functional unit terminal node assignment') |&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'NETWORK_NODE_DEFINITION' IN &#10;       TYPEOF (futna.relating_property_definition.definition))) &lt;= 1"/>
+         <where label="wr1" expression=" 'network_functional_design_view_mim.' + 'component_functional_unit' in typeof ( self . of_shape . definition ) "/>
+         <where label="wr2" expression=" sizeof ( query ( it &lt;* query ( sar &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'instantiated terminal' ) | 'network_functional_design_view_mim.' + 'functional_unit_terminal_definition' in typeof ( it . relating_shape_aspect ) ) ) = 1 "/>
+         <where label="wr3" expression=" sizeof ( query ( futba &lt;* query ( pdr &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'property_definition_relationship.related_property_definition' ) | pdr \ property_definition_relationship . name = 'functional unit terminal bus assignment' ) | 'network_functional_design_view_mim.' + 'bus_structural_definition' in typeof ( futba . relating_property_definition . definition ) ) ) &lt;= 1 "/>
+         <where label="wr4" expression=" sizeof ( query ( futna &lt;* query ( pdr &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'property_definition_relationship.related_property_definition' ) | pdr \ property_definition_relationship . name = 'functional unit terminal node assignment' ) | 'network_functional_design_view_mim.' + 'network_node_definition' in typeof ( futna . relating_property_definition . definition ) ) ) &lt;= 1 "/>
       </entity>
       <entity name="component_functional_unit" supertypes="product_definition">
-         <where label="WR1" expression="SELF.frame_of_reference.name = 'functional occurrence'"/>
-         <where label="WR2" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF, &#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (QUERY (sa &lt;* USEDIN (pd,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'SHAPE_ASPECT.OF_SHAPE') |&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'COMPONENT_FUNCTIONAL_TERMINAL' IN&#10;       TYPEOF (sa))) &gt;= 1)) &gt;= 1"/>
-         <where label="WR3" expression="SIZEOF (QUERY (ifu &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated functional unit') |&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'FUNCTIONAL_UNIT' IN &#10;       TYPEOF (ifu.relating_product_definition))) = 1"/>
-         <where label="WR4" expression="SIZEOF (QUERY (nc &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'network composition') |&#10;       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'FUNCTIONAL_UNIT' IN &#10;       TYPEOF (nc.relating_product_definition)) AND&#10;       (nc.relating_product_definition.frame_of_reference.name =&#10;       'functional network design'))) = 1"/>
+         <where label="wr1" expression=" self . frame_of_reference . name = 'functional occurrence' "/>
+         <where label="wr2" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'property_definition.definition' ) | sizeof ( query ( sa &lt;* usedin ( pd , 'network_functional_design_view_mim.' + 'shape_aspect.of_shape' ) | 'network_functional_design_view_mim.' + 'component_functional_terminal' in typeof ( sa ) ) ) &gt;= 1 ) ) &gt;= 1 "/>
+         <where label="wr3" expression=" sizeof ( query ( ifu &lt;* query ( pdr &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'instantiated functional unit' ) | 'network_functional_design_view_mim.' + 'functional_unit' in typeof ( ifu . relating_product_definition ) ) ) = 1 "/>
+         <where label="wr4" expression=" sizeof ( query ( nc &lt;* query ( pdr &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | pdr \ product_definition_relationship . name = 'network composition' ) | ( 'network_functional_design_view_mim.' + 'functional_unit' in typeof ( nc . relating_product_definition ) ) and ( nc . relating_product_definition . frame_of_reference . name = 'functional network design' ) ) ) = 1 "/>
       </entity>
       <entity name="network_node_definition" supertypes="product_definition">
-         <where label="WR1" expression="SELF.frame_of_reference.name = 'functional network design'"/>
-         <where label="WR2" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (QUERY (funtdna &lt;* QUERY (pdr &lt;* USEDIN (pd,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name =&#10;       'functional unit network terminal definition node assignment') |&#10;       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_SHAPE' IN &#10;       TYPEOF (funtdna.related_property_definition)) AND&#10;       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' + &#10;       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' IN &#10;       TYPEOF &#10;       (funtdna.related_property_definition.definition)))) &lt;= 1)) &lt;= 1"/>
-         <where label="WR3" expression="SIZEOF (QUERY (funn &lt;* USEDIN (SELF, &#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'FUNCTIONAL_UNIT' IN &#10;       TYPEOF (funn.relating_product_definition)) AND&#10;       (funn.relating_product_definition.frame_of_reference.name =&#10;       'functional network design'))) = 1"/>
+         <where label="wr1" expression=" self . frame_of_reference . name = 'functional network design' "/>
+         <where label="wr2" expression=" sizeof ( query ( pd &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'property_definition.definition' ) | sizeof ( query ( funtdna &lt;* query ( pdr &lt;* usedin ( pd , 'network_functional_design_view_mim.' + 'property_definition_relationship.relating_property_definition' ) | pdr \ property_definition_relationship . name = 'functional unit network terminal definition node assignment' ) | ( 'network_functional_design_view_mim.' + 'product_definition_shape' in typeof ( funtdna . related_property_definition ) ) and ( 'network_functional_design_view_mim.' + 'functional_unit_terminal_definition' in typeof ( funtdna . related_property_definition . definition ) ) ) ) &lt;= 1 ) ) &lt;= 1 "/>
+         <where label="wr3" expression=" sizeof ( query ( funn &lt;* usedin ( self , 'network_functional_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | ( 'network_functional_design_view_mim.' + 'functional_unit' in typeof ( funn . relating_product_definition ) ) and ( funn . relating_product_definition . frame_of_reference . name = 'functional network design' ) ) ) = 1 "/>
       </entity>
       <rule name="bus_structural_definition_unique_constraint" appliesto="bus_structural_definition product_definition_formation product">
-         <algorithm>LOCAL
-  pass : BOOLEAN := TRUE;
-  name_bag : BAG OF STRING := [];
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(bus_structural_definition) by 1;
-  IF EXISTS( bus_structural_definition[i].formation.of_product.name ) THEN
-    IF (bus_structural_definition[i].formation.of_product.name IN 
-                                                       name_bag) THEN
-      pass := FALSE;
-      ESCAPE;
-    ELSE
-      name_bag := name_bag + 
-bus_structural_definition[i]\product_definition.formation.of_product.name;
-    END_IF;
-  END_IF;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local pass : boolean := true ; name_bag : bag of string := [ ] ; end_local ; repeat i := 1 to sizeof ( bus_structural_definition ) by 1 ; if exists ( bus_structural_definition [ i ] . formation . of_product . name ) then if ( bus_structural_definition [ i ] . formation . of_product . name in name_bag ) then pass := false ; escape ; else name_bag := name_bag + bus_structural_definition [ i ] \ product_definition . formation . of_product . name ; end_if ; end_if ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
       <rule name="functional_unit_network_node_definition_unique_constraint" appliesto="network_node_definition">
-         <algorithm>LOCAL
-  funnd : BAG OF network_node_definition := 
- QUERY( nnd &lt;* network_node_definition
-| (nnd.frame_of_reference.name = 'functional network design') );
-  name_bag : BAG OF STRING := [];
-  nnd_bag : BAG OF network_node_definition;
-  pdr_bag : BAG OF product_definition_relationship;
-  pass : BOOLEAN := TRUE;
-  fu_bag : BAG OF functional_unit;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(funnd) by 1;
-  IF EXISTS( funnd[i]\product_definition.name ) THEN
-    IF( NOT( funnd[i]\product_definition.name IN name_bag ) ) THEN
-      name_bag := name_bag + funnd[i]\product_definition.name;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(name_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  fu_bag := [];
-  nnd_bag := QUERY( nnd &lt;* funnd | (nnd\product_definition.name = 
-          name_bag[i]) );
-  REPEAT j := 1 to SIZEOF(nnd_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    pdr_bag := QUERY( pdr &lt;* USEDIN( nnd_bag[j], 
-'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.'
-+ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
-(('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
-'FUNCTIONAL_UNIT' IN TYPEOF(pdr.relating_product_definition)) AND 
-                  (pdr\product_definition_relationship.name = 'functional unit network node')) );
-    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
-      IF EXISTS( pdr_bag[k].relating_product_definition ) THEN
-        IF ( pdr_bag[k].relating_product_definition IN fu_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          fu_bag := fu_bag + pdr_bag[k].relating_product_definition;
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local funnd : bag of network_node_definition := query ( nnd &lt;* network_node_definition | ( nnd . frame_of_reference . name = 'functional network design' ) ) ; name_bag : bag of string := [ ] ; nnd_bag : bag of network_node_definition ; pdr_bag : bag of product_definition_relationship ; pass : boolean := true ; fu_bag : bag of functional_unit ; end_local ; repeat i := 1 to sizeof ( funnd ) by 1 ; if exists ( funnd [ i ] \ product_definition . name ) then if ( not ( funnd [ i ] \ product_definition . name in name_bag ) ) then name_bag := name_bag + funnd [ i ] \ product_definition . name ; end_if ; end_if ; end_repeat ; repeat i := 1 to sizeof ( name_bag ) by 1 ; if ( not pass ) then escape ; end_if ; fu_bag := [ ] ; nnd_bag := query ( nnd &lt;* funnd | ( nnd \ product_definition . name = name_bag [ i ] ) ) ; repeat j := 1 to sizeof ( nnd_bag ) by 1 ; if ( not pass ) then escape ; end_if ; pdr_bag := query ( pdr &lt;* usedin ( nnd_bag [ j ] , 'network_functional_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | ( ( 'network_functional_design_view_mim.' + 'functional_unit' in typeof ( pdr . relating_product_definition ) ) and ( pdr \ product_definition_relationship . name = 'functional unit network node' ) ) ) ; repeat k := 1 to sizeof ( pdr_bag ) by 1 ; if exists ( pdr_bag [ k ] . relating_product_definition ) then if ( pdr_bag [ k ] . relating_product_definition in fu_bag ) then pass := false ; escape ; else fu_bag := fu_bag + pdr_bag [ k ] . relating_product_definition ; end_if ; end_if ; end_repeat ; end_repeat ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
       <rule name="functional_unit_network_terminal_definition_bus_assignment_constraint" appliesto="property_definition_relationship">
-         <where label="WR1" expression="SIZEOF(QUERY(pdr &lt;* property_definition_relationship |&#10;  (pdr\property_definition_relationship.name = 'functional unit network terminal definition bus assignment')&#10;       AND NOT('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'BUS_STRUCTURAL_DEFINITION' IN&#10;       TYPEOF(pdr.relating_property_definition.definition))&#10;       )) = 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(pdr &lt;* property_definition_relationship |&#10;  (pdr\property_definition_relationship.name = 'functional unit network terminal definition bus assignment')&#10;       AND NOT(('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'PRODUCT_DEFINITION_SHAPE' IN&#10;       TYPEOF(pdr.related_property_definition.definition))&#10;       AND (SIZEOF(QUERY(futd &lt;* &#10;                       USEDIN(pdr.related_property_definition.definition,&#10;       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'SHAPE_ASPECT.OF_SHAPE') |&#10;       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +&#10;       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION.OF_SHAPE' IN TYPEOF(futd))&#10;       )) &gt; 0)))) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( pdr &lt;* property_definition_relationship | ( pdr \ property_definition_relationship . name = 'functional unit network terminal definition bus assignment' ) and not ( 'network_functional_design_view_mim.' + 'bus_structural_definition' in typeof ( pdr . relating_property_definition . definition ) ) ) ) = 0 "/>
+         <where label="wr2" expression=" sizeof ( query ( pdr &lt;* property_definition_relationship | ( pdr \ property_definition_relationship . name = 'functional unit network terminal definition bus assignment' ) and not ( ( 'network_functional_design_view_mim.' + 'product_definition_shape' in typeof ( pdr . related_property_definition . definition ) ) and ( sizeof ( query ( futd &lt;* usedin ( pdr . related_property_definition . definition , 'network_functional_design_view_mim.' + 'shape_aspect.of_shape' ) | ( 'network_functional_design_view_mim.' + 'functional_unit_terminal_definition.of_shape' in typeof ( futd ) ) ) ) &gt; 0 ) ) ) ) = 0 "/>
       </rule>
       <rule name="functional_unit_terminal_bus_assignment_constraint" appliesto="property_definition_relationship">
-         <where label="WR1" expression="SIZEOF(QUERY(pdr &lt;* property_definition_relationship |&#10;       (pdr\property_definition_relationship.name = 'functional unit terminal bus assignment')&#10;       AND NOT('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.'&#10;       + 'BUS_STRUCTURAL_DEFINITION'&#10;       IN TYPEOF(pdr.relating_property_definition.definition))&#10;       )) = 0"/>
+         <where label="wr1" expression=" sizeof ( query ( pdr &lt;* property_definition_relationship | ( pdr \ property_definition_relationship . name = 'functional unit terminal bus assignment' ) and not ( 'network_functional_design_view_mim.' + 'bus_structural_definition' in typeof ( pdr . relating_property_definition . definition ) ) ) ) = 0 "/>
       </rule>
       <rule name="functional_unit_unique_constraint" appliesto="component_functional_unit">
-         <algorithm>LOCAL
-  fu : BAG OF component_functional_unit := 
-QUERY( cfu &lt;* component_functional_unit
-| (cfu.frame_of_reference.name = 'functional occurrence') );
-  id_bag : BAG OF STRING := [];
-  cfu_bag : BAG OF component_functional_unit;
-  pdr_bag : BAG OF product_definition_relationship;
-  pass : BOOLEAN := TRUE;
-  fu_bag : BAG OF functional_unit;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(fu) by 1;
-  IF EXISTS( fu[i].id ) THEN
-    IF( NOT( fu[i].id IN id_bag ) ) THEN
-      id_bag := id_bag + fu[i].id;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(id_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  fu_bag := [];
-  cfu_bag := QUERY( cfu &lt;* fu | (cfu.id = id_bag[i]) );
-  REPEAT j := 1 to SIZEOF(cfu_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    pdr_bag := QUERY( pdr &lt;* USEDIN( cfu_bag[j], 
-'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.'
-+ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
-((pdr\product_definition_relationship.name = 'network composition')
-AND ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' + 
-'FUNCTIONAL_UNIT'
-IN TYPEOF(pdr.relating_product_definition)) AND 
-      (pdr.relating_product_definition.frame_of_reference.name =
-       'functional network design')) );
-    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
-      IF EXISTS( pdr_bag[k].relating_product_definition ) THEN
-        IF ( pdr_bag[k].relating_product_definition IN fu_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          fu_bag := fu_bag + pdr_bag[k].relating_product_definition;
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
+         <algorithm> local fu : bag of component_functional_unit := query ( cfu &lt;* component_functional_unit | ( cfu . frame_of_reference . name = 'functional occurrence' ) ) ; id_bag : bag of string := [ ] ; cfu_bag : bag of component_functional_unit ; pdr_bag : bag of product_definition_relationship ; pass : boolean := true ; fu_bag : bag of functional_unit ; end_local ; repeat i := 1 to sizeof ( fu ) by 1 ; if exists ( fu [ i ] . id ) then if ( not ( fu [ i ] . id in id_bag ) ) then id_bag := id_bag + fu [ i ] . id ; end_if ; end_if ; end_repeat ; repeat i := 1 to sizeof ( id_bag ) by 1 ; if ( not pass ) then escape ; end_if ; fu_bag := [ ] ; cfu_bag := query ( cfu &lt;* fu | ( cfu . id = id_bag [ i ] ) ) ; repeat j := 1 to sizeof ( cfu_bag ) by 1 ; if ( not pass ) then escape ; end_if ; pdr_bag := query ( pdr &lt;* usedin ( cfu_bag [ j ] , 'network_functional_design_view_mim.' + 'product_definition_relationship.related_product_definition' ) | ( ( pdr \ product_definition_relationship . name = 'network composition' ) and ( 'network_functional_design_view_mim.' + 'functional_unit' in typeof ( pdr . relating_product_definition ) ) and ( pdr . relating_product_definition . frame_of_reference . name = 'functional network design' ) ) ) ; repeat k := 1 to sizeof ( pdr_bag ) by 1 ; if exists ( pdr_bag [ k ] . relating_product_definition ) then if ( pdr_bag [ k ] . relating_product_definition in fu_bag ) then pass := false ; escape ; else fu_bag := fu_bag + pdr_bag [ k ] . relating_product_definition ; end_if ; end_if ; end_repeat ; end_repeat ; end_repeat ; </algorithm>
+         <where label="wr1" expression=" pass "/>
       </rule>
       <function name="consistent_bus_structural_definition">
          <parameter name="input_rel">
@@ -183,40 +78,7 @@ END_REPEAT;</algorithm>
             <typename name="product_definition_relationship"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL  
-        input : SET OF product_definition := [];
-       vertex : SET OF product_definition := []; 
-         edge : INTEGER := SIZEOF(input);
-           vc : INTEGER := 0;
-vertex_degree : INTEGER := 0;    
-END_LOCAL;    
-REPEAT i := 1 to SIZEOF(input_rel) BY 1;
-      input := input + input_rel[i].related_product_definition;
-END_REPEAT;
-
-REPEAT i := 1 TO SIZEOF(input) BY 1;
-      vertex := vertex + input[i]\product_definition_relationship.relating_product_definition;
-      vertex := vertex + input[i]\product_definition_relationship.related_product_definition;
-END_REPEAT;
-     vc := SIZEOF(vertex);
-    IF ( vc &lt;&gt; ( edge + 1 )) THEN 
-      RETURN(FALSE);
-    END_IF;
-REPEAT i := 1 TO vc BY 1;
-      vertex_degree := 0;
-      REPEAT j := 1 to SIZEOF(input) BY 1;
-        IF input[j]\product_definition_relationship.relating_product_definition = vertex[i] THEN 
-          vertex_degree := vertex_degree + 1;
-        END_IF;
-        IF input[j]\product_definition_relationship.related_product_definition = vertex[i] THEN 
-          vertex_degree := vertex_degree + 1;
-        END_IF;
-      END_REPEAT;
-      IF (vertex_degree &gt; 2) THEN
-        RETURN(FALSE);
-      END_IF;
-END_REPEAT;    
-RETURN(TRUE);</algorithm>
+         <algorithm> local input : set of product_definition := [ ] ; vertex : set of product_definition := [ ] ; edge : integer := sizeof ( input ) ; vc : integer := 0 ; vertex_degree : integer := 0 ; end_local ; repeat i := 1 to sizeof ( input_rel ) by 1 ; input := input + input_rel [ i ] . related_product_definition ; end_repeat ; repeat i := 1 to sizeof ( input ) by 1 ; vertex := vertex + input [ i ] \ product_definition_relationship . relating_product_definition ; vertex := vertex + input [ i ] \ product_definition_relationship . related_product_definition ; end_repeat ; vc := sizeof ( vertex ) ; if ( vc &lt;&gt; ( edge + 1 ) ) then return ( false ) ; end_if ; repeat i := 1 to vc by 1 ; vertex_degree := 0 ; repeat j := 1 to sizeof ( input ) by 1 ; if input [ j ] \ product_definition_relationship . relating_product_definition = vertex [ i ] then vertex_degree := vertex_degree + 1 ; end_if ; if input [ j ] \ product_definition_relationship . related_product_definition = vertex [ i ] then vertex_degree := vertex_degree + 1 ; end_if ; end_repeat ; if ( vertex_degree &gt; 2 ) then return ( false ) ; end_if ; end_repeat ; return ( true ) ; </algorithm>
       </function>
    </schema>
 </express>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: resource_part_list.xsl,v 1.2 2002/12/11 22:30:53 thendrix Exp $
+$Id: resource_part_list.xsl,v 1.3 2002/12/11 22:55:58 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of resource parts
@@ -107,8 +107,6 @@ $Id: resource_part_list.xsl,v 1.2 2002/12/11 22:30:53 thendrix Exp $
         &#160;
         <a href="{$iso_href}" target="content">Introduction</a>
         &#160;
-        <xsl:call-template name="schema_section_list" />
-        <a href="{$express_g}" target="content">EXPRESS-G</a>
       </p>
     </div>
 
@@ -165,8 +163,7 @@ $Id: resource_part_list.xsl,v 1.2 2002/12/11 22:30:53 thendrix Exp $
   </div>
   
 
- 
-  <!-- Main view menu (CLOSED) -->
+   <!-- Main view menu (CLOSED) -->
   <div id="{$NoMenu}">
     <p class="menulist">
       <a href="javascript:swap({$Menu}, {$NoMenu});">
@@ -179,48 +176,5 @@ $Id: resource_part_list.xsl,v 1.2 2002/12/11 22:30:53 thendrix Exp $
     </p>
   </div>
 </xsl:template>
-
-<xsl:template name="schema_section_list">
-  <!-- depth of xsl/res_doc is the same as nav\xsl -->
-
-  <xsl:variable name="resdoc_dir">
-    <xsl:call-template name="resdoc_directory">
-      <xsl:with-param name="resdoc" select="./@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="resource_xml" 
-    select="concat($resdoc_dir,'/resource.xml')"/>
-  <xsl:message >
-    resdoc_dir: <xsl:value-of select="$resdoc_dir"/> : resource_dir
-  </xsl:message>
-
-      <xsl:apply-templates 
-        select="document($resource_xml)/resource/schema"
-        mode="schema_sect">
-        <xsl:with-param name="resource_xml" select="$resource_xml"/>
-      </xsl:apply-templates>
-</xsl:template>
-
-<xsl:template match="schema" mode="schema_sect">
-  <xsl:param name="resource_xml"/>
-
-  <xsl:variable name="schema_sect_url"
-    select="concat('../data/resource_docs/',../@name,'/sys/',(number(position())+3),'_schema',$FILE_EXT)" />
-
-    <xsl:variable name="schema_name">
-     <xsl:call-template name="resource_name">
-      <xsl:with-param name="resource" select="./@name" />
-    </xsl:call-template>
-    </xsl:variable>
-    <xsl:variable name="sch_dis_name">
-     <xsl:call-template name="res_display_name">
-      <xsl:with-param name="res" select="$schema_name" />
-    </xsl:call-template>
-    </xsl:variable>
-
- <a href="{$schema_sect_url}" target="content">
-          <xsl:value-of select="$sch_dis_name" />
-          </a><br/>
  
-</xsl:template>
 </xsl:stylesheet>

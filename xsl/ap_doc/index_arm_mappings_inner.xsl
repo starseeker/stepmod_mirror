@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_inner.xsl,v 1.2 2003/05/22 23:47:36 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.1 2003/05/23 09:29:11 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -58,7 +58,7 @@ $Id: index_arm_modules_inner.xsl,v 1.2 2003/05/22 23:47:36 nigelshaw Exp $
 
     </head>
   <body>
-
+   <small>
 
 	<xsl:variable name="top_module_node"
 	    select="document($top_module_file)/express"/>
@@ -124,7 +124,7 @@ $Id: index_arm_modules_inner.xsl,v 1.2 2003/05/22 23:47:36 nigelshaw Exp $
 			</xsl:when>
 
 			</xsl:choose>
-  
+  </small>
   </body>
 </HTML>
 </xsl:template>
@@ -150,23 +150,36 @@ $Id: index_arm_modules_inner.xsl,v 1.2 2003/05/22 23:47:36 nigelshaw Exp $
 
 <xsl:template match="entity" mode="module-index" >
 
-		<xsl:variable name="mod-name" select="substring-before(@name,'_arm')" />
+		<xsl:variable name="mod-name" select="substring-before(../@name,'_arm')" />
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
 
-<!--		<xsl:variable name="first-letter" select="substring(@name,1,1)" />
-		<xsl:if test="not($first-letter=substring(preceding::schema[1]/@name,1,1))" >
-			<br/>
-			<A NAME="letter-{$first-letter}" ><b><xsl:value-of select="$first-letter" /></b></A>
-			<br/>
-			<br/>
-		</xsl:if>
--->
-		MAPPING: 
-		<A HREF="{$mod-dir}/sys/1_scope{$FILE_EXT}" TARGET="content"><xsl:value-of select="$mod-name" /></A>
 		<br/>
+		<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{@name}" TARGET="content">
+			<xsl:value-of select="@name"/>
+		</A>
+		<br/>
+		<xsl:apply-templates select="explicit" mode="module-index" />
+
+		
 		
 </xsl:template>
+
+<xsl:template match="explicit" mode="module-index" >
+
+		<xsl:variable name="mod-name" select="substring-before(../../@name,'_arm')" />
+
+		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+
+		&#160;&#160;<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{../@name}.{@name}" TARGET="content">
+		<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+		</A>
+		<br/>
+
+		
+		
+</xsl:template>
+
 
 <xsl:template name="depends-on-recurse-no-list-x" >
 	<xsl:param name="todo" select="' '"/>

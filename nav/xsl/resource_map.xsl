@@ -24,26 +24,10 @@
   <xsl:variable name="this-resource-schema"
     select="/stylesheet_application/@directory"/>
 
-<!--  <xsl:variable name="mappings"
-    select="document('../bigmap.xml')"/>
--->
-
   <xsl:variable name="mappings-result">
               <xsl:apply-templates select="$rep_index//modules/module" mode="mapping-full"/>
   </xsl:variable>
 
-<!--
-  <xsl:variable name="mappings2"
-    select="msxsl:node-set($mappings-result)"/>
--->
-
-<!-- the following does not work! variable with select= has to be empty 
-    <xsl:variable name="mappings"
-    select="msxsl:node-set($mappings-result)">
-    <xsl:fallback>
-    <xsl:copy-of select="saxon:node-set($mappings-result)" />
-    </xsl:fallback></xsl:variable>
--->
 
 <xsl:output method="html" />
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_pics.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
+$Id: sect_annex_pics.xsl,v 1.4 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -32,7 +32,11 @@ $Id: sect_annex_pics.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
 			This annex is in the form of a questionnaire. 
 			This  questionnaire is intended to be filled out by an implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS form is referred to as a "PICS".
 		</p>
-		<h2>D.1 Protocol implementation identification</h2>
+		<h2>
+                  <a name="d1">
+                    D.1 Protocol implementation identification
+                  </a>
+                </h2>
 		<table border="1">
 			<tr>
 				<th align="left">
@@ -60,7 +64,11 @@ $Id: sect_annex_pics.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
 				</td>
 			</tr>
 		</table>
-		<h2>D.2 Implementation method</h2>
+		<h2>
+                  <a name="d2">
+                    D.2 Implementation method
+                  </a>
+                </h2>
 		<p>
 			Indicate the chosen implementation method and supported directions of translation.
 		</p>
@@ -93,7 +101,11 @@ $Id: sect_annex_pics.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
 				</xsl:if>
 			</xsl:for-each>
 		</table>
-		<h2>D.3 Implemented conformance classes</h2>
+		<h2>
+                  <a name="d3">
+                    D.3 Implemented conformance classes
+                  </a>
+                </h2>
 		<table border="1">
 			<tr>
 				<th align="left">Conformance class</th>

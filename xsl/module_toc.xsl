@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.37 2004/05/05 15:31:01 robbod Exp $
+$Id: module_toc.xsl,v 1.38 2004/08/03 12:06:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -44,7 +44,22 @@ $Id: module_toc.xsl,v 1.37 2004/05/05 15:31:01 robbod Exp $
     <TR>
       <TD valign="TOP">
         <p class="toc">
-          <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
+          <!-- added to support iso and sc4 cover page -->
+          <xsl:choose>
+            <xsl:when test="$PUBLICATION='YES'">
+              <A HREF="{$module_root}/sys/isocover{$FILE_EXT}">Cover page</A><BR/>
+            </xsl:when>
+            <xsl:when test="$BALLOT='YES'">
+              <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
+            </xsl:when>
+            <xsl:otherwise>
+              <A HREF="{$module_root}/sys/cover{$FILE_EXT}">SC4 cover page</A><BR/>
+              <A HREF="{$module_root}/sys/isocover{$FILE_EXT}">ISO cover page</A><BR/>
+
+            </xsl:otherwise>
+          </xsl:choose>
+
+          <!--          <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/> -->
       
           <A HREF="{$module_root}/sys/contents{$FILE_EXT}">Table of contents</A><BR/>
 

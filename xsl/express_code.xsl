@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.21 2002/06/06 07:45:26 robbod Exp $
+     $Id: express_code.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -548,11 +548,8 @@ SELF\<xsl:call-template name="link_object">
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:if test="position()=1">
-    &#160;&#160;WHERE<br/>
-  </xsl:if>  
-  &#160;&#160;&#160;
-  <A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ', @expression, ';')"/></A>
+  <xsl:if test="position()=1">WHERE<br/></xsl:if>  
+  &#160;&#160;&#160;<A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ', @expression, ';')"/></A>
   <br/>
 </xsl:template>
 
@@ -575,9 +572,7 @@ SELF\<xsl:call-template name="link_object">
   <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
   <xsl:apply-templates select="./aggregate" mode="code"/>
   <xsl:apply-templates select="./*" mode="underlying"/>;
-  <pre>
-    <xsl:apply-templates select="./algorithm" mode="code"/>
-  </pre>
+  <xsl:apply-templates select="./algorithm" mode="code"/><br/>
   END_FUNCTION;
   <br/>
 </xsl:template>
@@ -604,7 +599,9 @@ SELF\<xsl:call-template name="link_object">
 
 
 <xsl:template match="algorithm" mode="code">
-  <xsl:value-of select="."/>
+  <pre>
+    <xsl:value-of select="."/>
+  </pre>
 </xsl:template>
 
 <!-- empty template to prevent the algorithm element being out put along
@@ -630,9 +627,7 @@ SELF\<xsl:call-template name="link_object">
   <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
   <xsl:apply-templates select="./aggregate" mode="code"/>
   <xsl:apply-templates select="./*" mode="underlying"/>;
-  <pre>
-    <xsl:apply-templates select="./algorithm" mode="code"/>
-  </pre>
+  <xsl:apply-templates select="./algorithm" mode="code"/><br/>
   END_PROCEDURE;
   <br/>
 
@@ -658,10 +653,8 @@ SELF\<xsl:call-template name="link_object">
   </b></A><xsl:text> FOR </xsl:text>
   <br/>
   (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
-  <pre>
-    <xsl:apply-templates select="./algorithm" mode="code"/> 
-    <xsl:apply-templates select="./where" mode="code"/>
-  </pre>
+  <xsl:apply-templates select="./algorithm" mode="code"/><br/>
+  <xsl:apply-templates select="./where" mode="code"/>
   END_RULE;
   <br/>
 

@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.3 2002/12/19 23:11:45 thendrix Exp $
+//$Id: ge2moduleMain.js,v 1.4 2003/01/14 08:48:11 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -70,6 +70,23 @@ function yesOrNo(msg,title) {
     }
     return(retVal);
 }
+
+function checkXMLParse(doc) {
+    if (doc.parseError.errorCode !=0) {
+	var strError = new String;
+	strError = 'Invalid XML file!\n'
+	    + 'File URL: ' + doc.parseError.url + '\n'
+	    + 'Line No: ' + doc.parseError.line + '\n'
+	    + 'Character: ' + doc.parseError.linepos + '\n'
+	    + 'File Position: ' + doc.parseError.filepos + '\n'
+	    + 'Source Text: ' + doc.parseError.srcText + '\n'
+	    + 'Error Code: ' + doc.parseError.errorCode + '\n'
+	    + 'Description: ' + doc.parseError.reason;
+	ErrorMessage(strError);
+    }
+    return (doc.parseError.errorCode == 0 );
+}
+
 
 // ------------------------------------------------------------
 
@@ -147,12 +164,15 @@ function getSchemaNameFromXML(geDir) {
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
     xml.async = false;
     xml.load(modelXmlFile);
+    var schemaName = "";
+    if (checkXMLParse(xml)) {
 
-    // Get the schema out of model.xml
-    var schemaNodes = xml.selectNodes("/express/schema");
-    var node = schemaNodes(0);
-    var schemaName = node.attributes.getNamedItem("name").nodeValue;
-    //userMessage("Schema: "+schemaName);
+	// Get the schema out of model.xml
+	var schemaNodes = xml.selectNodes("/express/schema");
+	var node = schemaNodes(0);
+	schemaName = node.attributes.getNamedItem("name").nodeValue;
+	//userMessage("Schema: "+schemaName);
+    } 
     return(schemaName);
 }
 
@@ -528,6 +548,7 @@ function extractSchemaFromXML(geDir,expr) {
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
     xml.async = false;
     xml.load(modelXmlFile);
+    checkXMLParse(xml);
 
     // Load style sheet.
     var xsl = "./extract_schema.xsl";
@@ -786,4 +807,4 @@ function Main() {
 
 
 //getModulePath("Product_group_arm");
-//convertSchema("d:\\rbn\\1export", "Product_group_arm");
+//convertSchema("d:\\rbn\\1export", "Product_group_mim");

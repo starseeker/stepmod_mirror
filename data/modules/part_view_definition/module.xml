@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.7 2002/05/09 18:48:35 buchanan Exp $ -->
+<!-- $Id: module.xml,v 1.8 2002/05/28 20:15:46 darla Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 
 <module 
 	name="part_view_definition" 
 	part="1023" 
 	version="1" 
-	wg.number="N741" 
+	 wg.number="1116"   
+	 wg.number.supersedes="741"
+	 wg.number.arm="1117"
+	 wg.number.mim="1118" 
+	 checklist.internal_review="1056"
+	 checklist.project_leader="1057"
+	 checklist.convener="1058"	 
 	status="TS" 
 	language="E" 
 	publication.year="2002" 
-	published="n" 
-	rcs.date="$Date: 2002/05/09 18:48:35 $" 
-	rcs.revision="$Revision: 1.7 $">
+	published="y" 
+	rcs.date="$Date: 2002/05/28 20:15:46 $" 
+	rcs.revision="$Revision: 1.8 $">
 	
  <keywords>
     module, part, view, definition
@@ -22,71 +28,51 @@
 		<editor ref="pdmmodules.editor"/>
 	</contacts>
 
-	<purpose>The Part View Definition application module supports the requirement to define views of versions of parts.</purpose>
-	
+	<purpose>The Part View Definition application module supports the requirement 
+					 to define views of versions of parts.
+	</purpose>
 	<inscope>
-		<li>particular version of parts and related referential material are Product view definitions.</li>
+		<li>identification of a characterization of a version of a part, relevant in one or more application  
+		 domains and one or more life-cycle stages.</li>
 	</inscope>
-	<outscope>
-		<li>all concepts not involved in the specification of the concepts of views of versions of parts.</li>
-	</outscope>
 	<normrefs/>
 	<arm>
-		<uof name="Part_view_definition">
-			<description>The Part_View_Definition UoF specifies the definitional information for the concept of views of versions of products.</description>
-			<uof.ae entity="Part_View_Definition"/>
+		<uof name="Part_View_Definition">
+			<description>The Part_View_Definition UoF specifies the data structure to represent views of versions of parts.</description>
+			<uof.ae entity="Part_view_definition"/>
 		</uof>
-
-		<uof name="Identification_assignment">
-			<description>The Identification_Assignment UoF specifies the definitional information for the concept of identification of a products.</description>
-			<uof.ae entity="Identification_Assignment"/>
-		</uof>
-		<uof name="Contract">
-			<description>The Contract UoF specifies the definitional information for the concept of contracts.</description>
-			<uof.ae entity="Contract"/>
-		</uof>
-	 	
-	 <!--	
-		<uoflink module="product_view_definition" uof="Product_View_Definition"/>
-		<uoflink module="product_version" uof="Product_Version"/>
-		<uoflink module="identification_assignment" uof="Identification_and_Assignment"/>
-		<uoflink module="alias_identification" uof="Alias_Identification"/>
-		<uoflink module="product_identification" uof="Product_Identification"/>
-		<uoflink module="product_categorization" uof="Product_Categorization"/>
-		<uoflink module="person_organization_assignment" uof="Person_Organization_Assignment"/>
-		<uoflink module="person_organization" uof="Person_Organization"/>
-		<uoflink module="approval" uof="Approval"/>
-		<uoflink module="security_classification" uof="Security_Classification"/>
-		<uoflink module="date_time_assignment" uof="Date_Time_Assignment"/>
-		<uoflink module="date_time" uof="Date_Time"/>
-		<uoflink module="contract" uof="Contract"/>
-	-->
 		<express-g>
 			<imgfile file="armexpg1.xml"/>
 			<imgfile file="armexpg2.xml"/>
 		</express-g>
 	</arm>
 	<mapping_table>
-		<ae entity="PART_VIEW_DEFINITION">
+		<ae entity="Part_view_definition">
 			<aimelt>product_definition</aimelt>
-			<source>41</source>
-			<aa attribute="idalias">
-				<aimelt>applied_identification_assignment.items</aimelt>
-				<source>1025</source>
-				<refpath>product_definition &lt;-
-applied_identification_assignment.items[i]
-applied_identification_assignment
-[{applied_identification_assignment.name='alias'}]
-[applied_identification_assignment &lt;-
-applied_organization_assignment.items[i]
-applied_organization_assignment
-applied_organization_assignment.role -&gt;
-organization_role
-{organization_role.name = 'alias scope'}]
-[applied_identification_assignment.assigned_id]</refpath>
-			</aa>
+			<source>ISO 10303-41</source>
+			<refpath>
+			 	 product_definition
+			  {product_definition.frame_of_reference -&gt;product_definition_context
+ 			   product_definition_context &lt;= application_context_element
+			   application_context_element.name = 'part definition'}
+		  </refpath>
+			<aa attribute="SELF\Product_view_definition.defined_version" assertion_to="Part_version">
+			  <aimelt>PATH</aimelt>
+			  <refpath>
+			    product_definition
+				  product_definition.formation -&gt; product_definition_formation
+					{product_definition_formation.of_product -&gt; product
+product &lt;- 
+product_related_product_category.products[i]
+product_related_product_category &lt;=
+product_category
+(product_category.name='part')
+(product_category.name='raw material')}
+			  </refpath>
+			 </aa>
 		</ae>
 	</mapping_table>
+	
 	<mim>
 		<express-g>
 			<imgfile file="mimexpg1.xml"/>

@@ -7,16 +7,17 @@ SCHEMA Position_in_organization_mim;
 
 USE FROM Classification_assignment_mim;    -- ISO/CD-TS 10303-1114
 
-USE FROM extended_management_resources_schema   -- ISO 10303-41
-  (position_assignment,
-   position_type_assignment); 
-
 USE FROM group_schema   -- ISO 10303-41
   (group); 
 
 USE FROM management_resources_schema   -- ISO 10303-41
   (group_assignment,
-   name_assignment); 
+   name_assignment,
+   position_in_organization,
+   position_in_organization_assignment,
+   position_in_organization_assignment_relationship,
+   position_in_organization_relationship,
+   position_in_organization_type_assignment); 
 
 USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
 
@@ -26,53 +27,54 @@ USE FROM person_organization_schema   -- ISO 10303-41
    organizational_project,
    person); 
 
-USE FROM position_schema   -- ISO 10303-41
-  (position,
-   position_assignment_relationship,
-   position_relationship); 
-
-USE FROM position_type_schema   -- ISO 10303-41
-  (position_type); 
-
 USE FROM Project_mim;    -- ISO/TS 10303-1061
 
 
-TYPE position_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
-   (position_assignment_relationship, 
-    position_relationship);
+TYPE position_in_organization_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
+   (group, 
+    position_in_organization_relationship);
 END_TYPE; 
 
-TYPE position_group_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+TYPE position_in_organization_group_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT
+   (position_in_organization_assignment);
 END_TYPE; 
 
-TYPE position_item = EXTENSIBLE GENERIC_ENTITY SELECT
+TYPE position_in_organization_group_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
+TYPE position_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT
    (address, 
     organization, 
     organizational_project, 
     person);
 END_TYPE; 
 
-TYPE position_type_item = EXTENSIBLE GENERIC_ENTITY SELECT
-   (position);
+TYPE position_in_organization_type_item = EXTENSIBLE GENERIC_ENTITY SELECT
+   (position_in_organization);
 END_TYPE; 
 
 TYPE project_group_name_item = EXTENSIBLE GENERIC_ENTITY SELECT
-   (applied_position_group_assignment);
+   (applied_position_in_organization_group_assignment);
 END_TYPE; 
 
-ENTITY applied_position_assignment
-  SUBTYPE OF (position_assignment);
-  items : SET[1:?] OF position_item;
+ENTITY applied_position_in_organization_assignment
+  SUBTYPE OF (position_in_organization_assignment);
+  items : SET[1:?] OF position_in_organization_item;
 END_ENTITY;
 
-ENTITY applied_position_group_assignment
+ENTITY applied_position_in_organization_assignment_group_assignment
   SUBTYPE OF (group_assignment);
-  items : SET[1:?] OF position_group_item;
+  items : SET[1:?] OF position_in_organization_group_assignment_item;
 END_ENTITY;
 
-ENTITY applied_position_type_assignment
-  SUBTYPE OF (position_type_assignment);
-  items : SET[1:?] OF position_type_item;
+ENTITY applied_position_in_organization_group_assignment
+  SUBTYPE OF (group_assignment);
+  items : SET[1:?] OF position_in_organization_group_item;
+END_ENTITY;
+
+ENTITY applied_position_in_organization_type_assignment
+  SUBTYPE OF (position_in_organization_type_assignment);
+  items : SET[1:?] OF position_in_organization_type_item;
 END_ENTITY;
 
 ENTITY applied_project_group_name_assignment

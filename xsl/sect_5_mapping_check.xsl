@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.12 2003/07/28 07:28:41 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.13 2003/07/28 07:37:34 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -56,15 +56,37 @@ $Id: sect_5_mapping_check.xsl,v 1.12 2003/07/28 07:28:41 robbod Exp $
 
           <xsl:otherwise>
             <xsl:variable name="arm_attr" select="@name"/>
-            <xsl:if test="not($aa_nodes[@attribute=$arm_attr])">
-              <xsl:call-template name="error_message">
-                <xsl:with-param 
-                  name="message" 
-                  select="concat('Error mc6: the attribute ',
-                          $entity,'.',$arm_attr,
-                          ' has not been mapped.')"/>
-              </xsl:call-template> 
-            </xsl:if>
+            <xsl:choose>
+              <xsl:when test="not($aa_nodes[@attribute=$arm_attr])">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Error mc6: the attribute ',
+                            $entity,'.',$arm_attr,
+                            ' has not been mapped.')"/>
+                </xsl:call-template> 
+              </xsl:when>
+              <xsl:otherwise>
+                <!-- if the attribute is an extensible select, then you need a
+                     mapping to the select -->
+                <xsl:variable name="attr"
+                  select="$aa_nodes[@attribute=$arm_attr]"/>
+                <xsl:variable name="typename" select="./typename/@name"/>
+                <!-- attribute is referencing an extensible select so there
+                     must be a mapping -->
+                <xsl:if test="/express/schema/type[@name=$typename]/select[@extensible='YES']">
+                  <xsl:if test="not($aa_nodes[@attribute=$arm_attr and @assertion_to=$typename])">
+                    <xsl:call-template name="error_message">
+                      <xsl:with-param 
+                        name="message" 
+                        select="concat('Error mc7: the attribute ',
+                                $entity,'.',$arm_attr,
+                                ' has not been mapped to the extended select ',$typename )"/>
+                    </xsl:call-template> 
+                  </xsl:if>
+                </xsl:if>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.3 2002/03/04 07:54:13 robbod Exp $
+$Id: imgfile.xsl,v 1.4 2002/03/25 14:31:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -52,14 +52,42 @@ $Id: imgfile.xsl,v 1.3 2002/03/04 07:54:13 robbod Exp $
 
 
       <h3>
-        <a href="{$href}">application module: <xsl:value-of select="@module"/></a><br/>
+        <a href="{$href}">
+          application module: <xsl:value-of select="@module"/>
+        </a>
       </h3>
-
+      <xsl:choose>
+        <xsl:when test="@module">
+          <!-- only proceed if a module is specified -->
+          <small>
+            ARM EXPRESS-G:&#160;
+            <xsl:apply-templates 
+              select="document(concat('../data/modules/',@module,'/module.xml'))/module/arm/express-g"/>
+          </small>
+&#160;&#160;&#160;
+          <small>
+            MIM EXPRESS-G:&#160;
+            <xsl:apply-templates 
+              select="document(concat('../data/modules/',@module,'/module.xml'))/module/mim/express-g"/>
+          </small>
+          <br/>
+        </xsl:when>
+      </xsl:choose>      
       <xsl:apply-templates select="img"/>
       <center><h3><xsl:value-of select="@title"/></h3></center>
-
     </BODY>
   </HTML>
+</xsl:template>
+
+<xsl:template match="imgfile">
+  <xsl:variable name="href">
+    <xsl:call-template name="set_file_ext">
+      <xsl:with-param name="filename" select="@file"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <a href="{$href}">
+    <xsl:value-of select="position()"/>
+  </a>&#160;
 </xsl:template>
 
 

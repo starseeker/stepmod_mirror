@@ -700,5 +700,53 @@ WR1: (SIZEOF (QUERY (pd <* USEDIN (SELF,
        (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) = 1);
 END_ENTITY; -- wire_terminal
 
+RULE package_unique_constraint FOR
+ ( package); --, externally_defined_package, library_defined_package );
+LOCAL
+  p : BAG OF physical_unit := QUERY( r <* package |
+(r.frame_of_reference.name = 'physical design usage') );
+(**  edp : BAG OF physical_unit := QUERY( r <* externally_defined_package |
+(r.frame_of_reference.name = 'physical design usage') );
+  ldp : BAG OF physical_unit := QUERY( r <* library_defined_package |
+(r.frame_of_reference.name = 'physical design usage') ); *)
+  pu : BAG OF physical_unit;
+  pd_bag : BAG OF property_definition;
+  pdr_bag : BAG OF property_definition_representation;
+  pass : BOOLEAN := TRUE;
+  r_bag : BAG OF representation := [];
+END_LOCAL;
+
+pu := p + edp + ldp;
+
+REPEAT i := 1 to SIZEOF(pu) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pd_bag := USEDIN( pu[i], 
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PROPERTY_DEFINITION.DEFINITION' );
+  REPEAT j := 1 to SIZEOF(pd_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pdr_bag := QUERY( pdr <* USEDIN( pd_bag[j], 
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | 
+(pdr.used_representation\representation.name =
+'registered case style') );
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+      IF EXISTS( pdr_bag[k].used_representation ) THEN
+        IF ( pdr_bag[k].used_representation IN r_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          r_bag := r_bag + pdr_bag[k].used_representation;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- package_unique_constraint 
+
 END_SCHEMA;
 

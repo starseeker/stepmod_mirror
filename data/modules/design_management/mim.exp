@@ -1,5 +1,5 @@
 (*
-   $Id: MimGenerator.java,v 1.6 2004/11/22 16:26:37 raimundas Exp $
+   $Id: mim.exp,v 1.4 2004/12/13 15:51:35 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Design management - EXPRESS MIM
 *)
 
@@ -121,6 +121,401 @@ ENTITY frozen_assignment
 WHERE
  WR1: SELF\approval_assignment.assigned_approval.status.name in ['approved', 'not yet approved'];
 END_ENTITY; -- frozen_assignment
+
+RULE add_design_object_management_relationship_unique_constraint FOR
+ ( add_design_object_assignment, add_design_object_request_assignment );
+LOCAL
+  pdr_bag : BAG OF product_definition_relationship := [];
+  pd_bag : BAG OF product_definition := [];
+  adoa_bag : BAG OF add_design_object_assignment;
+  adora_bag : BAG OF add_design_object_request_assignment;
+  pass : BOOLEAN := TRUE;
+  mdo_bag : BAG OF managed_design_object;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(add_design_object_assignment) by 1;
+  REPEAT j := 1 TO SIZEOF(add_design_object_assignment[i].items) by 1;
+    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+   'PRODUCT_DEFINITION_RELATIONSHIP' IN 
+      TYPEOF(add_design_object_assignment[i].items[j]))
+    AND (add_design_object_assignment[i].items[j].name = 
+            'design object addition') ) THEN
+      IF EXISTS( add_design_object_assignment[i].items[j].
+                          related_product_definition ) 
+                                                               THEN
+        IF( NOT( add_design_object_assignment[i].items[j].
+                           related_product_definition 
+                                              IN pd_bag ) ) THEN
+          pd_bag := pd_bag + 
+                    add_design_object_assignment[i].items[j].
+                             related_product_definition;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(add_design_object_request_assignment) by 1;
+  REPEAT j := 1 TO 
+        SIZEOF(add_design_object_request_assignment[i].items) by 1;
+    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP' IN 
+           TYPEOF(add_design_object_request_assignment[i].items[j]))
+AND (add_design_object_request_assignment[i].items[j].name = 
+                             'design object addition') ) THEN
+      IF EXISTS( 
+           add_design_object_request_assignment[i].items[j].
+                             related_product_definition ) 
+                                                          THEN
+        IF( NOT( 
+           add_design_object_request_assignment[i].items[j].
+                               related_product_definition 
+                                           IN pd_bag ) ) THEN
+          pd_bag := pd_bag + 
+             add_design_object_request_assignment[i].items[j].
+                                    related_product_definition;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pd_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  mdo_bag := [];
+  pdr_bag := QUERY( pdr <* USEDIN(pd_bag[i], 
+            'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
+                         (pdr\product_definition_relationship.name = 'design object addition') );
+  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adoa_bag := QUERY( adoa <* add_design_object_assignment | 
+                                 (pdr_bag[j] IN adoa.items) );
+    REPEAT k := 1 to SIZEOF(adoa_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      REPEAT l := 1 to SIZEOF(adoa_bag[k].items) by 1;
+        IF EXISTS( adoa_bag[k].items[l] ) THEN
+          IF ( adoa_bag[k].items[l] IN mdo_bag ) THEN
+            pass := FALSE;
+            ESCAPE;
+          ELSE
+            mdo_bag := mdo_bag + adoa_bag[k].items[l];
+          END_IF;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adora_bag := QUERY( adora <* add_design_object_request_assignment | 
+                                          (pdr_bag[j] IN adora.items) );
+    REPEAT k := 1 to SIZEOF(adora_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      REPEAT l := 1 to SIZEOF(adora_bag[k].items) by 1;
+        IF ( adora_bag[k].items[l] IN mdo_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          mdo_bag := mdo_bag + adora_bag[k].items[l];
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- add_design_object_management_relationship_unique_constraint
+
+RULE change_design_object_management_relationship_unique_constraint FOR
+ (  change_from_design_object_assignment, 
+ change_from_design_object_request_assignment,
+change_to_design_object_assignment, 
+change_to_design_object_request_assignment );
+LOCAL
+  pd_bag : BAG OF product_definition := [];
+  pdr_bag : BAG OF product_definition_relationship;
+  ctdoa_bag : BAG OF change_to_design_object_assignment;
+  ctdora_bag : BAG OF change_to_design_object_request_assignment;
+  cfdoa_bag : BAG OF change_from_design_object_assignment;
+  cfdora_bag : BAG OF change_from_design_object_request_assignment;
+  pass1 : BOOLEAN := TRUE;
+  pass2 : BOOLEAN := TRUE;
+  mdo_bag : BAG OF managed_design_object;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(change_from_design_object_assignment) by 1;
+  REPEAT j := 1 TO 
+          SIZEOF(change_from_design_object_assignment[i].items) by 1;
+    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP' IN 
+     TYPEOF(change_from_design_object_assignment[i].items[j]))
+AND (change_from_design_object_assignment[i].items[j].name = 
+                                   'design object change') ) THEN
+      IF EXISTS
+( change_from_design_object_assignment[i].items[j].
+ relating_product_definition ) 
+                                                             THEN
+        IF( NOT
+          ( change_from_design_object_assignment[i].items[j].
+                               relating_product_definition 
+                                               IN pd_bag ) ) THEN
+          pd_bag := pd_bag + 
+            change_from_design_object_assignment[i].items[j].
+                               relating_product_definition;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to 
+         SIZEOF(change_from_design_object_request_assignment) by 1;
+  REPEAT j := 1 TO 
+       SIZEOF(change_from_design_object_request_assignment[i].items) by 1;
+    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP' IN 
+      TYPEOF(change_from_design_object_request_assignment[i].items[j]))
+AND (change_from_design_object_request_assignment[i].items[j].name = 
+                      'design object change') ) THEN
+      IF EXISTS
+  ( change_from_design_object_request_assignment[i].items[j].
+                                    relating_product_definition )
+                                                THEN
+        IF( NOT
+  ( change_from_design_object_request_assignment[i].items[j].
+                                       relating_product_definition 
+                                          IN pd_bag ) ) THEN
+          pd_bag := pd_bag + 
+    change_from_design_object_request_assignment[i].items[j].
+                                      relating_product_definition;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pd_bag) by 1;
+  IF ( NOT (pass1 AND pass2) ) THEN ESCAPE;
+  END_IF;
+  IF ( pass1 ) THEN
+    mdo_bag := [];
+    pdr_bag := QUERY( pdr <* USEDIN(pd_bag[i], 
+   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
+        (pdr\product_definition_relationship.name = 'design object change') );
+    REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+      IF ( NOT pass1 ) THEN ESCAPE;
+      END_IF;
+      ctdoa_bag := QUERY( ctdoa <* change_to_design_object_assignment | 
+                (pdr_bag[j] IN ctdoa.items) );
+      REPEAT k := 1 to SIZEOF(ctdoa_bag) by 1;
+        IF ( NOT pass1 ) THEN ESCAPE;
+        END_IF;
+        REPEAT l := 1 to SIZEOF(ctdoa_bag[k].items) by 1;
+          IF EXISTS( ctdoa_bag[k].items[l] ) THEN
+            IF ( ctdoa_bag[k].items[l] IN mdo_bag ) THEN
+              pass1 := FALSE;
+              ESCAPE;
+            ELSE
+              mdo_bag := mdo_bag + ctdoa_bag[k].items[l];
+            END_IF;
+          END_IF;
+        END_REPEAT;
+      END_REPEAT;
+    END_REPEAT;
+    REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+      IF ( NOT pass1 ) THEN ESCAPE;
+      END_IF;
+      ctdora_bag := 
+         QUERY( ctdora <* change_to_design_object_request_assignment | 
+                    (pdr_bag[j] IN ctdora.items) );
+      REPEAT k := 1 to SIZEOF(ctdora_bag) by 1;
+        IF ( NOT pass1 ) THEN ESCAPE;
+        END_IF;
+        REPEAT l := 1 to SIZEOF(ctdora_bag[k].items) by 1;
+          IF EXISTS( ctdora_bag[k].items[l] ) THEN
+            IF ( ctdora_bag[k].items[l] IN mdo_bag ) THEN
+              pass1 := FALSE;
+              ESCAPE;
+            ELSE
+              mdo_bag := mdo_bag + ctdora_bag[k].items[l];
+            END_IF;
+          END_IF;
+        END_REPEAT;
+      END_REPEAT;
+    END_REPEAT;
+  END_IF;
+  IF ( pass2 ) THEN
+    mdo_bag := [];
+    pdr_bag := QUERY( pdr <* USEDIN(pd_bag[i], 
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') | 
+   (pdr\product_definition_relationship.name = 'design object change') );
+    REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+      IF ( NOT pass2 ) THEN ESCAPE;
+      END_IF;
+      cfdoa_bag := QUERY( cfdoa <* change_from_design_object_assignment | 
+                                           (pdr_bag[j] IN cfdoa.items) );
+      REPEAT k := 1 to SIZEOF(cfdoa_bag) by 1;
+        IF ( NOT pass2 ) THEN ESCAPE;
+        END_IF;
+        REPEAT l := 1 to SIZEOF(cfdoa_bag[k].items) by 1;
+          IF EXISTS( cfdoa_bag[k].items[l] ) THEN
+            IF ( cfdoa_bag[k].items[l] IN mdo_bag ) THEN
+              pass2 := FALSE;
+              ESCAPE;
+            ELSE
+              mdo_bag := mdo_bag + cfdoa_bag[k].items[l];
+            END_IF;
+          END_IF;
+        END_REPEAT;
+      END_REPEAT;
+    END_REPEAT;
+    REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+      IF ( NOT pass2 ) THEN ESCAPE;
+      END_IF;
+      cfdora_bag := 
+        QUERY( cfdora <* change_from_design_object_request_assignment | 
+                                        (pdr_bag[j] IN cfdora.items) );
+      REPEAT k := 1 to SIZEOF(cfdora_bag) by 1;
+        IF ( NOT pass2 ) THEN ESCAPE;
+        END_IF;
+        REPEAT l := 1 to SIZEOF(cfdora_bag[k].items) by 1;
+          IF EXISTS( cfdora_bag[k].items[l] ) THEN
+            IF ( cfdora_bag[k].items[l] IN mdo_bag ) THEN
+              pass2 := FALSE;
+              ESCAPE;
+            ELSE
+              mdo_bag := mdo_bag + cfdora_bag[k].items[l];
+            END_IF;
+          END_IF;
+        END_REPEAT;
+      END_REPEAT;
+    END_REPEAT;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass1;
+  WR2: pass2;
+END_RULE; -- change_design_object_management_relationship_unique_constraint
+
+RULE delete_design_object_management_relationship_unique_constraint FOR
+ ( delete_design_object_assignment, 
+   delete_design_object_request_assignment );
+LOCAL
+  pdr_bag : BAG OF product_definition_relationship := [];
+  pd_bag : BAG OF product_definition := [];
+  ddoa_bag : BAG OF delete_design_object_assignment;
+  ddora_bag : BAG OF delete_design_object_request_assignment;
+  pass : BOOLEAN := TRUE;
+  mdo_bag : BAG OF managed_design_object;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(delete_design_object_assignment) by 1;
+  REPEAT j := 1 TO SIZEOF(delete_design_object_assignment[i].items) by 1;
+    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP' 
+        IN TYPEOF(delete_design_object_assignment[i].items[j]))
+AND (delete_design_object_assignment[i].items[j].name = 
+                          'design object deletion') ) THEN
+      IF EXISTS( delete_design_object_assignment[i].items[j].
+                                      relating_product_definition )
+                                                               THEN
+        IF( NOT( delete_design_object_assignment[i].items[j].
+                                          relating_product_definition 
+                                                 IN pd_bag ) ) THEN
+          pd_bag := pd_bag + 
+                 delete_design_object_assignment[i].items[j].
+                                           relating_product_definition;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(delete_design_object_request_assignment) by 1;
+  REPEAT j := 1 TO 
+         SIZEOF(delete_design_object_request_assignment[i].items) by 1;
+    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP' 
+         IN TYPEOF(delete_design_object_request_assignment[i].items[j]))
+AND (delete_design_object_request_assignment[i].items[j].name = 
+                                     'design object deletion') ) THEN
+      IF EXISTS
+       ( delete_design_object_request_assignment[i].items[j].
+                                        relating_product_definition )
+                                                            THEN
+        IF( NOT
+( delete_design_object_request_assignment[i].items[j].
+                                         relating_product_definition 
+                                              IN pd_bag ) ) THEN
+          pd_bag := pd_bag + 
+          delete_design_object_request_assignment[i].items[j].
+                                           relating_product_definition;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pd_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  mdo_bag := [];
+  pdr_bag := QUERY( pdr <* USEDIN(pd_bag[i], 
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') | 
+                        (pdr\product_definition_relationship.name = 'design object deletion') );
+  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    ddoa_bag := QUERY( ddoa <* delete_design_object_assignment | 
+                                   (pdr_bag[j] IN ddoa.items) );
+    REPEAT k := 1 to SIZEOF(ddoa_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      REPEAT l := 1 to SIZEOF(ddoa_bag[k].items) by 1;
+        IF EXISTS( ddoa_bag[k].items[l] ) THEN
+          IF ( ddoa_bag[k].items[l] IN mdo_bag ) THEN
+            pass := FALSE;
+            ESCAPE;
+          ELSE
+            mdo_bag := mdo_bag + ddoa_bag[k].items[l];
+          END_IF;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    ddora_bag := 
+        QUERY( ddora <* delete_design_object_request_assignment | 
+                                    (pdr_bag[j] IN ddora.items) );
+    REPEAT k := 1 to SIZEOF(ddora_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      REPEAT l := 1 to SIZEOF(ddora_bag[k].items) by 1;
+        IF EXISTS( ddora_bag[k].items[l] ) THEN
+          IF ( ddora_bag[k].items[l] IN mdo_bag ) THEN
+            pass := FALSE;
+            ESCAPE;
+          ELSE
+            mdo_bag := mdo_bag + ddora_bag[k].items[l];
+          END_IF;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- delete_design_object_management_relationship_unique_constraint
 	
 END_SCHEMA;
 

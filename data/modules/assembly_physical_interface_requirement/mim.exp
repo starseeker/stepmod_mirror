@@ -1,5 +1,5 @@
 (*
-   $Id: MimGenerator.java,v 1.6 2004/11/22 16:26:37 raimundas Exp $
+   $Id: mim.exp,v 1.2 2004/12/13 15:46:58 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly physical interface requirement - EXPRESS MIM
 *)
 
@@ -7,5 +7,35 @@
 SCHEMA Assembly_physical_interface_requirement_mim;
 	USE FROM Layered_3d_shape_mim;
 	USE FROM Product_view_definition_mim;
+	USE FROM Product_structure_schema;
+
+RULE mating_connector_placement_relationship_constraint FOR
+( shape_representation );
+WHERE
+  WR1: SIZEOF(QUERY(sr <* shape_representation |
+       (sr\representation.name = 'mating connector placement')
+       AND (SIZEOF(QUERY(p <* sr.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+        + 'PLACEMENT' IN TYPEOF(p))
+       AND (p\representation_item.name = 'connector placement'))) = 0))) = 0;
+END_RULE; -- mating_connector_placement_relationship_constraint
+
+RULE next_higher_assembly_interface_requirement_constraint FOR 
+( specified_higher_usage_occurrence );
+WHERE
+  WR1: SIZEOF(QUERY(shuo <* specified_higher_usage_occurrence |
+       NOT(SIZEOF(QUERY(pd <* USEDIN(shuo,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION.DEFINITION') |
+       NOT(SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_REPRESENTATION' IN TYPEOF(pdr.used_representation))
+       AND (pdr.used_representation\representation.name = '3d bound volume shape'))) = 0)
+       )) = 0)
+       )) = 0;
+END_RULE; -- next_higher_assembly_interface_requirement_constraint
+	
 END_SCHEMA;
 

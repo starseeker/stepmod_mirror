@@ -9,6 +9,7 @@ SCHEMA Shape_composition_mim;
 	
 	USE FROM Shape_aspect_definition_schema;
 	USE FROM Product_property_definition_schema;
+	USE FROM Shape_dimension_schema;
 	
 ENTITY composite_group_shape_aspect
   SUBTYPE OF (composite_shape_aspect);
@@ -43,6 +44,100 @@ WHERE
        + 'COMPOSITE_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
        )) = 0;
 END_RULE; -- shape_element_composing_relationship_constraint
+
+RULE shape_element_constituent_relationship_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  sar : BAG OF shape_aspect_relationship := 
+QUERY( r <* shape_aspect_relationship | (r\shape_aspect_relationship.name IN [
+'constituent', 'composing', 
+'bare die terminal surface constituent relationship',
+'interconnect module terminal surface constituent relationship',
+'package terminal surface constituent relationship'] ) );
+  sa_bag : BAG OF shape_aspect := [];
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  rsa_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(sar) by 1;
+  IF EXISTS( sar[i].relating_shape_aspect ) THEN
+    IF( NOT( sar[i].relating_shape_aspect IN sa_bag ) ) THEN
+      sa_bag := sa_bag + sar[i].relating_shape_aspect;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(sa_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sar_bag := QUERY( r <* sar | (r\shape_aspect_relationship.relating_shape_aspect :=: sa_bag[i]) );
+  rsa_bag := [];
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF ( sar_bag[j].related_shape_aspect IN rsa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        rsa_bag := rsa_bag + sar_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- shape_element_constituent_relationship_unique_constraint
+
+RULE shape_element_locating_relationship_unique_constraint FOR
+ ( dimensional_location );
+LOCAL
+  sa_bag : BAG OF shape_aspect := [];
+  dl_bag : BAG OF dimensional_location;
+  pass : BOOLEAN := TRUE;
+  rsa_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(dimensional_location) by 1;
+  IF EXISTS( dimensional_location[i].relating_shape_aspect ) THEN
+    IF( NOT( dimensional_location[i].relating_shape_aspect IN sa_bag ) )
+                                                              THEN
+      sa_bag := sa_bag + dimensional_location[i].relating_shape_aspect;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(sa_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  dl_bag := QUERY( r <* dimensional_location | 
+                    (r.relating_shape_aspect :=: sa_bag[i]) );
+  rsa_bag := [];
+  REPEAT j := 1 to SIZEOF(dl_bag) by 1;
+    IF EXISTS( dl_bag[j].related_shape_aspect ) THEN
+      IF ( dl_bag[j].related_shape_aspect IN rsa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        rsa_bag := rsa_bag + dl_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- shape_element_locating_relationship_unique_constraint
+
+RULE subtype_mandatory_composite_shape_aspect FOR
+  (composite_shape_aspect);
+WHERE  
+  WR1: SIZEOF (QUERY (csa <* composite_shape_aspect |
+       NOT (SIZEOF
+       (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPOSITE_GROUP_SHAPE_ASPECT',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPOSITE_UNIT_SHAPE_ASPECT']
+       * TYPEOF(csa)) = 1))) = 0;
+END_RULE; -- subtype_mandatory_composite_shape_aspect
 	
 END_SCHEMA;
 

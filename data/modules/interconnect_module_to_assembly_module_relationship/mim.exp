@@ -1,5 +1,5 @@
 (*
-   $Id: MimGenerator.java,v 1.6 2004/11/22 16:26:37 raimundas Exp $
+   $Id: mim.exp,v 1.2 2004/12/13 16:02:03 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Interconnect module to assembly module relationship - EXPRESS MIM
 *)
 
@@ -8,5 +8,31 @@ SCHEMA Interconnect_module_to_assembly_module_relationship_mim;
 	USE FROM Assembly_module_design_mim;
 	USE FROM Interconnect_module_connection_routing_mim;
 	USE FROM Layered_interconnect_module_design_mim;
+
+RULE component_feature_to_layout_feature_relationship_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'component feature to layout feature')
+       AND NOT(SIZEOF(
+       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_SHAPE_ASPECT',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_INTERFACE_TERMINAL',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_TERMINAL']
+       * TYPEOF(sar.relating_shape_aspect)) > 0)
+       )) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'component feature to layout feature')
+       AND NOT(SIZEOF(
+       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_SHAPE_ASPECT',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'STRATUM_FEATURE']
+       * TYPEOF(sar.related_shape_aspect)) > 0)
+       )) = 0;
+END_RULE; -- component_feature_to_layout_feature_relationship_constraint
+	
 END_SCHEMA;
 

@@ -1,5 +1,5 @@
 (*
-   $Id: MimGenerator.java,v 1.6 2004/11/22 16:26:37 raimundas Exp $
+   $Id: mim.exp,v 1.2 2004/12/13 15:58:31 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Functional decomposition to design - EXPRESS MIM
 *)
 
@@ -9,5 +9,165 @@ SCHEMA Functional_decomposition_to_design_mim;
 	USE FROM Design_management_mim;
 	USE FROM Network_functional_design_view_mim;
 	USE FROM Physical_unit_design_view_mim;
+
+RULE design_functional_unit_allocation_to_assembly_component_constraint FOR
+( product_definition_relationship );
+WHERE
+   WR1: SIZEOF (QUERY (pdr <* product_definition_relationship |
+     (pdr\product_definition_relationship.name = 'design functional unit allocation to assembly component')
+               AND
+                 (NOT(
+    (pdr.relating_product_definition\product_definition.description = 'design definition path')
+                    AND
+            (pdr.relating_product_definition.id = 'design composition path')
+                 ))
+               )) = 0;
+
+   WR2: SIZEOF (QUERY (pdr <* product_definition_relationship |
+   (pdr\product_definition_relationship.name = 'design functional unit allocation to assembly component')
+               AND
+     (NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+     'COMPONENT_DEFINITION' IN TYPEOF (pdr.related_product_definition))) 
+               )) = 0;
+END_RULE; -- design_functional_unit_allocation_to_assembly_component_constraint
+
+RULE
+design_functional_unit_allocation_to_assembly_component_unique_constraint
+FOR ( product_definition_relationship );
+LOCAL
+  dfuatac : BAG OF product_definition_relationship := 
+QUERY( pdr <* product_definition_relationship |
+(pdr\product_definition_relationship.name = 'design functional unit allocation to assembly component') );
+  cd_bag : BAG OF component_definition := [];
+  pdr_bag : BAG OF product_definition_relationship;
+  pass : BOOLEAN := TRUE;
+  id_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(dfuatac) by 1;
+  IF EXISTS( dfuatac[i].related_product_definition ) THEN
+    IF( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'COMPONENT_DEFINITION' IN 
+TYPEOF(dfuatac[i].related_product_definition) ) THEN
+      IF( NOT( dfuatac[i].related_product_definition IN cd_bag ) ) THEN
+        cd_bag := cd_bag + dfuatac[i].related_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(cd_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pdr_bag := QUERY( pdr <* dfuatac | 
+                 (pdr.related_product_definition :=: cd_bag[i]) );
+  id_bag := [];
+  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+    IF EXISTS( pdr_bag[j].id ) THEN
+      IF ( pdr_bag[j].id IN id_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        id_bag := id_bag + pdr_bag[j].id;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- design_functional_unit_allocation_to_assembly_component_unique_constraint
+
+RULE reference_composition_path_constraint FOR 
+( product_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdr <* product_definition_relationship |
+       (pdr\product_definition_relationship.name = 'reference composition path')
+       AND NOT(
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_FUNCTIONAL_UNIT' IN 
+           TYPEOF(pdr.relating_product_definition))
+       AND (pdr.relating_product_definition\product_definition.description = 
+          'reference definition path')
+       AND (pdr.relating_product_definition.frame_of_reference.name =
+      'functional occurrence')
+       ))) = 0;
+  WR2: SIZEOF(QUERY(pdr <* product_definition_relationship |
+       (pdr\product_definition_relationship.name = 'reference composition path')
+       AND NOT(
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'COMPONENT_FUNCTIONAL_UNIT' IN 
+         TYPEOF(pdr.related_product_definition))
+       AND (pdr.related_product_definition.frame_of_reference.name =
+      'functional occurrence')
+       ))) = 0;
+END_RULE; -- reference_composition_path_constraint
+
+RULE reference_functional_unit_assignment_to_part_constraint FOR
+( product_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY( pdr <* product_definition_relationship |
+       (pdr\product_definition_relationship.name = 'reference functional unit assignment to part')
+       AND NOT (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PRODUCT_DEFINITION' IN TYPEOF(pdr.related_product_definition))
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'APPLICATION_CONTEXT_ELEMENT' IN
+       TYPEOF(pdr.related_product_definition.frame_of_reference))
+       AND ((pdr.relating_product_definition.frame_of_reference.name
+              = 'physical design')
+       OR (pdr.relating_product_definition.frame_of_reference.name
+              = 'physical design usage'))))) = 0; 
+  WR2: SIZEOF(QUERY( pdr <* product_definition_relationship |
+       (pdr\product_definition_relationship.name = 'reference functional unit assignment to part')
+       AND NOT (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PRODUCT_DEFINITION' IN TYPEOF(pdr.relating_product_definition))
+       AND (pdr.relating_product_definition\product_definition.description = 
+          'design definition path')
+       AND (pdr.relating_product_definition.id = 
+         'reference composition path')
+       ))) = 0; 
+END_RULE; -- reference_functional_unit_assignment_to_part_constraint
+
+RULE reference_functional_unit_assignment_to_part_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  sar : BAG OF shape_aspect_relationship := 
+QUERY( r <* shape_aspect_relationship | (r\shape_aspect_relationship.name =
+'reference functional unit assignment to part' ) );
+  d_bag : BAG OF STRING := [];
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  pd_bag : BAG OF product_definition;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(sar) by 1;
+  IF EXISTS( sar[i]\shape_aspect_relationship.description ) THEN
+    IF( NOT( sar[i]\shape_aspect_relationship.description IN d_bag ) ) THEN
+      d_bag := d_bag + sar[i]\shape_aspect_relationship.description;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(d_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sar_bag := QUERY( r <* sar | (r\shape_aspect_relationship.description = d_bag[i]) );
+  pd_bag := [];
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect.of_shape.definition ) THEN
+      IF ( sar_bag[j].related_shape_aspect.of_shape.definition IN pd_bag )
+                                                                    THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        pd_bag := pd_bag + 
+                    sar_bag[j].related_shape_aspect.of_shape.definition;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- reference_functional_unit_assignment_to_part_unique_constraint
+	
 END_SCHEMA;
 

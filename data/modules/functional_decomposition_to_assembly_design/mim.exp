@@ -1,5 +1,5 @@
 (*
-   $Id: MimGenerator.java,v 1.6 2004/11/22 16:26:37 raimundas Exp $
+   $Id: mim.exp,v 1.2 2004/12/13 15:58:11 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Functional decomposition to assembly design - EXPRESS MIM
 *)
 
@@ -7,5 +7,34 @@
 SCHEMA Functional_decomposition_to_assembly_design_mim;
 	USE FROM Assembly_technology_mim;
 	USE FROM Functional_decomposition_to_design_mim;
+
+RULE
+design_functional_unit_allocation_to_assembly_joint_unique_constraint FOR
+ ( product_definition_relationship );
+LOCAL
+  dfuataj : BAG OF product_definition_relationship := 
+      QUERY( pdr <* product_definition_relationship |
+(pdr\product_definition_relationship.name = 'design functional unit allocation to assembly joint') );
+  pass : BOOLEAN := TRUE;
+  pd_bag : BAG OF product_definition := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(dfuataj) by 1;
+  IF EXISTS( dfuataj[i].relating_product_definition ) THEN
+    IF ( dfuataj[i].relating_product_definition.id = 
+                         'design composition path' ) THEN
+      IF ( dfuataj[i].relating_product_definition IN pd_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        pd_bag := pd_bag + dfuataj[i].relating_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- design_functional_unit_allocation_to_assembly_joint_unique_constraint
+	
 END_SCHEMA;
 

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.5 2004/12/10 17:06:48 liutkus Exp $
+   $Id: mim.exp,v 1.6 2004/12/17 12:50:28 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Network functional design view - EXPRESS MIM 
 *)
 SCHEMA Network_functional_design_view_mim;
@@ -155,6 +155,31 @@ WHERE
        'functional network design'))) = 1;
 END_ENTITY; -- network_node_definition
 
+RULE bus_structural_definition_unique_constraint FOR 
+(bus_structural_definition, product_definition_formation, product);
+
+LOCAL
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(bus_structural_definition) by 1;
+  IF EXISTS( bus_structural_definition[i].formation.of_product.name ) THEN
+    IF (bus_structural_definition[i].formation.of_product.name IN 
+                                                       name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + 
+bus_structural_definition[i]\product_definition.formation.of_product.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+WHERE
+WR1: pass;
+END_RULE; -- bus_structural_definition_unique_constraint
+
 RULE functional_unit_network_terminal_definition_bus_assignment_constraint
 FOR ( property_definition_relationship );
 WHERE
@@ -188,5 +213,150 @@ WHERE
        IN TYPEOF(pdr.relating_property_definition.definition))
        )) = 0;
 END_RULE; -- functional_unit_terminal_bus_assignment_constraint
+
+RULE functional_unit_network_node_definition_unique_constraint FOR
+ ( network_node_definition );
+LOCAL
+  funnd : BAG OF network_node_definition := 
+ QUERY( nnd <* network_node_definition
+| (nnd.frame_of_reference.name = 'functional network design') );
+  name_bag : BAG OF STRING := [];
+  nnd_bag : BAG OF network_node_definition;
+  pdr_bag : BAG OF product_definition_relationship;
+  pass : BOOLEAN := TRUE;
+  fu_bag : BAG OF functional_unit;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(funnd) by 1;
+  IF EXISTS( funnd[i]\product_definition.name ) THEN
+    IF( NOT( funnd[i]\product_definition.name IN name_bag ) ) THEN
+      name_bag := name_bag + funnd[i]\product_definition.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  fu_bag := [];
+  nnd_bag := QUERY( nnd <* funnd | (nnd\product_definition.name = 
+          name_bag[i]) );
+  REPEAT j := 1 to SIZEOF(nnd_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pdr_bag := QUERY( pdr <* USEDIN( nnd_bag[j], 
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
++ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
+(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'FUNCTIONAL_UNIT' IN TYPEOF(pdr.relating_product_definition)) AND 
+                  (pdr\product_definition_relationship.name = 'functional unit network node')) );
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+      IF EXISTS( pdr_bag[k].relating_product_definition ) THEN
+        IF ( pdr_bag[k].relating_product_definition IN fu_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          fu_bag := fu_bag + pdr_bag[k].relating_product_definition;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- functional_unit_network_node_definition_unique_constraint
+
+RULE functional_unit_unique_constraint FOR
+ ( component_functional_unit );
+LOCAL
+  fu : BAG OF component_functional_unit := 
+QUERY( cfu <* component_functional_unit
+| (cfu.frame_of_reference.name = 'functional occurrence') );
+  id_bag : BAG OF STRING := [];
+  cfu_bag : BAG OF component_functional_unit;
+  pdr_bag : BAG OF product_definition_relationship;
+  pass : BOOLEAN := TRUE;
+  fu_bag : BAG OF functional_unit;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(fu) by 1;
+  IF EXISTS( fu[i].id ) THEN
+    IF( NOT( fu[i].id IN id_bag ) ) THEN
+      id_bag := id_bag + fu[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(id_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  fu_bag := [];
+  cfu_bag := QUERY( cfu <* fu | (cfu.id = id_bag[i]) );
+  REPEAT j := 1 to SIZEOF(cfu_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pdr_bag := QUERY( pdr <* USEDIN( cfu_bag[j], 
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
++ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
+((pdr\product_definition_relationship.name = 'network composition')
+AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+'FUNCTIONAL_UNIT'
+IN TYPEOF(pdr.relating_product_definition)) AND 
+      (pdr.relating_product_definition.frame_of_reference.name =
+       'functional network design')) );
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+      IF EXISTS( pdr_bag[k].relating_product_definition ) THEN
+        IF ( pdr_bag[k].relating_product_definition IN fu_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          fu_bag := fu_bag + pdr_bag[k].relating_product_definition;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- functional_unit_unique_constraint
+
+FUNCTION consistent_bus_structural_definition
+     (input_rel : SET [1:?] OF product_definition_relationship) : BOOLEAN;    
+
+LOCAL  
+        input : SET OF product_definition := [];
+       vertex : SET OF product_definition := []; 
+         edge : INTEGER := SIZEOF(input);
+           vc : INTEGER := 0;
+vertex_degree : INTEGER := 0;    
+END_LOCAL;    
+REPEAT i := 1 to SIZEOF(input_rel) BY 1;
+      input := input + input_rel[i].related_product_definition;
+END_REPEAT;
+
+REPEAT i := 1 TO SIZEOF(input) BY 1;
+      vertex := vertex + input[i]\product_definition_relationship.relating_product_definition;
+      vertex := vertex + input[i]\product_definition_relationship.related_product_definition;
+END_REPEAT;
+     vc := SIZEOF(vertex);
+    IF ( vc <> ( edge + 1 )) THEN 
+      RETURN(FALSE);
+    END_IF;
+REPEAT i := 1 TO vc BY 1;
+      vertex_degree := 0;
+      REPEAT j := 1 to SIZEOF(input) BY 1;
+        IF input[j]\product_definition_relationship.relating_product_definition = vertex[i] THEN 
+          vertex_degree := vertex_degree + 1;
+        END_IF;
+        IF input[j]\product_definition_relationship.related_product_definition = vertex[i] THEN 
+          vertex_degree := vertex_degree + 1;
+        END_IF;
+      END_REPEAT;
+      IF (vertex_degree > 2) THEN
+        RETURN(FALSE);
+      END_IF;
+END_REPEAT;    
+RETURN(TRUE);  
+END_FUNCTION; -- consistent_bus_structural_definition
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: MimGenerator.java,v 1.6 2004/11/22 16:26:37 raimundas Exp $
+   $Id: mim.exp,v 1.3 2004/12/13 15:56:21 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Feature and connection zone - EXPRESS MIM
 *)
 
@@ -31,7 +31,28 @@ WHERE
        sar\shape_aspect_relationship.name = 'derived zone') |
        dz.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1;
 END_ENTITY; -- connection_zone_interface_plane_relationship
-	
+
+RULE connection_zone_constraint FOR ( shape_aspect, representation );
+WHERE
+   WR1: SIZEOF( QUERY( sa <* shape_aspect | 
+        (sa\shape_aspect.description = 'connection zone') AND NOT 
+        (SIZEOF (USEDIN (sa, '')) >= 1))) = 0;
+   WR2: SIZEOF( QUERY( sa <* shape_aspect | 
+              (sa\shape_aspect.description = 'connection zone') AND 
+        NOT(SIZEOF( QUERY( sar <* USEDIN(sa,
+        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        (sar\shape_aspect_relationship.name IN [
+        'connection',
+        'minimum attachment region size',
+        'maximum attachment region size',
+        'external connection area', 
+        'external connection zone',
+        'internal connection zone',
+        'mounting area', 
+        'terminal connection zone'
+         ]))) >= 1))) = 0;
+END_RULE; -- connection_zone_constraint
 	
 END_SCHEMA;
 

@@ -1,5 +1,5 @@
 (*
-   $Id: MimGenerator.java,v 1.6 2004/11/22 16:26:37 raimundas Exp $
+   $Id: mim.exp,v 1.5 2004/12/13 15:53:59 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Extended geometric tolerance - EXPRESS MIM
 *)
 
@@ -525,6 +525,423 @@ ENTITY viewing_plane
              'viewing plane property')))) =1;
     wr3: NOT SELF\shape_aspect.product_definitional;
 END_ENTITY; -- viewing_plane
-	
+
+RULE boundary_size_characteristic_constraint FOR
+  (representation);
+WHERE
+  WR1: SIZEOF(QUERY(rep <* representation |
+       ((rep\representation.name = 'diametrical boundary size')
+        OR (rep\representation.name = 'opposing boundary set size'))
+       AND (NOT(SIZEOF(QUERY(lmwu <* rep.items |
+       (lmwu\representation_item.name = 'tolerance value'))) = 1)))) = 0;
+END_RULE; -- boundary_size_characteristic_constraint
+
+RULE directed_axis_constraint FOR
+  (derived_shape_aspect);
+WHERE
+  WR1: SIZEOF(QUERY(dsa <* derived_shape_aspect |
+       (dsa\shape_aspect.description = 'directed axis')
+       AND NOT(SIZEOF(QUERY(sar <* USEDIN(dsa,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       (sar\shape_aspect_relationship.name = 'derived axis')
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'CENTRE_OF_SYMMETRY' IN TYPEOF(sar\shape_aspect_relationship.related_shape_aspect))
+       AND (sar\shape_aspect_relationship.related_shape_aspect\shape_aspect.description = 'axis')
+       )) = 1))) = 0;
+  WR2: SIZEOF(QUERY(dsa <* derived_shape_aspect |
+       (dsa\shape_aspect.description = 'directed axis')
+       AND NOT(SIZEOF(QUERY(sar <* USEDIN(dsa,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       (sar\shape_aspect_relationship.name = 'end shape aspect')
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT' IN TYPEOF(sar\shape_aspect_relationship.related_shape_aspect))
+       )) = 1))) = 0;
+  WR3: SIZEOF(QUERY(dsa <* derived_shape_aspect |
+       (dsa\shape_aspect.description = 'directed axis')
+       AND NOT(SIZEOF(QUERY(sar <* USEDIN(dsa,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       (sar\shape_aspect_relationship.name = 'start shape aspect')
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT' IN TYPEOF(sar\shape_aspect_relationship.related_shape_aspect))
+       )) = 1))) = 0;
+END_RULE; -- directed_axis_constraint
+
+RULE directed_axis_unique_constraint FOR
+ ( derived_shape_aspect );
+LOCAL
+  da : BAG OF derived_shape_aspect := QUERY( r <* derived_shape_aspect |
+(r\shape_aspect.description = 'directed axis') );
+  sar_bag : BAG OF shape_aspect_relationship;
+  cos_bag : BAG OF centre_of_symmetry := [];
+  sar2_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  sa_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(da) by 1;
+  sar_bag := QUERY( sar <* USEDIN(da[i],
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+((sar\shape_aspect_relationship.name = 'derived axis') AND
+(sar.related_shape_aspect\shape_aspect.description = 'axis') AND
+('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'CENTRE_OF_SYMMETRY' IN TYPEOF(sar.related_shape_aspect))) );
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF( NOT( sar_bag[j].related_shape_aspect IN cos_bag ) ) THEN
+        cos_bag := cos_bag + sar_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(cos_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sa_bag := [];
+  sar_bag := QUERY( sar <* USEDIN(cos_bag[i],
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+((sar\shape_aspect_relationship.name = 'derived axis') AND
+(sar.relating_shape_aspect IN da)) );
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    sar2_bag := QUERY( sar <* USEDIN(sar_bag[j].relating_shape_aspect,
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+(sar\shape_aspect_relationship.name = 'start shape aspect') );
+    REPEAT k := 1 to SIZEOF(sar2_bag) by 1;
+      IF EXISTS( sar2_bag[k].related_shape_aspect ) THEN
+        IF ( sar2_bag[k].related_shape_aspect IN sa_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          sa_bag := sa_bag + sar2_bag[k].related_shape_aspect;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- directed_axis_unique_constraint
+
+RULE direction_element_constraint FOR
+  (property_definition);
+WHERE
+  WR1: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'direction element')
+       AND NOT(SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       (pdr\property_definition_relationship.name = 'element direction vector')
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION' IN TYPEOF(pdr.related_property_definition))
+       AND (pdr.related_property_definition\property_definition.description = 
+          'datum direction_property')
+       )) = 1))) = 0;
+  WR2: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'direction element')
+       AND NOT(SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       (pdr\property_definition_relationship.name = 'half datum plane direction vector')
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION' IN TYPEOF(pdr.related_property_definition))
+       AND (pdr.related_property_definition\property_definition.description = 
+          'datum direction_property')
+       )) = 1))) = 0;
+  WR3: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'direction element')
+       AND NOT(SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       (pdr\property_definition_relationship.name = 'direction component')
+       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION' IN TYPEOF(pdr.related_property_definition))
+       AND (pdr.related_property_definition\property_definition.description =
+       'datum based vector orientation'))) = 1))) = 0;
+END_RULE; -- direction_element_constraint
+
+RULE edge_segment_vertex_constraint 
+FOR (shape_aspect_relationship, edge_segment_vertex);
+LOCAL
+sar : BAG OF shape_aspect_relationship := [];
+esv : BAG OF edge_segment_vertex := edge_segment_vertex;
+pass : BOOLEAN := TRUE;
+END_LOCAL;
+  REPEAT i := 1 to SIZEOF (esv) by 1;
+   IF (NOT pass) THEN ESCAPE; END_IF;
+      sar := QUERY (sar <* shape_aspect_relationship |
+       esv[i] = sar\shape_aspect_relationship.related_shape_aspect);
+       pass := (SIZEOF(sar) = 2);
+      REPEAT j := 2 to SIZEOF (sar) by 1;
+       IF (NOT pass) THEN ESCAPE; END_IF;
+       pass := ( (sar[j]) :<>: (sar[j-1]));
+       IF (NOT pass) THEN ESCAPE; END_IF;
+       pass := ( TYPEOF(sar[j]) = TYPEOF(sar[j-1]));
+       IF (NOT pass) THEN ESCAPE; END_IF;
+       pass := (sar[j].relating_shape_aspect :=:
+               sar[j-1].relating_shape_aspect);
+      END_REPEAT;
+  END_REPEAT;
+WHERE
+ WR1: pass;
+END_RULE;  -- edge_segment_vertex_constraint
+
+RULE edge_segment_vertex_unique_constraint FOR
+ ( edge_segment_vertex );
+LOCAL
+  esv : BAG OF edge_segment_vertex := QUERY( r <* edge_segment_vertex
+| (r\shape_aspect.name = 'single datum') );
+  pd_bag : BAG OF property_definition;
+  pdr_bag : BAG OF property_definition_representation;
+  pass : BOOLEAN := TRUE;
+  desc_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(esv) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pd_bag := QUERY( pd <* USEDIN( esv[i],
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PROPERTY_DEFINITION.DEFINITION') | 
+(pd\property_definition.description = 'shape element characterization') );
+  REPEAT j := 1 to SIZEOF(pd_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pdr_bag := USEDIN( pd_bag[j],
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION');
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      IF ( (pdr_bag[k].used_representation\representation.name = 
+           'shape element characterization') AND
+('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'DESCRIPTIVE_REPRESENTATION_ITEM' IN 
+TYPEOF(pdr_bag[k].used_representation.items[1])) ) THEN
+        IF EXISTS
+            ( pdr_bag[k].used_representation.items[1]\descriptive_representation_item.description ) THEN
+          IF ( pdr_bag[k].used_representation.items[1]\descriptive_representation_item.description IN 
+                   desc_bag ) THEN
+            pass := FALSE;
+            ESCAPE;
+          ELSE
+            desc_bag := desc_bag + 
+                      pdr_bag[k].used_representation.items[1]\descriptive_representation_item.description;
+          END_IF;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- edge_segment_vertex_unique_constraint
+
+RULE geometric_tolerance_qualifier_constraint FOR
+  (measure_qualification);
+WHERE
+  WR1: SIZEOF(QUERY(mq <* measure_qualification |
+       ((mq\measure_qualification.name = 'predefined geometric tolerance qualifier')
+       OR (mq\measure_qualification.name = 'user defined geometric tolerance qualifier'))
+       AND NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'MEASURE_WITH_UNIT' IN TYPEOF(mq.qualified_measure))
+       AND(SIZEOF(QUERY(pugt <* USEDIN(mq.qualified_measure,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'GEOMETRIC_TOLERANCE.MAGNITUDE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PHYSICAL_UNIT_GEOMETRIC_TOLERANCE' IN TYPEOF(pugt)))) = 0)
+       ))) = 0;
+END_RULE; -- geometric_tolerance_qualifier_constraint
+
+RULE positional_boundary_member_definition_constraint FOR
+  (property_definition);
+WHERE
+  WR1: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'positional boundary member property')
+       AND NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'POSITIONAL_BOUNDARY_MEMBER' IN TYPEOF(pd.definition))))) = 0; 
+  WR2: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'positional boundary member property')
+       AND NOT(SIZEOF(QUERY(pdr <* USEDIN(pd, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'DIMENSIONAL_SIZE_PROPERTY' IN 
+       TYPEOF(pdr.related_property_definition))
+       AND (pdr\property_definition_relationship.name = 'boundary member associated dimension')
+       )) = 1))) = 0; 
+END_RULE; -- positional_boundary_member_definition_constraint
+
+RULE positional_boundary_offset_constraint FOR
+  (property_definition);
+WHERE
+  WR1: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'positional boundary offset')
+       AND NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'SHAPE_ASPECT_RELATIONSHIP' IN TYPEOF (pd.definition)) AND
+ (pd.definition\shape_aspect_relationship.name = 'positional boundary and profile boundary member'))
+       )) = 0;
+  WR2: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'positional boundary offset')
+       AND NOT(SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       (pdr\property_definition_relationship.name = 'boundary offset') AND
+       (pdr.relating_property_definition\property_definition.name =
+       'profile related positional boundary property'))) = 1)
+       )) = 0;
+END_RULE; -- positional_boundary_offset_constraint
+
+RULE profile_related_positional_boundary_definition_constraint FOR
+  (property_definition);
+WHERE
+  WR1: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'profile related positional boundary property')
+       AND NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'POSITIONAL_BOUNDARY' IN TYPEOF(pd.definition)) AND
+       (pd.definition\shape_aspect.description = 'profile related positional boundary')
+       ))) = 0;
+  WR2: SIZEOF(QUERY(pd <* property_definition |
+       (pd\property_definition.description = 'profile related positional boundary property')
+       AND NOT(SIZEOF(QUERY(pdr <* USEDIN(pd, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+(pdr.related_property_definition\property_definition.description = 'positional boundary offset')
+       AND (pdr\property_definition_relationship.name = 'boundary offset'))) = 1))) = 0;
+END_RULE; -- profile_related_positional_boundary_definition_constraint
+
+RULE projected_zone_and_base_relationship_constraint FOR
+  (projected_zone_definition);
+WHERE
+  WR1: SIZEOF(QUERY(pzd <* projected_zone_definition |
+       NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'PART_TEMPLATE_DEFINITION' IN TYPEOF(pzd.projection_end))
+       OR (pzd.projection_end.product_definitional = TRUE)))) = 0;
+END_RULE; -- projected_zone_and_base_relationship_constraint
+
+RULE projected_zone_height_characteristic_constraint FOR
+  (projected_zone_definition);
+WHERE
+  WR1: SIZEOF(QUERY(pzd <* projected_zone_definition |
+       NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(pzd.projected_length))
+       )) = 0;
+END_RULE; -- projected_zone_height_characteristic_constraint
+
+RULE restraint_condition_constraint FOR
+  (property_definition);
+WHERE
+  WR1: SIZEOF(QUERY(pd <* property_definition |
+       ((pd\property_definition.description = 'restraint') 
+       OR (pd\property_definition.description = 'tolerance specific restraint'))
+       AND (SIZEOF(QUERY(pdr <* USEDIN(pd, 
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+    + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+    + 'REQUIREMENTS_PROPERTY' IN TYPEOF(pdr.related_property_definition))
+       AND (pdr\property_definition_relationship.name = 'restraint description'))) = 0))) = 0;
+END_RULE; -- restraint_condition_constraint
+
+RULE shape_element_deriving_relationship_unique_constraint FOR
+ ( shape_aspect_deriving_relationship );
+LOCAL
+  sa_bag : BAG OF shape_aspect := [];
+  sadr_bag : BAG OF shape_aspect_deriving_relationship;
+  pass : BOOLEAN := TRUE;
+  rsa_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(shape_aspect_deriving_relationship) by 1;
+  IF EXISTS( shape_aspect_deriving_relationship[i].relating_shape_aspect )
+                                                    THEN
+    IF( NOT( shape_aspect_deriving_relationship[i].
+                           relating_shape_aspect IN sa_bag ) ) 
+                                                  THEN
+      sa_bag := sa_bag + 
+            shape_aspect_deriving_relationship[i].relating_shape_aspect;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(sa_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sadr_bag := QUERY( r <* shape_aspect_deriving_relationship | 
+                    (r.relating_shape_aspect :=: sa_bag[i]) );
+  rsa_bag := [];
+  REPEAT j := 1 to SIZEOF(sadr_bag) by 1;
+    IF EXISTS( sadr_bag[j].related_shape_aspect ) THEN
+      IF ( sadr_bag[j].related_shape_aspect IN rsa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        rsa_bag := rsa_bag + sadr_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- shape_element_deriving_relationship_unique_constraint
+
+RULE subtype_exclusive_dimensional_location FOR
+  (dimensional_location);
+WHERE  
+  WR1: SIZEOF (QUERY (dl <* dimensional_location |
+       NOT (SIZEOF ([
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANGULAR_DIMENSION_WITH_ORIENTATION',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DIMENSIONAL_LOCATION',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'DIMENSIONAL_LOCATION_WITH_PATH']
+       * TYPEOF(dl)) <= 1))) = 0;
+END_RULE; -- subtype_exclusive_dimensional_location
+
+RULE subtype_exclusive_dimensional_size FOR
+  (dimensional_size);
+WHERE  
+  WR1: SIZEOF (QUERY (ds <* dimensional_size |
+       NOT (SIZEOF ([
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CURVE_DIMENSION',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANGULAR_SIZE']
+       * TYPEOF(ds)) <= 1) OR
+       NOT (SIZEOF ([
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'CURVE_DIMENSION',
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'OPPOSING_BOUNDARY_DIMENSIONAL_SIZE']
+       * TYPEOF(ds)) <= 1))) = 0;
+END_RULE; -- subtype_exclusive_dimensional_size
+
+RULE subtype_mandatory_geometric_tolerance FOR
+  (geometric_tolerance);
+WHERE  
+  WR1: SIZEOF (QUERY (gt <* geometric_tolerance |
+       NOT (SIZEOF ([
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT_GEOMETRIC_TOLERANCE'] *
+       TYPEOF (gt)) = 1))) = 0;
+END_RULE; -- subtype_mandatory_geometric_tolerance
+
+RULE subtype_mandatory_runout_zone_orientation FOR
+  (runout_zone_orientation);
+WHERE  
+  WR1: SIZEOF (QUERY (rzo <* runout_zone_orientation |
+       NOT (SIZEOF ([
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'RUNOUT_ZONE_ORIENTATION_REFERENCE_DIRECTION'] *
+       TYPEOF (rzo)) = 1))) = 0;
+END_RULE; -- subtype_mandatory_runout_zone_orientation
+
 END_SCHEMA;
 

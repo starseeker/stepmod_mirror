@@ -8,5 +8,18 @@ SCHEMA Part_template_non_planar_shape_mim;
 	USE FROM Layered_3d_shape_mim;
 	USE FROM Manifold_surface_mim;
 	USE FROM Part_template_shape_with_parameters_mim;
+
+RULE part_template_non_planar_2d_shape_constraint FOR 
+( manifold_surface_shape_representation );
+WHERE
+  WR1: SIZEOF(QUERY(mssr <* manifold_surface_shape_representation |
+       (mssr\representation.name = 'part template non planar 2d shape')
+       AND NOT(SIZEOF(QUERY(a2p3d <* mssr.items |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'AXIS2_PLACEMENT_3D' IN TYPEOF(a2p3d))
+       )) = 1)
+       )) = 0;
+END_RULE; -- part_template_non_planar_2d_shape_constraint
+	
 END_SCHEMA;
 

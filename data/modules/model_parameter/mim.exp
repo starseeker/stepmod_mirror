@@ -110,5 +110,50 @@ ENTITY schema_based_model_parameter
  SUBTYPE OF (model_parameter);
 END_ENTITY; -- schema_based_model_parameter
 
+RULE model_parameter_unique_constraint FOR
+ ( model_parameter );
+LOCAL
+  name_bag : BAG OF STRING := [];
+  mp_bag : BAG OF model_parameter;
+  adr_bag : BAG OF applied_document_reference;
+  pass : BOOLEAN := TRUE;
+  d_bag : BAG OF document;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(model_parameter) by 1;
+  IF EXISTS( model_parameter[i]\representation_item.name ) THEN
+    IF( NOT( model_parameter[i]\representation_item.name IN name_bag ) ) THEN
+      name_bag := name_bag + model_parameter[i]\representation_item.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  mp_bag := QUERY( mp <* model_parameter | (mp\representation_item.name = name_bag[i]) );
+  d_bag := [];
+  REPEAT j := 1 to SIZEOF(mp_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adr_bag := USEDIN( mp_bag[j], 
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
++ 'APPLIED_DOCUMENT_REFERENCE.ITEMS' );
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN d_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          d_bag := d_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- model_parameter_unique_constraint
+
 END_SCHEMA;
 

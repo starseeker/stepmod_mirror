@@ -6,5 +6,21 @@
 
 SCHEMA Layered_2d_shape_mim;
 	USE FROM Layered_shape_mim;
+
+RULE planar_curve_constraint FOR ( shape_representation );
+WHERE
+WR1: SIZEOF (QUERY (sr <* shape_representation | 
+(
+NOT(NOT ( sr\representation.name IN ['planar projected shape',
+       'bevel edge feature shape',
+       'step edge feature shape',
+       'radius edge feature shape']) OR
+(sr\representation.
+context_of_items\geometric_representation_context.
+coordinate_space_dimension = 2)
+))
+)) = 0;
+END_RULE; -- planar_curve_constraint
+	
 END_SCHEMA;
 

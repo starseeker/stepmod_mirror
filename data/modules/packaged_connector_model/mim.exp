@@ -77,6 +77,78 @@ WHERE
        (SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description 
         = 'join terminal'));
 END_ENTITY; -- packaged_connector_terminal_relationship
+
+RULE packaged_connector_terminal_relationship_unique_constraint FOR
+ ( packaged_connector_terminal_relationship );
+LOCAL
+  pu_bag : BAG OF physical_unit := [];
+  pctr_bag : BAG OF packaged_connector_terminal_relationship;
+  it_bag : BAG OF packaged_part_terminal;
+  jt_bag : BAG OF packaged_part_terminal;
+  pass1 : BOOLEAN := TRUE;
+  pass2 : BOOLEAN := TRUE;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(packaged_connector_terminal_relationship) by 1;
+  IF EXISTS( packaged_connector_terminal_relationship[i].
+                               of_shape.definition ) THEN
+    IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PHYSICAL_UNIT' 
+   IN TYPEOF(packaged_connector_terminal_relationship[i].
+                               of_shape.definition) ) THEN
+      IF ( NOT ( packaged_connector_terminal_relationship[i].
+                               of_shape.definition 
+                                           IN pu_bag )) THEN
+        pu_bag := pu_bag + 
+    packaged_connector_terminal_relationship[i].of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pu_bag) by 1;
+  IF ( NOT (pass1 OR pass2) ) THEN ESCAPE;
+  END_IF;
+  it_bag := [];
+  jt_bag := [];
+  pctr_bag := QUERY( r <* packaged_connector_terminal_relationship | 
+                            (r.of_shape.definition :=: pu_bag[i]) );
+  REPEAT j := 1 to SIZEOF(pctr_bag) by 1;
+    IF ( NOT (pass1 OR pass2) ) THEN ESCAPE;
+    END_IF;
+    IF ( pass1 AND (
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGED_PART_TERMINAL' IN TYPEOF(pctr_bag[j].relating_shape_aspect))
+AND (pctr_bag[j].relating_shape_aspect\shape_aspect.description = 'join terminal') ) THEN
+      IF EXISTS( pctr_bag[j].relating_shape_aspect ) THEN
+        IF ( pctr_bag[j].relating_shape_aspect IN jt_bag ) THEN
+          pass1 := FALSE;
+          ESCAPE;
+        ELSE
+          jt_bag := jt_bag + pctr_bag[j].relating_shape_aspect;
+        END_IF;
+      END_IF;
+    END_IF;
+    IF ( pass2 AND (
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGED_PART_TERMINAL' IN TYPEOF(pctr_bag[j].related_shape_aspect))
+AND (pctr_bag[j].related_shape_aspect\shape_aspect.description = 
+'interface terminal') ) THEN
+      IF EXISTS( pctr_bag[j].related_shape_aspect ) THEN
+        IF ( pctr_bag[j].related_shape_aspect IN it_bag ) THEN
+          pass2 := FALSE;
+          ESCAPE;
+        ELSE
+          it_bag := it_bag + pctr_bag[j].related_shape_aspect;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass1;
+  WR2: pass2;
+END_RULE; -- packaged_connector_terminal_relationship_unique_constraint
 	
 END_SCHEMA;
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.51 2005/03/02 19:50:32 thendrix Exp $
+$Id: resource.xsl,v 1.52 2005/03/03 21:20:24 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -709,8 +709,8 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <!-- Outputs the foreword -->
-<xsl:variable name="status" select="string(@status)"/>
 <xsl:template match="resource" mode="foreword">
+  <xsl:variable name="status" select="string(@status)"/>
     <xsl:variable name="part_no">
       <xsl:choose>
         <xsl:when test="string-length(@part)>0">

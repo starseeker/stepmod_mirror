@@ -1,14 +1,20 @@
 (*
-   $Id: arm.exp,v 1.22 2003/03/24 16:08:12 magnevs Exp $
+   $Id: arm.exp,v 1.23 2003/07/07 20:17:01 magnevs Exp $
    N1433 - ISO/CD-TS - 10303-1255 State_definition - EXPRESS ARM
 *)
 
 SCHEMA State_definition_arm; 
 
-USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
+USE FROM Activity_arm;    -- ISO/TS 10303-1047
+
+USE FROM Classification_assignment_arm;    -- ISO/TS 10303-1114
 
 USE FROM Identification_assignment_arm;    -- ISO/TS 10303-1021
 
+
+TYPE state_definition_activity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_item WITH 
+   (Applied_state_definition_assignment);
+END_TYPE; 
 
 TYPE state_definition_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
    (Applied_state_definition_assignment, 
@@ -82,8 +88,8 @@ END_ENTITY;
 
 ENTITY State_proper_subset_definition
   SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED proper_superset : SET[1:?] OF State_definition;
   SELF\State_definition_relationship.related RENAMED proper_subset : SET[1:?] OF State_definition;
+  SELF\State_definition_relationship.relating RENAMED proper_superset : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_subset_definition
@@ -109,3 +115,4 @@ ENTITY Xor_state_cause_effect_definition
 END_ENTITY;
 
 END_SCHEMA;  -- State_definition_arm
+

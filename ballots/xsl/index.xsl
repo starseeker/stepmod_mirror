@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: index.xsl,v 1.3 2002/08/13 07:10:53 robbod Exp $
+$Id: index.xsl,v 1.4 2002/08/16 14:05:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the ballot packages
@@ -65,6 +65,12 @@ $Id: index.xsl,v 1.3 2002/08/13 07:10:53 robbod Exp $
           <a
             href="{$bhome}ballot_checklist{$FILE_EXT}">
             Ballot checklist
+          </a>
+        </li>
+        <li>
+          <a
+            href="{$bhome}ballot_shortnames{$FILE_EXT}">
+            Shortnames in ballot.
           </a>
         </li>
         <li>

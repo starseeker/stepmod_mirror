@@ -1,0 +1,208 @@
+(*
+   $Id: mim.exp,v 1.6 2005/01/04 07:21:29 budreckytej Exp $
+   ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical connectivity definition - EXPRESS MIM
+*)
+
+
+SCHEMA Physical_connectivity_definition_mim;
+	USE FROM Part_external_reference_mim;
+	USE FROM Physical_component_feature_mim;
+	USE FROM Requirement_decomposition_mim;
+	USE FROM Specification_document_mim;
+
+TYPE fde_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+     (physical_connectivity_definition,
+      physical_connectivity_element);
+END_TYPE; 
+	
+ENTITY make_from_connectivity_relationship
+ SUBTYPE OF (shape_aspect_relationship);
+WHERE
+  WR1: 'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'PHYSICAL_CONNECTIVITY_DEFINITION'
+       IN TYPEOF (SELF.relating_shape_aspect);
+  WR2: 'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'PHYSICAL_CONNECTIVITY_DEFINITION'
+       IN TYPEOF (SELF.related_shape_aspect);
+END_ENTITY;
+
+ENTITY physical_connectivity_definition
+  SUBTYPE OF (shape_aspect);
+UNIQUE
+  UR1: SELF\shape_aspect.name,SELF\shape_aspect.of_shape;
+WHERE
+  WR1: SIZEOF (QUERY (at <* QUERY (sar <* USEDIN (SELF,
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'associated terminals') |
+       ('PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (at.related_shape_aspect)) AND
+((at.related_shape_aspect\shape_aspect.description = 
+                 'assembly module component terminal') OR
+(at.related_shape_aspect\shape_aspect.description = 
+                        'bare die component terminal') OR
+(at.related_shape_aspect\shape_aspect.description = 
+               'interconnect component join terminal') OR
+(at.related_shape_aspect\shape_aspect.description = 
+             'interconnect module component terminal') OR
+(at.related_shape_aspect\shape_aspect.description = 
+              'minimally defined component terminal') OR
+(at.related_shape_aspect\shape_aspect.description = 
+                     'packaged component join terminal'))
+       )) > 1;
+  WR2: SIZEOF (QUERY( pd <* USEDIN(SELF,
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+        (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'connectivity allocation')) = 1)
+       ))
+       <= 1;
+END_ENTITY;
+
+RULE physical_connectivity_definition_relationship_constraint FOR
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'physical connectivity definition change')
+       AND NOT('PHYSICAL_CONNECTIVITY_DEFINITION_MIM.'
+       + 'PHYSICAL_CONNECTIVITY_DEFINITION' IN
+       TYPEOF(sar.related_shape_aspect))
+       )) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'physical connectivity definition change')
+       AND NOT('PHYSICAL_CONNECTIVITY_DEFINITION_MIM.'
+       + 'PHYSICAL_CONNECTIVITY_DEFINITION' IN
+       TYPEOF(sar.relating_shape_aspect))
+       )) = 0;
+  WR3: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'physical connectivity definition change')
+       AND (SIZEOF(QUERY(rpd <* USEDIN(sar, 
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.'
+       + 'PROPERTY_DEFINITION.DEFINITION') |
+       ('PHYSICAL_CONNECTIVITY_DEFINITION_MIM.'
+       + 'REQUIREMENTS_PROPERTY' IN TYPEOF(rpd))
+       )) = 0)
+       )) = 0;
+  
+END_RULE;
+
+ENTITY physical_connectivity_element
+  SUBTYPE OF (shape_aspect_relationship, shape_aspect);
+WHERE
+  WR1: (SELF.relating_shape_aspect\shape_aspect.description = 
+                          'topological junction') XOR
+       (SIZEOF ([
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'COMPONENT_TERMINAL'] *
+       TYPEOF (SELF.relating_shape_aspect)) = 1);
+  WR2: (SELF.related_shape_aspect\shape_aspect.description = 'topological junction') XOR
+       (SIZEOF ([
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'COMPONENT_TERMINAL'] *
+       TYPEOF (SELF.related_shape_aspect)) = 1);
+  WR3: SIZEOF (QUERY (se <* QUERY (sar <* USEDIN (SELF,
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'structure element') |
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'PHYSICAL_CONNECTIVITY_DEFINITION' IN
+       TYPEOF (se.relating_shape_aspect))) = 1;
+  WR4: ('PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'PHYSICAL_UNIT' IN 
+       TYPEOF (SELF.of_shape.definition)) AND
+       (SELF.of_shape.definition\product_definition.
+         frame_of_reference.name = 
+       'physical design');
+END_ENTITY;
+
+ENTITY physical_unit_network_definition
+ SUBTYPE OF (product_definition);
+WHERE
+  WR1: (NOT ('PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
+       TYPEOF (SELF))) OR
+       (SIZEOF (QUERY (docs <* 
+       SELF\product_definition_with_associated_documents.
+        documentation_ids |
+       docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
+  WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' + 
+       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
+       adta.role\date_time_role.name = 'creation date')) + 
+       SIZEOF (QUERY (ada <* USEDIN (SELF, 
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' + 
+       'APPLIED_DATE_ASSIGNMENT.ITEMS') |
+       ada.role\date_role.name = 'creation date')) = 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
+  WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'creator')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'creator')) >= 1;
+  WR5: SIZEOF (USEDIN (SELF, 
+       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
+  WR6: SELF.frame_of_reference.name IN ['physical network design'];
+END_ENTITY;
+
+RULE physical_connectivity_element_unique_constraint FOR
+ ( physical_connectivity_element );
+LOCAL
+  name_bag : BAG OF STRING := [];
+  pce_bag : BAG OF physical_connectivity_element;
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  pcd_bag : BAG OF physical_connectivity_definition;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(physical_connectivity_element) by 1;
+  IF EXISTS( physical_connectivity_element[i]\shape_aspect.name ) THEN
+    IF( NOT( physical_connectivity_element[i]\shape_aspect.name IN 
+         name_bag ) ) THEN
+      name_bag := name_bag + 
+                physical_connectivity_element[i]\shape_aspect.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pcd_bag := [];
+  pce_bag := QUERY( pce <* physical_connectivity_element |
+(pce\shape_aspect.name = name_bag[i]) );
+  REPEAT j := 1 to SIZEOF(pce_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    sar_bag := QUERY( sar <* USEDIN( pce_bag[j],
+'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') | ((sar\shape_aspect_relationship.name =
+'structure element') AND (
+'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +
+'PHYSICAL_CONNECTIVITY_DEFINITION' IN 
+TYPEOF(sar.relating_shape_aspect))) );
+    REPEAT k := 1 to SIZEOF(sar_bag) by 1;
+      IF EXISTS( sar_bag[j].relating_shape_aspect ) THEN
+        IF ( sar_bag[j].relating_shape_aspect IN pcd_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          pcd_bag := pcd_bag + sar_bag[j].relating_shape_aspect;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;

@@ -1,0 +1,79 @@
+(*
+   $Id: arm.exp,v 1.9 2005/01/04 07:11:00 budreckytej Exp $
+   ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical connectivity definition - EXPRESS ARM
+*)
+
+SCHEMA Physical_connectivity_definition_arm;
+
+USE FROM Part_external_reference_arm;
+
+USE FROM Requirement_decomposition_arm;
+
+USE FROM Specification_document_arm;
+
+USE FROM Physical_component_feature_arm;
+
+	TYPE fde_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+	    (Physical_connectivity_element,
+	    Physical_connectivity_definition,
+	    Physical_connectivity_definition_relationship);
+	END_TYPE; 
+
+	TYPE fde_specification_product_object_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON specification_product_object_select WITH 
+		(Physical_connectivity_element,
+		 Physical_connectivity_definition);
+	END_TYPE;
+
+	TYPE termination_or_junction = EXTENSIBLE GENERIC_ENTITY SELECT
+    	(Component_terminal);
+  	END_TYPE;
+
+  ENTITY Physical_connectivity_definition
+    SUPERTYPE OF (Physical_connectivity_structure_definition);
+      name                  : STRING; --ee_name;    
+      associated_definition : Physical_unit_network_definition;
+      associated_terminals  : SET[2:?] OF Physical_component_terminal;
+    UNIQUE
+      UR1 : name,
+ associated_definition;
+ 			UR2 : associated_terminals;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_definition_relationship;
+(** Need a rule to constraint cardinality to exactly one   
+      requirement         : Requirement_definition_property;
+*)      
+      previous_definition : Physical_connectivity_definition;
+      current_definition  : Physical_connectivity_definition;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_element;
+      name                 : STRING; --ee_name;
+      start_terminus       : termination_or_junction;
+      end_terminus         : termination_or_junction;
+      connectivity_context : Physical_connectivity_structure_definition;
+    UNIQUE
+      UR1 : name,
+ connectivity_context;
+    WHERE
+      WR1 : start_terminus <> end_terminus;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_make_from_relationship;
+      reusable_definition  : Physical_connectivity_definition;
+      resultant_definition : Physical_connectivity_definition;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_structure_definition
+    SUBTYPE OF (Physical_connectivity_definition);
+    INVERSE
+      structural_element : SET[1:?] OF physical_connectivity_element FOR connectivity_context;
+  END_ENTITY;
+
+  ENTITY Physical_unit_network_definition
+    SUBTYPE OF (Product_view_definition);
+    WHERE
+      WR1 : NOT ('FUNCTIONAL_DESIGN_ELABORATION_ARM.part_view_definition' IN TYPEOF(SELF)) OR ('FUNCTIONAL_DESIGN_ELABORATION_ARM.part_design_view' IN TYPEOF(SELF));
+  END_ENTITY;
+
+END_SCHEMA;

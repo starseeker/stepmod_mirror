@@ -45,7 +45,7 @@
 		
 		<xsl:variable name="arm_schema" select="document($arm_xml)/express/schema/@name"/>
 		<xsl:variable name="arm_schema_reg" select="translate($arm_schema,$UPPER, $LOWER)"/>
-		<h3>B.2.1 <xsl:value-of select="$arm_schema"/> schema identification</h3>
+		<h3>D.2.1 <xsl:value-of select="$arm_schema"/> schema identification</h3>
 		<p>
 			To provide for unambiguous identification of the schema specifications given in this application module in an open information system, the object identifiers are assigned as follows:
 		</p>

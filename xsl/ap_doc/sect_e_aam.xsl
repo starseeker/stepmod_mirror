@@ -18,17 +18,19 @@
 		<xsl:variable name="ap_dir">
 			<xsl:value-of select="@name"/>
 		</xsl:variable>
+		
 		<xsl:variable name="aam_path">
 			<xsl:value-of select="concat('../../data/application_protocols/', $ap_dir, '/aam.xml')"/>
 		</xsl:variable>
+		
 		<xsl:apply-templates select="document(string($aam_path))/idef0"/>
-		<h3>E2 Application activity model diagrams</h3>
+		<h3>E.2 Application activity model diagrams</h3>
 		<xsl:apply-templates select="aam"/>
 	</xsl:template>
 	<xsl:template match="aam">
-		<xsl:apply-templates select="idef0"/>	
+		<xsl:apply-templates select="idef0" mode="fig_no"/>	
 	</xsl:template>
-	<xsl:template match="idef0">
+	<xsl:template match="idef0" mode="fig_no">
 		<xsl:variable name="ap_dir">
 			<xsl:value-of select="../../@name"/>
 		</xsl:variable>
@@ -36,7 +38,7 @@
 			<xsl:value-of select="concat('../../data/application_protocols/', $ap_dir, '/aam.xml')"/>
 		</xsl:variable>
 		<xsl:variable name="no_of_diagrams" select="count(imgfile)"/>
-		The AAM is presented in Figures F.1 to F.<xsl:value-of select="$no_of_diagrams"/>. Activities and data flows which are out of scope are marked with asterisks.
+		The AAM is presented in Figures E.1 to E.<xsl:value-of select="$no_of_diagrams"/>. Activities and data flows which are out of scope are marked with asterisks.
 		<xsl:for-each select="imgfile">
 			<xsl:variable name="aam_filename" select="./@file"/>
 			<xsl:variable name="aam_href" select="concat('../', $aam_filename)"/>

@@ -19,7 +19,7 @@
 	
 		<p>The viewpoint is that of <xsl:value-of select="viewpoint"/></p>
 		
-		<h3>F.1 Application activity model definitions</h3>
+		<h3>E.1 Application activity model definitions</h3>
 		
 		<xsl:for-each select="./*/*">
 			<xsl:sort select="normalize-space(./name)"/>
@@ -29,7 +29,7 @@
 				</xsl:if>
 			</xsl:variable>
 			<h4>
-				F1.
+				E1.
 				<xsl:value-of select="position()"/>
 				<xsl:value-of select="concat(' ', ./name)"/>
 				<xsl:value-of select="$asterisk"/>

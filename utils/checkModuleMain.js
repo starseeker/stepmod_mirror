@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.12 2004/10/20 09:38:09 robbod Exp $
+//$Id: checkModuleMain.js,v 1.13 2004/10/20 10:23:14 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -295,17 +295,22 @@ function getPLCSmodels() {
 	while (!htmlTs.AtEndOfStream)
 	    {
 		var l = htmlTs.ReadLine();
-		var reg = /Core_Model.*zip/;
+		var reg = /\/apps\/org\/workgroup\/plcs\/download.php\//;
 		if (l.match(reg)) {
-		    var pos = l.lastIndexOf('/')+1;
-		    var model = l.substr(pos);
-		    reg = /\.zip\"/;
+		    var start = l.lastIndexOf('href="')+6;
+		    var end = l.lastIndexOf('" title=');
+		    var model = l.substring(start,end);
+		    start = model.lastIndexOf('/apps/org/workgroup/plcs/download.php/')+38;
+		    model = model.substr(start);
+		    start = model.lastIndexOf('/')+1;
+		    model = model.substr(start);
+		    reg = /\./;
 		    if (model.match(reg)) {
 			pos = model.lastIndexOf('.');
 			model = model.substr(0,pos);
 			model = model.toLowerCase();
 			modelArray[i++] = normalizeModelName(model);
-			//userMessage(model);
+			//userMessage('[',model+']');
 		    }
 		}
 	    }
@@ -318,6 +323,7 @@ function isPLCSmodel(modelName) {
     var pos = modelName.lastIndexOf('.');
     modelName = modelName.substr(0,pos).toLowerCase();
     modelName = normalizeModelName(modelName);
+    userMessage(modelName);
     for (i = 0; i < PLCSmodels.length; i++) {
 	if (PLCSmodels[i] == modelName) {
 	    return(true);	    
@@ -602,7 +608,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.12 2004/10/20 09:38:09 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.13 2004/10/20 10:23:14 robbod Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";

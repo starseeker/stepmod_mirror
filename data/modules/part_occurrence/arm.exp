@@ -1,0 +1,40 @@
+(* N	ISO/CD-TS	Part occurrence	Express ARM *)
+
+SCHEMA Part_occurrence_arm;
+
+USE FROM Measure_representation_arm;
+
+USE FROM Part_view_definition_arm;
+
+USE FROM Product_view_definition_relationship_arm;
+
+USE FROM Specified_product_arm;
+
+TYPE occurrence_definition_select = SELECT (Part_view_definition, Product_specification);
+END_TYPE;
+
+ENTITY Part_occurrence
+ABSTRACT SUPERTYPE OF (ONEOF (Single_part_occurrence, Quantified_part_occurrence, Selected_quantified_instance));
+  id: STRING;
+  definition: occurrence_definition_select;
+  description: OPTIONAL STRING;
+INVERSE
+  occurrence_contexts: SET[1:?] OF View_definition_usage FOR related_view;
+END_ENTITY;
+
+ENTITY Single_part_occurrence
+SUBTYPE OF (Part_occurrence);
+END_ENTITY;
+
+ENTITY Quantified_part_occurrence
+SUBTYPE OF (Part_occurrence);
+  quantity: Measure_item;
+END_ENTITY;
+
+ENTITY Selected_part_occurrence
+SUBTYPE OF (Part_occurrence);
+  quantity: extended_measure_item;
+  quantity_criterion: STRING;
+END_ENTITY;
+
+END_SCHEMA;

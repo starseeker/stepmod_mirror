@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.16 2002/07/05 11:10:27 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  description.file="arm_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.16"
+    source="../data/modules/part_occurrence/arm.exp"/>
+
+  <schema name="Part_occurrence_arm">
+    <interface
+      kind="use"
+      schema="Measure_representation_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Part_view_definition_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Product_view_definition_relationship_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Specified_product_arm">
+    </interface>
+
+    <type name="occurrence_definition_select">
+      <select
+        selectitems="Part_view_definition Product_specification">
+      </select>
+
+    </type>
+    <entity
+      name="Part_occurrence"
+      abstract.supertype="YES"
+      super.expression="(ONEOF (Single_part_occurrence, Quantified_part_occurrence, Selected_quantified_instance))">
+      <explicit
+        name="id">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="definition">
+        <typename
+          name="occurrence_definition_select"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <inverse
+        name="occurrence_contexts"
+        entity="View_definition_usage"
+        attribute="related_view">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+      </inverse>
+    </entity>
+
+    <entity
+      name="Single_part_occurrence"
+      supertypes="Part_occurrence">
+    </entity>
+
+    <entity
+      name="Quantified_part_occurrence"
+      supertypes="Part_occurrence">
+      <explicit
+        name="quantity">
+        <typename
+          name="Measure_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Selected_part_occurrence"
+      supertypes="Part_occurrence">
+      <explicit
+        name="quantity">
+        <typename
+          name="extended_measure_item"/>
+      </explicit>
+      <explicit
+        name="quantity_criterion">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

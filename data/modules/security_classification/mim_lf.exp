@@ -271,14 +271,17 @@ SCHEMA security_classification_mim;
   END_ENTITY; -- calendar_date
 
   ENTITY coordinated_universal_time_offset;
-      hour_offset   : INTEGER;
-      minute_offset : OPTIONAL INTEGER;
-      sense         : ahead_or_behind;
-    WHERE
-      wr1: ((0 <= hour_offset) AND (hour_offset <= 12));
-      wr2: ((0 <= minute_offset) AND (minute_offset <= 59));
-      wr3: (NOT ((hour_offset <> 0) AND (sense = exact)));
-  END_ENTITY; -- coordinated_universal_time_offset
+   hour_offset : INTEGER;
+   minute_offset : OPTIONAL INTEGER;
+   sense : ahead_or_behind;  
+  DERIVE 
+   actual_minute_offset: INTEGER := NVL(minute_offset,0);
+ WHERE
+   WR1: { 0 <= hour_offset < 24 };  
+   WR2: { 0 <= actual_minute_offset <= 59 };
+   WR3: NOT (((hour_offset <> 0) OR (actual_minute_offset <>0)) AND (sense = exact));
+END_ENTITY; -- coordinated_universal_time_offset
+
 
   ENTITY date
     SUPERTYPE OF (calendar_date);

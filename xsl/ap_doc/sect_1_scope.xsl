@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_1_scope.xsl,v 1.9 2003/05/21 14:37:17 robbod Exp $
-  Author:  Mike Ward, Eurostep Limited
+$Id: sect_1_scope.xsl,v 1.10 2003/05/22 14:57:14 robbod Exp $
+  Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
 -->
@@ -52,10 +52,93 @@ $Id: sect_1_scope.xsl,v 1.9 2003/05/21 14:37:17 robbod Exp $
       </small>
     </p>
 
+    <xsl:apply-templates select="./inscope"/> 
+    <xsl:apply-templates select="./outscope"/>             
+  </xsl:template>
 
-          <xsl:apply-templates select="./inscope"/> 
-          <xsl:apply-templates select="./outscope"/>             
-        </xsl:template>
+    <xsl:template match="inscope">
+    <p>
+      <a name="inscope"/> 
+      The following are within the scope of this part of ISO 10303: 
+    </p>
+
+    <xsl:variable name="module" select="/application_protocol/@module_name"/>
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="/application_protocol/@module_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:if test="./@from_module!='NO'">
+      <!-- output the scope statements from the module -->
+      <xsl:choose>
+        <xsl:when test="$module_ok='true'">
+            <xsl:variable name="module_dir">
+              <xsl:call-template name="ap_module_directory">
+                <xsl:with-param name="application_protocol" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:apply-templates
+              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error AP1: The module ',$module,' does not exist.',
+                                    '  Correct application_protocol module_name in application_protocol.xml')"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+        
+    <!-- output the scope statements from the AP doc -->
+    <xsl:if test="./li">
+      <xsl:apply-templates select="li"/>
+    </xsl:if>
+    
+  </xsl:template>
+		
+  <xsl:template match="outscope">
+    <p>
+      <a name="outscope"/>
+      The following are outside the scope of this part of ISO 10303: 
+    </p>
+    <xsl:variable name="module" select="/application_protocol/@module_name"/>
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="/application_protocol/@module_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:if test="./@from_module!='NO'">
+      <!-- output the scope statements from the module -->
+      <xsl:choose>
+        <xsl:when test="$module_ok='true'">
+            <xsl:variable name="module_dir">
+              <xsl:call-template name="ap_module_directory">
+                <xsl:with-param name="application_protocol" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:apply-templates
+              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error AP1: The module',$module,' does not exist.',
+                                    '  Correct application_protocol module_name in application_protocol.xml')"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+        
+    <!-- output the scope statements from the AP doc -->
+    <xsl:if test="./li">
+      <xsl:apply-templates select="li"/>
+    </xsl:if>
+  </xsl:template> 
 
 
 </xsl:stylesheet>

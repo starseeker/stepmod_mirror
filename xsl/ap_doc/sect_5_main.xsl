@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_5_main.xsl,v 1.4 2003/05/22 21:27:11 robbod Exp $
+$Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
+  Author:  Mike Ward, Rob Bodington, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose: Display the main set of frames for an AP document.     
 -->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/>	
@@ -43,7 +47,7 @@
     </xsl:call-template>
     <p>
       The application interpreted model for this AP is the module interpreted
-      model in Clause 
+      model (MIM) in Clause 
       <a href="{$module_clause5}">5</a> of the AP module, 
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>
@@ -59,10 +63,23 @@
     <p class="note">
       <small>
         NOTE&#160;2&#160;&#160;
-        The Application object index contains a complete list of the
-        mappings of Application objects identified in the information
-        requirements in the AP module, 
-        <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
+        The ARM entity mapping
+        <a href="index_arm_mappings{$FILE_EXT}" target="toc">index</a>
+        contains a complete list of the
+        mappings of ARM entities identified in the information
+        requirements in the AP module 
+        (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
+      </small>
+    </p>
+
+    <p class="note">
+      <small>
+        NOTE&#160;3&#160;&#160;
+        The MIM EXPRESS
+        <a href="index_mim_express{$FILE_EXT}" target="toc">index</a>
+        contains a complete list of MIM
+        objects identified in Clause <a href="{$module_clause5}">5.2</a> of the AP module 
+         (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
       </small>
     </p>
 

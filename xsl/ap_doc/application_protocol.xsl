@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.20 2003/05/21 14:37:13 robbod Exp $
+$Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
+  Author:  Mike Ward, Rob Bodington, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose: Display the main set of frames for an AP document.     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
 	<xsl:import href="application_protocol_toc.xsl"/>
 	<xsl:import href="sect_4_express.xsl"/>
-	<xsl:import href="projmg/issues.xsl"/>
+        <xsl:import href="../projmg/apdoc_issues.xsl"/>
 	<xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
 
 	<xsl:template match="/">
@@ -65,89 +68,6 @@
                 <xsl:value-of select="concat($stdnumber,' ',$protocol_name)"/>                
 	</xsl:template>
 
-  <xsl:template match="inscope">
-    <p>
-      <a name="inscope"/> 
-      The following are within the scope of this part of ISO 10303: 
-    </p>
-
-    <xsl:variable name="module" select="/application_protocol/@module_name"/>
-    <xsl:variable name="module_ok">
-      <xsl:call-template name="check_module_exists">
-        <xsl:with-param name="module" select="/application_protocol/@module_name"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:if test="./@from_module!='NO'">
-      <!-- output the scope statements from the module -->
-      <xsl:choose>
-        <xsl:when test="$module_ok='true'">
-            <xsl:variable name="module_dir">
-              <xsl:call-template name="ap_module_directory">
-                <xsl:with-param name="application_protocol" select="$module"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:apply-templates
-              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of select="concat('Error AP1: The module ',$module,' does not exist.',
-                                    '  Correct application_protocol module_name in application_protocol.xml')"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:if>
-        
-    <!-- output the scope statements from the AP doc -->
-    <xsl:if test="./li">
-      <xsl:apply-templates select="li"/>
-    </xsl:if>
-    
-  </xsl:template>
-		
-  <xsl:template match="outscope">
-    <p>
-      <a name="outscope"/>
-      The following are outside the scope of this part of ISO 10303: 
-    </p>
-    <xsl:variable name="module" select="/application_protocol/@module_name"/>
-    <xsl:variable name="module_ok">
-      <xsl:call-template name="check_module_exists">
-        <xsl:with-param name="module" select="/application_protocol/@module_name"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:if test="./@from_module!='NO'">
-      <!-- output the scope statements from the module -->
-      <xsl:choose>
-        <xsl:when test="$module_ok='true'">
-            <xsl:variable name="module_dir">
-              <xsl:call-template name="ap_module_directory">
-                <xsl:with-param name="application_protocol" select="$module"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:apply-templates
-              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of select="concat('Error AP1: The module',$module,' does not exist.',
-                                    '  Correct application_protocol module_name in application_protocol.xml')"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:if>
-        
-    <!-- output the scope statements from the AP doc -->
-    <xsl:if test="./li">
-      <xsl:apply-templates select="li"/>
-    </xsl:if>
-  </xsl:template> 
 
 <!-- Annex G -->
 	<xsl:template match="application_protocol" mode="annexg">
@@ -2007,4 +1927,6 @@ For the purposes of this part of ISO 10303, the following terms defined in <xsl:
   </xsl:choose>
   <xsl:apply-templates />
 </xsl:template>
+
+
 </xsl:stylesheet>

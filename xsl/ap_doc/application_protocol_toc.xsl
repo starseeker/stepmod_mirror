@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol_toc.xsl,v 1.17 2003/05/22 21:27:11 robbod Exp $
+$Id: frame_index.xsl,v 1.2 2003/05/22 22:30:38 nigelshaw Exp $
+  Author:  Mike Ward, Rob Bodington, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose: Display the main set of frames for an AP document.     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -31,6 +34,8 @@
             <a href="{$application_protocol_root}/sys/foreword{$FILE_EXT}">Foreword</a>
             <br/>
             <a href="{$application_protocol_root}/sys/contents{$FILE_EXT}">Table of contents</a>
+            <br/>
+            <a href="{$application_protocol_root}/sys/contents{$FILE_EXT}#copyright">Copyright</a>
             <br/>
             <a href="{$application_protocol_root}/sys/introduction{$FILE_EXT}">Introduction</a>
             <br/>
@@ -72,37 +77,40 @@
           </td>
 		
           <td valign="TOP">
-					<p class="toc">
-						<a href="{$application_protocol_root}/sys/a_exp_aim_lf{$FILE_EXT}">
-							A AIM EXPRESS expanded listing
-							
-						</a>
-						<xsl:call-template name="ap_expressg_icon">
-							<xsl:with-param name="schema" select="$aim_schema_name"/>
-							<xsl:with-param name="module_root" select="$application_protocol_root"/>
-							<xsl:with-param name="mod" select="$ap_name"/>
-						</xsl:call-template>
-						<br/>
-						<a href="{$application_protocol_root}/sys/b_imp_meth{$FILE_EXT}">
-							B Implementation method specific requirements
-						</a>
-						<br/>
-						<a href="{$application_protocol_root}/sys/c_pics{$FILE_EXT}">
-							C Protocol Implementation Conformance Statement (PICS) form
-						</a>
-						<br/>
-						<a href="{$application_protocol_root}/sys/d_obj_reg{$FILE_EXT}">
-							D Information object registration
-						</a>
-						<br/>
-						<a href="{$application_protocol_root}/sys/e_aam{$FILE_EXT}">
-							E Application activity model
-						</a>
-						<xsl:call-template name="idef0_icon">
-							<xsl:with-param name="schema" select="concat(./@name,'_arm')"/>
-							<xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
-						</xsl:call-template>
-						<br/>
+            <p class="toc">
+              <a href="{$application_protocol_root}/sys/a_exp_lf{$FILE_EXT}">
+                A EXPRESS expanded listing
+              </a>
+              <br/>
+              <a href="{$application_protocol_root}/sys/b_shortnames{$FILE_EXT}">
+                B AIM short names
+              </a>
+              <br/>
+              <a href="{$application_protocol_root}/sys/c_imp_meth{$FILE_EXT}">
+                C Implementation method specific requirements
+              </a>
+              <br/>
+              <a href="{$application_protocol_root}/sys/d_pics{$FILE_EXT}">
+                D Protocol Implementation Conformance Statement (PICS) form
+              </a>
+              <br/>
+              <a href="{$application_protocol_root}/sys/d_obj_reg{$FILE_EXT}">
+                E Information object registration
+              </a>
+              <br/>
+              <a href="{$application_protocol_root}/sys/f_aam{$FILE_EXT}">
+                F Application activity model
+              </a>
+              <xsl:call-template name="idef0_icon">
+                <xsl:with-param name="schema" select="concat(./@name,'_arm')"/>
+                <xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
+              </xsl:call-template>
+              <br/>
+              <a href="{$application_protocol_root}/sys/g_exp{$FILE_EXT}">
+                G Computer interpretable listing
+              </a>
+              <br/>
+
 						<a href="{$application_protocol_root}/sys/f_arm_expg{$FILE_EXT}">
 							F Application reference model
 						</a>
@@ -111,10 +119,6 @@
 							<xsl:with-param name="module_root" select="$application_protocol_root"/>
 							<xsl:with-param name="mod" select="$ap_name"/>
 						</xsl:call-template>
-						<br/>
-						<a href="{$application_protocol_root}/sys/g_exp{$FILE_EXT}">
-							G Computer interpretable listing
-						</a>
 						<br/>
 						<xsl:if test="./usage_guide">
 							<a href="{$application_protocol_root}/sys/h_guide{$FILE_EXT}">

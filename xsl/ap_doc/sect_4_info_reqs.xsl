@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_4_info_reqs.xsl,v 1.4 2003/03/06 14:47:57 goset1 Exp $
+$Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
+  Author:  Rob Bodington, Mike Ward, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose: Display the main set of frames for an AP document.     
 -->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="../sect_4_info_reqs.xsl"/>
   <xsl:import href="application_protocol.xsl"/>
@@ -43,42 +47,43 @@
     <xsl:variable name="module_partno" select="concat('ISO 10303-',$module_xml/module/@part)"/>
     <xsl:variable name="module_href" select="concat('../../../modules/',$module,'/sys/cover',$FILE_EXT)"/>
 
+    <xsl:if test="string-length(normalize-space(@purpose))=0">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message"
+          select="'Error APdoc 41: application_protocol.xml/application_protocol/@purpose not specified'"/>
+      </xsl:call-template>
+    </xsl:if>
+
     <p>
-      This clause specifies the information requirements addressed by this part of ISO 10303.
+      This clause specifies the information required for 
+      <xsl:value-of select="normalize-space(@purpose)"/>.
     </p>
     <p>
-      The information requirements are defined using the terminology of the subject area of this 
-      application protocol.
+      The information requirements are defined using the terminology of the
+      subject area of this application protocol. 
     </p>
+
+    <xsl:variable name="e_aam" select="concat('./e_aam',$FILE_EXT)"/>
+    <p class="note">
+      <small>
+        NOTE&#160;1&#160;&#160;The information requirements correspond to those of the activities 
+        identified as being within the scope of this application protocol,
+        in Annex <a href="{$e_aam}">E</a>.
+      </small>
+    </p>
+
     <!--
     <p class="note">
       <small>
-        NOTE&#160;1&#160;&#160;A graphical representation of the information requirements is given in 
+        NOTE&#160;2&#160;&#160;A graphical representation of the information requirements is given in 
         Annex <a href="{$f_expg}">G</a>.
         XXXX NEED TO TEST WHETHER THERE IS ANNEX G
       </small>
     </p> -->
   
-    <xsl:variable name="e_aam" select="concat('./e_aam',$FILE_EXT)"/>
-    <p class="note">
-      <small>
-        NOTE&#160;&#160;The information requirements correspond to those of the activities 
-        identified as being within the scope of this application protocol,
-        in Annex <a href="{$e_aam}">E</a>.
-      </small>
-    </p>
-    <!-- RBN do we need this
-         <p class="note">
-           <small>
-             NOTE&#160;3&#160;&#160;The mapping specification is specified in 
-             <a href="{$sect51}#mapping">clause 5.1</a>. 
-             It shows how the information requirements are met, using common resources and 
-             constructs imported into the AIM schema of this application protocol.
-           </small>
-         </p> -->
-     <xsl:apply-templates select="inforeqt/fundamentals"/>
+    <xsl:apply-templates select="inforeqt/fundamentals"/>
 
-     <h3><a name="42">4.2&#160;Information requirements model</a></h3>
+     <h2><a name="42">4.2&#160;Information requirements model</a></h2>
      <xsl:variable name="module_clause4" select="concat('../../../modules/',$module,'/sys/4_info_reqs',$FILE_EXT)"/>
      The detailed information requirements for this AP are defined in
      Clause <a href="{$module_clause4}">4</a> of the AP module, 
@@ -86,8 +91,10 @@
      <p class="note">
        <small>
          NOTE&#160;1&#160;&#160;
-         The Application Object index contains a complete list of all
-         application objects identified in the information requirements in
+         The ARM EXPRESS 
+         <a href="index_arm_express{$FILE_EXT}" target="toc">index</a>
+         contains a complete list of all
+         ARM objects identified in the information requirements in
          Clause <a href="{$module_clause4}">4</a> of the AP module 
          (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
        </small>
@@ -95,12 +102,14 @@
      <p class="note">
        <small>
          NOTE&#160;2&#160;&#160;
-         The module index contains a complete list of all the modules used in
+         The module 
+         <a href="index_arm_modules{$FILE_EXT}" target="toc">index</a>
+         contains a complete list of all the modules used in the ARM of
          this part of ISO 10303. 
        </small>
      </p>
 
-     <h3><a name="421">4.2.1&#160;Model overview</a></h3>
+     <h2><a name="421">4.2.1&#160;Model overview</a></h2>
      The following sub clauses contain a business overview of the
      requirements contained in the AP module 
      (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>)
@@ -110,40 +119,59 @@
 		
 	
    <xsl:template match="fundamentals">
-     <h3><a name="41">4.1&#160;Business concepts and terminology</a></h3>
+     <h2><a name="41">4.1&#160;Business concepts and terminology</a></h2>
+
+    <xsl:if test="string-length(normalize-space(/application_protocol/@purpose))=0">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message"
+          select="'Error APdoc 41: application_protocol.xml/application_protocol/@purpose not specified'"/>
+      </xsl:call-template>
+    </xsl:if>
+
      <p>
-       This subclause describes the fundamental concepts and assumptions
-       related to the data structure defined within this part of ISO 10303. 
+       This subclause describes the business context for the information
+       required for 
+       <xsl:value-of select="normalize-space(/application_protocol/@purpose)"/>.
      </p>
+
+     <xsl:choose>
+       <xsl:when test="./data_plan">
+         <p> XSL INCOMPLETE
+           The data planning model in Figure ??? provides
+           an overview of the information requirements of this domain.  
+         </p>
+       </xsl:when>
+       <xsl:when test="/application_protocol/purpose/data_plan">
+         <p> XSL INCOMPLETE
+           The data planning model in Figure ??? provides
+           an overview of the information requirements of this domain.  
+         </p>
+       </xsl:when>
+     </xsl:choose>
+
+     <xsl:if test="terminology">
+       <p> XSL INCOMPLETE
+         The application module that provides the detailed information
+         requirements for this AP may be shared across multiple domains and the
+         terminology used therein may differ from that of the business users of this
+         AP.  This subclause provides the correlation between the different terms in
+         Table .  (if terminology mapping 
+         provided)
+       </p>
+     </xsl:if>
+
      <xsl:apply-templates/>
    </xsl:template>
  
 
 
    <xsl:template match="reqtover">
-    <xsl:variable name="module" select="@module"/>
-    <xsl:variable name="module_ok">
-      <xsl:call-template name="check_module_exists">
-        <xsl:with-param name="module" select="$module"/>
+     <xsl:variable name="module" select="@module"/>
+     <xsl:variable name="module_ok">
+       <xsl:call-template name="check_module_exists">
+         <xsl:with-param name="module" select="$module"/>
       </xsl:call-template>
     </xsl:variable>
-    <xsl:if test="$module_ok!='true'">
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message">
-          <xsl:value-of select="concat('Error AP421: The module ',$module,' does not exist.',
-                                ' Correct &lt;reqtover module=&gt;in application_protocol.xml')"/>
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:if>
-
-    <xsl:variable name="module_dir">
-      <xsl:call-template name="ap_module_directory">
-        <xsl:with-param name="application_protocol" select="$module"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
-    <xsl:variable name="module_partno" select="concat('ISO 10303-',$module_xml/module/@part)"/>
 
     <xsl:variable name="module_name">
       <xsl:call-template name="module_display_name">
@@ -151,18 +179,44 @@
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="clause_aname" select="''"/>
-    <xsl:variable name="clause_hdr"
-      select="concat('4.2.',position()+1,'&#160;',$module_partno,':&#160;',$module_name)"/>
-    <h3>
-      <a name="{$clause_aname}">
-        <xsl:value-of select="$clause_hdr"/>
-      </a>
-    </h3>
-    This application module shall be used to address the following areas of
-    scope.
-    <xsl:apply-templates select="description"/>
-
+    <xsl:choose>
+      <xsl:when test="$module_ok!='true'">
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error AP421: The module ',$module,' does not exist.',
+                                  ' Correct &lt;reqtover module=&gt;in application_protocol.xml')"/>
+          </xsl:with-param>
+        </xsl:call-template>        
+        <h2>
+          <xsl:variable name="clause_hdr"
+            select="concat('4.2.',position()+1,'&#160;XXXXX:&#160;',$module_name)"/>
+          <xsl:value-of select="$clause_hdr"/>
+        </h2>
+      </xsl:when>
+      
+      <xsl:otherwise>
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="ap_module_directory">
+            <xsl:with-param name="application_protocol" select="$module"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
+        <xsl:variable name="module_partno" select="concat('ISO 10303-',$module_xml/module/@part)"/>
+                
+        <xsl:variable name="clause_aname" select="concat('42',$module_name)"/>
+        <xsl:variable name="clause_hdr"
+          select="concat('4.2.',position()+1,'&#160;',$module_partno,':&#160;',$module_name)"/>
+        <h2>
+          <a name="{$clause_aname}">
+            <xsl:value-of select="$clause_hdr"/>
+          </a>
+        </h2>
+        This application module shall be used to address the following areas of
+        scope.
+        <xsl:apply-templates select="description"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_clause.xsl,v 1.10 2003/05/23 06:33:31 robbod Exp $
+$Id: application_protocol_clause.xsl,v 1.11 2003/05/23 06:59:48 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -17,28 +17,30 @@ $Id: application_protocol_clause.xsl,v 1.10 2003/05/23 06:33:31 robbod Exp $
   <xsl:template match="application_protocol_clause">
     <xsl:variable name="application_protocol_xml_file" 
       select="concat('../../data/application_protocols/',@directory,'/application_protocol.xml')"/>
-    
-    <!-- RBN don't think that we need this
-    <xsl:variable name="module_xml_file" 
-      select="concat('../../data/modules/',@module_directory,'/module.xml')"/>
-    -->
 
+    <xsl:variable 
+      name="application_protocol_xml" 
+      select="document($application_protocol_xml_file)"/>
+    
     <html>
       <head>
+        <xsl:apply-templates select="$application_protocol_xml/application_protocol" mode="meta_data"/>
+
         <title>
           <xsl:apply-templates 
-            select="document($application_protocol_xml_file)/application_protocol" mode="title"/>
+            select="$application_protocol_xml/application_protocol" mode="title"/>
         </title>
       </head>
       <body bgcolor="#eeeeee">
         <xsl:apply-templates 
           select="document($application_protocol_xml_file)/application_protocol" 
           mode="TOCmultiplePage"/>
-        <xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol"/>
+        <xsl:apply-templates
+          select="document($application_protocol_xml_file)/application_protocol"/>
 
-        <!-- RBN don't think that we need this
-        <xsl:apply-templates select="document($module_xml_file)/module"/>
-        -->
+        <br/><br/>
+        <p>&#169; ISO <xsl:value-of select="$application_protocol_xml/application_protocol/@publication.year"/> &#8212; All rights reserved</p>
+
       </body>
     </html>
   </xsl:template>

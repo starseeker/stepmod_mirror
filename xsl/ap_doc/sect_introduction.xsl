@@ -1,33 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.3 2002/10/08 10:13:15 mikeward Exp $
+     $Id: sect_introduction.xsl,v 1.4 2003/03/03 17:14:57 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-	<xsl:import href="application_protocol.xsl"/>
-	<xsl:import href="application_protocol_clause.xsl"/>
-	<xsl:output method="html"/>
-	
-	 	<xsl:template match="module"/>
-		
-	<xsl:template match="application_protocol">
-  <xsl:apply-templates select="purpose"/>
-	</xsl:template>
-	
-	<xsl:template match="purpose">
-		<h3>
-			<a name="introduction">Introduction</a>
-		</h3>
-		<p>
-		    ISO 10303 is an International Standard for the computer-interpretable 
-		    representation of product information and for the exchange of product data.
-		    The objective is to provide a neutral mechanism capable of describing
-		    products throughout their life cycle. This mechanism is suitable not only
-		    for neutral file exchange, but also as a basis for implementing and
-		    sharing product databases, and as a basis for archiving.
-		</p>
+  <xsl:import href="application_protocol.xsl"/>
+  <xsl:import href="application_protocol_clause.xsl"/>
 
- <xsl:if test="not( string-length(normalize-space(.)) > 85)" >
+  <xsl:output method="html"/>
+	
+  <xsl:template match="module"/>
+		
+  <xsl:template match="application_protocol">
+    <xsl:apply-templates select="purpose"/>
+  </xsl:template>
+	
+  <xsl:template match="purpose">
+    <h2>
+      <a name="introduction">Introduction</a>
+    </h2>
+    <p>
+      ISO 10303 is an International Standard for the computer-interpretable 
+      representation of product information and for the exchange of product data.
+      The objective is to provide a neutral mechanism capable of describing
+      products throughout their life cycle. This mechanism is suitable not only
+      for neutral file exchange, but also as a basis for implementing and
+      sharing product databases, and as a basis for archiving.
+    </p>
+                
+    <xsl:if test="string-length(normalize-space(/application_protocol/@purpose))=0">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message"
+          select="'Error APdoc 41: application_protocol.xml/application_protocol/@purpose not specified'"/>
+      </xsl:call-template>
+    </xsl:if>
+
+    <p>
+      This part of ISO 10303 specifies an application protocol (AP) for
+      <xsl:value-of select="normalize-space(/application_protocol/@purpose)"/>.
+    </p>
+
+    <xsl:if test="not( string-length(normalize-space(.)) > 85)" >
         <xsl:call-template name="error_message">
 	  <xsl:with-param name="inline" select="'yes'"/>
 	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -35,17 +48,8 @@
 		            select="'Error P1: Insufficient introduction material provided.'"/>
         </xsl:call-template>    
   </xsl:if>
-  <xsl:if test="not(substring-after(.,'This part of ISO 10303 specifies'))" >
-        <xsl:call-template name="error_message">
-	  <xsl:with-param name="inline" select="'yes'"/>
-	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-          <xsl:with-param 
-		            name="message" 
-		            select="'Error P2: Introduction does not start with required text: This part of ISO 10303 specifies .'"/>
-        </xsl:call-template>    
-  </xsl:if>	
 	
-		<!-- display content of purpose element-->
+  <!-- display content of purpose element-->
   <xsl:apply-templates/>
 		
 		<p>

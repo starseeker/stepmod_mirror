@@ -1,5 +1,5 @@
 <!--
-     $Id: express.dtd,v 1.2 2001/09/21 20:55:32 joshualubell Exp $
+     $Id: express.dtd,v 1.3 2001/09/24 19:33:59 joshualubell Exp $
                                                                    -->
 <!-- EXPRESS MODEL DECLARATION MODULE -->
 
@@ -34,8 +34,10 @@
 
 <!--                    underlying type                            -->
 <!ENTITY % underlying
-                       "typename | builtintype | enumeration | select"
+                       "aggregate*, (typename | builtintype )"
                                                                      >
+
+
 <!--<!ENTITY % description.content "#PCDATA">-->
 
 <!ELEMENT express (description?, application?, schema+)>
@@ -67,12 +69,12 @@
 	name NMTOKEN #REQUIRED
 	alias NMTOKEN #IMPLIED
 >
-<!ELEMENT constant (description?, aggregate*, (%underlying;))>
+<!ELEMENT constant (description?, %underlying;)>
 <!ATTLIST constant
 	name NMTOKEN #REQUIRED
 	expression CDATA #REQUIRED
 >
-<!ELEMENT type (description?, aggregate*, (%underlying;), where*, graphic.element?)>
+<!ELEMENT type (description?, aggregate*, (typename | builtintype | enumeration | select), where*, graphic.element?)>
 <!ATTLIST type
 	name NMTOKEN #REQUIRED
 >
@@ -100,7 +102,7 @@
 	upper CDATA #IMPLIED
 	typelabel NMTOKEN #IMPLIED
 >
-<!ELEMENT select (description?, graphic.element?)>
+<!ELEMENT select (graphic.element?)>
 <!ATTLIST select
 	extensible (YES | NO) "NO"
 	genericentity (YES | NO) "NO"
@@ -109,11 +111,12 @@
 >
 <!ELEMENT graphic.element  EMPTY>
 <!ATTLIST graphic.element
+        image CDATA #IMPLIED
 	page CDATA #REQUIRED
 	xcoord CDATA #IMPLIED
 	ycoord CDATA #IMPLIED
 >
-<!ELEMENT enumeration (description?, graphic.element?)>
+<!ELEMENT enumeration (graphic.element?)>
 <!ATTLIST enumeration
 	extensible (YES | NO) "NO"
 	basedon NMTOKEN #IMPLIED
@@ -127,12 +130,12 @@
 	supertypes NMTOKENS #IMPLIED
 	super.expression CDATA #IMPLIED
 >
-<!ELEMENT explicit (description?, aggregate*, (%underlying;), redeclaration?)>
+<!ELEMENT explicit (description?, %underlying;, redeclaration?)>
 <!ATTLIST explicit
 	name NMTOKEN #REQUIRED
 	optional (YES | NO) "NO"
 >
-<!ELEMENT derived (description?, aggregate*, (%underlying;), redeclaration?)>
+<!ELEMENT derived (description?, %underlying;, redeclaration?)>
 <!ATTLIST derived
 	name NMTOKEN #REQUIRED
 	expression CDATA #REQUIRED
@@ -177,11 +180,11 @@
 	totalover NMTOKENS #IMPLIED
 	super.expression CDATA #IMPLIED
 >
-<!ELEMENT function (description?, parameter*, aggregate*, (%underlying;), algorithm)>
+<!ELEMENT function (description?, parameter*, %underlying;, algorithm)>
 <!ATTLIST function
 	name NMTOKEN #REQUIRED
 >
-<!ELEMENT parameter (aggregate*, (%underlying;))>
+<!ELEMENT parameter (%underlying;)>
 <!ATTLIST parameter
 	name NMTOKEN #REQUIRED
 >

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_aptitle.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
+$Id: frame_aptitle.xsl,v 1.8 2004/02/05 17:51:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -55,6 +55,14 @@ $Id: frame_aptitle.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
                 <a href="frame_index{$FILE_EXT}" target="index">AP index</a>
               </small>
             </td>
+            <td align="right">
+              <b>
+                &#169;ISO&#160;
+                <!-- <xsl:value-of
+                     select="$application_protocol_xml_file/application_protocol/@publication.year"/> 
+                     -->
+              </b>
+            </td>
           </tr>
         </table>
       </body>
@@ -68,7 +76,8 @@ $Id: frame_aptitle.xsl,v 1.7 2003/07/31 08:57:56 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
     <b>
-      <xsl:value-of select="$stdnumber"/>&#160;<br/>
+      <xsl:value-of select="$stdnumber"/>
+      <br/>
       Application protocol: 
       <xsl:call-template name="protocol_display_name">
         <xsl:with-param name="application_protocol" select="@title"/>

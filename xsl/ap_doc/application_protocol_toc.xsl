@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.26 2003/07/23 16:34:48 robbod Exp $
+$Id: application_protocol_toc.xsl,v 1.27 2003/09/16 16:04:46 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -44,7 +44,7 @@ $Id: application_protocol_toc.xsl,v 1.26 2003/07/23 16:34:48 robbod Exp $
             <br/>
             <a href="{$application_protocol_root}/sys/contents{$FILE_EXT}">Table of contents</a>
             <br/>
-            <a href="{$application_protocol_root}/sys/contents{$FILE_EXT}#copyright">Copyright</a>
+            <a href="{$application_protocol_root}/sys/cover{$FILE_EXT}#copyright">Copyright</a>
             <br/>
             <a href="{$application_protocol_root}/sys/foreword{$FILE_EXT}">Foreword</a>
             <br/>
@@ -62,7 +62,10 @@ $Id: application_protocol_toc.xsl,v 1.26 2003/07/23 16:34:48 robbod Exp $
               </xsl:when>
               <xsl:otherwise>
                 <a href="{$application_protocol_root}/sys/3_defs{$FILE_EXT}">
-                  3 Terms and abbreviations</a>
+                  <!-- every AP references Terms defined in other standards,
+                       and abbreviations hence as per ISO -->
+                  3 Terms, definitions and abbreviations
+                </a>
                 </xsl:otherwise>
               </xsl:choose>
             </p>

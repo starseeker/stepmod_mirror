@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.13 2003/08/15 08:34:17 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.14 2004/02/05 17:51:07 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -12,6 +12,22 @@ $Id: sect_3_defs.xsl,v 1.13 2003/08/15 08:34:17 robbod Exp $
   <xsl:output method="html"/>
 	
   <xsl:template match="application_protocol">
+  <!--
+       ISO requested:
+       - If clause 3 only contains terms and definitions, the title of the
+         clause shall be "Terms and definitions". 
+
+       - If clause 3 only contains terms, definitions, and abbreviations,
+         the title of the clause shall be "Terms, definitions, and abbreviations". 
+
+       - If clause 3 only contains terms, definitions, and symbols, the
+          title of the clause shall be "Terms, definitions, and symbols". 
+
+       - If clause 3 contains terms, definitions, abbreviations, and
+         symbols, the title of the clause shall be "Terms, definitions,
+         abbreviations, and symbols".  
+       -->
+
     <h2>
       <a name="defns">
         <xsl:choose>
@@ -19,7 +35,9 @@ $Id: sect_3_defs.xsl,v 1.13 2003/08/15 08:34:17 robbod Exp $
             3 Terms, definitions and abbreviations
           </xsl:when>
           <xsl:otherwise>
-            3 Terms and abbreviations
+          <!-- every AP references Terms defined in other standards,
+               and abbreviations hence as per ISO -->
+          3 Terms, definitions and abbreviations
           </xsl:otherwise>
         </xsl:choose>
       </a>

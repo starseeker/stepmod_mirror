@@ -770,14 +770,14 @@
 										</xsl:variable>
 										<xsl:choose>
 											<xsl:when test="$target = //type[select]/@name">
-												<xs:element name="{$corrected_attribute_name}" minOccurs="$optionality">
+												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 												<xs:complexType>
 													<xs:group ref="{$namespace_prefix}{$corrected_target_name}"/>
 												</xs:complexType>
 												</xs:element>
 											</xsl:when>
 											<xsl:otherwise>
-												<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}" minOccurs="$optionality"/>
+												<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$optionality}"/>
 											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>

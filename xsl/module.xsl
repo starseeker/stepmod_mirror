@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.40 2002/04/11 10:43:52 goset1 Exp $
+$Id: module.xsl,v 1.41 2002/04/16 09:38:38 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -699,8 +699,7 @@ $Id: module.xsl,v 1.40 2002/04/11 10:43:52 goset1 Exp $
     </xsl:otherwise>
   </xsl:choose>
   <p>
-    The units of functionality and a description of the functions that
-    each UoF supports are given below.  
+    The content of the units of functionality is listed below.  
   </p>
 
   <xsl:apply-templates select="uof" mode="uof_toc"/>
@@ -954,18 +953,18 @@ found in module ',$module )"/>
   </h3>
   <p>
     This clause specifies the EXPRESS schema that uses elements from the
-    integrated resources, application interpreted constructs or application
+    common resources, application interpreted constructs or application
     modules and contains the types, entity specializations, rules, and
-    functions that are specific to this part of ISO 10303. This clause also
-    specifies modifications to the textual material for constructs that are
-    imported from the integrated resources. The definitions and EXPRESS
-    provided in the integrated resources or application interpreted constructs
-    for constructs used in the MIM may include select list items and subtypes
-    which are not imported into the MIM. Requirements stated in the integrated
-    resources or application interpreted constructs which refer to such items
-    and subtypes apply exclusively to those items which are imported into the
-    MIM. 
-  </p>
+    functions that are specific to this part of ISO 10303. </p> 
+		<p>This clause also
+    specifies the modifications that apply to the constructs 
+    imported from the common resources or from application interpreted constructs .</p>
+		<p>The following restrictions apply onto the use, in this schema, of constructs defined in common resources, in application interpreted constructs or in application
+    modules:</p>
+		<ul>
+		<li>Use of a supertype entity does not make applicable any of its specializations, unless the specialization is also imported in the MIM schema.</li>
+		<li>Use of a SELECT type does not make applicable any of its listed types unless the listed type is also imported in the MIM schema.</li>
+		</ul>
 
   <!-- output all the EXPRESS specifications -->
   <xsl:variable name="module_dir">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.26 2002/04/03 11:02:45 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.27 2002/04/05 10:31:48 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -352,8 +352,8 @@
   <xsl:variable name="clause_intro">
     <xsl:choose>
       <xsl:when test="contains($schema_name,'_arm')">
-        This subclause specifies the application types for this module. The
-        application types and their definitions are given below. 
+        This subclause specifies the application types for this application module. The
+        application types and their definitions are specified below. 
       </xsl:when>
       <xsl:when test="contains($schema_name,'_mim')">
         <!-- no intro for the MIM -->
@@ -517,7 +517,7 @@
           module. Each application entity is an atomic element that
           embodies a unique application concept and contains attributes
           specifying the data elements of the entity. The application
-          entities and their definitions are given below. 
+          entities and their definitions are specified below. 
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
           <!-- no intro for the MIM -->
@@ -2176,7 +2176,7 @@ SELF\<xsl:call-template name="link_object">
     <xsl:with-param name="clause" select="'section'"/>
   </xsl:call-template>
   <xsl:value-of select="concat(' ',$lkind)"/>
-  is given in 
+  is specified in 
   <a href="{$module_href}">
     <xsl:value-of select="concat('ISO 10303-',$module_no)"/>
   </a>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-01T16:27:00" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-02T11:57:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_usage_view_arm schema_instance"/>
    <schema name="Physical_unit_usage_view_arm">
       <interface kind="use" schema="Part_view_definition_arm"/>
@@ -28,12 +28,12 @@
          <explicit name="reference_connection_zone_shape">
             <typename name="Usage_view_connection_zone_terminal_shape_relationship"/>
          </explicit>
-         <unique label="Ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="Connection_zone_map_identification" attribute="reference_connection_zone_shape"/>
             <unique.attribute entity-ref="Connection_zone_map_identification" attribute="mapped_connection_zone_shape"/>
          </unique>
-         <where label="Wr2" expression=" reference_connection_zone_shape . associated_connection_zone_shape_definition &lt;&gt; mapped_connection_zone_shape . associated_connection_zone_shape_definition "/>
-         <where label="Wr1" expression=" reference_connection_zone_shape &lt;&gt; mapped_connection_zone_shape "/>
+         <where label="WR1" expression=" reference_connection_zone_shape &lt;&gt; mapped_connection_zone_shape "/>
+         <where label="WR2" expression=" reference_connection_zone_shape . associated_connection_zone_shape_definition &lt;&gt; mapped_connection_zone_shape . associated_connection_zone_shape_definition "/>
       </entity>
       <entity name="Part_feature" supertypes="Shape_element">
          <explicit name="precedent_feature" optional="YES">
@@ -49,7 +49,7 @@
          <inverse name="feature_shape" entity="Usage_concept_usage_relationship" attribute="associated_usage">
             <inverse.aggregate type="SET" lower="0"/>
          </inverse>
-         <unique label="Ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="Part_feature" attribute="element_name"/>
             <unique.attribute entity-ref="Part_feature" attribute="associated_definition"/>
          </unique>
@@ -66,12 +66,12 @@
          <explicit name="associated_make_from">
             <typename name="View_definition_relationship"/>
          </explicit>
-         <unique label="Ur1">
+         <unique label="UR1">
             <unique.attribute entity-ref="Part_feature_make_from_relationship" attribute="reusable_feature"/>
             <unique.attribute entity-ref="Part_feature_make_from_relationship" attribute="resultant_feature"/>
          </unique>
-         <where label="Wr2" expression=" reusable_feature . associated_definition :&lt;&gt;: resultant_feature . associated_definition "/>
-         <where label="Wr1" expression=" reusable_feature :&lt;&gt;: resultant_feature "/>
+         <where label="WR1" expression=" reusable_feature :&lt;&gt;: resultant_feature "/>
+         <where label="WR2" expression=" reusable_feature . associated_definition :&lt;&gt;: resultant_feature . associated_definition "/>
       </entity>
       <entity name="Part_feature_template_definition" supertypes="Product_view_definition">
          <explicit name="bound_parameters" optional="YES">
@@ -79,20 +79,20 @@
             <typename name="Independent_property_relationship"/>
          </explicit>
          <inverse name="shape" entity="Part_feature_template_shape_definition" attribute="shape_characterized_template"/>
-         <where label="Wr1" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ product_view_definition . defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . name = 'template model' ) ) ) &gt;= 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ product_view_definition . defined_version . of_product , 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . name = 'template model' ) ) ) &gt;= 0 "/>
       </entity>
       <entity name="Part_feature_template_shape_definition" supertypes="Feature_shape_definition">
          <explicit name="shape_characterized_template">
             <typename name="Part_feature_template_definition"/>
          </explicit>
-         <where label="Wr1" expression=" NOT ( SIZEOF ( USEDIN ( SELF , '' ) ) = 0 ) OR ( SIZEOF ( QUERY ( foo &lt;* USEDIN ( SELF , '' ) | NOT ( 'AP210_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF ( foo ) ) ) ) = 0 ) "/>
+         <where label="WR1" expression=" NOT ( SIZEOF ( USEDIN ( SELF , '' ) ) = 0 ) OR ( SIZEOF ( QUERY ( foo &lt;* USEDIN ( SELF , '' ) | NOT ( 'AP210_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF ( foo ) ) ) ) = 0 ) "/>
       </entity>
       <entity name="Part_usage_view" supertypes="Part_view_definition Item_shape">
          <derived name="described_element" expression=" SELF ">
             <typename name="shapeable_item"/>
             <redeclaration entity-ref="Item_shape"/>
          </derived>
-         <where label="Wr1" expression=" SIZEOF ( QUERY ( acr &lt;* USEDIN ( SELF , 'AP210_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW' ) | NOT ( 'AP210_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF ( acr . related_view ) ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( acr &lt;* USEDIN ( SELF , 'AP210_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW' ) | NOT ( 'AP210_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF ( acr . related_view ) ) ) ) = 0 "/>
       </entity>
       <entity name="Usage_view_connection_zone_terminal_shape_relationship">
          <explicit name="associated_usage_placement">
@@ -107,7 +107,7 @@
          <explicit name="associating_terminal_shape">
             <typename name="Part_feature_template_shape_definition"/>
          </explicit>
-         <where label="Wr1" expression=" associating_terminal_shape :&lt;&gt;: associated_connection_zone_shape_definition "/>
+         <where label="WR1" expression=" associating_terminal_shape :&lt;&gt;: associated_connection_zone_shape_definition "/>
       </entity>
    </schema>
 </express>

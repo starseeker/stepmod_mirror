@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.2 2004/10/12 14:55:59 thendrix Exp $
+$Id: sect_isocover.xsl,v 1.3 2004/10/16 19:20:11 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -517,11 +517,25 @@ $Id: sect_isocover.xsl,v 1.2 2004/10/12 14:55:59 thendrix Exp $
   </xsl:template>
 
   <xsl:template match="module" mode="display_name_french">
-    Module d'application: 
+    <xsl:choose>
+      <xsl:when test="string-length(normalize-space(@name.french))=0">
+        Module d'application: 
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error FT: No French title (module/@name.french) provided for ',@name)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        Module d'application: 
+        <xsl:call-template name="module_display_name">
+          <xsl:with-param name="module" select="@name.french"/>
+        </xsl:call-template>                
+      </xsl:otherwise>
+    </xsl:choose>
+
+
     <xsl:if test="@name.french">
-          <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@name.french"/>
-    </xsl:call-template>
     </xsl:if>
   </xsl:template>
 
@@ -534,10 +548,22 @@ $Id: sect_isocover.xsl,v 1.2 2004/10/12 14:55:59 thendrix Exp $
   </xsl:template>
 
   <xsl:template match="resource" mode="display_name_french">
-    Ressources g&#233;n&#233;riques int&#233;gr&#233;es: 
-    <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@name.french"/>
-    </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test="string-length(normalize-space(@name.french))=0">
+        Ressources g&#233;n&#233;riques int&#233;gr&#233;es:
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error FT: No French title (module/@name.french) provided for ',@name)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        Ressources g&#233;n&#233;riques int&#233;gr&#233;es:
+        <xsl:call-template name="module_display_name">
+          <xsl:with-param name="module" select="@name.french"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="resource" mode="page_count">
@@ -569,10 +595,22 @@ $Id: sect_isocover.xsl,v 1.2 2004/10/12 14:55:59 thendrix Exp $
   </xsl:template>
 
   <xsl:template match="application_protocol" mode="display_name_french">
-    Protocole d'application: 
-    <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@name"/>
-    </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test="string-length(normalize-space(@name.french))=0">
+        Protocole d'application: 
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Error FT: No French title (application_protocol/@name.french) provided for ',@name)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        Protocole d'application: 
+        <xsl:call-template name="module_display_name">
+          <xsl:with-param name="module" select="@name.french"/>
+          </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 

@@ -1,4 +1,4 @@
-//  $Id: express2xml.js,v 1.35 2004/05/22 00:03:50 thendrix Exp $
+//  $Id: express2xml.js,v 1.36 2004/05/25 20:27:05 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -53,7 +53,7 @@ var currentExpFile = 0;
 var indent = "";
 
 
-// Add a function called trim as a method of the prototype 
+// Add a functioncalled trim as a method of the prototype 
 // object of the String constructor.
 //String.prototype.trim = function() {
 //    // Use a regular expression to replace leading and trailing 
@@ -508,7 +508,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.35 2004/05/22 00:03:50 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.36 2004/05/25 20:27:05 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -523,7 +523,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.35 $";
+    var appCVSRevision = "$Revision: 1.36 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -610,10 +610,9 @@ function xmlConstant(statement,expTs,outTs) {
     name  = arr[0];
     name  = trim(name.replace(reg2,""));
     
-    // get typ
+    // get type
     type  = arr[1];
     type  = trim(type.replace(reg2,""));
-    
     //get expression
     expr  = arr[2];
     expr  = trim(expr.replace(reg2,""));
@@ -623,24 +622,8 @@ function xmlConstant(statement,expTs,outTs) {
     xmlAttr("expression", expr, outTs);
     outTs.WriteLine(">");
     
-    // GENERIC_ENTITY
-    reg3 = /\bBINARY\b|\bBOOLEAN\b|\bGENERIC_ENTITY\b|\bGENERIC\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
-    
-    var aggtype = type.match(reg3); 
-	
-    if (aggtype) {
-    	aggtype = aggtype.toString();
-    	aggtype = aggtype.toUpperCase();
-        xmlOpenElement("<builtintype",outTs);
-	xmlAttr("type",aggtype,outTs);
-	xmlCloseAttr(outTs);
-    }
-    else {
-	xmlOpenElement("<typename",outTs);
-	xmlAttr("name", type, outTs);
-	xmlCloseAttr(outTs);
-    }
-    
+    xmlInstanciableType(type,outTs);    
+
     xmlCloseElement("</constant>",outTs);
     
     //get the next line
@@ -659,6 +642,61 @@ function xmlConstant(statement,expTs,outTs) {
 	    break;
     }
 }
+
+
+
+function xmlInstanciableType(type,outTs) {
+    var typeType = getType(type);
+    //debug("St:"+statement);
+    //debug("tn:"+typeName);
+    //debug("tt:"+typeType);
+    
+    switch( typeType) {
+    case "BINARY" :
+	xmlBuiltInType(typeType,type,outTs);
+	break;
+    case "BOOLEAN" :
+	xmlBuiltInType(typeType,type,outTs);
+	break;
+    case "INTEGER" :
+	xmlBuiltInType(typeType,type,outTs);
+	break;
+    case "LOGICAL" :
+	xmlBuiltInType(typeType,type,outTs);
+	break;
+    case "NUMBER" :
+	xmlBuiltInType(typeType,type,outTs);
+	break;
+    case "REAL" :
+	xmlBuiltInType(typeType,type,outTs);
+	break;
+    case "STRING" :
+	xmlBuiltInType(typeType,type,outTs);
+	break;	
+    case "LIST" :
+	xmlUnderlyingType(type,outTs);
+	break;
+    case "SET" :
+	xmlUnderlyingType(type,outTs);
+	break;
+    case "BAG" :
+	xmlUnderlyingType(type,outTs);
+	break;
+    case "ARRAY" :
+	xmlUnderlyingType(type,outTs);
+	break;
+
+    default :	
+	xmlOpenElement("<typename",outTs);
+	xmlAttr("name",type,outTs);
+//	xmlAttr("name",typeType,outTs);
+	xmlCloseAttr(outTs);
+	break;
+    }    
+    //outTs.WriteLine("");
+//    xmlInstanciableType(type,outTs);
+}
+
 
 
 // ------------------------------------------------------------
@@ -1186,7 +1224,12 @@ function xmlUnderlyingType(statement,outTs) {
 	}
 	
 	var typename = getWord(1,rest);
+//thx added
+	reg = /\:/i;
 
+	if(rest.match(reg)){
+		var typelabel = getAfterColon(rest);
+	}
 	xmlOpenElement("<aggregate",outTs);
 	xmlAttr("type",agg,outTs);
 	
@@ -1210,6 +1253,9 @@ function xmlUnderlyingType(statement,outTs) {
 	    aggtype = aggtype.toUpperCase();
 	    xmlOpenElement("<builtintype",outTs);
 	    xmlAttr("type",aggtype,outTs);
+	    if (typelabel){
+	   	xmlAttr("typelabel",typelabel,outTs);
+	    }
 	    xmlCloseAttr(outTs);
 	}
 	else {
@@ -1228,6 +1274,9 @@ function xmlUnderlyingType(statement,outTs) {
     	type = type.toUpperCase();
 	xmlOpenElement("<builtintype",outTs);
 	xmlAttr("type",type,outTs);
+	    if (typelabel){
+	   	xmlAttr("typelabel",typelabel,outTs);
+	    }
 	xmlCloseAttr(outTs);
 	return;
     }
@@ -1585,16 +1634,12 @@ FunctionObj.prototype.xmlParamList = function (outTs) {
   // e.g., FUNCTION first_proj_axis(z_axis,arg : direction) : direction;
   // SPF: fine, but this only works for one more parameter
   
-  // delete everything after the ":"
+// get the params 
 	var params = paramArr1[i].replace(/:.*/,"");
-	
+	var rest = getAfterColon(paramArr1[i]);
 	var paramArr2 = params.split(",");	
-  //var 
 	var typedef = paramArr1[i].substring(params.length);
-	typedef = trim(typedef);
-	
-  // remove the :
-	typedef = typedef.replace(/:/,"");
+	typedef = trim(rest);
 
 	for (var j=0; j<paramArr2.length; j++) {
 	    var param = trim(paramArr2[j]);
@@ -1687,6 +1732,7 @@ function xmlFunction(line,expTs,outTs) {
     fnObj.xmlParamList(outTs);
     fnObj.xmlRtnStr(outTs);
 
+// TEH  - algorithm is loaded in xmlParamList
     fnObj.xmlAlgorithm(outTs);
     xmlCloseElement("</function>",outTs);
     }
@@ -1705,6 +1751,7 @@ function xmlProcedure(line,expTs,outTs) {
     outTs.WriteLine(">");
     fnObj.xmlRtnStr(outTs);
     fnObj.xmlParamList(outTs);
+//TEH algorithm is loaded in xmlParamList
     fnObj.xmlAlgorithm(outTs);
     xmlCloseElement("</procedure>",outTs);
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.62 2002/06/03 22:38:32 darla Exp $
+$Id: module.xsl,v 1.63 2002/06/05 10:17:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -55,7 +55,7 @@ $Id: module.xsl,v 1.62 2002/06/03 22:38:32 darla Exp $
 <!-- Outputs the cover page -->
 <xsl:template match="module" mode="coverpage">
   <xsl:variable name="n_number"
-    select="concat('ISO TC184/SC4/WG12 ',./@wg.number)"/>
+    select="concat('ISO TC184/SC4/WG12&#160;N',./@wg.number)"/>
   <xsl:variable name="date"
     select="translate(
             substring-before(substring-after(@rcs.date,'$Date: '),' '),
@@ -102,7 +102,7 @@ $Id: module.xsl,v 1.62 2002/06/03 22:38:32 darla Exp $
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of 
-                  select="concat('ISO&#160;TC184/SC4/WG12&#160;',@wg.number.supersedes)"/>
+                  select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.supersedes)"/>
               </xsl:otherwise>
             </xsl:choose>
           </h3>
@@ -299,7 +299,7 @@ o=isocs; s=central<br/>
         </xsl:choose>
       </xsl:variable>
       This document has been reviewed using the internal review checklist 
-      (see <xsl:value-of select="@checklist.internal_review"/>),
+      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.internal_review)"/>),
       <xsl:if test="not(@checklist.internal_review) or @checklist.internal_review = 00000">
         <!-- the default provided by mkmodule -->
         <xsl:call-template name="error_message">
@@ -310,7 +310,7 @@ o=isocs; s=central<br/>
       </xsl:if>
 
       the project leader checklist 
-      (see <xsl:value-of select="@checklist.project_leader"/>),
+      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.project_leader)"/>),
       <xsl:if test="not(@checklist.project_leader) or @checklist.project_leader = 00000">
         <!-- the default provided by mkmodule -->
         <xsl:call-template name="error_message">
@@ -321,7 +321,7 @@ o=isocs; s=central<br/>
       </xsl:if>
 
       and the convener checklist
-      (see <xsl:value-of select="@checklist.convener"/>),
+      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.convener)"/>),
       <xsl:if test="not(@checklist.convener) or @checklist.convener = 00000">
         <!-- the default provided by mkmodule -->
         <xsl:call-template name="error_message">

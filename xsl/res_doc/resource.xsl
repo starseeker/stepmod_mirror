@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.14 2003/01/24 00:49:30 thendrix Exp $
+$Id: resource.xsl,v 1.16 2003/01/24 22:54:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -240,8 +240,41 @@ $Id: resource.xsl,v 1.14 2003/01/24 00:49:30 thendrix Exp $
 
         <xsl:choose>
           <xsl:when test="$status='CD'">
-            Committee Draft
+            <p>
+            This ISO document is a working draft or Committee Draft 
+            and is copyright protected by ISO. While the reproduction 
+            of working drafts or Committee Drafts in any form for use 
+            by Participants in the ISO standards development process 
+            is permitted without prior permission from ISO, neither 
+            this document nor any extract from it may be reproduced, 
+            stored or transmitted in any form for any other purpose 
+            without prior written permission from ISO.
+            </p>
+            <p>
+            Requests for permission to reproduce this document for 
+            the purposes of selling it should be addressed as shown 
+            below (via the ISO TC 184/SC4 Secretariat's member body) 
+            or to ISO's member body in the country of the requester.
+            </p>
+            <div align="center">
+                Copyright Manager<br/>
+                ANSI<br/>
+                11 West 42nd Street<br/>
+                New York, New York 10036<br/>
+                USA<br/>
+                phone: +1-212-642-4900<br/>
+                fax: +1-212-398-0023<br/>
+            </div>
+            <p>
+              Reproduction for sales purposes may be subject to royalty
+              payments or a licensing agreement. 
+            </p>
+            <p>
+              Violators may be prosecuted.
+            </p>
+
           </xsl:when>
+
           <xsl:when test="$status='FDIS'">
             Final Draft International Standard
           </xsl:when>
@@ -355,11 +388,25 @@ o=isocs; s=central<br/>
       <xsl:apply-templates select="./keywords"/>
       
       <h3>COMMENTS TO READER:</h3>
+
+      <xsl:if test="$status='CD-TS' or $status='CD'">
+        <p>
+          Recipients of this draft are invited to submit, with their comments,
+          notification of any relevant patent rights of which they are aware and to
+          provide supporting documentation.
+        </p>
+      </xsl:if>
+
+
       <xsl:variable name="ballot_cycle_or_pub">
         <xsl:choose>
           <xsl:when test="$status='CD-TS'">
             this ballot cycle
           </xsl:when>
+          <xsl:when test="$status='CD'">
+            this ballot cycle
+          </xsl:when>
+
           <xsl:when test="$status='TS'">
             publication
           </xsl:when>
@@ -701,13 +748,22 @@ o=isocs; s=central<br/>
 
   <p>
     Annexes A and B form an integral part of this part of ISO
-    10303. Annexes C, 
+    10303.  
+    <xsl:variable name="tokens">
+      <xsl:call-template name="annex_count" />
+    </xsl:variable>
     <xsl:choose>
-      <xsl:when test="./usage_guide">
-        D, E and F
+      <xsl:when test="string-length(normalize-space($tokens))=3">
+        Annexes C, D, E, F and G
+      </xsl:when>
+      <xsl:when test="string-length(normalize-space($tokens))=2">
+      Annexes C, D, E and F      
+      </xsl:when>
+      <xsl:when test="string-length(normalize-space($tokens))=2">
+      Annexes C, D and E      
       </xsl:when>
       <xsl:otherwise>
-        D and E
+      Annexes C and D      
       </xsl:otherwise>
     </xsl:choose>
     are for information only.  
@@ -932,7 +988,7 @@ o=isocs; s=central<br/>
         <xsl:call-template name="output_express_links">
           <!-- I am told an IR does not require a WG number for each schema --> 
          <!--          <xsl:with-param name="wgnumber" select="./@wg.number.arm"/> -->
-          <xsl:with-param name="wgnumber" select="$wgnumber"/>
+          <xsl:with-param name="wgnumber" select="'None'"/>
           <xsl:with-param name="file" select="concat($schema_file,'.exp')"/>
           <xsl:with-param name="express_exp" select="$express_exp" />
         </xsl:call-template>        
@@ -940,8 +996,20 @@ o=isocs; s=central<br/>
       <!--      <xsl:apply-templates select="arm_lf" mode="annexe"/> -->
 
     </xsl:for-each>
-
-    </table>
+    <xsl:if test="$FILE_EXT!='.xml'">
+       <tr>
+         <td>COMBINED EXPRESS</td>
+         <td>Not provided</td>
+        <td>
+          <a href="../../../../wg12n{$wgnumber}.exp">
+            <xsl:value-of select="concat('wg12n',$wgnumber,'.exp')"/>
+          </a>
+        </td>
+        <td>
+        <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/></td>
+      </tr>
+    </xsl:if>  
+  </table>
   </div>
   <p>
     If there is difficulty accessing these sites, contact ISO Central
@@ -974,6 +1042,7 @@ o=isocs; s=central<br/>
     </xsl:variable>
     <xsl:choose>
       <xsl:when test="contains($test_wg_number,'Error')">
+        <!--
         <xsl:call-template name="error_message">
           <xsl:with-param name="message">
             <xsl:value-of select="concat('(Error in
@@ -981,6 +1050,8 @@ o=isocs; s=central<br/>
                                   $test_wg_number)"/>
           </xsl:with-param>
         </xsl:call-template>
+-->
+        <xsl:value-of select="$wgnumber"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
@@ -3182,7 +3253,11 @@ separated by spaces -->
 						)" />
 </xsl:template>
 
-
+<xsl:template name="annex_count" >
+  <xsl:if test="string-length(./tech_discussion) > 10">T</xsl:if>
+  <xsl:if test="string-length(./examples) > 10">E</xsl:if>
+  <xsl:if test="string-length(./add_scope) > 10">A</xsl:if>
+</xsl:template>
 </xsl:stylesheet>
 
 

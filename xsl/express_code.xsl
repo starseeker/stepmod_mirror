@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.23 2002/06/18 07:56:40 robbod Exp $
+     $Id: express_code.xsl,v 1.24 2002/06/24 07:55:24 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -381,21 +381,20 @@
   <!-- check of the expression already ends in () -->
   <xsl:variable name="open_paren">
     <xsl:if test="not(starts-with(normalize-space(@super.expression),'('))">
-      (
+      <xsl:value-of select="'('"/>
     </xsl:if>
   </xsl:variable>
   <xsl:variable name="close_paren">
-    <xsl:if test="$open_paren">
-      )
+    <xsl:if test="$open_paren='('">
+      <xsl:value-of select="')'"/>
     </xsl:if>
   </xsl:variable>
-
   <xsl:choose>
     <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       <br/>
       &#160; ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
-        &#160; OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+        &#160;OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
       </xsl:if>
     </xsl:when>
     <xsl:otherwise>

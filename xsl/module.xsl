@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.104 2002/09/05 09:10:41 robbod Exp $
+$Id: module.xsl,v 1.105 2002/09/13 08:33:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2891,7 +2891,10 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 
 
 <xsl:template match="term">
-  <xsl:value-of select="normalize-space(.)"/>
+  <xsl:variable name="nterm" select="normalize-space(.)"/>
+  <a name="term-{$nterm}">
+    <xsl:value-of select="$nterm"/>
+  </a>
   <xsl:apply-templates select="../synonym"/>
 </xsl:template>
 

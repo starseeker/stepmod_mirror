@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.50 2002/05/02 14:08:23 robbod Exp $
+$Id: module.xsl,v 1.51 2002/05/08 06:46:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2278,14 +2278,32 @@ defines it. Use: normref.inc')"/>
   <xsl:variable name="fig_no">
     <xsl:choose>
       <xsl:when test="name(../..)='arm'">
-        <xsl:value-of 
-          select="concat('Figure C.',$number, 
-                  ' - ARM EXPRESS-G diagram ',$number)"/> 
+        <xsl:choose>
+          <xsl:when test="$number=1">
+            <xsl:value-of 
+              select="concat('Figure C.',$number, 
+                      ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of 
+              select="concat('Figure C.',$number, 
+                      ' - ARM Entity level EXPRESS-G diagram ',$number)"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:when test="name(../..)='mim'">
-        <xsl:value-of 
-          select="concat('Figure D.',$number, 
-                  ' - MIM EXPRESS-G diagram ',$number)"/> 
+        <xsl:choose>
+          <xsl:when test="$number=1">
+            <xsl:value-of 
+              select="concat('Figure D.',$number, 
+                      ' - MIM Schema level EXPRESS-G diagram ',$number)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of 
+              select="concat('Figure D.',$number, 
+                      ' - MIM Entity level EXPRESS-G diagram ',$number)"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
     </xsl:choose>
   </xsl:variable>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_index.xsl,v 1.2 2003/03/11 13:37:03 robbod Exp $
+$Id: module_index.xsl,v 1.3 2003/04/17 12:30:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -780,6 +780,7 @@ $Id: module_index.xsl,v 1.2 2003/03/11 13:37:03 robbod Exp $
         <a href="../sys/5_mapping{$FILE_EXT}" target="content">5.1 Mapping specification</a>
       </p>
       <xsl:apply-templates select="./mapping_table/ae" mode="toc"/>
+      <xsl:apply-templates select="./mapping_table/sc" mode="toc"/>
     </div> <!-- MappMenu (OPEN) -->
 
     <!-- MappMenu (CLOSED) -->
@@ -1376,6 +1377,38 @@ $Id: module_index.xsl,v 1.2 2003/03/11 13:37:03 robbod Exp $
 </xsl:template>
 
 
+<xsl:template match="sc" mode="toc">
+  <xsl:variable name="ae_aname" select="@constraint"/>
+
+  <xsl:variable name="ae_map_aname">
+    <xsl:apply-templates select="." mode="map_attr_aname"/>  
+  </xsl:variable>
+
+  <xsl:variable 
+    name="ae_xref"
+    select="concat('../sys/5_mapping',$FILE_EXT,'#',$ae_map_aname)"/>
+
+
+  <xsl:variable name="ae_count" select="count(//ae)" />
+  <xsl:variable name="sect_no">
+    <xsl:value-of select="$ae_count+position()"/>
+  </xsl:variable>
+
+  <p class="menuitem3">
+    <a href="{$ae_xref}" target="content">
+      <xsl:value-of
+        select="concat('5.1.',$sect_no,' ',$ae_aname)"/>
+    </a>
+  </p>
+
+  <!-- no need to go to this depth - there is a bug in the link with
+       inherited attributes as well 
+  <xsl:apply-templates select="aa" mode="toc">
+    <xsl:with-param name="sect" select="concat('5.1.',$sect_no)"/>
+  </xsl:apply-templates>
+  -->
+</xsl:template>
+
 <xsl:template match="ae" mode="toc">
   <xsl:variable name="ae_aname" select="@entity"/>
 
@@ -1405,7 +1438,6 @@ $Id: module_index.xsl,v 1.2 2003/03/11 13:37:03 robbod Exp $
   </xsl:apply-templates>
   -->
 </xsl:template>
-
 
 <xsl:template match="guide_subclause" mode="module_clause_menu">
   <p class="menuitem1">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.3 2004/12/01 09:26:29 robbod Exp $
+$Id: normref_check.xsl,v 1.4 2004/12/17 20:02:34 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -93,9 +93,18 @@ $Id: normref_check.xsl,v 1.3 2004/12/01 09:26:29 robbod Exp $
           mode="generate_normref_node">
           <xsl:with-param name="type" select="'ap_doc/normrefs_default.xml'"/>
         </xsl:apply-templates>
-
         <xsl:apply-templates select="//ap_doc" mode="read_normref">
           <xsl:with-param name="type" select="'AP'"/>
+        </xsl:apply-templates>
+      </xsl:if>
+      <xsl:if test="//res_doc">
+        <xsl:apply-templates
+          select="document('../../data/basic/normrefs_resdoc_default.xml')/normrefs/normref.inc" 
+          mode="generate_normref_node">
+          <xsl:with-param name="type" select="'normrefs_resdoc_default.xml'"/>
+        </xsl:apply-templates>
+        <xsl:apply-templates select="//res_doc" mode="read_normref">
+          <xsl:with-param name="type" select="'Resource'"/>
         </xsl:apply-templates>
       </xsl:if>
     </xsl:variable>
@@ -130,6 +139,21 @@ $Id: normref_check.xsl,v 1.3 2004/12/01 09:26:29 robbod Exp $
       <xsl:with-param name="type" select="$type"/>
     </xsl:apply-templates>
   </xsl:template>
+
+
+
+  <!-- applies to resource doc in ballot_publication_index -->
+  <xsl:template match="res_doc" mode="read_normref">
+    <xsl:param name="type"/>
+    <xsl:variable name="resdoc_path" select="concat('../../data/resource_docs/',@name,'/resource.xml')"/>
+    <xsl:apply-templates
+      select="document($resdoc_path)/resource/normrefs/normref.inc" 
+      mode="generate_normref_node">
+      <xsl:with-param name="type" select="$type"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+
 
   <!-- applies to module.xml -->
   <xsl:template match="normref.inc" mode="generate_normref_node">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.6 2002/11/26 13:54:50 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.7 2002/11/26 15:04:49 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -452,7 +452,8 @@ $Id: mapping_view.xsl,v 1.6 2002/11/26 13:54:50 nigelshaw Exp $
 
 				<xsl:variable name="this_sel" select="@assertion_to" />
 				
-				<xsl:if test="not($arm_node//type[@name=$this_sel][select])" >
+				<xsl:if test="not($arm_node//type[@name=$this_sel][select]
+				        | $arm_node//typename[@name=$this_sel])" >
 					<xsl:call-template name="error_message">
 					  <xsl:with-param name="inline" select="'yes'"/>
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -475,7 +476,7 @@ $Id: mapping_view.xsl,v 1.6 2002/11/26 13:54:50 nigelshaw Exp $
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
 				          <xsl:with-param 
 				            name="message" 
-				            select="concat('Error Map28: ',$this_ent,' is not referenced as ENTITY or type in the ARM')"/>
+				            select="concat('Warning Map28: ',$this_ent,' is not referenced as ENTITY or type in the ARM')"/>
 					</xsl:call-template>    
 				
 				</xsl:if>

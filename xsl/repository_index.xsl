@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.13 2002/06/06 07:46:33 robbod Exp $
+     $Id: repository_index.xsl,v 1.14 2002/07/16 07:42:51 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -109,14 +109,18 @@
 <xsl:template match="module" mode="col1">
   <xsl:param name="mid_point"/>
   <xsl:if test="not(position()>$mid_point)">
-    <xsl:apply-templates select="." mode="output"/>
+    <!--
+     <xsl:apply-templates select="." mode="output"/> -->
+    <xsl:apply-templates select="." mode="output_mod_part_nos"/>
   </xsl:if>
 </xsl:template>
 
 <xsl:template match="module" mode="col2">
   <xsl:param name="mid_point"/>
   <xsl:if test="position()>$mid_point">
-    <xsl:apply-templates select="."  mode="output"/>
+    <xsl:apply-templates select="." mode="output_mod_part_nos"/>
+    <!--
+    <xsl:apply-templates select="."  mode="output"/>  -->
   </xsl:if>
 </xsl:template>
 
@@ -124,11 +128,8 @@
 <xsl:template match="module" mode="output">
   <xsl:variable name="xref"
     select="concat('./data/modules/',@name,'/sys/introduction',$FILE_EXT)"/>
-  <xsl:variable name="part">
-    <xsl:call-template name="get_module_part">
-      <xsl:with-param name="module_name" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>
+  <xsl:variable name="part" select="@part"/>
+
   <a href="{$xref}">
     <font size="-1">
       <b><xsl:value-of select="@name"/> (<xsl:value-of select="$part"/>)</b>
@@ -199,6 +200,91 @@
     </table>
 </xsl:template>
 
+
+
+<xsl:template match="module" mode="output_mod_part_nos">
+  <xsl:variable name="xref"
+    select="concat('./data/modules/',@name,'/sys/introduction',$FILE_EXT)"/>
+
+  <xsl:variable name="part">
+    <xsl:call-template name="get_module_part">
+      <xsl:with-param name="module_name" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <a href="{$xref}">
+    <font size="-1">
+      <b><xsl:value-of select="@name"/> (<xsl:value-of select="$part"/>)</b>
+    </font>
+  </a>
+
+  <xsl:variable name="xref4"
+    select="concat('./data/modules/',@name,'/sys/4_info_reqs',$FILE_EXT)"/>
+
+  <!--
+  <xsl:variable name="arm_expg"
+    select="concat('./data/modules/',@name,'/sys/c_arm_expg',$FILE_EXT,'#armexpg')"/>
+  -->
+
+  <xsl:variable name="arm_expg"
+    select="concat('./data/modules/',@name,'/armexpg1',$FILE_EXT)"/>
+  
+  <xsl:variable name="xref5"
+    select="concat('./data/modules/',@name,'/sys/5_mim',$FILE_EXT)"/>
+
+
+  <!--
+       <xsl:variable name="mim_expg"
+    select="concat('./data/modules/',@name,'/sys/d_mim_expg',$FILE_EXT,'#mimexpg')"/>
+       -->
+       
+  <xsl:variable name="mim_expg"
+    select="concat('./data/modules/',@name,'/mimexpg1',$FILE_EXT)"/>
+
+  <xsl:variable name="mod_directory"
+    select="concat('./data/modules/',@name)"/>
+  
+  <table cellspacing="0" cellpadding="1">
+    <tr>
+      <td>&#160;&#160;&#160;&#160;</td>
+      <td>
+        <font size="-2">
+          <a href="{$xref4}">ARM</a>
+        </font>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$arm_expg}">ARM-G</a>
+        </font>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$xref5}">MIM</a>
+        </font>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$mim_expg}">MIM-G</a>
+        </font>
+      </td>
+      <td>
+        <font size="-2">
+          <a href="{$mod_directory}">
+            <img alt="module folder" 
+              border="0"
+              align="middle"
+              src="./images/folder.gif"/>
+          </a>
+        </font>
+      </td>
+
+      </tr>
+    </table>
+</xsl:template>
+
+
+
+
 <xsl:template match="resource" mode="col1">
   <xsl:param name="mid_point"/>
   <xsl:if test="not(position()>$mid_point)">
@@ -226,8 +312,6 @@
 
 
 <xsl:template name="get_module_part">
-  <!--
-       for now, just use@part
   <xsl:param name="module_name"/>
   <xsl:variable name="module_file" 
     select="concat('../data/modules/',$module_name,'/module.xml')"/>
@@ -236,8 +320,6 @@
     select="document($module_file)/module[@name=$module_name]"/>
   <xsl:variable name="part" select="$module_node/@part"/>
   <xsl:value-of select="$part"/>
--->
-  <xsl:value-of select="@part"/>
 </xsl:template>
 
 </xsl:stylesheet>

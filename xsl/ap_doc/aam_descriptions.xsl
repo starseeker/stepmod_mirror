@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.12 2003/07/31 07:29:41 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.13 2003/08/15 08:49:21 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -60,6 +60,22 @@ $Id: aam_descriptions.xsl,v 1.12 2003/07/31 07:29:41 robbod Exp $
       The definitions given in this annex do not supersede the definitions
       given in the main body of the text.
     </p>
+
+    <!-- see if the pages in the aam start at 0 or 1
+         The list of the files in application_protocol.xml/aam/idef0
+         start with 1, so need to offset -->
+    <xsl:variable name="page_start" select="/idef0/page[1]/@number"/>
+    <xsl:variable name="page_offset">
+      <xsl:choose>
+        <xsl:when test="$page_start=0">
+          1
+        </xsl:when>
+        <xsl:otherwise>
+          0
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:for-each select="./page/activity|./icoms/icom">
       <xsl:sort select="normalize-space(./name)"/>
       <xsl:variable name="asterisk"><xsl:if test="@inscope='no'">*</xsl:if></xsl:variable>
@@ -74,7 +90,7 @@ $Id: aam_descriptions.xsl,v 1.12 2003/07/31 07:29:41 robbod Exp $
         <xsl:if test="name(.)='activity'">
           <xsl:if test="$apdoc_ok='true'">
             <!-- this could be more efficient --> 
-            <xsl:variable name="page" select="number(../@number)"/>
+            <xsl:variable name="page" select="number(../@number)+$page_offset"/>
             <xsl:variable name="imgfile">
               <xsl:value-of 
                 select="$application_protocol_xml/application_protocol/aam/idef0/imgfile[$page]/@file"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: imgfile.xsl,v 1.12 2003/06/03 13:38:40 robbod Exp $
+$Id: imgfile.xsl,v 1.13 2003/07/31 13:12:01 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -217,11 +217,15 @@ $Id: imgfile.xsl,v 1.12 2003/06/03 13:38:40 robbod Exp $
         <a href="./{$start}">
           <img align="middle" border="0" alt="First page" src="../../../images/start.gif"/>
         </a>
+
+        <xsl:variable name="prevpos" select="$img_position - 1"/>
         <xsl:variable name="previous">
           <xsl:call-template name="set_file_ext">
-            <xsl:with-param name="filename" select="preceding-sibling::*/@file"/>
+            <xsl:with-param name="filename" 
+              select="../imgfile[$prevpos]/@file"/>
           </xsl:call-template>
-        </xsl:variable>
+        </xsl:variable>   
+
         <a href="./{$previous}">
           <img align="middle" border="0" alt="Previous page" src="../../../images/prev.gif"/>
         </a>

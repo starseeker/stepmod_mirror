@@ -2,11 +2,11 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-15T15:47:21" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-23T09:47:36" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_part_black_box_model_mim schema_instance"/>
    <schema name="Packaged_part_black_box_model_mim">
       <interface kind="use" schema="Part_external_reference_mim"/>
-      <interface kind="use" schema="Pdm_material_aspects_mim"/>
+      <interface kind="use" schema="Generic_material_aspects_mim"/>
       <interface kind="use" schema="Physical_unit_usage_view_mim"/>
       <interface kind="use" schema="Part_terminal_mim"/>
       <interface kind="use" schema="Package_mim"/>
@@ -28,5 +28,9 @@
          <where label="WR6" expression=" ( NOT ( SELF \ shape_aspect . description = 'interface terminal' ) ) OR ( SIZEOF ( QUERY ( sar &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' IN TYPEOF ( sar ) ) AND ( sar . relating_shape_aspect \ shape_aspect . description = 'join terminal' ) ) ) &gt;= 1 ) "/>
          <where label="WR7" expression=" ( NOT ( SELF \ shape_aspect . description = 'join terminal' ) ) OR ( SIZEOF ( QUERY ( sar &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' IN TYPEOF ( sar ) ) AND ( sar . relating_shape_aspect \ shape_aspect . description = 'interface terminal' ) ) ) &lt;= 1 ) "/>
       </entity>
+      <rule name="packaged_part_unique_constraint" appliesto="packaged_part">
+         <algorithm> LOCAL pp : SET OF physical_unit := packaged_part ; pdr_bag : BAG OF product_definition_relationship ; pdf_bag : BAG OF product_definition_formation := [ ] ; pass : BOOLEAN := TRUE ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( pp ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdf_bag := [ ] ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( pp [ i ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | ( ( pdr \ product_definition_relationship . name = 'used package' ) AND ( ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PACKAGE' IN TYPEOF ( pdr . relating_product_definition ) ) ) ) ) ; pdf_bag := pdf_bag + pdr_bag [ 1 ] . relating_product_definition . formation ; REPEAT k := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; IF EXISTS ( pdr_bag [ k ] . relating_product_definition . formation ) THEN IF NOT ( pdr_bag [ k ] . relating_product_definition . formation IN pdf_bag ) THEN pass := FALSE ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
    </schema>
 </express>

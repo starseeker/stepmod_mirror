@@ -2,9 +2,10 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-15T15:47:17" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-23T09:47:33" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="component_feature_mim schema_instance"/>
    <schema name="Component_feature_mim">
+      <interface kind="use" schema="Interface_component_mim"/>
       <interface kind="use" schema="Physical_unit_design_view_mim"/>
       <interface kind="use" schema="Shape_property_assignment_mim"/>
       <entity name="component_feature" supertypes="shape_aspect">
@@ -56,5 +57,9 @@
          <where label="WR3" expression=" ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COMPONENT_SHAPE_ASPECT' IN TYPEOF ( SELF . relating_shape_aspect ) ) ) OR ( SELF . relating_shape_aspect \ shape_aspect . description IN [ 'component feature' , 'component termination passage interface terminal' , 'land or non functional land interface terminal' , 'printed connector component interface terminal' ] ) "/>
          <where label="WR4" expression=" ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COMPONENT_SHAPE_ASPECT' IN TYPEOF ( SELF . related_shape_aspect ) ) ) OR ( SELF . related_shape_aspect \ shape_aspect . description IN [ 'component feature' , 'component termination passage interface terminal' , 'land or non functional land interface terminal' , 'printed connector component interface terminal' ] ) "/>
       </entity>
+      <rule name="component_feature_unique_constraint" appliesto="component_terminal component_interface_terminal">
+         <algorithm> LOCAL ct : BAG OF shape_aspect := QUERY ( ct &lt;* component_terminal | ( ct \ shape_aspect . description IN [ 'assembly module component terminal' , 'bare die component terminal' , 'interconnect component join terminal' , 'interconnect module component terminal' , 'interconnect module component stratum based terminal' , 'minimally defined component terminal' , 'packaged component join terminal' ] ) ) ; cit : BAG OF shape_aspect := QUERY ( cit &lt;* component_interface_terminal | ( cit \ shape_aspect . description IN [ 'interconnect component interface terminal' , 'packaged connector component interface terminal' ] ) ) ; cf : BAG OF shape_aspect ; cd_bag : BAG OF component_definition := [ ] ; sa_bag : BAG OF shape_aspect ; sar_bag : BAG OF shape_aspect_relationship ; pass : BOOLEAN := TRUE ; def_bag : BAG OF shape_aspect ; END_LOCAL ; cf := ct + cit ; REPEAT i := 1 to SIZEOF ( cf ) by 1 ; IF EXISTS ( cf [ i ] . of_shape . definition ) THEN IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COMPONENT_DEFINITION' IN TYPEOF ( cf [ i ] . of_shape . definition ) ) THEN IF ( NOT ( cf [ i ] . of_shape . definition IN cd_bag ) ) THEN cd_bag := cd_bag + cf [ i ] . of_shape . definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( cd_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; def_bag := [ ] ; sa_bag := QUERY ( sa &lt;* cf | ( sa . of_shape . definition :=: cd_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( sa_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; sar_bag := QUERY ( sar &lt;* USEDIN ( sa_bag [ j ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | ( sar \ shape_aspect_relationship . name = 'instantiated feature' ) ) ; REPEAT k := 1 to SIZEOF ( sar_bag ) by 1 ; IF EXISTS ( sar_bag [ k ] . relating_shape_aspect ) THEN IF ( sar_bag [ k ] . relating_shape_aspect IN def_bag ) THEN pass := FALSE ; ESCAPE ; ELSE def_bag := def_bag + sar_bag [ k ] . relating_shape_aspect ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
    </schema>
 </express>

@@ -2,10 +2,14 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-15T15:47:18" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-23T09:47:34" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_decomposition_to_assembly_design_mim schema_instance"/>
    <schema name="Functional_decomposition_to_assembly_design_mim">
       <interface kind="use" schema="Assembly_technology_mim"/>
       <interface kind="use" schema="Functional_decomposition_to_design_mim"/>
+      <rule name="design_functional_unit_allocation_to_assembly_joint_unique_constraint" appliesto="product_definition_relationship">
+         <algorithm> LOCAL dfuataj : BAG OF product_definition_relationship := QUERY ( pdr &lt;* product_definition_relationship | ( pdr \ product_definition_relationship . name = 'design functional unit allocation to assembly joint' ) ) ; pass : BOOLEAN := TRUE ; pd_bag : BAG OF product_definition := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( dfuataj ) by 1 ; IF EXISTS ( dfuataj [ i ] . relating_product_definition ) THEN IF ( dfuataj [ i ] . relating_product_definition . id = 'design composition path' ) THEN IF ( dfuataj [ i ] . relating_product_definition IN pd_bag ) THEN pass := FALSE ; ESCAPE ; ELSE pd_bag := pd_bag + dfuataj [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
    </schema>
 </express>

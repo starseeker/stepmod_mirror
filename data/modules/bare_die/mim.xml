@@ -2,20 +2,19 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-15T15:47:16" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-23T09:47:33" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="bare_die_mim schema_instance"/>
    <schema name="Bare_die_mim">
       <interface kind="use" schema="Value_with_unit_extension_mim"/>
       <interface kind="use" schema="Elemental_geometric_shape_mim"/>
       <interface kind="use" schema="Part_feature_function_mim"/>
       <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
-      <interface kind="use" schema="Pdm_material_aspects_mim"/>
+      <interface kind="use" schema="Generic_material_aspects_mim"/>
       <interface kind="use" schema="Physical_unit_usage_view_mim"/>
       <interface kind="use" schema="Network_functional_usage_view_mim"/>
       <interface kind="use" schema="Non_feature_shape_element_mim"/>
       <interface kind="use" schema="Shape_composition_mim"/>
       <interface kind="use" schema="Part_terminal_mim"/>
-      <interface kind="use" schema="Pdm_material_aspects_mim"/>
       <interface kind="use" schema="Part_occurrence_mim"/>
       <entity name="bare_die" supertypes="physical_unit">
          <where label="WR1" expression=" SIZEOF ( QUERY ( ifdu &lt;* QUERY ( pdr &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION' ) | pdr \ property_definition_relationship . name = 'implemented function' ) | ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'FUNCTIONAL_UNIT' IN TYPEOF ( ifdu . relating_product_definition ) ) AND ( ifdu . relating_product_definition . frame_of_reference . name = 'functional design usage' ) ) ) = 1 "/>
@@ -60,5 +59,9 @@
          <where label="WR3" expression=" SIZEOF ( USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'MATERIAL_DESIGNATION.DEFINITIONS' ) ) &lt;= 1 "/>
          <where label="WR4" expression=" SIZEOF ( QUERY ( mct &lt;* QUERY ( sar &lt;* USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | sar \ shape_aspect_relationship . name = 'member connected terminal' ) | 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PART_CONNECTED_TERMINALS_DEFINITION' IN TYPEOF ( mct . relating_shape_aspect ) ) ) &lt;= 1 "/>
       </entity>
+      <rule name="bare_die_unique_constraint" appliesto="bare_die">
+         <algorithm> LOCAL bd : BAG OF physical_unit := QUERY ( r &lt;* bare_die | ( r . frame_of_reference . name = 'physical design usage' ) ) ; pu : BAG OF physical_unit ; pdr_bag : BAG OF product_definition_relationship ; fu_bag : BAG OF functional_unit := [ ] ; pu_bag : BAG OF physical_unit ; ut_bag : BAG OF property_definition ; pass : BOOLEAN := TRUE ; pd_bag : BAG OF property_definition ; END_LOCAL ; pu := bd + edbd + ldbd ; REPEAT i := 1 to SIZEOF ( pu ) by 1 ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( pu [ i ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | ( ( pdr \ product_definition_relationship . name = 'implemented function' ) AND ( pdr . relating_product_definition . frame_of_reference . name = 'functional design usage' ) AND ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'FUNCTIONAL_UNIT' IN TYPEOF ( pdr . relating_product_definition ) ) ) ) ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF EXISTS ( pdr_bag [ j ] . relating_product_definition ) THEN IF ( NOT ( pdr_bag [ j ] . relating_product_definition IN fu_bag ) ) THEN fu_bag := fu_bag + pdr_bag [ j ] . relating_product_definition ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( fu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pu_bag := QUERY ( r &lt;* pu | ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( fu_bag [ i ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION' ) | ( ( pdr \ product_definition_relationship . name = 'implemented function' ) AND ( pdr . related_product_definition :=: r ) ) ) ) &gt; 0 ) ) ; pd_bag := [ ] ; REPEAT j := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; ut_bag := QUERY ( pd &lt;* USEDIN ( pu_bag [ j ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PROPERTY_DEFINITION.DEFINITION' ) | ( pd \ property_definition . name = 'unit technology' ) ) ; REPEAT k := 1 to SIZEOF ( ut_bag ) by 1 ; IF EXISTS ( ut_bag [ k ] ) THEN IF ( ut_bag [ k ] IN pd_bag ) THEN pass := FALSE ; ESCAPE ; ELSE pd_bag := pd_bag + ut_bag [ k ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-15T15:47:23" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-23T09:47:37" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="requirement_decomposition_mim schema_instance"/>
    <schema name="Requirement_decomposition_mim">
       <interface kind="use" schema="Analytical_model_mim"/>
@@ -10,7 +10,7 @@
       <interface kind="use" schema="Elemental_geometric_shape_mim"/>
       <interface kind="use" schema="Functional_specification_mim"/>
       <interface kind="use" schema="Part_and_version_identification_mim"/>
-      <interface kind="use" schema="Pdm_material_aspects_mim"/>
+      <interface kind="use" schema="Generic_material_aspects_mim"/>
       <interface kind="use" schema="Product_rule_mim"/>
       <interface kind="use" schema="Requirement_view_definition_mim"/>
       <interface kind="use" schema="Specification_document_mim"/>
@@ -43,5 +43,22 @@
          <where label="WR1" expression=" SIZEOF ( QUERY ( pdr &lt;* property_definition_relationship | ( ( pdr \ property_definition_relationship . name = 'and operation' ) OR ( pdr \ property_definition_relationship . name = 'or operation' ) ) AND NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'REQUIREMENTS_PROPERTY' IN TYPEOF ( pdr . related_property_definition ) ) ) ) = 0 "/>
          <where label="WR2" expression=" SIZEOF ( QUERY ( pdr &lt;* property_definition_relationship | ( ( pdr \ property_definition_relationship . name = 'and operation' ) OR ( pdr \ property_definition_relationship . name = 'or operation' ) ) AND NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'REQUIREMENTS_PROPERTY' IN TYPEOF ( pdr . relating_property_definition ) ) ) ) = 0 "/>
       </rule>
+      <rule name="requirements_property_constraint" appliesto="product_definition descriptive_representation_item requirements_property">
+         <algorithm> LOCAL ri : BAG OF descriptive_representation_item := QUERY ( dri &lt;* descriptive_representation_item | dri \ representation_item . name = 'requirements name' ) ; pd : BAG OF product_definition := QUERY ( tpd &lt;* product_definition | ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLICATION_CONTEXT_ELEMENT' IN TYPEOF ( tpd . frame_of_reference ) ) AND ( tpd . frame_of_reference . name IN [ 'requirement' , 'design requirement' , 'assembly requirement' ] ) AND ( tpd . name = 'requirements model' ) ) ; r : BAG OF representation := [ ] ; pdr : BAG OF property_definition_representation := [ ] ; pass1 : BOOLEAN := TRUE ; rp : BAG OF property_definition := [ ] ; pass2 : BOOLEAN := TRUE ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( ri ) by 1 ; r := [ ] ; pdr := [ ] ; r := ( USEDIN ( ri [ i ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'REPRESENTATION.ITEMS' ) ) ; pass1 := ( SIZEOF ( r ) = 1 ) ; IF ( NOT pass1 ) THEN ESCAPE ; END_IF ; pdr := ( USEDIN ( r [ 1 ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION' ) ) ; pass1 := ( SIZEOF ( pdr ) = 1 ) ; IF ( NOT pass1 ) THEN ESCAPE ; END_IF ; pass1 := ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'REQUIREMENTS_PROPERTY' IN TYPEOF ( pdr [ 1 ] . definition ) ) ; IF ( NOT pass1 ) THEN ESCAPE ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pd ) by 1 ; rp := [ ] ; IF ( NOT pass2 ) THEN ESCAPE ; END_IF ; rp := QUERY ( rp &lt;* USEDIN ( pd [ i ] , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PROPERTY_DEFINITION.DEFINITION' ) | 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'REQUIREMENTS_PROPERTY' IN TYPEOF ( rp ) ) ; pass2 := ( SIZEOF ( rp ) = 1 ) ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass1 "/>
+         <where label="WR2" expression=" pass2 "/>
+      </rule>
+      <rule name="requirements_property_unique_constraint" appliesto="descriptive_representation_item requirements_property">
+         <algorithm> LOCAL desc_bag : BAG OF STRING := [ ] ; pass1 : BOOLEAN := TRUE ; pdr : BAG OF property_definition_representation := [ ] ; rep : BAG OF representation := [ ] ; pd : BAG OF product_definition := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( requirements_property ) by 1 ; IF ( NOT pass1 ) THEN ESCAPE ; END_IF ; IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRODUCT_DEFINITION' IN TYPEOF ( requirements_property [ i ] . definition ) ) THEN pd := pd + requirements_property [ i ] . definition ; END_IF ; END_REPEAT ; IF ( instance_unique ( pd ) = FALSE ) THEN pass1 := FALSE ; END_IF ; </algorithm>
+         <where label="WR1" expression=" pass1 "/>
+      </rule>
+      <function name="instance_unique">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> LOCAL the_set : SET OF GENERIC : intype := [ ] ; i : INTEGER ; pass : BOOLEAN := TRUE ; END_LOCAL ; IF SIZEOF ( the_bag ) &gt; 0 THEN the_set := bag_to_set ( the_bag ) ; END_IF ; IF NOT ( SIZEOF ( the_set ) = SIZEOF ( the_bag ) ) THEN pass := FALSE ; END_IF ; RETURN ( pass ) ; </algorithm>
+      </function>
    </schema>
 </express>

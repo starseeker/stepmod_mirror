@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-15T15:47:22" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-23T09:47:37" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_usage_view_mim schema_instance"/>
    <schema name="Physical_unit_usage_view_mim">
       <interface kind="use" schema="Analytical_model_mim"/>
@@ -12,6 +12,7 @@
       <interface kind="use" schema="Part_view_definition_mim"/>
       <interface kind="use" schema="Shape_composition_mim"/>
       <interface kind="use" schema="Shape_property_assignment_mim"/>
+      <interface kind="use" schema="application_context_schema"/>
       <interface kind="use" schema="material_property_definition_schema"/>
       <entity name="connection_zone_map_identification" supertypes="shape_aspect representation_relationship">
          <where label="WR1" expression=" SELF \ representation_relationship . rep_2 :&lt;&gt;: SELF \ representation_relationship . rep_1 "/>
@@ -86,5 +87,55 @@
          <where label="WR3" expression=" SIZEOF ( TYPEOF ( SELF ) - ( TYPEOF ( SELF \ representation || SELF \ representation_relationship || SELF \ representation_relationship_with_transformation || SELF \ usage_view_connection_zone_terminal_shape_relationship ) ) ) = 0 "/>
          <where label="WR4" expression=" SELF \ representation_relationship . rep_1 &lt;&gt; SELF \ representation_relationship . rep_2 "/>
       </entity>
+      <rule name="part_feature_constraint" appliesto="shape_aspect product_definition shape_aspect_relationship">
+         <algorithm> LOCAL pass : BOOLEAN := TRUE ; name_bag : BAG OF STRING := [ ] ; sa : BAG OF shape_aspect := [ ] ; pd : BAG OF product_definition := QUERY ( pd &lt;* product_definition | pd . frame_of_reference \ application_context_element . name = 'physical design usage' ) ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( pd ) by 1 ; name_bag := [ ] ; sa := QUERY ( sa &lt;* shape_aspect | ( ( sa . of_shape \ property_definition . definition = pd [ i ] ) AND ( sa . product_definitional ) AND ( NOT ( sa \ shape_aspect . description = 'connection zone' ) ) ) ) ; REPEAT j := 1 to SIZEOF ( sa ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; IF sa [ j ] \ shape_aspect . name in name_bag THEN pass := FALSE ; ELSE name_bag := name_bag + sa [ j ] \ shape_aspect . name ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'precedent feature' ) AND ( sar . related_shape_aspect = sar . relating_shape_aspect ) ) ) = 0 "/>
+         <where label="WR3" expression=" SIZEOF ( QUERY ( sa &lt;* shape_aspect | ( ( sa \ shape_aspect . description = 'part group feature' ) OR ( sa \ shape_aspect . description = 'part generic feature' ) OR ( sa \ shape_aspect . description = 'polarity indication feature' ) ) AND ( SIZEOF ( QUERY ( sar &lt;* USEDIN ( sa , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | sar \ shape_aspect_relationship . name = 'precedent feature' ) ) &gt; 1 ) ) ) = 0 "/>
+         <where label="WR4" expression=" SIZEOF ( QUERY ( sa &lt;* shape_aspect | ( ( sa \ shape_aspect . description = 'interconnect module edge segment surface' ) OR ( sa \ shape_aspect . description = 'interconnect module cavity surface' ) OR ( sa \ shape_aspect . description = 'interconnect module cutout surface' ) OR ( sa \ shape_aspect . description = 'interconnect module edge surface' ) OR ( sa \ shape_aspect . description = 'interconnect module primary surface' ) OR ( sa \ shape_aspect . description = 'interconnect module secondary surface' ) OR ( sa \ shape_aspect . description = 'interconnect module surface feature' ) ) AND ( SIZEOF ( QUERY ( sar &lt;* USEDIN ( sa , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | sar \ shape_aspect_relationship . name = 'precedent feature' ) ) &gt; 0 ) ) ) = 0 "/>
+      </rule>
+      <rule name="promissory_usage_relationship_constraint" appliesto="promissory_usage_occurrence">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( puo &lt;* promissory_usage_occurrence | ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PHYSICAL_UNIT' IN TYPEOF ( puo . relating_product_definition ) ) AND ( puo . relating_product_definition . frame_of_reference . name = 'physical design' ) ) ) = 0 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( puo &lt;* promissory_usage_occurrence | SIZEOF ( USEDIN ( puo , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS' ) ) = 0 ) ) = 0 "/>
+      </rule>
+      <rule name="promissory_usage_relationship_unique_constraint" appliesto="promissory_usage_occurrence">
+         <algorithm> LOCAL pu_bag : BAG OF physical_unit := [ ] ; puo_bag : BAG OF promissory_usage_occurrence ; pass : BOOLEAN := TRUE ; comp_bag : BAG OF physical_unit ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( promissory_usage_occurrence ) by 1 ; IF EXISTS ( promissory_usage_occurrence [ i ] . relating_product_definition ) THEN IF ( ( ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PHYSICAL_UNIT' ) IN TYPEOF ( promissory_usage_occurrence [ i ] . relating_product_definition ) ) AND ( promissory_usage_occurrence [ i ] . relating_product_definition . frame_of_reference . name = 'physical design' ) ) THEN IF ( NOT ( promissory_usage_occurrence [ i ] . relating_product_definition IN pu_bag ) ) THEN pu_bag := pu_bag + promissory_usage_occurrence [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; puo_bag := QUERY ( puo &lt;* promissory_usage_occurrence | ( puo . relating_product_definition :=: pu_bag [ i ] ) ) ; comp_bag := [ ] ; REPEAT j := 1 to SIZEOF ( puo_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; IF ( ( ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PHYSICAL_UNIT' ) IN TYPEOF ( puo_bag [ j ] . related_product_definition ) ) AND ( puo_bag [ j ] . related_product_definition . frame_of_reference . name IN [ 'physical design' , 'physical design usage' ] ) ) THEN IF EXISTS ( puo_bag [ j ] . related_product_definition ) THEN IF ( puo_bag [ j ] . related_product_definition IN comp_bag ) THEN pass := FALSE ; ESCAPE ; ELSE comp_bag := comp_bag + puo_bag [ j ] . related_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
+      <function name="is_assembly_module_design">
+         <parameter name="pd">
+            <typename name="product_definition"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; IF NOT ( EXISTS ( pd \ product_definition . name ) ) THEN RETURN ( FALSE ) ; END_IF ; IF ( ( pd \ product_definition . name = 'assembly module' ) AND ( pd . frame_of_reference \ application_context_element . name = 'physical design' ) ) THEN RETURN ( TRUE ) ; END_IF ; RETURN ( pass ) ; </algorithm>
+      </function>
+      <function name="is_assembly_module_usage">
+         <parameter name="pd">
+            <typename name="product_definition"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; IF NOT ( EXISTS ( pd \ product_definition . name ) ) THEN RETURN ( FALSE ) ; END_IF ; IF ( ( pd \ product_definition . name = 'assembly module' ) AND ( pd . frame_of_reference \ application_context_element . name = 'physical design usage' ) ) THEN RETURN ( TRUE ) ; END_IF ; RETURN ( pass ) ; </algorithm>
+      </function>
+      <function name="is_ee_product_definition">
+         <parameter name="pd">
+            <typename name="product_definition"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; IF ( NOT ( is_laminate_component ( pd ) ) AND ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COMPONENT_DEFINITION' IN TYPEOF ( pd ) ) ) AND ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'STRATUM' IN TYPEOF ( pd ) ) ) AND ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'ASSEMBLY_GROUP_COMPONENT_DEFINITION_PLACEMENT_LINK' IN TYPEOF ( pd ) ) ) AND ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'BUS_STRUCTURAL_DEFINITION' IN TYPEOF ( pd ) ) ) AND ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'COMPONENT_FUNCTIONAL_UNIT' IN TYPEOF ( pd ) ) ) AND ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'LINEAR_ARRAY_COMPONENT_DEFINITION_LINK' IN TYPEOF ( pd ) ) ) AND ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'NETWORK_NODE_DEFINITION' IN TYPEOF ( pd ) ) ) AND ( NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRINTED_PART_TEMPLATE_MATERIAL' IN TYPEOF ( pd ) ) ) ) THEN RETURN ( TRUE ) ; ELSE RETURN ( FALSE ) ; END_IF ; </algorithm>
+      </function>
+      <function name="is_interconnect_module_design">
+         <parameter name="pd">
+            <typename name="product_definition"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; IF NOT ( EXISTS ( pd \ product_definition . name ) ) THEN RETURN ( FALSE ) ; END_IF ; IF ( ( pd \ product_definition . name = 'interconnect module' ) AND ( pd . frame_of_reference \ application_context_element . name = 'physical design' ) ) THEN RETURN ( TRUE ) ; END_IF ; RETURN ( pass ) ; </algorithm>
+      </function>
+      <function name="is_laminate_component">
+         <parameter name="pd">
+            <typename name="product_definition"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; IF ( pd \ product_definition . description = 'laminate component' ) THEN RETURN ( TRUE ) ; ELSE IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'PRINTED_COMPONENT' IN TYPEOF ( pd ) ) THEN RETURN ( TRUE ) ; END_IF ; END_IF ; RETURN ( pass ) ; </algorithm>
+      </function>
    </schema>
 </express>

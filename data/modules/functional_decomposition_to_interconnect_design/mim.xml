@@ -2,12 +2,20 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-12-15T15:47:18" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-23T09:47:34" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_decomposition_to_interconnect_design_mim schema_instance"/>
    <schema name="Functional_decomposition_to_interconnect_design_mim">
       <interface kind="use" schema="Fabrication_joint_mim"/>
       <interface kind="use" schema="Functional_decomposition_to_design_mim"/>
       <interface kind="use" schema="Layered_interconnect_module_with_printed_component_design_mim"/>
       <interface kind="use" schema="Network_functional_design_view_mim"/>
+      <rule name="design_functional_unit_allocation_to_fabrication_joint_unique_constraint" appliesto="product_definition_relationship">
+         <algorithm> LOCAL dfuatfj : BAG OF product_definition_relationship := QUERY ( pdr &lt;* product_definition_relationship | ( pdr \ product_definition_relationship . name = 'design functional unit allocation to fabrication joint' ) ) ; pass : BOOLEAN := TRUE ; pd_bag : BAG OF product_definition := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( dfuatfj ) by 1 ; IF EXISTS ( dfuatfj [ i ] . relating_product_definition ) THEN IF ( dfuatfj [ i ] . relating_product_definition . id = 'design composition path' ) THEN IF ( dfuatfj [ i ] . relating_product_definition IN pd_bag ) THEN pass := FALSE ; ESCAPE ; ELSE pd_bag := pd_bag + dfuatfj [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
+      <rule name="transmission_line_functional_unit_terminal_allocation_unique_constraint" appliesto="shape_aspect_relationship">
+         <algorithm> LOCAL tlfuta : BAG OF shape_aspect_relationship := QUERY ( r &lt;* shape_aspect_relationship | ( r \ shape_aspect_relationship . name = 'transmission line functional terminal allocation' ) ) ; sa_bag : BAG OF shape_aspect ; sar_bag : BAG OF shape_aspect_relationship ; ut_bag : BAG OF shape_aspect := [ ] ; pass : BOOLEAN := TRUE ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( tlfuta ) by 1 ; IF EXISTS ( tlfuta [ i ] . relating_shape_aspect ) THEN IF ( tlfuta [ i ] . relating_shape_aspect \ shape_aspect . description = 'unit terminal' ) THEN IF ( NOT ( tlfuta [ i ] . relating_shape_aspect IN ut_bag ) ) THEN ut_bag := ut_bag + tlfuta [ i ] . relating_shape_aspect ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( ut_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; sar_bag := QUERY ( sar &lt;* tlfuta | ( ( sar . related_shape_aspect \ shape_aspect . description = 'printed component join terminal' ) AND ( sar . relating_shape_aspect :=: ut_bag [ i ] ) ) ) ; sa_bag := [ ] ; REPEAT j := 1 to SIZEOF ( sar_bag ) by 1 ; IF EXISTS ( sar_bag [ j ] . related_shape_aspect ) THEN IF ( sar_bag [ j ] . related_shape_aspect IN sa_bag ) THEN pass := FALSE ; ESCAPE ; ELSE sa_bag := sa_bag + sar_bag [ j ] . related_shape_aspect ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
    </schema>
 </express>

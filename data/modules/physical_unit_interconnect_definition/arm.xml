@@ -2,11 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-26T18:35:12" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-27T18:25:31" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_interconnect_definition_arm schema_instance"/>
    <schema name="Physical_unit_interconnect_definition_arm">
       <interface kind="use" schema="Part_view_definition_arm"/>
       <interface kind="use" schema="Assembly_structure_arm"/>
+      <interface kind="use" schema="Part_occurrence_arm"/>
       <entity name="Connector_based_interconnect_definition">
          <explicit name="name">
             <builtintype type="STRING"/>
@@ -30,25 +31,29 @@
             <unique.attribute entity-ref="Connector_based_interconnect_definition" attribute="name"/>
             <unique.attribute entity-ref="Connector_based_interconnect_definition" attribute="associated_definition"/>
          </unique>
-         <where label="WR1" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PACKAGED_CONNECTOR_COMPONENT' IN &#10;&#10;        TYPEOF(connector_in_uv_1\Assembly_component_relationship.&#10;&#10;                                                        relating_view)"/>
-         <where label="WR2" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PACKAGED_CONNECTOR_COMPONENT' IN &#10;&#10;        TYPEOF(connector_in_uv_2\Assembly_component_relationship.&#10;&#10;                                                        relating_view)"/>
-         <where label="WR3" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.part_usage_view' IN &#10;&#10;        TYPEOF(connector_in_uv_1\Assembly_component_relationship.&#10;&#10;                                                         related_view)"/>
-         <where label="WR4" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.part_usage_view' IN &#10;&#10;        TYPEOF(connector_in_uv_2\Assembly_component_relationship.&#10;&#10;                                                         related_view)"/>
-         <where label="WR5" expression="EXISTS(connector_in_uv_1.location_indicator)"/>
-         <where label="WR6" expression="EXISTS(connector_in_uv_2.location_indicator)"/>
-         <where label="WR7" expression="EXISTS(component_1.location_indicator)"/>
-         <where label="WR8" expression="EXISTS(component_2.location_indicator)"/>
+         <where label="WR1" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PACKAGED_CONNECTOR_COMPONENT' IN &#10;        TYPEOF(connector_in_uv_1\View_definition_usage.related_view)"/>
+         <where label="WR2" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PACKAGED_CONNECTOR_COMPONENT' IN &#10;        TYPEOF(connector_in_uv_2\View_definition_usage.related_view)"/>
+         <where label="WR3" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PART_USAGE_VIEW' IN &#10;        TYPEOF(connector_in_uv_1\View_definition_usage.relating_view)"/>
+         <where label="WR4" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PART_USAGE_VIEW' IN &#10;        TYPEOF(connector_in_uv_2\View_definition_usage.relating_view)"/>
+         <where label="WR5" expression="EXISTS(connector_in_uv_1\Assembly_component_relationship.location_indicator)"/>
+         <where label="WR6" expression="EXISTS(connector_in_uv_2\Assembly_component_relationship.location_indicator)"/>
+         <where label="WR7" expression="EXISTS(component_1\Assembly_component_relationship.location_indicator)"/>
+         <where label="WR8" expression="EXISTS(component_2\Assembly_component_relationship.location_indicator)"/>
          <where label="WR9" expression="NOT EXISTS(connector_in_uv_1.quantity)"/>
          <where label="WR10" expression="NOT EXISTS(connector_in_uv_2.quantity)"/>
          <where label="WR11" expression="NOT EXISTS(component_1.quantity)"/>
          <where label="WR12" expression="NOT EXISTS(component_2.quantity)"/>
-         <where label="WR13" expression="component_1\Assembly_component_relationship.relating_view.usage_definition = &#10;&#10;       connector_in_uv_1\Assembly_component_relationship.related_view"/>
-         <where label="WR14" expression="component_2\Assembly_component_relationship.relating_view.usage_definition = &#10;&#10;       connector_in_uv_2\Assembly_component_relationship.related_view"/>
+         <where label="WR13" expression="component_1\View_definition_usage.related_view\Definition_based_product_occurrence.derived_from = &#10;       connector_in_uv_1\View_definition_usage.relating_view"/>
+         <where label="WR14" expression="component_2\View_definition_usage.related_view\Definition_based_product_occurrence.derived_from = &#10;       connector_in_uv_2\View_definition_usage.relating_view"/>
          <where label="WR15" expression="component_1 &lt;&gt; component_2"/>
          <where label="WR16" expression="component_1 &lt;&gt; connector_in_uv_1"/>
          <where label="WR17" expression="connector_in_uv_1 &lt;&gt; component_2"/>
          <where label="WR18" expression="component_1 &lt;&gt; connector_in_uv_2"/>
          <where label="WR19" expression="connector_in_uv_2 &lt;&gt; component_2"/>
+         <where label="WR20" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE' IN &#10;        TYPEOF(component_1\View_definition_usage.related_view)"/>
+         <where label="WR21" expression="'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE' IN &#10;        TYPEOF(component_2\View_definition_usage.related_view)"/>
+         <where label="WR22" expression="associated_definition = component_1\View_definition_usage.relating_view"/>
+         <where label="WR23" expression="associated_definition = component_2\View_definition_usage.relating_view"/>
       </entity>
       <entity name="Physical_unit_interconnect_definition" supertypes="Part_view_definition"/>
    </schema>

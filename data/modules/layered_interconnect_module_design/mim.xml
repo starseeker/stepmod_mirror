@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-26T18:35:53" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-27T18:24:52" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_mim schema_instance"/>
    <schema name="Layered_interconnect_module_design_mim">
       <interface kind="use" schema="Basic_curve_mim"/>
@@ -79,7 +79,8 @@
          <where label="WR5" expression="(NOT (SELF\shape_aspect.name = 'inter stratum join')) OR&#10;       (SIZEOF (QUERY (ji &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'join implementation') |&#10;       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'STRATUM_CONCEPT_RELATIONSHIP' IN&#10;       TYPEOF (ji.related_shape_aspect)) AND&#10;       (ji.related_shape_aspect\shape_aspect.description = &#10;       'physical network supporting stratum feature conductive join')) OR&#10;       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PLATED_INTER_STRATUM_FEATURE' IN&#10;       TYPEOF (ji.related_shape_aspect)))) &lt;= 1)"/>
          <where label="WR6" expression="NOT(SELF\shape_aspect.name = 'unrouted join') OR&#10;       (SIZEOF (QUERY (cp &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'unrouted terminals') |&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_TERMINAL' IN&#10;       TYPEOF (cp.related_shape_aspect))) &gt;= 2)"/>
       </entity>
-      <entity name="laminate_component_interface_terminal" supertypes="shape_aspect">
+      <entity name="laminate_component_feature" abstract.supertype="YES" supertypes="component_feature" super.expression="ONEOF (laminate_component_interface_terminal, laminate_component_join_terminal)"/>
+      <entity name="laminate_component_interface_terminal" supertypes="laminate_component_feature">
          <where label="WR1" expression="(NOT (SELF\shape_aspect.description IN &#10;       ['component termination passage interface terminal', &#10;       'land interface terminal', &#10;       'printed connector component interface terminal',&#10;       'non functional land interface terminal'])) OR&#10;       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_DEFINITION' IN&#10;       TYPEOF (SELF.of_shape.definition))"/>
          <where label="WR2" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'instantiated feature')) = 1"/>
          <where label="WR4" expression="(NOT (SELF\shape_aspect.description = &#10;       'component termination passage interface terminal')) OR&#10;       (SIZEOF (QUERY (i_f &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'instantiated feature') |&#10;       i_f.relating_shape_aspect\shape_aspect.description =&#10;       'component termination passage template interface terminal')) = 1)"/>
@@ -90,6 +91,7 @@
          <where label="WR11" expression="(NOT (SELF\shape_aspect.description =&#10;       'printed connector component interface terminal')) OR&#10;       (SIZEOF (QUERY (i &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       pdr\shape_aspect_relationship.name = 'implementation') |&#10;       (SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'STRATUM_FEATURE'] *&#10;       TYPEOF (i.relating_shape_aspect)) = 1)&#10;       )) = 1)"/>
          <where label="WR12" expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_DEFINITION' IN&#10;       TYPEOF (SELF.of_shape.definition)) AND&#10;       (SELF.of_shape.definition\&#10;        product_definition.frame_of_reference\&#10;        application_context_element.name = 'layout occurrence')"/>
       </entity>
+      <entity name="laminate_component_join_terminal" supertypes="laminate_component_feature component_terminal"/>
       <entity name="laminate_group_component_make_from_relationship" supertypes="make_from_usage_option">
          <where label="WR1" expression="SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'ASSEMBLY_GROUP_COMPONENT_DEFINITION'] *&#10;       TYPEOF (SELF.relating_product_definition)) = 1"/>
          <where label="WR2" expression="SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'ASSEMBLY_GROUP_COMPONENT_DEFINITION'] *&#10;       TYPEOF (SELF.related_product_definition)) = 1"/>

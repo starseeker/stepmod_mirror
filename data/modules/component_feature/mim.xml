@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-26T18:35:51" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-27T18:24:50" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="component_feature_mim schema_instance"/>
    <schema name="Component_feature_mim">
       <interface kind="use" schema="Interface_component_mim"/>
@@ -18,7 +18,7 @@
          <where label="WR5" expression="SELF\shape_aspect.name = ''"/>
          <where label="WR6" expression="SELF\shape_aspect_relationship.name = ''"/>
       </entity>
-      <entity name="component_terminal" supertypes="shape_aspect">
+      <entity name="component_terminal" supertypes="component_feature">
          <where label="WR1" expression="(SELF\shape_aspect.description IN &#10;      ['assembly module component terminal', &#10;       'bare die component terminal', &#10;       'component termination passage join terminal', &#10;       'conductive interconnect element terminal', &#10;       'interconnect component join terminal', &#10;       'interconnect module component terminal', 'land join terminal', &#10;       'minimally defined component terminal',&#10;       'non functional land join terminal', &#10;       'packaged component join terminal', &#10;       'printed component join terminal', 'package terminal occurrence',&#10;       'via terminal']) OR&#10;        ('COMPONENT_FEATURE_MIM.' +&#10;       'ASSEMBLY_MODULE_MACRO_COMPONENT_JOIN_TERMINAL' IN&#10;       TYPEOF  (SELF)) OR&#10;        ('COMPONENT_FEATURE_MIM.' +&#10;       'INTERCONNECT_MODULE_MACRO_COMPONENT_JOIN_TERMINAL' IN&#10;       TYPEOF  (SELF))"/>
          <where label="WR2" expression="'COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_DEFINITION' IN&#10;       TYPEOF  (SELF.of_shape.definition)"/>
          <where label="WR3" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'instantiated feature')) &lt;= 1"/>
@@ -51,13 +51,13 @@
          <where label="WR35" expression="SIZEOF(QUERY(pd &lt;* USEDIN(SELF, &#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') | SIZEOF(QUERY(pdr &lt;* USEDIN(pd,&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | &#10;       SIZEOF(QUERY(dri &lt;* pdr.used_representation.items |&#10;       (dri\representation_item.name = 'local swappable') AND &#10;       (dri\descriptive_representation_item.description IN ['true', 'false']))) = 1)) = 1)) &lt;= 1"/>
          <where label="WR36" expression="SIZEOF(QUERY(pd &lt;* USEDIN(SELF, &#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') | SIZEOF(QUERY(pdr &lt;* USEDIN(pd,&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | &#10;       SIZEOF(QUERY(dri &lt;* pdr.used_representation.items | dri\representation_item.name = &#10;       'swap code'&#10;       )) = 1)) = 1)) &lt;= 1"/>
       </entity>
-      <entity name="make_from_feature_relationship" supertypes="shape_aspect shape_aspect_relationship">
-         <where label="WR1" expression="SIZEOF (['COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_TERMINAL',&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_INTERFACE_TERMINAL',&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT'] *&#10;       TYPEOF (SELF.relating_shape_aspect)) = 1"/>
-         <where label="WR2" expression="SIZEOF (['COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_TERMINAL',&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_INTERFACE_TERMINAL',&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT'] *&#10;       TYPEOF (SELF.related_shape_aspect)) = 1"/>
+      <entity name="make_from_feature_relationship" supertypes="component_feature_relationship">
+         <where label="WR1" expression="SIZEOF (['COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_TERMINAL',&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL',&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT'] *&#10;       TYPEOF (SELF.relating_shape_aspect)) = 1"/>
+         <where label="WR2" expression="SIZEOF (['COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_TERMINAL',&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL',&#10;       'COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT'] *&#10;       TYPEOF (SELF.related_shape_aspect)) = 1"/>
          <where label="WR3" expression="(NOT ('COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT' IN&#10;       TYPEOF (SELF.relating_shape_aspect))) OR&#10;       (SELF.relating_shape_aspect\shape_aspect.description IN ['component feature',&#10;       'component termination passage interface terminal', &#10;       'land or non functional land interface terminal',  &#10;       'printed connector component interface terminal'])"/>
          <where label="WR4" expression="(NOT ('COMPONENT_FEATURE_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT' IN&#10;       TYPEOF (SELF.related_shape_aspect))) OR&#10;       (SELF.related_shape_aspect\shape_aspect.description IN ['component feature',&#10;       'component termination passage interface terminal', &#10;       'land or non functional land interface terminal',  &#10;       'printed connector component interface terminal'])"/>
       </entity>
-      <rule name="component_feature_unique_constraint" appliesto="component_terminal component_interface_terminal">
+      <rule name="component_feature_unique_constraint" appliesto="component_terminal physical_component_interface_terminal">
          <algorithm>LOCAL
   ct : BAG OF shape_aspect := 
      QUERY( ct &lt;* component_terminal | (ct\shape_aspect.description IN 
@@ -69,7 +69,7 @@
 'minimally defined component terminal',
 'packaged component join terminal']) );
   cit : BAG OF shape_aspect := 
-         QUERY( cit &lt;* component_interface_terminal | (
+         QUERY( cit &lt;* physical_component_interface_terminal | (
 cit\shape_aspect.description IN ['interconnect component interface terminal',
 'packaged connector component interface terminal']) );
   cf : BAG OF shape_aspect;

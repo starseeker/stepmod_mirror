@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-26T18:47:58" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_occurrence_arm schema_instance"/>
+   <schema name="Part_occurrence_arm">
+      <interface kind="use" schema="Assembly_structure_arm"/>
+      <interface kind="use" schema="Extended_measure_representation_arm"/>
+      <interface kind="use" schema="Measure_representation_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <interface kind="use" schema="Product_view_definition_relationship_arm"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
+      <type name="Extended_Value_With_Unit">
+         <select selectitems="Value_with_unit Value_limit Value_range"/>
+      </type>
+      <type name="part_occurrence_select">
+         <select extensible="YES" selectitems="Definition_based_part_occurrence"/>
+      </type>
+      <entity name="Definition_based_part_occurrence" supertypes="Definition_based_product_occurrence">
+         <explicit name="derived_from">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
+         </explicit>
+      </entity>
+      <entity name="Definition_based_product_occurrence" abstract.entity="YES" supertypes="Product_occurrence" super.expression="Definition_based_part_occurrence">
+         <explicit name="derived_from">
+            <typename name="Product_view_definition"/>
+         </explicit>
+         <where label="WR1" expression=" SELF \ Product_view_definition . defined_version = derived_from . defined_version "/>
+      </entity>
+      <entity name="Part_occurrence_definition_relationship" supertypes="View_definition_relationship">
+         <explicit name="related_view">
+            <typename name="part_occurrence_select"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         </explicit>
+         <explicit name="relating_view">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         </explicit>
+         <derived name="id" expression=" SELF \ View_definition_relationship . related_view \ Product_view_definition . id ">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="id"/>
+         </derived>
+         <where label="WR1" expression=" NOT ( ( 'ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF ( SELF ) ) AND ( EXISTS ( SELF \ Assembly_component_relationship . quantity ) ) ) "/>
+      </entity>
+      <entity name="Product_occurrence" abstract.entity="YES" supertypes="Product_view_definition" super.expression="ONEOF (Single_instance, Quantified_instance)">
+         <explicit name="quantity_criterion" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="occurrence_quantity" optional="YES">
+            <typename name="Extended_Value_With_Unit"/>
+         </explicit>
+         <inverse name="occurrence_contexts" entity="View_definition_relationship" attribute="related_view">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
+      </entity>
+      <entity name="Quantified_instance" supertypes="Product_occurrence">
+         <explicit name="occurrence_quantity">
+            <typename name="Value_with_unit"/>
+            <redeclaration entity-ref="Product_occurrence" old_name="occurrence_quantity"/>
+         </explicit>
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ Product_occurrence . quantity_criterion ) ) "/>
+      </entity>
+      <entity name="Single_instance" supertypes="Product_occurrence">
+         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ Product_occurrence . occurrence_quantity ) OR EXISTS ( SELF \ Product_occurrence . quantity_criterion ) ) "/>
+      </entity>
+   </schema>
+</express>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.29 2003/07/21 21:54:07 thendrix Exp $
+$Id: express_description.xsl,v 1.30 2003/07/23 07:27:49 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -30,7 +30,8 @@ $Id: express_description.xsl,v 1.29 2003/07/21 21:54:07 thendrix Exp $
 <!-- check that the description is valid. If not, output a warning -->
 <xsl:template match="description|ext_description" mode="validate_external_description">
   <!-- the checks need to be written.
-       it would be useful if output_external_description used the same check
+       it would be useful if output_external_description used the same
+       check -->
 </xsl:template>
 
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.7 2004/10/08 15:18:18 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.8 2004/10/12 18:26:48 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -43,7 +43,7 @@
       </para>
       <itemizedlist>
 	<listitem>
-	  <para><literal>?</literal> means &#34;optional.&#34;</para>
+	  <para>Optional XML elements and attributes are in italics.</para>
 	</listitem>
 	<listitem>
 	  <para><literal>*</literal> means &#34;zero or more.&#34;</para>
@@ -208,9 +208,9 @@
 
   <xsl:template match="rng:optional" mode="content">
     <xsl:if test="not(rng:attribute)">
-      <xsl:text>(</xsl:text>
-      <xsl:apply-templates mode="content"/>
-      <xsl:text>)?</xsl:text>
+      <emphasis>
+	<xsl:apply-templates mode="content"/>
+      </emphasis>
       <xsl:if test="local-name(..)='choice' and following-sibling::*">
 	<xsl:text> | </xsl:text>
       </xsl:if>
@@ -248,11 +248,17 @@
     <row>
       <entry>
 	<literal>
-	  <xsl:value-of select="@name"/>
+	  <xsl:choose>
+	    <xsl:when test="local-name(..)='optional'">
+	      <emphasis>
+		<xsl:value-of select="@name"/>
+	      </emphasis>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:value-of select="@name"/>
+	    </xsl:otherwise>
+	  </xsl:choose>
 	</literal>
-	<xsl:if test="local-name(..)='optional'">
-	  <xsl:text>?</xsl:text>
-	</xsl:if>
       </entry>
       <entry>
 	<xsl:choose>

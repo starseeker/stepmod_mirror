@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.143 2003/05/09 10:18:23 robbod Exp $
+$Id: module.xsl,v 1.144 2003/05/17 01:01:07 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3595,15 +3595,16 @@ $module_ok,' Check the normatives references')"/>
         <xsl:variable 
           name="term"
           select="document($module_xml)/module/definition/term[@id=$ref]"/>
-        
+        <!-- note any synonym is ignored -->
         <xsl:choose>
           <xsl:when test="$term">
+            <xsl:variable name="nterm" select="normalize-space($term)"/>
             <xsl:choose>
               <xsl:when test="position()=last()">
-                <li><xsl:apply-templates select="$term"/>.</li>
+                <li><xsl:value-of select="$nterm"/>.</li>
               </xsl:when>
               <xsl:otherwise>
-                <li><xsl:apply-templates select="$term"/>;</li>
+                <li><xsl:value-of select="$nterm"/>;</li>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:when>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.16 2002/05/30 17:08:06 robbod Exp $
+$Id: module_toc.xsl,v 1.17 2002/05/31 08:36:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -50,22 +50,33 @@ $Id: module_toc.xsl,v 1.16 2002/05/30 17:08:06 robbod Exp $
       <TD valign="TOP">
         <p class="toc">
           <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
-        <A HREF="{$module_root}/sys/foreword{$FILE_EXT}#foreword">Foreword</A><BR/>
-        <A HREF="{$module_root}/sys/introduction{$FILE_EXT}#intro">Introduction</A><BR/>
-        <A HREF="{$module_root}/sys/1_scope{$FILE_EXT}#scope">1 Scope</A><BR/>
-        <A HREF="{$module_root}/sys/2_refs{$FILE_EXT}#nref">2 Normative references</A><BR/>
+      
+          <!-- use #foreword to link direct -->
+          <A HREF="{$module_root}/sys/foreword{$FILE_EXT}">Foreword</A><BR/>
         
+          <!-- use #intro to link direct -->
+          <A HREF="{$module_root}/sys/introduction{$FILE_EXT}">Introduction</A><BR/>
+          
+          <!-- use #scope to link direct -->
+          <A HREF="{$module_root}/sys/1_scope{$FILE_EXT}">1 Scope</A><BR/>
+          
+          <!-- use #nref to link direct -->
+          <A HREF="{$module_root}/sys/2_refs{$FILE_EXT}">2 Normative references</A><BR/>
+
+
         <!-- Assumption that every module use a set of terms and
              abbreviations from the normref.inc so only check for local
              definitions aka terms -->
         <xsl:choose>
           <xsl:when test="./definition/term">
-            <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}#defns">
+            <!-- use #defns to link direct -->
+            <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}">
               3 Terms, definitions and abbreviations
             </A>
           </xsl:when>
           <xsl:otherwise>
-            <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}#defns">
+            <!-- use #defns to link direct -->
+            <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}">
               3 Terms and abbreviations
             </A>            
           </xsl:otherwise>
@@ -75,8 +86,10 @@ $Id: module_toc.xsl,v 1.16 2002/05/30 17:08:06 robbod Exp $
       <TD valign="TOP">
         <p class="toc">
         <!-- Output Section 4. Only set up the index to express clauses that
-             exist. -->
-        <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#arm">4 Information requirements</A><BR/>
+             exist. 
+             use #ARM to link direct 
+             -->
+        <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}">4 Information requirements</A><BR/>
         <small>
           <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#uof">
             <xsl:value-of select="concat('&#160;&#160;',' 4.1 Units of functionality')"/>
@@ -285,7 +298,8 @@ $Id: module_toc.xsl,v 1.16 2002/05/30 17:08:06 robbod Exp $
         </small>
 
         <!-- Output clause 5 index -->
-        <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
+        <!-- use #mim to link direct -->
+        <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}">5 Module interpreted model</A><BR/>
         <small>
           <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mapping">&#160; &#160;5.1 Mapping specification</A><BR/>
           <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mim_express">&#160; &#160;5.2 MIM EXPRESS short listing</A><BR/>
@@ -481,24 +495,31 @@ $Id: module_toc.xsl,v 1.16 2002/05/30 17:08:06 robbod Exp $
       </TD>
       <TD valign="TOP">
         <p class="toc">
-        <A HREF="{$module_root}/sys/a_short_names{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
-        <A HREF="{$module_root}/sys/b_obj_reg{$FILE_EXT}#annexb">B Information requirements object
+        <!-- use #annexa to link direct -->
+        <A HREF="{$module_root}/sys/a_short_names{$FILE_EXT}">A AM MIM short names</A><BR/>
+        <!-- use #annexb to link direct -->
+        <A HREF="{$module_root}/sys/b_obj_reg{$FILE_EXT}">B Information requirements object
         registration</A><BR/>
-        <A HREF="{$module_root}/sys/c_arm_expg{$FILE_EXT}#annexc">C ARM EXPRESS-G</A>
+        <!-- use #annexc to link direct -->
+        <A HREF="{$module_root}/sys/c_arm_expg{$FILE_EXT}">C ARM EXPRESS-G</A>
         <xsl:apply-templates select="arm/express-g/imgfile" mode="page_number">
           <xsl:with-param name="module_root" select="$module_root"/>
         </xsl:apply-templates>
         <BR/>
 
-        <A HREF="{$module_root}/sys/d_mim_expg{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
+        <!-- use #annexd to link direct -->
+        <A HREF="{$module_root}/sys/d_mim_expg{$FILE_EXT}">D MIM EXPRESS-G</A>
         <xsl:apply-templates select="mim/express-g/imgfile" mode="page_number">
           <xsl:with-param name="module_root" select="$module_root"/>
         </xsl:apply-templates>
         <BR/>
-        <A HREF="{$module_root}/sys/e_exp{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS
+
+        <!-- use #annexe to link direct -->
+        <A HREF="{$module_root}/sys/e_exp{$FILE_EXT}">E AM ARM and MIM EXPRESS
 listings</A><BR/>
         <xsl:if test="./usage_guide">
-          <A HREF="{$module_root}/sys/f_guide{$FILE_EXT}#annexf">
+        <!-- use #annexa to link direct -->
+          <A HREF="{$module_root}/sys/f_guide{$FILE_EXT}">
             F Application module implementation and usage guide</A><BR/>
         </xsl:if>
         <A HREF="{$module_root}/sys/biblio{$FILE_EXT}#biblio">Bibliography</A>
@@ -539,10 +560,12 @@ listings</A><BR/>
       <TD valign="TOP">
         <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS listings</A><BR/>
         <xsl:if test="./usage_guide">
-          <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexf">
+          <!-- use #annexf to link direct -->
+          <A HREF="{$module_root}/sys/module{$FILE_EXT}">
             F Application module implementation and usage guide</A><BR/>
         </xsl:if>
-        <A HREF="{$module_root}/sys/module{$FILE_EXT}#biblio">Bibliography</A>
+        <!-- use #biblio to link direct -->
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}">Bibliography</A>
       </TD>
     </TR>
   </TABLE>

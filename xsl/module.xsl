@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.147 2003/05/29 15:26:39 robbod Exp $
+$Id: module.xsl,v 1.148 2003/05/29 17:48:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1036,10 +1036,10 @@ o=isocs; s=central<br/>
   <xsl:variable name="arm">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_arm.xml'"/>
+        <xsl:value-of select="concat('../../../modules/',/module/@name,'/sys/e_exp_arm.xml')"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="'e_exp_arm.htm'"/>
+        <xsl:value-of select="concat('../../../modules/',/module/@name,'/sys/e_exp_arm.htm')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -1047,10 +1047,10 @@ o=isocs; s=central<br/>
   <xsl:variable name="mim">
     <xsl:choose>
       <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_mim.xml'"/>
+        <xsl:value-of select="concat('../../../modules/',/module/@name,'/sys/e_exp_mim.xml')"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="'e_exp_mim.htm'"/>
+        <xsl:value-of select="concat('../../../modules/',/module/@name,'/sys/e_exp_mim.htm')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

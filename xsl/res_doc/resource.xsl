@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.9 2002/12/06 11:43:36 nigelshaw Exp $
+$Id: resource.xsl,v 1.10 2002/12/06 23:56:32 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1140,6 +1140,8 @@ defined in annex D of ISO 10303-11.
 
   <xsl:apply-templates select="./introduction"/>
   
+	<a name="#funcon{$schema_no+3}" /> 
+
 <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" 
       select="concat(($schema_no+3),'.2 Fundamental concepts and assumptions')"/>

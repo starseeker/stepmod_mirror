@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.3 2002/11/05 01:03:59 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.4 2002/11/06 00:54:15 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -530,7 +530,7 @@
     <xsl:variable name="clause_intro" select="''"/>
 
     <h3>
-      <A NAME="constants">
+      <A NAME="types">
         <xsl:value-of select="$clause_header"/>
       </A>
     </h3>
@@ -652,7 +652,7 @@
   </xsl:if>
 
   <xsl:if test="@genericentity='YES' or @genericentity='yes'">
-    GENERIC_ENTITY.'
+    GENERIC_ENTITY
   </xsl:if>
 
   SELECT<xsl:if test="@basedon">
@@ -739,7 +739,7 @@
     <xsl:variable name="clause_intro" select="''"/>
 
     <h3>
-      <A NAME="constants">
+      <A NAME="entities">
         <xsl:value-of select="$clause_header"/>
       </A>
     </h3>

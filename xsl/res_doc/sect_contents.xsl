@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.3 2002/11/01 04:40:37 thendrix Exp $
+$Id: sect_contents.xsl,v 1.4 2002/11/05 01:03:59 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -339,7 +339,7 @@ $Id: sect_contents.xsl,v 1.3 2002/11/01 04:40:37 thendrix Exp $
 
            <!-- fundamental concepts - seems to always be there -->
            </p><p>
-           &#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon">
+           &#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon{$clause_no}">
            <xsl:value-of select="concat($clause_no,'.2 Fundamental concepts and assumptions')"/>
            </A><BR/>
  </p>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.2 2004/09/01 00:00:17 thendrix Exp $ -->
+<!-- $Id: issues.xml,v 1.3 2004/09/17 16:27:42 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="document_properties">
@@ -139,5 +139,72 @@ This entity data type seems to be over-constrained! It seems to be tailored for 
 Improve model or documentation.</p>
  </description>
 </issue>
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="UK-LSC-TT-05"
+   type="general"
+   linkend=""
+   status="open"
+   category="minor_technical"
+   by="UK-LSC-TT-05"
+   date="2004-09-21"
+   seds="no"
+   ballot="PLCS DIS ballot"
+   ballot_comment="yes"
+   ballot_comment_id="UK-LSC-TT-05"
+   member_body="UK"
+   resolution="TDB">
+ <description>
+ <p>
+   <b>SC4 part number:</b>  </p>
+ <p>
+   <b>(2) Clause:</b> ARM EXPRESS
+ </p>
+ <p>
+   <b>(3) Paragraph:</b> ISO/TS 10303-1126:2004 Document properties
+ </p>
+ <p>
+   <b>(5) Comment:</b>
+ </p>
+ <p>
+document_property_item is missing from the PLCS longform.
+there is a bug in WR1 of the ENTITY Assigned_document_property</p>
+ <p>
+   <b>(6) Proposal:</b>
+ </p>
+ <p>
+The WR should redeclare Assigned_property.described_
+element to be a  document_property_item</p>
+ </description>
+
+<comment
+   by="Rob Bodington"
+   date="04-09-20">
+<description>
+  <p>
+Ah you mean that the document_property_item select type has been removed from the long form.
+This is because it is not explicitly used in the long form there SHTOLO removes it.
+Arguably there is a bug in:
+  </p>
+  <screen>
+ENTITY Assigned_document_property
+  SUBTYPE OF (Assigned_property);
+DERIVE
+  SELF\Assigned_property.name : STRING := 'document property';
+UNIQUE
+  UR1: SELF\Assigned_property.described_element;
+WHERE
+  WR1: SIZEOF(['DOCUMENT_PROPERTIES_ARM.DOCUMENT_DEFINITION', 'DOCUMENT_PROPERTIES_ARM.FILE']*TYPEOF(SELF\Assigned_property.described_element)) = 1;
+END_ENTITY;
+</screen>
+<p>
+It should redeclare Assigned_property.described_element to be a  document_property_item otherwise I think, that you can assign a document property to the population of property_assignment_select
+</p>
+</description>
+</comment>
+</issue>
+
+
 
 </issues>

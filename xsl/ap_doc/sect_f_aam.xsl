@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_e_aam.xsl,v 1.5 2002/10/19 07:11:02 mikeward Exp $
+$Id: sect_1_scope.xsl,v 1.10 2003/05/22 14:57:14 robbod Exp $
+  Author:  Mike Ward, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose:     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
@@ -13,9 +16,9 @@
 	
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="annex_header">
-    			<xsl:with-param name="annex_no" select="'E'"/>
+    			<xsl:with-param name="annex_no" select="'F'"/>
     			<xsl:with-param name="heading" select="'Application activity model'"/>
-    			<xsl:with-param name="aname" select="'annexe'"/>
+    			<xsl:with-param name="aname" select="'annexf'"/>
 		</xsl:call-template>
  		The application activity model (AAM) is provided as an aid to understanding the scope and information requirements defined in this part of ISO 10303.  The model is presented as a set of figures that contain the activity diagrams and a set of definitions of the activities and their data. Activities and data flows that are out of scope are marked with an asterisk.
 		<xsl:variable name="ap_dir">
@@ -27,7 +30,7 @@
 		</xsl:variable>
 		
 		<xsl:apply-templates select="document(string($aam_path))/idef0"/>
-		<h3>E.2 Application activity model diagrams</h3>
+		<h2>F.2 Application activity model diagrams</h2>
 		<xsl:apply-templates select="aam"/>
 	</xsl:template>
 	<xsl:template match="aam">
@@ -48,11 +51,11 @@
 			<xsl:variable name="fig_no" select="position()"/>
 			<xsl:variable name="node" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@node"/>
 			<xsl:variable name="fig_title" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>
-			<h4>
+			<p>
 				<a href="{$aam_href}">
 					Figure E.<xsl:value-of select="$fig_no"/> - <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
 				</a>
-			</h4>
+			</p>
 		</xsl:for-each>
 	</xsl:template>
 </xsl:stylesheet>

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_c_pics.xsl,v 1.4 2002/10/29 18:43:10 mikeward Exp $
+$Id: sect_1_scope.xsl,v 1.10 2003/05/22 14:57:14 robbod Exp $
+  Author:  Mike Ward, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose:     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
@@ -13,9 +16,9 @@
 	<xsl:template match="application_protocol">
 		<a name="pics"/>
 		<xsl:call-template name="annex_header">
-    			<xsl:with-param name="annex_no" select="'C'"/>
+    			<xsl:with-param name="annex_no" select="'D'"/>
     			<xsl:with-param name="heading" select="'Protocol Implementation Conformance Statement (PICS)'"/>
-    			<xsl:with-param name="aname" select="'annexc'"/>
+    			<xsl:with-param name="aname" select="'annexd'"/>
 			<xsl:with-param name="informative" select="'normative'"/>
 		</xsl:call-template>
 		<xsl:variable name="ap_name" select="@name"/>
@@ -28,7 +31,7 @@
 			This annex is in the form of a questionnaire. 
 			This  questionnaire is intended to be filled in by an implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS form is referred to as a "PICS".
 		</p>
-		<h4>C.1 Protocol implementation identification</h4>
+		<h2>D.1 Protocol implementation identification</h2>
 		<table border="1">
 			<tr>
 				<th align="left">
@@ -56,7 +59,7 @@
 				</td>
 			</tr>
 		</table>
-		<h4>C.2 Implementation method</h4>
+		<h2>D.2 Implementation method</h2>
 		<p>
 			Indicate the chosen implementation method and supported directions of translation.
 		</p>
@@ -89,7 +92,7 @@
 				</xsl:if>
 			</xsl:for-each>
 		</table>
-		<h4>C.3 Implemented conformance classes</h4>
+		<h2>D.3 Implemented conformance classes</h2>
 		<table border="1">
 			<tr>
 				<th align="left">Conformance class</th>

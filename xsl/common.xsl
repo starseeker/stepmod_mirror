@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.17 2002/01/12 08:44:08 robbod Exp $
+$Id: common.xsl,v 1.18 2002/01/14 13:28:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -264,47 +264,39 @@ $Id: common.xsl,v 1.17 2002/01/12 08:44:08 robbod Exp $
 
 
 <xsl:template match="note" >
-  <xsl:variable name="number">
-    <xsl:number/>
-  </xsl:variable>
-
   <xsl:variable name="aname">
     <xsl:choose>
       <xsl:when test="@id">
         <xsl:value-of select="concat('note:',@id)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('note:',$number)"/>
+        <xsl:value-of select="concat('note:',@number)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
   
   <blockquote>
     <a name="{$aname}">
-      <xsl:value-of select="concat('NOTE ',$number,' ')"/></a>&#160;&#160;
+      <xsl:value-of select="concat('NOTE ',./@number,' ')"/></a>&#160;&#160;
     <xsl:apply-templates/>
   </blockquote>
 </xsl:template>
 
 <xsl:template match="example" >
-  <xsl:variable name="number">
-    <xsl:number/>
-  </xsl:variable>
-
   <xsl:variable name="aname">
     <xsl:choose>
       <xsl:when test="@id">
         <xsl:value-of select="concat('example:',@id)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('example:',$number)"/>
+        <xsl:value-of select="concat('example:',@number)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
 
   <blockquote>
     <a name="{$aname}">
-      <xsl:value-of select="concat('EXAMPLE ',$number,' ')"/></a>&#160;&#160;
+      <xsl:value-of select="concat('EXAMPLE ',@number,' ')"/></a>&#160;&#160;
     <xsl:apply-templates/>
   </blockquote>
 </xsl:template>

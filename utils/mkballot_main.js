@@ -1,4 +1,4 @@
-//$Id: mkballot_main.js,v 1.8 2002/12/05 15:35:27 robbod Exp $
+//$Id: mkballot_main.js,v 1.9 2002/12/06 07:47:10 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate a ballot package
@@ -46,7 +46,7 @@ function mkBallotXsl(ballot,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkballot_main.js,v 1.8 2002/12/05 15:35:27 robbod Exp $");
+    ts.WriteLine("$Id: mkballot_main.js,v 1.9 2002/12/06 07:47:10 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: A grouping of modules into ballot packages");
@@ -75,7 +75,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE ballot_index SYSTEM \"../../dtd/ballot_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.8 2002/12/05 15:35:27 robbod Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.9 2002/12/06 07:47:10 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A grouping of modules into ballot packages");
@@ -112,7 +112,19 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("    </description>");
    	ts.WriteLine("    <module name=\"\"/>");
 	ts.WriteLine("  </ballot_package>");
+	ts.WriteLine("");
+	ts.WriteLine("  <!-- record of the CVS tags that have been created for managing this");
+	ts.WriteLine("       ballot package -->");
+	ts.WriteLine("  <cvs_tags>");
+	ts.WriteLine("    <cvs_tag tag=\"xxx\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </cvs_tag>");
+	ts.WriteLine("  </cvs_tags>");
 	ts.WriteLine("</ballot_index>");
+
+
 	ts.Close();
 	mkBallotXsl(ballot,"ballot_checklist.xsl","ballot_checklist.xml");
 	mkBallotXsl(ballot,"ballot_list.xsl","ballot_list.xml");
@@ -129,7 +141,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.8 2002/12/05 15:35:27 robbod Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.9 2002/12/06 07:47:10 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar for packages");
@@ -177,7 +189,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.8 2002/12/05 15:35:27 robbod Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.9 2002/12/06 07:47:10 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -201,7 +213,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.8 2002/12/05 15:35:27 robbod Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.9 2002/12/06 07:47:10 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");
@@ -236,7 +248,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("1) Add the modules to be balloted to ballot_index.xml");
 	ts.WriteLine("");
 	ts.WriteLine("2) Generate the build file using ANT");
-	ts.WriteLine("     ant -buildfile buildbuild");
+	ts.WriteLine("     ant -buildfile buildbuild.xml");
 	ts.WriteLine("");
 	ts.WriteLine("3) Run ANT on the build.xml that has just been created:");
 	ts.WriteLine("     ant all");
@@ -356,4 +368,4 @@ function outputModuleList(ballot) {
 
 //outputAntBuild("pdm_ballot_072002", "ballot_build.xml");
 //outputModuleList("pdm_ballot_072002");
-//mkBallotPackage("test");
+mkBallotPackage("test");

@@ -131,24 +131,22 @@ TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON man
       tolerance_value,
       tolerance_zone_form,
       versioned_action_request);
-END_TYPE; -- managed_design_object
+END_TYPE;
 (*
 TYPE ap210_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
      (product_definition_formation_with_specified_source,
       requirement_allocation_group);
-END_TYPE; --ap210_approval_item
+END_TYPE;
 
 TYPE ap210_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
      (product_definition_formation_with_specified_source);
-END_TYPE; --ap210_certification_item
+END_TYPE;
 
 TYPE ap210_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
      (requirements_property,
       signal,
       stratum);
-END_TYPE; --ap210_classification_item
-
--- Reviewed, all what is left is probably garbage
+END_TYPE;, all what is left is probably garbage
 TYPE ap210_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
      (functional_unit_terminal_definition,
       interconnect_module_component_surface_feature,
@@ -161,11 +159,11 @@ END_TYPE;
 TYPE ap210_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
      (product_definition_formation_with_specified_source,
       rule_definition);
-END_TYPE; --ap210_organization_item
+END_TYPE;
 
 TYPE ap210_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
      (rule_action);
-END_TYPE; --ap210_person_and_organization_item
+END_TYPE;
 
 TYPE ap210_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
     (physical_connectivity_element, 
@@ -178,18 +176,18 @@ ENTITY material_functional_category
 WHERE
   WR1: SELF\group.name IN 
      ['bonding agent', 'potting compound', 'marking material'];
-END_ENTITY; -- material_functional_category
+END_ENTITY;
 
 ENTITY named_unit_variable
   SUBTYPE OF (named_unit, variable_semantics); 
 INVERSE
   associated_variable_environment: environment FOR semantics; 
-END_ENTITY; -- named_unit_variable
+END_ENTITY;
 
 ENTITY owner_assignment 
  SUBTYPE OF (person_and_organization_assignment); 
  items : SET [1:?] OF managed_design_object; 
-END_ENTITY; -- owner_assignment
+END_ENTITY;
 *)
 RULE application_context_requires_ap_definition FOR
   (application_context, application_protocol_definition);
@@ -201,14 +199,14 @@ WHERE
        (apd\application_protocol_definition.application_interpreted_model_schema_name =
          'electronic_assembly_interconnect_and_packaging_design'
        ))) = 1 ))) = 0;
-END_RULE; --application_context_requires_ap_definition
+END_RULE;
 
 RULE dependent_instantiable_tolerance_value FOR (
          tolerance_value);
 WHERE
   WR1: SIZEOF (QUERY (tv <* tolerance_value |
        NOT (SIZEOF(USEDIN(tv, '')) >= 1))) = 0;
-END_RULE; -- dependent_instantiable_tolerance_value
+END_RULE;
 
 RULE ee_product_definition_unique_constraint FOR
  ( product_definition_with_associated_documents, 
@@ -259,7 +257,7 @@ REPEAT i := 1 to SIZEOF(pdf_bag) by 1;
 END_REPEAT;
 WHERE
   WR1: pass2;
-END_RULE; -- ee_product_definition_unique_constraint
+END_RULE;
 
 
 RULE no_shape_for_make_from FOR
@@ -272,7 +270,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'PRODUCT_DEFINITION_SHAPE' IN 
        TYPEOF (pd))) = 0))) = 0;
-END_RULE; -- no_shape_for_make_from
+END_RULE;
 
 RULE origin_constraint FOR (placement);
 LOCAL
@@ -306,7 +304,7 @@ REPEAT i := 1 to SIZEOF(origin_3d) by 1;
 END_REPEAT;
 WHERE
   WR1: pass; 
-END_RULE; -- origin_constraint
+END_RULE;
 
 RULE part_feature_unique_constraint FOR
  ( composite_shape_aspect, shape_aspect, primary_orientation_feature,
@@ -400,7 +398,7 @@ REPEAT i := 1 to SIZEOF(pu_bag) by 1;
 END_REPEAT;
 WHERE
   WR1: pass;
-END_RULE; -- part_feature_unique_constraint
+END_RULE;
 
 RULE restrict_manifold_surface_shape_representation FOR
   (manifold_surface_shape_representation);
@@ -417,7 +415,7 @@ RULE restrict_manifold_surface_shape_representation FOR
          'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
          'OPEN_SHELL' IN TYPEOF(os))) = 1)
          )) = 1)))) = 0;
-END_RULE; -- restrict_manifold_surface_shape_representation
+END_RULE;
 
 RULE shape_representation_requires_origin FOR (shape_representation);
 WHERE
@@ -459,7 +457,7 @@ OR
 ))) = 0
 )
 ))) = 0;
-END_RULE; -- shape_representation_requires_origin
+END_RULE;
 
 RULE subtype_combination_shape_aspect FOR (shape_aspect);
 WHERE
@@ -741,7 +739,7 @@ WHERE
        'PHYSICAL_UNIT_DATUM']
        * TYPEOF(sa)) <= 1))) = 0;
 
-END_RULE; -- subtype_combination_shape_aspect
+END_RULE;
 
 RULE subtype_exclusive_mapped_item FOR (mapped_item);
 WHERE
@@ -752,7 +750,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'ANNOTATION_SYMBOL'] *
        TYPEOF(mi)) <= 1))) = 0;
-END_RULE; -- subtype_exclusive_mapped_item
+END_RULE;
 
 RULE subtype_exclusive_product_definition FOR (product_definition);
 WHERE
@@ -773,7 +771,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'STRATUM']
        * TYPEOF(pd)) <= 1))) = 0;
-END_RULE; -- subtype_exclusive_product_definition
+END_RULE;
 
 RULE subtype_exclusive_property_definition FOR
   (property_definition);
@@ -795,7 +793,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'SIGNAL']
        * TYPEOF(pd)) <= 1))) = 0;
-END_RULE; -- subtype_exclusive_property_definition
+END_RULE;
 
 RULE subtype_exclusive_representation FOR 
   (representation);
@@ -813,7 +811,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'TEXT_STRING_REPRESENTATION']
        * TYPEOF(rep)) <= 1))) = 0;
-END_RULE; -- subtype_exclusive_representation
+END_RULE;
 
 RULE subtype_exclusive_representation_context FOR 
   (representation_context);
@@ -847,7 +845,7 @@ REPEAT i := 1 to SIZEOF(representation_context) by 1;
 END_REPEAT;
 WHERE
   WR1: pass;
-END_RULE; -- subtype_exclusive_representation_context
+END_RULE;
 
 RULE subtype_exclusive_shape_aspect_relationship FOR 
   (shape_aspect_relationship);
@@ -875,7 +873,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'STRATUM_CONCEPT_RELATIONSHIP']
        * TYPEOF(sar)) <= 1))) = 0;
-END_RULE; -- subtype_exclusive_shape_aspect_relationship
+END_RULE;
 
 RULE subtype_mandatory_action FOR (action);
 WHERE
@@ -888,7 +886,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'RULE_ACTION'] * 
        TYPEOF(act)) = 1))) = 0;
-END_RULE; -- subtype_mandatory_action
+END_RULE;
 
 RULE subtype_mandatory_externally_defined_item FOR 
                                        (externally_defined_item);
@@ -918,7 +916,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'SIGNAL_CATEGORY'] * 
        TYPEOF (edi)) = 1))) = 0;
-END_RULE; -- subtype_mandatory_externally_defined_item
+END_RULE;
 
 RULE subtype_mandatory_pre_defined_item FOR (pre_defined_item);
 WHERE
@@ -929,7 +927,7 @@ WHERE
        'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'PRE_DEFINED_CURVE_FONT'] *
        TYPEOF(pdi)) = 1))) = 0;
-END_RULE; -- subtype_mandatory_pre_defined_item
+END_RULE;
 
 RULE subtype_mandatory_text_literal FOR (text_literal);
 WHERE
@@ -940,7 +938,7 @@ WHERE
        ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
        'TEXT_LITERAL_WITH_ASSOCIATED_CURVES' IN
        TYPEOF(tl))))) = 0;
-END_RULE; -- subtype_mandatory_text_literal
+END_RULE;
 
 FUNCTION valid_2d_wireframe_edge_curve
   (crv   : curve; schma : STRING) : BOOLEAN;

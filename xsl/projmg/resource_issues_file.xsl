@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues_file.xsl,v 1.5 2003/04/14 03:37:54 thendrix Exp $
+     $Id: resource_issues_file.xsl,v 1.6 2003/04/14 18:02:50 thendrix Exp $
 
   Author: Tom Hendrix
   Owner:  
@@ -383,6 +383,13 @@
               '&#xA;', '' ) "/>
     
     <xsl:variable name="status" select="@status"/>  
+    <xsl:variable name="resolution">
+      <xsl:choose>
+        <xsl:when test="@resolution='reject'">Reject</xsl:when>
+        <xsl:otherwise>Accept</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <!-- put in place to use CSS -->
     <p class="{$status}">      
     <hr size="3" />
@@ -416,8 +423,31 @@
         <xsl:call-template name="resolve_linkend"/>
       </i>
     <br/>
+    <i>
+      <xsl:value-of select="concat('Resolution: ',$resolution, '.  Status: ',@status)"/>
+    </i>
+    <br/>
+    <xsl:if test="@seds='yes'">
+      <i>
+        Registered in the 
+        <a href="http://www.tc184-sc4.org/private/Projects/maindisp.cfm">
+          SC4 database
+        </a>
+        as SEDS: 
+        <xsl:value-of select="@id"/>
+      </i>
+      <br/>
+    </xsl:if>
+    <xsl:if test="@ballot_comment='yes'">
+      <i>
+        Registered as a ballot comment by: 
+        <xsl:value-of select="@member_body"/>
+      </i>
+      <br/>
+    </xsl:if>
+  </p>
     <xsl:apply-templates />
-    </p>
+
   </xsl:template>
 
 
@@ -428,7 +458,7 @@
       <xsl:when test="@type='cover'">
         <b> keywords</b> issue<br/>
         <a href="../sys/cover{$FILE_EXT}#keywords">
-          (againts the cover page).
+          (against the cover page).
         </a>
       </xsl:when>
 

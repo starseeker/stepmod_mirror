@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues.xsl,v 1.1 2002/10/16 20:47:53 thendrix Exp $
+     $Id: resource_issues.xsl,v 1.2 2003/04/11 23:34:35 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -209,6 +209,13 @@
     </xsl:choose>
   </xsl:variable>
 
+  <xsl:variable name="resolution">
+    <xsl:choose>
+      <xsl:when test="@resolution='reject'">Reject</xsl:when>
+      <xsl:otherwise>Accept</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <blockquote>
     <span style="background-color: {$bg_color}">
       <b>
@@ -219,10 +226,31 @@
                                 string(@id), 
                                 ' by ', string(@by),
                                 ' (', string(@date), 
-                                ') [', string(@category),', ', string(@status),']')" />
+                                ') [', string(@category),', ',string(@status), ', ',$resolution,']')" />
         </a>
       </b>
       <br/>
+
+      <xsl:if test="@seds='yes'">
+        <i>
+          Registered in the 
+          <a href="http://www.tc184-sc4.org/private/Projects/maindisp.cfm">
+            SC4 database
+          </a>
+          as SEDS: 
+          <xsl:value-of select="@id"/>
+        </i>
+        <br/>
+      </xsl:if>
+
+      <xsl:if test="@ballot_comment='yes'">
+        <i>
+          Registered as a Ballot comment by:
+          <xsl:value-of select="@member_body"/>
+        </i>
+        <br/>
+      </xsl:if>      
+
       <xsl:apply-templates/>
     </span>
   </blockquote>

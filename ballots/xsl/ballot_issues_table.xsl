@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
+$Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -41,6 +41,8 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
       <xsl:with-param name="filter_ballot_comment" select="normalize-space(/ballot/@filter_ballot_comment)"/>
       <xsl:with-param name="filter_seds" select="normalize-space(/ballot/@filter_seds)"/>
       <xsl:with-param name="filter_resolution" select="normalize-space(/ballot/@filter_resolution)"/>
+      <!-- thx added - similar throughout -->
+      <xsl:with-param name="filter_by" select="normalize-space(/ballot/@filter_by)"/>
     </xsl:apply-templates>
   </xsl:template>
 
@@ -53,6 +55,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
+  <xsl:param name="filter_by"/>
 
   <HTML>
     <head>
@@ -163,6 +166,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
+          <xsl:with-param name="filter_by" select="$filter_by"/>
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
         <xsl:apply-templates select="./*/module">
@@ -173,6 +177,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
+          <xsl:with-param name="filter_by" select="$filter_by"/>
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
         <xsl:apply-templates select="./*/resource">
@@ -183,6 +188,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
+          <xsl:with-param name="filter_by" select="$filter_by"/>
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
 
@@ -201,6 +207,8 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
+  <xsl:param name="filter_by"/>
+
   <xsl:variable name="module_ok">
     <xsl:call-template name="check_module_exists">
       <xsl:with-param name="module" select="@name"/>
@@ -235,6 +243,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
             <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
             <xsl:with-param name="filter_seds" select="$filter_seds"/>
             <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
+            <xsl:with-param name="filter_by" select="$filter_by"/>
           </xsl:apply-templates>              
 
         </xsl:when>
@@ -274,7 +283,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
-      
+  <xsl:param name="filter_by"/>      
   <xsl:variable name="issues_file" 
     select="concat('../../data/resource_docs/',@name,'/dvlp/issues.xml')"/>
           
@@ -292,6 +301,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
     <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
     <xsl:with-param name="filter_seds" select="$filter_seds"/>
     <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
+    <xsl:with-param name="filter_by" select="$filter_by"/>
   </xsl:apply-templates>              
       
 </xsl:template>
@@ -305,7 +315,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
-
+  <xsl:param name="filter_by"/>      
       
   <xsl:variable name="issues_file" 
     select="concat('../../data/application_protocols/',@name,'/dvlp/issues.xml')"/>
@@ -324,6 +334,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
     <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
     <xsl:with-param name="filter_seds" select="$filter_seds"/>
     <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
+    <xsl:with-param name="filter_by" select="$filter_by"/>
   </xsl:apply-templates>              
       
 </xsl:template>
@@ -352,7 +363,7 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
-
+  <xsl:param name="filter_by"/>
   <xsl:variable name="issue_date" select="number(translate(substring-after(@date,'-'),'-',''))"/>
 
   <xsl:variable name="country">
@@ -472,17 +483,37 @@ $Id: ballot_issues_table.xsl,v 1.3 2004/09/04 11:27:52 robbod Exp $
     </xsl:choose>    
   </xsl:variable>
 
+  <!-- THX added -->
+  <xsl:variable name="by">
+    <xsl:choose>
+      <xsl:when test="string-length(normalize-space($filter_by))=0">
+        <xsl:value-of select="''"/>
+      </xsl:when>
+      <xsl:when test="string-length(@by)=0">
+        <xsl:value-of select="'none'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@by"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+
+  <!-- end THX added -->
+
   <xsl:if test="$ballot_comment = $filter_ballot_comment and
                 $country = $filter_country and
                 $seds = $filter_seds and
                 $status = $filter_status1 and
-                $resolution = $filter_resolution">
+                $resolution = $filter_resolution and
+                $by = $filter_by" >
 
     <tr>
       <!-- MB -->
       <td valign="top" align="left">
-        <xsl:value-of select="$country"/><br/>
-        <xsl:choose>
+        <!-- thx want it to work when no filter        <xsl:value-of select="$country"/><br/> -->
+        <xsl:value-of select="@member_body"/><br/>
+                <xsl:choose>
           <xsl:when test="$id_mode='ballot'">
             <xsl:value-of select="concat($country,'-',$number,'-',position())"/><br/>
           </xsl:when>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
+$Id: sect_contents.xsl,v 1.18 2003/10/09 03:50:27 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -191,7 +191,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
    <xsl:variable name="xref">
      <xsl:value-of select="concat('./',$clause_no,'_schema',$FILE_EXT,'#',$aname)"/>
    </xsl:variable>
-   <xsl:text>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</xsl:text>
+   <xsl:text>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</xsl:text>
      
      <A HREF="{$xref}">
        <xsl:value-of select="concat($clause_no,$clause_number, '.', position(), ' ', @name)"/>
@@ -293,6 +293,24 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
 
+   <h2>Figures</h2>
+   <!-- collect any figures from the introduction -->
+   <xsl:apply-templates select="./purpose//figure" mode="toc"/>
+   <!-- collect interface diagram figures from the introduction -->
+   <xsl:apply-templates 
+     select="./schema_diag//imgfile" mode="expressg_figure"/>
+
+   <xsl:apply-templates select="./inscope//figure" mode="toc"/>
+   <xsl:apply-templates select="./outscope//figure" mode="toc"/>
+   <!-- collect up the EXPRESS-G figures from the schemas -->
+   <xsl:apply-templates 
+     select="./schema//imgfile" mode="expressg_figure"/>
+   <!-- collect up the figures from the remaining annexes --> 
+   <xsl:apply-templates select="./tech_discussion//figure" mode="toc"/>
+   <xsl:apply-templates select="./examples//figure" mode="toc"/>
+   <xsl:apply-templates select="./add_scope//figure" mode="toc"/>
+
+
 
    <h2>Tables</h2>
 
@@ -312,22 +330,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
    <xsl:apply-templates select="./add_scope//table" mode="toc"/>
 
 
-   <h2>Figures</h2>
-   <!-- collect any figures from the introduction -->
-   <xsl:apply-templates select="./purpose//figure" mode="toc"/>
-   <!-- collect interface diagram figures from the introduction -->
-   <xsl:apply-templates 
-     select="./schema_diag//imgfile" mode="expressg_figure"/>
 
-   <xsl:apply-templates select="./inscope//figure" mode="toc"/>
-   <xsl:apply-templates select="./outscope//figure" mode="toc"/>
-   <!-- collect up the EXPRESS-G figures from the schemas -->
-   <xsl:apply-templates 
-     select="./schema//imgfile" mode="expressg_figure"/>
-   <!-- collect up the figures from the remaining annexes --> 
-   <xsl:apply-templates select="./tech_discussion//figure" mode="toc"/>
-   <xsl:apply-templates select="./examples//figure" mode="toc"/>
-   <xsl:apply-templates select="./add_scope//figure" mode="toc"/>
 </xsl:template>
 
 
@@ -370,7 +373,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
 
 
        <a href="a_short_names{$FILE_EXT}">      
-       <xsl:value-of 
+      <xsl:value-of 
          select="'Table A.1 Short names of entities'" />
      </a>
      <br/>
@@ -409,13 +412,13 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      <xsl:value-of select="concat($clause_no,' ',$resource_display_name)"/></A>
      <br/>
 
-   &#160;  &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#intro">
+   &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#intro">
            <xsl:value-of select="concat(string($clause_no),'.1 Introduction')"/>
            </A><BR/>
 
            <!-- fundamental concepts - seems to always be there -->
 
-           &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon">
+          &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon">
            <xsl:value-of select="concat($clause_no,'.2 Fundamental concepts and assumptions')"/>
            </A>
  <br/>
@@ -434,7 +437,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
 
    
    <xsl:if test="$interface_clause != 0">
-       &#160; &#160;
+      &#160;&#160;&#160;&#160;&#160;
 
      <A HREF="./{$clause_no}_schema{$FILE_EXT}#interfaces">
          <xsl:value-of select="concat($clause_no,$interface_clause,
@@ -456,7 +459,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$constant_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#constants">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#constants">
          <xsl:value-of select="concat($clause_no,$constant_clause,' ',$resource_display_name,
                                ' constant definitions')"/>
        </A>
@@ -479,7 +482,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$imported_constant_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_constant">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_constant">
          <xsl:value-of select="concat($clause_no,$imported_constant_clause,' ',$resource_display_name,' imported constant modifications')"/>
        </A>
        <br/>
@@ -498,7 +501,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
    </xsl:variable>
 
    <xsl:if test="$type_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#types">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#types">
          <xsl:value-of select="concat($clause_no,$type_clause,' ', $resource_display_name,
                                ' type definitions')"/>
        </A>
@@ -520,7 +523,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$imported_type_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_type">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_type">
          <xsl:value-of select="concat($clause_no,$imported_type_clause,' ',$resource_display_name,
                                ' imported type modifications')"/>
        </A>
@@ -539,7 +542,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$entity_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#entities">
+      &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#entities">
          <xsl:value-of select="concat($clause_no,$entity_clause,' ',
                                $resource_display_name,
                                ' entity definitions')"/>
@@ -564,7 +567,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$imported_entity_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_entity">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_entity">
          <xsl:value-of select="concat($clause_no,$imported_entity_clause,' ',$resource_display_name,
                                ' imported entity modifications')"/>
        </A>
@@ -583,7 +586,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$subtype_constraint_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#subtype_constraints">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#subtype_constraints">
          <xsl:value-of select="concat($clause_no,$subtype_constraint_clause,' ',$resource_display_name,
                                ' subtype constraint definitions')"/>
        </A>
@@ -606,7 +609,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$function_clause !=0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#functions">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#functions">
          <xsl:value-of select="concat($clause_no,$function_clause,' ',$resource_display_name,
                                ' function definitions')"/>
        </A>
@@ -628,7 +631,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$imported_function_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_function">
+            &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_function">
          <xsl:value-of select="concat($clause_no,$imported_function_clause,' ',$resource_display_name,
                                ' imported function modifications')"/>
        </A>
@@ -646,7 +649,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$rule_clause !=0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#rules">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#rules">
          <xsl:value-of select="concat($clause_no,$rule_clause,' ',$resource_display_name,
                                ' rule definitions')"/>
        </A>
@@ -667,7 +670,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$imported_rule_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_rule">
+      &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_rule">
          <xsl:value-of select="concat($clause_no,$imported_rule_clause,' ',$resource_display_name,
                                ' imported rule modifications')"/>
        </A>
@@ -685,7 +688,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$procedure_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#procedures">
+       &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#procedures">
          <xsl:value-of select="concat($clause_no,$procedure_clause,' ',$resource_display_name,
                                ' procedure definitions')"/>
        </A>
@@ -705,7 +708,7 @@ $Id: sect_contents.xsl,v 1.17 2003/08/24 22:10:35 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$imported_procedure_clause != 0">
-       &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_procedure">
+&#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_procedure">
          <xsl:value-of select="concat($clause_no,$imported_procedure_clause,' ',$resource_display_name,
                                ' imported procedure modifications')"/>
        </A>

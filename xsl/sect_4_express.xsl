@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.21 2002/03/22 16:36:36 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.22 2002/03/26 11:14:15 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -412,6 +412,7 @@
       </xsl:otherwise>
     </xsl:choose>
   </p>
+
   <p><u>EXPRESS specification:</u></p>
   *)
   <blockquote>
@@ -486,7 +487,6 @@
 
 
 <xsl:template match="entity">
-
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -936,7 +936,7 @@
     <xsl:call-template name="output_external_description">
       <xsl:with-param name="schema" select="../../@name"/>
       <xsl:with-param name="entity" select="../@name"/>
-      <xsl:with-param name="unique" select="./@name"/>
+      <xsl:with-param name="unique" select="./@label"/>
     </xsl:call-template>
     <!-- output description from express -->
     
@@ -949,7 +949,7 @@
           <xsl:call-template name="check_external_description">
             <xsl:with-param name="schema" select="../../@name"/>
             <xsl:with-param name="entity" select="../@name"/>
-            <xsl:with-param name="unique" select="./@name"/>
+            <xsl:with-param name="unique" select="./@label"/>
           </xsl:call-template>        
         </xsl:variable>
         <xsl:if test="$external_description='false'">
@@ -997,11 +997,12 @@
       </a>
     </b>
 
+
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
-    <xsl:with-param name="where" select="./@name"/>
+    <xsl:with-param name="where" select="@label"/>
   </xsl:call-template>
   <!-- output description from express -->
 
@@ -1014,7 +1015,7 @@
           <xsl:call-template name="check_external_description">
             <xsl:with-param name="schema" select="../../@name"/>
             <xsl:with-param name="entity" select="../@name"/>
-            <xsl:with-param name="where" select="@name"/>
+            <xsl:with-param name="where" select="@label"/>
           </xsl:call-template>        
         </xsl:variable>
         <xsl:if test="$external_description='false'">

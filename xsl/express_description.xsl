@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.6 2002/01/14 13:28:57 robbod Exp $
+     $Id: express_description.xsl,v 1.1 2002/03/19 13:21:28 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -110,7 +110,7 @@
   <xsl:param name="unique" select="''"/>
 
   <xsl:variable name="description_file"
-    select="/express/@description_file"/>
+    select="/express/@description.file"/>
 
   <xsl:variable name="found_description">
     <xsl:choose>
@@ -145,23 +145,29 @@
           </xsl:variable>
           <xsl:value-of select="$return2"/>
         </xsl:variable> <!-- xref -->
-        
+
+        <!-- debug
+        <xsl:message>
+          <xsl:value-of select="concat('Searching: ',$description_file,' - ',$xref)"/></xsl:message>
+        -->
+
         <xsl:variable name="description"
           select="document($description_file)/ext_descriptions/ext_description[@linkend=$xref]"/>
+
         <xsl:choose>
           <xsl:when test="$description">
-            <xsl:message>fd1:<xsl:value-of select="'true'"/></xsl:message>
             <xsl:value-of select="'true'"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:message>fd1:<xsl:value-of select="'false'"/></xsl:message>
             <xsl:value-of select="'false'"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'false'"/>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:variable> <!-- found_description -->
-  <xsl:message>fd:<xsl:value-of select="$found_description"/></xsl:message>
   <xsl:value-of select="$found_description"/>
 </xsl:template>
 

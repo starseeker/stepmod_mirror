@@ -891,7 +891,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
         </xsl:attribute>
         <xsl:attribute name="out">
-          <xsl:value-of select="'${ISODIR}/index.htm'"/>
+          <xsl:if test="ballot_package/resource">
+            <xsl:value-of select="'${ISODIR}/index.htm'"/>
+          </xsl:if>
+          <xsl:if test="ballot_package/module">
+            <xsl:value-of select="'${ISODIR}/module_index.htm'"/>
+          </xsl:if>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.93 2003/05/09 14:17:32 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.94 2003/05/15 00:19:17 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -3556,10 +3556,12 @@
             <!-- an extensible non-empty SELECT type -->
             <p>
               The <b><xsl:value-of select="$typename"/></b> type is an
-              extensible list of alternate data types. It provides a
-              mechanism to refer to instances of the data types included in
-              the <b><xsl:value-of select="$typename"/></b> type or in its
-              extensions.  
+              extensible list of alternate data types.  
+              The data types that may be chosen are specified in the 
+              <b><xsl:value-of select="$typename"/></b>
+              type and in select data types that extend the 
+              <b><xsl:value-of select="$typename"/></b> 
+              type.
             </p>
             <p class="note">
               <small>
@@ -3582,13 +3584,14 @@
 
           <xsl:otherwise>
             <!-- an extensible empty SELECT type -->
-            <p>
+            <p> 
               The <b><xsl:value-of select="$typename"/></b> type is an
-              extensible list of alternate data types. It provides a
-              mechanism to refer to instances of the data types included in
-              the types that extend the 
+              extensible list of alternate data types. 
+              Additional alternate data types are specified in select data
+              types that extend the 
               <b><xsl:value-of select="$typename"/></b> type. 
             </p>
+
             <p class="note">
               <small>
                 <xsl:choose>
@@ -3613,8 +3616,7 @@
         <!-- a non extensible SELECT type -->
         <p>
           The <b><xsl:value-of select="$typename"/></b> type is a list of
-          alternate data types. It provides a mechanism to refer to an
-          instance of one of these data types.  
+          alternate data types.  
         </p>
       </xsl:otherwise>
       

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.4 2002/11/25 16:40:48 nigelshaw Exp $
+$Id: select_view.xsl,v 1.5 2002/11/26 16:34:30 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -235,8 +235,9 @@ $Id: select_view.xsl,v 1.4 2002/11/25 16:40:48 nigelshaw Exp $
 		          <xsl:with-param 
 		            name="message" 
 		            select="concat('Error Sel1: the SELECT type ', $this_basedon,
-			    		' is referenced as BASED_ON but not found.')"/>
-		        </xsl:call-template>    
+			    		' is referenced as BASED_ON by ',@name,' but not found.')"/>
+		        </xsl:call-template>   
+
 
 		</xsl:if>
 

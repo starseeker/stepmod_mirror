@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.59 2002/12/12 15:10:09 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.60 2003/02/05 10:56:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -799,6 +799,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 <xsl:template match="refpath_extend" mode="specification">
   <xsl:variable name="ae" select="ancestor::ae/@entity"/>
   <xsl:variable name="orig_mod" select="ancestor::ae/@original_module"/>
+
   <xsl:choose>
     <xsl:when test="ancestor::ae/@original_module">
       <!-- if there has been an external module declared, then get the 
@@ -867,7 +868,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
                       <xsl:variable name="attribute" select="../../@attribute"/>
                       <xsl:variable name="alt_id" select="../@alt_map.inc"/>
                       <xsl:value-of 
-                        select="concat('Error refpath_ext4: The refpath to be extended can not be found in the module: &quot;',
+                        select="concat('Error refpath_ext41: The refpath to be extended can not be found in the module: &quot;',
                                 $orig_mod,'&quot;. #  Check that the entity  &quot;',$ae,'&quot; exists in  &quot;',$orig_mod,
                                 '&quot;#  and has an attribute &quot;',$attribute,
                                 '&quot;, #  that there is an assertion to &quot;',$extended_select,
@@ -877,7 +878,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
                       <xsl:variable name="extended_select" select="./@extended_select"/>
                       <xsl:variable name="attribute" select="../@attribute"/>
                       <xsl:value-of 
-                        select="concat('Error refpath_ext4: The refpath to be extended can not be found in the module: &quot;',
+                        select="concat('Error refpath_ext42: The refpath to be extended can not be found in the module: &quot;',
  $orig_mod,'&quot;. #  Check that the entity &quot;',$ae,'&quot; exists in &quot;',$orig_mod,
                                 '&quot;#  and has an attribute  &quot;',$attribute,
                                 '&quot;#  and there is an assertion to &quot;',$extended_select,'&quot;')"/>

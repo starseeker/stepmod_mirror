@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
+$Id: sect_cover.xsl,v 1.6 2003/05/23 15:52:57 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -10,6 +10,7 @@ $Id: frame_aptitle.xsl,v 1.4 2003/05/22 16:55:08 robbod Exp $
 
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/>
+  <xsl:import href="../common.xsl"/>
   
   <xsl:output method="html"/>
 	
@@ -304,12 +305,12 @@ o=isocs; s=central<br/>
 
       <xsl:variable name="ballot_cycle_or_pub">
         <xsl:choose>
-          <xsl:when test="$status='CD-TS'">
-            this ballot cycle
-          </xsl:when>
-          <xsl:when test="$status='TS'">
+          <xsl:when test="$status='IS'">
             publication
           </xsl:when>
+          <xsl:otherwise>
+            this ballot cycle
+          </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
   
@@ -388,7 +389,7 @@ o=isocs; s=central<br/>
         </p>
       </xsl:if>
       and is ready for 
-      <xsl:value-of select="$ballot_cycle_or_pub"/>.
+      <xsl:value-of select="normalize-space($ballot_cycle_or_pub)"/>.
 
 
       <xsl:variable name="dvlp_fldr" select="@development.folder"/>
@@ -441,44 +442,50 @@ o=isocs; s=central<br/>
 
 </xsl:template>
 
-	<xsl:template match="projlead">
-		<xsl:variable name="ref" select="@ref"/>
-		<xsl:variable name="projlead" select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-		<b>
-			Project leader: 
-		</b>
-		<xsl:choose>
-			<xsl:when test="$projlead">
-				<xsl:apply-templates select="$projlead"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:call-template name="error_message">
-					<xsl:with-param name="message">
-						Error 1: No contact provided for project leader.
-					</xsl:with-param>
-				</xsl:call-template>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:template>
+<xsl:template match="projlead">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="projlead" select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <b>
+    Project leader: 
+  </b>
+  <xsl:choose>
+    <xsl:when test="$projlead">
+      <xsl:apply-templates select="$projlead"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 1: No contact provided for project leader.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
-	<xsl:template match="editor">
-		<xsl:variable name="ref" select="@ref"/>
-		<xsl:variable name="editor" select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-		<b>
-			Project editor: 
-		</b>
-		<xsl:choose>
-			<xsl:when test="$editor">
-				<xsl:apply-templates select="$editor"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:call-template name="error_message">
-					<xsl:with-param name="message">
-						Error 2: No contact provided for project editor.
-					</xsl:with-param>
-				</xsl:call-template>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:template>
+<xsl:template match="editor">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="editor" select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <b>
+    Project editor: 
+  </b>
+  <xsl:choose>
+    <xsl:when test="$editor">
+      <xsl:apply-templates select="$editor"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 2: No contact provided for project editor.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+
+<xsl:template match="issue" mode="seds_cover">
+  <xsl:value-of select="concat(@id,' ')"/>
+</xsl:template>
 
 </xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.5 2003/06/02 08:32:39 robbod Exp $
+$Id: sect_foreword.xsl,v 1.6 2003/06/02 09:26:52 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -258,11 +258,11 @@ $Id: sect_foreword.xsl,v 1.5 2003/06/02 08:32:39 robbod Exp $
   </blockquote>
   <p>
     Annexes 
-    <a href="./annex_exp_lf.xml">A</a>,
-    <a href="./annex_shortnames.xml">B</a>,
-    <a href="./annex_imp_meth.xml">C</a>,
-    <a href="./annex_pics.xml">D</a> and 
-    <a href="./annex_obj_reg.xml">E</a>
+    <a href="./annex_exp_lf{$FILE_EXT}">A</a>,
+    <a href="./annex_shortnames{$FILE_EXT}">B</a>,
+    <a href="./annex_imp_meth{$FILE_EXT}">C</a>,
+    <a href="./annex_pics{$FILE_EXT}">D</a> and 
+    <a href="./annex_obj_reg{$FILE_EXT}">E</a>
     form an integral part of this part of
     ISO 10303. Subsequent annexes are for information only.
   </p>

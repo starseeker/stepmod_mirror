@@ -61,16 +61,17 @@ updating.
 module ==> assembly_technology
 issue against: Assembly_technology_arm.Assembly_bond_definition.wr:WR2
 <description>
-For Tom
- This rule is wrong and I don't know how to fix it.  The problem is that Assembly_bond_definition can not be in MATERIAL_IDENTIFICATION.ITEMS.
+For Viktoras,
+I think the rule is ok now.
+see issues.xml for new description.
   </description>
-
+  
 ---------------------------------------------------------
 module ==> assembly_technology
 issue against: Assembly_technology_arm.Reference_packaged_part_assembly_implementation.wr:WR1
 <description>
-For Tom
- Product_category_hierarchy.super_category is of type Product_category and not of Product_category_assignment.
+For Lothar/Giedrius
+  The rule does not match current mapping.  Why require insertion of a product_category_hierarchy?
   </description>
 
 ---------------------------------------------------------
@@ -113,11 +114,46 @@ For Lothar
 
 ---------------------------------------------------------
 module ==> conductivity_material_aspects
-issue against: 
 <description>
-For Giedrius
-The name of cma_property_assignment_select shall be cma_property_class_assignment_select, as this is for classification of a material property and not for assigning specific value.
+For Giedrius,go ahead and add subtypes of conductivity_material_property_class per email.
+I updated cma...select type, added function get_cond_class, 
+revised Material_identification_with_conductivity_classification,
+revised Conductivity_material_property_class
+For Viktoras-->> revised arm express
   </description>
+here is overall example structure using assembly_bond_definition:
+  abd
+  material_item_select = abd  (we need an extension to this select wherever we use it but I haven't done
+  that yet)
+  material_item_select <- 
+  material_identification.items
+  material_identification =>
+  material_identification_with_cc
+  classification_item = material_ident_with_cc
+  classification_item <-
+  classification_assignment.items
+  classification_assignment.assigned_class ->
+  material_electrical_conductivity_class <=
+  class.name
+
+I think the mapping is valid.  
+classification_assigned_item = material_designation
+classification_assigned_item <-
+applied_classification_assignment.items[i]
+applied_classification_assignment <=
+group_assignment
+group_assignment.assigned_group ->
+{group
+(group.name = `conductive')
+(group.name = `non conductive')
+(group.name = `resistive')
+(group.name = `semi conductive')}
+group =>
+class =>
+material_electrical_conductivity_category
+
+
+
 
 ---------------------------------------------------------
 module ==> device_marking
@@ -129,55 +165,52 @@ The problem is that Marking can not be in Material_identification.items.
 
 ---------------------------------------------------------
 module ==> fabrication_joint
-issue against: 
+issue against: Passage_terminal_based_fabrication_joint_link
 <description>
-For Tom
-Proposal:
+For Jurgita--xml needs correct syntax
 add a new AO Passage_terminal_based_fabrication_joint_link.  
 The Passage_terminal_based_fabrication_joint_link is to be added to fabrication_joint_arm. see the arm.exp for details.  This issue is in support of an issue in interconnect_module_connection_routing_arm
   </description>
 
 ---------------------------------------------------------
+module ==> fabrication_technology
+issue against: fabrication_technology_arm.Passage_technology_parameters
+<description>
+For Tom
+
+UR1: The name shall be unique within associated_definition.
+WR1: Each passage that is plated shall have deposition_material provided.
+WR2: Each passage that has maximum_as_finished_deposition_thickness provided shall have deposition_material provided.
+WR3: Each passage that has minimum_as_finished_deposition_thickness provided shall have deposition_material provided.
+WR4: If plated_passage has a value of TRUE Passage_technology shall reference Material_conductivity_classification that equals "conductive".
+
+  </description>
+
+
+---------------------------------------------------------
 module ==> fabrication_joint
 issue against: Fabrication_joint_arm.Fabrication_joint
 <description>
-For Tom
-There is no rule preventing features_1 from being features_2.  It is needed.
+For Viktoras--add description to wr1
   </description>
 
 ---------------------------------------------------------
 module ==> feature_and_connection_zone
-issue against: Feature_and_connection_zone_arm.Connection_zone.wr:WR1
+issue against: Feature_and_connection_zone_arm.Connection_zone IPs
 <description>
-For Tom
-The EXPRESS implementation of this rule is weak.
+For Jurgita
+add correct xml in arm.xml to show up IPs in browser.
   </description>
 
 ---------------------------------------------------------
-module ==> interconnect_module_connection_routing
-issue against: Interconnect_module_connection_routing_arm.Physical_connectivity_abstraction_map.geometric_context_based_definition
+module ==> INterconnect_module_connection_routing
+issue against: Topological_junction
 <description>
-For Tom
-The attribute does not support mapping of vertical structures, for instance vias, in the sequence of conductive interconnect elements.  The attribute does not support mapping of individual links in a conductive interconnect element.
-Proposal:
-add a SELECT type that references a Conductive_interconnect_element_terminal_link and a new AO Passage_terminal_based_fabrication_joint_link.  The Passage_terminal_based_fabrication_joint_link is to be added to fabrication_joint_arm. see the arm.exp for fabrication_joint_arm and for this module.
-<p>
-Here is the SELECT:
- 	TYPE map_link = SELECT(
- 		Conductive_interconnect_element_link,
-		Passage_terminal_based_fabrication_joint_link);
-	END_TYPE;
-</p>
-<p>
-Here is the modified AO:
-  ENTITY Physical_connectivity_abstraction_map;
-      name_space_context_based_definition : physical_connectivity_element;
-      geometric_context_based_definition  : map_link;
-    UNIQUE
-      UR1 : name_space_context_based_definition,
- geometric_context_based_definition;
-  END_ENTITY; -- physical_connectivity_abstraction_map
-</p>
+For Jurgita
+
+Topological_junction was moved from here to Physical_connectivity_definition.
+Tom moved the express.
+Jurgita to move the xml
   </description>
 
 ---------------------------------------------------------
@@ -214,6 +247,7 @@ issue against: Layered_interconnect_module_design_arm.Default_component_terminat
 <description>
 For Tom
 This rule has been removed from express, but it looks like it should exist.
+conductive material issue
   </description>
 
 ---------------------------------------------------------
@@ -222,46 +256,39 @@ issue against: Layered_interconnect_module_design_arm.Default_via_definition.wr:
 <description>
 For Tom
 This rule has been removed from express, but it looks like it should exist.
+conductive material issue
   </description>
 
 ---------------------------------------------------------
 module ==> layered_interconnect_module_design
-issue against: Layered_interconnect_module_design_arm.Intra_stratum_join_relationship
+issue against: Layered_interconnect_module_design_arm.Intra_stratum_join_relationship:wr2
 <description>
-For Tom
-Why did this WR was removed: All Layer_connection_points specified shall be on the same Design_layer_stratum?
+For Viktoras--update xml and description
   </description>
 
 ---------------------------------------------------------
 module ==> layered_interconnect_module_design
 issue against: Layered_interconnect_module_design_arm.Laminate_component.wr:WR2
 <description>
-For Tom
-The result of this WR is always TRUE.
+For Viktoras
+update xml and descriptions
   </description>
 
 ---------------------------------------------------------
 module ==> layered_interconnect_module_design
 issue against: Layered_interconnect_module_design_arm.Laminate_component.wr:WR3
 <description>
-For Tom
-This WR allows laminate_component to be not assembled.
-  </description>
-
----------------------------------------------------------
-module ==> layered_interconnect_module_design
-issue against: Layered_interconnect_module_design_arm.Laminate_component.wr:WR4
-<description>
-For Tom
-This WR allows laminate_component to be assembled by all possible ways.
+For Viktoras
+update xml and descriptions
   </description>
 
 ---------------------------------------------------------
 module ==> layered_interconnect_module_design
 issue against: Layered_interconnect_module_design_arm.Passage_technology.wr:WR1
 <description>
-For Tom
-This rule has been removed from express, but it looks like it should exist.
+For Viktoras
+update xml and descriptions
+
   </description>
 
 ---------------------------------------------------------
@@ -310,6 +337,16 @@ Jurgita to fix the xml..
   	Not found design_make_from_relationship
   </description>
 
+
+---------------------------------------------------------
+module ==> package
+issue against: Package_terminal
+<description>
+For Jurgita/Viktoras
+added two rules; need xml and descriptions updated
+  </description>
+
+
 ---------------------------------------------------------
 module ==> packaged_part_black_box_model
 issue against: Packaged_part_black_box_model_arm.Packaged_part
@@ -354,9 +391,20 @@ Figure 1 does not belong here.  (There is too much detail in the figure that is 
 module ==> physical_connectivity_definition
 issue against: Physical_connectivity_definition_arm.termination_or_junction
 <description>
-For Giedrius
+For Giedrius (for mapping)
 
-The needed option in the SELECT of Topological_junction is missing. Topological_junction belongs specifically in this module.
+The needed option in the SELECT of Topological_junction is missing. 
+Topological_junction belongs specifically in this module.
+Tom moved the express.
+Jurgita to move the xml and add descriptions.
+here are the details:
+moved topological junction arm express to here.  added to termination_or_junction SELECT.
+added physical_connectivity_definition.sizeof_terminals;
+added physical_unit_network_definition.terminals;
+added physical_unit_network_definition.connectivity_definitions;
+added physical_unit_network_definition.wr2-->>
+"No terminal shall be referenced by more than one Physical_connectivity_definition within the scope of a Physical_unit_network_definition."
+added function get_terminals
   </description>
 
 ---------------------------------------------------------

@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.9 2002/05/09 18:48:01 buchanan Exp $ -->
+<!-- $Id: module.xml,v 1.10 2002/05/28 20:14:25 darla Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 
 <module 
 	name="identification_assignment" 
 	part="1021" 
 	version="1" 
-	wg.number="N735" 
+	wg.number="1110" 
+	wg.number.supersedes="735" 
+	checklist.internal_review="1056"
+	checklist.project_leader="1057"
+	checklist.convener="1058"
 	status="TS" 	
 	language="E" 
 	publication.year="2002" 
-	published="n" 
-	rcs.date="$Date: 2002/05/09 18:48:01 $" 	rcs.revision="$Revision: 1.9 $">
+	published="y" 
+	rcs.date="$Date: 2002/05/28 20:14:25 $" 	
+	rcs.revision="$Revision: 1.10 $">
 		<keywords>
    		 	module, identification, assignment
  		</keywords>
@@ -19,30 +24,20 @@
 		<projlead ref="pdmmodules.projlead"/>
 		<editor ref="pdmmodules.editor"/>
 	</contacts>
-	<purpose>The Identification assignment application module supports the requirement to assign identifications to product data.</purpose>
+	<purpose>The Identification assignment application module supports the requirement to assign an identification
+	 to product or activity data.</purpose>
 	<inscope>
-		<li>establishing a data structure which records identification information;</li>
-		<li>establishing a data structure to optionally assign an organization or person in an organization as a context for the identifier;</li>
-		<li>when a context is provided, the identifier shall be unique in that context;</li>
-		<li>establishing a data structure for relating the identification information to product data;</li>
-		<li>establishing a data structure for recoding the role the identification information plays when assigned.</li>
+		<li>assigning an identification to a product or activity data.</li>
 	</inscope>
-	<outscope>
-		<li>all concepts not involved in the specification of the concepts of identification assignment.</li>
-	</outscope>
 	<normrefs>
 		<normref.inc normref="ref10303-41.2000"/>
 	</normrefs>
 	<arm>
 		<uof name="Identification_Assignment">
-			<description>The Identification_Assignment UoF specifies the definitional information for the concept of assignment of identification.</description>
+			<description>The Identification_Assignment UoF specifies the definitional information 
+			for the concept of assignment of identification.</description>
 			<uof.ae entity="Identification_assignment"/>
 		</uof>
-
-	 <!--
-		<uoflink module="person_organization" uof="Person_Organization"/>
-		<uoflink module="person_organization_assignment" uof="Person_Organization_Assignment"/>
-	  -->
 
 		<express-g>
 			<imgfile file="armexpg1.xml"/>
@@ -50,51 +45,43 @@
 		</express-g>
 	</arm>
 	<mapping_table>
-		<ae entity="IDENTIFICATION_ASSIGNMENT">
-			<aimelt>identification_assignment</aimelt>
-			<source>41</source>
+		<ae entity="Identification_assignment">
+			<aimelt>applied_identification_assignment</aimelt>
+			<source>1021</source>
+				<refpath>
+				     applied_identification_assignment &lt;= 
+						 identification_assignment
+				</refpath>
+			
 			<aa attribute="identifier">
 				<aimelt>identification_assignment.assigned_id</aimelt>
 				<source>41</source>
 			</aa>
 			<aa attribute="role">
 				<aimelt>identification_role.name</aimelt>
-				<source>41</source>
-				<refpath>identification_assignment
-identification_assignment.role -&gt;
-identification_role
-identification_role.name</refpath>
+			<source>41</source>
+				<refpath>
+						identification_assignment.role -&gt;
+						identification_role
+						identification_role.name
+				</refpath>
 			</aa>
 			<aa attribute="description">
-				<aimelt>identification_assignment.description</aimelt>
+				<aimelt>identification_role.description</aimelt>
 				<source>41</source>
-				<refpath>identification_assignment
-identification_assignment.description</refpath>
+				<refpath>
+				    identification_assignment.role &gt;
+						identification_role
+						identification_role.description
+				</refpath>				
 			</aa>
-			<aa attribute="items">
-				<aimelt>applied_identification_assignment.items</aimelt>
-				<source>1021</source>
-				<refpath>identification_assignment =&gt;
-applied_identification_assignment
-applied_identification_assignment.items[i]</refpath>
-			</aa>
-			<aa attribute="owner">
-				<aimelt>(applied_organization_assignment.items)
-(applied_person_and_organization_assignment.items)</aimelt>
-				<source>1013</source>
-				<refpath>identification_assignment &lt;-
-(applied_organization_assignment.items[i]
-applied_organization_assignment &lt;=
-organization_assignment 
-{organization_assignment.role -&gt;
-organiztion_role
-organization_role.name='design owner'})
-(applied_person_and_organization_assignment.items[i]
-applied_person_and_organization_assignment &lt;=
-person_and_organization_assignment
-person_and_organization_assignment.role -&gt;
-person_and_organization_role
-{person_and_organization_role.name='design owner'})</refpath>
+			<aa attribute="items" assertion_to="identification_item">
+				<aimelt>PATH</aimelt>
+				<refpath>
+						applied_identification_assignment
+						applied_identification_assignment.items[i] -&gt;
+						identification_item
+				</refpath>
 			</aa>
 		</ae>
 	</mapping_table>
@@ -102,5 +89,16 @@ person_and_organization_role
 		<express-g>
 			<imgfile file="mimexpg1.xml"/>
 		</express-g>
+	<shortnames>
+			<shortname name="APIDAS" entity="applied_identification_assignment"/>
+	</shortnames>
 	</mim>
+
+	<bibliography>
+<bibitem>
+<stdnumber>ISO/TS 10303-1013</stdnumber>
+     <stdtitle>Industrial automation systems and integration - Product data representation and exchange- Part 1013: Application module: Person organization assignment
+		 </stdtitle>
+</bibitem>
+</bibliography>
 </module>

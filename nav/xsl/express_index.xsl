@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-$Id: express_index.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
+$Id: express_index.xsl,v 1.3 2002/09/11 08:26:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -125,18 +125,18 @@ $Id: express_index.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
           <xsl:if test="$objects-node-set/objects/schema_object/procedure_object">
             <a href="#procedure_object">procedures</a>&#160;
           </xsl:if>
+
+          <xsl:if test="$objects-node-set/objects/schema_object/subtype.constraint_object">
+            <a href="#subtype.constraint_object">subtype constraints</a>&#160;
+          </xsl:if>
+
         </font>
 
       <xsl:apply-templates select="$objects-node-set/objects/schema_object">
         <xsl:sort select="@name"/>
       </xsl:apply-templates>
 
-      <xsl:apply-templates
-        select="$objects-node-set/objects/schema_object/procedure_object">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <dl>
+     <dl>
         <xsl:apply-templates
           select="$objects-node-set/objects/schema_object/type_object">
           <xsl:sort select="@name"/>
@@ -165,6 +165,12 @@ $Id: express_index.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
       <dl>
         <xsl:apply-templates
           select="$objects-node-set/objects/schema_object/procedure_object">
+          <xsl:sort select="@name"/>
+        </xsl:apply-templates>
+      </dl>
+      <dl>
+        <xsl:apply-templates
+          select="$objects-node-set/objects/schema_object/subtype.constraint_object">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
       </dl>
@@ -219,7 +225,7 @@ $Id: express_index.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
 </xsl:template>
 
 <xsl:template 
-  match="constant|type|entity|procedure|function|rule" 
+  match="constant|type|entity|procedure|function|rule|subtype.constraint" 
   mode="objects">
   <xsl:param name="file"/>
   <xsl:variable name="obj_type" select="name()"/>
@@ -276,7 +282,7 @@ $Id: express_index.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
   </font>
 </xsl:template>
 
-<xsl:template match="type_object|entity_object|function_object|rule_object|procedure_object|constant_object">
+<xsl:template match="type_object|entity_object|function_object|rule_object|procedure_object|constant_object|subtype.constraint_object">
   <xsl:if test="position()=1">
     <xsl:variable name="aname" select="name()"/>
     <h5>
@@ -350,6 +356,10 @@ $Id: express_index.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
 
 <xsl:template match="constant_object" mode="section_head">
   Constants
+</xsl:template>
+
+<xsl:template match="subtype.constraint_object" mode="section_head">
+  Subtype Constraints
 </xsl:template>
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.105 2002/09/13 08:33:25 robbod Exp $
+$Id: module.xsl,v 1.106 2002/09/30 13:36:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -811,6 +811,27 @@ o=isocs; s=central<br/>
     <xsl:with-param name="clause" select="'purpose'"/>
   </xsl:apply-templates>
   <xsl:apply-templates/>
+
+
+  <xsl:if test="not( string-length(normalize-space(.)) > 85)" >
+        <xsl:call-template name="error_message">
+	  <xsl:with-param name="inline" select="'yes'"/>
+	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+          <xsl:with-param 
+		            name="message" 
+		            select="'Insufficient introduction material provided.'"/>
+        </xsl:call-template>    
+  </xsl:if>
+  <xsl:if test="not(substring-after(.,'This part of ISO 10303 specifies'))" >
+        <xsl:call-template name="error_message">
+	  <xsl:with-param name="inline" select="'yes'"/>
+	  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+          <xsl:with-param 
+		            name="message" 
+		            select="'Introduction does not start with required text: This part of ISO 10303 specifies .'"/>
+        </xsl:call-template>    
+  </xsl:if>
+
   <p>
     Clause <a href="1_scope{$FILE_EXT}">1</a> defines the scope of the
     application module and summarizes the functionality and data covered. 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:49:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:44:18" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_arm schema_instance"/>
    <schema name="Assembly_technology_arm">
       <interface kind="use" schema="Conductivity_material_aspects_arm"/>
@@ -29,8 +29,8 @@
          <explicit name="default_bond_definition">
             <typename name="Assembly_bond_definition"/>
          </explicit>
-         <where label="WR1" expression=" SELF \ Assembly_joint . assembly_features_1 . definition :=: default_bond_definition . bonded_feature_1 "/>
-         <where label="WR2" expression=" SELF \ Assembly_joint . assembly_features_2 . definition :=: default_bond_definition . bonded_feature_2 "/>
+         <where label="WR1" expression="SELF\Assembly_joint.assembly_features_1.definition :=: default_bond_definition.bonded_feature_1"/>
+         <where label="WR2" expression="SELF\Assembly_joint.assembly_features_2.definition :=: default_bond_definition.bonded_feature_2"/>
       </entity>
       <entity name="Assembled_with_fasteners" supertypes="Assembly_joint">
          <explicit name="associated_assembly">
@@ -66,8 +66,8 @@
          <unique label="UR2">
             <unique.attribute entity-ref="Assembly_bond_definition" attribute="associated_definition"/>
          </unique>
-         <where label="WR1" expression=" bonded_feature_1 &lt;&gt; bonded_feature_2 "/>
-         <where label="WR2" expression=" 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( bond_material ) "/>
+         <where label="WR1" expression="bonded_feature_1 &lt;&gt; bonded_feature_2"/>
+         <where label="WR2" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material)"/>
       </entity>
       <entity name="Assembly_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding">
          <explicit name="name">
@@ -89,9 +89,9 @@
             <unique.attribute entity-ref="Assembly_joint" attribute="name"/>
             <unique.attribute entity-ref="Assembly_joint" attribute="associated_assembly"/>
          </unique>
-         <where label="WR1" expression=" assembly_features_1 :&lt;&gt;: assembly_features_2 "/>
-         <where label="WR2" expression=" ( 'ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF ( SELF ) ) OR ( ( 'ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF ( assembly_features_1 ) ) AND ( SIZEOF ( QUERY ( ay &lt;* assembly_features_1 \ Component_feature . associated_component \ Definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
-         <where label="WR3" expression=" ( 'ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF ( SELF ) ) OR ( ( 'ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF ( assembly_features_2 ) ) AND ( SIZEOF ( QUERY ( ay &lt;* assembly_features_2 \ Component_feature . associated_component \ Definition_based_product_occurrence . occurrence_contexts | ay . related_view &lt;&gt; associated_assembly ) ) = 0 ) ) "/>
+         <where label="WR1" expression="assembly_features_1 :&lt;&gt;: assembly_features_2"/>
+         <where label="WR2" expression="('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_1)) AND (SIZEOF(QUERY(ay &lt;* assembly_features_1\Component_feature.associated_component\Definition_based_product_occurrence.occurrence_contexts | ay.related_view &lt;&gt; associated_assembly)) = 0))"/>
+         <where label="WR3" expression="('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_2)) AND (SIZEOF(QUERY(ay &lt;* assembly_features_2\Component_feature.associated_component\Definition_based_product_occurrence.occurrence_contexts | ay.related_view &lt;&gt; associated_assembly)) = 0))"/>
       </entity>
       <entity name="Assembly_technology_specification" supertypes="Process_specification"/>
       <entity name="Component_mating_constraint_condition">
@@ -121,7 +121,7 @@
          <explicit name="zone_2">
             <typename name="Connection_zone_in_design_view"/>
          </explicit>
-         <where label="WR1" expression=" zone_1 :&lt;&gt;: zone_2 "/>
+         <where label="WR1" expression="zone_1 :&lt;&gt;: zone_2"/>
       </entity>
       <entity name="Default_assembly_bond_shape" supertypes="Feature_shape_definition">
          <explicit name="characterized_bond_definition">
@@ -129,7 +129,7 @@
          </explicit>
       </entity>
       <entity name="Reference_packaged_part_assembly_implementation" supertypes="Assembly_module">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pca &lt;* USEDIN ( SELF \ Product_view_definition . defined_version . of_product , 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | NOT ( SIZEOF ( QUERY ( pch &lt;* USEDIN ( Pca . category , 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_HIERARCHY.SUB_CATEGORY' ) | ( pch . super_category \ Product_category . name = 'template model' ) ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(pca &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product,&#10; 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | &#10; NOT (SIZEOF(QUERY(pch &lt;* USEDIN(Pca.category,'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_HIERARCHY.SUB_CATEGORY') | &#10; (pch.super_category\Product_category.name = 'template model'))) = 1))) = 0"/>
       </entity>
       <subtype.constraint name="assembly_module_subtypes" entity="Assembly_module" super.expression="ONEOF (Pca, Reference_packaged_part_assembly_implementation)"/>
       <subtype.constraint name="process_specification_subtypes" entity="Process_specification" super.expression="ONEOF (Assembly_technology_specification, Fabrication_technology_specification)"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:49:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:44:21" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
       <interface kind="use" schema="Feature_and_connection_zone_arm"/>
@@ -54,7 +54,7 @@
          <inverse name="interface_access_mechanisms" entity="Land_template_interface_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression=" NOT ( EXISTS ( minimum_attachment_region_size ) AND EXISTS ( maximum_attachment_region_size ) ) OR ( minimum_attachment_region_size :&lt;&gt;: maximum_attachment_region_size ) "/>
+         <where label="WR1" expression="NOT (EXISTS(minimum_attachment_region_size) AND EXISTS(maximum_attachment_region_size)) OR (minimum_attachment_region_size :&lt;&gt;: maximum_attachment_region_size)"/>
       </entity>
       <entity name="Default_land_physical_template" abstract.supertype="YES" supertypes="Land_physical_template">
          <explicit name="of_stratum_technology" optional="YES">
@@ -80,7 +80,7 @@
             <typename name="Length_data_element"/>
             <redeclaration entity-ref="Stratum_technology"/>
          </explicit>
-         <where label="WR1" expression=" SIZEOF ( [ stratum_material . electrical_conductivity_classification , stratum_material . magnetic_conductivity_classification , stratum_material . optical_conductivity_classification , stratum_material . thermal_conductivity_classification ] * [ 'conductive' ] ) &gt;= 1 "/>
+         <where label="WR1" expression="SIZEOF([stratum_material.electrical_conductivity_classification,&#10;           stratum_material.magnetic_conductivity_classification, &#10;           stratum_material.optical_conductivity_classification,  &#10;           stratum_material.thermal_conductivity_classification] *&#10;           ['conductive']) &gt;= 1"/>
       </entity>
       <entity name="Documentation_layer_technology" supertypes="Stratum_technology">
          <explicit name="pre_defined_documentation_layer_purpose" optional="YES">
@@ -89,7 +89,7 @@
          <inverse name="externally_defined_documentation_layer_purpose" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression=" ( EXISTS ( pre_defined_documentation_layer_purpose ) ) OR ( ( SIZEOF ( externally_defined_documentation_layer_purpose ) ) = 1 ) "/>
+         <where label="WR1" expression="(EXISTS (pre_defined_documentation_layer_purpose)) OR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1)"/>
       </entity>
       <entity name="Electrical_isolation_removal_template" supertypes="Material_removal_feature_template">
          <explicit name="electrical_isolation_spacing_requirement">
@@ -106,7 +106,7 @@
          <unique label="UR1">
             <unique.attribute entity-ref="Land_physical_template" attribute="pre_defined_classification_code"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ltjt &lt;* access_mechanisms | NOT ( 'FABRICATION_TECHNOLOGY_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF ( ltjt ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(ltjt &lt;* access_mechanisms | NOT ('FABRICATION_TECHNOLOGY_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) = 0"/>
       </entity>
       <entity name="Land_template_interface_terminal" supertypes="Land_template_terminal">
          <explicit name="associated_definition">
@@ -138,8 +138,8 @@
             <unique.attribute entity-ref="Land_template_terminal" attribute="element_name"/>
             <unique.attribute entity-ref="Land_template_terminal" attribute="associated_definition"/>
          </unique>
-         <where label="WR1" expression=" NOT ( EXISTS ( terminal_connection_zone ) ) OR EXISTS ( connection_zone_category ) "/>
-         <where label="WR2" expression=" NOT ( EXISTS ( terminal_connection_zone ) ) OR ( SIZEOF ( terminal_connection_zone ) = SIZEOF ( connection_zone_category ) ) "/>
+         <where label="WR1" expression="NOT (EXISTS(terminal_connection_zone)) OR EXISTS(connection_zone_category)"/>
+         <where label="WR2" expression="NOT (EXISTS(terminal_connection_zone)) OR (SIZEOF(terminal_connection_zone) = SIZEOF(connection_zone_category))"/>
       </entity>
       <entity name="Layout_spacing_requirement_occurrence" supertypes="Requirement_definition_property">
          <explicit name="reference_design_object_category">
@@ -160,10 +160,10 @@
             <unique.attribute entity-ref="Layout_spacing_requirement_occurrence" attribute="reference_design_object_category"/>
             <unique.attribute entity-ref="Layout_spacing_requirement_occurrence" attribute="dependent_design_object_category"/>
          </unique>
-         <where label="WR1" expression=" 'FABRICATION_TECHNOLOGY_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF ( SELF \ Requirement_definition_property . required_coordinated_characteristic [ 1 ] . items [ 1 ] ) "/>
+         <where label="WR1" expression="'FABRICATION_TECHNOLOGY_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_coordinated_characteristic[1].items[1])"/>
       </entity>
       <entity name="Material_addition_feature_template" supertypes="Stratum_feature_template">
-         <where label="WR1" expression=" NOT ( SIZEOF ( [ 'FABRICATION_TECHNOLOGY_ARM.SNOWBALL_TEMPLATE' , 'FABRICATION_TECHNOLOGY_ARM.TEARDROP_BY_ANGLE_TEMPLATE' , 'FABRICATION_TECHNOLOGY_ARM.TEARDROP_BY_LENGTH_TEMPLATE' ] * TYPEOF ( SELF ) ) = 1 ) OR ( ( SIZEOF ( USEDIN ( SELF , 'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_PLANAR_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE' ) ) = 0 ) AND ( SIZEOF ( USEDIN ( SELF , 'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE' ) ) = 0 ) AND ( SIZEOF ( USEDIN ( SELF , 'FABRICATION_TECHNOLOGY_ARM.' + 'PART_TEMPLATE_NON_PLANAR_2D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE' ) ) = 0 ) ) "/>
+         <where label="WR1" expression="NOT (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.SNOWBALL_TEMPLATE',&#10; 'FABRICATION_TECHNOLOGY_ARM.TEARDROP_BY_ANGLE_TEMPLATE',&#10; 'FABRICATION_TECHNOLOGY_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(SELF)) = 1) OR ((SIZEOF(USEDIN(SELF,&#10; 'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_PLANAR_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0) AND (SIZEOF(USEDIN(SELF,&#10; 'FABRICATION_TECHNOLOGY_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0) AND (SIZEOF(USEDIN(SELF,&#10; 'FABRICATION_TECHNOLOGY_ARM.' + 'PART_TEMPLATE_NON_PLANAR_2D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0))"/>
       </entity>
       <entity name="Material_removal_feature_template" supertypes="Layout_template_definition">
          <explicit name="of_stratum_technology" optional="YES">
@@ -241,9 +241,9 @@
          <unique label="UR1">
             <unique.attribute entity-ref="Stratum_technology" attribute="name"/>
          </unique>
-         <where label="WR1" expression=" NOT ( layer_position = layer_position_type . primary ) OR ( 'FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF ( SELF ) ) "/>
-         <where label="WR2" expression=" NOT ( layer_position = layer_position_type . secondary ) OR ( 'FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF ( SELF ) ) "/>
-         <where label="WR3" expression=" 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( stratum_material ) "/>
+         <where label="WR1" expression="NOT (layer_position = layer_position_type.primary) OR ('FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF))"/>
+         <where label="WR2" expression="NOT (layer_position = layer_position_type.secondary) OR ('FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF))"/>
+         <where label="WR3" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (stratum_material)"/>
       </entity>
       <entity name="Stratum_technology_link">
          <explicit name="precedent_stratum_technology">
@@ -259,9 +259,9 @@
             <unique.attribute entity-ref="Stratum_technology_link" attribute="precedent_stratum_technology"/>
             <unique.attribute entity-ref="Stratum_technology_link" attribute="subsequent_stratum_technology"/>
          </unique>
-         <where label="WR1" expression=" precedent_stratum_technology :&lt;&gt;: subsequent_stratum_technology "/>
-         <where label="WR2" expression=" NOT ( EXISTS ( precedent_stratum_technology_link ) ) OR ( precedent_stratum_technology_link :&lt;&gt;: SELF ) "/>
-         <where label="WR3" expression=" NOT EXISTS ( precedent_stratum_technology_link ) OR ( precedent_stratum_technology_link . subsequent_stratum_technology :=: precedent_stratum_technology ) "/>
+         <where label="WR1" expression="precedent_stratum_technology :&lt;&gt;: subsequent_stratum_technology"/>
+         <where label="WR2" expression="NOT (EXISTS(precedent_stratum_technology_link)) OR (precedent_stratum_technology_link :&lt;&gt;: SELF)"/>
+         <where label="WR3" expression="NOT EXISTS(precedent_stratum_technology_link) OR (precedent_stratum_technology_link.subsequent_stratum_technology :=: precedent_stratum_technology)"/>
       </entity>
       <function name="get_electrical_conductivity">
          <parameter name="mi">
@@ -269,7 +269,16 @@
             <typename name="Material_identification"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> REPEAT i := 1 to SIZEOF ( mi ) by 1 ; IF ( 'CONDUCTIVITY_MATERIAL_ASPECT.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi [ i ] ) ) THEN IF ( ( EXISTS ( mi [ i ] . electrical_conductivity_classification ) ) AND ( mi [ i ] . electrical_conductivity_classification IN [ 'conductive' , 'semi conductive' , 'super conductive' ] ) ) THEN RETURN ( TRUE ) ; END_IF ; END_IF ; END_REPEAT ; RETURN ( FALSE ) ; </algorithm>
+         <algorithm>REPEAT i := 1 to SIZEOF(mi) by 1;
+	  IF ('CONDUCTIVITY_MATERIAL_ASPECT.'+'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' 
+	  	IN TYPEOF (mi[i])) THEN
+		  IF((EXISTS(mi[i].electrical_conductivity_classification)) AND 
+		  (mi[i].electrical_conductivity_classification IN ['conductive', 'semi conductive', 'super conductive'])) THEN
+	  		RETURN (TRUE);
+	  	END_IF;	
+	  END_IF;
+	END_REPEAT;
+	RETURN (FALSE);</algorithm>
       </function>
    </schema>
 </express>

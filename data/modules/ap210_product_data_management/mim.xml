@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:50:56" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:45:40" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_product_data_management_mim schema_instance"/>
    <schema name="Ap210_product_data_management_mim">
       <interface kind="use" schema="Activity_relationship_specialization_mim"/>
@@ -108,206 +108,477 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="promissory_usage_in_product_model_assigned_item"/>
          </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pm &lt;* items | 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PRODUCT_CONCEPT' IN TYPEOF ( pm ) ) ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( pd &lt;* items | 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION' IN TYPEOF ( pd ) ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( items ) = 2 "/>
-         <where label="WR4" expression=" 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PROMISSORY_USAGE_IN_PRODUCT_MODEL' IN TYPEOF ( SELF \ group_assignment . assigned_group ) "/>
-         <where label="WR5" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS' ) ) &lt;= 1 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(pm &lt;* items |&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_CONCEPT' IN TYPEOF(pm)&#10;        )) = 1"/>
+         <where label="WR2" expression="SIZEOF(QUERY(pd &lt;* items |&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_DEFINITION' IN TYPEOF(pd)&#10;        )) = 1"/>
+         <where label="WR3" expression="SIZEOF(items) = 2"/>
+         <where label="WR4" expression="'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PROMISSORY_USAGE_IN_PRODUCT_MODEL' IN TYPEOF(SELF\group_assignment.assigned_group)"/>
+         <where label="WR5" expression="SIZEOF(USEDIN(SELF,&#10;      'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) &lt;= 1"/>
       </entity>
       <entity name="promissory_usage_in_product_model" supertypes="group">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( aga &lt;* USEDIN ( SELF , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) | 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_PROMISSORY_USAGE_IN_PRODUCT_MODEL_ASSIGNMENT' IN TYPEOF ( aga ) ) ) &gt;= 1 "/>
+         <where label="WR1" expression="SIZEOF( QUERY(aga &lt;* USEDIN(SELF,&#10;        'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;        'GROUP_ASSIGNMENT.ASSIGNED_GROUP') | &#10;        'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;        'APPLIED_PROMISSORY_USAGE_IN_PRODUCT_MODEL_ASSIGNMENT' IN TYPEOF(aga))&#10;           ) &gt;= 1"/>
       </entity>
       <entity name="supplied_part_relationship" supertypes="product_definition_relationship">
-         <where label="WR1" expression=" 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE' IN TYPEOF ( SELF . related_product_definition . formation ) "/>
-         <where label="WR2" expression=" NOT ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' IN ROLESOF ( SELF ) ) "/>
+         <where label="WR1" expression="'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE' IN&#10;       TYPEOF (SELF.related_product_definition.formation)"/>
+         <where label="WR2" expression="NOT ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION' IN ROLESOF (SELF))"/>
       </entity>
       <rule name="approval_requires_approval_date_time" appliesto="approval approval_date_time">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( app &lt;* approval | NOT ( SIZEOF ( QUERY ( adt &lt;* approval_date_time | app :=: adt . dated_approval ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY ( app &lt;* approval |&#10;       NOT (SIZEOF (QUERY (adt &lt;* approval_date_time |&#10;       app :=: adt.dated_approval)) = 1))) = 0"/>
       </rule>
       <rule name="approval_requires_approval_person_organization" appliesto="approval approval_person_organization">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( app &lt;* approval | NOT ( SIZEOF ( QUERY ( apo &lt;* approval_person_organization | app :=: apo . authorized_approval ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (app &lt;* approval |&#10;       NOT (SIZEOF (QUERY (apo &lt;* approval_person_organization |&#10;       app :=: apo.authorized_approval)) &gt;= 1))) = 0"/>
       </rule>
       <rule name="approval_role_constraint" appliesto="approval_role">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( apr &lt;* approval_role | NOT ( apr \ approval_role . role = 'authorizer' ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (apr &lt;* approval_role |&#10;       NOT (apr\approval_role.role = 'authorizer')&#10;       )) = 0"/>
       </rule>
       <rule name="approvals_are_assigned" appliesto="approval approval_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( app &lt;* approval | NOT ( SIZEOF ( QUERY ( aa &lt;* approval_assignment | app :=: aa . assigned_approval ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (app &lt;* approval |&#10;       NOT (SIZEOF (QUERY (aa &lt;* approval_assignment |&#10;       app :=: aa.assigned_approval )) &gt;= 1 ))) = 0"/>
       </rule>
       <rule name="certification_requires_date_or_date_and_time" appliesto="certification applied_date_and_time_assignment applied_date_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( cert &lt;* certification | NOT ( ( SIZEOF ( QUERY ( adata &lt;* applied_date_and_time_assignment | cert IN adata . items ) ) = 1 ) OR ( SIZEOF ( QUERY ( ada &lt;* applied_date_assignment | cert IN ada . items ) ) = 1 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (cert &lt;* certification |&#10;       NOT ((SIZEOF (QUERY (adata &lt;* applied_date_and_time_assignment |&#10;       cert IN adata.items )) = 1 ) OR&#10;       (SIZEOF (QUERY (ada &lt;* applied_date_assignment |&#10;       cert IN ada.items )) = 1 )))) = 0"/>
       </rule>
       <rule name="certification_unique_constraint" appliesto="certification">
-         <algorithm> LOCAL r : BAG OF certification := QUERY ( r &lt;* certification | TRUE ) ; pass : BOOLEAN := TRUE ; name_bag : BAG OF string := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( r ) by 1 ; IF EXISTS ( r [ i ] \ certification . name ) THEN IF ( r [ i ] \ certification . name IN name_bag ) THEN pass := FALSE ; ESCAPE ; ELSE name_bag := name_bag + r [ i ] \ certification . name ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  r :  BAG OF certification := QUERY (r &lt;* certification | TRUE);
+  pass :  BOOLEAN := TRUE;
+  name_bag :  BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i]\certification.name ) THEN
+    IF (r[i]\certification.name IN name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + r[i]\certification.name;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="configuration_item_requires_person_organization" appliesto="configuration_item applied_person_and_organization_assignment applied_organization_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ci &lt;* configuration_item | NOT ( ( SIZEOF ( QUERY ( apaoa &lt;* applied_person_and_organization_assignment | ci IN apaoa . items ) ) = 1 ) OR ( SIZEOF ( QUERY ( aoa &lt;* applied_organization_assignment | ci IN aoa . items ) ) = 1 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ci &lt;* configuration_item |&#10;       NOT ((SIZEOF (QUERY (apaoa &lt;*&#10;       applied_person_and_organization_assignment |&#10;       ci IN apaoa.items )) = 1 ) OR&#10;       (SIZEOF (QUERY (aoa &lt;*&#10;       applied_organization_assignment |&#10;       ci IN aoa.items )) = 1 )))) = 0"/>
       </rule>
       <rule name="contract_unique_constraint" appliesto="contract">
-         <algorithm> LOCAL r : BAG OF contract := QUERY ( r &lt;* contract | TRUE ) ; pass : BOOLEAN := TRUE ; name_bag : BAG OF string := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( r ) by 1 ; IF EXISTS ( r [ i ] \ contract . name ) THEN IF ( r [ i ] \ contract . name IN name_bag ) THEN pass := FALSE ; ESCAPE ; ELSE name_bag := name_bag + r [ i ] \ contract . name ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  r : BAG OF contract := QUERY (r &lt;* contract | TRUE);
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i]\contract.name ) THEN
+    IF (r[i]\contract.name IN name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + r[i]\contract.name;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="date_and_time_require_minute_and_second" appliesto="date_and_time">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( dat &lt;* date_and_time | NOT ( Exists ( dat . time_component . minute_component ) ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( dat &lt;* date_and_time | NOT ( Exists ( dat . time_component . second_component ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(dat &lt;* date_and_time |&#10;              NOT(Exists(dat.time_component.minute_component)))) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(dat &lt;* date_and_time |&#10;              NOT(Exists(dat.time_component.second_component)))) = 0"/>
       </rule>
       <rule name="date_constraint" appliesto="date">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( d &lt;* date | d . year_component &lt; 1856 ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (d &lt;* date |&#10;       d.year_component &lt; 1856)) = 0"/>
       </rule>
       <rule name="dependent_instantiable_action_directive" appliesto="action_directive">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ad &lt;* action_directive | NOT ( SIZEOF ( USEDIN ( ad , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ad &lt;* action_directive |&#10;       NOT (SIZEOF (USEDIN (ad, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_approval_status" appliesto="approval_status">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ast &lt;* approval_status | NOT ( SIZEOF ( USEDIN ( ast , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ast &lt;* approval_status |&#10;     NOT (SIZEOF (USEDIN (ast, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_certification_type" appliesto="certification_type">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ct &lt;* certification_type | NOT ( SIZEOF ( USEDIN ( ct , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ct &lt;* certification_type |&#10;       NOT (SIZEOF (USEDIN (ct, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_contract_type" appliesto="contract_type">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ct &lt;* contract_type | NOT ( SIZEOF ( USEDIN ( ct , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY ( ct &lt;* contract_type |&#10;       NOT (SIZEOF (USEDIN (ct, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_date" appliesto="date">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( dt &lt;* date | NOT ( SIZEOF ( USEDIN ( dt , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (dt &lt;* date |&#10;       NOT (SIZEOF(USEDIN (dt, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_date_role" appliesto="date_role">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( dr &lt;* date_role | NOT ( SIZEOF ( USEDIN ( dr , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (dr &lt;* date_role |&#10;       NOT (SIZEOF (USEDIN (dr, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_date_time_role" appliesto="date_time_role">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( dtr &lt;* date_time_role | NOT ( SIZEOF ( USEDIN ( dtr , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (dtr &lt;* date_time_role |&#10;       NOT (SIZEOF (USEDIN (dtr, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_document_type" appliesto="document_type">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( dt &lt;* document_type | NOT ( SIZEOF ( USEDIN ( dt , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (dt &lt;* document_type |&#10;       NOT (SIZEOF (USEDIN (dt, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_named_unit" appliesto="named_unit">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( nu &lt;* named_unit | NOT ( SIZEOF ( USEDIN ( nu , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (nu &lt;* named_unit |&#10;       NOT (SIZEOF (USEDIN (nu, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_organization_role" appliesto="organization_role">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( org &lt;* organization_role | NOT ( SIZEOF ( USEDIN ( org , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (org &lt;* organization_role |&#10;       NOT (SIZEOF (USEDIN (org, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_parametric_representation_context" appliesto="parametric_representation_context">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( prc &lt;* parametric_representation_context | NOT ( SIZEOF ( USEDIN ( prc , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (prc &lt;* parametric_representation_context |&#10;       NOT (SIZEOF (USEDIN (prc, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_person_and_organization_role" appliesto="person_and_organization_role">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( poar &lt;* person_and_organization_role | NOT ( SIZEOF ( USEDIN ( poar , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (poar &lt;* person_and_organization_role |&#10;       NOT (SIZEOF (USEDIN (poar, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_representation_item" appliesto="representation_item">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ri &lt;* representation_item | NOT ( SIZEOF ( USEDIN ( ri , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ri &lt;* representation_item |&#10;       NOT (SIZEOF (USEDIN (ri, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_security_classification_level" appliesto="security_classification_level">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( scl &lt;* security_classification_level | NOT ( SIZEOF ( USEDIN ( scl , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (scl &lt;* security_classification_level |&#10;       NOT (SIZEOF (USEDIN (scl, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="dependent_instantiable_shape_representation" appliesto="shape_representation">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( sr &lt;* shape_representation | NOT ( SIZEOF ( USEDIN ( sr , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (sr &lt;* shape_representation |&#10;       NOT (SIZEOF(USEDIN(sr, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="directed_action_requires_approval" appliesto="directed_action applied_approval_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( da &lt;* directed_action | NOT ( SIZEOF ( QUERY ( aaa &lt;* applied_approval_assignment | da IN aaa . items ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (da &lt;* directed_action |&#10;       NOT (SIZEOF (QUERY (aaa &lt;* applied_approval_assignment |&#10;       da IN aaa.items )) = 1 ))) = 0"/>
       </rule>
       <rule name="directed_action_requires_date_or_date_and_time" appliesto="directed_action applied_date_and_time_assignment applied_date_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( da &lt;* directed_action | NOT ( ( SIZEOF ( QUERY ( adata &lt;* applied_date_and_time_assignment | ( da IN adata . items ) AND ( adata . role \ date_time_role . name = 'start date' ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( ada &lt;* applied_date_assignment | ( da IN ada . items ) AND ( ada . role \ date_role . name = 'start date' ) ) ) = 1 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (da &lt;* directed_action |&#10;       NOT ((SIZEOF (QUERY (adata &lt;* applied_date_and_time_assignment |&#10;       (da IN adata.items)&#10;       AND (adata.role\date_time_role.name = 'start date'))) = 1 ) OR&#10;       (SIZEOF (QUERY (ada &lt;* applied_date_assignment |&#10;       (da IN ada.items)&#10;       AND (ada.role\date_role.name = 'start date'))) = 1 )))) = 0"/>
       </rule>
       <rule name="ee_product_configuration_unique_constraint" appliesto="configuration_item">
-         <algorithm> LOCAL id_bag : BAG OF STRING := [ ] ; ci_bag : BAG OF configuration_item ; cd_bag : BAG OF configuration_design ; pass : BOOLEAN := TRUE ; pdf_bag : BAG OF product_definition_formation ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( configuration_item ) by 1 ; IF EXISTS ( configuration_item [ i ] . id ) THEN IF ( NOT ( configuration_item [ i ] . id IN id_bag ) ) THEN id_bag := id_bag + configuration_item [ i ] . id ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( id_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdf_bag := [ ] ; ci_bag := QUERY ( ci &lt;* configuration_item | ( ci . id = id_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( ci_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; cd_bag := USEDIN ( ci_bag [ j ] , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'CONFIGURATION_DESIGN.CONFIGURATION' ) ; REPEAT k := 1 to SIZEOF ( cd_bag ) by 1 ; IF EXISTS ( cd_bag [ k ] . design ) THEN IF ( cd_bag [ k ] . design IN pdf_bag ) THEN pass := FALSE ; ESCAPE ; ELSE pdf_bag := pdf_bag + cd_bag [ k ] . design ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  id_bag : BAG OF STRING := [];
+  ci_bag : BAG OF configuration_item;
+  cd_bag : BAG OF configuration_design;
+  pass : BOOLEAN := TRUE;
+  pdf_bag : BAG OF product_definition_formation;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(configuration_item) by 1;
+  IF EXISTS( configuration_item[i].id ) THEN
+    IF( NOT( configuration_item[i].id IN id_bag ) ) THEN
+      id_bag := id_bag + configuration_item[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(id_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pdf_bag := [];
+  ci_bag := QUERY( ci &lt;* configuration_item | (ci.id = id_bag[i]) );
+  REPEAT j := 1 to SIZEOF(ci_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    cd_bag := USEDIN( ci_bag[j], 
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'CONFIGURATION_DESIGN.CONFIGURATION');
+    REPEAT k := 1 to SIZEOF(cd_bag) by 1;
+      IF EXISTS( cd_bag[k].design ) THEN
+        IF ( cd_bag[k].design IN pdf_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          pdf_bag := pdf_bag + cd_bag[k].design;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="ee_product_constraint" appliesto="product">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( prod &lt;* product | NOT ( ( SIZEOF ( QUERY ( aoa &lt;* USEDIN ( prod , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( aoa . role \ organization_role . name = 'design owner' ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( apaoa &lt;* USEDIN ( prod , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( apaoa . role \ person_and_organization_role . name = 'design owner' ) ) ) = 1 ) ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( p &lt;* product | SIZEOF ( USEDIN ( p , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_FORMATION.OF_PRODUCT' ) ) = 0 ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(prod &lt;* product |&#10;       NOT ((SIZEOF(QUERY(aoa &lt;* USEDIN(prod,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')&#10;       | (aoa.role\organization_role.name = 'design owner')&#10;       )) = 1) OR &#10;       (SIZEOF(QUERY(apaoa &lt;* USEDIN(prod,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')&#10;       | (apaoa.role\person_and_organization_role.name = 'design owner')&#10;       )) = 1)))) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(p &lt;* product |&#10;              SIZEOF(USEDIN(p,&#10;              'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;              + 'PRODUCT_DEFINITION_FORMATION.OF_PRODUCT')) = 0)) = 0"/>
       </rule>
       <rule name="ee_product_definition_constraint" appliesto="product_definition_with_associated_documents">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pdwad &lt;* product_definition_with_associated_documents | NOT ( ( SIZEOF ( QUERY ( adata &lt;* USEDIN ( pdwad , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' ) | ( adata . role \ date_time_role . name = 'creation date' ) ) ) = 1 ) ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( pdwad &lt;* product_definition_with_associated_documents | NOT ( ( SIZEOF ( QUERY ( aoa &lt;* USEDIN ( pdwad , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( aoa . role \ organization_role . name = 'creator' ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( apaoa &lt;* USEDIN ( pdwad , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( apaoa . role \ person_and_organization_role . name = 'creator' ) ) ) = 1 ) ) ) ) = 0 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( pdwad &lt;* product_definition_with_associated_documents | NOT ( ( SIZEOF ( USEDIN ( pdwad , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS' ) ) = 1 ) ) ) ) = 0 "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( pdwad &lt;* product_definition_with_associated_documents | NOT ( ( SIZEOF ( USEDIN ( pdwad , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS' ) ) = 1 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(pdwad &lt;* product_definition_with_associated_documents |&#10;       NOT(&#10;       (SIZEOF(QUERY(adata &lt;* USEDIN(pdwad,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS')&#10;       | (adata.role\date_time_role.name = 'creation date')&#10;       )) = 1)))) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(pdwad &lt;* product_definition_with_associated_documents |&#10;       NOT ((SIZEOF(QUERY(aoa &lt;* USEDIN(pdwad,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')&#10;       | (aoa.role\organization_role.name = 'creator')&#10;       )) = 1) OR &#10;       (SIZEOF(QUERY(apaoa &lt;* USEDIN(pdwad,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')&#10;       | (apaoa.role\person_and_organization_role.name = 'creator')&#10;       )) = 1))&#10;       )) = 0"/>
+         <where label="WR3" expression="SIZEOF(QUERY(pdwad &lt;* product_definition_with_associated_documents |&#10;       NOT(&#10;       (SIZEOF(USEDIN(pdwad,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')&#10;       ) = 1)&#10;       )&#10;       )) = 0"/>
+         <where label="WR4" expression="SIZEOF(QUERY(pdwad &lt;* product_definition_with_associated_documents |&#10;       NOT(&#10;       (SIZEOF(USEDIN(pdwad,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')&#10;       ) = 1)&#10;       )&#10;       )) = 0"/>
       </rule>
       <rule name="ee_product_model_unique_constraint" appliesto="product_concept">
-         <algorithm> LOCAL r : BAG OF product_concept := QUERY ( r &lt;* product_concept | TRUE ) ; pass : BOOLEAN := TRUE ; id_bag : BAG OF string := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( r ) by 1 ; IF EXISTS ( r [ i ] . id ) THEN IF ( r [ i ] \ product_concept . id IN id_bag ) THEN pass := FALSE ; ESCAPE ; ELSE id_bag := id_bag + r [ i ] . id ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  r : BAG OF product_concept := QUERY (r &lt;* product_concept | TRUE);
+  pass : BOOLEAN := TRUE;
+  id_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i].id ) THEN
+    IF (r[i]\product_concept.id IN id_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      id_bag := id_bag + r[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="ee_product_unique_constraint" appliesto="product">
-         <algorithm> LOCAL id_bag : BAG OF STRING := [ ] ; p_bag : BAG OF product ; aoa_bag : BAG OF applied_organization_assignment ; apaoa_bag : BAG OF applied_person_and_organization_assignment ; pass : BOOLEAN := TRUE ; o_bag : BAG OF organization ; pao_bag : BAG OF person_and_organization ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( product ) by 1 ; IF EXISTS ( product [ i ] . id ) THEN IF ( NOT ( product [ i ] . id IN id_bag ) ) THEN id_bag := id_bag + product [ i ] . id ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( id_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; o_bag := [ ] ; pao_bag := [ ] ; p_bag := QUERY ( p &lt;* product | ( p . id = id_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( p_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; aoa_bag := QUERY ( aoa &lt;* USEDIN ( p_bag [ j ] , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ORGANIZATION' IN TYPEOF ( aoa . assigned_organization ) ) AND ( aoa . role \ organization_role . name = 'design owner' ) ) ) ; REPEAT k := 1 to SIZEOF ( aoa_bag ) by 1 ; IF EXISTS ( aoa_bag [ k ] . assigned_organization ) THEN IF ( aoa_bag [ k ] . assigned_organization IN o_bag ) THEN pass := FALSE ; ESCAPE ; ELSE o_bag := o_bag + aoa_bag [ k ] . assigned_organization ; END_IF ; END_IF ; END_REPEAT ; apaoa_bag := QUERY ( apaoa &lt;* USEDIN ( p_bag [ j ] , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PERSON_AND_ORGANIZATION' IN TYPEOF ( apaoa . assigned_person_and_organization ) ) AND ( apaoa . role \ person_and_organization_role . name = 'design owner' ) ) ) ; REPEAT k := 1 to SIZEOF ( apaoa_bag ) by 1 ; IF EXISTS ( apaoa_bag [ k ] . assigned_person_and_organization ) THEN IF ( apaoa_bag [ k ] . assigned_person_and_organization IN pao_bag ) THEN pass := FALSE ; ESCAPE ; ELSE pao_bag := pao_bag + apaoa_bag [ k ] . assigned_person_and_organization ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  id_bag : BAG OF STRING := [];
+  p_bag : BAG OF product;
+  aoa_bag : BAG OF applied_organization_assignment;
+  apaoa_bag : BAG OF applied_person_and_organization_assignment;
+  pass : BOOLEAN := TRUE;
+  o_bag : BAG OF organization;
+  pao_bag : BAG OF person_and_organization;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(product) by 1;
+  IF EXISTS( product[i].id ) THEN
+    IF( NOT( product[i].id IN id_bag ) ) THEN
+      id_bag := id_bag + product[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(id_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  o_bag := [];
+  pao_bag := [];
+  p_bag := QUERY( p &lt;* product | (p.id = id_bag[i]) );
+  REPEAT j := 1 to SIZEOF(p_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    aoa_bag := QUERY( aoa &lt;* USEDIN( p_bag[j], 
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') | 
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'ORGANIZATION' IN TYPEOF(aoa.assigned_organization)) AND 
+(aoa.role\organization_role.name = 'design owner')) );
+    REPEAT k := 1 to SIZEOF(aoa_bag) by 1;
+      IF EXISTS( aoa_bag[k].assigned_organization ) THEN
+        IF ( aoa_bag[k].assigned_organization IN o_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          o_bag := o_bag + aoa_bag[k].assigned_organization;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+    apaoa_bag := QUERY( apaoa &lt;* USEDIN( p_bag[j], 
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') | 
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'PERSON_AND_ORGANIZATION' IN 
+TYPEOF(apaoa.assigned_person_and_organization)) 
+AND (apaoa.role\person_and_organization_role.name = 'design owner')) );
+    REPEAT k := 1 to SIZEOF(apaoa_bag) by 1;
+      IF EXISTS( apaoa_bag[k].assigned_person_and_organization ) THEN
+        IF ( apaoa_bag[k].assigned_person_and_organization IN pao_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          pao_bag := pao_bag + 
+                     apaoa_bag[k].assigned_person_and_organization;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="ee_product_version_supersedence_constraint" appliesto="product_definition_formation_relationship">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pdfr &lt;* product_definition_formation_relationship | ( ( pdfr \ product_definition_formation_relationship . name = 'product version supersedence' ) AND ( NOT ( pdfr . relating_product_definition_formation . of_product :=: pdfr . related_product_definition_formation . of_product ) ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(pdfr &lt;* product_definition_formation_relationship |&#10;       ((pdfr\product_definition_formation_relationship.name = 'product version supersedence')&#10;       AND (NOT(pdfr.relating_product_definition_formation.of_product :=:&#10;           pdfr.related_product_definition_formation.of_product)))&#10;       )) = 0"/>
       </rule>
       <rule name="next_higher_assembly_relationship_constraint" appliesto="next_assembly_usage_occurrence">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( nauo &lt;* next_assembly_usage_occurrence | NOT ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( nauo , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) | ( ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'COMPONENT_LOCATION' IN TYPEOF ( pdr . used_representation ) ) AND ( pdr . used_representation . context_of_items \ geometric_representation_context . coordinate_space_dimension = 3 ) ) ) &lt;= 1 ) AND ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'COMPONENT_LOCATION' IN TYPEOF ( pdr . used_representation ) ) AND ( pdr . used_representation . context_of_items \ geometric_representation_context . coordinate_space_dimension = 2 ) ) ) &lt;= 1 ) ) ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(nauo &lt;* next_assembly_usage_occurrence|&#10;       NOT(SIZEOF(QUERY(pd &lt;* USEDIN(nauo,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'PROPERTY_DEFINITION.DEFINITION') |&#10;       ((SIZEOF(QUERY(pdr &lt;* USEDIN(pd,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;        ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'COMPONENT_LOCATION' IN TYPEOF(pdr.used_representation))&#10;       AND &#10;       (pdr.used_representation.context_of_items\geometric_representation_context.&#10;       coordinate_space_dimension = 3)&#10;       )) &lt;= 1)&#10;       AND&#10;       (SIZEOF(QUERY(pdr &lt;* USEDIN(pd,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;        ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'COMPONENT_LOCATION' IN TYPEOF(pdr.used_representation))&#10;       AND &#10;       (pdr.used_representation.context_of_items\geometric_representation_context.&#10;       coordinate_space_dimension = 2)&#10;       )) &lt;= 1))&#10;       )) &lt;= 1)&#10;       )) = 0"/>
       </rule>
       <rule name="organization_unique_constraint" appliesto="organization">
-         <algorithm> LOCAL r : BAG OF organization := QUERY ( r &lt;* organization | TRUE ) ; pass : BOOLEAN := TRUE ; id_bag : BAG OF string := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( r ) by 1 ; IF EXISTS ( r [ i ] . id ) THEN IF ( r [ i ] \ organization . id IN id_bag ) THEN pass := FALSE ; ESCAPE ; ELSE id_bag := id_bag + r [ i ] . id ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  r : BAG OF organization := QUERY (r &lt;* organization | TRUE);
+  pass : BOOLEAN := TRUE;
+  id_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i].id ) THEN
+    IF (r[i]\organization.id IN id_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      id_bag := id_bag + r[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="planned_effectivity_constraint" appliesto="configuration_effectivity">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ce &lt;* configuration_effectivity | NOT ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF ( ce . usage ) ) AND ( ce . usage \ product_definition_relationship . name = 'assembly composition' ) ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( ce &lt;* configuration_effectivity | SIZEOF ( USEDIN ( ce , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS' ) ) = 0 ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(ce &lt;* configuration_effectivity |&#10;       NOT(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF(ce.usage))&#10;       AND (ce.usage\product_definition_relationship.name = 'assembly composition'))&#10;       )) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(ce &lt;* configuration_effectivity |&#10;       SIZEOF(USEDIN(ce,&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'&#10;       + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 0 &#10;       )) = 0"/>
       </rule>
       <rule name="planned_effectivity_unique_constraint" appliesto="configuration_effectivity">
-         <algorithm> LOCAL ce_bag : BAG OF configuration_effectivity ; ci_bag : BAG OF configuration_item := [ ] ; pass : BOOLEAN := TRUE ; acu_bag : BAG OF assembly_component_usage ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( configuration_effectivity ) by 1 ; IF EXISTS ( configuration_effectivity [ i ] . configuration . configuration ) THEN IF ( NOT ( configuration_effectivity [ i ] . configuration . configuration IN ci_bag ) ) THEN ci_bag := ci_bag + configuration_effectivity [ i ] . configuration . configuration ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( ci_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; ce_bag := QUERY ( r &lt;* configuration_effectivity | ( ( r . configuration . configuration :=: ci_bag [ i ] ) AND ( r . usage \ product_definition_relationship . name = 'assembly composition' ) AND ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF ( r . usage ) ) ) ) ; acu_bag := [ ] ; REPEAT j := 1 to SIZEOF ( ce_bag ) by 1 ; IF EXISTS ( ce_bag [ j ] . usage ) THEN IF ( ce_bag [ j ] . usage IN acu_bag ) THEN pass := FALSE ; ESCAPE ; ELSE acu_bag := acu_bag + ce_bag [ j ] . usage ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  ce_bag : BAG OF configuration_effectivity;
+  ci_bag : BAG OF configuration_item := [];
+  pass : BOOLEAN := TRUE;
+  acu_bag : BAG OF assembly_component_usage;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(configuration_effectivity) by 1;
+  IF EXISTS( configuration_effectivity[i].configuration.configuration ) THEN
+    IF( NOT( configuration_effectivity[i].configuration.configuration IN 
+                                                            ci_bag ) ) THEN
+      ci_bag := ci_bag + 
+               configuration_effectivity[i].configuration.configuration;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(ci_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  ce_bag := QUERY( r &lt;* configuration_effectivity |
+((r.configuration.configuration :=: ci_bag[i]) AND 
+                              (r.usage\product_definition_relationship.name = 'assembly composition')
+AND ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF(r.usage)) ) );
+  acu_bag := [];
+  REPEAT j := 1 to SIZEOF(ce_bag) by 1;
+    IF EXISTS( ce_bag[j].usage ) THEN
+      IF ( ce_bag[j].usage IN acu_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        acu_bag := acu_bag + ce_bag[j].usage;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="product_concept_requires_configuration_item" appliesto="product_concept configuration_item">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pc &lt;* product_concept | NOT ( SIZEOF ( QUERY ( ci &lt;* configuration_item | pc :=: ci . item_concept ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (pc &lt;* product_concept |&#10;       NOT (SIZEOF (QUERY (ci &lt;* configuration_item |&#10;       pc :=: ci.item_concept)) &gt;=1 ))) = 0"/>
       </rule>
       <rule name="product_definition_formation_requires_person_organization" appliesto="product_definition applied_person_and_organization_assignment applied_organization_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pd &lt;* product_definition | ( NOT ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF ( pd ) ) ) AND ( NOT ( ( SIZEOF ( QUERY ( apaoa &lt;* applied_person_and_organization_assignment | ( pd . formation IN apaoa . items ) AND ( apaoa . role \ person_and_organization_role . name = 'creator' ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( aoa &lt;* applied_organization_assignment | ( pd . formation IN aoa . items ) AND ( aoa . role \ organization_role . name = 'creator' ) ) ) = 1 ) ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (pd &lt;* product_definition|&#10;       (NOT('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF(pd))) AND&#10;       (NOT ((SIZEOF (QUERY (apaoa &lt;*&#10;       applied_person_and_organization_assignment |&#10;       (pd.formation IN apaoa.items) AND (apaoa.role\person_and_organization_role.name = 'creator'))) = 1 ) OR&#10;       (SIZEOF (QUERY (aoa &lt;*&#10;       applied_organization_assignment |&#10;       (pd.formation IN aoa.items) AND (aoa.role\organization_role.name = 'creator'))) = 1 ))))) = 0"/>
       </rule>
       <rule name="product_requires_person_organization" appliesto="product applied_person_and_organization_assignment applied_organization_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( prod &lt;* product | NOT ( ( SIZEOF ( QUERY ( apaoa &lt;* applied_person_and_organization_assignment | prod IN apaoa . items ) ) = 1 ) OR ( SIZEOF ( QUERY ( aoa &lt;* applied_organization_assignment | prod IN aoa . items ) ) = 1 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (prod &lt;* product |&#10;       NOT ((SIZEOF (QUERY (apaoa &lt;*&#10;       applied_person_and_organization_assignment |&#10;       prod IN apaoa.items )) = 1 ) OR&#10;       (SIZEOF (QUERY (aoa &lt;*&#10;       applied_organization_assignment |&#10;       prod IN aoa.items )) = 1 )))) = 0"/>
       </rule>
       <rule name="product_requires_product_definition_formation" appliesto="product product_definition_formation">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( prod &lt;* product | NOT ( SIZEOF ( QUERY ( pdf &lt;* product_definition_formation | prod :=: pdf . of_product ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (prod &lt;* product |&#10;       NOT (SIZEOF (QUERY (pdf &lt;* product_definition_formation |&#10;       prod :=: pdf.of_product )) &gt;= 1 ))) = 0"/>
       </rule>
       <rule name="restrict_action_request_status" appliesto="action_request_status">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ars &lt;* action_request_status | NOT ( ars \ action_request_status . status IN [ 'proposed' , 'in work' , 'issued' , 'hold' ] ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ars &lt;* action_request_status |&#10;       NOT (ars\action_request_status.status IN&#10;       ['proposed', 'in work', 'issued', 'hold']))) = 0"/>
       </rule>
       <rule name="restrict_approval_status" appliesto="approval_status">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ast &lt;* approval_status | NOT ( ast \ approval_status . name IN [ 'approved' , 'not yet approved' , 'disapproved' , 'withdrawn' ] ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ast &lt;* approval_status |&#10;       NOT (ast\approval_status.name IN&#10;       ['approved', 'not yet approved', 'disapproved', 'withdrawn']))) = 0"/>
       </rule>
       <rule name="restrict_date_role" appliesto="date_role">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( dr &lt;* date_role | NOT ( dr \ date_role . name IN [ 'creation date' , 'request date' , 'release date' , 'start date' , 'contract date' , 'certification date' , 'sign off date' , 'classification date' , 'declassification date' ] ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (dr &lt;* date_role |&#10;       NOT (dr\date_role.name IN ['creation date', 'request date', 'release date',&#10;       'start date', 'contract date', 'certification date', 'sign off date',&#10;       'classification date', 'declassification date']))) = 0"/>
       </rule>
       <rule name="security_classification_constraint" appliesto="security_classification applied_date_and_time_assignment applied_date_assignment applied_person_and_organization_assignment applied_approval_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( sc &lt;* security_classification | NOT ( ( SIZEOF ( QUERY ( adata &lt;* applied_date_and_time_assignment | ( sc IN adata . items ) AND ( 'classification date' = adata . role \ date_time_role . name ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( ada &lt;* applied_date_assignment | ( sc IN ada . items ) AND ( 'classification date' = ada . role \ date_role . name ) ) ) = 1 ) ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( sc &lt;* security_classification | SIZEOF ( QUERY ( apa &lt;* applied_person_and_organization_assignment | ( sc IN apa . items ) AND ( apa . role \ person_and_organization_role . name = 'classification officer' ) ) ) = 0 ) ) = 0 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( sc &lt;* security_classification | SIZEOF ( QUERY ( aaa &lt;* applied_approval_assignment | ( sc IN aaa . items ) ) ) = 0 ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (sc &lt;* security_classification |&#10;       NOT ((SIZEOF (QUERY (adata &lt;* applied_date_and_time_assignment |&#10;       (sc IN adata.items) AND&#10;       ('classification date' = adata.role\date_time_role.name))) = 1 ) OR&#10;       (SIZEOF (QUERY (ada &lt;* applied_date_assignment |&#10;       (sc IN ada.items) AND&#10;       ('classification date' = ada.role\date_role.name))) = 1 )))) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (sc &lt;* security_classification |&#10;       SIZEOF (QUERY (apa &lt;* applied_person_and_organization_assignment |&#10;       (sc IN apa.items) AND&#10;       (apa.role\person_and_organization_role.name = 'classification officer')&#10;       )) = 0)) = 0"/>
+         <where label="WR3" expression="SIZEOF (QUERY (sc &lt;* security_classification |&#10;       SIZEOF (QUERY (aaa &lt;* applied_approval_assignment |&#10;       (sc IN aaa.items))) = 0)) = 0"/>
       </rule>
       <rule name="subtype_exclusive_action_request_assignment" appliesto="action_request_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ara &lt;* action_request_assignment | NOT ( SIZEOF ( [ 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'CHANGE_REQUEST' , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'START_REQUEST' ] * TYPEOF ( ara ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ara &lt;* action_request_assignment |&#10;       NOT (SIZEOF ([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'CHANGE_REQUEST',&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'START_REQUEST']&#10;       * TYPEOF(ara)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_exclusive_product_definition_relationship" appliesto="product_definition_relationship">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship | NOT ( SIZEOF ( [ 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_USAGE' , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PRODUCT_MATERIAL_COMPOSITION_RELATIONSHIP' , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'SUPPLIED_PART_RELATIONSHIP' ] * TYPEOF ( pdr ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* product_definition_relationship |&#10;       NOT (SIZEOF ([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_DEFINITION_USAGE', &#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_MATERIAL_COMPOSITION_RELATIONSHIP', &#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'SUPPLIED_PART_RELATIONSHIP']&#10;       * TYPEOF(pdr)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_exclusive_property_definition_representation" appliesto="property_definition_representation">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pdr &lt;* property_definition_representation | NOT ( SIZEOF ( [ 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'SHAPE_DEFINITION_REPRESENTATION' , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'MATERIAL_PROPERTY_REPRESENTATION' ] * TYPEOF ( pdr ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* property_definition_representation |&#10;       NOT (SIZEOF ([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'SHAPE_DEFINITION_REPRESENTATION',   &#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'MATERIAL_PROPERTY_REPRESENTATION']&#10;       * TYPEOF(pdr)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_mandatory_address" appliesto="address">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( add &lt;* address | NOT ( SIZEOF ( [ 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PERSONAL_ADDRESS' , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ORGANIZATIONAL_ADDRESS' ] * TYPEOF ( add ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (add &lt;* address |&#10;       NOT (SIZEOF ([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PERSONAL_ADDRESS',&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'ORGANIZATIONAL_ADDRESS'] * &#10;       TYPEOF (add)) = 1))) = 0"/>
       </rule>
       <rule name="subtype_mandatory_date" appliesto="date">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( d &lt;* date | NOT ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'CALENDAR_DATE' IN TYPEOF ( d ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (d &lt;* date |&#10;       NOT (&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'CALENDAR_DATE'&#10;       IN TYPEOF (d)))) = 0"/>
       </rule>
       <rule name="subtype_mandatory_product_definition_usage" appliesto="product_definition_usage">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pdu &lt;* product_definition_usage | NOT ( SIZEOF ( [ 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ASSEMBLY_COMPONENT_USAGE' , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'MAKE_FROM_USAGE_OPTION' ] * TYPEOF ( pdu ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (pdu &lt;* product_definition_usage |&#10;       NOT (SIZEOF([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'ASSEMBLY_COMPONENT_USAGE',&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'MAKE_FROM_USAGE_OPTION'] * &#10;       TYPEOF(pdu)) = 1))) = 0"/>
       </rule>
       <rule name="supplied_product_version_unique_constraint" appliesto="product_definition_formation_with_specified_source">
-         <algorithm> LOCAL spv : BAG OF product_definition_formation_with_specified_source := QUERY ( r &lt;* product_definition_formation_with_specified_source | ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( r , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION.FORMATION' ) | ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'SUPPLIED_PART_RELATIONSHIP' ) IN TYPEOF ( pdr ) ) ) ) &gt; 0 ) ) ) &gt; 0 ) ) ; aoa_bag : BAG OF applied_organization_assignment ; o_bag : BAG OF organization := [ ] ; pdf_bag : BAG OF product_definition_formation_with_specified_source ; spn_bag : BAG OF STRING ; pass : BOOLEAN := TRUE ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( spv ) by 1 ; aoa_bag := QUERY ( aoa &lt;* USEDIN ( spv [ i ] , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( aoa . role \ organization_role . name = 'supplier' ) ) ; REPEAT j := 1 to SIZEOF ( aoa_bag ) by 1 ; IF EXISTS ( aoa_bag [ j ] . assigned_organization ) THEN IF ( NOT ( aoa_bag [ j ] . assigned_organization IN o_bag ) ) THEN o_bag := o_bag + aoa_bag [ j ] . assigned_organization ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( o_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdf_bag := QUERY ( pdf &lt;* spv | ( SIZEOF ( QUERY ( aoa &lt;* USEDIN ( pdf , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( ( aoa . role \ organization_role . name = 'supplier' ) AND ( aoa . assigned_organization :=: o_bag [ i ] ) ) ) ) &gt; 0 ) ) ; spn_bag := [ ] ; REPEAT j := 1 to SIZEOF ( pdf_bag ) by 1 ; IF EXISTS ( pdf_bag [ j ] . of_product . id ) THEN IF ( pdf_bag [ j ] . of_product . id IN spn_bag ) THEN pass := FALSE ; ESCAPE ; ELSE spn_bag := spn_bag + pdf_bag [ j ] . of_product . id ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  spv : BAG OF product_definition_formation_with_specified_source := 
+QUERY( r &lt;*
+product_definition_formation_with_specified_source | 
+(SIZEOF(QUERY( pd &lt;* USEDIN(r,
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+'PRODUCT_DEFINITION.FORMATION') |
+(SIZEOF(QUERY( pdr &lt;* USEDIN(pd, 
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+'SUPPLIED_PART_RELATIONSHIP')
+IN TYPEOF(pdr))))&gt;0)))&gt;0));
+  aoa_bag : BAG OF applied_organization_assignment;
+  o_bag : BAG OF organization := [];
+  pdf_bag : BAG OF product_definition_formation_with_specified_source;
+  spn_bag : BAG OF STRING;
+  pass : BOOLEAN := TRUE;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(spv) by 1;
+  aoa_bag := QUERY( aoa &lt;* USEDIN( spv[i], 
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') | (aoa.role\organization_role.name = 'supplier') );
+  REPEAT j := 1 to SIZEOF(aoa_bag) by 1;
+    IF EXISTS( aoa_bag[j].assigned_organization ) THEN
+      IF ( NOT ( aoa_bag[j].assigned_organization IN o_bag ) ) THEN
+        o_bag := o_bag + aoa_bag[j].assigned_organization;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(o_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pdf_bag := QUERY( pdf &lt;* spv | (SIZEOF(QUERY( aoa &lt;* USEDIN(pdf,
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')|
+((aoa.role\organization_role.name = 'supplier') AND (aoa.assigned_organization :=: 
+                                              o_bag[i])) ) )&gt;0) );
+  spn_bag := [];
+  REPEAT j := 1 to SIZEOF(pdf_bag) by 1;
+    IF EXISTS( pdf_bag[j].of_product.id ) THEN
+      IF ( pdf_bag[j].of_product.id IN spn_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        spn_bag := spn_bag + pdf_bag[j].of_product.id;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="versioned_action_request_requires_approval" appliesto="versioned_action_request applied_approval_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( varq &lt;* versioned_action_request | NOT ( SIZEOF ( QUERY ( aaa &lt;* applied_approval_assignment | varq IN aaa . items ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (varq &lt;* versioned_action_request |&#10;       NOT (SIZEOF (QUERY (aaa &lt;* applied_approval_assignment |&#10;       varq IN aaa.items )) = 1 ))) = 0"/>
       </rule>
       <rule name="versioned_action_request_requires_date_or_date_and_time" appliesto="versioned_action_request applied_date_and_time_assignment applied_date_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( varq &lt;* versioned_action_request | NOT ( ( SIZEOF ( QUERY ( adata &lt;* applied_date_and_time_assignment | varq IN adata . items ) ) = 1 ) OR ( SIZEOF ( QUERY ( ada &lt;* applied_date_assignment | varq IN ada . items ) ) = 1 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (varq &lt;* versioned_action_request |&#10;       NOT ((SIZEOF (QUERY (adata &lt;* applied_date_and_time_assignment |&#10;       varq IN adata.items )) = 1 ) OR&#10;       (SIZEOF (QUERY (ada &lt;* applied_date_assignment |&#10;       varq IN ada.items )) = 1 )))) = 0"/>
       </rule>
       <rule name="versioned_action_request_requires_person_organization" appliesto="versioned_action_request applied_person_and_organization_assignment applied_organization_assignment">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( varq &lt;* versioned_action_request | NOT ( ( SIZEOF ( QUERY ( apaoa &lt;* applied_person_and_organization_assignment | varq IN apaoa . items ) ) &gt;= 1 ) OR ( SIZEOF ( QUERY ( aoa &lt;* applied_organization_assignment | varq IN aoa . items ) ) &gt;= 1 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (varq &lt;* versioned_action_request |&#10;       NOT ((SIZEOF (QUERY (apaoa &lt;*&#10;       applied_person_and_organization_assignment |&#10;       varq IN apaoa.items )) &gt;= 1 ) OR&#10;       (SIZEOF (QUERY (aoa &lt;*&#10;       applied_organization_assignment |&#10;       varq IN aoa.items )) &gt;= 1 )))) = 0"/>
       </rule>
       <rule name="versioned_action_request_requires_status" appliesto="versioned_action_request action_request_status">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ar &lt;* versioned_action_request | NOT ( SIZEOF ( QUERY ( ars &lt;* action_request_status | ar :=: ars . assigned_request ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (ar &lt;* versioned_action_request |&#10;       NOT (SIZEOF (QUERY (ars &lt;* action_request_status |&#10;       ar :=: ars.assigned_request)) = 1))) = 0"/>
       </rule>
       <rule name="work_request_unique_constraint" appliesto="versioned_action_request">
-         <algorithm> LOCAL r : BAG OF versioned_action_request := QUERY ( r &lt;* versioned_action_request | ( SIZEOF ( QUERY ( ara &lt;* USEDIN ( r , 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST' ) | ( ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'CHANGE_REQUEST' ) IN TYPEOF ( ara ) ) OR ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'START_REQUEST' ) IN TYPEOF ( ara ) ) ) ) ) &gt; 0 ) ) ; pass : BOOLEAN := TRUE ; id_bag : BAG OF STRING := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( r ) by 1 ; IF EXISTS ( r [ i ] . id ) THEN IF ( r [ i ] . id IN id_bag ) THEN pass := FALSE ; ESCAPE ; ELSE id_bag := id_bag + r [ i ] . id ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  r : BAG OF versioned_action_request := 
+QUERY( r &lt;* versioned_action_request | 
+(SIZEOF(QUERY( ara &lt;* USEDIN(r,
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST' ) |
+((('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+'CHANGE_REQUEST') IN TYPEOF(ara)) OR
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+'START_REQUEST') IN TYPEOF(ara))))) &gt; 0 ) );
+  pass : BOOLEAN := TRUE;
+  id_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(r) by 1;
+  IF EXISTS( r[i].id ) THEN
+    IF ( r[i].id IN id_bag ) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      id_bag := id_bag + r[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

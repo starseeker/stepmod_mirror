@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:51:21" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:46:06" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="styled_curve_mim schema_instance"/>
    <schema name="Styled_curve_mim">
       <interface kind="use" schema="Basic_curve_mim"/>
@@ -28,15 +28,56 @@
       </interface>
       <entity name="solid_curve_font" supertypes="pre_defined_curve_font"/>
       <rule name="curve_style_font_and_scaling_unique_constraint" appliesto="curve_style_font_and_scaling">
-         <algorithm> LOCAL r : BAG OF curve_style_font_and_scaling := QUERY ( r &lt;* curve_style_font_and_scaling | TRUE ) ; pass : BOOLEAN := TRUE ; name_bag : BAG OF string := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( r ) by 1 ; IF EXISTS ( r [ i ] \ curve_style_font_and_scaling . name ) THEN IF ( r [ i ] \ curve_style_font_and_scaling . name IN name_bag ) THEN pass := FALSE ; ESCAPE ; ELSE name_bag := name_bag + r [ i ] \ curve_style_font_and_scaling . name ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  r : BAG OF curve_style_font_and_scaling := 
+                         QUERY (r &lt;* curve_style_font_and_scaling | TRUE);
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i]\curve_style_font_and_scaling.name ) THEN
+    IF (r[i]\curve_style_font_and_scaling.name IN name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + r[i]\curve_style_font_and_scaling.name;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="curve_style_requires_length_measure_with_unit" appliesto="curve_style">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( cs &lt;* curve_style | NOT ( 'STYLED_CURVE_MIM.' + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF ( cs ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(cs &lt;* curve_style |&#10;       NOT('STYLED_CURVE_MIM.'&#10;        + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(cs))&#10;       )) = 0"/>
       </rule>
       <rule name="curve_style_unique_constraint" appliesto="representation">
-         <algorithm> LOCAL cs : BAG OF representation := QUERY ( r &lt;* representation | ( ( r \ representation . name = 'curve style parameters' ) AND ( r . context_of_items \ representation_context . context_type = 'curve style parametric context' ) ) ) ; pass : BOOLEAN := TRUE ; desc_bag : BAG OF STRING := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( cs ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; REPEAT j := 1 to SIZEOF ( cs [ i ] . items ) by 1 ; IF ( ( 'STYLED_CURVE_MIM.' + 'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( cs [ i ] . items [ j ] ) ) AND ( cs [ i ] . items [ j ] \ representation_item . name = 'curve style name' ) ) THEN IF EXISTS ( cs [ i ] . items [ j ] \ descriptive_representation_item . description ) THEN IF ( cs [ i ] . items [ j ] \ descriptive_representation_item . description IN desc_bag ) THEN pass := FALSE ; ESCAPE ; ELSE desc_bag := desc_bag + cs [ i ] . items [ j ] \ descriptive_representation_item . description ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  cs : BAG OF representation := QUERY( r &lt;* representation |
+((r\representation.name = 'curve style parameters') AND (r.context_of_items\representation_context.context_type =
+'curve style parametric context')) );
+  pass : BOOLEAN := TRUE;
+  desc_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(cs) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  REPEAT j := 1 to SIZEOF(cs[i].items) by 1;
+    IF ( ('STYLED_CURVE_MIM.' +
+'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(cs[i].items[j])) AND
+(cs[i].items[j]\representation_item.name = 'curve style name') ) THEN
+      IF EXISTS( cs[i].items[j]\descriptive_representation_item.description ) THEN
+        IF ( cs[i].items[j]\descriptive_representation_item.description IN desc_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          desc_bag := desc_bag + cs[i].items[j]\descriptive_representation_item.description;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

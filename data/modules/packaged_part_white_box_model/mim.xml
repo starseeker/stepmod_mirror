@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:51:19" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:46:04" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_part_white_box_model_mim schema_instance"/>
    <schema name="Packaged_part_white_box_model_mim">
       <interface kind="use" schema="Bare_die_mim"/>
@@ -16,23 +16,164 @@
             <unique.attribute entity-ref="device_terminal_map" attribute="related_shape_aspect"/>
             <unique.attribute entity-ref="device_terminal_map" attribute="relating_shape_aspect"/>
          </unique>
-         <where label="WR1" expression=" 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'PACKAGED_PART_TERMINAL' IN TYPEOF ( SELF . relating_shape_aspect ) "/>
+         <where label="WR1" expression="'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +&#10;       'PACKAGED_PART_TERMINAL'&#10;       IN TYPEOF (SELF.relating_shape_aspect)"/>
       </entity>
       <rule name="device_terminal_map_relationship_constraint" appliesto="shape_aspect_relationship">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'device terminal map relationship' ) AND ( NOT ( 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'DEVICE_TERMINAL_MAP' IN TYPEOF ( sar . relating_shape_aspect ) ) ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'device terminal map relationship' ) AND ( NOT ( 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'DEVICE_TERMINAL_MAP' IN TYPEOF ( sar . related_shape_aspect ) ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (sar &lt;* shape_aspect_relationship |&#10;               (sar\shape_aspect_relationship.name = 'device terminal map relationship')&#10;               AND&#10;      (NOT('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +&#10;      'DEVICE_TERMINAL_MAP' IN TYPEOF (sar.relating_shape_aspect)))&#10;               )) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (sar &lt;* shape_aspect_relationship |&#10;               (sar\shape_aspect_relationship.name = 'device terminal map relationship')&#10;               AND&#10;    (NOT('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +&#10;       'DEVICE_TERMINAL_MAP' IN TYPEOF (sar.related_shape_aspect)))&#10;               )) = 0"/>
       </rule>
       <rule name="part_device_terminal_model_port_assignment_unique_constraint" appliesto="property_definition_representation">
-         <algorithm> LOCAL amp_bag : BAG OF analytical_model_port := [ ] ; pdr_bag : BAG OF property_definition_representation ; pass : BOOLEAN := TRUE ; sa_bag : BAG OF shape_aspect ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( property_definition_representation ) by 1 ; IF EXISTS ( property_definition_representation [ i ] . used_representation ) THEN IF ( 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'ANALYTICAL_MODEL_PORT' IN TYPEOF ( property_definition_representation [ i ] . used_representation ) ) THEN IF ( NOT ( property_definition_representation [ i ] . used_representation IN amp_bag ) ) THEN amp_bag := amp_bag + property_definition_representation [ i ] . used_representation ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( amp_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; sa_bag := [ ] ; pdr_bag := QUERY ( pdr &lt;* property_definition_representation | ( pdr . used_representation :=: amp_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF EXISTS ( pdr_bag [ j ] . definition . definition ) THEN IF ( pdr_bag [ j ] . definition . definition IN sa_bag ) THEN pass := FALSE ; ESCAPE ; ELSE sa_bag := sa_bag + pdr_bag [ j ] . definition . definition ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  amp_bag : BAG OF analytical_model_port := [];
+  pdr_bag : BAG OF property_definition_representation;
+  pass : BOOLEAN := TRUE;
+  sa_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(property_definition_representation) by 1;
+  IF EXISTS( property_definition_representation[i].used_representation )
+                                                            THEN
+    IF( 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
+'ANALYTICAL_MODEL_PORT' IN TYPEOF(
+property_definition_representation[i].used_representation) ) THEN
+      IF( NOT( property_definition_representation[i].used_representation IN 
+                                              amp_bag ) )
+                                                               THEN
+        amp_bag := amp_bag + 
+              property_definition_representation[i].used_representation;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(amp_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sa_bag := [];
+  pdr_bag := QUERY( pdr &lt;* property_definition_representation | 
+                            (pdr.used_representation :=: amp_bag[i]) );
+  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+    IF EXISTS( pdr_bag[j].definition.definition ) THEN
+      IF ( pdr_bag[j].definition.definition IN sa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        sa_bag := sa_bag + pdr_bag[j].definition.definition;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="part_device_terminal_unique_constraint" appliesto="shape_aspect">
-         <algorithm> LOCAL pdr_bag : BAG OF product_definition_relationship := [ ] ; sa_bag : BAG OF shape_aspect ; pd_bag : BAG OF property_definition ; sa : BAG OF bare_die_terminal ; pass : BOOLEAN := TRUE ; bdt_bag : BAG OF bare_die_terminal ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( shape_aspect ) by 1 ; IF EXISTS ( shape_aspect [ i ] . of_shape . definition ) THEN IF ( ( 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF ( shape_aspect [ i ] . of_shape . definition ) ) AND ( shape_aspect [ i ] . of_shape . definition . description = 'part device' ) ) THEN IF ( NOT ( shape_aspect [ i ] . of_shape . definition IN pdr_bag ) ) THEN pdr_bag := pdr_bag + shape_aspect [ i ] . of_shape . definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; bdt_bag := [ ] ; sa_bag := QUERY ( sa &lt;* shape_aspect | ( sa . of_shape . definition :=: pdr_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( sa_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pd_bag := QUERY ( pd &lt;* USEDIN ( sa_bag [ j ] . of_shape . definition . related_product_definition , 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) | ( SIZEOF ( [ 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'BARE_DIE' ] * TYPEOF ( pd . definition ) ) &gt; 0 ) ) ; REPEAT k := 1 to SIZEOF ( pd_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; sa := QUERY ( bdt &lt;* USEDIN ( pd_bag [ k ] , 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'SHAPE_ASPECT.OF_SHAPE' ) | ( 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'BARE_DIE_TERMINAL' IN TYPEOF ( bdt ) ) ) ; REPEAT l := 1 to SIZEOF ( sa ) by 1 ; IF EXISTS ( sa [ l ] ) THEN IF ( sa [ l ] IN bdt_bag ) THEN pass := FALSE ; ESCAPE ; ELSE bdt_bag := bdt_bag + sa [ l ] ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  pdr_bag : BAG OF product_definition_relationship := [];
+  sa_bag : BAG OF shape_aspect;
+  pd_bag : BAG OF property_definition;
+  sa : BAG OF bare_die_terminal;
+  pass : BOOLEAN := TRUE;
+  bdt_bag : BAG OF bare_die_terminal;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(shape_aspect) by 1;
+  IF EXISTS( shape_aspect[i].of_shape.definition ) THEN
+    IF( ('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
+'PRODUCT_DEFINITION_RELATIONSHIP' IN 
+TYPEOF(shape_aspect[i].of_shape.definition)) AND
+(shape_aspect[i].of_shape.definition.description = 'part device') ) THEN
+      IF( NOT( shape_aspect[i].of_shape.definition IN pdr_bag ) ) THEN
+        pdr_bag := pdr_bag + shape_aspect[i].of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdr_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  bdt_bag := [];
+  sa_bag := QUERY( sa &lt;* shape_aspect | (sa.of_shape.definition :=: 
+                   pdr_bag[i]) );
+  REPEAT j := 1 to SIZEOF(sa_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pd_bag := QUERY( pd &lt;* USEDIN(
+sa_bag[j].of_shape.definition.related_product_definition,
+'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
+'PROPERTY_DEFINITION.DEFINITION') | (SIZEOF([
+'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
+'BARE_DIE'
+-- ,'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'EXTERNALLY_DEFINED_BARE_DIE',
+-- 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'LIBRARY_DEFINED_BARE_DIE'
+] * TYPEOF(pd.definition))&gt;0) );
+    REPEAT k := 1 to SIZEOF(pd_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      sa := QUERY( bdt &lt;* USEDIN(pd_bag[k],
+'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
+'SHAPE_ASPECT.OF_SHAPE') |
+('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
+'BARE_DIE_TERMINAL' IN TYPEOF(bdt)) );
+      REPEAT l := 1 to SIZEOF(sa) by 1;
+        IF EXISTS( sa[l] ) THEN
+          IF ( sa[l] IN bdt_bag ) THEN
+            pass := FALSE;
+            ESCAPE;
+          ELSE
+            bdt_bag := bdt_bag + sa[l];
+          END_IF;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="part_device_unique_constraint" appliesto="product_definition_relationship">
-         <algorithm> LOCAL pd : BAG OF product_definition_relationship := QUERY ( pdr &lt;* product_definition_relationship | ( pdr \ product_definition_relationship . description = 'part device' ) ) ; pu_bag : BAG OF physical_unit := [ ] ; pdr_bag : BAG OF product_definition_relationship ; pass : BOOLEAN := TRUE ; name_bag : BAG OF STRING ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( pd ) by 1 ; IF EXISTS ( pd [ i ] . relating_product_definition ) THEN IF ( ( pd [ i ] . relating_product_definition . frame_of_reference . name = 'physical design usage' ) AND ( SIZEOF ( [ 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'PACKAGED_PART' ] * TYPEOF ( pd [ i ] . relating_product_definition ) ) &gt; 0 ) ) THEN IF ( NOT ( pd [ i ] . relating_product_definition IN pu_bag ) ) THEN pu_bag := pu_bag + pd [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; name_bag := [ ] ; pdr_bag := QUERY ( pdr &lt;* pd | ( pdr . relating_product_definition :=: pu_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF EXISTS ( pdr_bag [ j ] \ product_definition_relationship . name ) THEN IF ( pdr_bag [ j ] \ product_definition_relationship . name IN name_bag ) THEN pass := FALSE ; ESCAPE ; ELSE name_bag := name_bag + pdr_bag [ j ] \ product_definition_relationship . name ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  pd : BAG OF product_definition_relationship := QUERY( pdr &lt;*
+product_definition_relationship | (pdr\product_definition_relationship.description = 'part device') );
+  pu_bag : BAG OF physical_unit := [];
+  pdr_bag : BAG OF product_definition_relationship;
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(pd) by 1;
+  IF EXISTS( pd[i].relating_product_definition ) THEN
+    IF( (pd[i].relating_product_definition.frame_of_reference.name =
+'physical design usage') AND (SIZEOF(
+['PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
+'PACKAGED_PART'
+-- ,'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'EXTERNALLY_DEFINED_PACKAGED_PART',
+-- 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'LIBRARY_DEFINED_PACKAGED_PART'
+] * 
+TYPEOF(pd[i].relating_product_definition))&gt;0) ) THEN
+      IF( NOT( pd[i].relating_product_definition IN pu_bag ) ) THEN
+        pu_bag := pu_bag + pd[i].relating_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pu_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  name_bag := [];
+  pdr_bag := QUERY( pdr &lt;* pd | (pdr.relating_product_definition :=: 
+                                                       pu_bag[i]) );
+  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
+    IF EXISTS( pdr_bag[j]\product_definition_relationship.name ) THEN
+      IF ( pdr_bag[j]\product_definition_relationship.name IN name_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        name_bag := name_bag + pdr_bag[j]\product_definition_relationship.name;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

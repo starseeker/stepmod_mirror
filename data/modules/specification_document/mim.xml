@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:51:21" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:46:06" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_mim schema_instance"/>
    <schema name="Specification_document_mim">
       <interface kind="use" schema="Characteristic_mim"/>
@@ -33,7 +33,7 @@
             <unique.attribute entity-ref="document_identifier" attribute="name"/>
             <unique.attribute entity-ref="document_identifier" attribute="description"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING.' + 'DOCUMENT_IDENTIFIER_ASSIGNMENT' ) ) &gt; 0 "/>
+         <where label="WR1" expression="SIZEOF (USEDIN(SELF,&#10;                     'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING.' +&#10;                     'DOCUMENT_IDENTIFIER_ASSIGNMENT')) &gt; 0"/>
       </entity>
       <entity name="document_identifier_assignment" supertypes="group_assignment">
          <explicit name="assigned_group">
@@ -46,32 +46,104 @@
          </explicit>
       </entity>
       <entity name="ee_specification" supertypes="document">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( apoa &lt;* USEDIN ( SELF , 'SPECIFICATION_DOCUMENT_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | apoa . role \ person_and_organization_role . name = 'document source' ) ) + SIZEOF ( QUERY ( apoa &lt;* USEDIN ( SELF , 'SPECIFICATION_DOCUMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | apoa . role \ organization_role . name = 'document source' ) ) &gt;= 1 "/>
-         <where label="WR2" expression=" SELF \ document . kind \ document_type . product_data_type IN [ 'assembly technology specification' , 'design specification' , 'fabrication technology specification' , 'interface specification' , 'language reference manual' , 'lead form specification' , 'material specification' , 'reference document' , 'source code' , 'font registration document' , 'process specification' , 'surface finish specification' , 'test specification' ] "/>
+         <where label="WR1" expression="SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'SPECIFICATION_DOCUMENT_MIM.' +&#10;       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\person_and_organization_role.name = 'document source')) +&#10;       SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'SPECIFICATION_DOCUMENT_MIM.' +&#10;       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\organization_role.name = 'document source')) &gt;= 1"/>
+         <where label="WR2" expression="SELF\document.kind\document_type.product_data_type IN &#10;       ['assembly technology specification',&#10;       'design specification', 'fabrication technology specification',&#10;       'interface specification', 'language reference manual',&#10;       'lead form specification', 'material specification',&#10;       'reference document', 'source code',&#10;       'font registration document',&#10;       'process specification', 'surface finish specification',&#10;       'test specification']"/>
       </entity>
       <entity name="structured_text_representation_context" supertypes="representation_context">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( rep &lt;* USEDIN ( SELF , 'SPECIFICATION_DOCUMENT_MIM.' + 'REPRESENTATION.CONTEXT_OF_ITEMS' ) | NOT ( 'SPECIFICATION_DOCUMENT_MIM.' + 'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN TYPEOF ( rep ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (rep &lt;* USEDIN (SELF,&#10;       'SPECIFICATION_DOCUMENT_MIM.' +&#10;       'REPRESENTATION.CONTEXT_OF_ITEMS') | NOT (&#10;       'SPECIFICATION_DOCUMENT_MIM.' +&#10;       'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN&#10;       TYPEOF (rep)))) = 0"/>
       </entity>
       <entity name="structured_text_representation_item" supertypes="representation descriptive_representation_item">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( rr &lt;* USEDIN ( SELF , 'SPECIFICATION_DOCUMENT_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | 'SPECIFICATION_DOCUMENT_MIM.' + 'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN TYPEOF ( rr . rep_1 ) ) ) &lt;= 1 "/>
-         <where label="WR2" expression=" SIZEOF ( USEDIN ( SELF , 'SPECIFICATION_DOCUMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) &gt;= 1 "/>
-         <where label="WR3" expression=" ( SIZEOF ( QUERY ( it &lt;* SELF \ representation . items | 'SPECIFICATION_DOCUMENT_MIM.' + 'EXTERNALLY_DEFINED_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) ) = 1 ) "/>
+         <where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'SPECIFICATION_DOCUMENT_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;       'SPECIFICATION_DOCUMENT_MIM.' +&#10;       'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN&#10;       TYPEOF (rr.rep_1) ))&lt;= 1"/>
+         <where label="WR2" expression="SIZEOF (USEDIN (SELF, &#10;        'SPECIFICATION_DOCUMENT_MIM.' + &#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) &gt;= 1"/>
+         <where label="WR3" expression="(SIZEOF (QUERY (it &lt;* SELF\representation.items |&#10;       'SPECIFICATION_DOCUMENT_MIM.' +&#10;       'EXTERNALLY_DEFINED_REPRESENTATION_ITEM' IN &#10;       TYPEOF (it))) = 1)"/>
       </entity>
       <rule name="ee_document_constraint" appliesto="document">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( doc &lt;* document | ( SIZEOF ( QUERY ( adata &lt;* USEDIN ( doc , 'SPECIFICATION_DOCUMENT_MIM.' + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' ) | ( adata . role \ date_time_role . name = 'creation date' ) ) ) = 0 ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( doc &lt;* document | NOT ( ( SIZEOF ( QUERY ( aoa &lt;* USEDIN ( doc , 'SPECIFICATION_DOCUMENT_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( aoa . role \ organization_role . name = 'publisher' ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( apaoa &lt;* USEDIN ( doc , 'SPECIFICATION_DOCUMENT_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( apaoa . role \ person_and_organization_role . name = 'publisher' ) ) ) = 1 ) ) ) ) = 0 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( doc &lt;* document | NOT ( SIZEOF ( USEDIN ( doc , 'SPECIFICATION_DOCUMENT_MIM.' + 'DOCUMENT_IDENTIFIER_ASSIGNMENT.ITEMS' ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(doc &lt;* document |&#10;       (SIZEOF(QUERY(adata &lt;* USEDIN(doc,&#10;       'SPECIFICATION_DOCUMENT_MIM.'&#10;       + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS')&#10;       | (adata.role\date_time_role.name = 'creation date')&#10;       )) = 0))) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(doc &lt;* document |&#10;       NOT ((SIZEOF(QUERY(aoa &lt;* USEDIN(doc,&#10;       'SPECIFICATION_DOCUMENT_MIM.'&#10;       + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')&#10;       | (aoa.role\organization_role.name = 'publisher')&#10;       )) = 1) OR &#10;       (SIZEOF(QUERY(apaoa &lt;* USEDIN(doc,&#10;       'SPECIFICATION_DOCUMENT_MIM.'&#10;       + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')&#10;       | (apaoa.role\person_and_organization_role.name = 'publisher')&#10;       )) = 1)))) = 0"/>
+         <where label="WR3" expression="SIZEOF(QUERY(doc &lt;* document |&#10;       NOT (SIZEOF(USEDIN(doc,&#10;       'SPECIFICATION_DOCUMENT_MIM.'&#10;       + 'DOCUMENT_IDENTIFIER_ASSIGNMENT.ITEMS')) = 1)&#10;       )) = 0"/>
       </rule>
       <rule name="ee_document_unique_constraint" appliesto="document document_identifier_assignment">
-         <algorithm> LOCAL pass : BOOLEAN := TRUE ; rev_exists_bag : BAG OF document := [ ] ; dia_bag : BAG OF document_identifier_assignment := [ ] ; desc_bag : BAG OF STRING := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( document ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; IF NOT ( EXISTS ( document [ i ] . description ) ) THEN pass := FALSE ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( document_identifier_assignment ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; desc_bag := [ ] ; REPEAT j := 1 to SIZEOF ( document_identifier_assignment [ i ] . items ) by 1 ; desc_bag := desc_bag + document_identifier_assignment [ i ] . items [ j ] \ document . description ; END_REPEAT ; IF NOT ( value_unique ( desc_bag ) ) THEN pass := FALSE ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  pass : BOOLEAN := TRUE;
+  rev_exists_bag : BAG OF document := [];
+  dia_bag : BAG OF document_identifier_assignment := [];
+  desc_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(document) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  IF NOT(EXISTS( document[i].description )) THEN
+   pass := FALSE;
+  END_IF;
+END_REPEAT;
+
+
+REPEAT i := 1 to SIZEOF(document_identifier_assignment) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  desc_bag := [];
+  REPEAT j := 1 to SIZEOF(document_identifier_assignment[i].items) by 1;
+     desc_bag := desc_bag + document_identifier_assignment[i].items[j]\document.description;
+  END_REPEAT;
+  IF NOT(value_unique(desc_bag)) THEN
+    pass := FALSE;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="product_association_constraint" appliesto="product_definition_formation_relationship">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pdfr &lt;* product_definition_formation_relationship | ( pdfr \ product_definition_formation_relationship . name = 'product association' ) AND ( SIZEOF ( QUERY ( adr &lt;* USEDIN ( pdfr , 'SPECIFICATION_DOCUMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) | ( 'SPECIFICATION_DOCUMENT_MIM.' + 'EE_SPECIFICATION' IN TYPEOF ( adr . assigned_document ) ) ) ) = 0 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(pdfr &lt;* product_definition_formation_relationship |&#10;       (pdfr\product_definition_formation_relationship.name = 'product association')&#10;       AND (SIZEOF(QUERY(adr &lt;* USEDIN(pdfr,&#10;       'SPECIFICATION_DOCUMENT_MIM.'&#10;       + 'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       ('SPECIFICATION_DOCUMENT_MIM.'&#10;       + 'EE_SPECIFICATION' IN TYPEOF(adr.assigned_document))&#10;       )) = 0))) = 0"/>
       </rule>
       <rule name="product_association_unique_constraint" appliesto="product_definition_formation_relationship">
-         <algorithm> LOCAL pdfr : BAG OF product_definition_formation_relationship := QUERY ( r &lt;* product_definition_formation_relationship | ( r \ product_definition_formation_relationship . name = 'product association' ) ) ; pdf_bag : BAG OF product_definition_formation := [ ] ; pdfr_bag : BAG OF product_definition_formation_relationship ; pass : BOOLEAN := TRUE ; adr_bag : BAG OF applied_document_reference ; es_bag : BAG OF ee_specification ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( pdfr ) by 1 ; IF EXISTS ( pdfr [ i ] . relating_product_definition_formation ) THEN IF ( NOT ( pdfr [ i ] . relating_product_definition_formation IN pdf_bag ) ) THEN pdf_bag := pdf_bag + pdfr [ i ] . relating_product_definition_formation ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pdf_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdfr_bag := QUERY ( r &lt;* pdfr | ( r . relating_product_definition_formation :=: pdf_bag [ i ] ) ) ; es_bag := [ ] ; REPEAT j := 1 to SIZEOF ( pdfr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adr_bag := QUERY ( adr &lt;* USEDIN ( pdfr_bag [ j ] , ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) | ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'EE_SPECIFICATION' ) IN TYPEOF ( adr . assigned_document ) ) ) ; REPEAT k := 1 to SIZEOF ( adr_bag ) by 1 ; IF EXISTS ( adr_bag [ k ] . assigned_document ) THEN IF ( adr_bag [ k ] . assigned_document IN es_bag ) THEN pass := FALSE ; ESCAPE ; ELSE es_bag := es_bag + adr_bag [ k ] . assigned_document ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  pdfr : BAG OF product_definition_formation_relationship := QUERY( r &lt;*
+product_definition_formation_relationship | 
+  (r\product_definition_formation_relationship.name = 'product association' ) );
+  pdf_bag : BAG OF product_definition_formation := [];
+  pdfr_bag : BAG OF product_definition_formation_relationship;
+  pass : BOOLEAN := TRUE;
+  adr_bag : BAG OF applied_document_reference;
+  es_bag : BAG OF ee_specification;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(pdfr) by 1;
+  IF EXISTS( pdfr[i].relating_product_definition_formation ) THEN
+    IF( NOT( pdfr[i].relating_product_definition_formation IN pdf_bag ) )
+                                                              THEN
+      pdf_bag := pdf_bag + pdfr[i].
+                 relating_product_definition_formation;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdf_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pdfr_bag := QUERY( r &lt;* pdfr | 
+             (r.relating_product_definition_formation :=: pdf_bag[i]) );
+  es_bag := [];
+  REPEAT j := 1 to SIZEOF(pdfr_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adr_bag := QUERY( adr &lt;* USEDIN( pdfr_bag[j], 
+('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'APPLIED_DOCUMENT_REFERENCE.ITEMS')) | 
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'EE_SPECIFICATION') IN TYPEOF(adr.assigned_document)) );
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN es_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          es_bag := es_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

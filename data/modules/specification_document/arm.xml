@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:49:58" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:44:25" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Document_assignment_arm"/>
@@ -35,21 +35,21 @@
          <explicit name="identifier_in_target_context" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <derived name="the_context" expression=" target_product_object [ 1 ] ">
+         <derived name="the_context" expression="target_product_object[1]">
             <typename name="specification_product_object_select"/>
          </derived>
          <unique label="UR1">
             <unique.attribute entity-ref="Specification_allocation" attribute="identifier_in_target_context"/>
             <unique.attribute entity-ref="Specification_allocation" attribute="the_context"/>
          </unique>
-         <where label="WR1" expression=" NOT EXISTS ( identifier_in_target_context ) OR ( SIZEOF ( target_product_object ) = 1 ) "/>
+         <where label="WR1" expression="NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1)"/>
       </entity>
       <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
-         <derived name="source" expression=" QUERY ( temp &lt;* USEDIN ( SELF , 'PERSON_ORGANIZATION_ASSIGNMENT_ARM.' + 'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( temp . role = 'document source' ) ) ">
+         <derived name="source" expression="QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') )">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Organization_or_person_in_organization_assignment"/>
          </derived>
-         <where label="WR1" expression=" EXISTS ( source ) AND sizeof ( source ) = 1 "/>
+         <where label="WR1" expression=" : EXISTS (source) AND sizeof(source) "/>
       </entity>
       <entity name="Structured_text">
          <explicit name="plain_text_content" optional="YES">
@@ -91,7 +91,21 @@
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Document_definition"/>
-         <algorithm> LOCAL dd : SET [ 0 : ? ] OF Document_definition := [ ] ; da : SET [ 0 : ? ] OF Document_assignment := [ ] ; END_LOCAL ; da := ( QUERY ( dr &lt;* USEDIN ( input , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( dr . role = role ) ) ) ; REPEAT i := 1 to SIZEOF ( da ) by 1 ; IF ( type_name IN TYPEOF ( da [ i ] . assigned_document ) ) THEN dd := dd + da [ i ] . assigned_document ; END_IF ; END_REPEAT ; RETURN ( dd ) ; </algorithm>
+         <algorithm>LOCAL
+	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
+	da : SET[0:?] OF Document_assignment :=[];
+END_LOCAL;
+	da := (QUERY(dr &lt;* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
+	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
+
+	-- iterate over da
+	REPEAT i := 1 to SIZEOF(da) by 1;
+		IF(type_name IN TYPEOF (da[i].assigned_document))THEN
+			dd := dd + da[i].assigned_document;
+		END_IF;
+	END_REPEAT;
+
+	RETURN(dd);</algorithm>
       </function>
    </schema>
 </express>

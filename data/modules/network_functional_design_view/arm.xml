@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:49:57" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:44:23" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="network_functional_design_view_arm schema_instance"/>
    <schema name="Network_functional_design_view_arm">
       <interface kind="use" schema="Network_functional_usage_view_arm"/>
@@ -26,7 +26,7 @@
             <unique.attribute entity-ref="Bus_element_link" attribute="precedent_element"/>
             <unique.attribute entity-ref="Bus_element_link" attribute="subsequent_element"/>
          </unique>
-         <where label="WR1" expression=" precedent_element &lt;&gt; subsequent_element "/>
+         <where label="WR1" expression="precedent_element &lt;&gt; subsequent_element"/>
       </entity>
       <entity name="Bus_structural_definition">
          <explicit name="bus_name">
@@ -42,7 +42,7 @@
          <unique label="UR1">
             <unique.attribute entity-ref="Bus_structural_definition" attribute="bus_name"/>
          </unique>
-         <where label="WR1" expression=" consistent_bus_structural_definition ( composition ) "/>
+         <where label="WR1" expression="consistent_bus_structural_definition(composition)"/>
       </entity>
       <entity name="Functional_unit" supertypes="Definition_based_product_occurrence">
          <explicit name="definition">
@@ -57,7 +57,7 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Parameter_assignment_override"/>
          </explicit>
-         <derived name="composed_network" expression=" SELF \ Definition_based_product_occurrence . occurrence_contexts [ 1 ] . relating_view ">
+         <derived name="composed_network" expression="SELF\Definition_based_product_occurrence.occurrence_contexts[1].relating_view">
             <typename name="Functional_unit_network_definition"/>
          </derived>
          <inverse name="access_mechanisms" entity="Functional_unit_terminal" attribute="accessed_functional_unit">
@@ -67,8 +67,8 @@
             <unique.attribute entity-ref="Functional_unit" attribute="reference_designation"/>
             <unique.attribute entity-ref="Functional_unit" attribute="composed_network"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( SELF \ Definition_based_product_occurrence . occurrence_contexts ) = 1 "/>
-         <where label="WR2" expression=" EXISTS ( composed_network ) "/>
+         <where label="WR1" expression="SIZEOF(SELF\Definition_based_product_occurrence.occurrence_contexts) = 1"/>
+         <where label="WR2" expression="EXISTS(composed_network)"/>
       </entity>
       <entity name="Functional_unit_network_definition" supertypes="Functional_unit_definition">
          <explicit name="usage_view">
@@ -82,7 +82,7 @@
          <explicit name="functional_unit_network_node_name">
             <builtintype type="STRING"/>
          </explicit>
-         <derived name="valid_conservative_node" expression=" ( ( SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) ) + SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' ) ) + SIZEOF ( USEDIN ( SELF , 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE' ) ) + SIZEOF ( external_node_access ) ) &gt; 1 ) ">
+         <derived name="valid_conservative_node" expression="( ( SIZEOF (USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) )&#10;        + SIZEOF ( USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )&#10;        ) + SIZEOF (USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE'&#10;        )) + SIZEOF ( external_node_access ) ) &gt; 1 )">
             <builtintype type="BOOLEAN"/>
          </derived>
          <inverse name="external_node_access" entity="Functional_unit_network_terminal_definition_node_assignment" attribute="composed_node">
@@ -92,7 +92,7 @@
             <unique.attribute entity-ref="Functional_unit_network_node_definition" attribute="functional_unit_network_node_name"/>
             <unique.attribute entity-ref="Functional_unit_network_node_definition" attribute="associated_functional_unit_definition"/>
          </unique>
-         <where label="WR1" expression=" EXISTS ( valid_conservative_node ) "/>
+         <where label="WR1" expression="EXISTS(valid_conservative_node)"/>
       </entity>
       <entity name="Functional_unit_network_terminal_definition_bus_assignment">
          <explicit name="connected_bus">
@@ -147,7 +147,36 @@
             <typename name="Bus_element_link"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> LOCAL vertex : SET OF bus_structural_definition_or_node := [ ] ; edge : INTEGER := SIZEOF ( input ) ; vc : INTEGER := 0 ; vertex_degree : INTEGER := 0 ; END_LOCAL ; REPEAT i := 1 TO SIZEOF ( input ) BY 1 ; vertex := vertex + input [ i ] . precedent_element ; vertex := vertex + input [ i ] . subsequent_element ; END_REPEAT ; vc := SIZEOF ( vertex ) ; IF ( vc &lt;&gt; ( edge + 1 ) ) THEN RETURN ( FALSE ) ; END_IF ; REPEAT i := 1 TO vc BY 1 ; vertex_degree := 0 ; REPEAT j := 1 TO SIZEOF ( input ) BY 1 ; IF input [ j ] . precedent_element = vertex [ i ] THEN vertex_degree := vertex_degree + 1 ; END_IF ; IF input [ j ] . subsequent_element = vertex [ i ] THEN vertex_degree := vertex_degree + 1 ; END_IF ; END_REPEAT ; IF ( vertex_degree &gt; 2 ) THEN RETURN ( FALSE ) ; END_IF ; END_REPEAT ; RETURN ( TRUE ) ; </algorithm>
+         <algorithm>LOCAL
+      vertex        : SET OF bus_structural_definition_or_node := [];
+      edge          : INTEGER := SIZEOF(input);
+      vc            : INTEGER := 0;
+      vertex_degree : INTEGER := 0;
+    END_LOCAL;
+
+    REPEAT i := 1 TO SIZEOF(input) BY 1;
+      vertex := vertex + input[i].precedent_element;
+      vertex := vertex + input[i].subsequent_element;
+    END_REPEAT;
+    vc := SIZEOF(vertex);
+    IF (vc &lt;&gt; (edge + 1)) THEN
+      RETURN(FALSE);
+    END_IF;
+    REPEAT i := 1 TO vc BY 1;
+      vertex_degree := 0;
+      REPEAT j := 1 TO SIZEOF(input) BY 1;
+        IF input[j].precedent_element = vertex[i] THEN
+          vertex_degree := vertex_degree + 1;
+        END_IF;
+        IF input[j].subsequent_element = vertex[i] THEN
+          vertex_degree := vertex_degree + 1;
+        END_IF;
+      END_REPEAT;
+      IF (vertex_degree &gt; 2) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN(TRUE);</algorithm>
       </function>
    </schema>
 </express>

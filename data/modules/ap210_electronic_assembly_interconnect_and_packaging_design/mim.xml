@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:50:54" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:45:38" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_electronic_assembly_interconnect_and_packaging_design_mim schema_instance"/>
    <schema name="Ap210_electronic_assembly_interconnect_and_packaging_design_mim">
       <interface kind="use" schema="Ap210_device_functional_and_physical_characterization_mim"/>
@@ -46,72 +46,291 @@
       <subtype.constraint name="physical_unit_subtypes" entity="physical_unit" super.expression="ONEOF (bare_die, package, packaged_part, assembly_definition, interconnect_definition, reference_packaged_part_assembly_implementation, reference_packaged_part_interconnect_implementation)"/>
       <subtype.constraint name="shape_definition_3d_intersection_subtypes" entity="shape_definition_3d_intersection" super.expression="ONEOF (edge_segment_cross_section, pre_defined_parallel_datum_axis_symbol_3d_2d_relationship, pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship, pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship)"/>
       <rule name="application_protocol_definition_required" appliesto="application_context">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ac &lt;* application_context | ( SIZEOF ( QUERY ( apd &lt;* USEDIN ( ac , 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.APPLICATION_PROTOCOL_DEFINITION.APPLICATION' ) | apd . application_interpreted_model_schema_name = 'electronic_assembly_interconnect_and_packaging_design' ) ) &gt; 0 ) ) ) &gt; 0 "/>
+         <where label="WR1" expression="SIZEOF( QUERY( ac &lt;* application_context |&#10;              (SIZEOF (QUERY (apd &lt;*&#10;USEDIN(ac,'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.APPLICATION_PROTOCOL_DEFINITION.APPLICATION')&#10;|&#10;                apd.application_interpreted_model_schema_name =&#10;'electronic_assembly_interconnect_and_packaging_design'&#10;                )) &gt; 0)&#10;              )) &gt; 0"/>
       </rule>
       <rule name="dependent_instantiable_tolerance_value" appliesto="tolerance_value">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( tv &lt;* tolerance_value | NOT ( SIZEOF ( USEDIN ( tv , '' ) ) &gt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (tv &lt;* tolerance_value |&#10;       NOT (SIZEOF(USEDIN(tv, '')) &gt;= 1))) = 0"/>
       </rule>
       <rule name="ee_material_unique_constraint" appliesto="material_designation">
-         <algorithm> LOCAL name_bag : BAG OF STRING := [ ] ; md_bag : BAG OF material_designation ; adr_bag : BAG OF applied_document_reference ; pass : BOOLEAN := TRUE ; doc_bag : BAG OF ee_specification ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( material_designation ) by 1 ; IF EXISTS ( material_designation [ i ] . name ) THEN IF ( NOT ( material_designation [ i ] . name IN name_bag ) ) THEN name_bag := name_bag + material_designation [ i ] . name ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( name_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; md_bag := QUERY ( md &lt;* material_designation | ( md \ material_designation . name = name_bag [ i ] ) ) ; doc_bag := [ ] ; REPEAT j := 1 to SIZEOF ( md_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adr_bag := QUERY ( adr &lt;* USEDIN ( md_bag [ j ] , ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) | ( ( 'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 'DOCUMENT' ) IN TYPEOF ( adr . assigned_document ) ) ) ; REPEAT k := 1 to SIZEOF ( adr_bag ) by 1 ; IF EXISTS ( adr_bag [ k ] . assigned_document ) THEN IF ( adr_bag [ k ] . assigned_document IN doc_bag ) THEN pass := FALSE ; ESCAPE ; ELSE doc_bag := doc_bag + adr_bag [ k ] . assigned_document ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  name_bag : BAG OF STRING := [];
+  md_bag : BAG OF material_designation;
+  adr_bag : BAG OF applied_document_reference;
+  pass : BOOLEAN := TRUE;
+  doc_bag : BAG OF ee_specification;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(material_designation) by 1;
+  IF EXISTS( material_designation[i].name ) THEN
+    IF( NOT( material_designation[i].name IN name_bag ) ) THEN
+      name_bag := name_bag + material_designation[i].name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  md_bag := QUERY( md &lt;* material_designation | (md\material_designation.name = name_bag[i]) );
+  doc_bag := [];
+  REPEAT j := 1 to SIZEOF(md_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adr_bag := QUERY( adr &lt;* USEDIN( md_bag[j], 
+('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'APPLIED_DOCUMENT_REFERENCE.ITEMS')) | 
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'DOCUMENT') IN TYPEOF(adr.assigned_document)) );
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN doc_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          doc_bag := doc_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="ee_product_definition_unique_constraint" appliesto="product_definition_with_associated_documents physical_unit functional_unit">
-         <algorithm> LOCAL pdwad : BAG OF product_definition := QUERY ( r &lt;* product_definition_with_associated_documents | ( TRUE ) ) ; pu : BAG OF product_definition := QUERY ( r &lt;* physical_unit | ( TRUE ) ) ; fu : BAG OF product_definition := QUERY ( r &lt;* functional_unit | ( TRUE ) ) ; epd : BAG OF product_definition ; pdf_bag : BAG OF product_definition_formation ; pd_bag : BAG OF product_definition ; pass1 : BOOLEAN := TRUE ; lcs_bag : BAG OF STRING ; pass2 : BOOLEAN := TRUE ; id_bag : BAG OF STRING ; END_LOCAL ; epd := pdwad + pu + fu ; REPEAT i := 1 to SIZEOF ( epd ) by 1 ; IF EXISTS ( epd [ i ] . formation ) THEN IF ( NOT ( epd [ i ] . formation IN pdf_bag ) ) THEN pdf_bag := pdf_bag + epd [ i ] . formation ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pdf_bag ) by 1 ; IF ( NOT ( pass1 OR pass2 ) ) THEN ESCAPE ; END_IF ; lcs_bag := [ ] ; id_bag := [ ] ; pd_bag := QUERY ( pd &lt;* epd | ( pd . formation :=: pdf_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( pd_bag ) by 1 ; IF ( NOT ( pass1 OR pass2 ) ) THEN ESCAPE ; END_IF ; IF ( pass2 ) THEN IF EXISTS ( pd_bag [ j ] . id ) THEN IF ( pd_bag [ j ] . id IN id_bag ) THEN pass2 := FALSE ; ESCAPE ; ELSE id_bag := id_bag + pd_bag [ j ] . id ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass2 "/>
+         <algorithm>LOCAL
+  pdwad : BAG OF product_definition := 
+QUERY( r &lt;* product_definition_with_associated_documents | (TRUE) );
+  pu : BAG OF product_definition := QUERY( r &lt;* physical_unit | (TRUE) );
+  fu : BAG OF product_definition := QUERY( r &lt;* functional_unit | (TRUE) );
+  epd : BAG OF product_definition;
+  pdf_bag : BAG OF product_definition_formation;
+  pd_bag : BAG OF product_definition;
+  pass1 : BOOLEAN := TRUE;
+  lcs_bag : BAG OF STRING;
+  pass2 : BOOLEAN := TRUE;
+  id_bag : BAG OF STRING;
+END_LOCAL;
+
+epd := pdwad + pu + fu;
+REPEAT i := 1 to SIZEOF(epd) by 1;
+  IF EXISTS( epd[i].formation ) THEN
+    IF( NOT( epd[i].formation IN pdf_bag ) ) THEN
+      pdf_bag := pdf_bag + epd[i].formation;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdf_bag) by 1;
+  IF ( NOT (pass1 OR pass2) ) THEN ESCAPE;
+  END_IF;
+  lcs_bag := [];
+  id_bag := [];
+  pd_bag := QUERY( pd &lt;* epd | (pd.formation :=: pdf_bag[i]) );
+  REPEAT j := 1 to SIZEOF(pd_bag) by 1;
+    IF ( NOT (pass1 OR pass2) ) THEN ESCAPE;
+    END_IF;
+    IF ( pass2 ) THEN
+      IF EXISTS( pd_bag[j].id ) THEN
+        IF ( pd_bag[j].id IN id_bag ) THEN
+          pass2 := FALSE;
+          ESCAPE;
+        ELSE
+          id_bag := id_bag + pd_bag[j].id;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass2"/>
       </rule>
       <rule name="no_shape_for_make_from" appliesto="make_from_usage_option">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( mfuo &lt;* make_from_usage_option | NOT ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( mfuo , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) | 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRODUCT_DEFINITION_SHAPE' IN TYPEOF ( pd ) ) ) = 0 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (mfuo &lt;* make_from_usage_option |&#10;       NOT (SIZEOF (QUERY (pd &lt;* USEDIN (mfuo, &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION_SHAPE' IN &#10;       TYPEOF (pd))) = 0))) = 0"/>
       </rule>
       <rule name="origin_constraint" appliesto="placement">
-         <algorithm> LOCAL origin_2d : SET OF axis2_placement_2d := QUERY ( pl &lt;* placement | ( ( pl \ representation_item . name = 'origin' ) AND ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.AXIS2_PLACEMENT_2D' IN TYPEOF ( pl ) ) ) ) ; origin_3d : SET OF axis2_placement_3d := QUERY ( pl &lt;* placement | ( ( pl \ representation_item . name = 'origin' ) AND ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.AXIS2_PLACEMENT_3D' IN TYPEOF ( pl ) ) ) ) ; pass : BOOLEAN := TRUE ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( origin_2d ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; IF ( NOT ( ( origin_2d [ i ] . location . coordinates [ 1 ] = 0.0 ) AND ( origin_2d [ i ] . location . coordinates [ 2 ] = 0.0 ) AND NOT EXISTS ( origin_2d [ i ] . ref_direction ) ) ) THEN pass := FALSE ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( origin_3d ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; IF NOT ( ( origin_3d [ i ] . location . coordinates [ 1 ] = 0.0 ) AND ( origin_3d [ i ] . location . coordinates [ 2 ] = 0.0 ) AND ( origin_3d [ i ] . location . coordinates [ 3 ] = 0.0 ) AND ( NOT ( EXISTS ( origin_3d [ i ] . ref_direction ) ) ) AND ( NOT ( EXISTS ( origin_3d [ i ] . axis ) ) ) ) THEN pass := FALSE ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+ origin_2d : SET OF axis2_placement_2d := QUERY(pl &lt;* placement | ((pl\representation_item.name = 'origin') AND 
+    ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.AXIS2_PLACEMENT_2D' IN TYPEOF(pl))));
+ origin_3d : SET OF axis2_placement_3d := QUERY(pl &lt;* placement | ((pl\representation_item.name = 'origin') AND 
+    ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.AXIS2_PLACEMENT_3D' IN TYPEOF(pl))));
+pass : BOOLEAN := TRUE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(origin_2d) by 1;
+  IF (NOT pass) THEN ESCAPE; END_IF;
+  IF (NOT((origin_2d[i].location.coordinates[1] = 0.0) AND
+   (origin_2d[i].location.coordinates[2] = 0.0) AND
+   NOT EXISTS(origin_2d[i].ref_direction)))
+  THEN
+   pass := FALSE;
+  END_IF;
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(origin_3d) by 1;
+  IF (NOT pass) THEN ESCAPE; END_IF;
+  IF NOT(
+   (origin_3d[i].location.coordinates[1] = 0.0) AND
+   (origin_3d[i].location.coordinates[2] = 0.0) AND
+   (origin_3d[i].location.coordinates[3] = 0.0) AND
+   (NOT(EXISTS(origin_3d[i].ref_direction))) AND 
+   (NOT(EXISTS(origin_3d[i].axis)))
+   )
+  THEN
+   pass := FALSE;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="part_feature_unique_constraint" appliesto="composite_shape_aspect shape_aspect primary_orientation_feature tertiary_orientation_feature secondary_orientation_feature package_body part_tooling_feature thermal_feature part_mounting_feature package_terminal assembly_module_terminal bare_die_terminal interconnect_module_terminal minimally_defined_bare_die_terminal packaged_part_terminal package_body_surface">
-         <algorithm> LOCAL csa : BAG OF shape_aspect := QUERY ( r &lt;* composite_shape_aspect | ( r \ shape_aspect . description = 'part group feature' ) ) ; sa : BAG OF shape_aspect := QUERY ( r &lt;* shape_aspect | ( r \ shape_aspect . description IN [ 'part generic feature' , 'polarity indication feature' , 'interconnect module edge segment surface' , 'interconnect module cavity surface' , 'interconnect module cutout surface' , 'interconnect module edge surface' , 'interconnect module primary surface' , 'interconnect module secondary surface' , 'interconnect module surface feature' ] ) ) ; pof : BAG OF shape_aspect := QUERY ( r &lt;* primary_orientation_feature | ( TRUE ) ) ; sof : BAG OF shape_aspect := QUERY ( r &lt;* secondary_orientation_feature | ( TRUE ) ) ; tof : BAG OF shape_aspect := QUERY ( r &lt;* tertiary_orientation_feature | ( TRUE ) ) ; pb : BAG OF shape_aspect := QUERY ( r &lt;* package_body | ( TRUE ) ) ; ptf : BAG OF shape_aspect := QUERY ( r &lt;* part_tooling_feature | ( TRUE ) ) ; tf : BAG OF shape_aspect := QUERY ( r &lt;* thermal_feature | ( TRUE ) ) ; pmf : BAG OF shape_aspect := QUERY ( r &lt;* part_mounting_feature | ( TRUE ) ) ; pt : BAG OF shape_aspect := QUERY ( r &lt;* package_terminal | ( TRUE ) ) ; amt : BAG OF shape_aspect := QUERY ( r &lt;* assembly_module_terminal | ( TRUE ) ) ; bdt : BAG OF shape_aspect := QUERY ( r &lt;* bare_die_terminal | ( TRUE ) ) ; imt : BAG OF shape_aspect := QUERY ( r &lt;* interconnect_module_terminal | ( TRUE ) ) ; mdbdt : BAG OF shape_aspect := QUERY ( r &lt;* minimally_defined_bare_die_terminal | ( TRUE ) ) ; ppt : BAG OF shape_aspect := QUERY ( r &lt;* packaged_part_terminal | ( TRUE ) ) ; pbs : BAG OF shape_aspect := QUERY ( r &lt;* package_body_surface | ( TRUE ) ) ; pf : BAG OF shape_aspect := [ ] ; pu_bag : BAG OF physical_unit := [ ] ; sa_bag : BAG OF shape_aspect ; pass : BOOLEAN := TRUE ; name_bag : BAG OF STRING ; END_LOCAL ; sa := csa + sa + pof + sof + tof + pb + ptf + tf + pmf + pt + amt + bdt + imt + mdbdt + ppt + pbs ; REPEAT i := 1 to SIZEOF ( sa ) by 1 ; IF EXISTS ( sa [ i ] ) THEN IF ( NOT ( sa [ i ] IN pf ) ) THEN pf := pf + sa [ i ] ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pf ) by 1 ; IF EXISTS ( pf [ i ] . of_shape . definition ) THEN IF ( ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT' IN TYPEOF ( pf [ i ] . of_shape . definition ) ) AND ( pf [ i ] . of_shape . definition . frame_of_reference . name = 'physical design usage' ) ) THEN IF ( NOT ( pf [ i ] . of_shape . definition IN pu_bag ) ) THEN pu_bag := pu_bag + pf [ i ] . of_shape . definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; name_bag := [ ] ; sa_bag := QUERY ( sa &lt;* pf | ( sa . of_shape . definition :=: pu_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( sa_bag ) by 1 ; IF EXISTS ( sa_bag [ j ] \ shape_aspect . name ) THEN IF ( sa_bag [ j ] \ shape_aspect . name IN name_bag ) THEN pass := FALSE ; ESCAPE ; ELSE name_bag := name_bag + sa_bag [ j ] \ shape_aspect . name ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  csa : BAG OF shape_aspect := QUERY( r &lt;* composite_shape_aspect |
+(r\shape_aspect.description = 'part group feature') );
+  sa : BAG OF shape_aspect := QUERY( r &lt;* shape_aspect |
+(r\shape_aspect.description IN ['part generic feature','polarity indication feature',
+'interconnect module edge segment surface',
+'interconnect module cavity surface',
+'interconnect module cutout surface',
+'interconnect module edge surface',
+'interconnect module primary surface',
+'interconnect module secondary surface',
+'interconnect module surface feature']) );
+  pof : BAG OF shape_aspect := QUERY( r &lt;* 
+                  primary_orientation_feature | (TRUE) );
+  sof : BAG OF shape_aspect := QUERY( r &lt;* 
+                 secondary_orientation_feature | (TRUE) );
+  tof : BAG OF shape_aspect := QUERY( r &lt;* 
+                 tertiary_orientation_feature | (TRUE) );
+  pb : BAG OF shape_aspect := QUERY( r &lt;* 
+                                package_body | (TRUE) );
+  ptf : BAG OF shape_aspect := QUERY( r &lt;* part_tooling_feature | (TRUE) );
+  tf : BAG OF shape_aspect := QUERY( r &lt;* thermal_feature | (TRUE) );
+  pmf : BAG OF shape_aspect := QUERY( r &lt;* part_mounting_feature | (TRUE) );
+  pt : BAG OF shape_aspect := QUERY( r &lt;* package_terminal | (TRUE) );
+  amt : BAG OF shape_aspect := QUERY( r &lt;* 
+                            assembly_module_terminal | (TRUE) );
+  bdt : BAG OF shape_aspect := QUERY( r &lt;* bare_die_terminal | (TRUE) );
+  imt : BAG OF shape_aspect := QUERY( r &lt;* 
+                          interconnect_module_terminal | (TRUE) );
+  mdbdt : BAG OF shape_aspect := QUERY( r &lt;* 
+                    minimally_defined_bare_die_terminal | (TRUE) );
+  ppt : BAG OF shape_aspect := QUERY( r &lt;* 
+                                  packaged_part_terminal | (TRUE) );
+  pbs : BAG OF shape_aspect := QUERY( r &lt;* 
+                                       package_body_surface | (TRUE) );
+  pf : BAG OF shape_aspect := [];
+  pu_bag : BAG OF physical_unit := [];
+  sa_bag : BAG OF shape_aspect;
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING;
+END_LOCAL;
+
+sa := csa + sa + pof + sof +tof + pb + ptf + tf + pmf + 
+          pt + amt + bdt + imt + mdbdt + ppt + pbs;
+REPEAT i := 1 to SIZEOF(sa) by 1;
+  IF EXISTS( sa[i] ) THEN
+    IF ( NOT ( sa[i] IN pf )) THEN
+      pf := pf + sa[i];
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pf) by 1;
+  IF EXISTS( pf[i].of_shape.definition ) THEN
+    IF ( (
+'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+'PHYSICAL_UNIT' IN TYPEOF(pf[i].of_shape.definition)) AND
+(pf[i].of_shape.definition.frame_of_reference.name = 
+'physical design usage') ) THEN
+      IF ( NOT ( pf[i].of_shape.definition IN pu_bag )) THEN
+        pu_bag := pu_bag + pf[i].of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pu_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  name_bag := [];
+  sa_bag := QUERY( sa &lt;* pf | (sa.of_shape.definition :=: pu_bag[i]) );
+  REPEAT j := 1 to SIZEOF(sa_bag) by 1;
+    IF EXISTS( sa_bag[j]\shape_aspect.name ) THEN
+      IF ( sa_bag[j]\shape_aspect.name IN name_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        name_bag := name_bag + sa_bag[j]\shape_aspect.name;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="restrict_manifold_surface_shape_representation" appliesto="manifold_surface_shape_representation">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( mssr &lt;* manifold_surface_shape_representation | ( mssr \ representation . name IN [ 'stratum feature non planar 2d shape' , 'open shell based surface' , 'design intent modification non planar 2d shape' , 'part template non planar 2d shape' ] ) AND ( NOT ( SIZEOF ( QUERY ( sbsm &lt;* mssr . items | ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SHELL_BASED_SURFACE_MODEL' IN TYPEOF ( sbsm ) ) AND ( SIZEOF ( QUERY ( os &lt;* sbsm \ shell_based_surface_model . sbsm_boundary | 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'OPEN_SHELL' IN TYPEOF ( os ) ) ) = 1 ) ) ) = 1 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(mssr &lt;* manifold_surface_shape_representation |&#10;         (mssr\representation.name IN ['stratum feature non planar 2d shape',&#10;         'open shell based surface',&#10;         'design intent modification non planar 2d shape', &#10;         'part template non planar 2d shape']) AND&#10;         (NOT(SIZEOF(QUERY(sbsm &lt;* mssr.items | &#10;         ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;         'SHELL_BASED_SURFACE_MODEL' IN TYPEOF(sbsm)) AND&#10;         (SIZEOF(QUERY(os &lt;* sbsm\shell_based_surface_model.sbsm_boundary |&#10;         'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;         'OPEN_SHELL' IN TYPEOF(os))) = 1)&#10;         )) = 1)))) = 0"/>
       </rule>
       <rule name="shape_representation_requires_origin" appliesto="shape_representation">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( sr &lt;* shape_representation | NOT ( ( SIZEOF ( QUERY ( it &lt;* sr \ representation . items | ( ( ( it \ representation_item . name = 'origin' ) or ( it \ representation_item . name = 'orientation' ) ) and ( ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'AXIS2_PLACEMENT_2D' in TYPEOF ( it ) ) OR ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'AXIS2_PLACEMENT_2D' in TYPEOF ( it ) ) ) ) ) ) = 1 ) OR ( SIZEOF ( QUERY ( it &lt;* sr \ representation . items | ( ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STYLED_ITEM' in TYPEOF ( it ) ) ) ) ) &gt;= 1 ) OR ( SIZEOF ( QUERY ( it &lt;* sr \ representation . items | ( ( ( it \ representation_item . name = 'origin' ) or ( it \ representation_item . name = 'orientation' ) ) and ( ( sr \ representation . name = 'zone shape' ) or ( sr . context_of_items \ representation_context . context_type = 'connection zone colour' ) ) ) ) ) = 0 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY ( sr &lt;* shape_representation |  NOT(&#10;(SIZEOF(QUERY ( it &lt;* sr\representation.items | (&#10;((it\representation_item.name = 'origin') or (it\representation_item.name = 'orientation')) and &#10;   (('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;    'AXIS2_PLACEMENT_2D' in TYPEOF(it))  OR&#10;   ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;    'AXIS2_PLACEMENT_2D' in TYPEOF(it)))&#10;))) = 1&#10;) &#10;OR&#10;(SIZEOF(QUERY ( it &lt;* sr\representation.items | (&#10;   ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;    'STYLED_ITEM' in TYPEOF(it))&#10;))) &gt;= 1&#10;)&#10;OR&#10;(SIZEOF(QUERY ( it &lt;* sr\representation.items | (&#10;((it\representation_item.name = 'origin') or (it\representation_item.name = 'orientation')) and&#10;   ((sr\representation.name = 'zone shape') or &#10;   (sr.context_of_items\representation_context.context_type = 'connection zone colour'))&#10;))) = 0&#10;)&#10;))) = 0"/>
       </rule>
       <rule name="subtype_combination_shape_aspect" appliesto="shape_aspect">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( sa &lt;* shape_aspect | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_BOND_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_MODULE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'MINIMALLY_DEFINED_BARE_DIE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_FUNCTIONAL_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_INTERFACE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DATUM_REFERENCE_FRAME' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DERIVED_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DEVICE_TERMINAL_MAP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'FABRICATION_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'GROUP_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'INTERCONNECT_MODULE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'INTERFACE_MOUNTED_JOIN' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'JOIN_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAND_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAYER' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAYER_CONNECTION_POINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'MOUNTING_RESTRICTION_AREA' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGE_BODY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGED_PART_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PART_CONNECTED_TERMINALS_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PART_TEMPLATE_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PASSAGE_TECHNOLOGY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_CONNECTIVITY_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_CONNECTIVITY_ELEMENT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_NETWORK' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'POSITIONAL_BOUNDARY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'POSITIONAL_BOUNDARY_MEMBER' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_CROSS_SECTION_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SEQUENTIAL_LAMINATE_PASSAGE_BASED_FABRICATION_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SHAPE_MODIFICATION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_CONCEPT_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_FEATURE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_SURFACE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TOLERANCE_ZONE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TOLERANCE_ZONE_BOUNDARY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'VIEWING_PLANE' ] * TYPEOF ( sa ) ) &lt;= 1 ) ) ) = 0 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( sa &lt;* shape_aspect | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_BOND_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_MODULE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'MINIMALLY_DEFINED_BARE_DIE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_FUNCTIONAL_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_INTERFACE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DATUM_REFERENCE_FRAME' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DEVICE_TERMINAL_MAP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'FABRICATION_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'GROUP_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'INTERCONNECT_MODULE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'INTERFACE_MOUNTED_JOIN' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'JOIN_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAND_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAYER' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAYER_CONNECTION_POINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'MOUNTING_RESTRICTION_AREA' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGE_BODY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGED_PART_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PART_CONNECTED_TERMINALS_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PART_TEMPLATE_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PASSAGE_TECHNOLOGY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_CONNECTIVITY_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_CONNECTIVITY_ELEMENT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_NETWORK' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT_DATUM' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'POSITIONAL_BOUNDARY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'POSITIONAL_BOUNDARY_MEMBER' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_CROSS_SECTION_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SEQUENTIAL_LAMINATE_PASSAGE_BASED_FABRICATION_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SHAPE_MODIFICATION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_CONCEPT_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_FEATURE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_SURFACE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TOLERANCE_ZONE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TOLERANCE_ZONE_BOUNDARY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'VIEWING_PLANE' ] * TYPEOF ( sa ) ) &lt;= 1 ) ) ) = 0 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( sa &lt;* shape_aspect | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_BOND_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_FUNCTIONAL_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_INTERFACE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DATUM_REFERENCE_FRAME' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DERIVED_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DEVICE_TERMINAL_MAP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'FABRICATION_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'GROUP_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'INTERFACE_MOUNTED_JOIN' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'JOIN_SHAPE_ASPECT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAND_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAYER' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'LAYER_CONNECTION_POINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'MOUNTING_RESTRICTION_AREA' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGE_BODY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PART_CONNECTED_TERMINALS_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PART_TEMPLATE_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PASSAGE_TECHNOLOGY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_CONNECTIVITY_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_CONNECTIVITY_ELEMENT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_NETWORK' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT_DATUM_FEATURE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT_DATUM_TARGET' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'POSITIONAL_BOUNDARY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'POSITIONAL_BOUNDARY_MEMBER' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_CROSS_SECTION_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRINTED_PART_TEMPLATE_TERMINAL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SEQUENTIAL_LAMINATE_PASSAGE_BASED_FABRICATION_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SHAPE_MODIFICATION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_CONCEPT_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_FEATURE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_SURFACE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TOLERANCE_ZONE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TOLERANCE_ZONE_BOUNDARY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'VIEWING_PLANE' ] * TYPEOF ( sa ) ) &lt;= 1 ) ) ) = 0 "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( sa &lt;* shape_aspect | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT_DATUM_FEATURE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT_DATUM_TARGET' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT_DATUM' ] * TYPEOF ( sa ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (sa &lt;* shape_aspect |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_BOND_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_MODULE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'MINIMALLY_DEFINED_BARE_DIE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_FUNCTIONAL_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_INTERFACE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DATUM_REFERENCE_FRAME',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DERIVED_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DEVICE_TERMINAL_MAP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'FABRICATION_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'GROUP_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'INTERCONNECT_MODULE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'INTERFACE_MOUNTED_JOIN',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'JOIN_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAND_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAYER',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAYER_CONNECTION_POINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'MOUNTING_RESTRICTION_AREA',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGE_BODY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGED_PART_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PART_CONNECTED_TERMINALS_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PASSAGE_TECHNOLOGY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_CONNECTIVITY_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_CONNECTIVITY_ELEMENT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_NETWORK',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'POSITIONAL_BOUNDARY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'POSITIONAL_BOUNDARY_MEMBER',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PRINTED_PART_CROSS_SECTION_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'SEQUENTIAL_LAMINATE_PASSAGE_BASED_FABRICATION_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'SHAPE_MODIFICATION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_CONCEPT_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_FEATURE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_SURFACE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TOLERANCE_ZONE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TOLERANCE_ZONE_BOUNDARY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'VIEWING_PLANE']&#10;       * TYPEOF(sa)) &lt;= 1))) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (sa &lt;* shape_aspect |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_BOND_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_MODULE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'MINIMALLY_DEFINED_BARE_DIE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_FUNCTIONAL_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_INTERFACE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DATUM_REFERENCE_FRAME',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DEVICE_TERMINAL_MAP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'FABRICATION_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'GROUP_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'INTERCONNECT_MODULE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'INTERFACE_MOUNTED_JOIN',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'JOIN_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAND_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAYER',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAYER_CONNECTION_POINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'MOUNTING_RESTRICTION_AREA',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGE_BODY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGED_PART_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PART_CONNECTED_TERMINALS_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PASSAGE_TECHNOLOGY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_CONNECTIVITY_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_CONNECTIVITY_ELEMENT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_NETWORK',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_UNIT_DATUM',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'POSITIONAL_BOUNDARY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'POSITIONAL_BOUNDARY_MEMBER',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PRINTED_PART_CROSS_SECTION_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'SEQUENTIAL_LAMINATE_PASSAGE_BASED_FABRICATION_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'SHAPE_MODIFICATION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_CONCEPT_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_FEATURE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_SURFACE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TOLERANCE_ZONE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TOLERANCE_ZONE_BOUNDARY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'VIEWING_PLANE']&#10;       * TYPEOF(sa)) &lt;= 1))) = 0"/>
+         <where label="WR3" expression="SIZEOF (QUERY (sa &lt;* shape_aspect |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_BOND_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_FUNCTIONAL_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_INTERFACE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DATUM_REFERENCE_FRAME',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DERIVED_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DEVICE_TERMINAL_MAP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'FABRICATION_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'GROUP_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'INTERFACE_MOUNTED_JOIN',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'JOIN_SHAPE_ASPECT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAND_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAYER',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'LAYER_CONNECTION_POINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'MOUNTING_RESTRICTION_AREA',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGE_BODY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PART_CONNECTED_TERMINALS_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PASSAGE_TECHNOLOGY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_CONNECTIVITY_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_CONNECTIVITY_ELEMENT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_NETWORK',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_UNIT_DATUM_FEATURE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_UNIT_DATUM_TARGET',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'POSITIONAL_BOUNDARY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'POSITIONAL_BOUNDARY_MEMBER',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PRINTED_PART_CROSS_SECTION_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_TERMINAL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'SEQUENTIAL_LAMINATE_PASSAGE_BASED_FABRICATION_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'SHAPE_MODIFICATION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_CONCEPT_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_FEATURE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_SURFACE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TOLERANCE_ZONE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TOLERANCE_ZONE_BOUNDARY',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'VIEWING_PLANE']&#10;       * TYPEOF(sa)) &lt;= 1))) = 0"/>
+         <where label="WR4" expression="SIZEOF (QUERY (sa &lt;* shape_aspect |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_UNIT_DATUM_FEATURE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_UNIT_DATUM_TARGET',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'PHYSICAL_UNIT_DATUM']&#10;       * TYPEOF(sa)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_exclusive_mapped_item" appliesto="mapped_item">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( mi &lt;* mapped_item | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ANNOTATION_TEXT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ANNOTATION_SYMBOL' ] * TYPEOF ( mi ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (mi &lt;* mapped_item |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ANNOTATION_TEXT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ANNOTATION_SYMBOL'] *&#10;       TYPEOF(mi)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_exclusive_product_definition" appliesto="product_definition">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pd &lt;* product_definition | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'BUS_STRUCTURAL_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_FUNCTIONAL_UNIT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'FUNCTIONAL_UNIT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'NETWORK_NODE_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM' ] * TYPEOF ( pd ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (pd &lt;* product_definition |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'BUS_STRUCTURAL_DEFINITION', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_DEFINITION', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_FUNCTIONAL_UNIT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'FUNCTIONAL_UNIT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'NETWORK_NODE_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_UNIT', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM']&#10;       * TYPEOF(pd)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_exclusive_property_definition" appliesto="property_definition">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pd &lt;* property_definition | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DIMENSIONAL_SIZE_PROPERTY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'GEOMETRIC_TOLERANCE_GROUP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'MATERIAL_PROPERTY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_UNIT_GEOMETRIC_TOLERANCE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRODUCT_DEFINITION_SHAPE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'REQUIREMENTS_PROPERTY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SIGNAL' ] * TYPEOF ( pd ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (pd &lt;* property_definition |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DIMENSIONAL_SIZE_PROPERTY',   &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'GEOMETRIC_TOLERANCE_GROUP', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'MATERIAL_PROPERTY', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_UNIT_GEOMETRIC_TOLERANCE', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION_SHAPE', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'REQUIREMENTS_PROPERTY', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'SIGNAL']&#10;       * TYPEOF(pd)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_exclusive_representation" appliesto="representation">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( rep &lt;* representation | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ANALYTICAL_MODEL_PORT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'COMPONENT_LOCATION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'RULE_FUNCTION_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRUCTURED_TEXT_REPRESENTATION_ITEM' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TEXT_STRING_REPRESENTATION' ] * TYPEOF ( rep ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (rep &lt;* representation |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'ANALYTICAL_MODEL_PORT', &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'COMPONENT_LOCATION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'RULE_FUNCTION_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRUCTURED_TEXT_REPRESENTATION_ITEM',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TEXT_STRING_REPRESENTATION']&#10;       * TYPEOF(rep)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_exclusive_representation_context" appliesto="representation_context">
-         <algorithm> LOCAL pass : BOOLEAN := TRUE ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( representation_context ) by 1 ; pass := ( NOT ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRUCTURED_TEXT_REPRESENTATION_CONTEXT' IN TYPEOF ( representation_context [ i ] ) ) OR ( SIZEOF ( TYPEOF ( representation_context [ i ] ) ) &lt;= 2 ) ) AND ( NOT ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF ( representation_context [ i ] ) ) OR ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'GEOMETRIC_REPRESENTATION_CONTEXT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PARAMETRIC_REPRESENTATION_CONTEXT' ] * TYPEOF ( representation_context [ i ] ) ) &lt;= 2 ) ) AND ( NOT ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PARAMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF ( representation_context [ i ] ) ) OR ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'GEOMETRIC_REPRESENTATION_CONTEXT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PARAMETRIC_REPRESENTATION_CONTEXT' ] * TYPEOF ( representation_context [ i ] ) ) &lt;= 2 ) ) ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+ pass : BOOLEAN := TRUE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(representation_context) by 1;
+  pass := (NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+       'STRUCTURED_TEXT_REPRESENTATION_CONTEXT' IN 
+                          TYPEOF(representation_context[i]))
+          OR (SIZEOF (TYPEOF(representation_context[i])) &lt;= 2 )) 
+       AND 
+          (NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+       'GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(representation_context[i]))
+          OR (SIZEOF ([
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 
+       'GEOMETRIC_REPRESENTATION_CONTEXT', 
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+       'PARAMETRIC_REPRESENTATION_CONTEXT'] 
+         * TYPEOF(representation_context[i])) &lt;= 2 )) 
+      AND
+          (NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+       'PARAMETRIC_REPRESENTATION_CONTEXT' IN 
+                        TYPEOF(representation_context[i]))
+          OR (SIZEOF ([
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 
+       'GEOMETRIC_REPRESENTATION_CONTEXT', 
+       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+       'PARAMETRIC_REPRESENTATION_CONTEXT'] 
+        * TYPEOF(representation_context[i])) &lt;= 2 ));
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="subtype_exclusive_shape_aspect_relationship" appliesto="shape_aspect_relationship">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( sar &lt;* shape_aspect_relationship | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'ASSEMBLY_JOINT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DEVICE_TERMINAL_MAP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DIMENSIONAL_LOCATION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'INTERFACE_MOUNTED_JOIN' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'MAKE_FROM_CONNECTIVITY_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'MAKE_FROM_FEATURE_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PHYSICAL_CONNECTIVITY_ELEMENT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SHAPE_ASPECT_DERIVING_RELATIONSHIP' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'STRATUM_CONCEPT_RELATIONSHIP' ] * TYPEOF ( sar ) ) &lt;= 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (sar &lt;* shape_aspect_relationship |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'ASSEMBLY_JOINT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DEVICE_TERMINAL_MAP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DIMENSIONAL_LOCATION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'INTERFACE_MOUNTED_JOIN',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'MAKE_FROM_CONNECTIVITY_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'MAKE_FROM_FEATURE_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PHYSICAL_CONNECTIVITY_ELEMENT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_DERIVING_RELATIONSHIP',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'STRATUM_CONCEPT_RELATIONSHIP']&#10;       * TYPEOF(sar)) &lt;= 1))) = 0"/>
       </rule>
       <rule name="subtype_mandatory_action" appliesto="action">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( act &lt;* action | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'DIRECTED_ACTION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'EXECUTED_ACTION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'RULE_ACTION' ] * TYPEOF ( act ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (act &lt;* action |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'DIRECTED_ACTION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'EXECUTED_ACTION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'RULE_ACTION'] * &#10;       TYPEOF(act)) = 1))) = 0"/>
       </rule>
       <rule name="subtype_mandatory_externally_defined_item" appliesto="externally_defined_item">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( edi &lt;* externally_defined_item | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'BOND_CATEGORY' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'EXTERNALLY_DEFINED_CURVE_FONT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'EXTERNALLY_DEFINED_HATCH_STYLE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'EXTERNALLY_DEFINED_REPRESENTATION_ITEM' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'EXTERNALLY_DEFINED_SYMBOL' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'EXTERNALLY_DEFINED_TEXT_FONT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'EXTERNALLY_DEFINED_TILE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'EXTERNALLY_DEFINED_TILE_STYLE' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PART_TEMPLATE_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'RULE_DEFINITION' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'SIGNAL_CATEGORY' ] * TYPEOF ( edi ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (edi &lt;* externally_defined_item |&#10;       NOT (SIZEOF ([&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'BOND_CATEGORY',  &#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'EXTERNALLY_DEFINED_CURVE_FONT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'EXTERNALLY_DEFINED_HATCH_STYLE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + &#10;       'EXTERNALLY_DEFINED_REPRESENTATION_ITEM',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'EXTERNALLY_DEFINED_SYMBOL',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'EXTERNALLY_DEFINED_TEXT_FONT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'EXTERNALLY_DEFINED_TILE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'EXTERNALLY_DEFINED_TILE_STYLE',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'RULE_DEFINITION',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'SIGNAL_CATEGORY'] * &#10;       TYPEOF (edi)) = 1))) = 0"/>
       </rule>
       <rule name="subtype_mandatory_pre_defined_item" appliesto="pre_defined_item">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( pdi &lt;* pre_defined_item | NOT ( SIZEOF ( [ 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRE_DEFINED_TEXT_FONT' , 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'PRE_DEFINED_CURVE_FONT' ] * TYPEOF ( pdi ) ) = 1 ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (pdi &lt;* pre_defined_item |&#10;       NOT (SIZEOF &#10;       (['AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PRE_DEFINED_TEXT_FONT',&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'PRE_DEFINED_CURVE_FONT'] *&#10;       TYPEOF(pdi)) = 1))) = 0"/>
       </rule>
       <rule name="subtype_mandatory_text_literal" appliesto="text_literal">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( tl &lt;* text_literal | NOT ( ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TEXT_LITERAL_WITH_EXTENT' IN TYPEOF ( tl ) ) OR ( 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' + 'TEXT_LITERAL_WITH_ASSOCIATED_CURVES' IN TYPEOF ( tl ) ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (tl &lt;* text_literal |&#10;       NOT ((&#10;       'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TEXT_LITERAL_WITH_EXTENT' IN TYPEOF (tl)) OR&#10;       ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +&#10;       'TEXT_LITERAL_WITH_ASSOCIATED_CURVES' IN&#10;       TYPEOF(tl))))) = 0"/>
       </rule>
       <function name="valid_2d_wireframe_edge_curve">
          <parameter name="crv">
@@ -121,7 +340,28 @@
             <builtintype type="STRING"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> IF SIZEOF ( [ schma + '.LINE' , schma + '.B_SPLINE_CURVE' , schma + '.CIRCLE' , schma + '.HYPERBOLA' , schma + '.ELLIPSE' , schma + '.PARABOLA' , schma + '.POLYLINE' ] * TYPEOF ( crv ) ) = 1 THEN RETURN ( TRUE ) ; ELSE IF ( schma + '.CURVE_REPLICA' ) IN TYPEOF ( crv ) THEN RETURN ( valid_2d_wireframe_edge_curve ( crv \ curve_replica . parent_curve , schma ) ) ; ELSE IF ( schma + '.OFFSET_CURVE_2D' ) IN TYPEOF ( crv ) THEN RETURN ( valid_2d_wireframe_edge_curve ( crv \ offset_curve_2d . basis_curve , schma ) ) ; END_IF ; END_IF ; END_IF ; RETURN ( FALSE ) ; </algorithm>
+         <algorithm>IF SIZEOF ([schma + '.LINE',
+              schma + '.B_SPLINE_CURVE',
+              schma + '.CIRCLE',
+              schma + '.HYPERBOLA',
+              schma + '.ELLIPSE',
+              schma + '.PARABOLA',
+              schma + '.POLYLINE'] * TYPEOF (crv)) = 1
+      THEN RETURN (TRUE);
+  ELSE
+    -- recursively check for valid basic curves for curve_replicas
+    IF (schma + '.CURVE_REPLICA') IN TYPEOF (crv)
+      THEN RETURN (valid_2d_wireframe_edge_curve
+                         (crv\curve_replica.parent_curve, schma));
+    -- recursively check for valid basis curves for offset_curves
+    ELSE
+      IF (schma + '.OFFSET_CURVE_2D') IN TYPEOF (crv)
+        THEN RETURN (valid_2d_wireframe_edge_curve
+                         (crv\offset_curve_2d.basis_curve, schma));
+      END_IF;
+    END_IF;
+  END_IF;
+  RETURN (FALSE);</algorithm>
       </function>
    </schema>
 </express>

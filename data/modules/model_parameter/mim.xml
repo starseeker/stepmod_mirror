@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:51:19" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:46:03" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="model_parameter_mim schema_instance"/>
    <schema name="Model_parameter_mim">
       <interface kind="use" schema="Characteristic_mim"/>
@@ -24,8 +24,8 @@
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="model_parameter_assigned_item"/>
          </explicit>
-         <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'MODEL_PARAMETER_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( aga &lt;* USEDIN ( SELF , 'MODEL_PARAMETER_MIM.' + 'APPLIED_GROUP_ASSIGNMENT.ITEMS' ) | ( 'MODEL_PARAMETER_MIM.' + 'PARAMETER_TYPE' IN TYPEOF ( aga . assigned_group ) ) AND ( aga . assigned_group \ group . name IN [ 'string property type' , 'logical property type' , 'physical property type' , 'boolean property type' ] ) ) ) = 1 "/>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, &#10;       'MODEL_PARAMETER_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1"/>
+         <where label="WR2" expression="SIZEOF (QUERY (aga &lt;* USEDIN (SELF, &#10;       'MODEL_PARAMETER_MIM.' +&#10;       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;       ('MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_TYPE' IN &#10;       TYPEOF (aga.assigned_group)) AND&#10;       (aga.assigned_group\group.name IN ['string property type', &#10;       'logical property type', 'physical property type', &#10;       'boolean property type']))) = 1"/>
       </entity>
       <entity name="parameter_assignment" supertypes="parameter_assignment_representation property_definition_representation"/>
       <entity name="parameter_assignment_override" supertypes="representation representation_relationship">
@@ -33,30 +33,68 @@
             <unique.attribute entity-ref="parameter_assignment_override" attribute="rep_1"/>
             <unique.attribute entity-ref="parameter_assignment_override" attribute="rep_2"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( TYPEOF ( SELF ) - ( TYPEOF ( SELF \ representation || SELF \ representation_relationship || SELF \ parameter_assignment_override ) ) ) = 0 "/>
-         <where label="WR2" expression=" SELF \ representation_relationship . rep_1 &lt;&gt; SELF \ representation_relationship . rep_2 "/>
-         <where label="WR3" expression=" SELF \ representation_relationship . name = '' "/>
-         <where label="WR4" expression=" SELF \ representation . name = '' "/>
-         <where label="WR5" expression=" 'MODEL_PARAMETER_MIM.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF ( SELF \ representation_relationship . rep_1 ) "/>
-         <where label="WR6" expression=" 'MODEL_PARAMETER_MIM.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF ( SELF \ representation_relationship . rep_2 ) "/>
+         <where label="WR1" expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||&#10;       SELF\representation_relationship || &#10;       SELF\parameter_assignment_override))) = 0"/>
+         <where label="WR2" expression="SELF\representation_relationship.rep_1 &lt;&gt; &#10;       SELF\representation_relationship.rep_2"/>
+         <where label="WR3" expression="SELF\representation_relationship.name = ''"/>
+         <where label="WR4" expression="SELF\representation.name = ''"/>
+         <where label="WR5" expression="'MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_1)"/>
+         <where label="WR6" expression="'MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_2)"/>
       </entity>
       <entity name="parameter_assignment_representation" supertypes="representation">
-         <where label="WR1" expression=" SIZEOF ( SELF . items ) = 2 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( TYPEOF ( it ) * [ 'MODEL_PARAMETER_MIM.' + 'MODEL_PARAMETER' ] ) = 1 ) ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( TYPEOF ( it ) * [ 'MODEL_PARAMETER_MIM.' + 'COORDINATED_REPRESENTATION_ITEM' ] ) = 1 ) ) ) &lt;= 1 "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( SIZEOF ( QUERY ( aga &lt;* USEDIN ( it , 'MODEL_PARAMETER_MIM.' + 'APPLIED_GROUP_ASSIGNMENT.ITEMS' ) | ( SIZEOF ( TYPEOF ( aga \ group_assignment . assigned_group ) * [ 'MODEL_PARAMETER_MIM.' + 'CHARACTERISTIC_TYPE' ] ) = 1 ) ) ) = 1 ) ) ) &lt;= 1 "/>
-         <where label="WR5" expression=" SIZEOF ( TYPEOF ( SELF ) - TYPEOF ( SELF \ representation || SELF \ parameter_assignment_representation ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (SELF.items) = 2"/>
+         <where label="WR2" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       (SIZEOF (TYPEOF (it) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'MODEL_PARAMETER']) &#10;       = 1))) = 1"/>
+         <where label="WR3" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       (SIZEOF (TYPEOF (it) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'COORDINATED_REPRESENTATION_ITEM']) &#10;       = 1))) &lt;= 1"/>
+         <where label="WR4" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;        (SIZEOF (QUERY(aga &lt;* USEDIN (it,&#10;        'MODEL_PARAMETER_MIM.' +&#10;        'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;             (SIZEOF (TYPEOF ( aga\group_assignment.assigned_group) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'CHARACTERISTIC_TYPE']) = 1))) &#10;       = 1))) &lt;= 1"/>
+         <where label="WR5" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\parameter_assignment_representation)) = 0"/>
       </entity>
       <entity name="product_specific_parameter_value_assignment" supertypes="characterized_object product_related_product_category">
-         <where label="WR1" expression=" SIZEOF ( SELF \ product_related_product_category . products ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( pd &lt;* USEDIN ( SELF , 'MODEL_PARAMETER_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) | ( pd \ property_definition . description = 'assigned parameter' ) AND ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'MODEL_PARAMETER_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( SIZEOF ( [ 'MODEL_PARAMETER_MIM.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' ] * TYPEOF ( pdr . used_representation ) ) = 1 ) ) ) = 1 ) ) ) = 1 "/>
-         <where label="WR3" expression=" NOT ( 'MODEL_PARAMETER_MIM.' + 'CHARACTERIZED_PRODUCT_CATEGORY' IN TYPEOF ( SELF ) ) "/>
-         <where label="WR4" expression=" SELF \ characterized_object . name = SELF \ product_category . name "/>
+         <where label="WR1" expression="SIZEOF(SELF\product_related_product_category.products) = 1"/>
+         <where label="WR2" expression="SIZEOF(QUERY(pd &lt;* USEDIN(SELF,&#10;       'MODEL_PARAMETER_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       (pd\property_definition.description = &#10;                                'assigned parameter') AND&#10;       (SIZEOF(QUERY(pdr &lt;* USEDIN(pd,&#10;       'MODEL_PARAMETER_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       (SIZEOF (&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION'] *&#10;       TYPEOF (pdr.used_representation)) = 1))) = 1))) = 1"/>
+         <where label="WR3" expression="NOT ('MODEL_PARAMETER_MIM.' +&#10;       'CHARACTERIZED_PRODUCT_CATEGORY' IN&#10;       TYPEOF(SELF))"/>
+         <where label="WR4" expression="SELF\characterized_object.name = SELF\product_category.name"/>
       </entity>
       <entity name="schema_based_model_parameter" supertypes="model_parameter"/>
       <rule name="model_parameter_unique_constraint" appliesto="model_parameter">
-         <algorithm> LOCAL name_bag : BAG OF STRING := [ ] ; mp_bag : BAG OF model_parameter ; adr_bag : BAG OF applied_document_reference ; pass : BOOLEAN := TRUE ; d_bag : BAG OF document ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( model_parameter ) by 1 ; IF EXISTS ( model_parameter [ i ] \ representation_item . name ) THEN IF ( NOT ( model_parameter [ i ] \ representation_item . name IN name_bag ) ) THEN name_bag := name_bag + model_parameter [ i ] \ representation_item . name ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( name_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; mp_bag := QUERY ( mp &lt;* model_parameter | ( mp \ representation_item . name = name_bag [ i ] ) ) ; d_bag := [ ] ; REPEAT j := 1 to SIZEOF ( mp_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; adr_bag := USEDIN ( mp_bag [ j ] , 'MODEL_PARAMETER_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ; REPEAT k := 1 to SIZEOF ( adr_bag ) by 1 ; IF EXISTS ( adr_bag [ k ] . assigned_document ) THEN IF ( adr_bag [ k ] . assigned_document IN d_bag ) THEN pass := FALSE ; ESCAPE ; ELSE d_bag := d_bag + adr_bag [ k ] . assigned_document ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  name_bag : BAG OF STRING := [];
+  mp_bag : BAG OF model_parameter;
+  adr_bag : BAG OF applied_document_reference;
+  pass : BOOLEAN := TRUE;
+  d_bag : BAG OF document;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(model_parameter) by 1;
+  IF EXISTS( model_parameter[i]\representation_item.name ) THEN
+    IF( NOT( model_parameter[i]\representation_item.name IN name_bag ) ) THEN
+      name_bag := name_bag + model_parameter[i]\representation_item.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  mp_bag := QUERY( mp &lt;* model_parameter | (mp\representation_item.name = name_bag[i]) );
+  d_bag := [];
+  REPEAT j := 1 to SIZEOF(mp_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adr_bag := USEDIN( mp_bag[j], 
+'MODEL_PARAMETER_MIM.'
++ 'APPLIED_DOCUMENT_REFERENCE.ITEMS' );
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN d_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          d_bag := d_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

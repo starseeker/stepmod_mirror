@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:51:17" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:46:01" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="design_specific_assignment_to_assembly_usage_view_mim schema_instance"/>
    <schema name="Design_specific_assignment_to_assembly_usage_view_mim">
       <interface kind="use" schema="Assembly_module_usage_view_mim"/>
@@ -11,12 +11,54 @@
       <interface kind="use" schema="Assembly_module_with_subassembly_mim"/>
       <interface kind="use" schema="Assembly_module_with_interconnect_component_mim"/>
       <rule name="component_terminal_to_assembly_module_interface_terminal_assignment_unique_constraint" appliesto="shape_aspect_relationship">
-         <algorithm> LOCAL cttamta : BAG OF shape_aspect_relationship := QUERY ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'component feature to physical usage view assignment' ) ) ; pass : BOOLEAN := TRUE ; amt_bag : BAG OF assembly_module_interface_terminal := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( cttamta ) by 1 ; IF EXISTS ( cttamta [ i ] . relating_shape_aspect ) THEN IF ( 'DESIGN_SPECIFIC_ASSIGNMENT_TO_ASSEMBLY_USAGE_VIEW_MIM.' + 'ASSEMBLY_MODULE_INTERFACE_TERMINAL' IN TYPEOF ( cttamta [ i ] . relating_shape_aspect ) ) THEN IF ( cttamta [ i ] . relating_shape_aspect IN amt_bag ) THEN pass := FALSE ; ESCAPE ; ELSE amt_bag := amt_bag + cttamta [ i ] . relating_shape_aspect ; END_IF ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  cttamta : BAG OF shape_aspect_relationship := QUERY( sar &lt;*
+shape_aspect_relationship | (sar\shape_aspect_relationship.name = 
+              'component feature to physical usage view assignment') );
+  pass : BOOLEAN := TRUE;
+  amt_bag : BAG OF assembly_module_interface_terminal := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(cttamta) by 1;
+  IF EXISTS( cttamta[i].relating_shape_aspect ) THEN
+    IF ( 'DESIGN_SPECIFIC_ASSIGNMENT_TO_ASSEMBLY_USAGE_VIEW_MIM.' +
+'ASSEMBLY_MODULE_INTERFACE_TERMINAL' IN TYPEOF(cttamta[i].relating_shape_aspect) ) 
+    THEN
+      IF ( cttamta[i].relating_shape_aspect IN amt_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        amt_bag := amt_bag + cttamta[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="component_terminal_to_pca_terminal_assignment_unique_constraint" appliesto="shape_aspect_relationship">
-         <algorithm> LOCAL cttamta : BAG OF shape_aspect_relationship := QUERY ( sar &lt;* shape_aspect_relationship | ( sar \ shape_aspect_relationship . name = 'component feature to physical usage view assignment' ) ) ; pass : BOOLEAN := TRUE ; amt_bag : BAG OF assembly_module_terminal := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( cttamta ) by 1 ; IF EXISTS ( cttamta [ i ] . relating_shape_aspect ) THEN IF ( ( 'DESIGN_SPECIFIC_ASSIGNMENT_TO_ASSEMBLY_USAGE_VIEW_MIM.' + 'SHAPE_ASPECT' IN TYPEOF ( cttamta [ i ] . relating_shape_aspect ) ) AND ( cttamta [ i ] . relating_shape_aspect \ shape_aspect . description = 'pca terminal' ) ) THEN IF ( cttamta [ i ] . relating_shape_aspect IN amt_bag ) THEN pass := FALSE ; ESCAPE ; ELSE amt_bag := amt_bag + cttamta [ i ] . relating_shape_aspect ; END_IF ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  cttamta : BAG OF shape_aspect_relationship := QUERY( sar &lt;*
+shape_aspect_relationship | (sar\shape_aspect_relationship.name = 
+             'component feature to physical usage view assignment') );
+  pass : BOOLEAN := TRUE;
+  amt_bag : BAG OF assembly_module_terminal := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(cttamta) by 1;
+  IF EXISTS( cttamta[i].relating_shape_aspect ) THEN
+    IF ( ('DESIGN_SPECIFIC_ASSIGNMENT_TO_ASSEMBLY_USAGE_VIEW_MIM.' +
+'SHAPE_ASPECT' IN TYPEOF(cttamta[i].relating_shape_aspect)) AND
+(cttamta[i].relating_shape_aspect\shape_aspect.description = 'pca terminal') ) THEN
+      IF ( cttamta[i].relating_shape_aspect IN amt_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        amt_bag := amt_bag + cttamta[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

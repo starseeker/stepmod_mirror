@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:51:14" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:45:57" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="analytical_model_mim schema_instance"/>
    <schema name="Analytical_model_mim">
       <interface kind="use" schema="Model_parameter_mim"/>
@@ -23,74 +23,118 @@
          <unique label="UR1">
             <unique.attribute entity-ref="analytical_model" attribute="name"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) ) = 2 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( dr &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) | dr . assigned_document . kind \ document_type . product_data_type = 'language reference manual' ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | NOT ( 'ANALYTICAL_MODEL_MIM.' + 'MODEL_PARAMETER' IN TYPEOF ( it ) ) ) ) = 0 "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( rr &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_1' ) | ( rr \ representation_relationship . name = 'access mechanism' ) AND ( 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL_PORT' IN TYPEOF ( rr . rep_2 ) ) ) ) &gt;= 1 "/>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, &#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 2"/>
+         <where label="WR2" expression="SIZEOF (QUERY (dr &lt;* USEDIN (SELF, &#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       dr.assigned_document.kind\document_type.product_data_type = &#10;       'language reference manual')) = 1"/>
+         <where label="WR3" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       NOT ('ANALYTICAL_MODEL_MIM.' +&#10;       'MODEL_PARAMETER' IN &#10;       TYPEOF (it)))) = 0"/>
+         <where label="WR4" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;       (rr\representation_relationship.name = 'access mechanism') AND&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL_PORT' IN&#10;       TYPEOF (rr.rep_2)))) &gt;= 1"/>
       </entity>
       <entity name="analytical_model_definition" supertypes="product_definition">
-         <where label="WR1" expression=" ( NOT ( 'ANALYTICAL_MODEL_MIM.' + 'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN TYPEOF ( SELF ) ) ) OR ( SIZEOF ( QUERY ( docs &lt;* SELF \ product_definition_with_associated_documents . documentation_ids | docs . kind \ document_type . product_data_type = 'CAD filename' ) ) &lt;= 1 ) "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( adta &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' ) | adta . role \ date_time_role . name = 'creation date' ) ) + SIZEOF ( QUERY ( ada &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'APPLIED_DATE_ASSIGNMENT.ITEMS' ) | ada . role \ date_role . name = 'creation date' ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS' ) ) = 1 "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( apoa &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | apoa . role \ person_and_organization_role . name = 'creator' ) ) + SIZEOF ( QUERY ( apoa &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | apoa . role \ organization_role . name = 'creator' ) ) &gt;= 1 "/>
-         <where label="WR5" expression=" SIZEOF ( USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS' ) ) = 1 "/>
-         <where label="WR6" expression=" SIZEOF ( TYPEOF ( SELF ) - ( TYPEOF ( SELF \ product_definition || SELF \ analytical_model_definition ) ) ) = 0 "/>
+         <where label="WR1" expression="(NOT ('ANALYTICAL_MODEL_MIM.' +&#10;       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN &#10;       TYPEOF (SELF))) OR&#10;       (SIZEOF (QUERY (docs &lt;* &#10;       SELF\product_definition_with_associated_documents.&#10;        documentation_ids |&#10;       docs.kind\document_type.product_data_type = 'CAD filename')) &lt;= 1)"/>
+         <where label="WR2" expression="SIZEOF (QUERY (adta &lt;* USEDIN (SELF, &#10;       'ANALYTICAL_MODEL_MIM.' + &#10;       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |&#10;       adta.role\date_time_role.name = 'creation date')) + &#10;       SIZEOF (QUERY (ada &lt;* USEDIN (SELF, &#10;       'ANALYTICAL_MODEL_MIM.' + &#10;       'APPLIED_DATE_ASSIGNMENT.ITEMS') |&#10;       ada.role\date_role.name = 'creation date')) = 1"/>
+         <where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1"/>
+         <where label="WR4" expression="SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\person_and_organization_role.name = 'creator')) +&#10;       SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\organization_role.name = 'creator')) &gt;= 1"/>
+         <where label="WR5" expression="SIZEOF (USEDIN (SELF, &#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1"/>
+         <where label="WR6" expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||&#10;       SELF\analytical_model_definition))) = 0"/>
       </entity>
       <entity name="analytical_model_make_from_relationship" supertypes="representation representation_relationship">
          <unique label="UR1">
             <unique.attribute entity-ref="analytical_model_make_from_relationship" attribute="rep_1"/>
             <unique.attribute entity-ref="analytical_model_make_from_relationship" attribute="rep_2"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( [ 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL' ] * TYPEOF ( SELF . rep_1 ) ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( [ 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL' ] * TYPEOF ( SELF . rep_2 ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( rr &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_1' ) | NOT ( ( 'ANALYTICAL_MODEL_MIM.' + 'MAKE_FROM_MODEL_PORT_RELATIONSHIP' IN TYPEOF ( rr . rep_2 ) ) ) ) ) = 0 "/>
-         <where label="WR4" expression=" SIZEOF ( QUERY ( rr &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_1' ) | NOT ( ( rr \ representation_relationship . name = 'associated make from' ) AND ( 'ANALYTICAL_MODEL_MIM.' + 'MAKE_FROM_MODEL_PORT_RELATIONSHIP' IN TYPEOF ( rr . rep_2 ) ) ) ) ) = 0 "/>
-         <where label="WR5" expression=" SIZEOF ( [ 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL' ] * TYPEOF ( SELF ) ) = 0 "/>
-         <where label="WR6" expression=" SIZEOF ( TYPEOF ( SELF ) - ( TYPEOF ( SELF \ representation || SELF \ representation_relationship || SELF \ analytical_model_make_from_relationship ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF (['ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL'] *&#10;       TYPEOF (SELF.rep_1)) = 1"/>
+         <where label="WR2" expression="SIZEOF (['ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL'] *&#10;       TYPEOF (SELF.rep_2)) = 1"/>
+         <where label="WR3" expression="SIZEOF( QUERY(rr &lt;* USEDIN(SELF,&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |NOT(&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'MAKE_FROM_MODEL_PORT_RELATIONSHIP' IN TYPEOF(rr.rep_2))))) = 0"/>
+         <where label="WR4" expression="SIZEOF( QUERY(rr &lt;* USEDIN(SELF,&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |NOT(&#10;       (rr\representation_relationship.name = 'associated make from') AND&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'MAKE_FROM_MODEL_PORT_RELATIONSHIP' IN TYPEOF(rr.rep_2))))) = 0"/>
+         <where label="WR5" expression="SIZEOF (['ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL'] *&#10;       TYPEOF (SELF)) = 0"/>
+         <where label="WR6" expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||&#10;       SELF\representation_relationship || &#10;       SELF\analytical_model_make_from_relationship))) = 0"/>
       </entity>
       <entity name="analytical_model_parameter" supertypes="model_parameter">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( cri &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION.ITEMS' ) | ( 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( cri ) ) ) ) = 1 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (cri &lt;* USEDIN (SELF,&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'REPRESENTATION.ITEMS') |&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL' IN TYPEOF(cri)) &#10;       )) = 1"/>
       </entity>
       <entity name="analytical_model_port" supertypes="representation" super.expression="analytical_model_vector_port ANDOR ONEOF (analog_analytical_model_port, digital_analytical_model_port)">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( am &lt;* QUERY ( rr &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | rr \ representation_relationship . name = 'access mechanism' ) | 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( am . rep_1 ) ) ) = 1 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (am &lt;* QUERY (rr &lt;* USEDIN (SELF,&#10;       'ANALYTICAL_MODEL_MIM.' + &#10;       'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;       rr\representation_relationship.name = 'access mechanism') |&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL' IN &#10;       TYPEOF (am.rep_1))) = 1"/>
       </entity>
       <entity name="analytical_model_scalar_port" supertypes="analytical_model_vector_port">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'ANALYTICAL_MODEL_MIM.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) AND ( it \ representation_item . name = 'size' ) AND ( 'ANALYTICAL_MODEL_MIM.' + 'COUNT_MEASURE' IN TYPEOF ( it \ measure_with_unit . value_component ) ) AND ( it \ measure_with_unit . value_component = 1 ) ) ) = 1 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'MEASURE_REPRESENTATION_ITEM'&#10;       IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'size') AND&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'COUNT_MEASURE' IN&#10;       TYPEOF (it\measure_with_unit.value_component)) AND&#10;       (it\measure_with_unit.value_component = 1))) = 1"/>
       </entity>
       <entity name="analytical_model_vector_port" supertypes="analytical_model_port">
-         <where label="WR1" expression=" ( SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'ANALYTICAL_MODEL_MIM.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) AND ( it \ representation_item . name = 'size' ) AND ( 'ANALYTICAL_MODEL_MIM.' + 'COUNT_MEASURE' IN TYPEOF ( it \ measure_with_unit . value_component ) ) AND ( 'ANALYTICAL_MODEL_MIM.' + 'CONTEXT_DEPENDENT_UNIT' IN TYPEOF ( it \ measure_with_unit . unit_component ) ) ) ) = 1 ) "/>
+         <where label="WR1" expression="(SIZEOF (QUERY (it &lt;* SELF.items |&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'MEASURE_REPRESENTATION_ITEM'&#10;       IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'size') AND&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'COUNT_MEASURE' IN&#10;       TYPEOF (it\measure_with_unit.value_component)) AND&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'CONTEXT_DEPENDENT_UNIT' IN&#10;       TYPEOF (it\measure_with_unit.unit_component)))) = 1)"/>
       </entity>
       <entity name="analytical_representation" supertypes="representation">
          <unique label="UR1">
             <unique.attribute entity-ref="analytical_representation" attribute="name"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( rr &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_1' ) | 'ANALYTICAL_MODEL_MIM.' + 'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF ( rr . rep_2 ) ) ) &gt;= 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( rr &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( rr . rep_1 ) ) ) = 1 "/>
+         <where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN&#10;       TYPEOF (rr.rep_2))) &gt;= 1"/>
+         <where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'ANALYTICAL_MODEL_MIM.' + &#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL' IN TYPEOF (rr.rep_1))) = 1"/>
       </entity>
       <entity name="digital_analytical_model_port" supertypes="analytical_model_port">
-         <where label="WR2" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'ANALYTICAL_MODEL_MIM.' + 'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) AND ( it \ representation_item . name = 'nominal signal flow direction' ) AND ( it \ descriptive_representation_item . description IN [ 'input direction' , 'output direction' , 'bidirectional' , 'unknown direction' ] ) ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'ANALYTICAL_MODEL_MIM.' + 'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) AND ( it \ representation_item . name = 'port type' ) AND ( it \ descriptive_representation_item . description IN [ 'string property type' , 'logical property type' , 'boolean property type' ] ) ) ) = 1 "/>
+         <where label="WR2" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'DESCRIPTIVE_REPRESENTATION_ITEM'&#10;       IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'nominal signal flow direction') AND&#10;       (it\descriptive_representation_item.description IN &#10;       ['input direction',&#10;       'output direction', 'bidirectional', 'unknown direction']))) = 1"/>
+         <where label="WR3" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'DESCRIPTIVE_REPRESENTATION_ITEM'&#10;       IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'port type') AND&#10;       (it\descriptive_representation_item.description IN &#10;       ['string property type',&#10;       'logical property type',&#10;       'boolean property type']))) = 1"/>
       </entity>
+      <entity name="digital_analytical_model_scalar_port" supertypes="digital_analytical_model_vector_port analytical_model_scalar_port"/>
+      <entity name="digital_analytical_model_vector_port" supertypes="analytical_model_vector_port"/>
       <entity name="make_from_model_port_relationship" supertypes="representation representation_relationship">
          <unique label="UR1">
             <unique.attribute entity-ref="make_from_model_port_relationship" attribute="rep_1"/>
             <unique.attribute entity-ref="make_from_model_port_relationship" attribute="rep_2"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( [ 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL_PORT' ] * TYPEOF ( SELF . rep_1 ) ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( [ 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL_PORT' ] * TYPEOF ( SELF . rep_2 ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( TYPEOF ( SELF ) - TYPEOF ( SELF \ representation || SELF \ representation_relationship || SELF \ make_from_model_port_relationship ) ) = 0 "/>
-         <where label="WR4" expression=" rep_1 :&lt;&gt;: rep_2 "/>
-         <where label="WR5" expression=" SIZEOF ( QUERY ( rr1 &lt;* USEDIN ( SELF . rep_1 , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | ( SIZEOF ( QUERY ( rr2 &lt;* USEDIN ( SELF . rep_2 , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | ( rr1 . rep_1 :=: rr2 . rep_1 ) ) ) = 0 ) ) ) = 1 "/>
-         <where label="WR6" expression=" SIZEOF ( QUERY ( rr &lt;* USEDIN ( SELF , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | ( ( 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL_MAKE_FROM_RELATIONSHIP' ) IN TYPEOF ( rr . rep_1 ) ) ) ) = 1 "/>
+         <where label="WR1" expression="SIZEOF (['ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL_PORT'] *&#10;       TYPEOF (SELF.rep_1)) = 1"/>
+         <where label="WR2" expression="SIZEOF (['ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL_PORT'] *&#10;       TYPEOF (SELF.rep_2)) = 1"/>
+         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\representation_relationship ||&#10;       SELF\make_from_model_port_relationship)) = 0"/>
+         <where label="WR4" expression="rep_1 :&lt;&gt;: rep_2"/>
+         <where label="WR5" expression="SIZEOF(QUERY( rr1 &lt;* USEDIN(SELF.rep_1,&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;        (SIZEOF(QUERY(rr2 &lt;* USEDIN(SELF.rep_2,&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;        (rr1.rep_1 :=: rr2.rep_1)&#10;        )) = 0))) = 1"/>
+         <where label="WR6" expression="SIZEOF (QUERY( rr &lt;* USEDIN(SELF,&#10;       'ANALYTICAL_MODEL_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;       (('ANALYTICAL_MODEL_MIM.' +&#10;       'ANALYTICAL_MODEL_MAKE_FROM_RELATIONSHIP') IN TYPEOF (rr.rep_1))&#10;       )) = 1"/>
       </entity>
       <entity name="port_variable" supertypes="representation representation_item" super.expression="ONEOF (across_port_variable, through_port_variable, transform_port_variable)"/>
       <entity name="through_port_variable" supertypes="port_variable"/>
       <entity name="transform_port_variable" supertypes="port_variable">
-         <where label="WR1" expression=" ( SIZEOF ( QUERY ( it &lt;* SELF . items | ( 'ANALYTICAL_MODEL_MIM.' + 'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) AND ( it \ representation_item . name = 'nominal signal flow direction' ) AND ( it \ descriptive_representation_item . description IN [ 'input direction' , 'output direction' , 'unknown direction' ] ) ) ) ) = 1 "/>
+         <where label="WR1" expression="(SIZEOF (QUERY (it &lt;* SELF.items |&#10;       ('ANALYTICAL_MODEL_MIM.' +&#10;       'DESCRIPTIVE_REPRESENTATION_ITEM'&#10;       IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'nominal signal flow direction') AND&#10;       (it\descriptive_representation_item.description IN &#10;       ['input direction',&#10;       'output direction', 'unknown direction'])))) = 1"/>
       </entity>
       <rule name="analytical_model_port_unique_constraint" appliesto="analytical_model_port">
-         <algorithm> LOCAL name_bag : BAG OF STRING := [ ] ; amp_bag : BAG OF analytical_model_port ; rr_bag : BAG OF representation_relationship ; pass : BOOLEAN := TRUE ; am_bag : BAG OF analytical_model ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( analytical_model_port ) by 1 ; IF EXISTS ( analytical_model_port [ i ] \ representation . name ) THEN IF ( NOT ( analytical_model_port [ i ] \ representation . name IN name_bag ) ) THEN name_bag := name_bag + analytical_model_port [ i ] \ representation . name ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( name_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; amp_bag := QUERY ( amp &lt;* analytical_model_port | ( amp \ representation . name = name_bag [ i ] ) ) ; am_bag := [ ] ; REPEAT j := 1 to SIZEOF ( amp_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; rr_bag := QUERY ( rr &lt;* USEDIN ( amp_bag [ j ] , 'ANALYTICAL_MODEL_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | ( ( rr \ representation_relationship . name = 'access mechanism' ) AND ( 'ANALYTICAL_MODEL_MIM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( rr . rep_1 ) ) ) ) ; REPEAT k := 1 to SIZEOF ( rr_bag ) by 1 ; IF EXISTS ( rr_bag [ k ] . rep_1 ) THEN IF ( rr_bag [ k ] . rep_1 IN am_bag ) THEN pass := FALSE ; ESCAPE ; ELSE am_bag := am_bag + rr_bag [ k ] . rep_1 ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  name_bag : BAG OF STRING := [];
+  amp_bag : BAG OF analytical_model_port;
+  rr_bag : BAG OF representation_relationship;
+  pass : BOOLEAN := TRUE;
+  am_bag : BAG OF analytical_model;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(analytical_model_port) by 1;
+  IF EXISTS( analytical_model_port[i]\representation.name ) THEN
+    IF( NOT( analytical_model_port[i]\representation.name IN name_bag ) ) THEN
+      name_bag := name_bag + analytical_model_port[i]\representation.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  amp_bag := QUERY( amp &lt;* analytical_model_port | 
+          (amp\representation.name = name_bag[i]) );
+  am_bag := [];
+  REPEAT j := 1 to SIZEOF(amp_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    rr_bag := QUERY( rr &lt;* USEDIN( amp_bag[j], 
+               'ANALYTICAL_MODEL_MIM.'
++ 'REPRESENTATION_RELATIONSHIP.REP_2' ) | ((rr\representation_relationship.name = 'access mechanism') 
+ AND
+('ANALYTICAL_MODEL_MIM.'
++ 'ANALYTICAL_MODEL' IN TYPEOF(rr.rep_1))) );
+    REPEAT k := 1 to SIZEOF(rr_bag) by 1;
+      IF EXISTS( rr_bag[k].rep_1 ) THEN
+        IF ( rr_bag[k].rep_1 IN am_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          am_bag := am_bag + rr_bag[k].rep_1;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

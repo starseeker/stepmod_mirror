@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:49:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:44:19" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="conductivity_material_aspects_arm schema_instance"/>
    <schema name="Conductivity_material_aspects_arm">
       <interface kind="use" schema="Generic_material_aspects_arm"/>
@@ -16,26 +16,26 @@
          <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Part_view_definition"/>
       </type>
       <entity name="Conductivity_material_property_class" abstract.supertype="YES" supertypes="Class" super.expression="ONEOF (Material_electrical_conductivity_class, Material_thermal_conductivity_class, Material_optical_conductivity_class, Material_magnetic_conductivity_class)">
-         <where label="WR1" expression=" SELF \ Class . name IN [ 'conductive' , 'non conductive' , 'resistive' , 'semi conductive' , 'super conductive' ] "/>
+         <where label="WR1" expression="SELF\Class.name IN &#10;       ['conductive', 'non conductive', 'resistive', 'semi conductive', 'super conductive']"/>
       </entity>
       <entity name="Material_electrical_conductivity_class" supertypes="Conductivity_material_property_class"/>
       <entity name="Material_identification_with_conductivity_classification" supertypes="Material_identification">
-         <derived name="electrical_conductivity_classification" expression=" get_cond_class ( SELF , 'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' ) ">
+         <derived name="electrical_conductivity_classification" expression="get_cond_class(SELF,'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS')">
             <builtintype type="STRING"/>
          </derived>
-         <derived name="magnetic_conductivity_classification" expression=" get_cond_class ( SELF , 'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' ) ">
+         <derived name="magnetic_conductivity_classification" expression="get_cond_class(SELF,'MATERIAL_THERMAL_CONDUCTIVITY_CLASS')">
             <builtintype type="STRING"/>
          </derived>
-         <derived name="optical_conductivity_classification" expression=" get_cond_class ( SELF , 'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS' ) ">
+         <derived name="optical_conductivity_classification" expression="get_cond_class(SELF,'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS')">
             <builtintype type="STRING"/>
          </derived>
-         <derived name="thermal_conductivity_classification" expression=" get_cond_class ( SELF , 'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS' ) ">
+         <derived name="thermal_conductivity_classification" expression="get_cond_class(SELF,'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS')">
             <builtintype type="STRING"/>
          </derived>
-         <where label="WR1" expression=" ( SIZEOF ( QUERY ( ca &lt;* USEDIN ( SELF , 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF ( ca . assigned_class ) ) ) ) = 1 ) "/>
-         <where label="WR2" expression=" ( SIZEOF ( QUERY ( ca &lt;* USEDIN ( SELF , 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF ( ca . assigned_class ) ) ) ) &lt;= 1 ) "/>
-         <where label="WR3" expression=" ( SIZEOF ( QUERY ( ca &lt;* USEDIN ( SELF , 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS' IN TYPEOF ( ca . assigned_class ) ) ) ) &lt;= 1 ) "/>
-         <where label="WR4" expression=" ( SIZEOF ( QUERY ( ca &lt;* USEDIN ( SELF , 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS' IN TYPEOF ( ca . assigned_class ) ) ) ) &lt;= 1 ) "/>
+         <where label="WR1" expression=": (SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) = 1"/>
+         <where label="WR2" expression=": (SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1"/>
+         <where label="WR3" expression=": (SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1"/>
+         <where label="WR4" expression=": (SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1"/>
       </entity>
       <entity name="Material_magnetic_conductivity_class" supertypes="Conductivity_material_property_class"/>
       <entity name="Material_optical_conductivity_class" supertypes="Conductivity_material_property_class"/>
@@ -48,7 +48,20 @@
             <builtintype type="STRING"/>
          </parameter>
          <builtintype type="STRING"/>
-         <algorithm> LOCAL car : SET OF Classification_assignment := [ ] ; END_LOCAL ; car := QUERY ( ca &lt;* USEDIN ( input1 , 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.' + input2 IN TYPEOF ( ca . assigned_class ) ) ) ; IF SIZEOF ( car ) = 1 THEN RETURN ( car [ 1 ] . assigned_class \ class . name ) ; ELSE RETURN ( '?' ) ; END_IF ; </algorithm>
+         <algorithm>LOCAL
+  car : SET OF Classification_assignment := [];
+ END_LOCAL;
+  car := QUERY(ca &lt;* USEDIN(input1,
+	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
+	 	input2 IN TYPEOF (ca.assigned_class)));
+ IF SIZEOF(car) = 1
+  THEN
+    RETURN(car[1].assigned_class\class.name);
+  ELSE
+    RETURN('?');
+ END_IF;</algorithm>
       </function>
    </schema>
 </express>

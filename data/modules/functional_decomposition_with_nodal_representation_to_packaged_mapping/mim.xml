@@ -2,15 +2,34 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:51:18" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:46:02" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_decomposition_with_nodal_representation_to_packaged_mapping_mim schema_instance"/>
    <schema name="Functional_decomposition_with_nodal_representation_to_packaged_mapping_mim">
       <interface kind="use" schema="Functional_decomposition_to_design_mim"/>
       <interface kind="use" schema="Physical_connectivity_definition_mim"/>
       <interface kind="use" schema="Part_external_reference_mim"/>
       <rule name="aggregate_connectivity_requirement_unique_constraint" appliesto="product_definition_relationship">
-         <algorithm> LOCAL acr : BAG OF product_definition_relationship := QUERY ( pdr &lt;* product_definition_relationship | ( pdr \ product_definition_relationship . name = 'aggregate connectivity requirement' ) ) ; pass : BOOLEAN := TRUE ; pd_bag : BAG OF product_definition := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( acr ) by 1 ; IF EXISTS ( acr [ i ] . related_product_definition ) THEN IF ( acr [ i ] . id = 'design composition path' ) THEN IF ( acr [ i ] . related_product_definition IN pd_bag ) THEN pass := FALSE ; ESCAPE ; ELSE pd_bag := pd_bag + acr [ i ] . related_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  acr : BAG OF product_definition_relationship := 
+                     QUERY( pdr &lt;* product_definition_relationship |
+                     (pdr\product_definition_relationship.name = 'aggregate connectivity requirement') );
+  pass : BOOLEAN := TRUE;
+  pd_bag : BAG OF product_definition := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(acr) by 1;
+  IF EXISTS( acr[i].related_product_definition ) THEN
+    IF ( acr[i].id = 'design composition path' ) THEN
+      IF ( acr[i].related_product_definition IN pd_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        pd_bag := pd_bag + acr[i].related_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-25T15:51:15" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T09:45:59" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_module_with_interconnect_component_mim schema_instance"/>
    <schema name="Assembly_module_with_interconnect_component_mim">
       <interface kind="use" schema="Assembly_module_design_mim"/>
@@ -11,17 +11,90 @@
       <interface kind="use" schema="Physical_unit_design_view_mim"/>
       <interface kind="use" schema="Interface_component_mim"/>
       <entity name="interconnect_module_component_surface_feature" supertypes="shape_aspect">
-         <where label="WR1" expression=" 'ASSEMBLY_MODULE_WITH_INTERCONNECT_COMPONENT_MIM.' + 'COMPONENT_DEFINITION' IN TYPEOF ( SELF . of_shape . definition ) "/>
-         <where label="WR2" expression=" ( SELF \ shape_aspect . description IN [ 'interconnect module component surface feature' ] ) "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( i_f &lt;* QUERY ( sar &lt;* USEDIN ( SELF , 'ASSEMBLY_MODULE_WITH_INTERCONNECT_COMPONENT_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | sar \ shape_aspect_relationship . name = 'instantiated feature' ) | i_f . relating_shape_aspect \ shape_aspect . description IN [ 'interconnect module secondary surface' , 'interconnect module primary surface' , 'interconnect module cavity surface' , 'interconnect module cutout surface' , 'interconnect module edge surface' , 'interconnect module edge segment surface' ] ) ) = 1 "/>
+         <where label="WR1" expression="'ASSEMBLY_MODULE_WITH_INTERCONNECT_COMPONENT_MIM.' +&#10;       'COMPONENT_DEFINITION' IN&#10;       TYPEOF (SELF.of_shape.definition)"/>
+         <where label="WR2" expression="(SELF\shape_aspect.description IN [&#10;       'interconnect module component surface feature'])"/>
+         <where label="WR3" expression="SIZEOF (QUERY (i_f &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_WITH_INTERCONNECT_COMPONENT_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'instantiated feature') |&#10;       i_f.relating_shape_aspect\shape_aspect.description IN&#10;       ['interconnect module secondary surface',&#10;        'interconnect module primary surface',&#10;        'interconnect module cavity surface',&#10;        'interconnect module cutout surface',&#10;        'interconnect module edge surface',&#10;        'interconnect module edge segment surface'])) = 1"/>
       </entity>
       <rule name="interconnect_component_interface_terminal_unique_constraint" appliesto="component_interface_terminal">
-         <algorithm> LOCAL icit : BAG OF component_interface_terminal := QUERY ( cit &lt;* component_interface_terminal | ( cit \ shape_aspect . description = 'interconnect component interface terminal' ) ) ; icd_bag : BAG OF interface_component_definition := [ ] ; cit_bag : BAG OF component_interface_terminal ; pass : BOOLEAN := TRUE ; name_bag : BAG OF STRING ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( icit ) by 1 ; IF EXISTS ( icit [ i ] . of_shape . definition ) THEN IF ( 'ASSEMBLY_MODULE_WITH_INTERCONNECT_COMPONENT_MIM.' + 'INTERFACE_COMPONENT_DEFINITION' IN TYPEOF ( icit [ i ] . of_shape . definition ) ) THEN IF ( NOT ( icit [ i ] . of_shape . definition IN icd_bag ) ) THEN icd_bag := icd_bag + icit [ i ] . of_shape . definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( icd_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; name_bag := [ ] ; cit_bag := QUERY ( cit &lt;* icit | ( cit . of_shape . definition :=: icd_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( cit_bag ) by 1 ; IF EXISTS ( cit_bag [ j ] \ shape_aspect . name ) THEN IF ( cit_bag [ j ] \ shape_aspect . name IN name_bag ) THEN pass := FALSE ; ESCAPE ; ELSE name_bag := name_bag + cit_bag [ j ] \ shape_aspect . name ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  icit : BAG OF component_interface_terminal := QUERY( cit &lt;*
+component_interface_terminal | (cit\shape_aspect.description =
+'interconnect component interface terminal') );
+  icd_bag : BAG OF interface_component_definition := [];
+  cit_bag : BAG OF component_interface_terminal;
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(icit) by 1;
+  IF EXISTS( icit[i].of_shape.definition ) THEN
+    IF ( 'ASSEMBLY_MODULE_WITH_INTERCONNECT_COMPONENT_MIM.' +
+'INTERFACE_COMPONENT_DEFINITION' IN TYPEOF(icit[i].of_shape.definition) ) 
+                                                          THEN
+      IF ( NOT ( icit[i].of_shape.definition IN icd_bag )) THEN
+        icd_bag := icd_bag + icit[i].of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(icd_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  name_bag := [];
+  cit_bag := 
+        QUERY( cit &lt;* icit | (cit.of_shape.definition :=: icd_bag[i]) );
+  REPEAT j := 1 to SIZEOF(cit_bag) by 1;
+    IF EXISTS( cit_bag[j]\shape_aspect.name ) THEN
+      IF ( cit_bag[j]\shape_aspect.name IN name_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        name_bag := name_bag + cit_bag[j]\shape_aspect.name;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="interconnect_component_join_terminal_unique_constraint" appliesto="component_terminal">
-         <algorithm> LOCAL icjt : BAG OF component_terminal := QUERY ( ct &lt;* component_terminal | ( ct \ shape_aspect . description = 'interconnect component join terminal' ) ) ; cd_bag : BAG OF component_definition := [ ] ; ct_bag : BAG OF component_terminal ; pass : BOOLEAN := TRUE ; name_bag : BAG OF STRING ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( icjt ) by 1 ; IF EXISTS ( icjt [ i ] . of_shape . definition ) THEN IF ( 'ASSEMBLY_MODULE_WITH_INTERCONNECT_COMPONENT_MIM.' + 'COMPONENT_DEFINITION' IN TYPEOF ( icjt [ i ] . of_shape . definition ) ) THEN IF ( NOT ( icjt [ i ] . of_shape . definition IN cd_bag ) ) THEN cd_bag := cd_bag + icjt [ i ] . of_shape . definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( cd_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; name_bag := [ ] ; ct_bag := QUERY ( ct &lt;* icjt | ( ct . of_shape . definition :=: cd_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( ct_bag ) by 1 ; IF EXISTS ( ct_bag [ j ] \ shape_aspect . name ) THEN IF ( ct_bag [ j ] \ shape_aspect . name IN name_bag ) THEN pass := FALSE ; ESCAPE ; ELSE name_bag := name_bag + ct_bag [ j ] \ shape_aspect . name ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
+         <algorithm>LOCAL
+  icjt : BAG OF component_terminal := QUERY( ct &lt;* component_terminal |
+(ct\shape_aspect.description = 'interconnect component join terminal') );
+  cd_bag : BAG OF component_definition := [];
+  ct_bag : BAG OF component_terminal;
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(icjt) by 1;
+  IF EXISTS( icjt[i].of_shape.definition ) THEN
+    IF ( 'ASSEMBLY_MODULE_WITH_INTERCONNECT_COMPONENT_MIM.' +
+'COMPONENT_DEFINITION' IN TYPEOF(icjt[i].of_shape.definition) ) THEN
+      IF ( NOT ( icjt[i].of_shape.definition IN cd_bag )) THEN
+        cd_bag := cd_bag + icjt[i].of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(cd_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  name_bag := [];
+  ct_bag := QUERY( ct &lt;* icjt | (ct.of_shape.definition :=: cd_bag[i]) );
+  REPEAT j := 1 to SIZEOF(ct_bag) by 1;
+    IF EXISTS( ct_bag[j]\shape_aspect.name ) THEN
+      IF ( ct_bag[j]\shape_aspect.name IN name_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        name_bag := name_bag + ct_bag[j]\shape_aspect.name;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
       </rule>
    </schema>
 </express>

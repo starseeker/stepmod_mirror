@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.34 2002/08/06 08:05:48 robbod Exp $
+     $Id: express_code.xsl,v 1.35 2002/08/06 16:18:00 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -31,9 +31,17 @@
 
 
 <xsl:template match="schema" mode="code">
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>    
+
   <code>
     <br/><br/>
-    SCHEMA <b><xsl:value-of select="@name"/></b>;
+    <a name="$aname">
+      SCHEMA <b><xsl:value-of select="@name"/></b>;
+  </a>
   <br/>    <br/>
   <xsl:apply-templates select="./interface" mode="code"/>
   <xsl:apply-templates select="./constant" mode="code"/>

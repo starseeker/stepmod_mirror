@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.3 2002/08/02 15:58:46 robbod Exp $
+$Id: sect_contents.xsl,v 1.4 2002/08/05 06:23:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -596,7 +596,7 @@ $Id: sect_contents.xsl,v 1.3 2002/08/02 15:58:46 robbod Exp $
       </A>
     </p>
   </xsl:if>
-  <A HREF="./biblio{$FILE_EXT}#biblio">Bibliography</A>
+  <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A>
   
 </xsl:template>
 
@@ -807,15 +807,19 @@ $Id: sect_contents.xsl,v 1.3 2002/08/02 15:58:46 robbod Exp $
 
 
 <xsl:template match="ae" mode="toc">
+  <xsl:variable name="ae_aname" select="@entity"/>
+  <xsl:variable 
+    name="ae_xref"
+    select="concat('./5_mapping',$FILE_EXT,'#',$ae_aname)"/>
+
   <xsl:variable name="sect_no">
     <xsl:number/>
   </xsl:variable>
-  <xsl:variable name="aname" select="@entity"/>
   <p class="content">
     &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-    <a href="#{$aname}">
+    <a href="{$ae_xref}">
       <xsl:value-of
-        select="concat('5.1.',$sect_no,' ',$aname)"/>
+        select="concat('5.1.',$sect_no,' ',$ae_aname)"/>
     </a>
   </p>
 

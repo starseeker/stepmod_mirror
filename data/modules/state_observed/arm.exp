@@ -1,6 +1,133 @@
-(*
-   $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
-   N - ISO/CD-TS - 10303- state_observed - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+{ iso standard 10303 part (11) version (4) }
+
+(******************************************************************************)
+(*                                                                            *)
+(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* Original model: State_observed_arm_e1.3.vsd *)
+(* Title: State_arm *)
+(* Author: LEYSON *)
+(* Comments :
+ *)
+
 SCHEMA State_observed_arm;
+
+USE FROM Condition_evaluation_arm;
+
+USE FROM Date_time_assignment_arm;
+
+USE FROM Person_organization_assignment_arm;
+
+USE FROM State_definition_arm;
+
+TYPE observer = SELECT BASED_ON organization_or_person_in_organization_item WITH
+  (State_assessment);
+END_TYPE;
+
+TYPE state_date_and_time = SELECT BASED_ON date_or_date_and_time_item WITH
+  (Applied_state_assignment);
+END_TYPE;
+
+TYPE state_of_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+ENTITY Applied_state_assignment;
+  assigned_to : state_of_select;
+  described_state : State;
+END_ENTITY;
+
+ENTITY Composition_of_state
+SUBTYPE OF (state_relationship);
+  part : State;
+  whole : State;
+END_ENTITY;
+
+ENTITY Defined_state_relationship;
+  defined : Verified_state;
+  evaluated : State_assessment;
+END_ENTITY;
+
+ENTITY Sequence_of_state
+SUBTYPE OF (state_relationship);
+  predecessor : State;
+  successor : State;
+END_ENTITY;
+
+ENTITY State
+SUPERTYPE OF (ONEOF(State_observed, State_predicted));
+  description : OPTIONAL STRING;
+  title : STRING;
+END_ENTITY;
+
+ENTITY State_assessment;
+  assert_to : State_definition;
+  evaluation : Condition_assessment;
+  subject_state : State;
+END_ENTITY;
+
+ENTITY State_cause_effect
+SUBTYPE OF (state_relationship);
+  cause : State;
+  effect : State;
+END_ENTITY;
+
+ENTITY State_observed
+SUBTYPE OF (State);
+END_ENTITY;
+
+ENTITY State_predicted
+SUBTYPE OF (State);
+END_ENTITY;
+
+ENTITY state_relationship;
+END_ENTITY;
+
+ENTITY state_relationship_relationship;
+  related : state_relationship;
+  relating : state_relationship;
+END_ENTITY;
+
+ENTITY State_transition
+SUBTYPE OF (state_relationship);
+  end_state : State;
+  start_state : State;
+END_ENTITY;
+
+ENTITY Verified_state;
+  asserted_state : State;
+  condition_conformance : Condition_assessment;
+  state_conformance : State_definition;
+END_ENTITY;
+
 END_SCHEMA;
+
+SCHEMA State_definition_arm;
+
+ENTITY State_definition;
+END_ENTITY;
+
+END_SCHEMA;
+
+SCHEMA Date_time_assignment_arm;
+
+TYPE date_or_date_and_time_item = EXTENSIBLE SELECT ;
+END_TYPE;
+
+END_SCHEMA;
+
+SCHEMA Condition_evaluation_arm;
+
+ENTITY Condition_assessment;
+END_ENTITY;
+
+END_SCHEMA;
+
+SCHEMA Person_organization_assignment_arm;
+
+TYPE organization_or_person_in_organization_item = EXTENSIBLE SELECT ;
+END_TYPE;
+
+END_SCHEMA;
+

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.181 2005/03/02 12:44:22 robbod Exp $
+$Id: module.xsl,v 1.182 2005/03/02 13:40:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1421,7 +1421,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
     <tr>
       <td>&#160;&#160;</td>
       <td>Additional information:</td>      
-      <td>&lt;<a href="{$information_url}"  target="_blank"><xsl:value-of select="$information_url"/></a>&gt;</td>
+      <td><a href="{$information_url}"  target="_blank"><xsl:value-of select="$information_url"/></a></td>
   </tr>
   </table>
   </xsl:if>

@@ -1,0 +1,244 @@
+//$Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $
+// JScript to generate the deafault XML for the module.
+// This script uses The Saxon XSLT processor:
+//  http://sourceforge.net/projects/saxon
+// cscript mkmodule.js <module> 
+// e.g.
+// cscript mkmodule.js person
+
+// ------------------------------------------------------------
+// Global variables
+// -----------------------------------------------------------
+
+var stepmodHome = "Z:/My Documents/projects/nist_module_repo/stepmod";
+
+var moduleClauses = new Array("main", "cover", "introduction", "foreword", 
+			      "1_scope", "2_refs", "3_defs", "4_info_reqs", 
+			      "5_mim", "5_mapping", 
+			      "a_short_names", "b_obj_reg", "c_arm_expg", 
+			      "d_mim_expg", 
+			      "e_exp", 
+			      "e_exp_mim", "e_exp_mim_lf", 
+			      "e_exp_arm", "e_exp_arm_lf", 
+			      "f_guide", 
+			      "biblio");
+
+//------------------------------------------------------------
+function ErrorMessage(msg){
+    var objShell = WScript.CreateObject("WScript.Shell");
+    WScript.Echo(msg);
+    objShell.Popup(msg);
+}
+
+function userMessage(msg) {
+    WScript.Echo(msg);
+}		
+
+function CheckArgs() {
+    var cArgs = WScript.Arguments;
+    var msg = "Incorrect arguments\n"+
+	"  cscript mkmodule.js <module>";
+    if (cArgs.length != 1) {
+	ErrorMessage(msg);
+	return(false);
+    } 
+    return(true);
+}
+
+function CheckModule(module) {
+    var modFldr = GetModuleDir(module);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    
+    // check if the folder exists
+    if (fso.FolderExists(modFldr)) 
+	throw("Directory already exists for module: "+ module);
+    return(true);
+}
+
+
+function GetModuleDir(module) {
+    return( stepmodHome+"/data/modules/"+module+"/");
+}
+
+function MakeModuleClause(module, clause) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var modFldr = GetModuleDir(module);
+    var modSysFldr = modFldr+"sys/";
+    var clauseXML = modSysFldr+clause+".xml";
+    var clauseXSL = "sect_"+clause+".xsl";
+
+    userMessage("Creating "+clauseXML);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    fso.CreateTextFile( clauseXML, true );
+    var f = fso.GetFile(clauseXML);
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+    
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $ -->");
+    ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
+    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
+    ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
+    ts.WriteLine("<module_clause directory=\"" + module + "\"/>");
+
+    ts.Close();
+}
+
+
+function MakeModuleXML(module) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var modFldr = GetModuleDir(module);
+    var armOrMimXML = modFldr+"module.xml";
+
+    userMessage("Creating "+armOrMimXML);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    fso.CreateTextFile( armOrMimXML, true );
+    var f = fso.GetFile(armOrMimXML);
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+    
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $ -->");
+    ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
+    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
+    ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
+    ts.WriteLine("<module");
+    ts.WriteLine("   name=\"" + module + "\"");
+    ts.WriteLine("   part=\"\"");
+    ts.WriteLine("   version=\"\"");
+    ts.WriteLine("   iim=\"\"");
+    var rcsdate = "$"+"Date: $";
+    ts.WriteLine("   rcs.date=\""+rcsdate+"\"");
+    var rcsrevision = "$"+"Revision: $";
+    ts.WriteLine("   rcs.revision=\""+rcsrevision+"\">");
+    ts.WriteLine(" <purpose>");
+    ts.WriteLine(" </purpose>");
+    ts.WriteLine("");
+    ts.WriteLine(" <inscope>");
+    ts.WriteLine(" </inscope>");
+    ts.WriteLine("");
+    ts.WriteLine(" <outscope>");
+    ts.WriteLine(" </outscope>");
+    ts.WriteLine("");
+    ts.WriteLine(" <normrefs/>");
+    ts.WriteLine("");
+    ts.WriteLine(" <definition/>");
+    ts.WriteLine("");
+    ts.WriteLine(" <abbreviations/>");
+    ts.WriteLine("");
+    ts.WriteLine(" <arm>");
+    ts.WriteLine("   <express-g>");
+    ts.WriteLine("     <imgfile file=\"armexpg1.xml\"/>");
+    ts.WriteLine("    </express-g>");
+    ts.WriteLine(" </arm>");
+    ts.WriteLine("");
+    ts.WriteLine(" <mapping_table/>");
+    ts.WriteLine("");
+    ts.WriteLine(" <mim>");
+    ts.WriteLine("   <express-g>");
+    ts.WriteLine("     <imgfile file=\"mimexpg1.xml\"/>");
+    ts.WriteLine("    </express-g>");
+    ts.WriteLine(" </mim>");
+    ts.WriteLine("");
+    ts.WriteLine("</module>");
+    ts.Close();
+}
+
+function MakeExpressG(module, expgfile, title, gif) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var modFldr = GetModuleDir(module);
+    var expg = modFldr+expgfile;
+
+    userMessage("Creating "+expg);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    fso.CreateTextFile( expg, true );
+    var f = fso.GetFile(expg);
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+    
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $ -->");
+    ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/text.ent\">");
+    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
+    ts.WriteLine("    href=\"../../../xsl/imgfile.xsl\"?>");
+    ts.WriteLine("<imgfile.content");
+    ts.WriteLine("  module=\""+module+"\"");
+    ts.WriteLine("  title=\""+title+"\">");
+    ts.WriteLine("  <img src=\""+gif+"\">");
+    ts.WriteLine("  </img>");
+    ts.WriteLine("</imgfile.content>");
+    ts.Close();
+}
+
+
+function MakeExpressXML(module, armOrMim) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var modFldr = GetModuleDir(module);
+    var armOrMimXML = modFldr+armOrMim+".xml";
+
+    userMessage("Creating "+armOrMimXML);
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    fso.CreateTextFile( armOrMimXML, true );
+    var f = fso.GetFile(armOrMimXML);
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+    
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $ -->");
+    ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
+    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
+    ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
+    ts.WriteLine("<express>");
+    ts.WriteLine("  <schema name=\""+module+"\">");
+    ts.WriteLine("  </schema>");
+    ts.WriteLine("</express>");
+    ts.Close();
+}
+
+
+function MakeModule(module) {
+    var modFldr = GetModuleDir(module);
+    var modSysFldr = modFldr+"sys/";
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+    userMessage("Creating module "+module);
+    try {
+	CheckModule(module);
+
+	fso.CreateFolder(modFldr);
+	fso.CreateFolder(modSysFldr);	
+
+	for (var i=0; i<moduleClauses.length; i++) {
+	    MakeModuleClause(module, moduleClauses[i]);
+	}
+	MakeExpressG(module,"armexpg1.xml",
+		     "ARM EXPRESS-G diagram 1",
+		     "../../../images/underconstruction.gif");
+	MakeExpressG(module,"mimexpg1.xml",
+		     "MIM EXPRESS-G diagram 1",
+		     "../../../images/underconstruction.gif");
+	MakeExpressXML(module,"arm");
+	MakeExpressXML(module,"mim");
+	MakeModuleXML(module);
+    }
+    catch(e) {
+	ErrorMessage(e);
+    }    
+}
+
+
+function Main() {
+    var cArgs = WScript.Arguments;
+    if (CheckArgs() == 1) {
+	var cArgs = WScript.Arguments;
+	var module=cArgs(0);
+	try {
+	    MakeModule(module);
+	}
+	catch(e) {
+	    ErrorMessage(e);
+	}
+    }
+}
+
+Main();

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.10 2002/08/19 00:21:43 robbod Exp $
+$Id: sect_contents.xsl,v 1.11 2002/09/05 07:45:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -554,6 +554,8 @@ $Id: sect_contents.xsl,v 1.10 2002/08/19 00:21:43 robbod Exp $
                               ' MIM rule definitions')"/>
       </A>
     </p>
+    <xsl:apply-templates 
+      select="document($mim_xml)/express/schema/rule" mode="contents"/>
   </xsl:if>          
   <!-- only output if there are imported rules defined and 
        therefore a section -->

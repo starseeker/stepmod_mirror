@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.10 2002/06/18 09:14:50 goset1 Exp $ -->
+<!-- $Id: module.xml,v 1.11 2002/06/24 06:58:06 goset1 Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 
 <module 
@@ -17,8 +17,8 @@
 	language="E" 
 	publication.year="2002"
   published="y"
-	rcs.date="$Date: 2002/06/18 09:14:50 $" 
-	rcs.revision="$Revision: 1.10 $">
+	rcs.date="$Date: 2002/06/24 06:58:06 $" 
+	rcs.revision="$Revision: 1.11 $">
 	<keywords>
     		module, person, organization
   	</keywords>
@@ -27,7 +27,7 @@
 		<editor ref="pdmmodules.editor"/>
 	</contacts>
 	<purpose>The Person organization application module supports the requirement to define and describe persons, 
-	organizations, persons who belong to an organization and their addresses.
+	organizations, persons who are registered in an organization and their addresses.
 	</purpose>
 	<inscope>
 <li>definition of a person;</li>
@@ -172,41 +172,67 @@ person, person in organization and address.</description>
 		</ae>
 
 		<ae entity="Address_assignment">
-		 <alt>
-		 #1 : for members of located_person_organizations that are instances of Person_in_organization
-		 #2 : for members of located_person_organizations that are instances of Organization
-			</alt>
+		 <alt_map id="1">
+		 <description>
+for members of located_person_organizations that are instances of Person_in_organization
+		</description>
 			<aimelt>
-			(#1: person_and_organization_address)
-			(#2: organizational_address)
+			(person_and_organization_address)
 			</aimelt>
 			<source>
-			(#1: ISO 10303-1011)
-			(#2: ISO 10303-41)
+			ISO 10303-1011
 			</source>
 			<refpath>
-			(#1: person_and_organization_address &lt;=
+			(person_and_organization_address &lt;=
 					 [personal_address]
 			     [organizational_address])
-		  (#2: organizational_address)
 			</refpath>
+			</alt_map>
+			
+		 <alt_map id="2">
+		 <description>			
+		 for members of located_person_organizations that are instances of Organization
+		</description>
+			<aimelt>
+			(organizational_address)
+			</aimelt>
+			<source>
+			ISO 10303-41
+			</source>
+			</alt_map>
+
 			<aa attribute="assigned_address" assertion_to="Address">
+			 <alt_map alt_map.inc="1">
 				<aimelt>IDENTICAL MAPPING</aimelt>
 				<refpath>
-          #1: (person_and_organization_address &lt; address)
-					#2: (organizational_address &lt;= address)
+          (person_and_organization_address &lt;= address)
 				</refpath>
+			</alt_map>
+			 <alt_map alt_map.inc="2">			 
+				<aimelt>IDENTICAL MAPPING</aimelt>
+				<refpath>
+					(organizational_address &lt;= address)
+				</refpath>
+			</alt_map>
 			</aa>
+			
 			<aa attribute="address_type">
+			 <alt_map alt_map.inc="1">	
 				<aimelt>
 				organizational_address.description
 				</aimelt>
 				<source>ISO 10303-41</source>
 				<refpath>
-				(#1: person_and_organization_address &lt;= organizational_address
+				(person_and_organization_address &lt;= organizational_address
 					   organizational_address.description)
-				(#2: organizational_address.description)
         </refpath>
+			</alt_map>
+			 <alt_map alt_map.inc="2">					
+				<aimelt>
+				organizational_address.description
+				</aimelt>
+				<source>ISO 10303-41</source>
+			</alt_map>
 			</aa>
 			<aa attribute="located_person_organisations" assertion_to="Person_in_organization">
 				<aimelt>PATH</aimelt>
@@ -231,6 +257,7 @@ person, person in organization and address.</description>
 	<mim>
 		<express-g>
 			<imgfile file="mimexpg1.xml"/>
+			<imgfile file="mimexpg2.xml"/>
 		</express-g>
 	</mim>
 	<usage_guide>

@@ -1,43 +1,16 @@
 (*
-   $Id: mim.exp,v 1.2 2004/11/19 07:57:38 budreckytej Exp $
+   $Id: mim.exp,v 1.3 2004/12/09 16:22:07 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module design - EXPRESS MIM 
 (* UNDER DEVELOPMENT *)
 SCHEMA Assembly_module_design_mim;
 
-RULE component_external_reference_constraint FOR
-  (representation);
-WHERE
-   WR1: SIZEOF( QUERY( rep <* representation | (rep\representation.name =
-        'component external reference') AND 
-        (SIZEOF( QUERY( dri <* rep.items | NOT(
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
-        (dri\representation_item.name = 'design owner')))) = 1)))=0;
-   WR2: SIZEOF(QUERY (rep <* representation |
-        (rep\representation.name = 'component external reference') AND 
-        (SIZEOF (QUERY (dri <* rep.items | 
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
-        (dri\representation_item.name = 'part number')))) = 1)))=0;
-   WR3: SIZEOF(QUERY (rep <* representation |
-        (rep\representation.name = 'component external reference') AND 
-        (SIZEOF (QUERY (dri <* rep.items | 
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
-        (dri\representation_item.name = 'revision code')))) = 1)))=0;
-   WR4: SIZEOF(QUERY (rep <* representation |
-        (rep\representation.name = 'component external reference') AND 
-        (SIZEOF (QUERY (dri <* rep.items | 
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
-        (dri\representation_item.name = 'product definition id')))) = 1)))=0;
-   WR5: SIZEOF(QUERY (rep <* representation |
-        (rep\representation.name = 'component external reference') AND 
-        (SIZEOF (QUERY (dri <* rep.items | 
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
-        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
-        (dri\representation_item.name = 'reference designation')))) = 1)))=0;
-END_RULE; -- component_external_reference_constraint
+USE FROM Assembly_module_usage_view_mim;
+USE FROM Altered_package_mim;
+USE FROM Bare_die_mim;
+USE FROM Component_grouping_mim;
+USE FROM Packaged_part_black_box_model_mim;
+USE FROM Part_feature_function_mim;
+USE FROM Physical_unit_design_view_mim;
 
 ENTITY component_mounting_feature
   SUBTYPE OF (shape_aspect);
@@ -166,6 +139,21 @@ WHERE
        = 1)) = 1)) = 1))) = 0);
 END_ENTITY; -- packaged_component
 
+ENTITY routed_physical_component
+  SUBTYPE OF (component_definition);
+WHERE
+  WR1: SIZEOF (QUERY (ip <* QUERY (pdr <* USEDIN (SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated part') |
+       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT'] *
+       TYPEOF (ip.relating_product_definition)) = 1) AND
+       (ip.relating_product_definition.frame_of_reference.name =
+       'physical design usage'))) = 1;
+  WR2: SELF\product_definition.description :<>: 'laminate component';
+END_ENTITY; -- routed_physical_component
+
 RULE component_feature_external_reference_unique_constraint FOR
  ( descriptive_representation_item );
 LOCAL
@@ -213,6 +201,41 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE; -- component_feature_external_reference_unique_constraint
+
+RULE component_external_reference_constraint FOR
+  (representation);
+WHERE
+   WR1: SIZEOF( QUERY( rep <* representation | (rep\representation.name =
+        'component external reference') AND 
+        (SIZEOF( QUERY( dri <* rep.items | NOT(
+        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
+        (dri\representation_item.name = 'design owner')))) = 1)))=0;
+   WR2: SIZEOF(QUERY (rep <* representation |
+        (rep\representation.name = 'component external reference') AND 
+        (SIZEOF (QUERY (dri <* rep.items | 
+        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
+        (dri\representation_item.name = 'part number')))) = 1)))=0;
+   WR3: SIZEOF(QUERY (rep <* representation |
+        (rep\representation.name = 'component external reference') AND 
+        (SIZEOF (QUERY (dri <* rep.items | 
+        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
+        (dri\representation_item.name = 'revision code')))) = 1)))=0;
+   WR4: SIZEOF(QUERY (rep <* representation |
+        (rep\representation.name = 'component external reference') AND 
+        (SIZEOF (QUERY (dri <* rep.items | 
+        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
+        (dri\representation_item.name = 'product definition id')))) = 1)))=0;
+   WR5: SIZEOF(QUERY (rep <* representation |
+        (rep\representation.name = 'component external reference') AND 
+        (SIZEOF (QUERY (dri <* rep.items | 
+        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
+        (dri\representation_item.name = 'reference designation')))) = 1)))=0;
+END_RULE; -- component_external_reference_constraint
 
 RULE component_mounting_clearance_relationship_constraint FOR
 ( representation );

@@ -48,7 +48,7 @@ SCHEMA AP210_product_data_management_mim;
 	USE FROM Product_concept_identification_mim;
 	USE FROM Product_identification_mim;
 	USE FROM Product_identification_extension_mim;
-	USE FROM Product_occurrence_mim;
+	USE FROM Part_occurrence_mim;
 	USE FROM Product_replacement_mim;
 	USE FROM Product_structure_mim;
 	USE FROM Product_version_mim;
@@ -94,6 +94,27 @@ ENTITY owner_assignment
  SUBTYPE OF (person_and_organization_assignment); 
  items : SET [1:?] OF owner_assigned_item; 
 END_ENTITY; -- owner_assignment
+
+ENTITY promissory_usage_in_product_model
+ SUBTYPE OF (group);
+WHERE
+   WR1: SIZEOF( QUERY(aga <* USEDIN(SELF,
+        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'GROUP_ASSIGNMENT.ASSIGNED_GROUP') | 
+        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'APPLIED_PROMISSORY_USAGE_IN_PRODUCT_MODEL_ASSIGNMENT' IN TYPEOF(aga))
+           ) >= 1;
+END_ENTITY; -- promissory_usage_in_product_model
+
+ENTITY supplied_part_relationship
+ SUBTYPE OF (product_definition_relationship);
+WHERE
+  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE' IN
+       TYPEOF (SELF.related_product_definition.formation);
+  WR2: NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PROPERTY_DEFINITION.DEFINITION' IN ROLESOF (SELF));
+END_ENTITY; -- supplied_part_relationship
 	
 END_SCHEMA;
 

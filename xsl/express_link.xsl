@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.13 2002/09/27 07:51:32 robbod Exp $
+     $Id: express_link.xsl,v 1.14 2003/01/23 13:48:13 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1063,10 +1063,17 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
   <xsl:variable name="schema_name_tmp"
     select="concat(translate($schema_name,$UPPER, $LOWER),';')"/>
 
+  
+  <xsl:variable name="sf_or_lf">
+    <xsl:if test="contains($schema_name_tmp,'_lf;')">
+      <xsl:value-of select="'_lf'"/>
+    </xsl:if>
+  </xsl:variable>
+
   <xsl:variable name="mim_file">
     <xsl:choose>
       <xsl:when test="$clause='annexe'">
-        <xsl:value-of select="'e_exp_mim'"/>
+        <xsl:value-of select="concat('e_exp_mim',$sf_or_lf)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="'5_mim'"/>
@@ -1077,7 +1084,7 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
   <xsl:variable name="arm_file">
     <xsl:choose>
       <xsl:when test="$clause='annexe'">
-        <xsl:value-of select="'e_exp_arm'"/>
+        <xsl:value-of select="concat('e_exp_arm',$sf_or_lf)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="'4_info_reqs'"/>
@@ -1106,6 +1113,19 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
       <xsl:when test="contains($schema_name_tmp,'_arm;')">
         <xsl:value-of 
           select="concat($data_path,'/modules/',substring-before($schema_name_tmp,'_arm;'),
+                  '/sys/',$arm_file,$FILE_EXT)"/>
+      </xsl:when>
+
+
+      <xsl:when test="contains($schema_name_tmp,'_mim_lf;')">
+        <xsl:value-of 
+          select="concat($data_path,'/modules/',substring-before($schema_name_tmp,'_mim_lf;'),
+                  '/sys/',$mim_file,$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="contains($schema_name_tmp,'_arm_lf;')">
+        <xsl:value-of 
+          select="concat($data_path,'/modules/',substring-before($schema_name_tmp,'_arm_lf;'),
                   '/sys/',$arm_file,$FILE_EXT)"/>
       </xsl:when>
 

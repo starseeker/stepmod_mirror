@@ -98,19 +98,19 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMOD_DATA_MODULES</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:value-of select="concat('../../../../../',@name,'/data/modules/')"/>
+            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/modules/')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMOD_DATA_APS</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:value-of select="concat('../../../../../',@name,'/data/application_protocol/')"/>
+            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/application_protocol/')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMOD_DATA_RESOURCES</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:value-of select="concat('../../../../../',@name,'/data/resources/')"/>
+            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/resources/')"/>
           </xsl:attribute>
         </xsl:element>
 

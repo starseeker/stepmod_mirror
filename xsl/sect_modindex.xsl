@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_index.xsl,v 1.2 2003/07/23 10:46:42 robbod Exp $
+$Id: sect_modindex.xsl,v 1.1 2003/07/23 10:49:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -186,12 +186,13 @@ $Id: sect_index.xsl,v 1.2 2003/07/23 10:46:42 robbod Exp $
       </xsl:call-template>
     </xsl:attribute>
 
-    <xsl:variable name="expg_file">
+    <xsl:variable name="expg_file1">
       <xsl:call-template name="get_arm_expressg_file">
         <xsl:with-param name="object" select="$lentity"/>
       </xsl:call-template>
     </xsl:variable>
-
+    <xsl:variable name="expg_file" select="concat(substring-before($expg_file1,'.'),'.xml')"/>
+      
     <xsl:variable name="module_dir">
       <xsl:call-template name="module_directory">
         <xsl:with-param name="module" select="/express/schema/@name"/>
@@ -209,7 +210,6 @@ $Id: sect_index.xsl,v 1.2 2003/07/23 10:46:42 robbod Exp $
     </xsl:variable>
 
     <xsl:attribute name="expg_figure">
-
       <xsl:value-of select="concat('C','.',$expg_fig_no)"/>
     </xsl:attribute>
 
@@ -251,11 +251,12 @@ $Id: sect_index.xsl,v 1.2 2003/07/23 10:46:42 robbod Exp $
       </xsl:call-template>
     </xsl:attribute>
 
-    <xsl:variable name="expg_file">
+    <xsl:variable name="expg_file1">
       <xsl:call-template name="get_arm_expressg_file">
         <xsl:with-param name="object" select="$lentity"/>
       </xsl:call-template>
     </xsl:variable>
+    <xsl:variable name="expg_file" select="concat(substring-before($expg_file1,'.'),'.xml')"/>
 
     <xsl:variable name="module_dir">
       <xsl:call-template name="module_directory">
@@ -324,11 +325,12 @@ $Id: sect_index.xsl,v 1.2 2003/07/23 10:46:42 robbod Exp $
       </xsl:call-template>
     </xsl:attribute>
 
-    <xsl:variable name="expg_file">
+    <xsl:variable name="expg_file1">
       <xsl:call-template name="get_mim_expressg_file">
         <xsl:with-param name="object" select="$lentity"/>
       </xsl:call-template>
     </xsl:variable>
+    <xsl:variable name="expg_file" select="concat(substring-before($expg_file1,'.'),'.xml')"/>
 
     <xsl:variable name="module_dir">
       <xsl:call-template name="module_directory">

@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.17 2004/08/05 07:08:47 robbod Exp $
+;;; $Id: mod_repo.el,v 1.18 2004/09/21 11:36:32 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -176,6 +176,105 @@
   (modrep-insert-wgn "CD TS")
   )
 
+;;; Update the WGN numbers in a modules.
+;;; Make all existing ones supserseded
+(defun modrep-update-wg-numbers ()
+  (interactive)
+  (modrep-update-wgn "wg.number")
+  (modrep-update-wgn "wg.number.arm")
+  (modrep-update-wgn "wg.number.mim")
+  )
+
+(defun modrep-update-wgn (wgn_type &optional wgn)
+  (interactive)
+  (let (beg start end)
+    (goto-char (point-min))
+    (setq beg (point))
+
+    ;; look for wg.number
+    (search-forward (concat wgn_type "=\""))
+    (setq start (point))
+    (search-forward "\"")    
+    (setq end (- (point) 1))
+    ;; get value and delete it
+    (kill-region start end)
+    (when wgn 
+	(goto-char (- (point) 1))
+	(insert wgn)
+	(goto-char (+ (point) 1))
+	)
+    
+    ;; look for wg.number.supersedes
+    (cond ((search-forward (concat wgn_type ".supersedes=\"") nil t)
+	   ;; put value
+	   (yank)
+	   (setq start (point))    
+	   (search-forward "\"")    
+	   (setq end (- (point) 1))
+	   ;; delete old value
+	   (kill-region start end)
+	   )
+	  (t
+	   (insert (concat " " wgn_type ".supersedes=\""))
+	   (yank)
+	   (insert "\"")
+	   )
+	  )
+    )
+  )
+
+;;; Update the WGN numbers in a modules.
+;;; Make all existing ones supserseded
+(defun modrep-reset-checklist-numbers ()
+  (interactive)
+  (modrep-update-checklist-n "checklist.internal_review")
+  (modrep-update-checklist-n "checklist.project_leader")
+  (modrep-update-checklist-n "checklist.convener")
+  )
+
+(defun modrep-update-checklist-n (wgn_type &optional wgn)
+  (interactive)
+  (let (beg start end)
+    (goto-char (point-min))
+    (setq beg (point))
+    (search-forward (concat wgn_type "=\""))
+    (setq start (point))
+    (search-forward "\"")    
+    (setq end (- (point) 1))
+    ;; get value and delete it
+    (kill-region start end)
+    (when wgn 
+	(goto-char (- (point) 1))
+	(insert wgn)
+	(goto-char (+ (point) 1))
+	)
+    )
+  )
+
+(defun modrep-update-all-wg-numbers 
+  (wg.number wg.number.arm wg.number.mim checklist.internal_review checklist.project_leader checklist.convener)
+  (interactive)
+  ;; change the WGN numbers
+  (modrep-update-wgn "wg.number" wg.number)
+  (modrep-update-wgn "wg.number.arm" wg.number.arm)
+  (modrep-update-wgn "wg.number.mim" wg.number.mim)
+
+  ;; change the checklist numbers
+  (modrep-update-checklist-n "checklist.internal_review" checklist.internal_review)
+  (modrep-update-checklist-n "checklist.project_leader" checklist.project_leader)
+  (modrep-update-checklist-n "checklist.convener" checklist.convener)
+)
+
+(defun modrep-update-all-wg-numbers-in-module 
+  (module wg.number wg.number.arm wg.number.mim checklist.internal_review checklist.project_leader checklist.convener)
+  (interactive)
+  ;; open the file into a buffer
+  (find-file (concat "../../data/modules/" module "/module.xml"))
+  ;; change the WGN numbers
+  (modrep-update-all-wg-numbers wg.number wg.number.arm wg.number.mim checklist.internal_review checklist.project_leader checklist.convener)  (save-buffer)
+  (kill-buffer (current-buffer))
+)
+
 
 ;;; Insert a Module Repository issue
 (defun modrep-insert-issue (type)  
@@ -305,7 +404,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.17 2004/08/05 07:08:47 robbod Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.18 2004/09/21 11:36:32 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-org)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")

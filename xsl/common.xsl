@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.80 2002/11/27 13:27:12 robbod Exp $
+$Id: common.xsl,v 1.81 2002/12/12 15:17:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2057,6 +2057,39 @@ $Id: common.xsl,v 1.80 2002/11/27 13:27:12 robbod Exp $
   </xsl:variable>
   <xsl:value-of select="concat('ISO/',$status,'&#160;10303-',$part)"/>
 </xsl:template>
+
+
+<xsl:template name="get_module_wg_group">
+  <xsl:param name="module"/>
+  <xsl:choose>
+    <xsl:when test="string-length($module/@sc4.working_group)>0">
+      <xsl:value-of select="normalize-space($module/@sc4.working_group)"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="string('12')"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="test_module_wg_group">
+  <xsl:param name="module"/>
+  <xsl:variable name="wg_group">
+    <xsl:call-template name="get_module_wg_group">
+      <xsl:with-param name="module" select="$module"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:if test="not($wg_group = '12' or $wg_group = '3')">
+    <xsl:call-template name="error_message">
+      <xsl:with-param name="message">
+        <xsl:value-of select="concat('Error in
+                              module.xml/module/@sc4.working_group - ',
+                              $wg_group,' Should be 12 or 3')"/>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
 
 
 <!-- given a string xxx.ccc.qqq return the value after the last . -->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.112 2002/12/11 14:57:34 robbod Exp $
+$Id: module.xsl,v 1.113 2002/12/11 15:17:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -101,8 +101,18 @@ $Id: module.xsl,v 1.112 2002/12/11 14:57:34 robbod Exp $
     <xsl:with-param name="clause" select="'contacts'"/>
   </xsl:apply-templates>
 
+  <xsl:variable name="wg_group">
+    <xsl:call-template name="get_module_wg_group">
+      <xsl:with-param name="module" select="."/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:call-template name="test_module_wg_group">
+    <xsl:with-param name="module" select="."/>
+  </xsl:call-template>
+
   <xsl:variable name="n_number"
-    select="concat('ISO TC184/SC4/WG12&#160;N',./@wg.number)"/>
+    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
   <xsl:variable name="date"
     select="translate(
             substring-before(substring-after(@rcs.date,'$Date: '),' '),
@@ -146,7 +156,7 @@ $Id: module.xsl,v 1.112 2002/12/11 14:57:34 robbod Exp $
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of 
-                  select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.supersedes)"/>
+                  select="concat('ISO&#160;TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.supersedes)"/>
               </xsl:otherwise>
             </xsl:choose>
           </h3>
@@ -374,7 +384,7 @@ o=isocs; s=central<br/>
       </xsl:if>
 
       This document has been reviewed using the internal review checklist 
-      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.internal_review)"/>),
+      (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.internal_review)"/>),
       <!-- test the checklist WG number for checklist.internal_review -->
       <xsl:variable name="test_cl_internal_review">
         <xsl:call-template name="test_wg_number">
@@ -397,7 +407,7 @@ o=isocs; s=central<br/>
 
       the project leader checklist 
       (see <xsl:value-of
-      select="concat('WG12&#160;N',@checklist.project_leader)"/>),
+      select="concat('WG',$wg_group,'&#160;N',@checklist.project_leader)"/>),
 
       <!-- test the checklist WG number for checklist.project_leader -->
       <xsl:variable name="test_cl_project_leader">
@@ -419,7 +429,7 @@ o=isocs; s=central<br/>
       </xsl:if>
 
       and the convener checklist
-      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.convener)"/>),
+      (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.convener)"/>),
 
       <!-- test the checklist WG number for checklist.convener -->
       <xsl:variable name="test_cl_convener">
@@ -1150,7 +1160,12 @@ o=isocs; s=central<br/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('ISO TC184/SC4/WG12 N',$wgnumber)"/>
+        <xsl:variable name="wg_group">
+          <xsl:call-template name="get_module_wg_group">
+            <xsl:with-param name="module" select="."/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:value-of select="concat('ISO TC184/SC4/WG',$wg_group,' N',$wgnumber)"/>
       </xsl:otherwise>
     </xsl:choose>    
   </td>

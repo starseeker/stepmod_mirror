@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.20 2002/09/17 11:40:41 mikeward Exp $
+     $Id: resdoc_index.xsl,v 1.3 2002/10/16 23:14:43 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -58,7 +58,12 @@
           </td>
         </tr>
       </table>
-      
+      <p>      
+      <font size="-1">
+      NB This is a test page. Contents may not be up-to-date and links may not always work. The repository can be found  at <a href="repository_index{$FILE_EXT}">
+        <xsl:value-of select="concat('repository_index',$FILE_EXT)"/> </a>
+    </font>
+  </p>
       <font size="-1">
         An improved navigation facility is under development.<br/>
       The prototype is available at: 
@@ -118,7 +123,7 @@
 
       <h2>
         <a name="alphatop">
-          Alphabetical list of Integrated Resources
+          NB: DEMONSTRATION ONLY<br/>Alphabetical list of Integrated Resources
         </a>
       </h2>
 
@@ -151,95 +156,6 @@
   </HTML>
 </xsl:template>
 
-
-<xsl:template match="resource" mode="output">
-  <xsl:variable name="xref"
-    select="concat('./data/modules/',@name,'/sys/introduction',$FILE_EXT)"/>
-  <xsl:variable name="part" select="@part"/>
-
-  <a href="{$xref}">
-    <font size="-1">
-      <b><xsl:value-of select="@name"/> (<xsl:value-of select="$part"/>)</b>
-    </font>
-  </a>
-
-  <xsl:variable name="xref4"
-    select="concat('./data/modules/',@name,'/sys/4_info_reqs',$FILE_EXT)"/>
-
-  <!--
-  <xsl:variable name="arm_expg"
-    select="concat('./data/modules/',@name,'/sys/c_arm_expg',$FILE_EXT,'#armexpg')"/>
-  -->
-
-  <xsl:variable name="arm_expg"
-    select="concat('./data/modules/',@name,'/armexpg1',$FILE_EXT)"/>
-  
-  <xsl:variable name="xref5"
-    select="concat('./data/modules/',@name,'/sys/5_mim',$FILE_EXT)"/>
-
-
-  <!--
-       <xsl:variable name="mim_expg"
-    select="concat('./data/modules/',@name,'/sys/d_mim_expg',$FILE_EXT,'#mimexpg')"/>
-       -->
-       
-  <xsl:variable name="mim_expg"
-    select="concat('./data/modules/',@name,'/mimexpg1',$FILE_EXT)"/>
-
-  <xsl:variable name="mod_directory"
-    select="concat('./data/modules/',@name)"/>
-  
-  <table cellspacing="0" cellpadding="1">
-    <tr>
-      <td>&#160;&#160;&#160;&#160;</td>
-      <td>
-        <font size="-2">
-          <a href="{$xref4}">ARM</a>
-        </font>
-      </td>
-      <td>
-        <font size="-2">
-          <a href="{$arm_expg}">ARM-G</a>
-        </font>
-      </td>
-      <td>
-        <font size="-2">
-          <a href="{$xref5}">MIM</a>
-        </font>
-      </td>
-      <td>
-        <font size="-2">
-          <a href="{$mim_expg}">MIM-G</a>
-        </font>
-      </td>
-      <td>
-        <font size="-2">
-          <a href="{$mod_directory}">
-            <img alt="module folder" 
-              border="0"
-              align="middle"
-              src="./images/folder.gif"/>
-          </a>
-        </font>
-      </td>
-
-      </tr>
-    </table>
-</xsl:template>
-
-<xsl:template match="resource" mode="col1">
-  <xsl:param name="mid_point"/>
-  <xsl:if test="not(position()>$mid_point)">
-    <xsl:apply-templates select="." mode="output"/>
-  </xsl:if>
-</xsl:template>
-
-<xsl:template match="resource" mode="col2">
-  <xsl:param name="mid_point"/>
-  <xsl:if test="position()>$mid_point">
-    <xsl:apply-templates select="."  mode="output"/>
-  </xsl:if>
-</xsl:template>
 
 
 <xsl:template match="resource_doc" mode="output">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.10 2002/08/09 08:55:52 robbod Exp $
+$Id: express.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -12,7 +12,8 @@ $Id: express.xsl,v 1.10 2002/08/09 08:55:52 robbod Exp $
                 version="1.0">
 
 
-  <xsl:import href="express_code.xsl"/>
+  <!--  <xsl:import href="express_code.xsl"/> -->
+  <xsl:import href="../express_code.xsl"/>
 
   <xsl:output 
     method="html"
@@ -85,7 +86,14 @@ $Id: express.xsl,v 1.10 2002/08/09 08:55:52 robbod Exp $
       <TITLE>Integrated Resource: <xsl:value-of select="./express/schema/@name"/></TITLE>
     </HEAD>
     <BODY>
-  <!-- debug <xsl:value-of select="$global_xref_list"/> -->
+  <!-- debug <xsl:value-of select=""/> -->
+  <xsl:if test="contains(string(./express/schema/@name),'nut_and_bolt_')">
+  
+    <h1>NB THIS RESOURCE SCHEMA IS FOR DEMONSTRATION PURPOSES ONLY</h1><h3>Do not copy this xml file to create a new resource schema</h3>
+
+</xsl:if>
+
+
     <h3>
       <xsl:value-of select="concat('Schema: ',./express/schema/@name)"/>
     </h3>

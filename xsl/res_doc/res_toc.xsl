@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id:  $
+$Id: res_toc.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -456,6 +456,11 @@ NEED TO FIX up the hrefs -->
                 named in resource.xml &lt;resource name=&quot;',@name,'&quot;. Should be all lower case')"/>
     </xsl:call-template>    
   </xsl:if>
+  <xsl:if test="string(@name)='nutty_bolts'">
+  
+		<h1>NB THIS INTEGRATED RESOURCE IS FOR DEMONSTRATION PURPOSES ONLY</h1>
+
+</xsl:if>
 </xsl:template>
 
 

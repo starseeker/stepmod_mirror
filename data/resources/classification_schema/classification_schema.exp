@@ -1,7 +1,7 @@
 (* 
  Extracted from:
- ISO/CD 10303-54, Set theory, 2002-14-19
- WG12 N985
+  ISO/DIS 10303-54, Set theory, 2002-12-19
+  WG12 N1510
 *)
 
 SCHEMA classification_schema;
@@ -12,8 +12,16 @@ SCHEMA classification_schema;
   REFERENCE FROM group_schema -- ISO 10303-41
     (group);
 
-TYPE classified_select = EXTENSIBLE SELECT;
+TYPE classification_select = EXTENSIBLE SELECT;
 END_TYPE; 
+
+TYPE complete_membership_select = EXTENSIBLE SELECT;
+END_TYPE; 
+
+ENTITY applied_classification_assignment
+  SUBTYPE OF (classification_assignment);
+  items : SET[1:?] OF classification_select;
+END_ENTITY;
 
 ENTITY class
   SUPERTYPE OF (ONEOF (
@@ -31,18 +39,23 @@ ENTITY class_by_intension
 END_ENTITY;
 
 ENTITY classification
-  SUBTYPE OF (classification_assignment);
-  classified  : classified_select;
+  SUBTYPE OF (applied_classification_assignment);
+  SELF\applied_classification_assignment.items : SET[1:1] OF classification_select;
 DERIVE
+  classified  : classification_select := SELF\applied_classification_assignment.items[1];
   classifier  : class := SELF\classification_assignment.assigned_class;
 END_ENTITY;
 
 ENTITY complete_membership
   SUBTYPE OF (classification_assignment);
-  members        : SET[1:?] OF classified_select;
+  members        : SET[0:?] OF complete_membership_select;
 DERIVE
   containing_set : class :=
                          SELF\classification_assignment.assigned_class;
 END_ENTITY;
+
+SUBTYPE_CONSTRAINT classification_or_complete_membership FOR classification_assignment;
+  ONEOF (applied_classification_assignment, complete_membership);
+END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

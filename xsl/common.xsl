@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.85 2003/03/13 19:16:51 robbod Exp $
+$Id: common.xsl,v 1.87 2003/03/16 01:35:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -105,16 +105,20 @@ $Id: common.xsl,v 1.85 2003/03/13 19:16:51 robbod Exp $
         select="concat($lpart,' :- ',@name)"/>
     </xsl:otherwise>
   </xsl:choose> -->
-  <xsl:choose>
-    <xsl:when test="$output_rcs">
-      <xsl:value-of
-        select="concat(@status,' ',$lpart,' :- ',@name)"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:value-of
-        select="concat($lpart,' :- ',@name)"/>
-    </xsl:otherwise>
-  </xsl:choose> 
+
+  <xsl:variable name="stdnumber">
+    <xsl:call-template name="get_module_stdnumber">
+      <xsl:with-param name="module" select="."/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:value-of select="concat($stdnumber,' ',$module_name)"/>
+
 </xsl:template>
 
 

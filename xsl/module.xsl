@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.133 2003/03/12 01:01:43 robbod Exp $
+$Id: module.xsl,v 1.134 2003/03/13 19:16:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1713,12 +1713,12 @@ o=isocs; s=central<br/>
     modules:</p>
   <ul>
     <li>
-      Use of a supertype entity does not make applicable any of its
+      use of a supertype entity does not make applicable any of its
       specializations, unless the specialization is also imported in the
       MIM schema;
     </li> 
     <li>
-      Use of a SELECT type does not make applicable any of its listed types
+      use of a SELECT type does not make applicable any of its listed types
       unless the listed type is also imported in the MIM schema.
     </li>
   </ul>
@@ -3798,8 +3798,7 @@ $module_ok,' Check the normatives references')"/>
     <xsl:apply-templates select="orgname"/>   -->
     <xsl:apply-templates select="stdnumber"/>
     <xsl:apply-templates select="stdtitle"/>
-    <xsl:apply-templates select="subtitle"/>
-    <xsl:apply-templates select="pubdate"/>
+    <xsl:apply-templates select="subtitle"/><xsl:apply-templates select="pubdate"/>
     <xsl:apply-templates select="ulink"/>
   </p>
 </xsl:template>

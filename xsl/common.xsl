@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.6 2001/11/15 10:05:35 robbod Exp $
+$Id: common.xsl,v 1.7 2001/11/15 18:16:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -22,18 +22,32 @@ $Id: common.xsl,v 1.6 2001/11/15 10:05:35 robbod Exp $
 
 <!--
      Output a cascading stylesheet. The stylesheet is specified in the 
-     global parameter: output_css in parameter.xsl
+     global parameter: output_css in parameter.xsl, so to prevent a
+     cascading stylesheet being used set output_css to ''
+     To override this and force a cascading stylesheet set
+     overide_css
      -->
 <xsl:template name="output_css">
   <xsl:param name="path"/>
-  <xsl:if test="$output_css">
-    <xsl:variable name="hpath"
-      select="concat($path,$output_css)"/>
-    <link 
-      rel="stylesheet" 
-      type="text/css" 
-      href="{$hpath}"/>
-  </xsl:if>
+  <xsl:param name="override_css"/>
+  <xsl:choose>
+    <xsl:when test="$override_css">
+      <xsl:variable name="hpath"
+      select="concat($path,$override_css)"/>
+      <link 
+        rel="stylesheet" 
+        type="text/css" 
+        href="{$hpath}"/>
+    </xsl:when>
+    <xsl:when test="$output_css">
+      <xsl:variable name="hpath"
+        select="concat($path,$output_css)"/>
+      <link 
+        rel="stylesheet" 
+        type="text/css" 
+        href="{$hpath}"/>
+    </xsl:when>
+  </xsl:choose>
 </xsl:template>
 
 
@@ -60,6 +74,18 @@ $Id: common.xsl,v 1.6 2001/11/15 10:05:35 robbod Exp $
      is set, then RCS version control information is displayed
 -->
 <xsl:template match="module" mode="title">
+  <xsl:variable 
+    name="lpart">
+    <xsl:choose>
+      <xsl:when test="string-length(@part)>0">
+        <xsl:value-of select="@part"/>
+      </xsl:when>
+      <xsl:otherwise>
+        XXXX
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:choose>
     <xsl:when test="$output_rcs">
       <xsl:variable 
@@ -69,11 +95,11 @@ $Id: common.xsl,v 1.6 2001/11/15 10:05:35 robbod Exp $
         name="rev"
         select="translate(@rcs.revision,'$','')"/>
       <xsl:value-of 
-        select="concat(@part,' :- ',@name,'  (',$date,' ',$rev,')')"/>      
+        select="concat($lpart,' :- ',@name,'  (',$date,' ',$rev,')')"/>      
     </xsl:when>
     <xsl:otherwise>
       <xsl:value-of 
-        select="concat(@part,' :- ',@name)"/>
+        select="concat($lpart,' :- ',@name)"/>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
@@ -181,9 +207,19 @@ $Id: common.xsl,v 1.6 2001/11/15 10:05:35 robbod Exp $
         </B>
       </TD>
       <TD valign="MIDDLE">
-        <B>
-          <xsl:value-of select="concat('ISO/',@status,'10303-',@part,':2001(E)')"/>
-        </B>
+        <xsl:choose>
+          <xsl:when test="string-length(@part)>0">
+            <b>
+              <xsl:value-of 
+                select="concat('ISO/',@status,'10303-',@part,':2001(E)')"/>
+            </b>
+          </xsl:when>
+          <xsl:otherwise>
+            <b>
+              <xsl:value-of select="concat('ISO/',@status,'10303-')"/><font color="#FF0000">XXXX</font>:2001(E)</b>
+      </xsl:otherwise>
+    </xsl:choose>
+
       </TD>
     </TR>
   </TABLE>

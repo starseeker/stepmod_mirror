@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.7 2001/11/14 17:22:19 robbod Exp $
+$Id: module.xsl,v 1.8 2001/11/15 18:15:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -48,7 +48,7 @@ $Id: module.xsl,v 1.7 2001/11/14 17:22:19 robbod Exp $
 
 <xsl:template match="module">
   <xsl:apply-templates select="." mode="coverpage"/>
-  <xsl:apply-templates select="." mode="forword"/>
+  <xsl:apply-templates select="." mode="foreword"/>
   <xsl:apply-templates/>
 </xsl:template>
 
@@ -59,15 +59,23 @@ $Id: module.xsl,v 1.7 2001/11/14 17:22:19 robbod Exp $
 
 
 <!-- Outputs the foreword -->
-<xsl:template match="module" mode="forword">
+<xsl:template match="module" mode="foreword">
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="'Foreword'"/>
     <xsl:with-param name="aname" select="'foreword'"/>
   </xsl:call-template>
   <p>
-    <xsl:value-of select="@name"/>
-    was prepared by Technical Committee ISO/TC 184, Industrial automation
-    systems and integration, Subcommittee SC4, Industrial data.  
+    <xsl:choose>
+      <xsl:when test="string-length(@part)>0">
+        <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        ISO/TS 10303-<font color="#FF0000"><b>XXXX</b></font>
+      </xsl:otherwise>
+    </xsl:choose>
+    was prepared by Technical Committee ISO/TC 184, 
+    <i>Industrial automation systems and integration,</i>
+    Subcommittee SC4, <i>Industrial data.</i>
   </p>
   <p>
     This International Standard is organized as a series of parts, each
@@ -77,8 +85,10 @@ $Id: module.xsl,v 1.7 2001/11/14 17:22:19 robbod Exp $
     methods, conformance testing methodology and framework, integrated generic
     resources, integrated application resources, application protocols,
     abstract test suites, application interpreted constructs, and application
-    modules. This part is a member of the application modules series. A
-    complete list of parts of ISO 10303 is available from the Internet: 
+    modules. This part is a member of the application modules series. 
+  </p>
+  <p>
+    A complete list of parts of ISO 10303 is available from the Internet: 
   </p>
   <blockquote>
     <A HREF="http://www.nist.gov/sc4/editing/step/titles/">

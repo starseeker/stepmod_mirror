@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express.xsl,v 1.4 2001/11/12 08:57:11 robbod Exp $
+     $Id: repository_index.xsl,v 1.1 2001/11/14 17:25:05 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -29,7 +29,8 @@
            is set in parameter.xsl 
            -->
       <xsl:call-template name="output_css">
-        <xsl:with-param name="path" select="'../../../css/'"/>
+        <xsl:with-param name="override_css" select="'stepmod.css'"/>
+        <xsl:with-param name="path" select="'./css/'"/>
       </xsl:call-template>
       <TITLE>Module repository</TITLE>
     </HEAD>
@@ -92,7 +93,9 @@
   <xsl:variable name="xref"
     select="concat('./data/modules/',@name,'/sys/main',$FILE_EXT)"/>
   <a href="{$xref}">
-    <xsl:value-of select="@name"/>
+    <font size="-1">
+      <b><xsl:value-of select="@name"/></b>
+    </font>
   </a>
 
   <xsl:variable name="xref4"
@@ -121,7 +124,9 @@
 <xsl:template match="resource">
   <xsl:variable name="xref" select="concat('./data/resources/',@name,'/',@name,$FILE_EXT)"/>
   <a href="{$xref}">
-    <xsl:value-of select="@name"/>
+    <font size="-1">
+      <b><xsl:value-of select="@name"/></b>
+    </font>
   </a>
   <br/>
 </xsl:template>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: parameters.xsl,v 1.1 2001/10/22 09:34:10 robbod Exp $
+     $Id: parameters.xsl,v 1.2 2001/11/15 10:05:35 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -18,7 +18,7 @@
 
   <!-- the name of a cascading stylesheet. If no cascading stylesheets
        are required do set the paramter null -->
-  <!-- <xsl:param name="output_css" select="'test.css'"/> -->
+  <!-- <xsl:param name="output_css" select="'stepmod.css'"/> -->
   <xsl:param name="output_css" select="''"/>
 
   <!-- When YES the Table of schema table of contents will be output -->

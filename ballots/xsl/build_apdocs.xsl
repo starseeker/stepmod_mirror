@@ -51,6 +51,19 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:attribute name="name">BALLLOTSTYLES</xsl:attribute>
           <xsl:attribute name="value">ballots/xsl</xsl:attribute>
         </xsl:element>
+      
+        <xsl:element name="property">
+          <xsl:attribute name="name">APDOCS_INLINE_ERRORS</xsl:attribute>
+          <xsl:attribute name="value">'yes'</xsl:attribute>
+        </xsl:element>
+        <xsl:element name="property">
+          <xsl:attribute name="name">MODULES_INLINE_ERRORS</xsl:attribute>
+          <xsl:attribute name="value">'yes'</xsl:attribute>
+        </xsl:element>
+        <xsl:element name="property">
+          <xsl:attribute name="name">DEPMODULES_INLINE_ERRORS</xsl:attribute>
+          <xsl:attribute name="value">'yes'</xsl:attribute>
+        </xsl:element>
         <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_RCS</xsl:attribute>
           <xsl:attribute name="value">NO</xsl:attribute>
@@ -1723,6 +1736,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1744,6 +1765,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/frame_aptitle.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -1818,6 +1847,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1888,6 +1925,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/frame_index.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -1962,6 +2007,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2032,6 +2085,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/frame_toc_short.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -2106,6 +2167,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2178,6 +2247,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2219,6 +2296,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2241,6 +2326,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_1_scope.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -2307,6 +2400,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2369,6 +2470,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_3_defs.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -2435,6 +2544,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2497,6 +2614,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_5_main.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -2563,6 +2688,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2625,6 +2758,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_abstract.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -2691,6 +2832,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2753,6 +2902,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_annex_arm_expg.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -2819,6 +2976,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -2881,6 +3046,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_annex_changes.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -2947,6 +3120,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3009,6 +3190,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_annex_exp_lf.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3075,6 +3264,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -3137,6 +3334,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_annex_imp_meth.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3209,6 +3414,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_annex_obj_reg.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3281,6 +3494,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_annex_pics.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3353,6 +3574,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_annex_shortnames.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3425,6 +3654,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_annex_tech_disc.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3497,6 +3734,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_biblio.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3569,6 +3814,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_contents.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3641,6 +3894,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_cover.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3713,6 +3974,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_foreword.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3785,6 +4054,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_express_nav.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3857,6 +4134,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_express_nav_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -3929,6 +4214,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_express_nav_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4001,6 +4294,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_express.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4073,6 +4374,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_express_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4145,6 +4454,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_express_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4217,6 +4534,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_mappings.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4289,6 +4614,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_mappings_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4361,6 +4694,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_mappings_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4433,6 +4774,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_modules.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4505,6 +4854,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_modules_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4577,6 +4934,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_arm_modules_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4649,6 +5014,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_mim_express.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4721,6 +5094,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_mim_express_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4793,6 +5174,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_mim_express_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4865,6 +5254,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_mim_modules.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -4937,6 +5334,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_mim_modules_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -5009,6 +5414,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_mim_modules_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -5081,6 +5494,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_resources.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -5153,6 +5574,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_resources_inner.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -5225,6 +5654,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/index_resources_top.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -5297,6 +5734,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${APXSL}/sect_introduction.xsl'"/>
         </xsl:attribute>
          <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -5490,7 +5935,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:attribute name="dir">
             <xsl:value-of select="'${STEPMODDTDDIR}'"/>
           </xsl:attribute>
-          <xsl:attribute name="includes">2
+          <xsl:attribute name="includes">
             <xsl:value-of select="'**/*.dtd, **/*.ent'"/>
           </xsl:attribute>
         </xsl:element>
@@ -5550,6 +5995,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_contents.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -5646,6 +6099,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -5738,6 +6199,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_2_refs.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -5834,6 +6303,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -5926,6 +6403,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_4_info_reqs.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -6022,6 +6507,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -6114,6 +6607,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mapping.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -6210,6 +6711,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -6304,6 +6813,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -6360,6 +6877,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -6414,6 +6939,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_a_short_names.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -6510,6 +7043,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -6602,6 +7143,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_biblio.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -6698,6 +7247,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -6790,6 +7347,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_c_arm_expg.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -6894,6 +7459,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -6986,6 +7559,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_d_mim_expg.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -7082,6 +7663,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -7174,6 +7763,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -7270,6 +7867,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -7362,6 +7967,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -7458,6 +8071,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -7550,6 +8171,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_f_guide.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -7646,6 +8275,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -7738,6 +8375,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_introduction.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -7834,6 +8479,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -7928,6 +8581,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -8020,6 +8681,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${MODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -8205,6 +8874,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -8297,6 +8974,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_1_scope.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -8393,6 +9078,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -8485,6 +9178,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_3_defs.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -8581,6 +9282,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -8673,6 +9382,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_main.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -8769,6 +9486,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -8861,6 +9586,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mim.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -8957,6 +9690,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -8981,6 +9722,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -9003,6 +9752,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_a_short_names.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -9099,6 +9856,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -9193,6 +9958,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -9275,6 +10048,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -9355,6 +10136,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_c_arm_expg.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -9459,6 +10248,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -9551,6 +10348,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_d_mim_expg.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -9647,6 +10452,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -9739,6 +10552,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -9835,6 +10656,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -9873,6 +10702,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -9967,6 +10804,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -10071,6 +10916,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -10163,6 +11016,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_foreword.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -10259,6 +11120,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -10351,6 +11220,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
@@ -10447,6 +11324,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -10539,6 +11424,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${DEPMODULES_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'output_rcs'"/>

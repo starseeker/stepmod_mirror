@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.12 2002/06/06 07:52:56 robbod Exp $
+//$Id: express2xml.js,v 1.13 2002/06/13 06:13:52 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -330,7 +330,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.12 2002/06/06 07:52:56 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.13 2002/06/13 06:13:52 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -340,7 +340,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.12 $";
+    var appCVSRevision = "$Revision: 1.13 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -824,7 +824,7 @@ function xmlType(statement,outTs,expTs) {
     xmlOpenElement("<type name=\""+typeName,outTs);
     outTs.WriteLine("\">");
     var typeType = getType(statement);
-    userMessage("S:"+statement);
+    //userMessage("S:"+statement);
     switch( typeType ) {
     case "SELECT" :
 	xmlSelect(statement,outTs);
@@ -877,7 +877,7 @@ function xmlType(statement,outTs,expTs) {
 
 function xmlTypeStructure(xmlTs,expTs) {
     var l = expTs.ReadLine();
-    userMessage("L:"+l);
+    //userMessage("L:"+l);
     lNumber = expTs.Line;
     var token = readToken(l);
     switch( token ) {
@@ -1030,32 +1030,62 @@ function xmlProcedure(line,expTs,outTs) {
 }
 
 
-function loadRuleBody(body,expTs)
+
+// found WHERE 
+function loadDomainRule(expTs,outTs)
 {
     var l = expTs.ReadLine();
     lNumber = expTs.Line;
-    var reg = /\bEND_RULE/;
-    if (l.match(reg)) {
-	body = body+"\n";
-    } else {
-	body = loadRuleBody(body+"\n"+l, expTs);
+    var reg1 = /\bEND_RULE/;
+
+    if (!l.match(reg1)) {
+	var statement = readStatement(l,expTs);
+	var name = getWord(1,statement);
+	var expr = getAfterColon(statement);
+	var reg = /^\s*/;
+	expr = expr.replace(reg,"");
+	expr = tidyExpression(expr);
+	xmlOpenElement("<where",outTs);	
+	xmlAttr("label",name,outTs);
+	xmlAttr("expression",expr,outTs);
+	outTs.WriteLine(">");
+	xmlCloseElement("</where>",outTs);
+	loadDomainRule(expTs,outTs);
+    }
+}
+
+
+// Read the file up to WHERE
+function loadRuleAlgorithm(body,expTs)
+{
+    var l = expTs.ReadLine();
+    lNumber = expTs.Line;
+    var reg = /\bWHERE/;
+    if (!l.match(reg)) {
+	body = loadRuleAlogrithm(body+"\n"+l, expTs);
     }
     return(body);
 }
+
 
 function xmlRule(line,expTs,outTs) {
     var statement = readStatement(line,expTs);
     var name = getWord(2,line);
     var appliesTo = getList(statement);
-    var algorithm = loadRuleBody("",expTs);
+    var algorithm = loadRuleAlgorithm("",expTs);
+    var where;
     
     xmlOpenElement("<rule",outTs);
     xmlAttr("name",name,outTs);
     xmlAttr("appliesto",appliesTo,outTs);
     outTs.WriteLine(">");
-    xmlOpenElement("<algorithm>",outTs);
-    outTs.Write(tidyExpression(algorithm));
-    xmlCloseElement("</algorithm>",outTs);
+    if (algorithm.length >0) {
+	xmlOpenElement("<algorithm>",outTs);
+	outTs.Write(tidyExpression(algorithm));
+	xmlCloseElement("</algorithm>",outTs);
+    } 
+    loadDomainRule(expTs,outTs);
+
     outTs.WriteLine("");
     xmlCloseElement("</rule>",outTs);
     outTs.WriteLine("");

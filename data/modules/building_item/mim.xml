@@ -18,6 +18,11 @@
   <schema name="Building_item_mim">
     <interface
       kind="use"
+      schema="Approval_mim">
+    </interface>
+
+    <interface
+      kind="use"
       schema="Building_component_mim">
     </interface>
 
@@ -38,6 +43,8 @@
       <interfaced.item
         name="product_definition_formation"/>
       <interfaced.item
+        name="product_definition_relationship"/>
+      <interfaced.item
         name="product_related_product_category"/>
     </interface>
 
@@ -47,74 +54,93 @@
       <interfaced.item
         name="characterized_product_definition"/>
       <interfaced.item
+        name="characterized_definition"/>
+      <interfaced.item
+        name="product_definition_shape"/>
+      <interfaced.item
         name="property_definition"/>
     </interface>
 
+    <type name="building_item_approval_item">
+      <select
+        basedon="approval_item"
+        selectitems="product_definition">
+      </select>
+
+    </type>
     <entity
-      name="building_element"
-      supertypes="product_definition">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	('BUILDING_STRUCTURE_MIM.BUILDING_SECTION'	IN TYPEOF (pdr.relating_product_definition))	)) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.'+	'PROPERTY_DEFINITION.DEFINITION') |	SIZEOF (QUERY (sa &lt;* USEDIN(pd, 'BUILDING_COMPONENT_MIM.'+	'SHAPE_ASPECT.OF_SHAPE') |	(('BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT' IN TYPEOF (sa))	AND	(sa.description = 'main'))	)) = 1   )) = 1">
-      </where>
-    </entity>
+      name="applied_building_item_approval_assignment"
+      supertypes="applied_approval_assignment">
+      <explicit
+        name="items">
+        <redeclaration
+          entity-ref="applied_approval_assignment"/>
+          <typename
+            name="building_item_approval_item"/>
+        </explicit>
+      </entity>
 
-    <entity
-      name="fixture_equipment_element"
-      supertypes="product_definition">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION' IN	TYPEOF (pdr.relating_product_definition))) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (pds &lt;* QUERY (pd &lt;* USEDIN (SELF,	'BUILDING_ITEM_MIM.PROPERTY_DEFINITION.DEFINITION') |	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF (pd)) |	SIZEOF (QUERY (sa &lt;* USEDIN (pds, 'BUILDING_COMPONENT_MIM.' +	'SHAPE_ASPECT.OF_SHAPE') |	('BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT' IN TYPEOF (sa))	AND	(sa.description = 'main'))) = 1)) = 1">
-      </where>
-    </entity>
+      <entity
+        name="building_element"
+        supertypes="product_definition">
+        <where
+          label="WR1"
+          expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	(['BUILDING_STRUCTURE_MIM.BUILDING_SECTION','BUILDING_ITEM_MIM.SPACE_ELEMENT']	IN TYPEOF (pdr.relating_product_definition))	)) = 1">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.'+	'PROPERTY_DEFINITION.DEFINITION') |	SIZEOF (QUERY (sa &lt;* USEDIN(pd, 'BUILDING_COMPONENT_MIM.'+	'SHAPE_ASPECT.OF_SHAPE') |	(('BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT' IN TYPEOF (sa))	AND	(sa.description = 'main'))	)) = 1   )) = 1">
+        </where>
+      </entity>
 
-    <entity
-      name="service_element"
-      supertypes="product_definition">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION'	IN TYPEOF (pdr.relating_product_definition))) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (pds &lt;* QUERY (pd &lt;* USEDIN (SELF,	'BUILDING_DESIGN_SCHEMA.PROPERTY_DEFINITION.DEFINITION') |	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN	TYPEOF (pd)) |	SIZEOF (QUERY (sa &lt;* USEDIN(pds, 'BUILDING_COMPONENT_MIM.'+	'SHAPE_ASPECT.OF_SHAPE') |	('BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT' IN TYPEOF (sa))	AND	(sa.description = 'main'))) = 1)) = 1">
-      </where>
-    </entity>
+      <entity
+        name="fixture_equipment_element"
+        supertypes="product_definition">
+        <where
+          label="WR1"
+          expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	['BUILDING_STRUCTURE_MIM.BUILDING_SECTION','BUILDING_ITEM_MIM.SPACE_ELEMENT'] IN	TYPEOF (pdr.relating_product_definition))) = 1">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF (QUERY (pds &lt;* QUERY (pd &lt;* USEDIN (SELF,	'BUILDING_ITEM_MIM.PROPERTY_DEFINITION.DEFINITION') |	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF (pd)) |	SIZEOF (QUERY (sa &lt;* USEDIN (pds, 'BUILDING_COMPONENT_MIM.' +	'SHAPE_ASPECT.OF_SHAPE') |	('BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT' IN TYPEOF (sa))	AND	(sa.description = 'main'))) = 1)) = 1">
+        </where>
+      </entity>
 
-    <entity
-      name="space_element"
-      supertypes="product_definition">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION' IN	TYPEOF (pdr.relating_product_definition))) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="(SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +	'PROPERTY_DEFINITION.DEFINITION') |	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN	TYPEOF (pd))) &gt;= 1)	AND	(SIZEOF (QUERY (pds &lt;* QUERY (pd &lt;* USEDIN (SELF,	'BUILDING_ITEM_MIM.PROPERTY_DEFINITION.DEFINITION') |	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF (pd)) |	NOT (SIZEOF (USEDIN (pds, 'BUILDING_COMPONENT_MIM.' +	'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) &gt;= 1))) = 0)">
-      </where>
-    </entity>
+      <entity
+        name="service_element"
+        supertypes="product_definition">
+        <where
+          label="WR1"
+          expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	['BUILDING_STRUCTURE_MIM.BUILDING_SECTION','BUILDING_ITEM_MIM.SPACE_ELEMENT']	IN TYPEOF (pdr.relating_product_definition))) = 1">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF (QUERY (pds &lt;* QUERY (pd &lt;* USEDIN (SELF,	'BUILDING_DESIGN_SCHEMA.PROPERTY_DEFINITION.DEFINITION') |	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN	TYPEOF (pd)) |	SIZEOF (QUERY (sa &lt;* USEDIN(pds, 'BUILDING_COMPONENT_MIM.'+	'SHAPE_ASPECT.OF_SHAPE') |	('BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT' IN TYPEOF (sa))	AND	(sa.description = 'main'))) = 1)) = 1">
+        </where>
+      </entity>
 
-    <entity
-      name="structure_enclosure_element"
-      supertypes="product_definition">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION'	IN TYPEOF (pdr.relating_product_definition))) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (pds &lt;* QUERY (pd &lt;* USEDIN (SELF,	'BUILDING_ITEM_MIM.PROPERTY_DEFINITION.DEFINITION') |	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF (pd)) |	SIZEOF (QUERY (sa &lt;* USEDIN (pds, 'BUILDING_COMPONENT_MIM.'+	'SHAPE_ASPECT.OF_SHAPE') |	('BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT' IN TYPEOF (sa))	AND	(sa.description = 'main'))) = 1)) = 1">
-      </where>
-    </entity>
+      <entity
+        name="space_element"
+        supertypes="product_definition">
+        <where
+          label="WR1"
+          expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION' IN	TYPEOF (pdr.relating_product_definition))) = 1">
+        </where>
+      </entity>
 
-  </schema>
+      <entity
+        name="structure_enclosure_element"
+        supertypes="product_definition">
+        <where
+          label="WR1"
+          expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |	['BUILDING_STRUCTURE_MIM.BUILDING_SECTION','BUILDING_ITEM_MIM.SPACE_ELEMENT']	IN TYPEOF (pdr.relating_product_definition))) = 1">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF (QUERY (pds &lt;* QUERY (pd &lt;* USEDIN (SELF,	'BUILDING_ITEM_MIM.PROPERTY_DEFINITION.DEFINITION') |	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF (pd)) |	SIZEOF (QUERY (sa &lt;* USEDIN (pds, 'BUILDING_COMPONENT_MIM.'+	'SHAPE_ASPECT.OF_SHAPE') |	('BUILDING_COMPONENT_MIM.POSITIVE_COMPONENT' IN TYPEOF (sa))	AND	(sa.description = 'main'))) = 1)) = 1">
+        </where>
+      </entity>
 
-</express>
+    </schema>
+
+  </express>

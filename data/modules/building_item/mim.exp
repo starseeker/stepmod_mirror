@@ -1,8 +1,10 @@
 (*
-   $Id: mim.exp,v 1.2 2002/11/29 11:11:04 whaas Exp $
+   $Id: mim.exp,v 1.3 2002/12/10 15:13:09 whaas Exp $
    N - ISO/CD-TS - 10303- building_item - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Building_item_mim;
+
+USE FROM Approval_mim;           -- ISO 10303-1012
 
 USE FROM Building_component_mim; -- ISO 10303-1143
 
@@ -13,18 +15,30 @@ USE FROM product_definition_schema -- ISO 10303-41
    product_category,
    product_definition,
    product_definition_formation,
+   product_definition_relationship,
    product_related_product_category);
 
 USE FROM product_property_definition_schema -- ISO 10303-41
   (characterized_product_definition,
+   characterized_definition,
+   product_definition_shape,
    property_definition);
+
+TYPE building_item_approval_item = SELECT BASED_ON approval_item WITH
+(product_definition);
+END_TYPE;
+
+ENTITY applied_building_item_approval_assignment
+   SUBTYPE OF (applied_approval_assignment);
+   SELF\applied_approval_assignment.items : building_item_approval_item;
+END_ENTITY;
 
 ENTITY building_element
    SUBTYPE OF (product_definition);
 WHERE
    WR1: SIZEOF (QUERY (pdr <* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +
 	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
-	('BUILDING_STRUCTURE_MIM.BUILDING_SECTION'
+	(['BUILDING_STRUCTURE_MIM.BUILDING_SECTION','BUILDING_ITEM_MIM.SPACE_ELEMENT']
 	IN TYPEOF (pdr.relating_product_definition))
 	)) = 1;
    WR2: SIZEOF (QUERY (pd <* USEDIN (SELF, 'BUILDING_ITEM_MIM.'+
@@ -43,7 +57,7 @@ ENTITY fixture_equipment_element
 WHERE
    WR1: SIZEOF (QUERY (pdr <* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +
 	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
-	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION' IN
+	['BUILDING_STRUCTURE_MIM.BUILDING_SECTION','BUILDING_ITEM_MIM.SPACE_ELEMENT'] IN
 	TYPEOF (pdr.relating_product_definition))) = 1;
    WR2: SIZEOF (QUERY (pds <* QUERY (pd <* USEDIN (SELF,
 	'BUILDING_ITEM_MIM.PROPERTY_DEFINITION.DEFINITION') |
@@ -60,7 +74,7 @@ ENTITY service_element
 WHERE
    WR1: SIZEOF (QUERY (pdr <* USEDIN(SELF, 'BUILDING_ITEM_MIM.' +
 	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
-	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION'
+	['BUILDING_STRUCTURE_MIM.BUILDING_SECTION','BUILDING_ITEM_MIM.SPACE_ELEMENT']
 	IN TYPEOF (pdr.relating_product_definition))) = 1;
    WR2: SIZEOF (QUERY (pds <* QUERY (pd <* USEDIN (SELF,
 	'BUILDING_DESIGN_SCHEMA.PROPERTY_DEFINITION.DEFINITION') |
@@ -80,16 +94,6 @@ WHERE
 	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
 	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION' IN
 	TYPEOF (pdr.relating_product_definition))) = 1;
-   WR2: (SIZEOF (QUERY (pd <* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +
-	'PROPERTY_DEFINITION.DEFINITION') |
-	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN
-	TYPEOF (pd))) >= 1)
-	AND
-	(SIZEOF (QUERY (pds <* QUERY (pd <* USEDIN (SELF,
-	'BUILDING_ITEM_MIM.PROPERTY_DEFINITION.DEFINITION') |
-	'BUILDING_COMPONENT_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF (pd)) |
-	NOT (SIZEOF (USEDIN (pds, 'BUILDING_COMPONENT_MIM.' +
-	'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) >= 1))) = 0);
 END_ENTITY;
 
 ENTITY structure_enclosure_element
@@ -97,7 +101,7 @@ ENTITY structure_enclosure_element
 WHERE
    WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +
 	'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
-	'BUILDING_STRUCTURE_MIM.BUILDING_SECTION'
+	['BUILDING_STRUCTURE_MIM.BUILDING_SECTION','BUILDING_ITEM_MIM.SPACE_ELEMENT']
 	IN TYPEOF (pdr.relating_product_definition))) = 1;
    WR2: SIZEOF (QUERY (pds <* QUERY (pd <* USEDIN (SELF,
 	'BUILDING_ITEM_MIM.PROPERTY_DEFINITION.DEFINITION') |

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.43 2002/11/04 23:33:54 nigelshaw Exp $
+     $Id: express_code.xsl,v 1.44 2002/12/30 08:31:12 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -253,7 +253,7 @@
   <br/>
   <xsl:if test="position()=1">CONSTANT<br/></xsl:if>
   <A NAME="{$aname}"></A>
-  &#160;&#160;<xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/>
+  &#160;&#160;<xsl:value-of select="@name"/> : <xsl:apply-templates select="./*" mode="underlying"/> := <xsl:value-of select="@expression"/>;
   <xsl:if test="position()=last()">
     <br/>
     END_CONSTANT;

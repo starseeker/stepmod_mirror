@@ -1,174 +1,181 @@
 (*
-$Id: risk_schema.exp,v 1.2 2003/04/08 16:33:44 magnevs Exp $
+$Id: risk_schema.exp,v 1.3 2003/06/23 06:45:53 magnevs Exp $
   WG12N???? - ISO 10303-58 risk_schema
 *)
 
 SCHEMA risk_schema; 
 
+USE FROM support_resource_schema;    -- ISO 10303-41
+
 
 TYPE mitigation_select = SELECT
    (applied_risk_consequence, 
-    applied_risk_probability, 
     risk, 
     risk_impact, 
     risk_perception, 
-    risk_perception_relationship);
+    risk_perception_relationship, 
+    risk_probability_assignment, 
+    risk_relationship);
 END_TYPE; 
 
 TYPE risk_criteria_select = SELECT
-   (applied_risk_source_assignment, 
+   (applied_risk_consequence, 
     risk_perception, 
+    risk_source_assignment, 
     risk_treatment);
 END_TYPE; 
 
-TYPE risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
-
-TYPE risk_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
-
-TYPE risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
-
 ENTITY applied_risk_consequence;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
   effect : risk_impact;
   pertaining_consequence : risk_consequence;
 END_ENTITY;
 
 ENTITY applied_risk_criteria;
-  inputs : SET[1:?] OF risk_criteria_select;
   pertaining_criteria : risk_criteria;
-  role : STRING;
-END_ENTITY;
-
-ENTITY applied_risk_impact_assignment;
-  described_impact : risk_impact;
-  impact_items : SET[1:?] OF risk_impact_item;
-  role : STRING;
-END_ENTITY;
-
-ENTITY applied_risk_probability;
-  name : STRING;
-  description : OPTIONAL STRING;
-  probability_of_occurrence : risk_probability;
-  risk_items : SET[1:?] OF risk_item;
-  role : STRING;
-END_ENTITY;
-
-ENTITY applied_risk_source_assignment;
-  source_items : SET[1:?] OF risk_source_item;
-  described_risk : risk;
-  role : risk_source_role;
+  inputs : SET[1:?] OF risk_criteria_select;
+  role : risk_criteria_role;
 END_ENTITY;
 
 ENTITY defined_risk_consequence;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
   relating_consequence : risk_consequence;
   related_risk : risk;
 END_ENTITY;
 
 ENTITY defined_risk_probability;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
   relating_probability : risk_probability;
   related_risk : risk;
 END_ENTITY;
 
 ENTITY residual_risk;
-  name : STRING;
-  description : OPTIONAL STRING;
+  id : OPTIONAL identifier;
+  name : label;
+  description : OPTIONAL text;
+  remaining_risk : risk_perception;
   protective_measure : risk_reduction;
-  remaining_risk : risk;
 END_ENTITY;
 
 ENTITY risk;
-  id : OPTIONAL STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
+  id : OPTIONAL identifier;
+  name : label;
+  description : OPTIONAL text;
   negation : LOGICAL;
 END_ENTITY;
 
 ENTITY risk_consequence;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY risk_context;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
   pertinent_criteria : SET[0:?] OF risk_criteria;
   related_risk : risk;
 END_ENTITY;
 
 ENTITY risk_criteria;
-  description : OPTIONAL STRING;
-  name : STRING;
+  name : label;
+  description : OPTIONAL text;
+END_ENTITY;
+
+ENTITY risk_criteria_role;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY risk_impact;
-  name : STRING;
-  description : OPTIONAL STRING;
-  severity : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
+END_ENTITY;
+
+ENTITY risk_impact_assignment
+  ABSTRACT SUPERTYPE ;
+  assigned_risk_impact : risk_impact;
+  role : risk_impact_role;
+END_ENTITY;
+
+ENTITY risk_impact_role;
+  description : OPTIONAL text;
+  name : label;
 END_ENTITY;
 
 ENTITY risk_perception;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
   perceived_consequence : applied_risk_consequence;
-  perceived_probability : applied_risk_probability;
+  perceived_probability : risk_probability_assignment;
   perceived_risk : risk;
 END_ENTITY;
 
 ENTITY risk_perception_relationship;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
   relating : risk_perception;
   related : risk_perception;
 END_ENTITY;
 
 ENTITY risk_probability;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
+END_ENTITY;
+
+ENTITY risk_probability_assignment
+  ABSTRACT SUPERTYPE ;
+  name : label;
+  description : OPTIONAL text;
+  assigned_risk_probability : risk_probability;
+  role : risk_probability_role;
+END_ENTITY;
+
+ENTITY risk_probability_role;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY risk_reduction;
+  id : OPTIONAL identifier;
+  name : label;
+  description : OPTIONAL text;
   approach : risk_treatment;
-  assumptions : OPTIONAL STRING;
-  description : OPTIONAL STRING;
-  id : OPTIONAL STRING;
-  name : STRING;
   resolves : SET[1:?] OF mitigation_select;
 END_ENTITY;
 
 ENTITY risk_relationship;
-  id : OPTIONAL STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
+  id : OPTIONAL identifier;
+  name : label;
+  description : OPTIONAL text;
   relating : risk;
   related : risk;
-  role : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY risk_source_assignment
+  ABSTRACT SUPERTYPE ;
+  assigned_risk : risk;
+  role : risk_source_role;
 END_ENTITY;
 
 ENTITY risk_source_role;
-  name : STRING;
-  description : OPTIONAL STRING;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 ENTITY risk_status;
-  id : OPTIONAL STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
+  id : OPTIONAL identifier;
+  name : label;
+  description : OPTIONAL text;
   status : risk;
 END_ENTITY;
 
 ENTITY risk_treatment;
-  description : OPTIONAL STRING;
-  id : OPTIONAL STRING;
-  name : STRING;
-  rationale : OPTIONAL STRING;
+  id : OPTIONAL identifier;
+  name : label;
+  description : OPTIONAL text;
 END_ENTITY;
 
 END_SCHEMA;  -- risk_schema

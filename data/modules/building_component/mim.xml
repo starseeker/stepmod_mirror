@@ -18,16 +18,18 @@
   <schema name="Building_component_mim">
     <interface
       kind="use"
-      schema="group_schema">
+      schema="Classification_assignment_mim">
       <interfaced.item
-        name="group"/>
+        name="applied_classification_assignment"/>
+      <interfaced.item
+        name="classification_item"/>
     </interface>
 
     <interface
       kind="use"
-      schema="management_resources_schema">
+      schema="group_schema">
       <interfaced.item
-        name="group_assignment"/>
+        name="group"/>
     </interface>
 
     <interface
@@ -37,87 +39,86 @@
         name="shape_aspect"/>
     </interface>
 
-    <type name="building_component_classification_item">
+    <type name="element_component_classification_item">
       <select
+        basedon="classification_item"
         selectitems="negative_component positive_component opening recess">
       </select>
 
     </type>
     <entity
-      name="building_component_classification_assignment"
-      supertypes="group_assignment">
+      name="applied_element_component_classification_assignment"
+      supertypes="applied_classification_assignment">
       <explicit
-        name="items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="building_component_classification_item"/>
-      </explicit>
-    </entity>
+        name="items RENAMED element_component_items">
+        <redeclaration
+          entity-ref="applied_classification_assignment"/>
+          <typename
+            name="element_component_classification_item"/>
+        </explicit>
+      </entity>
 
-    <entity
-      name="building_component_classification_group"
-      supertypes="group">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (ga &lt;* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +    'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |    'BUILDING_COMPONENT_MIM.' +    'BUILDING_COMPONENT_CLASSIFICATION_ASSIGNMENT' IN TYPEOF (ga)))    &gt;= 1">
-      </where>
-    </entity>
+      <entity
+        name="element_component_classification_group"
+        supertypes="group">
+        <where
+          label="WR1"
+          expression="SIZEOF (QUERY (ga &lt;* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +    'CLASSIFICATION_ASSIGNMENT.ASSIGNED_CLASS') |    'BUILDING_COMPONENT_MIM.' +    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT' IN TYPEOF (ga)))    &gt;= 1">
+        </where>
+      </entity>
 
-    <entity
-      name="negative_component"
-      supertypes="shape_aspect">
-      <where
-        label="WR1"
-        expression="(SIZEOF (USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1)    AND    (SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1))) = 0)">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *    ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',    'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',    'BUILDING_ITEM_MIM.SERVICE_ELEMENT',    'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1">
-      </where>
-    </entity>
+      <entity
+        name="negative_component"
+        supertypes="shape_aspect">
+        <where
+          label="WR1"
+          expression="(SIZEOF (USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1)    AND    (SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1))) = 0)">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *    ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',    'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',    'BUILDING_ITEM_MIM.SERVICE_ELEMENT',    'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1">
+        </where>
+      </entity>
 
-    <entity
-      name="opening"
-      supertypes="negative_component">
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+    'BUILDING_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (bcca &lt;* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+    'BUILDING_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS') |    NOT (bcca\group_assignment.assigned_group.description = 'opening')    )) = 0">
-      </where>
-    </entity>
+      <entity
+        name="opening"
+        supertypes="negative_component">
+        <where
+          label="WR1"
+          expression="SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+    'APPLIES_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF (QUERY (bcca &lt;* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS') |    NOT (bcca\classification_assignment.assigned_class.description = 'opening')    )) = 0">
+        </where>
+      </entity>
 
-    <entity
-      name="positive_component"
-      supertypes="shape_aspect">
-      <where
-        label="WR1"
-        expression="(SIZEOF (USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1)    AND    (SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1))) = 0)">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *    ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',    'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',    'BUILDING_ITEM_MIM.SERVICE_ELEMENT',    'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1">
-      </where>
-    </entity>
+      <entity
+        name="positive_component"
+        supertypes="shape_aspect">
+        <where
+          label="WR1"
+          expression="(SIZEOF (USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1)    AND    (SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1))) = 0)">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *    ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',    'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',    'BUILDING_ITEM_MIM.SERVICE_ELEMENT',    'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1">
+        </where>
+      </entity>
 
-    <entity
-      name="recess"
-      supertypes="negative_component">
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +    'BUILDING_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (bcca &lt;* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+    'BUILDING_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS') |    NOT (bcca\group_assignment.assigned_group.description = 'recess')    )) = 0">
-      </where>
-    </entity>
+      <entity
+        name="recess"
+        supertypes="negative_component">
+        <where
+          label="WR1"
+          expression="SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1">
+        </where>
+        <where
+          label="WR2"
+          expression="SIZEOF (QUERY (bcca &lt;* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS') |    NOT (bcca\classification_assignment.assigned_class.description = 'recess')    )) = 0">
+        </where>
+      </entity>
 
-  </schema>
+    </schema>
 
-</express>
+  </express>

@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $
+//$Id: imagemap2xml.js,v 1.1 2001/12/27 13:54:13 robbod Exp $
 
 // Convert an HTML file containing a single image map into
 // an XML file
@@ -31,7 +31,7 @@ function ErrorMessage(msg){
 
 function xmlXMLhdr(xmlTs) {
     xmlTs.Writeline("<?xml version=\"1.0\"?>");
-    xmlTs.Writeline("<!-- $Id: imagemap2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->");
+    xmlTs.Writeline("<!-- $Id: imagemap2xml.js,v 1.1 2001/12/27 13:54:13 robbod Exp $ -->");
     xmlTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/imgfile.xsl\"?>");
     xmlTs.Writeline("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
 }
@@ -71,6 +71,12 @@ function xmlCloseAttr(xmlTs) {
 
 
 function getAttribute(attr,element) {
+    attr = attr.toLowerCase();
+    element = element.toLowerCase();
+    element =  element.replace(/\t/g," ");
+    element =  element.replace(/\n/g," ");
+    element =  element.replace(/\r/g," ");
+    element = element.replace(/\s*=\s*/g,"=");
     element = element.replace(/\s*=\s*/g,"=");
     var reg = new RegExp("\\b"+attr+"=","i");
     var pos = element.search(reg);

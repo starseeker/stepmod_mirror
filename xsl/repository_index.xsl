@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.16 2002/07/30 16:37:10 robbod Exp $
+     $Id: repository_index.xsl,v 1.17 2002/08/14 06:56:46 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -62,6 +62,15 @@
           </td>
         </tr>
       </table>
+      
+      <font size="-1">
+        An improved navigation facility is under development.<br/>
+      The prototype is available at: 
+      <a href="nav/index{$FILE_EXT}">
+        <xsl:value-of select="concat('nav/index',$FILE_EXT)"/>        
+      </a>
+    </font>
+
       <xsl:variable name="module_mid_point"
         select="(count(./modules/module)+1) div 2"/>
 

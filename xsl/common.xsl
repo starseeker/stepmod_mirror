@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.138 2004/11/08 12:49:49 robbod Exp $
+$Id: common.xsl,v 1.139 2004/11/25 05:06:46 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -787,9 +787,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     </xsl:choose>
   </xsl:variable>
 
-  <xsl:if test="substring-before($href,'/') = '.' and not(contains(substring-after($href,'/'),'/'))" >
+  <xsl:if test="(substring-before($href,'/') = '.' or substring-before($href,'/') = '') and not(contains(substring-after($href,'/'),'/')) and not(contains(../../@file,'expg1.xml'))" >
     <xsl:call-template name="error_message">
-      <xsl:with-param name="inline" select="'no'"/>
+      <xsl:with-param name="inline" select="'yes'"/>
       <xsl:with-param name="message">
         <xsl:value-of 
           select="concat('Warning IM3: diagram contains offpage reference to ',substring-after($href,'/')'. Check this and counterpart on referenced diagram.')"/>

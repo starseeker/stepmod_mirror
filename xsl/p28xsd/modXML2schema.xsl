@@ -168,7 +168,7 @@
 		<xsl:choose>
 			<xsl:when test="contains($subtypes_of_target_exist, 'YES')">
 				<xsl:comment>EXPRESS ENTITY VALUED ATTRIBUTE WHERE TARGET HAS SUBTYPES KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/></xsl:comment>
-				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___Product_category-keysub">
+				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_target_name}-keysub">
 					<xs:selector xpath=".//{$namespace_prefix}{$corrected_target_name}/{$corrected_attribute_name}"/>
 					<xs:field xpath="@ref"/>
 				</xs:keyref>

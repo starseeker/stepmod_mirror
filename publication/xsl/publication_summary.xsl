@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.4 2004/02/07 22:06:48 robbod Exp $
+$Id: publication_summary.xsl,v 1.5 2004/10/12 17:45:58 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -120,7 +120,22 @@ $Id: publication_summary.xsl,v 1.4 2004/02/07 22:06:48 robbod Exp $
   </xsl:template>
 
   <xsl:template match="resource_docs" mode="table_hdr">
-    NOT YET IMPLEMENTED
+    <p/>
+    <table border="1">
+      <tr>
+      <td><b>Resource</b></td>
+      <td><b>Part</b></td>
+      <td><b>Edition</b></td>
+      <td><b>Stage</b></td>
+      <td><b>Year of<br/>publication</b></td>
+      <td><b>SC4 cover page</b></td>
+      <td><b>Abstract</b></td>
+      <td><b>EXPRESS</b></td>          
+      <td><b>ZIP file for ISO</b></td>
+      <td><b>CVS file revisions</b></td>
+      </tr>
+      <xsl:apply-templates select="./res_doc" mode="table_row"/>
+    </table>
   </xsl:template>
 
   <xsl:template match="application_protocols" mode="table_hdr">
@@ -386,6 +401,191 @@ $Id: publication_summary.xsl,v 1.4 2004/02/07 22:06:48 robbod Exp $
 </xsl:template>
 
 <xsl:template match="res_doc" mode="table_row">
+   <xsl:variable name="resdoc_ok">
+      <xsl:call-template name="check_resdoc_exists">
+        <xsl:with-param name="resdoc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$resdoc_ok='true'">
+        <xsl:variable name="resdoc_file"
+          select="concat('../../data/resource_docs/',@name,'/resource.xml')"/>
+        <xsl:variable name="resdoc_node"
+          select="document($resdoc_file)/resource"/>
+        <xsl:variable name="pub_dir" select="concat($stepmodhome,'/iso10303_',$resdoc_node/@part)"/>
+        
+        <xsl:variable name="resdoc_dir_name"
+          select="concat('iso10303_',$resdoc_node/@part)"/>
+        
+        <tr>
+          <!-- Part -->
+          <td>
+            <xsl:variable name="resdoc_cover"
+              select="concat($resdoc_dir_name,'.htm')"/>
+            <xsl:variable name="resdoc_xref"
+              select="concat($pub_dir,'/',$resdoc_cover)"/>
+            <xsl:value-of select="concat(@name,'&#160;')"/> 
+            <a href="{$resdoc_xref}">
+              <xsl:value-of select="$resdoc_cover"/>
+            </a>
+          </td>
+          
+          <!-- Part -->
+          <td>
+            <xsl:choose>
+              <xsl:when test="$resdoc_node/@part">
+                <xsl:value-of select="concat('10303-',$resdoc_node/@part)"/>
+                
+                <!-- check that the part number in repository_index - that in
+                     module -->
+                <xsl:variable name="resdoc" select="@name"/>
+                <xsl:variable name="repo_resdoc_number"
+                  select="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc]/@part"/>
+                <xsl:if test="$repo_resdoc_number != $resdoc_node/@part">
+                  <br/>
+                  <font color="#FF0000" size="-1">
+                    The part number in repository_index
+                    (<xsl:value-of select="$repo_resdoc_number"/>)
+                  does not equal that in resource part
+                  (<xsl:value-of select="$resdoc_node/@part"/>).
+                </font>
+              </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+        <!-- Version -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@version))>0">
+              <xsl:value-of select="$resdoc_node/@version"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+        <!-- Status -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@status))>0">
+              <xsl:value-of select="$resdoc_node/@status"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+        <!-- Year -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($resdoc_node/@publication.year))>0">
+              <xsl:value-of select="$resdoc_node/@publication.year"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+        
+        <!-- SC4 cover page -->
+        <td>
+          <xsl:variable name="sc4_xref"
+            select="concat($pub_dir,'/data/resource_docs/',@name,'/sys/cover_sc4',$FILE_EXT)"/>
+          <a href="{$sc4_xref}">sc4_cover.htm</a>
+        </td>
+        
+        <!-- Abstract -->
+        <td>
+          <xsl:variable name="abstract_name"
+            select="concat('abstract_',$resdoc_node/@part,'.htm')"/>
+          <xsl:variable name="abstract_xref"
+            select="concat($pub_dir,'/abstracts/',$abstract_name)"/>
+          <a href="{$abstract_xref}">
+            <xsl:value-of select="$abstract_name"/>
+          </a>
+        </td>
+        
+        <xsl:variable name="status"
+          select="translate(translate($resdoc_node/@status,$UPPER,$LOWER),'-_ ','')"/>        
+        
+        <!-- combined  express -->
+        <xsl:choose>
+          <xsl:when test="$resdoc_node/@wg.number.express">
+            <td>
+              <xsl:variable name="express_file"
+                select="concat('part',
+                        $resdoc_node/@part,
+                        $status, '_wg',
+                        $resdoc_node/@sc4.working_group,'n',
+                        $resdoc_node/@wg.number.express,
+                        'express.exp')"/>
+              <xsl:variable name="express_href" 
+                select="concat($resdoc_dir_name,'express/',$express_file)"/>
+              <a href="{$express_href}">
+                <xsl:value-of select="$express_file"/>
+              </a>
+            </td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>
+              No Long Form
+            </td>
+          </xsl:otherwise>
+        </xsl:choose>
+        
+        <!-- ZIP file -->
+        <td>
+          <xsl:variable name="zipfile_name" 
+            select="concat($resdoc_dir_name,'.zip')"/>
+          <xsl:variable name="zipfile_xref" select="concat('./zip/',$zipfile_name)"/>
+          <a href="{$zipfile_xref}">
+            <xsl:value-of select="$zipfile_name"/>
+          </a>
+        </td>
+        
+        <!-- CVS revisions -->
+        <td>
+          <xsl:variable name="cvs_xref"
+            select="concat($pub_dir,'/data/resource_docs/',@name,'/publication_record.xml')"/>
+          
+          <a href="{$cvs_xref}">publication_record.xml</a>
+        </td>
+      </tr>
+    </xsl:when>
+    <!-- module does not exist in repository index -->
+    <xsl:otherwise>
+      <tr>
+        <td>
+          <xsl:value-of select="../@name"/>
+        </td>
+        <td>
+          <xsl:value-of select="@name"/>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error ballot1: ', $resdoc_ok)"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+        <td>&#160;</td>
+      </tr>      
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
   <xsl:template match="ap_doc" mode="table_row">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.34 2002/05/13 06:55:45 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.35 2002/05/19 07:55:13 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -132,12 +132,12 @@
     <xsl:value-of select="$clause_intro"/>
     <xsl:if test="contains($schema_name,'_arm')">
       <p><u>EXPRESS specification:</u></p>
-      *)<br/>
+      *)
     </xsl:if>
 
   </xsl:if>
-
-  <blockquote>
+  <p>
+  <!-- <blockquote> -->
     <code>
       <xsl:choose>
         <xsl:when test="@kind='reference'">
@@ -172,8 +172,8 @@
         </xsl:otherwise>
       </xsl:choose>
     </code>
-  </blockquote>
-
+  <!-- </blockquote> -->
+  </p>
   <xsl:if test="position()=last()">
     (*
   </xsl:if>
@@ -248,11 +248,13 @@
   <xsl:if test="position()=1">
     <p><u>EXPRESS specification:</u></p>
     *)
-    <blockquote>
+    <p>
+    <!-- <blockquote> -->
       <code>
         CONSTANT
       </code>
-    </blockquote>
+    <!-- </blockquote> -->
+  </p>
     (*
   </xsl:if>
   
@@ -301,21 +303,25 @@
     <!-- output EXPRESS -->
     <p><u>EXPRESS specification:</u></p>
     *)
-    <blockquote>
+    <p>
+    <!-- <blockquote> -->
       <code>
         &#160;&#160;<xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/>
       </code>
-    </blockquote>
+    <!-- </blockquote> -->
+    </p>
     (*
     
     <xsl:if test="position()=last()">
       <br/>
       *)
-      <blockquote>
+      <p>
+      <!-- <blockquote> -->
         <code>
           END_CONSTANT;
         </code>
-      </blockquote>
+      <!-- </blockquote> -->
+    </p>
       (*
     </xsl:if>
 
@@ -423,7 +429,8 @@
 
   <p><u>EXPRESS specification:</u></p>
   *)
-  <blockquote>
+  <p>
+  <!-- <blockquote> -->
     <code>
       TYPE 
       <xsl:value-of select="@name" />
@@ -432,7 +439,8 @@
         <xsl:apply-templates select="./*" mode="underlying"/>;<br/>
       END_TYPE; <br/>
     </code>
-  </blockquote>
+  <!-- </blockquote> -->
+</p>
   (*
 </xsl:template>
 
@@ -594,8 +602,8 @@
   -->
 
   <p><u>EXPRESS specification:</u></p>
-  *)
-  <blockquote>
+  *)<p>
+  <!-- <blockquote> -->
     <code>
       ENTITY <xsl:value-of select="@name"/>
       <xsl:call-template name="super.expression-code"/>
@@ -608,8 +616,8 @@
       <xsl:apply-templates select="./where[@expression]" mode="code"/>
       END_ENTITY;<br/>
     </code>
-  </blockquote>
-  (*
+  <!-- </blockquote> -->
+  </p>(*
   <xsl:apply-templates select="./explicit" mode="description"/>    
   <xsl:apply-templates select="./derived" mode="description"/>    
   <xsl:apply-templates select="./inverse" mode="description"/>  
@@ -1132,7 +1140,8 @@ SELF\<xsl:call-template name="link_object">
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
   *)
-  <blockquote>
+  <p>
+  <!-- <blockquote> -->
     <code>
       FUNCTION <xsl:value-of select="@name"/>
       <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> :</xsl:text>
@@ -1143,7 +1152,8 @@ SELF\<xsl:call-template name="link_object">
       </pre>
       END_FUNCTION;
     </code>
-  </blockquote>
+  <!-- </blockquote> -->
+  </p>
   <xsl:apply-templates select="./parameter" mode="description"/>
 </xsl:template>
 
@@ -1230,8 +1240,8 @@ SELF\<xsl:call-template name="link_object">
   
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  *)
-  <blockquote>
+  *)<p>
+  <!-- <blockquote> -->
     <code>
       PROCEDURE <xsl:value-of select="@name"/>
     <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
@@ -1242,7 +1252,8 @@ SELF\<xsl:call-template name="link_object">
     </pre>
     END_PROCEDURE;
     </code>
-  </blockquote>
+  <!-- </blockquote> -->
+  </p>
   (*
   <xsl:apply-templates select="./explicit" mode="description"/>
 </xsl:template>
@@ -1411,7 +1422,8 @@ SELF\<xsl:call-template name="link_object">
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
   *)
-  <blockquote>
+  <p>
+  <!-- <blockquote> -->
     <code>
       RULE <xsl:value-of select="@name"/> FOR
       <br/>
@@ -1422,7 +1434,8 @@ SELF\<xsl:call-template name="link_object">
       </pre>
       END_RULE;
     </code>
-  </blockquote>
+  <!-- </blockquote> -->
+   </p>
   <p><u>Argument definitions:</u></p>        
   <xsl:call-template name="process_rule_arguments">
     <xsl:with-param name="args" select="@appliesto"/>

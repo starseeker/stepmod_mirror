@@ -1,110 +1,60 @@
 (*
-
    $Id: arm.exp,v 1.8 2005/01/04 07:11:21 kovaliovas Exp $
-
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit interconnect definition - EXPRESS ARM
-
 *)
-
-
 
 SCHEMA Physical_unit_interconnect_definition_arm;
 
-
-
 USE FROM Part_view_definition_arm;
-
-
 
 USE FROM Assembly_structure_arm;
 
-
-
 ENTITY Connector_based_interconnect_definition;
-
    name                    : STRING; --label;
-
    associated_definition   : Physical_unit_interconnect_definition;
-
    connector_in_uv_1       : Next_assembly_usage;
-
    connector_in_uv_2       : Next_assembly_usage;
-
    component_1             : Next_assembly_usage;
-
    component_2             : Next_assembly_usage;   
-
   UNIQUE
-
     UR1 : name, associated_definition;
-
 WHERE
-
   WR1: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PACKAGED_CONNECTOR_COMPONENT' IN 
         TYPEOF(connector_in_uv_1\View_definition_usage.related_view);      
-
   WR2: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PACKAGED_CONNECTOR_COMPONENT' IN 
         TYPEOF(connector_in_uv_2\View_definition_usage.related_view);
-
   WR3: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PART_USAGE_VIEW' IN 
         TYPEOF(connector_in_uv_1\View_definition_usage.relating_view);
-
   WR4: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.PART_USAGE_VIEW' IN 
         TYPEOF(connector_in_uv_2\View_definition_usage.relating_view);
-
   WR5: EXISTS(connector_in_uv_1\Assembly_component_relationship.location_indicator);
-
   WR6: EXISTS(connector_in_uv_2\Assembly_component_relationship.location_indicator);
-
   WR7: EXISTS(component_1\Assembly_component_relationship.location_indicator);
-
   WR8: EXISTS(component_2\Assembly_component_relationship.location_indicator);
-
   WR9: NOT EXISTS(connector_in_uv_1.quantity);
-
  WR10: NOT EXISTS(connector_in_uv_2.quantity);
-
  WR11: NOT EXISTS(component_1.quantity);
-
  WR12: NOT EXISTS(component_2.quantity);
-
  WR13: component_1\View_definition_usage.related_view\Definition_based_product_occurrence.derived_from = 
        connector_in_uv_1\View_definition_usage.relating_view;
-
  WR14: component_2\View_definition_usage.related_view\Definition_based_product_occurrence.derived_from = 
        connector_in_uv_2\View_definition_usage.relating_view;
-
  WR15: component_1 <> component_2;
-
  WR16: component_1 <> connector_in_uv_1;
-
  WR17: connector_in_uv_1 <> component_2;
-
  WR18: component_1 <> connector_in_uv_2;
-
  WR19: connector_in_uv_2 <> component_2;
- 
  WR20: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE' IN 
         TYPEOF(component_1\View_definition_usage.related_view);      
-
  WR21: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE' IN 
         TYPEOF(component_2\View_definition_usage.related_view);
-
  WR22: associated_definition = component_1\View_definition_usage.relating_view;
- 
  WR23: associated_definition = component_2\View_definition_usage.relating_view;
-
 END_ENTITY;
 
-
-
   ENTITY Physical_unit_interconnect_definition
-
     SUBTYPE OF (Part_view_definition);
-
   END_ENTITY;
-
-
 
 END_SCHEMA;
 

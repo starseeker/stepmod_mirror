@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: repository_index.xsl,v 1.1 2001/11/14 17:25:05 robbod Exp $
+     $Id: repository_index.xsl,v 1.2 2001/11/16 08:41:14 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -35,11 +35,24 @@
       <TITLE>Module repository</TITLE>
     </HEAD>
     <BODY>
-      <h2>
-        <a name="alphatop">
-          Alphabetical list of Modules
-        </a>
-      </h2>
+      <table width="600">
+        <tr>
+          <td>
+            <h2>
+              <a name="alphatop">
+                Alphabetical list of Modules
+              </a>
+            </h2>
+          </td>
+          <td>
+            <h2>
+              <a href="help/index.htm">
+                Help
+              </a>
+            </h2>
+          </td>
+        </tr>
+      </table>
       <xsl:variable name="module_count"
         select="(count(./modules/module)+1) div 2"/>
       <blockquote>

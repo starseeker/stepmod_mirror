@@ -1,113 +1,106 @@
 (*
 
-	WG12 N525 								2000-05-30
+	WG12 N??? 								2003
 
-	EXPRESS Declarations for ISO 10303-41: 2nd Edition
+	EXPRESS Declarations for ISO 10303-41ed3: 3rd Edition
 *)
 
-SCHEMA product_property_representation_schema;
-REFERENCE FROM basic_attribute_schema                    -- ISO 10303-41
+SCHEMA product_property_representation_schema; 
+
+REFERENCE FROM basic_attribute_schema   -- ISO 10303-41
   (description_attribute,
    get_description_value,
    get_name_value,
-   name_attribute);
-REFERENCE FROM material_property_definition_schema       -- ISO 10303-45
-  (property_definition_relationship);
-REFERENCE FROM product_definition_schema                 -- ISO 10303-41
+   name_attribute); 
+
+REFERENCE FROM material_property_definition_schema   -- ISO 10303-45
+  (property_definition_relationship); 
+
+REFERENCE FROM product_definition_schema   -- ISO 10303-41
   (product_definition,
-   product_definition_relationship);
-REFERENCE FROM product_property_definition_schema        -- ISO 10303-41
+   product_definition_relationship); 
+
+REFERENCE FROM product_property_definition_schema   -- ISO 10303-41
   (characterized_definition,
    general_property,
    product_definition_shape,
    property_definition,
    shape_aspect,
-   shape_aspect_relationship);
-REFERENCE FROM representation_schema                     -- ISO 10303-43
+   shape_aspect_relationship); 
+
+REFERENCE FROM representation_schema   -- ISO 10303-43
   (representation,
    representation_item,
    representation_relationship,
-   using_representations);
-REFERENCE FROM support_resource_schema                   -- ISO 10303-41
+   using_representations); 
+
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (bag_to_set,
    label,
-   text);
+   text); 
+
 
 TYPE represented_definition = SELECT
-  (general_property,
-   property_definition,
-   property_definition_relationship,
-   shape_aspect,
-   shape_aspect_relationship);
-END_TYPE; -- represented_definition
+   (general_property, 
+    property_definition, 
+    property_definition_relationship, 
+    shape_aspect, 
+    shape_aspect_relationship);
+END_TYPE; 
 
 ENTITY context_dependent_shape_representation;
-  representation_relation      : shape_representation_relationship;
+  representation_relation : shape_representation_relationship;
   represented_product_relation : product_definition_shape;
 DERIVE
-  description                  : text := get_description_value (SELF);
-  name                         : label := get_name_value (SELF);
+  description : text := get_description_value (SELF);
+  name : label := get_name_value (SELF);
 WHERE
-  WR1 : 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP'
-         IN TYPEOF (SELF.represented_product_relation.definition);
-  WR2 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
-  WR3 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1;
-END_ENTITY; -- context_dependent_shape_representation
+  WR1: 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF (SELF.represented_product_relation.definition);
+  WR2: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
+  WR3: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1;
+END_ENTITY;
 
 ENTITY item_identified_representation_usage;
-  name                : label;
-  description         : OPTIONAL text;
-  definition          : represented_definition;  
-  used_representation : representation;    
-  identified_item     : representation_item;
+  name : label;
+  description : OPTIONAL text;
+  definition : represented_definition;
+  used_representation : representation;
+  identified_item : representation_item;
 WHERE
-  WR1: SELF.used_representation IN 
-       using_representations(SELF.identified_item);
-END_ENTITY; -- item_identified_representation_usage
+  WR1: SELF.used_representation IN using_representations(SELF.identified_item);
+END_ENTITY;
 
 ENTITY property_definition_representation;
-  definition          : represented_definition;
+  definition : represented_definition;
   used_representation : representation;
 DERIVE
-  description         : text := get_description_value (SELF);
-  name                : label := get_name_value (SELF);
+  description : text := get_description_value (SELF);
+  name : label := get_name_value (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
-  WR2 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1;
-END_ENTITY; -- property_definition_representation
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
+  WR2: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1;
+END_ENTITY;
 
 ENTITY shape_definition_representation
   SUBTYPE OF (property_definition_representation);
 WHERE
-  WR1: ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN
-       TYPEOF (SELF.definition))
-       OR
-       ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_DEFINITION' IN
-       TYPEOF (SELF.definition.definition));
-  WR2: 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN
-       TYPEOF(SELF.used_representation);
-END_ENTITY; -- shape_definition_representation
+  WR1: ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF (SELF.definition)) OR ('PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_DEFINITION' IN TYPEOF (SELF.definition.definition));
+  WR2: 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN TYPEOF(SELF.used_representation);
+END_ENTITY;
 
 ENTITY shape_representation
   SUBTYPE OF (representation);
-END_ENTITY; -- shape_representation
+END_ENTITY;
 
 ENTITY shape_representation_relationship
   SUBTYPE OF (representation_relationship);
 WHERE
-  WR1: 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN
-       (TYPEOF(SELF\representation_relationship.rep_1) +
-        TYPEOF(SELF\representation_relationship.rep_2));
-END_ENTITY; -- shape_representation_relationship
+  WR1: 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN (TYPEOF(SELF\representation_relationship.rep_1) + TYPEOF(SELF\representation_relationship.rep_2));
+END_ENTITY;
 
 FUNCTION relatives_of_product_definitions
-  (definition_set   : SET OF product_definition;
-   relation_subtype : STRING) : SET OF product_definition;
-  FUNCTION local_relatives_of_product_definitions
+ (definition_set : SET OF product_definition; relation_subtype : STRING) : SET OF product_definition; 
+ FUNCTION local_relatives_of_product_definitions
     (definition_set    : SET OF product_definition;
      total_definitions : SET OF product_definition;
      relation_subtype  : STRING) : SET OF product_definition;
@@ -120,7 +113,7 @@ FUNCTION relatives_of_product_definitions
     local_pdr := local_pdr +
                  bag_to_set(USEDIN
                    (definition_set[i],
-                    relation_subtype + '.RELATING_PRODUCT_DEFINITION'));
+                    relation_subtype + 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION'));
   END_REPEAT;
   REPEAT i := 1 TO HIINDEX(local_pdr);
     local_def := local_def + local_pdr[i].related_product_definition;
@@ -136,12 +129,11 @@ FUNCTION relatives_of_product_definitions
   END_FUNCTION; -- local_relatives_of_product_definitions
 RETURN (local_relatives_of_product_definitions
        (definition_set, definition_set, relation_subtype));
-END_FUNCTION; -- relatives_of_product_definitions
+ END_FUNCTION; 
 
 FUNCTION relatives_of_shape_representations
-   (shape_representation_set : SET OF shape_representation) :
-    SET OF shape_representation;
-  FUNCTION local_relatives_of_shape_representations
+ (shape_representation_set : SET OF shape_representation) : SET OF shape_representation; 
+FUNCTION local_relatives_of_shape_representations
      (shape_representation_set : SET OF shape_representation;
       total_reps    : SET OF shape_representation) : SET OF
       shape_representation;
@@ -174,10 +166,10 @@ FUNCTION relatives_of_shape_representations
   END_FUNCTION;
   RETURN (local_relatives_of_shape_representations
           (shape_representation_set, shape_representation_set));
-END_FUNCTION; -- relatives_of_shape_representations
+      END_FUNCTION; 
 
-FUNCTION get_property_definition_representations 
-      ( c_def_instance : characterized_definition ) : SET OF property_definition_representation;
+FUNCTION get_property_definition_representations
+ (c_def_instance : characterized_definition) : SET OF property_definition_representation; 
       
       LOCAL
       pd_set : SET OF property_definition := [];
@@ -194,6 +186,6 @@ FUNCTION get_property_definition_representations
 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
  END_REPEAT;
  RETURN (pdr_set);
-END_FUNCTION; 
+      END_FUNCTION; 
 
-END_SCHEMA; -- product_property_representation_schema
+END_SCHEMA;  -- product_property_representation_schema

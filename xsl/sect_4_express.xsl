@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.12 2002/02/07 17:05:55 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.13 2002/02/08 08:18:15 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -589,8 +589,8 @@
   <xsl:apply-templates select="./derived" mode="description"/>    
   <xsl:apply-templates select="./inverse" mode="description"/>  
   <xsl:apply-templates select="./unique" mode="description"/>
-  <xsl:apply-templates select="./where[@expression]" mode="description"/>
-  <xsl:apply-templates select="./where[not(@expression)]" mode="description"/>
+  <xsl:call-template name="output_where_formal"/>
+  <xsl:call-template name="output_where_informal"/>
 </xsl:template>
 
 
@@ -935,18 +935,22 @@
   </blockquote>
 </xsl:template>
 
+<xsl:template name="output_where_formal">
+  <xsl:if test="./where[@expression] and not(./unique)">
+    <p><u>Formal propositions:</u></p>
+  </xsl:if>
+  <xsl:apply-templates select="./where[@expression]" mode="description"/>
+</xsl:template>
+
+<xsl:template name="output_where_informal">
+  <xsl:if test="./where[not(@expression)]">
+    <p><u>Informal propositions:</u></p>
+  </xsl:if>
+  <xsl:apply-templates select="./where[not(@expression)]" mode="description"/>
+</xsl:template>
+
 
 <xsl:template match="where" mode="description">
-  <xsl:if test="position()=1 and not(../unique)">
-    <xsl:choose>
-      <xsl:when test="@expression">
-        <p><u>Formal propositions:</u></p>        
-      </xsl:when>
-      <xsl:otherwise>
-        <p><u>Informal propositions:</u></p>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:if>
 
   <xsl:variable name="aname">
     <xsl:call-template name="express_a_name">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: home.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
+$Id: home.xsl,v 1.2 2003/05/22 14:57:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -27,11 +27,12 @@ $Id: home.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
           <xsl:apply-templates 
             select="document($application_protocol_xml_file)/application_protocol" mode="title"/>
         </title>
+        <!-- commented out to avoid using JavaScript as required by HTML guidelines
       <script language="JavaScript"><![CDATA[
        function updateTitleFrame(title) {
          var divTT = top.contenttitle.document.all.DIVtitletext;
          if (divTT) {
-          divTT.innerText=title;
+          divTT.innerText='title';
          }
        }
 
@@ -41,7 +42,7 @@ $Id: home.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
            divTT.innerHTML=title;
          }
        }
-      ]]></script>
+      ]]></script> -->
       </head>
     <frameset framespacing="1" border="0" rows="40,*" frameborder="0">
       <frame name="aptitle" 
@@ -52,6 +53,7 @@ $Id: home.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
           src="./sys/frame_toc{$FILE_EXT}"
           marginwidth="2" marginheight="0" scrolling="auto"/>
 
+        <!-- commented out to avoid using JavaScript as required by HTML guidelines
         <frameset framespacing="1" border="0" rows="48,*" frameborder="0">
           <frame name="contenttitle"
             src="./sys/frame_contenttitle{$FILE_EXT}"
@@ -60,7 +62,10 @@ $Id: home.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
             onload="updateTitleFrame(top.content.document.title)"  
             src="./sys/cover{$FILE_EXT}"
             scrolling="auto"/>
-        </frameset>
+        </frameset> -->
+        <frame name="content"
+            src="./sys/cover{$FILE_EXT}"
+            scrolling="auto"/>
       </frameset>
     </frameset>
 

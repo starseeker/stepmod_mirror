@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.16 2003/04/23 15:00:47 robbod Exp $
+//$Id: getExpressMain.js,v 1.17 2004/10/25 20:21:06 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -721,6 +721,12 @@ function MainWindowBallotExpress(ballotName) {
 	ErrorMessage("The "+ballotIndex+" does not exist");
 	return(-1);
     }
+    var ballotFldr = "../ballots/isohtml/"+ballotName;
+    if (!fso.FolderExists(ballotFldr)) {
+	ErrorMessage("Directory does not exist:\n"+ballotFldr);
+	return(-1);
+    }
+
     var ballotExpressFldr = "../ballots/isohtml/"+ballotName+"/express";
     if (fso.FolderExists(ballotExpressFldr)) {
 	ErrorMessage("Directory exists:\n"+ballotExpressFldr);

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: repository_index.xsl,v 1.3 2001/11/22 12:33:44 robbod Exp $
+     $Id: repository_index.xsl,v 1.4 2002/01/03 09:29:45 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -104,7 +104,7 @@
 
 <xsl:template match="module">
   <xsl:variable name="xref"
-    select="concat('./data/modules/',@name,'/sys/main',$FILE_EXT)"/>
+    select="concat('./data/modules/',@name,'/sys/introduction',$FILE_EXT)"/>
   <a href="{$xref}">
     <font size="-1">
       <b><xsl:value-of select="@name"/> (<xsl:value-of select="@part"/>)</b>

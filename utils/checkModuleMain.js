@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.4 2003/10/08 16:13:15 robbod Exp $
+//$Id: checkModuleMain.js,v 1.5 2003/10/09 09:38:24 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -437,7 +437,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.4 2003/10/08 16:13:15 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.5 2003/10/09 09:38:24 robbod Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";
@@ -530,7 +530,7 @@ function Main() {
 //MainWindow("ap239_management_resource_information");
 //testModule("condition");
 //testModule("ap239_product_definition_information");
-checkExpressFile("condition", "arm");
+//checkExpressFile("condition", "arm");
 //checkExpressFile("ap239_product_definition_information", "arm");
 
 //testRepository();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.12 2003/06/03 18:37:34 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.13 2003/06/06 10:28:22 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -154,7 +154,7 @@
           terminology. 
         </xsl:when>
         <xsl:when test="//inforeqt/fundamentals/data_plan">
-          <a href="4_info_reqs{$FILE_EXT}#data_plan">4.1</a>
+          Clause <a href="4_info_reqs{$FILE_EXT}#data_plan">4.1</a>
           provides a data planning model that provides an overview
           of the information requirements of this domain in domain
           terminology. 

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
+$Id: index_arm_express_inner.xsl,v 1.8 2003/06/06 09:07:12 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -81,10 +81,6 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 		</xsl:call-template>
 	</xsl:variable>
 
-    <xsl:message>
-      qqz<xsl:value-of select="$schema-name"/>qq
-    </xsl:message>
-
       <xsl:choose>
 	<xsl:when test="function-available('msxsl:node-set')">
           <xsl:variable name="schemas-node-set" select="msxsl:node-set($arm_schemas)" />
@@ -92,16 +88,31 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 			<xsl:for-each select="$schemas-node-set//x" >
 				<xsl:sort /> <!-- added sort here which is not in the saxon version below -->
 				<xsl:copy-of select="document(.)" />
-			</xsl:for-each> -->
+			</xsl:for-each> 
 		</xsl:variable>
+
+          <!-- collect up all the expressg refs into a node-set -->
+          <xsl:variable name="arm_expressg">
+            <expg_nodes>
+              <xsl:for-each select="msxsl:node-set($schemas-node-set)//x">
+                  <xsl:variable name="module" 
+                    select="substring-after(substring-before(.,'/arm.xml'),'modules')"/>
+                  <xsl:variable name="module_xml" 
+                    select="concat('../../data/modules',$module,'/module.xml')"/>
+                  <xsl:apply-templates 
+                  select="document($module_xml)/module/arm/express-g/imgfile" mode="mk_node"/>
+              </xsl:for-each> 
+            </expg_nodes>
+          </xsl:variable>
 
 		<xsl:variable name="dep-schemas" 
 		  	select="msxsl:node-set($dep-schemas3)" />
-				
+                <xsl:variable name="arm_expressg_nodes" select="msxsl:node-set($arm_expressg)"/>				
 
 			<xsl:call-template name="index_arm_express_inner" >
 				<xsl:with-param name="this-schema" select="$top_module_node" />
 				<xsl:with-param name="called-schemas" select="$dep-schemas" />
+				<xsl:with-param name="expressg" select="$arm_expressg_nodes" />
 			</xsl:call-template>
 
 	</xsl:when>
@@ -119,7 +130,7 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 		      </xsl:choose>
 		    </xsl:variable>
 
-          <!-- RBN collect up all the expressg refs into a node-set -->
+          <!-- collect up all the expressg refs into a node-set -->
           <xsl:variable name="arm_expressg">
             <expg_nodes>
               <xsl:for-each select="exslt:node-set($schemas-node-set2)//x">
@@ -132,23 +143,13 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
             </expg_nodes>
           </xsl:variable>
 
-          <xsl:for-each select="exslt:node-set($arm_expressg)//object">
-                <xsl:message>
-                  a1:<xsl:value-of select="concat(./@file,' ',./@object)"/>
-                </xsl:message>            
-          </xsl:for-each>
-
 		<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" />
                 <xsl:variable name="arm_expressg_nodes" select="exslt:node-set($arm_expressg)"/>
-
-    <xsl:message>
-      zz<xsl:value-of select="$arm_expressg_nodes/expg_nodes/object/@object"/>zz
-    </xsl:message>
 
 			<xsl:call-template name="index_arm_express_inner" >
 				<xsl:with-param name="this-schema" select="$top_module_node" />
 				<xsl:with-param name="called-schemas" select="$dep-schemas" />
-				<xsl:with-param name="arm_expressg" select="$arm_expressg_nodes" />
+				<xsl:with-param name="expressg" select="$arm_expressg_nodes" />
 			</xsl:call-template>
 
 
@@ -164,12 +165,7 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 <xsl:template name="index_arm_express_inner" >
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
-	<xsl:param name="arm_expressg"/>		
-
-    <xsl:message>
-      z2<xsl:value-of select="$arm_expressg/expg_nodes/object/@object"/>2z
-    </xsl:message>
-
+	<xsl:param name="expressg"/>		
 	<xsl:if test="$called-schemas//constant" >
 		<br/>
 		<A name="constants"><b>Constants</b></A>
@@ -187,6 +183,7 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 		<xsl:call-template name="alph-list">
 			<xsl:with-param name="items" select="$called-schemas//type" />
 			<xsl:with-param name="internal-link-root" select="'type-letter'" />
+                        <xsl:with-param name="expressg" select="$expressg"/>
 		</xsl:call-template>
 	</xsl:if>
 
@@ -197,7 +194,7 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 		<xsl:call-template name="alph-list">
 			<xsl:with-param name="items" select="$called-schemas//entity" />
 			<xsl:with-param name="internal-link-root" select="'entity-letter'" />
-                        <xsl:with-param name="arm_expressg" select="$arm_expressg" />
+                        <xsl:with-param name="expressg" select="$expressg" />
 		</xsl:call-template>
 	</xsl:if>
 
@@ -208,6 +205,7 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 		<xsl:call-template name="alph-list">
 			<xsl:with-param name="items" select="$called-schemas//subtype.constraint" />
 			<xsl:with-param name="internal-link-root" select="'subc-letter'" />
+                        <xsl:with-param name="expressg" select="$expressg" />
 		</xsl:call-template>
 	</xsl:if>
 
@@ -247,14 +245,7 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 
 
 <xsl:template match="entity" mode="module-index" >
-                <xsl:param name="arm_expressg"/>
-    <xsl:message>
-      z5a<xsl:value-of select="../@name"/>z5
-    </xsl:message>
-    <xsl:message>
-      z5<xsl:value-of select="concat(../@name,' ',$arm_expressg/expg_nodes/object/@object)"/>z5
-    </xsl:message>
-
+                <xsl:param name="expressg"/>
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
@@ -263,7 +254,7 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 
 		<xsl:apply-templates select="." mode="expressg_icon">
                   <xsl:with-param name="target" select="'content'"/>
-                  <xsl:with-param name="expressg" select="$arm_expressg" />
+                  <xsl:with-param name="expressg" select="$expressg" />
                 </xsl:apply-templates> 
 		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
 		<xsl:value-of select="@name" /></A>
@@ -287,13 +278,17 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 
 
 <xsl:template match="type" mode="module-index" >
-
+                <xsl:param name="expressg"/>
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
-		
+                <xsl:apply-templates select="." mode="expressg_icon">
+                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="expressg" select="$expressg" />
+                </xsl:apply-templates> 
+
 		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
@@ -301,13 +296,17 @@ $Id: index_arm_express_inner.xsl,v 1.7 2003/06/04 15:51:08 nigelshaw Exp $
 </xsl:template>
 
 <xsl:template match="subtype.constraint" mode="module-index" >
-
+                <xsl:param name="expressg"/>
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
-		
+                  <xsl:apply-templates select="." mode="expressg_icon">
+                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="expressg" select="$expressg" />
+                </xsl:apply-templates> 
+
 		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="content" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
@@ -449,7 +448,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 <xsl:template name="alph-list" >
 	<xsl:param name="items" />
 	<xsl:param name="internal-link-root" />
-	<xsl:param name="arm_expressg"/>		
+	<xsl:param name="expressg"/>		
 
 		<xsl:variable name="name-list" >
 			<xsl:for-each select="$items">
@@ -462,7 +461,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-a"  ><B>A</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='A']" mode="module-index" >
-                                  <xsl:with-param name="arm_expressg" select="$arm_expressg"/>
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -471,6 +470,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-b"  ><B>B</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='B']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -479,6 +479,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-c"  ><B>C</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='C']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -487,6 +488,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-d"  ><B>D</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='D']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -495,6 +497,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-e"  ><B>E</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='E']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -503,6 +506,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-f"  ><B>F</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='F']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -512,6 +516,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='G']" mode="module-index" >
 					<xsl:sort select="@name" />
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' H')" >
@@ -519,14 +524,15 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-h"  ><B>H</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='H']" mode="module-index" >
-					<xsl:sort select="@name" />
-				</xsl:apply-templates>
+                                  <xsl:with-param name="expressg" select="$expressg"/>									<xsl:sort select="@name" />
+</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' I')" >
 				<br/>
 				<A NAME="{$internal-link-root}-i"  ><B>I</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='I']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -535,6 +541,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-j"  ><B>J</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='J']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -543,6 +550,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-k"  ><B>K</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='K']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -551,6 +559,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-l"  ><B>L</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='L']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -559,6 +568,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-m"  ><B>M</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='M']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -567,6 +577,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-n"  ><B>N</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='N']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -575,6 +586,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-o"  ><B>O</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='O']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -583,6 +595,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-p"  ><B>P</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='P']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -591,6 +604,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-q"  ><B>Q</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Q']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -599,6 +613,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-r"  ><B>R</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='R']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -607,6 +622,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-s"  ><B>S</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='S']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -615,6 +631,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-t"  ><B>T</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='T']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -623,6 +640,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-u"  ><B>U</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='U']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -632,6 +650,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-v"  ><B>V</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='V']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -640,6 +659,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-w"  ><B>W</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='W']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -648,6 +668,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-x"  ><B>X</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='X']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -656,6 +677,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-y"  ><B>Y</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Y']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -664,6 +686,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 				<A NAME="{$internal-link-root}-z"  ><B>Z</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Z']" mode="module-index" >
+                                  <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>

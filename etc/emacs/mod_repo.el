@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.1 2002/08/18 17:27:30 robbod Exp $
+;;; $Id: mod_repo.el,v 1.2 2002/08/20 15:07:47 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -33,6 +33,23 @@
   "Developed by Eurostep and supplied to NIST under contract."
   "Copyright notice in Owner field"
   :type 'sexp)
+
+(defvar month-alist
+  '(
+    ("Jan" "01") ("January" "01")
+    ("Feb" "02") ("February" "02")
+    ("Mar" "03") ("March" "03")
+    ("Apr" "04") ("April" "04")
+    ("May" "05")
+    ("Jun" "06") ("June" "06")
+    ("Jul" "07") ("July" "07")
+    ("Aug" "08") ("August" "08")
+    ("Sep" "09") ("Sept" "09") ("September" "09")
+    ("Oct" "10") ("October" "10")
+    ("Nov" "11") ("November" "11")
+    ("Dec" "11") ("December" "12")
+    )
+  "List of months")
 
 (defun modrep-date()
   (let* ((month
@@ -173,7 +190,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.1 2002/08/18 17:27:30 robbod Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.2 2002/08/20 15:07:47 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-esl)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")

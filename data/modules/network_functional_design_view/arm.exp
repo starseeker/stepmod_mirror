@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2005/01/14 12:24:16 liutkus Exp $
+   $Id: arm.exp,v 1.14 2005/01/15 19:18:34 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Network functional design view - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -74,15 +74,20 @@ END_TYPE;
       associated_functional_unit_definition : Functional_unit_network_definition;
       functional_unit_network_node_name     : STRING; --ee_name;
     DERIVE
-      valid_conservative_node : BOOLEAN := ((SIZEOF(QUERY(vc <* USEDIN(SELF,
- 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT') | TRUE)) + SIZEOF(QUERY(vc <* USEDIN(SELF,
- 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT') | TRUE)) + SIZEOF(QUERY(vc <* USEDIN(SELF,
- 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE') | TRUE)) + SIZEOF(external_node_access)) > 1);
+      valid_conservative_node : BOOLEAN := ( ( SIZEOF (USEDIN ( SELF ,
+        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) )
+        + SIZEOF ( USEDIN ( SELF ,
+        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )
+        ) + SIZEOF (USEDIN ( SELF ,
+        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE'
+        )) + SIZEOF ( external_node_access ) ) > 1 );
     INVERSE
       external_node_access : SET[0:1] OF functional_unit_network_terminal_definition_node_assignment FOR composed_node;
     UNIQUE
       UR1 : functional_unit_network_node_name,
  associated_functional_unit_definition;
+    WHERE
+      WR1 : EXISTS(valid_conservative_node);
   END_ENTITY;
 
   ENTITY Functional_unit_network_terminal_definition_bus_assignment;

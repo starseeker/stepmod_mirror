@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.11 2002/06/04 20:21:31 thendrix Exp $
+//$Id: express2xml.js,v 1.12 2002/06/06 07:52:56 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -65,7 +65,6 @@ function ErrorMessage(msg){
 function readStatement(line, ts) {
     var statement = "";
     var pos;
-
     // remove any trailing -- comments
     pos = line.search("--");
     if (pos != -1) {
@@ -136,6 +135,24 @@ function getList(statement) {
 
 //Given a statement, extract the (list) into an array
 function list2array(statement) {
+    var arr;
+    
+    //var list = getList(statement);
+
+    var reg = /\(.*\)/;    
+    var list = statement.match( reg );
+    if (list) {
+	list = list.toString();
+	// remove the ()
+	list = list.substr(2,list.length-4);
+	list = normaliseStatement(list);
+	arr = list.split(",");
+    }
+    return(arr)
+}
+
+//Given a statement, extract the (list) into an array
+function list2arrayOld(statement) {
     var arr;
     var list = getList(statement);
     if (list) {	
@@ -313,7 +330,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.11 2002/06/04 20:21:31 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.12 2002/06/06 07:52:56 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -323,7 +340,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.11 $";
+    var appCVSRevision = "$Revision: 1.12 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -638,8 +655,22 @@ function xmlInterface(statement, outTs) {
     var lArr = list2array(statement);
     if (lArr) {
 	for (var i=0; i<lArr.length; i++) {
-	    xmlOpenElement("<interfaced.item",outTs);		
-	    xmlAttr("name",lArr[i],outTs);
+	    xmlOpenElement("<interfaced.item",outTs);
+	    var line =  lArr[i].trim();
+	    var reg = /\bAS\b/;
+	    var as = line.match(reg);
+	    var entity, alias;
+	    if (as) {
+		var ifLine = line.split(" "); 
+		entity = ifLine[0];
+		alias = ifLine[2];
+		userMessage('{'+entity+' = '+alias+'}');	  
+		xmlAttr("name",entity,outTs);	    
+		xmlAttr("alias",alias,outTs);
+	    } else {
+		entity = line;
+		xmlAttr("name",entity,outTs);	    
+	    }
 	    xmlCloseAttr(outTs);
 	}
     }
@@ -788,11 +819,12 @@ function getType(statement) {
 }
 
 
-function xmlType(statement,outTs) {
+function xmlType(statement,outTs,expTs) {
     var typeName = getWord(2,statement);
     xmlOpenElement("<type name=\""+typeName,outTs);
     outTs.WriteLine("\">");
     var typeType = getType(statement);
+    userMessage("S:"+statement);
     switch( typeType ) {
     case "SELECT" :
 	xmlSelect(statement,outTs);
@@ -840,7 +872,43 @@ function xmlType(statement,outTs) {
 	break;
     }
     outTs.WriteLine("");
+    xmlTypeStructure(outTs,expTs);
 }
+
+function xmlTypeStructure(xmlTs,expTs) {
+    var l = expTs.ReadLine();
+    userMessage("L:"+l);
+    lNumber = expTs.Line;
+    var token = readToken(l);
+    switch( token ) {
+    case "END_TYPE" :	
+	xmlCloseElement("</type>",xmlTs);
+	break;
+    case "WHERE" :
+	// assumes WHERE is on new line
+	xmlTypeStructure(xmlTs,expTs);
+	break;
+    default :
+	// only called when in a where definition
+	var statement = readStatement(l,expTs);
+	userMessage("ss:"+statement);
+	var name = getWord(1,statement);
+	
+	var expr = getAfterColon(statement);
+	var reg = /^\s*/;
+	expr = expr.replace(reg,"");
+	expr = tidyExpression(expr);
+	xmlOpenElement("<where",xmlTs);	
+	xmlAttr("label",name,xmlTs);
+	xmlAttr("expression",expr,xmlTs);
+	xmlTs.WriteLine(">");
+	xmlCloseElement("</where>",xmlTs);
+	xmlTypeStructure(xmlTs,expTs);
+	break;
+
+    }
+}
+
 
 //a function Object
 function FunctionObj(name) {
@@ -1106,23 +1174,7 @@ function Output2xml(expFile, xmlFile, partnumber) {
 		break;
 	    case "TYPE" :	
 		var statement = readStatement(l,expTs);
-		xmlType(statement,xmlTs);
-		break;
-	    case "WHERE" :  // only called when in a type definition
-		var statement = readStatement(l,expTs);
-		var name = getWord(1,statement);
-		var expr = getAfterColon(statement);
-		var reg = /^\s*/;
-		expr = expr.replace(reg,"");
-		expr = tidyExpression(expr);
-		xmlOpenElement("<where",xmlTs);	
-		xmlAttr("label",name,xmlTs);
-		xmlAttr("expression",expr,xmlTs);
-		xmlTs.WriteLine(">");
-		xmlCloseElement("</where>",xmlTs);
-		break;
-	    case "END_TYPE" :	
-		xmlCloseElement("</type>",xmlTs);
+		xmlType(statement,xmlTs,expTs);
 		break;
 	    case "FUNCTION" :	
 		xmlFunction(l,expTs,xmlTs);

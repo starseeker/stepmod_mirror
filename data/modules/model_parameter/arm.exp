@@ -2,6 +2,68 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Model parameter - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Model_parameter_arm;
+
+USE FROM Classification_with_attributes_arm;
+
+USE FROM Independent_property_arm;
+
+USE FROM Independent_property_representation_arm;
+
+USE FROM Product_identification_arm;
+
+USE FROM Document_definition_arm;
+
+USE FROM Characteristic_arm;
+
+  ENTITY Model_parameter
+   SUBTYPE OF (Independent_property);
+      unit_of_measure    : OPTIONAL Unit; -- STRING
+      reference_document : document_definition;
+      valid_range        : OPTIONAL SET[1:?] OF Value_range; --coordinated_characteristic; 
+      default_value      : OPTIONAL scalar_or_coordinated_characteristics;
+  END_ENTITY; -- model_parameter
+
+  ENTITY Parameter_assignment
+    SUBTYPE OF (Independent_property_representation);
+   (** We may need further specification here *)
+--      SELF\independent_property_relationship.relating    	
+--	parameter_value: scalar_or_coordinated_characteristics;
+      SELF\independent_property_representation.property: model_parameter;
+--	assigned_parameter: model_parameter;
+  END_ENTITY; -- parameter_assignment
+
+  ENTITY Parameter_assignment_override;
+      overridden_parameter_assignment : parameter_assignment;
+      overriding_parameter_assignment : parameter_assignment;
+  END_ENTITY; -- parameter_assignment_override
+
+  ENTITY product_specific_parameter_value_assignment;
+      of_product         : product;
+      assigned_parameter : parameter_assignment;
+    DERIVE
+      the_model_parameter : model_parameter := assigned_parameter.assigned_parameter;
+    UNIQUE
+      UR1 : the_model_parameter,
+ of_product;
+  END_ENTITY; -- ee_product_specific_parameter_value_assignment
+
+  ENTITY Category_model_parameter
+    SUBTYPE OF (Model_parameter, classification_attribute);
+  END_ENTITY; -- category_model_parameter
+
+  ENTITY Schema_based_model_parameter
+    SUBTYPE OF (Model_parameter);
+      entity_name    : STRING;
+      attribute_name : OPTIONAL STRING;
+    DERIVE
+      schema_identifier : STRING := SELF\model_parameter.type_name;
+    UNIQUE
+      ur1 : entity_name,
+ attribute_name,
+ schema_identifier;
+  END_ENTITY; -- schema_based_model_parameter
+
+
 END_SCHEMA;

@@ -1,6 +1,85 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/17 15:46:27 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 07:48:35 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly component placement requirements - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Assembly_component_placement_requirements_arm;
-END_SCHEMA;
+
+	USE FROM Physical_unit_design_view_arm (Assembly_component);
+	
+	USE FROM Requirement_decomposition_arm (Requirement_definition_property);
+	
+	USE FROM Extended_geometric_tolerance_arm;
+	
+	USE FROM Non_feature_shape_element_arm (
+	Non_feature_shape_element,
+	non_feature_shape_definition);
+	
+	USE FROM Assembly_module_design_arm (
+		Assembly_module);
+		
+	USE FROM Assembly_module_with_interconnect_component_arm (
+		Interconnect_module_component_surface_feature);
+		
+	TYPE restriction_basis_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Component_group_assignment;
+      associated_group   : placement_group;
+      assigned_component : assembly_component;
+  END_ENTITY; -- component_group_assignment
+
+  ENTITY Component_placement_restriction_assignment;
+      maximum_negative_component_height : OPTIONAL datum_based_length_measure;
+      maximum_positive_component_height : OPTIONAL datum_based_length_measure;
+      area                              : OPTIONAL mounting_restriction_area;
+      volume                            : OPTIONAL mounting_restriction_volume;
+      requirement                       : item_restricted_requirement_occurrence;
+      components_permitted              : BOOLEAN;
+      maximum_mounting_clearance        : OPTIONAL datum_based_length_measure;
+      minimum_mounting_clearance        : OPTIONAL datum_based_length_measure;
+    WHERE
+      WR1 : EXISTS(area) OR EXISTS(volume);
+  END_ENTITY; -- component_placement_restriction_assignment
+
+  ENTITY Item_restricted_requirement_occurrence
+    SUBTYPE OF (Requirement_definition_property);
+      basis : restriction_basis_item;
+  END_ENTITY; -- item_restricted_requirement_occurrence
+
+  ENTITY Mounting_restriction_area
+    SUBTYPE OF (Non_feature_shape_element);
+      mounting_surface                     : interconnect_module_component_surface_feature;
+      SELF\non_feature_shape_element.scope : assembly_module;
+    WHERE
+      WR1 : 'AP210_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(SELF\non_feature_shape_element.element_shape);
+  END_ENTITY; -- mounting_restriction_area
+
+  ENTITY Mounting_restriction_volume
+    SUBTYPE OF (Non_feature_shape_element);
+      mounting_surface                     : interconnect_module_component_surface_feature;
+      SELF\non_feature_shape_element.scope : assembly_module;
+    INVERSE
+      volume : non_feature_shape_definition FOR associated_element;
+    WHERE
+      WR1 : 'AP210_ARM.THREE_DIMENSIONAL_SHAPE' IN TYPEOF(volume);
+  END_ENTITY; -- mounting_restriction_volume
+
+  ENTITY Placement_group;
+      design_specific_usage : STRING; --ee_name;
+(** Need a WR to capture cardinality      
+      requirement           : SET[1:?] OF Requirement_definition_property;
+*)      
+  END_ENTITY; -- placement_group
+
+  ENTITY Placement_group_area_assignment;
+      placed_group : placement_group;
+      area         : mounting_restriction_area;
+  END_ENTITY; -- placement_group_area_assignment
+
+  ENTITY Placement_group_volume_assignment;
+      placed_group : placement_group;
+      volume       : mounting_restriction_volume;
+  END_ENTITY; -- placement_group_volume_assignment
+
+END_SCHEMA; -- Assembly_component_placement_requirements_arm

@@ -1,6 +1,88 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/17 15:53:28 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 07:39:08 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly functional interface requirement - EXPRESS ARM
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Assembly_functional_interface_requirement_arm;
-END_SCHEMA;
+
+USE FROM Packaged_part_black_box_model_arm;
+
+USE FROM Product_view_definition_arm;
+
+USE FROM Functional_specification_arm;
+
+USE FROM Requirement_assignment_arm;	
+
+USE FROM Requirement_decomposition_arm;
+
+USE FROM Assembly_physical_interface_requirement_arm;
+
+(** Renamed packaged_or_printed_terminal to mating_connector_definition_select *)
+	TYPE mating_connector_definition_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Interface_requirement_occurrence
+    SUBTYPE OF (Design_requirement_occurrence);
+      interface_to_next_higher_assembly : OPTIONAL next_higher_assembly_interface_requirement;
+      reference_protocol                : OPTIONAL protocol_physical_layer_definition;
+  END_ENTITY; -- interface_requirement_occurrence
+
+  ENTITY Protocol_physical_layer_definition
+    SUBTYPE OF (product_view_definition);
+      host_connector                       : OPTIONAL minimally_defined_connector;
+      host_functional_definition           : functional_unit_usage_view;
+      host_rcv_functional_characterization : OPTIONAL functional_specification_definition;
+      host_xmt_functional_characterization : OPTIONAL functional_specification_definition;
+      media_connector                      : OPTIONAL minimally_defined_connector;
+      media_functional_characterization    : OPTIONAL functional_specification_definition;
+      media_functional_definition          : OPTIONAL functional_unit_usage_view;
+    DERIVE
+      reference_document : SET[1:1] OF document_definition := SELF\product_view_definition.documentation;
+    WHERE
+      WR1 : EXISTS(SELF\product_view_definition.documentation);
+      WR2 : SIZEOF(SELF\product_view_definition.documentation) = 1;
+      WR3 : EXISTS(host_functional_definition) OR EXISTS(media_functional_definition);
+  END_ENTITY; -- protocol_physical_layer_definition
+
+  ENTITY Protocol_requirement_allocation_to_part_terminal
+    SUBTYPE OF (requirement_assignment);
+      SELF\requirement_assignment.assigned_to : part_terminal;
+      SELF\requirement_assignment.assigned_requirement : interface_requirement_occurrence;
+      protocol_signal                                   : functional_unit_usage_view_terminal_definition;
+    WHERE
+      WR1 : EXISTS(SELF\requirement_assignment.assigned_requirement.reference_protocol);
+      WR2 : protocol_signal IN SELF\requirement_assignment.assigned_requirement.reference_protocol.host_functional_definition\functional_unit_usage_view.access_mechanism;
+  END_ENTITY; -- protocol_requirement_allocation_to_part_terminal
+
+  ENTITY Mating_connector_termination;
+      definition         : mating_connector_definition_select;
+      accessed_connector : mating_connector_component;
+      name               : STRING; --ee_name;
+(** Need a WR to capture cardinality      
+      signal_definition  : OPTIONAL Requirement_definition_property;
+*)      
+    UNIQUE
+      ur1 : definition,
+ accessed_connector;
+  END_ENTITY; -- mating_connector_termination
+
+  ENTITY Minimally_defined_connector
+    SUBTYPE OF (packaged_part);
+    	SELF\packaged_part.used_package	: SET[1:?] OF package_external_reference;
+    INVERSE
+      terminal 												: SET[1:?] OF Shape_element FOR containing_shape;
+    WHERE
+      WR1 : SIZEOF(QUERY(t <* SELF\packaged_part.access_mechanisms | ('AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF(t)))) >= 0;
+      WR2 : NOT EXISTS(SELF\packaged_part.implemented_function);
+      WR3 : NOT EXISTS(SELF\packaged_part.potting_compound);
+      WR4 : NOT ('AP210_ARM.ALTERED_PACKAGED_PART' IN TYPEOF(SELF));
+  END_ENTITY; -- minimally_defined_connector
+
+  ENTITY Termination_constraint;
+      constrained_termination      : SET[2:?] OF mating_connector_termination;
+(** Need a WR to capture cardinality      
+      termination_usage_constraint : Requirement_definition_property;
+*)      
+  END_ENTITY; -- termination_constraint
+
+END_SCHEMA; -- Assembly_functional_interface_requirement_arm

@@ -1,6 +1,68 @@
 (*
-   $Id: arm.exp,v 1.1 2004/11/17 16:13:10 budreckytej Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 09:25:05 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Component grouping - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Component_grouping_arm;
-END_SCHEMA;
+
+USE FROM Physical_unit_design_view_arm;
+
+USE FROM Value_with_unit_extension_arm;
+
+USE FROM Interface_component_arm;	
+
+USE FROM Assembly_structure_arm;
+
+  ENTITY Array_placement_group
+    ABSTRACT SUPERTYPE OF(ONEOF (linear_array_placement_group_component,
+		rectangular_array_placement_group_component))
+    SUBTYPE OF (Assembly_group_component);
+  END_ENTITY; -- array_placement_group
+
+  ENTITY Assembly_component_placement_link;
+      precedent_element  : assembly_component;
+      subsequent_element : assembly_component;
+    INVERSE
+      referenced_by : linear_array_placement_group_component FOR element;
+  END_ENTITY; -- assembly_component_placement_link
+
+  ENTITY Assembly_group_component
+    SUBTYPE OF (Assembly_component);
+    INVERSE
+      components : SET[0:?] OF next_assembly_usage FOR relating_view;
+(**      
+    WHERE
+      WR1 : NOT (SIZEOF(components) = 0) OR (SIZEOF(['AP210_ARM.FOOTPRINT_OCCURRENCE',
+ 'AP210_ARM.PADSTACK_OCCURRENCE'] * TYPEOF(SELF)) = 1);
+*) 
+  END_ENTITY; -- assembly_group_component
+
+  ENTITY Interfaced_group_component
+    SUBTYPE OF (Assembly_group_component);
+      group_interface_component : SET[1:?] OF interface_component;
+  END_ENTITY; -- interfaced_group_component
+
+  ENTITY Linear_array_placement_group_component
+    SUBTYPE OF (Array_placement_group);
+      element                               : SET[1:?] OF assembly_component_placement_link;
+      initial_node_positive_x_displacement  : length_data_element;
+      terminus_node_positive_x_displacement : length_data_element;
+      location_uncertainty                  : length_data_element;
+  END_ENTITY; -- linear_array_placement_group_component
+
+  ENTITY Linear_array_placement_group_component_link;
+      precedent_element  : linear_array_placement_group_component;
+      subsequent_element : linear_array_placement_group_component;
+    INVERSE
+      referenced_by : rectangular_array_placement_group_component FOR element;
+  END_ENTITY; -- linear_array_placement_group_component_link
+
+  ENTITY Rectangular_array_placement_group_component
+    SUBTYPE OF (Array_placement_group);
+      element                              : SET[1:?] OF linear_array_placement_group_component_link;
+      initial_row_positive_y_displacement  : length_data_element;
+      terminus_row_positive_y_displacement : length_data_element;
+      location_uncertainty                 : length_data_element;
+  END_ENTITY; -- rectangular_array_placement_group_component
+
+END_SCHEMA; -- Component_grouping_arm

@@ -1,7 +1,59 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.3 2004/11/26 18:18:20 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Altered package - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Altered_package_arm;
-END_SCHEMA;
+
+USE FROM Package_arm;
+
+USE FROM Value_with_unit_extension_arm;
+
+USE FROM External_item_identification_assignment_arm;
+
+USE FROM Specification_document_arm;
+
+  TYPE geometric_status = SELECT
+    (predefined_geometric_status,
+     external_item_identification);
+  END_TYPE; -- geometric_status
+
+  TYPE predefined_geometric_status = ENUMERATION OF
+    (undefined,
+     standard_datum_condition,
+     perpendicular_primary_datum_axis,
+     perpendicular_primary_datum_plane);
+  END_TYPE; -- predefined_geometric_status
+
+  ENTITY Altered_package
+    SUBTYPE OF (package);
+      of_geometric_status          : geometric_status;
+      modified_terminal_separation : OPTIONAL length_data_element;
+      package_to_be_altered        : package;
+  END_ENTITY; -- altered_package
+
+  ENTITY Altered_package_terminal
+    ABSTRACT SUPERTYPE OF ((shape_formed_terminal ANDOR
+ surface_prepped_terminal) ANDOR
+ length_trimmed_terminal)
+    SUBTYPE OF (package_terminal);
+      terminal_to_be_altered                  : package_terminal;
+      SELF\part_feature.associated_definition : altered_package;
+  END_ENTITY; -- altered_package_terminal
+
+  ENTITY Length_trimmed_terminal
+    SUBTYPE OF (Altered_package_terminal);
+      maximum_trimmed_length : length_data_element;
+      minimum_trimmed_length : length_data_element;
+  END_ENTITY; -- length_trimmed_terminal
+
+  ENTITY Surface_prepped_terminal
+    SUBTYPE OF (Altered_package_terminal);
+      surface_preparation : surface_finish_specification;
+  END_ENTITY; -- surface_prepped_terminal
+
+  ENTITY Shape_formed_terminal
+    SUBTYPE OF (Altered_package_terminal);
+  END_ENTITY; -- shape_formed_terminal
+
+END_SCHEMA; -- Altered_package_arm

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.10 2002/01/31 18:09:46 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.11 2002/02/07 16:14:41 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1321,19 +1321,26 @@
 
 <!-- 
      Express is displayed in clauses: 
-       Interfaces
-       Constants
-       Types
-       Entities
-       Functions
-       Rules
-       Procedures
+     Interfaces
+     Constants
+     Imported Constants
+     Types
+     Imported Types
+     Entities
+     Imported Entities
+     Functions
+     Imported Functions
+     Rules
+     Imported Rules
+     Procedures
+     Imported Procedures
      Template checks to see whether a particular clause is present in the
      schema. 
      If it is the clause number is returned. If not 0 is returned.
      The clause argument is: 
      interface constant type entity function rule procedure
-
+     imported_constant imported_type imported_entity 
+     imported_function imported_rule imported_procedure
 -->
 <xsl:template name="express_clause_present">
   <xsl:param name="clause"/>
@@ -1480,11 +1487,118 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
+      
+      <xsl:when test="$clause='imported_constant'">
+        <xsl:choose>          
+        <!-- There seems to be a bug in MXSL3. 
+               Should not need to convert $xml_file to a string --> 
+          <xsl:when
+            test="document(string($xml_file))/express/schema/interface/described.item[@kind='CONSTANT']">
+            <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="clause" select="'imported_constant'"/>
+              <xsl:with-param name="schema_name" select="$schema_name"/>
+            </xsl:call-template>              
+          </xsl:when>
+          <xsl:otherwise>
+            0
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
 
+      <xsl:when test="$clause='imported_type'">
+        <xsl:choose>          
+          <!-- There seems to be a bug in MXSL3. 
+               Should not need to convert $xml_file to a string --> 
+          <xsl:when
+            test="document(string($xml_file))/express/schema/interface/described.item[@kind='TYPE']">
+            <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="clause" select="'imported_type'"/>
+              <xsl:with-param name="schema_name" select="$schema_name"/>
+            </xsl:call-template>              
+          </xsl:when>
+          <xsl:otherwise>
+            0
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$clause='imported_entity'">
+        <xsl:choose>          
+          <!-- There seems to be a bug in MXSL3. 
+               Should not need to convert $xml_file to a string --> 
+          <xsl:when
+            test="document(string($xml_file))/express/schema/interface/described.item[@kind='ENTITY']">
+            <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="clause" select="'imported_entity'"/>
+              <xsl:with-param name="schema_name" select="$schema_name"/>
+            </xsl:call-template>              
+          </xsl:when>
+          <xsl:otherwise>
+            0
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$clause='imported_function'">
+        <xsl:choose>          
+          <!-- There seems to be a bug in MXSL3. 
+               Should not need to convert $xml_file to a string --> 
+          <xsl:when
+            test="document(string($xml_file))/express/schema/interface/described.item[@kind='FUNCTION']">
+            <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="clause" select="'imported_function'"/>
+              <xsl:with-param name="schema_name" select="$schema_name"/>
+            </xsl:call-template>              
+          </xsl:when>
+          <xsl:otherwise>
+            0
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$clause='imported_rule'">
+        <xsl:choose>          
+          <!-- There seems to be a bug in MXSL3. 
+               Should not need to convert $xml_file to a string --> 
+          <xsl:when
+            test="document(string($xml_file))/express/schema/interface/described.item[@kind='RULE']">
+            <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="clause" select="'imported_rule'"/>
+              <xsl:with-param name="schema_name" select="$schema_name"/>
+            </xsl:call-template>              
+          </xsl:when>
+          <xsl:otherwise>
+            0
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$clause='imported_procedure'">
+        <xsl:choose>          
+        <!-- There seems to be a bug in MXSL3. 
+             Should not need to convert $xml_file to a string --> 
+        <xsl:when
+            test="document(string($xml_file))/express/schema/interface/described.item[@kind='PROCEDURE']"> 
+            <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="clause" select="'imported_procedure'"/>
+              <xsl:with-param name="schema_name" select="$schema_name"/>
+            </xsl:call-template>              
+          </xsl:when>
+          <xsl:otherwise>
+            0
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      
     </xsl:choose>
   </xsl:variable>
   <xsl:value-of select="$clause_present"/>
 </xsl:template>
+
+
+
+
+
 
 <!--
      The order of the clauses describing the express is:

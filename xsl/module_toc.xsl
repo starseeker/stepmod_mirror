@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
+$Id: module_toc.xsl,v 1.5 2002/01/23 14:24:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -76,6 +76,23 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
             </A><BR/>
           </xsl:if>
 
+          <!-- only output if there are imported constants defined and 
+               therefore a section -->
+          <xsl:variable name="imported_constant_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_constant'"/>
+              <xsl:with-param name="schema_name" select="$arm_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_constant_clause != 0">
+            <A HREF="4_info_reqs{$FILE_EXT}#imported_constant">
+              <xsl:value-of select="concat('&#160; &#160;', 
+                                    $imported_constant_clause,
+                                    ' ARM imported constant modifications')"/>
+            </A><BR/>
+          </xsl:if>
+
+
           <!-- only output if there are types defined and therefore a
                section -->
           <xsl:variable name="type_clause">
@@ -84,13 +101,29 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-
           <xsl:if test="$type_clause != 0">
             <A HREF="4_info_reqs{$FILE_EXT}#types">
               <xsl:value-of select="concat('&#160; &#160;', $type_clause,
                                     ' ARM type definitions')"/>
             </A><BR/>
           </xsl:if>
+
+          <!-- only output if there are imported types defined and 
+               therefore a section -->
+          <xsl:variable name="imported_type_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_type'"/>
+              <xsl:with-param name="schema_name" select="$arm_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_type_clause != 0">
+            <A HREF="4_info_reqs{$FILE_EXT}#imported_type">
+              <xsl:value-of select="concat('&#160; &#160;', 
+                                    $imported_type_clause,
+                                    ' ARM imported type modifications')"/>
+            </A><BR/>
+          </xsl:if>
+
 
           <!-- only output if there are entitys defined and therefore a
                section -->
@@ -107,6 +140,22 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
             </A><BR/>
           </xsl:if>
           
+          <!-- only output if there are imported entitys defined and 
+               therefore a section -->
+          <xsl:variable name="imported_entity_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_entity'"/>
+              <xsl:with-param name="schema_name" select="$arm_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_entity_clause != 0">
+            <A HREF="4_info_reqs{$FILE_EXT}#imported_entity">
+              <xsl:value-of select="concat('&#160; &#160;', 
+                                    $imported_entity_clause,
+                                    ' ARM imported entity modifications')"/>
+            </A><BR/>
+          </xsl:if>
+
           <!-- only output if there are functions defined and therefore a
                section -->
           <xsl:variable name="function_clause">
@@ -119,6 +168,21 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
             <A HREF="4_info_reqs{$FILE_EXT}#functions">
               <xsl:value-of select="concat('&#160; &#160;', $function_clause,
                                     ' ARM function definitions')"/>
+            </A><BR/>
+          </xsl:if>
+          <!-- only output if there are imported functions defined and 
+               therefore a section -->
+          <xsl:variable name="imported_function_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_function'"/>
+              <xsl:with-param name="schema_name" select="$arm_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_function_clause != 0">
+            <A HREF="4_info_reqs{$FILE_EXT}#imported_function">
+              <xsl:value-of select="concat('&#160; &#160;', 
+                                    $imported_function_clause,
+                                    ' ARM imported function modifications')"/>
             </A><BR/>
           </xsl:if>
 
@@ -136,6 +200,21 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
                                     'ARM rule definitions')"/>
             </A><BR/>
           </xsl:if>
+          <!-- only output if there are imported rules defined and 
+               therefore a section -->
+          <xsl:variable name="imported_rule_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_rule'"/>
+              <xsl:with-param name="schema_name" select="$arm_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_rule_clause != 0">
+            <A HREF="4_info_reqs{$FILE_EXT}#imported_rule">
+              <xsl:value-of select="concat('&#160; &#160;', 
+                                    $imported_rule_clause,
+                                    ' ARM imported rule modifications')"/>
+            </A><BR/>
+          </xsl:if>
 
           <!-- only output if there are procedures defined and therefore a
                section -->
@@ -151,6 +230,22 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
                                     ' ARM procedure definitions')"/>
             </A><BR/>
           </xsl:if>
+          <!-- only output if there are imported procedures defined and 
+               therefore a section -->
+          <xsl:variable name="imported_procedure_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_procedure'"/>
+              <xsl:with-param name="schema_name" select="$arm_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_procedure_clause != 0">
+            <A HREF="4_info_reqs{$FILE_EXT}#imported_procedure">
+              <xsl:value-of select="concat('&#160; &#160;', 
+                                    $imported_procedure_clause,
+                                    ' ARM imported procedure modifications')"/>
+            </A><BR/>
+          </xsl:if>
+
         </font>
 
         <!-- Output clause 5 index -->
@@ -173,6 +268,22 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
                                     ' MIM EXPRESS constants')"/>
             </A><BR/>
           </xsl:if>          
+          <!-- only output if there are imported constants defined and 
+               therefore a section -->
+          <xsl:variable name="imported_constant_mim_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_constant'"/>
+              <xsl:with-param name="schema_name" select="$mim_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_constant_mim_clause != 0">
+            <A HREF="5_mim{$FILE_EXT}#imported_constant">
+              <xsl:value-of select="concat('&#160; &#160; &#160;', 
+                                    $imported_constant_mim_clause,
+                                    ' MIM imported constant modifications')"/>
+            </A><BR/>
+          </xsl:if>
+
 
           <!-- only output if there are types defined and therefore a
                section -->
@@ -182,13 +293,27 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-
           <xsl:if test="$type_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#types">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $type_mim_clause,
                                     ' MIM EXPRESS types')"/>
             </A><BR/>
           </xsl:if>          
+          <!-- only output if there are imported types defined and 
+               therefore a section -->
+          <xsl:variable name="imported_mim_type_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_type'"/>
+              <xsl:with-param name="schema_name" select="$mim_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_mim_type_clause != 0">
+            <A HREF="5_mim{$FILE_EXT}#imported_type">
+              <xsl:value-of select="concat('&#160; &#160; &#160;', 
+                                    $imported_mim_type_clause,
+                                    ' MIM imported type modifications')"/>
+            </A><BR/>
+          </xsl:if>
 
           <!-- only output if there are entitys defined and therefore a
                section -->
@@ -198,13 +323,29 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-
           <xsl:if test="$entity_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#entities">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $entity_mim_clause,
                                     ' MIM EXPRESS entitys')"/>
             </A><BR/>
           </xsl:if>          
+
+          <!-- only output if there are imported entitys defined and 
+               therefore a section -->
+          <xsl:variable name="imported_mim_entity_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_entity'"/>
+              <xsl:with-param name="schema_name" select="$mim_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_mim_entity_clause != 0">
+            <A HREF="5_mim{$FILE_EXT}#imported_entity">
+              <xsl:value-of select="concat('&#160; &#160; &#160;', 
+                                    $imported_mim_entity_clause,
+                                    ' MIM imported entity modifications')"/>
+            </A><BR/>
+          </xsl:if>
+          
 
           <!-- only output if there are functions defined and therefore a
                section -->
@@ -214,13 +355,29 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-
           <xsl:if test="$function_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#functions">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $function_mim_clause,
                                     ' MIM EXPRESS functions')"/>
             </A><BR/>
           </xsl:if>          
+          <!-- only output if there are imported functions defined and 
+               therefore a section -->
+          <xsl:variable name="imported_mim_function_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_function'"/>
+              <xsl:with-param name="schema_name" select="$mim_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_mim_function_clause != 0">
+            <A HREF="5_mim{$FILE_EXT}#imported_function">
+              <xsl:value-of select="concat('&#160; &#160; &#160;', 
+                                    $imported_mim_function_clause,
+                                    ' MIM imported function modifications')"/>
+            </A><BR/>
+          </xsl:if>
+
+
 
           <!-- only output if there are rules defined and therefore a
                section -->
@@ -230,13 +387,27 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-
           <xsl:if test="$rule_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#rules">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $rule_mim_clause,
                                     ' MIM EXPRESS rules')"/>
             </A><BR/>
           </xsl:if>          
+          <!-- only output if there are imported rules defined and 
+               therefore a section -->
+          <xsl:variable name="imported_mim_rule_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_rule'"/>
+              <xsl:with-param name="schema_name" select="$mim_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_mim_rule_clause != 0">
+            <A HREF="5_mim{$FILE_EXT}#imported_rule">
+              <xsl:value-of select="concat('&#160; &#160; &#160;', 
+                                    $imported_mim_rule_clause,
+                                    ' MIM imported rule modifications')"/>
+            </A><BR/>
+          </xsl:if>
 
           <!-- only output if there are procedures defined and therefore a
                section -->
@@ -246,13 +417,28 @@ $Id: module_toc.xsl,v 1.4 2001/11/15 18:16:28 robbod Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-
           <xsl:if test="$procedure_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#procedures">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $procedure_mim_clause,
                                     ' MIM EXPRESS procedures')"/>
             </A><BR/>
           </xsl:if>          
+          <!-- only output if there are imported procedures defined and 
+               therefore a section -->
+          <xsl:variable name="imported_mim_procedure_clause">
+            <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="clause" select="'imported_procedure'"/>
+              <xsl:with-param name="schema_name" select="$mim_schema_name"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:if test="$imported_mim_procedure_clause != 0">
+            <A HREF="5_mim{$FILE_EXT}#imported_procedure">
+              <xsl:value-of select="concat('&#160; &#160; &#160;', 
+                                    $imported_mim_procedure_clause,
+                                    ' MIM imported procedure modifications')"/>
+            </A><BR/>
+          </xsl:if>
+
 
         </font>
       </TD>

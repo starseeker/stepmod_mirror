@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.6 2004/12/22 06:33:06 liutkus Exp $
+   $Id: mim.exp,v 1.7 2004/12/23 14:48:47 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Extended geometric tolerance - EXPRESS MIM
 *)
 
@@ -165,6 +165,63 @@ WHERE
      'POSITION_TOLERANCE'] * TYPEOF(pdr.related_property_definition)) > 0)
          )) =0);
 END_ENTITY; -- geometric_tolerance_group
+
+ENTITY linear_profile_tolerance
+  SUBTYPE OF (physical_unit_geometric_tolerance);
+WHERE
+  WR1: ( NOT( SELF\geometric_tolerance.name = 
+        'linear profile refinement')) OR
+       ( SIZEOF (QUERY( gtr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GEOMETRIC_TOLERANCE_RELATIONSHIP.RELATED_GEOMETRIC_TOLERANCE') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LINEAR_PROFILE_TOLERANCE' IN 
+        TYPEOF(gtr.relating_geometric_tolerance))
+       AND (gtr\geometric_tolerance_relationship.name = 'linear profile refining control')
+       AND ((gtr.relating_geometric_tolerance\geometric_tolerance.name = 
+       'linear profile locating')
+       OR (gtr.relating_geometric_tolerance\geometric_tolerance.name = 
+       'linear profile refinement')))
+       )) = 1);
+  WR2: ( NOT(SELF\geometric_tolerance.name = 'linear profile locating')) OR
+       ( SIZEOF( QUERY( gtr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GEOMETRIC_TOLERANCE_RELATIONSHIP.RELATED_GEOMETRIC_TOLERANCE') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LINEAR_PROFILE_TOLERANCE' IN 
+       TYPEOF(gtr.relating_geometric_tolerance))
+       AND (gtr.relating_geometric_tolerance\geometric_tolerance.name = 
+       'linear profile refinement'))
+       AND (gtr\geometric_tolerance_relationship.name = 'linear profile refining control'))) = 1);
+  WR3: ( NOT( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GEOMETRIC_TOLERANCE_WITH_SPECIFIED_DATUM_SYSTEM' IN TYPEOF(SELF))
+       AND ( SELF\geometric_tolerance.name = 
+       'linear profile refinement'))) OR
+       ( SIZEOF( QUERY( gtr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GEOMETRIC_TOLERANCE_RELATIONSHIP.RELATED_GEOMETRIC_TOLERANCE') |
+       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LINEAR_PROFILE_TOLERANCE' IN 
+       TYPEOF(gtr.relating_geometric_tolerance))
+       AND (gtr.relating_geometric_tolerance\geometric_tolerance.name = 
+      'linear profile refinement')
+       AND (gtr\geometric_tolerance_relationship.name = 'linear profile refining control')
+       )) = 0);
+  WR4: ( NOT( SELF\geometric_tolerance.name = 
+       'linear profile refinement')) OR
+       ( SIZEOF (QUERY( gtr <* USEDIN(SELF,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'GEOMETRIC_TOLERANCE_RELATIONSHIP.RELATING_GEOMETRIC_TOLERANCE') |
+       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LINEAR_PROFILE_TOLERANCE' IN 
+       TYPEOF(gtr.relating_geometric_tolerance))
+       AND (gtr.related_geometric_tolerance\geometric_tolerance.name = 
+       'linear profile refinement')
+       AND (gtr\geometric_tolerance_relationship.name = 'linear profile refining control'))
+       )) <= 1);
+  WR5: NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MODIFIED_GEOMETRIC_TOLERANCE' IN TYPEOF(SELF));
+END_ENTITY; -- linear_profile_tolerance
 
 ENTITY opposing_boundary_dimensional_size
   SUBTYPE OF (dimensional_size);

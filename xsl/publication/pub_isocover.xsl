@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+$Id: pub_isocover.xsl,v 1.4 2004/09/14 06:13:00 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -119,7 +119,7 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
           <div align="center" style="margin-top=10pt">
             <span style="font-size:16; font-family:sans-serif; font-weight:bold">
-              <xsl:value-of select="concat($status_words,' 10303-',@part)"/>
+              <xsl:value-of select="concat($status_words,' 10303-',@part,':',@publication.year,'(E)')"/>
             </span>
           </div>
 
@@ -127,8 +127,7 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <div align="center" style="margin-top:20pt">
             <span style="font-size:30; font-family:sans-serif; font-weight:bold">
               Industrial automation systems and integration &#8212; 
-              <br/>
-              Product data representation and exchange &#8212;
+              Product data representation and exchange
             </span>
           </div>
 
@@ -160,13 +159,6 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
                 Partie <xsl:value-of select="@part"/>: 
                <xsl:apply-templates select="." mode="display_name_french"/>
               </i>
-            </span>
-          </div>
-
-          <!-- link to main document -->
-          <div align="center" style="margin-top:30pt">
-            <span style="font-size:30; font-family:sans-serif;">
-              <xsl:apply-templates select="." mode="start_link"/>
             </span>
           </div>
 
@@ -205,14 +197,67 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:choose>
           </xsl:variable>
 
-          <!-- document edition -->
-          <div align="center" style="margin-top:50pt">
-            <span style="font-size:12; font-family:sans-serif;">
-              <b>
-                <xsl:value-of select="concat($this_edition,'&#160;edition&#160;&#160;',@publication.year)"/>
-              </b>
+          <xsl:variable name="previous_edition">
+            <xsl:choose>
+              <xsl:when test="@version='2'">
+                First
+              </xsl:when>
+              <xsl:when test="@version='3'">
+                Second
+              </xsl:when>
+              <xsl:when test="@version='4'">
+                Third
+              </xsl:when>
+              <xsl:when test="@version='5'">
+                Fourth
+              </xsl:when>
+              <xsl:when test="@version='6'">
+                Fifth
+              </xsl:when>
+              <xsl:when test="@version='7'">
+                Sixth
+              </xsl:when>
+              <xsl:when test="@version='8'">
+                Seventh
+              </xsl:when>
+              <xsl:when test="@version='9'">
+                Eighth
+              </xsl:when>
+              <xsl:when test="@version='10'">
+                Ninth
+              </xsl:when>
+              <xsl:otherwise>
+                MORE THAN 9 - edit stepmod/xsl/publication/pub_iso_cover
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+
+
+          <!-- link to main document -->
+          <div align="center" style="margin-top:30pt">
+            <span style="font-size:30; font-family:sans-serif;">
+              <xsl:apply-templates select="." mode="start_link"/>
+              <!-- If a DIS and a second edition or more, then reference
+                   previous edition -->
+              <xsl:if test="@status='DIS' and @version!='1'">
+                
+                <br/><xsl:value-of select="concat('[Revision of ',$previous_edition, 'edition (ISO 10303-',@part,':',@previous.revision.year')')"/>
+              </xsl:if>
             </span>
           </div>
+
+          <!-- document edition -->
+          <!-- RBN - note that the @publication.year will have to change to
+               @publication.iso_publication -->
+          <xsl:if test="@status!='DIS'">
+            <div align="center" style="margin-top:50pt">
+              <span style="font-size:12; font-family:sans-serif;">
+                <b>
+                  <xsl:value-of select="concat(normalize-space($this_edition),'&#160;edition&#160;&#160;',@publication.year)"/>
+                </b>
+              </span>
+            </div>
+          </xsl:if>
 
           <xsl:choose>
             <xsl:when test="@status='DIS'">
@@ -226,10 +271,10 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
               </xsl:apply-templates>
             </xsl:when>
             <xsl:when test="@status='IS'">
-              <xsl:apply-templates select="." mode="is_copyright"/>
+              <xsl:apply-templates select="." mode="is_ts_copyright"/>
             </xsl:when>
             <xsl:when test="@status='TS'">
-              <xsl:apply-templates select="." mode="ts_copyright"/>
+              <xsl:apply-templates select="." mode="is_ts_copyright"/>
             </xsl:when>
           </xsl:choose>
         </BODY>
@@ -250,7 +295,9 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <!-- ICS number -->
     <div align="center" style="margin-top:30pt">
       <span style="font-size:14; font-family:sans-serif;">
-        <b>ICS&#160;&#160;##.###.##;&#160;&#160;##.###.##</b>
+        <b>ICS&#160;&#160;25.040.40</b>
+        <!--
+        <b>ICS&#160;&#160;##.###.##;&#160;&#160;##.###.##</b> -->
       </span>
     </div>
 
@@ -407,7 +454,7 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </table>
   </xsl:template>
 
-  <xsl:template match="module|application_protocol|resource" mode="ts_copyright">
+  <xsl:template match="module|application_protocol|resource" mode="is_ts_copyright">
     <hr/>      
     <table border="0" align="center">
         <tr>
@@ -456,246 +503,6 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </td>
           <td width="220"><br/></td></tr>
         </table>
-
-        <!-- OLD
-          <td width="274" valign="top" 
-            style='width:205.35pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 5.4pt 0pt 5.4pt'>
-            <p class="fdcopy" align="center" 
-              style='margin-bottom:3.0pt;text-align:center; line-height:13.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt: 0pt 0pt 0pt 0pt'>
-              <b style='mso-bidi-font-weight:normal'>
-                Copyright notice
-              </b>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:6.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                This document is a Technical Specification and is
-                copyright-protected by ISO. Except as permitted under the
-                applicable laws of the user's country, neither this ISO
-                document nor any extract from it may be reproduced, stored in
-                a retrieval system or transmitted in any form or by 
-                any means, electronic, photocopying, recording, or otherwise,
-                without prior written permission being secured.  
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:3.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                Requests for permission to reproduce should be addressed to
-                either ISO at the address below or ISO's member
-                body in the country of the requester.
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-            <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-              ISO copyright office
-            </span>
-          </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                Case postale 56&#160;
-              </span>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt;font-family:Symbol;mso-ascii-font-family:Arial;mso-hansi-font-family: Arial;mso-char-type:symbol;mso-symbol-font-family:Symbol'>
-                <span style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>&#183;</span>
-              </span>
-              <span style='font-size:9.0pt;mso-bidi-font-size:10.0pt'>
-                &#160;CH-1211 Geneva 20
-              </span>
-            </p>
-            
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                Tel.&#160;&#160;+41 22 749 01 11
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                Fax&#160;&#160;+41 22 749 09 47
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span 
-                style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                E-mail&#160;&#160;copyright@iso.ch
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:6.0pt;text-indent:20.0pt;line-height: 11.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size:10.0pt'>
-                Web&#160;&#160;www.iso.ch
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:6.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                Reproduction may be subject to royalty payments or a licensing agreement. 
-              </span>
-            </p>
-            
-            <p class="MsoNormal" 
-              style='margin-top:0pt;margin-right:5.0pt;margin-bottom: 0pt;margin-left:5.0pt;margin-bottom:.0001pt;text-align:justify'>
-              <span style='font-size:9.0pt;mso-bidi-font-size:12.0pt;font-family:Arial'>
-                Violators may be prosecuted.
-              </span>
-            </p>
-          </td>
-
-          <td width="199" valign="top" 
-            style='width:149.15pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 0pt 0pt 5.4pt'>
-            <p class="MsoNormal" align="right" 
-              style='margin-top:2.0pt;text-align:right; line-height:13.5pt;mso-line-height-rule:exactly'>
-              <b>
-                <span style='font-family:Arial'>
-                  &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="@publication.year"/>
-              </span>
-              </b>
-            </p>
-          </td>
-        </tr>
-
-      </table>      
-    </div> 
-    -->
-  </xsl:template>
-
-  <xsl:template match="module|application_protocol|resource" mode="is_copyright">
-    <div align="center">
-      <table border="1" cellspacing="0" cellpadding="0" width="800"
-        style='width:600.0pt; border-collapse:collapse;border:none;mso-border-top-alt:solid windowtext 1.0pt; mso-padding-alt:0pt 5.4pt 0pt 5.4pt'>
-        <tr>
-          <td width="199" valign="top" 
-            style='width:149.15pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 5.4pt 0pt 0pt'>
-            <p class="MsoNormal" 
-              style='margin-top:2.0pt;line-height:13.5pt;mso-line-height-rule: exactly'>
-              <b>
-                <span style='font-family:Arial'>ICS&#160;&#160;25.040.40</span>
-              </b>
-            </p>
-          </td>
-
-          <td width="274" valign="top" 
-            style='width:205.35pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 5.4pt 0pt 5.4pt'>
-            <p class="fdcopy" align="center" 
-              style='margin-bottom:3.0pt;text-align:center; line-height:13.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt: 0pt 0pt 0pt 0pt'>
-              <b style='mso-bidi-font-weight:normal'>
-                <a name="copyright"/>
-                Copyright notice
-              </b>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:6.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                This document is an International Standard and is
-                copyright-protected by ISO. Except as permitted under the
-                applicable laws of the user's country, neither this ISO
-                document nor any extract from it may be reproduced, stored in
-                a retrieval system or transmitted in any form or by 
-                any means, electronic, photocopying, recording, or otherwise,
-                without prior written permission being secured.  
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:3.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                Requests for permission to reproduce should be addressed to
-                either ISO at the address below or ISO's member
-                body in the country of the requester.
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-            <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-              ISO copyright office
-            </span>
-          </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                Case postale 56&#160;
-              </span>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt;font-family:Symbol;mso-ascii-font-family:Arial;mso-hansi-font-family: Arial;mso-char-type:symbol;mso-symbol-font-family:Symbol'>
-                <span style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>&#183;</span>
-              </span>
-              <span style='font-size:9.0pt;mso-bidi-font-size:10.0pt'>
-                &#160;CH-1211 Geneva 20
-              </span>
-            </p>
-            
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                Tel.&#160;&#160;+41 22 749 01 11
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                Fax&#160;&#160;+41 22 749 09 47
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span 
-                style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                E-mail&#160;&#160;copyright@iso.ch
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:6.0pt;text-indent:20.0pt;line-height: 11.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size:10.0pt'>
-                Web&#160;&#160;www.iso.ch
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:6.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                Reproduction may be subject to royalty payments or a licensing agreement. 
-              </span>
-            </p>
-            
-            <p class="MsoNormal" 
-              style='margin-top:0pt;margin-right:5.0pt;margin-bottom: 0pt;margin-left:5.0pt;margin-bottom:.0001pt;text-align:justify'>
-              <span style='font-size:9.0pt;mso-bidi-font-size:12.0pt;font-family:Arial'>
-                Violators may be prosecuted.
-              </span>
-            </p>
-          </td>
-
-          <td width="199" valign="top" 
-            style='width:149.15pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 0pt 0pt 5.4pt'>
-            <p class="MsoNormal" align="right" 
-              style='margin-top:2.0pt;text-align:right; line-height:13.5pt;mso-line-height-rule:exactly'>
-              <b>
-                <span style='font-family:Arial'>
-                  &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="@publication.year"/>
-              </span>
-              </b>
-            </p>
-          </td>
-        </tr>
-      </table>
-    </div>
   </xsl:template>
 
   <xsl:template match="module" mode="display_name">

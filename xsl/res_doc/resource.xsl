@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.16 2003/01/24 22:54:37 thendrix Exp $
+$Id: resource.xsl,v 1.17 2003/01/30 22:00:22 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -825,7 +825,15 @@ o=isocs; s=central<br/>
     <xsl:with-param name="clause" select="'purpose'"/>
   </xsl:apply-templates>
   <xsl:apply-templates/>
-  <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1  using the EXPRESS-G notation. EXPRESS-G is defined in annex D of ISO 10303-11. The $schemas_used_from  are specified in $parts_used_from. The schemas illustrated in Figure 1 are components of the integrated resources.</p>
+
+<!-- prepare variables to output list of used schemas and parts -->
+  
+  <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1  using the EXPRESS-G notation. EXPRESS-G is defined in annex D of ISO 10303-11. 
+  </p>
+  <p>
+  The $schemas_used_from  are specified in $parts_used_from. 
+  </p>
+  <p>The schemas illustrated in Figure 1 are components of the integrated resources.</p>
 </xsl:template>
 
 <xsl:template match="inscope">

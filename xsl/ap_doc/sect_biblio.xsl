@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.10 2003/06/29 13:03:20 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.11 2004/09/21 07:49:17 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -32,7 +32,7 @@
 <xsl:template match="bibliography">
   <!-- output the defaults -->
   <xsl:apply-templates 
-    select="document('../../data/basic/bibliography_default.xml')/bibliography/bibitem.inc"/>
+    select="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc"/>
 
   <!-- 
        count how many bitiem.incs are in

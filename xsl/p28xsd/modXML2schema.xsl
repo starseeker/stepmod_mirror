@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="urn:iso10303-28:ex">
 	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 	<xsl:variable name="module_directory_name" select="//module_clause/@directory"/>
@@ -13,6 +14,17 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
+	<xsl:variable name="long_form_file_name">
+		<xsl:choose>
+			<xsl:when test="string-length($dex_directory_name)>0">
+				<xsl:value-of select="string('dex_lf.xml')"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="string('arm_lf.xml')"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+		
 	<xsl:variable name="stepmod_namespace_file" select="document(concat($directory_path, '/stepmod_namespace.xml'))"/>
 	<xsl:variable name="schema_name" select="$stepmod_namespace_file//dummy/@schema_name"/>
 	<xsl:variable name="namespace_prefix" select="concat($stepmod_namespace_file//dummy/@ns_prefix_name, ':')"/>
@@ -571,15 +583,11 @@
 									<xsl:with-param name="redeclared_attributes_param" select="string(' ')"/>
 									<xsl:with-param name="supertypes_list_param" select="$raw_supertype_name_param"/>
 								</xsl:call-template>
-
-								<!-- xsl:apply-templates select="explicit"/ -->
-								
 								<xsl:for-each select="./explicit">
 									<xsl:call-template name="deal_with_attributes">
 										<xsl:with-param name="attribute_node_param" select="."/>
 									</xsl:call-template>
 								</xsl:for-each>
-																
 							</xs:all>
 						</xs:extension>
 					</xs:complexContent>
@@ -1366,7 +1374,7 @@
 		<xsl:param name="redeclared_attributes_param"/>
 		<xsl:param name="supertypes_list_param"/>
 		
-		<xsl:variable name="long_form" select="document(concat($directory_path, '/arm_lf.xml'))"/>
+		<xsl:variable name="long_form" select="document(concat($directory_path, '/', $long_form_file_name))"/>
 		<xsl:variable name="raw_entity_param_with_spaces" select="concat(' ', $raw_entity_param, ' ')"/>
 		<xsl:variable name="supertype_name_list_with_spaces" select="concat(' ', $supertypes_list_param, ' ')"/>
 

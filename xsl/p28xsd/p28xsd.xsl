@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.7 2004/04/22 20:41:23 mikeward Exp $
+$Id: p28xsd.xsl,v 1.8 2004/07/09 13:03:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf

@@ -6,7 +6,7 @@
 (*                                                                            *)
 (******************************************************************************)
 
-(* Original model: resource item.vsd *)
+(* Original model: resource item arm 2_0.vsd *)
 (* Title: resource item ver 2 *)
 (* Author: LEGY *)
 (* Comments :
@@ -19,34 +19,30 @@ USE FROM Classification_arm;
 USE FROM Value_with_unit_arm;
 
 TYPE resource_item_classified_select = SELECT BASED_ON classified_select WITH
-  (Resource_group_item_relationship,
-   Resource_item);
+  (Resource_item,
+   Resource_item_relationship);
 END_TYPE;
 
 TYPE resource_item_select = EXTENSIBLE SELECT ;
 END_TYPE;
 
-ENTITY Resource_group
-SUBTYPE OF (Resource_item);
+ENTITY Resource_group_relationship
+SUBTYPE OF (Resource_item_relationship);
+  quantity : OPTIONAL Value_with_unit;
 END_ENTITY;
 
-ENTITY Resource_group_item_relationship;
-  relating : Resource_group;
-  related : Resource_item;
-  quantity : Value_with_unit;
-END_ENTITY;
-
-ENTITY Resource_item
-ABSTRACT SUPERTYPE OF (ONEOF(Resource_group, Single_resource_item));
-  name : STRING;
+ENTITY Resource_item;
+  name : OPTIONAL STRING;
   description : OPTIONAL STRING;
+  resource_item : OPTIONAL resource_item_select;
 END_ENTITY;
 
-ENTITY Single_resource_item
-SUBTYPE OF (Resource_item);
-  resource_item : resource_item_select;
+ENTITY Resource_item_relationship;
+  relating : Resource_item;
+  related : Resource_item;
 END_ENTITY;
 
 END_SCHEMA;
+
 
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.2 2002/11/01 04:38:57 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.3 2002/11/05 01:03:59 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -147,9 +147,6 @@
     <xsl:variable name="clause_header">
           <xsl:value-of select="concat($clause_number, $schema_name)"/>
     </xsl:variable>
-
-
-      <p><u>EXPRESS specification:</u></p>
 
     </xsl:if>
   <p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.4 2002/10/23 06:42:43 thendrix Exp $
+$Id: resource.xsl,v 1.5 2002/11/01 04:38:57 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1111,14 +1111,14 @@ defined in annex D of ISO 10303-11.
       </xsl:variable>
       <xsl:value-of select="$clause_intro"/>
       <p/>
-  <code>
     <u>EXPRESS specification: </u>
+  <code>
+
     <br/>    <br/>
     *)<br/>
     <a name="{$xref}">
       SCHEMA <xsl:value-of select="concat($schema_name,';')"/>
   </a>
-  <br/>(*<br/>
   </code>
 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.3 2002/06/20 17:06:13 robbod Exp $
+$Id: ballot_summary.xsl,v 1.4 2002/07/31 07:59:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -21,6 +21,8 @@ $Id: ballot_summary.xsl,v 1.3 2002/06/20 17:06:13 robbod Exp $
     indent="yes"
     />
 
+    <xsl:param name="stepmodhome" select="'../../..'"/>
+
 
   <!-- force the application of the stylesheet to the file specified in the
        file attribute -->
@@ -40,13 +42,15 @@ $Id: ballot_summary.xsl,v 1.3 2002/06/20 17:06:13 robbod Exp $
       </title>
     </head>
     <body>
-
+      <!-- As there is only one entry no point
       <xsl:call-template name="output_menubar">
         <xsl:with-param name="module_root" select="'.'"/>
         <xsl:with-param name="module_name" select="@name"/>
       </xsl:call-template>
-      <hr/>
+      -->
 
+      <!--
+      <hr/>
       <table>
         <tr>
           <td>Ballot package:</td>
@@ -66,6 +70,7 @@ $Id: ballot_summary.xsl,v 1.3 2002/06/20 17:06:13 robbod Exp $
         </tr>
       </table>
       <hr/>
+      -->
       <table border="1">
         <tr>
           <td><b>Ballot package</b></td>
@@ -111,8 +116,9 @@ $Id: ballot_summary.xsl,v 1.3 2002/06/20 17:06:13 robbod Exp $
 
         <!-- Module -->
         <td>
+
           <xsl:variable name="mod_xref"
-            select="concat('../../../data/modules/',@name,'/sys/1_scope',$FILE_EXT)"/>
+            select="concat($stepmodhome,'/data/modules/',@name,'/sys/1_scope',$FILE_EXT)"/>
           <a href="{$mod_xref}">
             <xsl:value-of select="@name"/>
           </a>

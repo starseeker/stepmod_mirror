@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.60 2003/02/05 10:56:22 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.61 2003/02/21 09:30:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -799,6 +799,15 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 <xsl:template match="refpath_extend" mode="specification">
   <xsl:variable name="ae" select="ancestor::ae/@entity"/>
   <xsl:variable name="orig_mod" select="ancestor::ae/@original_module"/>
+
+  <xsl:if test="not(string-length(normalize-space(.)) > 3 )" >
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message"
+          select="concat('Error refpath_ext5: No extension to reference path specified in refpath_extend for entity ',
+	  			$ae,' ',ancestor::aa/@attribute,' assertion to ',ancestor::aa/@assertion_to)"/>
+      </xsl:call-template>
+
+  </xsl:if>
 
   <xsl:choose>
     <xsl:when test="ancestor::ae/@original_module">

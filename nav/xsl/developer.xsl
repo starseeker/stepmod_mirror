@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.4 2002/09/12 09:12:20 robbod Exp $
+$Id: developer.xsl,v 1.1 2002/09/15 21:44:48 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -159,7 +159,7 @@ $Id: modules_list.xsl,v 1.4 2002/09/12 09:12:20 robbod Exp $
   </xsl:variable>
   <xsl:value-of 
       select="concat('&lt;express_ref linkend=&quot;',
-              $module,':',$arm_mim,':'$linkend,'&quot;/&gt;')"/>  
+              $module,':',$arm_mim,':',$linkend,'&quot;/&gt;')"/>  
 </xsl:template>
 
 

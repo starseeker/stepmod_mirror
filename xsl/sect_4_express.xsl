@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.11 2002/02/07 16:14:41 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.12 2002/02/07 17:05:55 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -963,6 +963,7 @@
         <xsl:value-of select="concat(@label,' : ')"/>
       </a>
     </b>
+
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../../@name"/>
@@ -1240,7 +1241,7 @@
           <xsl:value-of select="concat($clause_number, ' ARM rule definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM EXPRESS rules')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM rule definitions')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1312,12 +1313,64 @@
       &#160;(<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
       <pre>
         <xsl:apply-templates select="./algorithm" mode="code"/>
+        <xsl:apply-templates select="./where" mode="code"/>
       </pre>
       END_RULE;
     </code>
   </blockquote>
+  <p><u>Argument definitions:</u></p>        
+  <xsl:call-template name="process_rule_arguments">
+    <xsl:with-param name="args" select="@appliesto"/>
+  </xsl:call-template>
+
+  <xsl:apply-templates select="./where[@expression]" mode="description"/>
+  <xsl:apply-templates select="./where[not(@expression)]" mode="description"/>
+
   (*
 </xsl:template>
+
+<xsl:template name="process_rule_arguments">
+  <xsl:param name="args"/>
+  <xsl:choose>
+    <!-- single argument -->
+    <xsl:when test="not(contains($args,' '))">
+      <xsl:call-template name="output_rule_argument">
+        <xsl:with-param name="arg" select="$args"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:variable name="arg1" select="substring-before($args,' ')"/>
+      <xsl:variable name="rest" select="substring-after($args,' ')"/>
+      <xsl:call-template name="output_rule_argument">
+        <xsl:with-param name="arg" select="$arg1"/>
+      </xsl:call-template>
+      <xsl:if test="$rest">
+        <xsl:call-template name="process_rule_arguments">
+          <xsl:with-param name="args" select="$rest"/>
+        </xsl:call-template>
+      </xsl:if>      
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="output_rule_argument">
+  <xsl:param name="arg"/>
+  <blockquote>
+    <b>
+      <xsl:value-of select="concat($arg,' : ')"/>
+    </b>
+    <!-- output the default description -->
+    the set of all instances of 
+    <xsl:call-template name="link_object">
+      <xsl:with-param name="object_name" select="$arg"/>
+      <xsl:with-param name="object_used_in_schema_name" 
+        select="../../@name"/>
+      <xsl:with-param name="clause" select="'section'"/>
+    </xsl:call-template>  
+
+  </blockquote>
+</xsl:template>
+
 
 <!-- 
      Express is displayed in clauses: 
@@ -1920,11 +1973,6 @@
 
     </xsl:choose>    
   </xsl:variable>
-
-        <xsl:message>
-          x<xsl:value-of select="concat($clause, ' ',$clause_number)"/>x
-        </xsl:message>
-
 
   <!-- if the schema ends in _arm then it is clause 4
        if it ends in _mim then it is clause 5.2

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: express_code.xsl,v 1.4 2002/01/16 12:10:27 robbod Exp $
+     $Id: express_code.xsl,v 1.5 2002/01/31 18:09:48 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -496,7 +496,8 @@
   <br/>
   &#160;(<xsl:value-of select="translate(@appliesto,' ',', ')"/>);
   <pre>
-    <xsl:apply-templates select="./algorithm" mode="code"/>
+    <xsl:apply-templates select="./algorithm" mode="code"/> 
+    <xsl:apply-templates select="./where" mode="code"/>
   </pre>
   END_RULE;
   <br/>

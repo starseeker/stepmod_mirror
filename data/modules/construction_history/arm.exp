@@ -1,0 +1,69 @@
+(*
+   $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $
+ ISO/TC184/SC4 WG12N1051 - ISO CD/TS 10303-1119 Construction history - EXPRESS ARM 
+*)
+
+
+SCHEMA Construction_history_arm;
+
+USE FROM Constructive_solid_geometry_3d_arm; -- ISO 10303 TS 1068
+USE FROM Elemental_topology_arm; -- ISO 10303 TS 1006
+USE FROM Measure_representation_arm; -- ISO 10303 TS 1118
+USE FROM Shape_property_assignment_arm; -- ISO 10303 TS 1032
+
+TYPE shape_representation_select = SELECT (Detailed_geometric_model_element, Detailed_topological_model_element);
+END_TYPE;
+
+ENTITY Hybrid_shape_model
+  SUBTYPE OF (Representation_relationship);
+    implicit_rep: Procedural_shape_model;
+    explicit_rep : Manifold_solid_brep;
+ END_ENTITY;
+
+ENTITY Procedural_shape_model
+  SUBTYPE OF (Geometric_model); 
+  operations: SET[1:?] OF Geometric_operation_sequence;
+END_ENTITY;
+
+
+ENTITY Geometric_operation_sequence 
+   SUBTYPE OF (Detailed_geometric_model_element);
+   elements:  List [1:?] of  Detailed_geometric_model_element;
+END_ENTITY;
+
+ENTITY Chosen_shape_element
+  SUBTYPE  OF (Detailed_geometric_model_element)
+  picked_element:  shape_representation_select;
+END_ENTITY;
+
+ENTITY Transition_feature_solid
+  ABSTRACT SUPERTYPE OF  ONEOF (Fillet, Round, Chamfer)
+  SUBTYPE OF (Shape_element, Solid_model);
+END_ENTITY;
+
+ENTITY Fillet
+  SUBTYPE OF (Transition_feature_solid);
+ chosen_element:  Chosen_shape_element
+ base_solid: Solid_model;
+ radius:  Numerical_item_with_unit;
+END_ENTITY;
+
+ENTITY Round
+  SUBTYPE OF (Transition_feature_solid);
+ chosen_element:  Chosen_shape_element
+ base_solid: Solid_model;
+ radius: Numerical_item_with_unit 
+END_ENTITY;
+
+ENTITY Chamfer
+ SUBTYPE OF (Transition_feature_solid);
+    chosen_element: Chosen_shape_element;
+    base_solid: Solid_model;
+    face1:  Face;
+    face2:  Face;
+    distance1: Numerical_item_with_unit;
+    distance2: Numerical_item_with_unit;
+  END_ENTITY;
+
+
+END_SCHEMA;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: issues_dvlp.xsl,v 1.2 2003/01/06 17:58:32 robbod Exp $
+$Id: issues_dvlp.xsl,v 1.3 2003/01/10 11:46:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -268,7 +268,8 @@ $Id: issues_dvlp.xsl,v 1.2 2003/01/06 17:58:32 robbod Exp $
     &#160;&#160;category="editorial"<br/>
     &#160;&#160;by=""<br/>
     &#160;&#160;date=""<br/>
-    &#160;&#160;status="open"&gt;<br/>
+    &#160;&#160;status="open"<br/>
+    &#160;&#160;seds="no"&gt;<br/>
     Issue description goes here.<br/>
     &lt;/issue&gt;<br/>
 </p>

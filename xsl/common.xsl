@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.11 2001/12/27 07:45:43 robbod Exp $
+$Id: common.xsl,v 1.12 2001/12/28 10:17:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -325,12 +325,51 @@ $Id: common.xsl,v 1.11 2001/12/27 07:45:43 robbod Exp $
       </xsl:choose>
     </xsl:variable>
   
-  <blockquote>
-    <a name="{$aname}">
-      <xsl:value-of select="concat('FIGURE ',$number,' ')"/></a>&#160;&#160;
-    <xsl:apply-templates/>
-  </blockquote>
+    
+    <xsl:apply-templates select="./img"/>
+    <center>
+      <a name="{$aname}">
+        <xsl:value-of select="concat('Figure ',$number,
+                              ' - ')"/></a>&#160;&#160;<xsl:apply-templates select="./title"/>
+    </center>
+    
   </xsl:template>
+
+<xsl:template match="title">
+  <xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="img">
+  <!-- if the img has been defined in a separate file within the element
+       imgfile.content, then the src path is OK. 
+       If the img has been defined in the module documentation, then the
+       XSL has been invoked from a file in the sys directory, hence the
+       path needs to go up to the module directory -->
+  <xsl:variable name="src">
+    <xsl:choose>
+      <xsl:when test="name(..)='imgfile.content'">
+        <xsl:value-of select="@src"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat('../',@src)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <center>
+    <IMG src="{$src}" border="0" usemap="#map">
+      <MAP NAME="map">
+        <xsl:apply-templates select="img.area"/>
+      </MAP>
+    </IMG>
+  </center>
+</xsl:template>
+
+<xsl:template match="img.area">
+  <xsl:variable name="shape" select="@shape"/>
+  <xsl:variable name="coords" select="@coords"/>
+  <xsl:variable name="href" select="@href"/>
+  <AREA shape="{$shape}" coords="{$coords}" href="{$href}"/>
+</xsl:template>
 
 <!-- 
      An unordered list 

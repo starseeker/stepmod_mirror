@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.142 2004/11/25 18:36:56 thendrix Exp $
+$Id: common.xsl,v 1.143 2004/11/29 12:12:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2959,7 +2959,10 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
                   or 
                   $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/inverse[@name=$attribute]
                   or
-                  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/derived[@name=$attribute])">
+                  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/derived[@name=$attribute]
+                  or
+                  $express_nodes/express/schema[@name=$schema]/type[@name=$entity_type]/enumeration/@items[contains(.,$attribute)]
+)">
             <xsl:call-template name="error_message">
               <xsl:with-param name="message" 
                 select="concat('Error ER-6: The express_ref linkend# ', 
@@ -2993,6 +2996,7 @@ is case sensitive.')"/>
                         The entity does not exist.#Note linkend
 is case sensitive.')"/>
             </xsl:call-template>
+
           </xsl:if>
         </xsl:when>
 

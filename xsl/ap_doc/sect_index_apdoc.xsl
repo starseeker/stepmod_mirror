@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.10 2003/06/29 13:03:20 robbod Exp $
+	$Id: sect_index_apdoc.xsl,v 1.1 2003/09/16 17:21:57 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -80,7 +80,7 @@
       
       <xsl:when test="function-available('exslt:node-set')">
         <xsl:variable name="indexed_objs_node_set" select="exslt:node-set($indexed_objs)"/>
-        <xsl:apply-templates select="$indexed_objs_node_set/*" mode="output_index">
+        <xsl:apply-templates select="$indexed_objs_node_set/*" mode="output_index_name">
           <xsl:sort select="@name"/>
         </xsl:apply-templates>
       </xsl:when>

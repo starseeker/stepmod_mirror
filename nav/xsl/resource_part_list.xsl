@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: resource_part_list.xsl,v 1.7 2004/10/15 00:23:48 thendrix Exp $
+$Id: resource_part_list.xsl,v 1.8 2004/10/15 04:14:05 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of resource parts
@@ -143,8 +143,13 @@ $Id: resource_part_list.xsl,v 1.7 2004/10/15 00:23:48 thendrix Exp $
       </p>
         <xsl:variable name="cover" 
           select="concat('../data/resource_docs/',@name,'/sys/isocover',$FILE_EXT)"/>
+        <xsl:variable name="abstract" 
+          select="concat('../data/resource_docs/',@name,'/sys/abstract',$FILE_EXT)"/>
     <p class="menuitem2">
       <a href="{$cover}" target="content">Cover</a>
+        &#160;
+      <a href="{$abstract}" target="content">Abstract</a>
+        &#160;
     </p>
       <xsl:variable name="scope" 
         select="concat('../data/resource_docs/',@name,'/sys/1_scope',$FILE_EXT)"/>

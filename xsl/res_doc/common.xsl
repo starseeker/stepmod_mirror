@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.18 2004/10/20 07:16:08 robbod Exp $
+$Id: common.xsl,v 1.19 2004/11/05 01:00:58 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -881,19 +881,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   </dd>
 </xsl:template>
 
-
-<!-- 
-     flag an error if a paragraph contains another <p> or <ul> or <screen>
-     as these will lead to invalid HTML -->
-<xsl:template match="p|P" mode="check_html">
-  <xsl:if test="./child::*[name()='p' or name()='ul' or name='screen']">
-    <xsl:call-template name="error_message">
-      <xsl:with-param 
-        name="message" 
-        select="'Error HTM1: A paragraph should not enclose a &lt;p&gt; or &lt;ul&gt; or &lt;screen&gt;. Close the &lt;p&gt; first'"/>
-    </xsl:call-template>
-  </xsl:if>
-</xsl:template>
 
 <!--
      A paragraph

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.7 2004/11/03 15:58:45 robbod Exp $
+<!--  $Id: build.xsl,v 1.8 2004/11/05 02:29:52 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -1123,7 +1123,7 @@
     </xsl:element>
     
     <xsl:element name="property">
-      <xsl:attribute name="name">RESDOCCOVERXML</xsl:attribute>
+      <xsl:attribute name="name">RESDOCISOCOVERXML</xsl:attribute>
       <xsl:attribute name="value">
         <xsl:apply-templates select="resource_docs/res_doc" mode="list">
           <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
@@ -1133,6 +1133,15 @@
     </xsl:element>
 
     <xsl:element name="property">
+      <xsl:attribute name="name">RESDOCCOVERXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="resource_docs/res_doc" mode="list">
+          <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
+          <xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    <xsl:element name="property">
       <xsl:attribute name="name">RESDOCCOVERHTM</xsl:attribute>
       <xsl:attribute name="value">
         <xsl:apply-templates select="resource_docs/res_doc" mode="list">
@@ -1141,7 +1150,17 @@
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
-    
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">RESDOCISOCOVERHTM</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="resource_docs/res_doc" mode="list">
+          <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
+          <xsl:with-param name="suffix" select="'/sys/isocover.htm'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+        
     <xsl:element name="property">
       <xsl:attribute name="name">RESDOCCEXPSCHEMAXML</xsl:attribute>
       <xsl:attribute name="value">
@@ -4215,10 +4234,10 @@
       <!-- generate the ISO cover page  -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${RESDOCCOVERXML}'"/>
+          <xsl:value-of select="'${RESDOCISOCOVERXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_isocover.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_isocover.xsl'"/>
         </xsl:attribute>
         <xsl:apply-templates select="." mode="resdoc_target_style_attributes"/>
       </xsl:element>
@@ -4228,7 +4247,7 @@
         <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
         <xsl:element name="fileset">
           <xsl:attribute name="dir">${TMPDIR}</xsl:attribute>
-          <xsl:attribute name="includes">${ISOCOVERHTM}</xsl:attribute>
+          <xsl:attribute name="includes">${RESDOCISOCOVERHTM}</xsl:attribute>
         </xsl:element>
         <mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
       </xsl:element> 

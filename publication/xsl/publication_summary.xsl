@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.5 2004/10/12 17:45:58 thendrix Exp $
+$Id: publication_summary.xsl,v 1.6 2004/11/05 01:02:08 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -106,7 +106,6 @@ $Id: publication_summary.xsl,v 1.5 2004/10/12 17:45:58 thendrix Exp $
       <td><b>Edition</b></td>
       <td><b>Stage</b></td>
       <td><b>Year of<br/>publication</b></td>
-      <td><b>SC4 cover page</b></td>
       <td><b>Abstract</b></td>
       <td><b>ARM EXPRESS</b></td>
       <td><b>ARM LF EXPRESS</b></td>          
@@ -128,7 +127,6 @@ $Id: publication_summary.xsl,v 1.5 2004/10/12 17:45:58 thendrix Exp $
       <td><b>Edition</b></td>
       <td><b>Stage</b></td>
       <td><b>Year of<br/>publication</b></td>
-      <td><b>SC4 cover page</b></td>
       <td><b>Abstract</b></td>
       <td><b>EXPRESS</b></td>          
       <td><b>ZIP file for ISO</b></td>
@@ -147,7 +145,6 @@ $Id: publication_summary.xsl,v 1.5 2004/10/12 17:45:58 thendrix Exp $
       <td><b>Edition</b></td>
       <td><b>Stage</b></td>
       <td><b>Year of<br/>publication</b></td>
-      <td><b>SC4 cover page</b></td>
       <td><b>Abstract</b></td>
       <td><b>ZIP file for ISO</b></td>
       <td><b>CVS file revisions</b></td>
@@ -253,13 +250,13 @@ $Id: publication_summary.xsl,v 1.5 2004/10/12 17:45:58 thendrix Exp $
         </td>
         
         <!-- SC4 cover page -->
-        <td>
-          <xsl:variable name="sc4_xref"
-            select="concat($pub_dir,'/data/modules/',@name,'/sys/cover_sc4',$FILE_EXT)"/>
-          <a href="{$sc4_xref}">sc4_cover.htm</a>
-        </td>
-        
-        <!-- Abstract -->
+        <!-- <td>
+             <xsl:variable name="sc4_xref"
+               select="concat($pub_dir,'/data/modules/',@name,'/sys/cover_sc4',$FILE_EXT)"/>
+             <a href="{$sc4_xref}">sc4_cover.htm</a>
+           </td>
+           -->
+           <!-- Abstract -->
         <td>
           <xsl:variable name="abstract_name"
             select="concat('abstract_',$module_node/@part,'.htm')"/>
@@ -497,12 +494,12 @@ $Id: publication_summary.xsl,v 1.5 2004/10/12 17:45:58 thendrix Exp $
         </td>
         
         <!-- SC4 cover page -->
-        <td>
+        <!--        <td>
           <xsl:variable name="sc4_xref"
             select="concat($pub_dir,'/data/resource_docs/',@name,'/sys/cover_sc4',$FILE_EXT)"/>
           <a href="{$sc4_xref}">sc4_cover.htm</a>
         </td>
-        
+        -->
         <!-- Abstract -->
         <td>
           <xsl:variable name="abstract_name"
@@ -684,12 +681,13 @@ $Id: publication_summary.xsl,v 1.5 2004/10/12 17:45:58 thendrix Exp $
         </td>
         
         <!-- SC4 cover page -->
+        <!--
         <td>
           <xsl:variable name="sc4_xref"
             select="concat($pub_dir,'/data/application_protocols/',@name,'/sys/cover_sc4',$FILE_EXT)"/>
           <a href="{$sc4_xref}">sc4_cover.htm</a>
         </td>
-        
+        -->
         <!-- Abstract -->
         <td>
           <xsl:variable name="abstract_name"

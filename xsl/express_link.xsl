@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.12 2002/08/21 20:27:12 robbod Exp $
+     $Id: express_link.xsl,v 1.13 2002/09/27 07:51:32 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -383,7 +383,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
 </xsl:template>
 
 <!-- called from template name="get_object_xref" -->
-<xsl:template name="get_last">
+<xsl:template name="get_last_orig">
   <xsl:param name="str"/>
   <xsl:param name="token"/>
   <xsl:choose>
@@ -398,6 +398,42 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
       <xsl:value-of select="$str"/>
     </xsl:otherwise>
   </xsl:choose>
+</xsl:template>
+
+<!-- rewritten get_last so that minimizes the recursion -->
+<xsl:template name="get_last">
+  <xsl:param name="str"/>
+  <xsl:param name="token"/>
+  <xsl:param name="word" select="''"/>
+  <xsl:variable name="str_len" select="string-length($str)"/>
+  <xsl:variable name="last_char" select="substring($str,$str_len,1)"/>
+
+  <!--
+  <xsl:message>
+    get_last1:str:{<xsl:value-of select="$str"/>}
+    get_last1:word:{<xsl:value-of select="$word"/>}
+    get_last1:str_len:{<xsl:value-of select="$str_len"/>}
+    get_last1:last_char:{<xsl:value-of select="$last_char"/>}
+  </xsl:message>
+-->
+  <xsl:choose>
+    <xsl:when test="not(contains($str,$token))">
+      <xsl:value-of select="$str"/>
+    </xsl:when>
+    <xsl:when test="$last_char = $token">
+      <xsl:value-of select="$word"/>
+    </xsl:when>
+    <xsl:when test="$last_char=''">
+      <xsl:value-of select="''"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="get_last">
+        <xsl:with-param name="str" select="substring($str, 1, $str_len - 1)"/>
+        <xsl:with-param name="token" select="$token"/>
+        <xsl:with-param name="word" select="concat($last_char,$word)"/>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose> 
 </xsl:template>
 
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-15T18:07:16" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-11-19T12:09:24" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="network_functional_design_view_arm schema_instance"/>
    <schema name="Network_functional_design_view_arm">
       <interface kind="use" schema="Network_functional_usage_view_arm"/>
@@ -33,9 +33,6 @@
          <where label="wr1" expression=" precedent_element &lt;&gt; subsequent_element "/>
       </entity>
       <entity name="Bus_structural_definition">
-         <inverse name="external_bus_access" entity="Functional_unit_network_terminal_definition_bus_assignment" attribute="connected_bus">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
          <explicit name="composition">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Bus_element_link"/>
@@ -43,15 +40,15 @@
          <explicit name="bus_name">
             <builtintype type="STRING"/>
          </explicit>
+         <inverse name="external_bus_access" entity="Functional_unit_network_terminal_definition_bus_assignment" attribute="connected_bus">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <unique label="ur1">
             <unique.attribute entity-ref="Bus_structural_definition" attribute="bus_name"/>
          </unique>
          <where label="wr1" expression=" consistent_bus_structural_definition ( composition ) "/>
       </entity>
       <entity name="Functional_unit">
-         <inverse name="access_mechanisms" entity="Functional_unit_terminal" attribute="accessed_functional_unit">
-            <inverse.aggregate type="SET" lower="1"/>
-         </inverse>
          <explicit name="functional_property" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Parameter_assignment_override"/>
@@ -65,11 +62,13 @@
          <explicit name="definition">
             <typename name="Functional_unit_definition"/>
          </explicit>
+         <inverse name="access_mechanisms" entity="Functional_unit_terminal" attribute="accessed_functional_unit">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
          <unique label="ur1">
             <unique.attribute entity-ref="Functional_unit" attribute="reference_designation"/>
             <unique.attribute entity-ref="Functional_unit" attribute="composed_network"/>
          </unique>
-         <where label="wr1" expression=" NOT EXISTS ( functional_property ) OR EXISTS ( functional_model ) "/>
       </entity>
       <entity name="Functional_unit_network_definition" supertypes="Functional_unit_definition">
          <explicit name="usage_view">
@@ -77,18 +76,18 @@
          </explicit>
       </entity>
       <entity name="Functional_unit_network_node_definition">
-         <inverse name="external_node_access" entity="Functional_unit_network_terminal_definition_node_assignment" attribute="composed_node">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <derived name="valid_conservative_node" expression=" ( ( SIZEOF ( QUERY ( vc &lt;* USEDIN ( SELF , 'AP210_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) | TRUE ) ) + SIZEOF ( QUERY ( vc &lt;* USEDIN ( SELF , 'AP210_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' ) | TRUE ) ) + SIZEOF ( QUERY ( vc &lt;* USEDIN ( SELF , 'AP210_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE' ) | TRUE ) ) + SIZEOF ( external_node_access ) ) &gt; 1 ) ">
-            <builtintype type="BOOLEAN"/>
-         </derived>
          <explicit name="functional_unit_network_node_name">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="associated_functional_unit_definition">
             <typename name="Functional_unit_network_definition"/>
          </explicit>
+         <derived name="valid_conservative_node" expression=" ( ( SIZEOF ( QUERY ( vc &lt;* USEDIN ( SELF , 'AP210_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) | TRUE ) ) + SIZEOF ( QUERY ( vc &lt;* USEDIN ( SELF , 'AP210_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' ) | TRUE ) ) + SIZEOF ( QUERY ( vc &lt;* USEDIN ( SELF , 'AP210_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE' ) | TRUE ) ) + SIZEOF ( external_node_access ) ) &gt; 1 ) ">
+            <builtintype type="BOOLEAN"/>
+         </derived>
+         <inverse name="external_node_access" entity="Functional_unit_network_terminal_definition_node_assignment" attribute="composed_node">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <unique label="ur1">
             <unique.attribute entity-ref="Functional_unit_network_node_definition" attribute="functional_unit_network_node_name"/>
             <unique.attribute entity-ref="Functional_unit_network_node_definition" attribute="associated_functional_unit_definition"/>
@@ -111,18 +110,18 @@
          </explicit>
       </entity>
       <entity name="Functional_unit_terminal">
-         <inverse name="node_assignment" entity="Functional_unit_terminal_node_assignment" attribute="connected_terminal">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <inverse name="bus_assignment" entity="Functional_unit_terminal_bus_assignment" attribute="connected_terminal">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
          <explicit name="definition">
             <typename name="Functional_unit_usage_view_terminal_definition"/>
          </explicit>
          <explicit name="accessed_functional_unit">
             <typename name="Functional_unit"/>
          </explicit>
+         <inverse name="node_assignment" entity="Functional_unit_terminal_node_assignment" attribute="connected_terminal">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="bus_assignment" entity="Functional_unit_terminal_bus_assignment" attribute="connected_terminal">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
       </entity>
       <entity name="Functional_unit_terminal_bus_assignment">
          <explicit name="connected_terminal">

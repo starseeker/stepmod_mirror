@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues_file.xsl,v 1.4 2003/04/11 01:05:12 thendrix Exp $
+     $Id: resource_issues_file.xsl,v 1.5 2003/04/14 03:37:54 thendrix Exp $
 
   Author: Tom Hendrix
   Owner:  
@@ -75,18 +75,26 @@
         &#160;<a href="#keywords">keywords</a>&#160;|
       </xsl:if>
 
+      <xsl:if test="issue[@type='contacts']">
+        &#160;<a href="#contacts">contacts</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='intro']">
+        &#160;<a href="#intro">introduction</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='contents']">
+        &#160;<a href="#contents">contents</a>&#160;|
+      </xsl:if>
         <xsl:if test="issue[@type='abstract']">
         &#160;<a href="#abstract">abstract</a>&#160;|
       </xsl:if>
-
-      <xsl:if test="issue[@type='contacts']">
-        &#160;<a href="#contacts">contacts</a>&#160;|
+      <xsl:if test="issue[@type='foreword']">
+        &#160;<a href="#foreword">foreword</a>&#160;|
       </xsl:if>
       <xsl:if test="issue[@type='purpose']">
         &#160;<a href="#purpose">purpose</a>&#160;|
       </xsl:if>  
       <xsl:if test="issue[@type='schema_diag']">
-        &#160;<a href="#purpose">purpose</a>&#160;|
+        &#160;<a href="#schema_diag">schema_diag</a>&#160;|
       </xsl:if>  
       <xsl:if test="issue[@type='inscope']">
         &#160;<a href="#inscope">inscope</a>&#160;|
@@ -103,15 +111,6 @@
       <xsl:if test="issue[@type='abbreviations']">
         &#160;<a href="#abbreviations">abbreviations</a>&#160;|
       </xsl:if>
-      <xsl:if test="issue[@type='intro']">
-        &#160;<a href="#intro">introduction</a>&#160;|
-      </xsl:if>
-      <xsl:if test="issue[@type='foreword']">
-        &#160;<a href="#foreword">foreword</a>&#160;|
-      </xsl:if>
-      <xsl:if test="issue[@type='contents']">
-        &#160;<a href="#contents">contents</a>&#160;|
-      </xsl:if>
       <xsl:if test="issue[@type='index']">
         &#160;<a href="#index">index</a>&#160;|
       </xsl:if>
@@ -124,12 +123,11 @@
       <xsl:if test="issue[@type='fund_cons']">
         &#160;<a href="#fund_cons">fund_cons</a>&#160;|
       </xsl:if>
-
       <xsl:if test="issue[@type='express']">
         &#160;<a href="#express">express</a>&#160;|
       </xsl:if>
       <xsl:if test="issue[@type='express_doc']">
-        &#160;<a href="#express">express doc</a>&#160;|
+        &#160;<a href="#express_doc">express doc</a>&#160;|
       </xsl:if>
       <xsl:if test="issue[@type='shortnames']">
         &#160;<a href="#shortnames">shortnames</a>&#160;|
@@ -170,7 +168,7 @@
                    and (issue[@type!='mimexpg_lf'])
                    and (issue[@type!='usage_guide'])
                    and (issue[@type!='bibliography'])">       
-     &#160;<a href="#other">Other</a>
+     &#160;<a href="#other">other</a>
    </xsl:if>
 
         <!-- Order the issues -->
@@ -536,7 +534,7 @@
       <xsl:when test="@type='schema_intro'">
         against schema introduction.
         <xsl:if test="@linkend">
-          <xsl:call-template name="link_schema">
+          <xsl:call-template name="link_intro">
             <xsl:with-param name="schema_name" select="@linkend"/>
           </xsl:call-template>
         </xsl:if>
@@ -545,7 +543,7 @@
       <xsl:when test="@type='fund_cons'">
         against fundamental concepts.
         <xsl:if test="@linkend">
-          <xsl:call-template name="link_schema">
+          <xsl:call-template name="link_fund_cons">
             <xsl:with-param name="schema_name" select="@linkend"/>
           </xsl:call-template>
         </xsl:if>
@@ -571,9 +569,9 @@
 
 
       <xsl:when test="@type='expg'">
-        against abbreviations.
+        against express-g.
         <a href="../sys/d_expg{$FILE_EXT}">
-          (schema directory).
+          (express-g directory).
         </a>
       </xsl:when>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.2 2004/01/11 22:31:52 robbod Exp $
+$Id: publication_summary.xsl,v 1.3 2004/01/13 15:13:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
@@ -62,7 +62,17 @@ $Id: publication_summary.xsl,v 1.2 2004/01/11 22:31:52 robbod Exp $
 
         <tr>
           <td>Publication set WG number:</td>
-          <td><xsl:value-of select="concat('WG',@sc4.working_group,' N', @wg.number.publication_set)"/></td>
+          <xsl:variable name="wgroup">
+            <xsl:choose>
+              <xsl:when test="contains(@sc4.working_group,'WG')">
+                <xsl:value-of select="normalize-space(substring-after(@sc4.working_group,'WG'))"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="normalize-space(@sc4.working_group)"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+          <td><xsl:value-of select="concat('WG',$wgroup,' N', @wg.number.publication_set)"/></td>
         </tr>
         <tr>
           <td>Publication project leader:</td>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.12 2002/06/19 16:07:45 robbod Exp $
+$Id: imgfile.xsl,v 1.13 2002/06/21 09:35:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -62,6 +62,16 @@ $Id: imgfile.xsl,v 1.12 2002/06/19 16:07:45 robbod Exp $
             </xsl:when>
             <xsl:otherwise>
               To enable navigation, add file parameter to expressg file
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="inline" select="'no'"/>
+                <xsl:with-param name="message">
+                  <xsl:value-of 
+                    select="'Warning IM2: To enable navigation, add file parameter to expressg file'"/>
+                </xsl:with-param>
+                <xsl:with-param name="warning_gif"
+                  select="'../../../images/warning.gif'"/>
+
+              </xsl:call-template>
             </xsl:otherwise>
           </xsl:choose>
 
@@ -93,6 +103,9 @@ $Id: imgfile.xsl,v 1.12 2002/06/19 16:07:45 robbod Exp $
               <xsl:value-of 
                 select="'Error IM1: Error in image file - module not specified'"/>
             </xsl:with-param>
+            <xsl:with-param name="warning_gif"
+              select="'../../../images/warning.gif'"/>
+
           </xsl:call-template>
           <xsl:apply-templates select="img"/>
           <div align="center"><h3><xsl:value-of select="@title"/></h3></div>

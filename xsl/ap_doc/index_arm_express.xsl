@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: index_arm_express.xsl,v 1.5 2004/02/05 17:51:07 robbod Exp $
+$Id: index_arm_express.xsl,v 1.6 2004/11/27 18:05:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -30,16 +30,16 @@ $Id: index_arm_express.xsl,v 1.5 2004/02/05 17:51:07 robbod Exp $
         <frame name="toc_top" 
           src="./index_arm_express_top{$FILE_EXT}" 
           frameborder="0"
-          marginwidth="2" marginheight="0" />
-          <frame name="toc_inner" 
-            src="./index_arm_express_inner{$FILE_EXT}"
-            marginwidth="2" marginheight="0" scrolling="auto" 
-            frameborder="0"/>
-          <noframes>
-            <p>This page uses frames, but your browser doesn't support them.</p>
-          </noframes>          
-        </frameset>
-      </html>
-    </xsl:template>
+          marginwidth="2" marginheight="0"/>
+        <frame name="toc_inner" 
+          src="./index_arm_express_inner{$FILE_EXT}"
+          marginwidth="2" marginheight="0" scrolling="auto" 
+          frameborder="0"/>
+        <noframes>
+          <p>This page uses frames, but your browser doesn't support them.</p>
+        </noframes>          
+      </frameset>
+    </html>
+  </xsl:template>
 
 </xsl:stylesheet>

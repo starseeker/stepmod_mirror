@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.36 2002/07/13 22:52:12 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.37 2002/07/15 00:13:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -140,7 +140,7 @@ $Id: sect_5_mapping.xsl,v 1.36 2002/07/13 22:52:12 robbod Exp $
   <p>
     <b>AIM element:</b>
     The name of one or more AIM entity data types (see annex A), the term
-    "IDENTICAL MAPPING", or the term "PATH" entity data type names are given in
+    "IDENTICAL MAPPING", or the term "PATH". Entity data type names are given in
     lower case. Attributes of AIM entity data types are referred to as
     &lt;entity name&gt;.&lt;attribute name&gt;. The mapping of an application 
     element may involve more than one AIM element. Each of these AIM elements

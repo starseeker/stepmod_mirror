@@ -1,5 +1,5 @@
 (*
-$Id: mim.exp,v 1.9 2004/11/30 18:53:28 thendrix Exp $
+$Id: mim.exp,v 1.10 2004/11/30 19:59:33 thendrix Exp $
 ISO TC184/SC4/WG3 N1474 - ISO/TS 10303-1230 Configuration controlled 3d parts and assemblies - EXPRESS MIM
 *) 
 
@@ -90,5 +90,3216 @@ END_TYPE;
 TYPE dimensioning_standard_document_reference_item = EXTENSIBLE SELECT BASED_ON document_reference_item WITH 
    (product_definition);
 END_TYPE; 
+
+  RULE acu_requires_security_classification FOR (assembly_component_usage, 
+               cc_design_security_classification);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( acu <* assembly_component_usage | (NOT (SIZEOF(
+             QUERY ( ccdsc <* cc_design_security_classification | (acu IN 
+             ccdsc.items) )) = 1)) )) = 0);
+
+  END_RULE; -- acu_requires_security_classification
+
+(*this rule must be disabled to combine AP203 with other schemata
+  
+RULE application_context_requires_ap_definition FOR (application_context, 
+             application_protocol_definition);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ac <* application_context | (NOT (SIZEOF(
+             QUERY ( apd <* application_protocol_definition | ((ac :=: apd.
+             application) AND (apd.
+             application_interpreted_model_schema_name = 
+             'config_control_design')) )) = 1)) )) = 0);
+
+  END_RULE; -- application_context_requires_ap_definition
+
+*)
+
+  RULE approval_requires_approval_date_time FOR (approval, 
+             approval_date_time);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( app <* approval | (NOT (SIZEOF(QUERY ( adt <* 
+             approval_date_time | (app :=: adt.dated_approval) )) = 1)) )) 
+             = 0);
+
+  END_RULE; -- approval_requires_approval_date_time
+
+  RULE approval_requires_approval_person_organization FOR (approval, 
+             approval_person_organization);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( app <* approval | (NOT (SIZEOF(QUERY ( apo <* 
+             approval_person_organization | (app :=: apo.
+             authorized_approval) )) >= 1)) )) = 0);
+
+  END_RULE; -- approval_requires_approval_person_organization
+
+  RULE approvals_are_assigned FOR (approval, approval_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( app <* approval | (NOT (SIZEOF(QUERY ( aa <* 
+             approval_assignment | (app :=: aa.assigned_approval) )) >= 1)) )) 
+             = 0);
+
+  END_RULE; -- approvals_are_assigned
+
+  RULE as_required_quantity FOR (measure_with_unit);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( m <* measure_with_unit | ((
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DESCRIPTIVE_MEASURE' IN TYPEOF(m.
+             value_component)) AND (NOT (m.value_component = 'as_required'))) )) 
+             = 0);
+
+  END_RULE; -- as_required_quantity
+
+  RULE certification_requires_approval FOR (certification, 
+             cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( cert <* certification | (NOT (SIZEOF(
+             QUERY ( ccda <* cc_design_approval | (cert IN ccda.items) )) =
+              1)) )) = 0);
+
+  END_RULE; -- certification_requires_approval
+
+  RULE certification_requires_date_time FOR (certification, 
+             cc_design_date_and_time_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( cert <* certification | (NOT (SIZEOF(
+             QUERY ( ccdta <* cc_design_date_and_time_assignment | (cert IN
+              ccdta.items) )) = 1)) )) = 0);
+
+  END_RULE; -- certification_requires_date_time
+
+  RULE change_request_requires_approval FOR (change_request, 
+             cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( cr <* change_request | (NOT (SIZEOF(
+             QUERY ( ccda <* cc_design_approval | (cr IN ccda.items) )) = 1)) )) 
+             = 0);
+
+  END_RULE; -- change_request_requires_approval
+
+  RULE change_request_requires_date_time FOR (change_request, 
+             cc_design_date_and_time_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( cr <* change_request | (NOT (SIZEOF(
+             QUERY ( ccdta <* cc_design_date_and_time_assignment | (cr IN 
+             ccdta.items) )) = 1)) )) = 0);
+
+  END_RULE; -- change_request_requires_date_time
+
+  RULE change_request_requires_person_organization FOR (change_request, 
+             cc_design_person_and_organization_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( cr <* change_request | (NOT (SIZEOF(
+             QUERY ( ccpoa <* cc_design_person_and_organization_assignment
+              | (cr IN ccpoa.items) )) >= 1)) )) = 0);
+
+  END_RULE; -- change_request_requires_person_organization
+
+  RULE change_requires_approval FOR (change, cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( chg <* change | (NOT (SIZEOF(QUERY ( ccda <* 
+             cc_design_approval | (chg IN ccda.items) )) = 1)) )) = 0);
+
+  END_RULE; -- change_requires_approval
+
+  RULE change_requires_date_time FOR (change, 
+             cc_design_date_and_time_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( chg <* change | (NOT (SIZEOF(QUERY ( ccdta <* 
+             cc_design_date_and_time_assignment | ((chg IN ccdta.items) AND
+              (ccdta.role.name = 'start_date')) )) = 1)) )) = 0);
+
+  END_RULE; -- change_requires_date_time
+
+  RULE compatible_dimension FOR (cartesian_point, direction, 
+             representation_context, geometric_representation_context);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( x <* cartesian_point | (SIZEOF(QUERY ( y <* 
+             geometric_representation_context | (item_in_context(x,y) AND (
+             HIINDEX(x.coordinates) <> y.coordinate_space_dimension)) )) > 
+             0) )) = 0);
+    wr2: (SIZEOF(QUERY ( x <* direction | (SIZEOF(QUERY ( y <* 
+             geometric_representation_context | (item_in_context(x,y) AND (
+             HIINDEX(x.direction_ratios) <> y.coordinate_space_dimension)) )) 
+             > 0) )) = 0);
+
+  END_RULE; -- compatible_dimension
+
+  RULE configuration_item_requires_approval FOR (configuration_item, 
+             cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ci <* configuration_item | (NOT (SIZEOF(
+             QUERY ( ccda <* cc_design_approval | (ci IN ccda.items) )) = 1)) )) 
+             = 0);
+
+  END_RULE; -- configuration_item_requires_approval
+
+  RULE configuration_item_requires_person_organization FOR (
+             configuration_item, 
+             cc_design_person_and_organization_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ci <* configuration_item | (NOT (SIZEOF(
+             QUERY ( ccdpoa <* cc_design_person_and_organization_assignment
+              | (ci IN ccdpoa.items) )) = 1)) )) = 0);
+
+  END_RULE; -- configuration_item_requires_person_organization
+
+  RULE contract_requires_approval FOR (contract, cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( c <* contract | (NOT (SIZEOF(QUERY ( ccda <* 
+             cc_design_approval | (c IN ccda.items) )) = 1)) )) = 0);
+
+  END_RULE; -- contract_requires_approval
+
+  RULE contract_requires_person_organization FOR (contract, 
+             cc_design_person_and_organization_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( c <* contract | (NOT (SIZEOF(QUERY ( ccdpoa <* 
+             cc_design_person_and_organization_assignment | (c IN ccdpoa.
+             items) )) = 1)) )) = 0);
+
+  END_RULE; -- contract_requires_person_organization
+
+  RULE coordinated_assembly_and_shape FOR (next_assembly_usage_occurrence);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( nauo <* next_assembly_usage_occurrence | (NOT 
+             assembly_shape_is_defined(nauo)) )) = 0);
+
+  END_RULE; -- coordinated_assembly_and_shape
+
+  RULE dependent_instantiable_action_directive FOR (action_directive);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ad <* action_directive | (NOT (SIZEOF(USEDIN(ad,
+             '')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_action_directive
+
+  RULE dependent_instantiable_approval_status FOR (approval_status);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ast <* approval_status | (NOT (SIZEOF(USEDIN(ast,
+             '')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_approval_status
+
+  RULE dependent_instantiable_certification_type FOR (certification_type);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ct <* certification_type | (NOT (SIZEOF(USEDIN(ct,
+             '')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_certification_type
+
+  RULE dependent_instantiable_contract_type FOR (contract_type);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ct <* contract_type | (NOT (SIZEOF(USEDIN(ct,'')) 
+             >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_contract_type
+
+  RULE dependent_instantiable_date FOR (date);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( dt <* date | (NOT (SIZEOF(USEDIN(dt,'')) >= 1)) )) 
+             = 0);
+
+  END_RULE; -- dependent_instantiable_date
+
+  RULE dependent_instantiable_date_time_role FOR (date_time_role);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( dtr <* date_time_role | (NOT (SIZEOF(USEDIN(dtr,
+             '')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_date_time_role
+
+  RULE dependent_instantiable_document_type FOR (document_type);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( dt <* document_type | (NOT (SIZEOF(USEDIN(dt,'')) 
+             >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_document_type
+
+  RULE dependent_instantiable_named_unit FOR (named_unit);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( nu <* named_unit | (NOT (SIZEOF(USEDIN(nu,'')) >=
+              1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_named_unit
+
+  RULE dependent_instantiable_parametric_representation_context FOR (
+             parametric_representation_context);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( prc <* parametric_representation_context | (NOT (
+             SIZEOF(USEDIN(prc,'')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_parametric_representation_context
+
+  RULE dependent_instantiable_person_and_organization_role FOR (
+             person_and_organization_role);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( poar <* person_and_organization_role | (NOT (
+             SIZEOF(USEDIN(poar,'')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_person_and_organization_role
+
+  RULE dependent_instantiable_representation_item FOR (representation_item);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ri <* representation_item | (NOT (SIZEOF(USEDIN(
+             ri,'')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_representation_item
+
+  RULE dependent_instantiable_security_classification_level FOR (
+             security_classification_level);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( scl <* security_classification_level | (NOT (
+             SIZEOF(USEDIN(scl,'')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_security_classification_level
+
+  RULE dependent_instantiable_shape_representation FOR (
+             shape_representation);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sr <* shape_representation | (NOT (SIZEOF(USEDIN(
+             sr,'')) >= 1)) )) = 0);
+
+  END_RULE; -- dependent_instantiable_shape_representation
+
+  RULE design_context_for_property FOR (product_definition);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pd <* product_definition | ((SIZEOF(USEDIN(pd,
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'PROPERTY_DEFINITION.DEFINITION') + 
+             QUERY ( pdr <* USEDIN(pd,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')
+              | (SIZEOF(USEDIN(pdr,
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PROPERTY_DEFINITION.' + 'DEFINITION')) >=
+              1) )) >= 1) AND (NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DESIGN_CONTEXT' IN
+              TYPEOF(pd.frame_of_reference)))) )) = 0);
+
+  END_RULE; -- design_context_for_property
+
+  RULE dimensionality_is_two_or_three FOR (
+             geometric_representation_context);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( g <* geometric_representation_context | (NOT ((g.
+             coordinate_space_dimension = 2) OR (g.
+             coordinate_space_dimension = 3))) )) = 0);
+
+  END_RULE; -- dimensionality_is_two_or_three
+
+  RULE document_to_product_definition FOR (
+             cc_design_specification_reference, product_definition);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sp <* cc_design_specification_reference | (NOT ((
+             (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DOCUMENT_RELATIONSHIP.' + 
+             'RELATING_DOCUMENT') IN ROLESOF(sp\document_reference.
+             assigned_document)) AND (SIZEOF(QUERY ( it <* sp.items | (NOT 
+             ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PRODUCT_DEFINITION' IN TYPEOF(it))) )) =
+              0)) OR (NOT (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DOCUMENT_RELATIONSHIP.' + 
+             'RELATING_DOCUMENT') IN ROLESOF(sp\document_reference.
+             assigned_document))))) )) = 0);
+
+  END_RULE; -- document_to_product_definition
+
+  RULE drawing_sheet_layout_usage FOR (mapped_item);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( dsl <* QUERY ( mi <* mapped_item | (
+             'ASSOC_DIM.DRAWING_SHEET_LAYOUT' IN TYPEOF(mi.mapping_source.
+             mapped_representation)) ) | (NOT (SIZEOF(USEDIN(dsl,'')) = 
+             SIZEOF(QUERY ( dsr <* USEDIN(dsl,'ASSOC_DIM.' + 
+             'REPRESENTATION.ITEMS') | ('ASSOC_DIM.DRAWING_SHEET_REVISION' 
+             IN TYPEOF(dsr)) )))) )) = 0);
+
+  END_RULE; -- drawing_sheet_layout_usage
+
+  RULE effectivity_requires_approval FOR (effectivity, cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( eff <* effectivity | (NOT (SIZEOF(
+             QUERY ( ccda <* cc_design_approval | (eff IN ccda.items) )) = 
+             1)) )) = 0);
+
+  END_RULE; -- effectivity_requires_approval
+
+  RULE geometric_representation_item_3d FOR (geometric_representation_item);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( gri <* geometric_representation_item | (NOT ((
+             dimension_of(gri) = 3) OR (SIZEOF(bag_to_set(USEDIN(gri,'')) -
+              bag_to_set(USEDIN(gri,
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DEFINITIONAL_REPRESENTATION.ITEMS'))) = 0))) )) 
+             = 0);
+
+  END_RULE; -- geometric_representation_item_3d
+
+(* This rule must be disabled to combine AP 203 with other schemata  
+RULE global_unit_assignment FOR (global_unit_assigned_context);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( guac <* global_unit_assigned_context | (NOT (
+             SIZEOF(guac.units) = 3)) )) = 0);
+    wr2: (SIZEOF(QUERY ( guac <* global_unit_assigned_context | (NOT ((
+             SIZEOF(QUERY ( u <* guac.units | (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.LENGTH_UNIT' IN TYPEOF(u)) )) = 1) AND (
+             SIZEOF(QUERY ( u <* guac.units | (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PLANE_ANGLE_UNIT' IN TYPEOF(u)) )) = 1) 
+             AND (SIZEOF(QUERY ( u <* guac.units | (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SOLID_ANGLE_UNIT' IN TYPEOF(u)) )) = 1))) )) 
+             = 0);
+
+  END_RULE; -- global_unit_assignment
+*)
+
+  RULE no_shape_for_make_from FOR (design_make_from_relationship);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( dmfr <* design_make_from_relationship | (NOT (
+             SIZEOF(QUERY ( pd <* USEDIN(dmfr,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+             'PROPERTY_DEFINITION.DEFINITION') | (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)) )) 
+             = 0)) )) = 0);
+
+  END_RULE; -- no_shape_for_make_from
+
+  RULE no_shape_for_supplied_part FOR (supplied_part_relationship);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( spr <* supplied_part_relationship | (NOT (SIZEOF(
+             QUERY ( pd <* USEDIN(spr,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+             'PROPERTY_DEFINITION.DEFINITION') | (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)) )) 
+             = 0)) )) = 0);
+
+  END_RULE; -- no_shape_for_supplied_part
+
+  RULE product_concept_requires_configuration_item FOR (product_concept, 
+             configuration_item);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pc <* product_concept | (NOT (SIZEOF(
+             QUERY ( ci <* configuration_item | (pc :=: ci.item_concept) )) 
+             >= 1)) )) = 0);
+
+  END_RULE; -- product_concept_requires_configuration_item
+
+  RULE product_definition_requires_approval FOR (product_definition, 
+             cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pd <* product_definition | (NOT (SIZEOF(
+             QUERY ( ccda <* cc_design_approval | (pd IN ccda.items) )) = 1)) )) 
+             = 0);
+
+  END_RULE; -- product_definition_requires_approval
+
+  RULE product_definition_requires_date_time FOR (product_definition, 
+             cc_design_date_and_time_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pd <* product_definition | (NOT (SIZEOF(
+             QUERY ( ccdta <* cc_design_date_and_time_assignment | (pd IN 
+             ccdta.items) )) = 1)) )) = 0);
+
+  END_RULE; -- product_definition_requires_date_time
+
+  RULE product_definition_requires_person_organization FOR (
+             product_definition, 
+             cc_design_person_and_organization_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pd <* product_definition | (NOT (SIZEOF(
+             QUERY ( ccdpoa <* cc_design_person_and_organization_assignment
+              | (pd IN ccdpoa.items) )) = 1)) )) = 0);
+
+  END_RULE; -- product_definition_requires_person_organization
+
+  RULE product_requires_person_organization FOR (product, 
+             cc_design_person_and_organization_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( prod <* product | (NOT (SIZEOF(QUERY ( ccdpoa <* 
+             cc_design_person_and_organization_assignment | (prod IN ccdpoa
+             .items) )) = 1)) )) = 0);
+
+  END_RULE; -- product_requires_person_organization
+
+  RULE product_requires_product_category FOR (product, 
+             product_related_product_category);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( prod <* product | (NOT (SIZEOF(QUERY ( prpc <* 
+             product_related_product_category | ((prod IN prpc.products) 
+             AND (prpc.name IN ['assembly','inseparable_assembly','detail',
+             'customer_furnished_equipment'])) )) = 1)) )) = 0);
+
+  END_RULE; -- product_requires_product_category
+
+  RULE product_requires_version FOR (product, product_definition_formation);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( prod <* product | (NOT (SIZEOF(QUERY ( pdf <* 
+             product_definition_formation | (prod :=: pdf.of_product) )) >=
+              1)) )) = 0);
+
+  END_RULE; -- product_requires_version
+
+  RULE product_version_requires_approval FOR (product_definition_formation, 
+             cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pdf <* product_definition_formation | (NOT (
+             SIZEOF(QUERY ( ccda <* cc_design_approval | (pdf IN ccda.items) )) 
+             = 1)) )) = 0);
+
+  END_RULE; -- product_version_requires_approval
+
+  RULE product_version_requires_person_organization FOR (
+             product_definition_formation, 
+             cc_design_person_and_organization_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pdf <* product_definition_formation | (NOT (
+             SIZEOF(QUERY ( ccdpoa <* 
+             cc_design_person_and_organization_assignment | ((pdf IN ccdpoa
+             .items) AND (ccdpoa.role.name = 'creator')) )) = 1)) )) = 0);
+    wr2: (SIZEOF(QUERY ( pdf <* product_definition_formation | (NOT (
+             SIZEOF(QUERY ( ccdpoa <* 
+             cc_design_person_and_organization_assignment | ((pdf IN ccdpoa
+             .items) AND (ccdpoa.role.name IN ['design_supplier',
+             'part_supplier'])) )) >= 1)) )) = 0);
+
+  END_RULE; -- product_version_requires_person_organization
+
+  RULE product_version_requires_security_classification FOR (
+             product_definition_formation, 
+             cc_design_security_classification);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pdf <* product_definition_formation | (NOT (
+             SIZEOF(QUERY ( ccdsc <* cc_design_security_classification | (
+             pdf IN ccdsc.items) )) = 1)) )) = 0);
+
+  END_RULE; -- product_version_requires_security_classification
+
+  RULE restrict_action_request_status FOR (action_request_status);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ars <* action_request_status | (NOT (ars.status 
+             IN ['proposed','in_work','issued','hold'])) )) = 0);
+
+  END_RULE; -- restrict_action_request_status
+
+  RULE restrict_approval_status FOR (approval_status);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ast <* approval_status | (NOT (ast.name IN [
+             'approved','not_yet_approved','disapproved','withdrawn'])) )) 
+             = 0);
+
+  END_RULE; -- restrict_approval_status
+
+  RULE restrict_certification_type FOR (certification_type);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ct <* certification_type | (NOT (ct.description 
+             IN ['design_supplier','part_supplier'])) )) = 0);
+
+  END_RULE; -- restrict_certification_type
+
+  RULE restrict_contract_type FOR (contract_type);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ct <* contract_type | (NOT (ct.description IN [
+             'fixed_price','cost_plus'])) )) = 0);
+
+  END_RULE; -- restrict_contract_type
+
+  RULE restrict_date_time_role FOR (date_time_role);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( dtr <* date_time_role | (NOT (dtr.name IN [
+             'creation_date','request_date','release_date','start_date',
+             'contract_date','certification_date','sign_off_date',
+             'classification_date','declassification_date'])) )) = 0);
+
+  END_RULE; -- restrict_date_time_role
+
+  RULE restrict_document_type FOR (document_type);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( dt <* document_type | (NOT (dt.product_data_type 
+             IN ['material_specification','process_specification',
+             'design_specification','surface_finish_specification',
+             'cad_filename','drawing'])) )) = 0);
+
+  END_RULE; -- restrict_document_type
+
+  RULE restrict_drawing FOR (drawing_revision);
+
+  WHERE
+    wr1 : (SIZEOF(QUERY ( dr <* drawing_revision | ((SIZEOF(dr.areas) = 0) 
+              OR (SIZEOF(QUERY ( ais <* dr.areas | (NOT (
+              'ASSOC_DIM.DRAWING_SHEET_REVISION' IN TYPEOF(ais.area))) )) >
+               0)) )) = 0);
+    wr2 : (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(USEDIN(dr,
+              'ASSOC_DIM.' + 'DRAUGHTING_TITLE.ITEMS')) > 1) )) = 0);
+    wr3 : (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(USEDIN(ais.area,'ASSOC_DIM.' + 
+              'DRAUGHTING_TITLE.ITEMS')) > 1) )) > 0) )) = 0);
+    wr4 : (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( item <* ais.area.items | (SIZEOF(
+              TYPEOF(item) * ['ASSOC_DIM.STYLED_ITEM',
+              'ASSOC_DIM.MAPPED_ITEM','ASSOC_DIM.AXIS2_PLACEMENT',
+              'ASSOC_DIM.PLANAR_BOX']) <> 1) )) > 0) )) > 0) )) = 0);
+    wr5 : (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( item <* ais.area.items | (SIZEOF(
+              TYPEOF(item) * ['ASSOC_DIM.STYLED_ITEM',
+              'ASSOC_DIM.MAPPED_ITEM']) = 0) )) > 0) )) > 0) )) = 0);
+    wr6 : (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( p_b <* QUERY ( item <* ais.area.
+              items | ('ASSOC_DIM.PLANAR_BOX' IN TYPEOF(item)) ) | (SIZEOF(
+              USEDIN(p_b,'ASSOC_DIM.' + 'PRESENTATION_SIZE.SIZE')) <> 1) )) 
+              > 0) )) > 0) )) = 0);
+    wr7 : (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( mi <* QUERY ( item <* ais.area.
+              items | ('ASSOC_DIM.MAPPED_ITEM' IN TYPEOF(item)) ) | (
+              'ASSOC_DIM.PRESENTATION_VIEW' IN TYPEOF(mi\mapped_item.
+              mapping_source.mapped_representation)) )) = 0) )) > 0) )) = 0);
+    wr8 : (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( a2p <* QUERY ( item <* ais.area.
+              items | ('ASSOC_DIM.AXIS2_PLACEMENT' IN TYPEOF(item)) ) | (
+              SIZEOF(USEDIN(a2p,'ASSOC_DIM.' + 'MAPPED_ITEM.MAPPING_TARGET')) 
+              = 0) )) > 0) )) > 0) )) = 0);
+    wr9 : (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(ais.area.context_of_items.
+              representations_in_context) > 1) )) > 0) )) = 0);
+    wr10: (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( mi <* QUERY ( item <* ais.area.
+              items | ('ASSOC_DIM.MAPPED_ITEM' IN TYPEOF(item)) ) | (
+              SIZEOF(USEDIN(mi\mapped_item.mapping_source.
+              mapped_representation,'ASSOC_DIM.' + 
+              'REPRESENTATION_MAP.MAPPED_REPRESENTATION')) <> 1) )) > 0) )) 
+              > 0) )) = 0);
+    wr11: (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( mi <* QUERY ( item <* ais.area.
+              items | ('ASSOC_DIM.MAPPED_ITEM' IN TYPEOF(item)) ) | (
+              SIZEOF(QUERY ( pv_item <* mi\mapped_item.mapping_source.
+              mapped_representation.items | (SIZEOF(TYPEOF(pv_item) * [
+              'ASSOC_DIM.STYLED_ITEM','ASSOC_DIM.CAMERA_IMAGE',
+              'ASSOC_DIM.AXIS2_PLACEMENT']) <> 1) )) > 0) )) > 0) )) > 0) )) 
+              = 0);
+    wr12: (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( mi <* QUERY ( item <* ais.area.
+              items | ('ASSOC_DIM.MAPPED_ITEM' IN TYPEOF(item)) ) | (
+              SIZEOF(QUERY ( a2p <* QUERY ( pv_item <* mi\mapped_item.
+              mapping_source.mapped_representation.items | (
+              'ASSOC_DIM.AXIS2_PLACEMENT' IN TYPEOF(pv_item)) ) | (SIZEOF(
+              QUERY ( rm <* USEDIN(a2p,'ASSOC_DIM.' + 
+              'REPRESENTATION_MAP.MAPPING_ORIGIN') | (SIZEOF(QUERY ( mi <* 
+              QUERY ( item <* ais.area.items | ('ASSOC_DIM.MAPPED_ITEM' IN 
+              TYPEOF(item)) ) | (mi\mapped_item.mapping_source :=: rm) )) >
+               0) )) = 1) )) <> 1) )) > 0) )) > 0) )) = 0);
+    wr13: (SIZEOF(QUERY ( dr <* drawing_revision | (SIZEOF(QUERY ( ais <* 
+              dr.areas | (SIZEOF(QUERY ( mi <* QUERY ( item <* ais.area.
+              items | ('ASSOC_DIM.MAPPED_ITEM' IN TYPEOF(item)) ) | (
+              SIZEOF(mi\mapped_item.mapping_source.mapped_representation.
+              context_of_items.representations_in_context) <> 1) )) > 0) )) 
+              > 0) )) = 0);
+
+  END_RULE; -- restrict_drawing
+
+  RULE restrict_person_organization_role FOR (person_and_organization_role);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( por <* person_and_organization_role | (NOT (por.
+             name IN ['request_recipient','initiator','part_supplier',
+             'design_supplier','configuration_manager','contractor',
+             'classification_officer','creator','design_owner'])) )) = 0);
+
+  END_RULE; -- restrict_person_organization_role
+
+  RULE restrict_product_category_value FOR (
+             product_related_product_category);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( prpc <* product_related_product_category | (NOT (
+             prpc.name IN ['assembly','detail',
+             'customer_furnished_equipment','inseparable_assembly','cast',
+             'coined','drawn','extruded','forged','formed','machined',
+             'molded','rolled','sheared'])) )) = 0);
+
+  END_RULE; -- restrict_product_category_value
+
+  RULE restrict_security_classification_level FOR (
+             security_classification_level);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( scl <* security_classification_level | (NOT (scl.
+             name IN ['unclassified','classified','proprietary',
+             'confidential','secret','top_secret'])) )) = 0);
+
+  END_RULE; -- restrict_security_classification_level
+
+  RULE security_classification_optional_date_time FOR (
+             security_classification, cc_design_date_and_time_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sc <* security_classification | (NOT (SIZEOF(
+             QUERY ( ccdta <* cc_design_date_and_time_assignment | ((sc IN 
+             ccdta.items) AND ('declassification_date' = ccdta.role.name)) )) 
+             <= 1)) )) = 0);
+
+  END_RULE; -- security_classification_optional_date_time
+
+  RULE security_classification_requires_approval FOR (
+             security_classification, cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sc <* security_classification | (NOT (SIZEOF(
+             QUERY ( ccda <* cc_design_approval | (sc IN ccda.items) )) = 1)) )) 
+             = 0);
+
+  END_RULE; -- security_classification_requires_approval
+
+  RULE security_classification_requires_date_time FOR (
+             security_classification, cc_design_date_and_time_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sc <* security_classification | (NOT (SIZEOF(
+             QUERY ( ccdta <* cc_design_date_and_time_assignment | ((sc IN 
+             ccdta.items) AND ('classification_date' = ccdta.role.name)) )) 
+             = 1)) )) = 0);
+
+  END_RULE; -- security_classification_requires_date_time
+
+  RULE security_classification_requires_person_organization FOR (
+             security_classification, 
+             cc_design_person_and_organization_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sc <* security_classification | (NOT (SIZEOF(
+             QUERY ( ccdpoa <* cc_design_person_and_organization_assignment
+              | (sc IN ccdpoa.items) )) = 1)) )) = 0);
+
+  END_RULE; -- security_classification_requires_person_organization
+
+  RULE sheets_belong_to_one_drawing FOR (drawing_sheet_revision, 
+             drawing_sheet_revision_usage);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( dsr <* drawing_sheet_revision | (NOT (SIZEOF(
+             QUERY ( usage <* drawing_sheet_revision_usage | (dsr :=: usage
+             .area) )) = 1)) )) = 0);
+
+  END_RULE; -- sheets_belong_to_one_drawing
+
+  RULE start_request_requires_approval FOR (start_request, 
+             cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sr <* start_request | (NOT (SIZEOF(
+             QUERY ( ccda <* cc_design_approval | (sr IN ccda.items) )) = 1)) )) 
+             = 0);
+
+  END_RULE; -- start_request_requires_approval
+
+  RULE start_request_requires_date_time FOR (start_request, 
+             cc_design_date_and_time_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sr <* start_request | (NOT (SIZEOF(
+             QUERY ( ccdta <* cc_design_date_and_time_assignment | (sr IN 
+             ccdta.items) )) = 1)) )) = 0);
+
+  END_RULE; -- start_request_requires_date_time
+
+  RULE start_request_requires_person_organization FOR (start_request, 
+             cc_design_person_and_organization_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sr <* start_request | (NOT (SIZEOF(
+             QUERY ( ccdpoa <* cc_design_person_and_organization_assignment
+              | (sr IN ccdpoa.items) )) >= 1)) )) = 0);
+
+  END_RULE; -- start_request_requires_person_organization
+
+  RULE start_work_requires_approval FOR (start_work, cc_design_approval);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sw <* start_work | (NOT (SIZEOF(QUERY ( ccda <* 
+             cc_design_approval | (sw IN ccda.items) )) = 1)) )) = 0);
+
+  END_RULE; -- start_work_requires_approval
+
+  RULE start_work_requires_date_time FOR (start_work, 
+             cc_design_date_and_time_assignment);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sw <* start_work | (NOT (SIZEOF(QUERY ( ccdta <* 
+             cc_design_date_and_time_assignment | ((sw IN ccdta.items) AND 
+             (ccdta.role.name = 'start_date')) )) = 1)) )) = 0);
+
+  END_RULE; -- start_work_requires_date_time
+
+  RULE subtype_mandatory_action FOR (action);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( act <* action | (NOT (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DIRECTED_ACTION' IN TYPEOF(act))) )) = 0);
+
+  END_RULE; -- subtype_mandatory_action
+
+  RULE subtype_mandatory_effectivity FOR (effectivity);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( eff <* effectivity | (NOT ((SIZEOF([
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SERIAL_NUMBERED_EFFECTIVITY',
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.LOT_EFFECTIVITY',
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DATED_EFFECTIVITY'] * TYPEOF(eff)) = 1) 
+             AND ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CONFIGURATION_EFFECTIVITY' IN 
+             TYPEOF(eff)))) )) = 0);
+
+  END_RULE; -- subtype_mandatory_effectivity
+
+  RULE subtype_mandatory_product_context FOR (product_context);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pc <* product_context | (NOT (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.MECHANICAL_CONTEXT' IN TYPEOF(pc))) )) = 
+             0);
+
+  END_RULE; -- subtype_mandatory_product_context
+
+  RULE subtype_mandatory_product_definition_formation FOR (
+             product_definition_formation);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pdf <* product_definition_formation | (NOT ((
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+             'PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE') IN 
+             TYPEOF(pdf))) )) = 0);
+
+  END_RULE; -- subtype_mandatory_product_definition_formation
+
+  RULE subtype_mandatory_product_definition_usage FOR (
+             product_definition_usage);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( pdu <* product_definition_usage | (NOT ((
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'ASSEMBLY_COMPONENT_USAGE') IN 
+             TYPEOF(pdu))) )) = 0);
+
+  END_RULE; -- subtype_mandatory_product_definition_usage
+
+(*this rule must be disabled to combine AP 203 with other schemata
+  
+RULE subtype_mandatory_representation FOR (representation);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( rep <* representation | (NOT (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_REPRESENTATION' IN TYPEOF(rep))) )) 
+             = 0);
+
+  END_RULE; -- subtype_mandatory_representation
+
+*)
+
+  RULE subtype_mandatory_representation_context FOR (
+             representation_context);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( rep_cntxt <* representation_context | (NOT (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN 
+             TYPEOF(rep_cntxt))) )) = 0);
+
+  END_RULE; -- subtype_mandatory_representation_context
+
+(*this rule must be disabled to combine AP 203 with other schemata  
+RULE subtype_mandatory_shape_representation FOR (shape_representation);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( sr <* shape_representation | (NOT ((SIZEOF([
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'ADVANCED_BREP_SHAPE_REPRESENTATION',
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.FACETED_BREP_SHAPE_REPRESENTATION',
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.MANIFOLD_SURFACE_SHAPE_REPRESENTATION','CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.EDGE_BASED_WIREFRAME_SHAPE_REPRESENTATION','CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHELL_BASED_WIREFRAME_SHAPE_REPRESENTATION',
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+             'GEOMETRICALLY_BOUNDED_SURFACE_SHAPE_REPRESENTATION',
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+             'GEOMETRICALLY_BOUNDED_WIREFRAME_SHAPE_REPRESENTATION'] * 
+             TYPEOF(sr)) = 1) OR (SIZEOF(QUERY ( it <* sr\representation.
+             items | (NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.AXIS2_PLACEMENT_3D' IN 
+             TYPEOF(it))) )) = 0) OR (SIZEOF(QUERY ( sdr <* QUERY ( pdr <* 
+             USEDIN(sr,
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PROPERTY_DEFINITION_REPRESENTATION.' + 
+             'USED_REPRESENTATION') | (
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_DEFINITION_REPRESENTATION' IN 
+             TYPEOF(pdr)) ) | (NOT (SIZEOF([
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_ASPECT',
+             'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_ASPECT_RELATIONSHIP'] * TYPEOF(sdr.
+             definition)) = 1)) )) = 0))) )) = 0);
+
+  END_RULE; -- subtype_mandatory_shape_representation
+
+*)
+
+  RULE unique_version_change_order_rule FOR (change);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( c <* change | (NOT unique_version_change_order(c.
+             assigned_action)) )) = 0);
+
+  END_RULE; -- unique_version_change_order_rule
+
+  RULE versioned_action_request_requires_solution FOR (
+             versioned_action_request, action_request_solution);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ar <* versioned_action_request | (NOT (SIZEOF(
+             QUERY ( ars <* action_request_solution | (ar :=: ars.request) )) 
+             >= 1)) )) = 0);
+
+  END_RULE; -- versioned_action_request_requires_solution
+
+  RULE versioned_action_request_requires_status FOR (
+             versioned_action_request, action_request_status);
+
+  WHERE
+    wr1: (SIZEOF(QUERY ( ar <* versioned_action_request | (NOT (SIZEOF(
+             QUERY ( ars <* action_request_status | (ar :=: ars.
+             assigned_request) )) = 1)) )) = 0);
+
+  END_RULE; -- versioned_action_request_requires_status
+
+  FUNCTION acyclic_composite_text(
+               start_composite: composite_text;
+               child_text: SET [1:?] OF text_or_character
+      ): LOGICAL;
+
+    LOCAL
+      i                     : INTEGER;
+      local_annotation_text : SET [0:?] OF annotation_text;
+      local_composite_text  : SET [0:?] OF composite_text;
+      local_children        : SET [0:?] OF text_or_character;
+    END_LOCAL;
+    local_composite_text := QUERY ( child <* child_text | (
+        'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.COMPOSITE_TEXT' IN TYPEOF(child)) );
+    IF SIZEOF(local_composite_text) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(local_composite_text) BY 1;
+        IF start_composite :=: local_composite_text[i] THEN
+          RETURN(FALSE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    local_children := child_text;
+    IF SIZEOF(local_composite_text) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(local_composite_text) BY 1;
+        local_children := local_children + local_composite_text[i].
+            collected_text;
+      END_REPEAT;
+    END_IF;
+    local_annotation_text := QUERY ( child <* child_text | (
+        'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ANNOTATION_TEXT' IN TYPEOF(child)) );
+    IF SIZEOF(local_annotation_text) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(local_annotation_text) BY 1;
+        local_children := local_children + QUERY ( item <* 
+            local_annotation_text[i]\mapped_item.mapping_source.
+            mapped_representation.items | (SIZEOF([
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ANNOTATION_TEXT',
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.COMPOSITE_TEXT'] * TYPEOF(item)) > 0) );
+      END_REPEAT;
+    END_IF;
+    IF local_children :<>: child_text THEN
+      RETURN(acyclic_composite_text(start_composite,local_children));
+    ELSE
+      RETURN(TRUE);
+    END_IF;
+
+  END_FUNCTION; -- acyclic_composite_text
+
+  FUNCTION acyclic_curve_replica(
+               rep: curve_replica;
+               parent: curve
+      ): BOOLEAN;
+    IF NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CURVE_REPLICA' IN TYPEOF(parent)) THEN
+      RETURN(TRUE);
+    END_IF;
+    IF parent :=: rep THEN
+      RETURN(FALSE);
+    ELSE
+      RETURN(acyclic_curve_replica(rep,parent\curve_replica.parent_curve));
+    END_IF;
+
+  END_FUNCTION; -- acyclic_curve_replica
+
+  FUNCTION acyclic_mapped_representation(
+               parent_set: SET OF representation;
+               children_set: SET OF representation_item
+      ): BOOLEAN;
+
+    LOCAL
+      x : SET OF representation_item;
+      y : SET OF representation_item;
+    END_LOCAL;
+    x := QUERY ( z <* children_set | ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.MAPPED_ITEM' IN
+         TYPEOF(z)) );
+    IF SIZEOF(x) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(x) BY 1;
+        IF x[i]\mapped_item.mapping_source.mapped_representation IN 
+            parent_set THEN
+          RETURN(FALSE);
+        END_IF;
+        IF NOT acyclic_mapped_representation(parent_set + x[i]\mapped_item
+            .mapping_source.mapped_representation,x[i]\mapped_item.
+            mapping_source.mapped_representation.items) THEN
+          RETURN(FALSE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    x := children_set - x;
+    IF SIZEOF(x) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(x) BY 1;
+        y := QUERY ( z <* bag_to_set(USEDIN(x[i],'')) | (
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.REPRESENTATION_ITEM' IN TYPEOF(z)) );
+        IF NOT acyclic_mapped_representation(parent_set,y) THEN
+          RETURN(FALSE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- acyclic_mapped_representation
+
+  FUNCTION acyclic_point_replica(
+               rep: point_replica;
+               parent: point
+      ): BOOLEAN;
+    IF NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.POINT_REPLICA' IN TYPEOF(parent)) THEN
+      RETURN(TRUE);
+    END_IF;
+    IF parent :=: rep THEN
+      RETURN(FALSE);
+    ELSE
+      RETURN(acyclic_point_replica(rep,parent\point_replica.parent_pt));
+    END_IF;
+
+  END_FUNCTION; -- acyclic_point_replica
+
+  FUNCTION acyclic_product_category_relationship(
+               relation: product_category_relationship;
+               children: SET OF product_category
+      ): LOGICAL;
+
+    LOCAL
+      x              : SET OF product_category_relationship;
+      local_children : SET OF product_category;
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(children) BY 1;
+      IF relation.category :=: children[i] THEN
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+    x := bag_to_set(USEDIN(relation.category,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+        'PRODUCT_CATEGORY_RELATIONSHIP.SUB_CATEGORY'));
+    local_children := children + relation.category;
+    IF SIZEOF(x) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(x) BY 1;
+        IF NOT acyclic_product_category_relationship(x[i],local_children)
+             THEN
+          RETURN(FALSE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- acyclic_product_category_relationship
+
+  FUNCTION acyclic_product_definition_relationship(
+               relation: product_definition_relationship;
+               relatives: SET [1:?] OF product_definition;
+               specific_relation: STRING
+      ): LOGICAL;
+
+    LOCAL
+      x : SET OF product_definition_relationship;
+    END_LOCAL;
+    IF relation.relating_product_definition IN relatives THEN
+      RETURN(FALSE);
+    END_IF;
+    x := QUERY ( pd <* bag_to_set(USEDIN(relation.
+        relating_product_definition,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+        'PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION'))
+         | (specific_relation IN TYPEOF(pd)) );
+    REPEAT i := 1 TO HIINDEX(x) BY 1;
+      IF NOT acyclic_product_definition_relationship(x[i],relatives + 
+          relation.relating_product_definition,specific_relation) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- acyclic_product_definition_relationship
+
+  FUNCTION acyclic_surface_replica(
+               rep: surface_replica;
+               parent: surface
+      ): BOOLEAN;
+    IF NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SURFACE_REPLICA' IN TYPEOF(parent)) THEN
+      RETURN(TRUE);
+    END_IF;
+    IF parent :=: rep THEN
+      RETURN(FALSE);
+    ELSE
+      RETURN(acyclic_surface_replica(rep,parent\surface_replica.
+          parent_surface));
+    END_IF;
+
+  END_FUNCTION; -- acyclic_surface_replica
+
+  FUNCTION aspect_ratio(
+               p: planar_box
+      ): positive_ratio_measure;
+    RETURN(p.size_in_x / p.size_in_y);
+
+  END_FUNCTION; -- aspect_ratio
+
+  FUNCTION assembly_shape_is_defined(
+               assy: next_assembly_usage_occurrence
+      ): BOOLEAN;
+
+    LOCAL
+      srr_set : SET OF shape_representation_relationship := [];
+      sdr_set : SET OF shape_definition_representation := [];
+    END_LOCAL;
+    sdr_set := QUERY ( pdr <* bag_to_set(USEDIN(assy.
+        related_product_definition,
+        'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PROPERTY_DEFINITION_REPRESENTATION.' + 
+        'DEFINITION.DEFINITION')) | (
+        'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_DEFINITION_REPRESENTATION' IN TYPEOF(pdr)) ) 
+        + QUERY ( pdr <* bag_to_set(USEDIN(assy.related_product_definition,
+        'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION.' + 
+        'DEFINITION.RELATED_PRODUCT_DEFINITION')) | (
+        'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_DEFINITION_REPRESENTATION' IN TYPEOF(pdr)) );
+    IF SIZEOF(sdr_set) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(sdr_set) BY 1;
+        srr_set := QUERY ( rr <* bag_to_set(USEDIN(sdr_set[i]\
+            property_definition_representation.used_representation,
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2'))
+             | ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_REPRESENTATION_RELATIONSHIP' IN 
+            TYPEOF(rr)) );
+        IF SIZEOF(srr_set) > 0 THEN
+          REPEAT j := 1 TO HIINDEX(srr_set) BY 1;
+            IF SIZEOF(QUERY ( pdr <* bag_to_set(USEDIN(srr_set[j]\
+                representation_relationship.rep_1,
+                'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PROPERTY_DEFINITION_REPRESENTATION.' +
+                 'USED_REPRESENTATION')) | (
+                'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_DEFINITION_REPRESENTATION' IN 
+                TYPEOF(pdr)) ) * QUERY ( pdr <* bag_to_set(USEDIN(assy.
+                relating_product_definition,
+                'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PROPERTY_DEFINITION_REPRESENTATION.' +
+                 'USED_REPRESENTATION.DEFINITION')) | (
+                'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHAPE_DEFINITION_REPRESENTATION' IN 
+                TYPEOF(pdr)) )) >= 1 THEN
+              IF SIZEOF(QUERY ( cdsr <* USEDIN(assy,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' 
+                  + 'CONTEXT_DEPENDENT_SHAPE_REPRESENTATION.' + 
+                  'REPRESENTED_PRODUCT_RELATION') | (NOT ((cdsr.
+                  represented_product_relation.definition :=: assy) AND (
+                  cdsr.representation_relation :=: srr_set[j]))) )) > 0
+                   THEN
+                RETURN(FALSE);
+              END_IF;
+            END_IF;
+          END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- assembly_shape_is_defined
+
+  FUNCTION associated_surface(
+               arg: pcurve_or_surface
+      ): surface;
+
+    LOCAL
+      surf : surface;
+    END_LOCAL;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PCURVE' IN TYPEOF(arg) THEN
+      surf := arg.basis_surface;
+    ELSE
+      surf := arg;
+    END_IF;
+    RETURN(surf);
+
+  END_FUNCTION; -- associated_surface
+
+  FUNCTION bag_to_set(
+               the_bag: BAG OF GENERIC:intype
+      ): SET OF GENERIC:intype;
+
+    LOCAL
+      the_set : SET OF GENERIC:intype := [];
+    END_LOCAL;
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag) BY 1;
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+
+  END_FUNCTION; -- bag_to_set
+
+  FUNCTION base_axis(
+               dim: INTEGER;
+               axis1, axis2, axis3: direction
+      ): LIST [2:3] OF direction;
+
+    LOCAL
+      u      : LIST [2:3] OF direction;
+      vec    : direction;
+      factor : REAL;
+    END_LOCAL;
+    IF dim = 3 THEN
+      u[3] := NVL(normalise(axis3),representation_item('') || 
+          geometric_representation_item() || direction([0,0,1]));
+      u[1] := first_proj_axis(u[3],axis1);
+      u[2] := second_proj_axis(u[3],u[1],axis2);
+    ELSE
+      u[3] := ?;
+      IF EXISTS(axis1) THEN
+        u[1] := normalise(axis1);
+        u[2] := orthogonal_complement(u[1]);
+        IF EXISTS(axis2) THEN
+          factor := dot_product(axis2,u[2]);
+          IF factor < 0 THEN
+            u[2].direction_ratios[1] := -u[2].direction_ratios[1];
+            u[2].direction_ratios[2] := -u[2].direction_ratios[2];
+          END_IF;
+        END_IF;
+      ELSE
+        IF EXISTS(axis2) THEN
+          u[2] := normalise(axis2);
+          u[1] := orthogonal_complement(u[2]);
+          u[1].direction_ratios[1] := -u[1].direction_ratios[1];
+          u[1].direction_ratios[2] := -u[1].direction_ratios[2];
+        ELSE
+          u[1].name := '';
+          u[2].name := '';
+          u[1].direction_ratios[1] := 1;
+          u[1].direction_ratios[2] := 0;
+          u[2].direction_ratios[1] := 0;
+          u[2].direction_ratios[2] := 1;
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(u);
+
+  END_FUNCTION; -- base_axis
+
+  FUNCTION basis_curve_check(
+               cv: curve;
+               schema_name: STRING
+      ): BOOLEAN;
+    IF SIZEOF([schema_name + '.B_SPLINE_CURVE',schema_name + '.CONIC',
+        schema_name + '.LINE',schema_name + '.POLYLINE'] * TYPEOF(cv)) = 1
+         THEN
+      RETURN(TRUE);
+    ELSE
+      IF (schema_name + '.CURVE_REPLICA') IN TYPEOF(cv) THEN
+        RETURN(basis_curve_check(cv\curve_replica.parent_curve,schema_name));
+      ELSE
+        IF (schema_name + '.OFFSET_CURVE_3D') IN TYPEOF(cv) THEN
+          RETURN(basis_curve_check(cv\offset_curve_3d.basis_curve,
+              schema_name));
+        ELSE
+          IF (schema_name + '.PCURVE') IN TYPEOF(cv) THEN
+            IF SIZEOF([schema_name + '.B_SPLINE_CURVE',schema_name + 
+                '.CONIC',schema_name + '.LINE',schema_name + '.POLYLINE'] *
+                 TYPEOF(cv\pcurve.reference_to_curve\representation.items[1])) 
+                = 1 THEN
+              RETURN(basis_surface_check(cv\pcurve.basis_surface,
+                  schema_name));
+            ELSE
+              IF (schema_name + '.CURVE_REPLICA') IN TYPEOF(cv\pcurve.
+                  reference_to_curve\representation.items[1]) THEN
+                RETURN(basis_curve_check(cv\pcurve.reference_to_curve\
+                    representation.items[1],schema_name) AND 
+                    basis_surface_check(cv\pcurve.basis_surface,schema_name));
+              END_IF;
+            END_IF;
+          ELSE
+            IF (schema_name + '.SURFACE_CURVE') IN TYPEOF(cv) THEN
+              IF SIZEOF([schema_name + '.B_SPLINE_CURVE',schema_name + 
+                  '.CONIC',schema_name + '.LINE',schema_name + '.POLYLINE'] 
+                  * TYPEOF(cv\surface_curve.curve_3d)) = 1 THEN
+                REPEAT i := 1 TO SIZEOF(cv\surface_curve.
+                    associated_geometry) BY 1;
+                  IF (schema_name + '.SURFACE') IN TYPEOF(cv\surface_curve
+                      .associated_geometry[i]) THEN
+                    IF NOT basis_surface_check(cv\surface_curve.
+                        associated_geometry[i],schema_name) THEN
+                      RETURN(FALSE);
+                    END_IF;
+                  ELSE
+                    IF (schema_name + '.PCURVE') IN TYPEOF(cv\
+                        surface_curve.associated_geometry[i]) THEN
+                      IF NOT basis_curve_check(cv\surface_curve.
+                          associated_geometry[i],schema_name) THEN
+                        RETURN(FALSE);
+                      END_IF;
+                    END_IF;
+                  END_IF;
+                END_REPEAT;
+              ELSE
+                IF (schema_name + '.CURVE_REPLICA') IN TYPEOF(cv\
+                    surface_curve.curve_3d) THEN
+                  IF NOT basis_curve_check(cv\curve_replica.parent_curve,
+                      schema_name) THEN
+                    RETURN(FALSE);
+                  END_IF;
+                ELSE
+                  IF (schema_name + '.OFFSET_CURVE_3D') IN TYPEOF(cv\
+                      surface_curve.curve_3d) THEN
+                    IF NOT basis_curve_check(cv\offset_curve_3d.
+                        basis_curve,schema_name) THEN
+                      RETURN(FALSE);
+                    END_IF;
+                  ELSE
+                    REPEAT i := 1 TO SIZEOF(cv\surface_curve.
+                        associated_geometry) BY 1;
+                      IF (schema_name + '.SURFACE') IN TYPEOF(cv\
+                          surface_curve.associated_geometry[i]) THEN
+                        IF NOT basis_surface_check(cv\surface_curve.
+                            associated_geometry[i],schema_name) THEN
+                          RETURN(FALSE);
+                        END_IF;
+                      ELSE
+                        IF (schema_name + '.PCURVE') IN TYPEOF(cv\
+                            surface_curve.associated_geometry[i]) THEN
+                          IF NOT basis_curve_check(cv\surface_curve.
+                              associated_geometry[i],schema_name) THEN
+                            RETURN(FALSE);
+                          END_IF;
+                        END_IF;
+                      END_IF;
+                    END_REPEAT;
+                  END_IF;
+                END_IF;
+              END_IF;
+            END_IF;
+          END_IF;
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- basis_curve_check
+
+  FUNCTION basis_surface_check(
+               surf: surface;
+               schema_name: STRING
+      ): BOOLEAN;
+    IF SIZEOF([schema_name + '.B_SPLINE_SURFACE',schema_name + 
+        '.ELEMENTARY_SURFACE'] * TYPEOF(surf)) = 1 THEN
+      RETURN(TRUE);
+    ELSE
+      IF (schema_name + '.SWEPT_SURFACE') IN TYPEOF(surf) THEN
+        RETURN(basis_curve_check(surf\swept_surface.swept_curve,
+            schema_name));
+      ELSE
+        IF (schema_name + '.OFFSET_SURFACE') IN TYPEOF(surf) THEN
+          RETURN(basis_surface_check(surf\offset_surface.basis_surface,
+              schema_name));
+        ELSE
+          IF (schema_name + '.SURFACE REPLICA') IN TYPEOF(surf) THEN
+            RETURN(basis_surface_check(surf\surface_replica.parent_surface,
+                schema_name));
+          END_IF;
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- basis_surface_check
+
+  FUNCTION boolean_choose(
+               b: BOOLEAN;
+               choice1, choice2: GENERIC:item
+      ): GENERIC:item;
+    IF b THEN
+      RETURN(choice1);
+    ELSE
+      RETURN(choice2);
+    END_IF;
+
+  END_FUNCTION; -- boolean_choose
+
+  FUNCTION build_2axes(
+               ref_direction: direction
+      ): LIST [2:2] OF direction;
+
+    LOCAL
+      u : LIST [2:2] OF direction;
+    END_LOCAL;
+    u[1] := NVL(normalise(ref_direction),representation_item('') || 
+        geometric_representation_item() || direction([1,0]));
+    u[2] := orthogonal_complement(u[1]);
+    RETURN(u);
+
+  END_FUNCTION; -- build_2axes
+
+  FUNCTION build_axes(
+               axis, ref_direction: direction
+      ): LIST [3:3] OF direction;
+
+    LOCAL
+      u : LIST [3:3] OF direction;
+    END_LOCAL;
+    u[3] := NVL(normalise(axis),representation_item('') || 
+        geometric_representation_item() || direction([0,0,1]));
+    u[1] := first_proj_axis(u[3],ref_direction);
+    u[2] := normalise(cross_product(u[3],u[1])).orientation;
+    RETURN(u);
+
+  END_FUNCTION; -- build_axes
+
+  FUNCTION cc_design_date_time_correlation(
+               e: cc_design_date_and_time_assignment
+      ): BOOLEAN;
+
+    LOCAL
+      dt_role : STRING;
+    END_LOCAL;
+    dt_role := e\date_and_time_assignment.role.name;
+    CASE dt_role OF
+      'creation_date'        :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'PRODUCT_DEFINITION') IN TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'request_date'         :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (SIZEOF([
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CHANGE_REQUEST' + 
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.START_REQUEST'] * TYPEOF(x)) = 1) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'release_date'         :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (SIZEOF(['CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CHANGE' + 
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.START_WORK'] * TYPEOF(x)) = 1) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'start_date'           :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (SIZEOF(['CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CHANGE' + 
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.START_WORK'] * TYPEOF(x)) = 1) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'sign_off_date'        :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'APPROVAL_PERSON_ORGANIZATION') IN TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'contract_date'        :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CONTRACT' IN 
+            TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'certification_date'   :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CERTIFICATION' IN 
+            TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'classification_date'  :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'SECURITY_CLASSIFICATION') IN TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'declassification_date'  :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'SECURITY_CLASSIFICATION') IN TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      OTHERWISE              :         RETURN(TRUE);
+      END_CASE;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- cc_design_date_time_correlation
+
+  FUNCTION cc_design_person_and_organization_correlation(
+               e: cc_design_person_and_organization_assignment
+      ): BOOLEAN;
+
+    LOCAL
+      po_role : STRING;
+    END_LOCAL;
+    po_role := e\person_and_organization_assignment.role.name;
+    CASE po_role OF
+      'request_recipient'     :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (SIZEOF(['CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'CHANGE_REQUEST','CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'START_REQUEST'] * 
+            TYPEOF(x)) = 1) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'initiator'             :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (SIZEOF(['CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'CHANGE_REQUEST','CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'START_REQUEST',
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'START_WORK','CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'CHANGE'] * TYPEOF(x)) = 1) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'creator'               :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (SIZEOF(['CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'PRODUCT_DEFINITION_FORMATION','CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'PRODUCT_DEFINITION'] * TYPEOF(x)) = 1) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'part_supplier'         :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'PRODUCT_DEFINITION_FORMATION') IN TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'design_supplier'       :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'PRODUCT_DEFINITION_FORMATION') IN TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'design_owner'          :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PRODUCT' IN 
+            TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'configuration_manager' :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'CONFIGURATION_ITEM') IN TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'contractor'            :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CONTRACT' IN 
+            TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      'classification_officer'  :         IF SIZEOF(e.items) <> SIZEOF(
+            QUERY ( x <* e.items | (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+            'SECURITY_CLASSIFICATION') IN TYPEOF(x)) )) THEN
+          RETURN(FALSE);
+        END_IF;
+      OTHERWISE               :         RETURN(TRUE);
+      END_CASE;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- cc_design_person_and_organization_correlation
+
+  FUNCTION check_associative_shape_aspects(
+               sdr: shape_definition_representation
+      ): BOOLEAN;
+
+    LOCAL
+      sr1 : SET OF representation;
+      sr2 : SET OF representation;
+      i   : INTEGER;
+      j   : INTEGER;
+      k   : INTEGER;
+      dm  : SET OF representation;
+      pv  : SET OF representation;
+    END_LOCAL;
+    IF SIZEOF(sdr.used_representation.items) <> 2 THEN
+      RETURN(FALSE);
+    END_IF;
+    sr1 := using_representations(sdr.used_representation.items[1]);
+    sr2 := using_representations(sdr.used_representation.items[2]);
+    REPEAT i := 1 TO HIINDEX(sr1) BY 1;
+      dm := representations_mapped_into(sr1[i]);
+      REPEAT j := 1 TO HIINDEX(dm) BY 1;
+        IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DRAUGHTING_MODEL' IN TYPEOF(dm[j]) THEN
+          IF dm[j] IN sr2 THEN
+            RETURN(TRUE);
+          END_IF;
+          pv := representations_mapped_into(dm[j]);
+          REPEAT k := 1 TO HIINDEX(pv) BY 1;
+            IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PRESENTATION_VIEW' IN TYPEOF(pv[k])
+                 THEN
+              IF pv[k] IN sr2 THEN
+                RETURN(TRUE);
+              END_IF;
+            END_IF;
+          END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    REPEAT i := 1 TO HIINDEX(sr2) BY 1;
+      dm := representations_mapped_into(sr2[i]);
+      REPEAT j := 1 TO HIINDEX(dm) BY 1;
+        IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DRAUGHTING_MODEL' IN TYPEOF(dm[j]) THEN
+          IF dm[j] IN sr1 THEN
+            RETURN(TRUE);
+          END_IF;
+          pv := representations_mapped_into(dm[j]);
+          REPEAT k := 1 TO HIINDEX(pv) BY 1;
+            IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PRESENTATION_VIEW' IN TYPEOF(pv[k])
+                 THEN
+              IF pv[k] IN sr1 THEN
+                RETURN(TRUE);
+              END_IF;
+            END_IF;
+          END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- check_associative_shape_aspects
+
+  FUNCTION check_text_alignment(
+               ct: composite_text
+      ): BOOLEAN;
+
+    LOCAL
+      a : SET OF text_alignment := [];
+      i : INTEGER;
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(ct.collected_text) BY 1;
+      a := a + [ct.collected_text[i]\text_literal.alignment];
+    END_REPEAT;
+    RETURN(SIZEOF(a) = 1);
+
+  END_FUNCTION; -- check_text_alignment
+
+  FUNCTION check_text_font(
+               ct: composite_text
+      ): BOOLEAN;
+
+    LOCAL
+      f : SET OF font_select := [];
+      i : INTEGER;
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(ct.collected_text) BY 1;
+      f := f + [ct.collected_text[i]\text_literal.font];
+    END_REPEAT;
+    RETURN(SIZEOF(f) <= 1);
+
+  END_FUNCTION; -- check_text_font
+
+  FUNCTION conditional_reverse(
+               p: BOOLEAN;
+               an_item: reversible_topology
+      ): reversible_topology;
+    IF p THEN
+      RETURN(an_item);
+    ELSE
+      RETURN(topology_reversed(an_item));
+    END_IF;
+
+  END_FUNCTION; -- conditional_reverse
+
+  FUNCTION constraints_composite_curve_on_surface(
+               c: composite_curve_on_surface
+      ): BOOLEAN;
+
+    LOCAL
+      n_segments : INTEGER := SIZEOF(c.segments);
+    END_LOCAL;
+    REPEAT k := 1 TO n_segments BY 1;
+      IF (NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PCURVE' IN TYPEOF(c\composite_curve.
+          segments[k].parent_curve))) AND (NOT (
+          'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SURFACE_CURVE' IN TYPEOF(c\composite_curve.
+          segments[k].parent_curve))) AND (NOT (
+          'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.COMPOSITE_CURVE_ON_SURFACE' IN TYPEOF(c\
+          composite_curve.segments[k].parent_curve))) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- constraints_composite_curve_on_surface
+
+  FUNCTION constraints_geometry_shell_based_surface_model(
+               m: shell_based_surface_model
+      ): BOOLEAN;
+
+    LOCAL
+      result : BOOLEAN := TRUE;
+    END_LOCAL;
+    REPEAT j := 1 TO SIZEOF(m.sbsm_boundary) BY 1;
+      IF (NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.OPEN_SHELL' IN TYPEOF(m.sbsm_boundary[
+          j]))) AND (NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CLOSED_SHELL' IN TYPEOF(m.
+          sbsm_boundary[j]))) THEN
+        result := FALSE;
+        RETURN(result);
+      END_IF;
+    END_REPEAT;
+    RETURN(result);
+
+  END_FUNCTION; -- constraints_geometry_shell_based_surface_model
+
+  FUNCTION constraints_geometry_shell_based_wireframe_model(
+               m: shell_based_wireframe_model
+      ): BOOLEAN;
+
+    LOCAL
+      result : BOOLEAN := TRUE;
+    END_LOCAL;
+    REPEAT j := 1 TO SIZEOF(m.sbwm_boundary) BY 1;
+      IF (NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.WIRE_SHELL' IN TYPEOF(m.sbwm_boundary[
+          j]))) AND (NOT ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.VERTEX_SHELL' IN TYPEOF(m.
+          sbwm_boundary[j]))) THEN
+        result := FALSE;
+        RETURN(result);
+      END_IF;
+    END_REPEAT;
+    RETURN(result);
+
+  END_FUNCTION; -- constraints_geometry_shell_based_wireframe_model
+
+  FUNCTION constraints_param_b_spline(
+               degree, up_knots, up_cp: INTEGER;
+               knot_mult: LIST OF INTEGER;
+               knots: LIST OF parameter_value
+      ): BOOLEAN;
+
+    LOCAL
+      k      : INTEGER;
+      l      : INTEGER;
+      sum    : INTEGER;
+      result : BOOLEAN := TRUE;
+    END_LOCAL;
+    sum := knot_mult[1];
+    REPEAT i := 2 TO up_knots BY 1;
+      sum := sum + knot_mult[i];
+    END_REPEAT;
+    IF (degree < 1) OR (up_knots < 2) OR (up_cp < degree) OR (sum <> (
+        degree + up_cp + 2)) THEN
+      result := FALSE;
+      RETURN(result);
+    END_IF;
+    k := knot_mult[1];
+    IF (k < 1) OR (k > (degree + 1)) THEN
+      result := FALSE;
+      RETURN(result);
+    END_IF;
+    REPEAT i := 2 TO up_knots BY 1;
+      IF (knot_mult[i] < 1) OR (knots[i] <= knots[i - 1]) THEN
+        result := FALSE;
+        RETURN(result);
+      END_IF;
+      k := knot_mult[i];
+      IF (i < up_knots) AND (k > degree) THEN
+        result := FALSE;
+        RETURN(result);
+      END_IF;
+      IF (i = up_knots) AND (k > (degree + 1)) THEN
+        result := FALSE;
+        RETURN(result);
+      END_IF;
+    END_REPEAT;
+    RETURN(result);
+
+  END_FUNCTION; -- constraints_param_b_spline
+
+  FUNCTION constraints_rectangular_composite_surface(
+               s: rectangular_composite_surface
+      ): BOOLEAN;
+    REPEAT i := 1 TO s.n_u BY 1;
+      REPEAT j := 1 TO s.n_v BY 1;
+        IF NOT (('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.B_SPLINE_SURFACE' IN TYPEOF(s.
+            segments[i][j].parent_surface)) OR (
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.RECTANGULAR_TRIMMED_SURFACE' IN TYPEOF(s.
+            segments[i][j].parent_surface))) THEN
+          RETURN(FALSE);
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    REPEAT i := 1 TO s.n_u - 1 BY 1;
+      REPEAT j := 1 TO s.n_v BY 1;
+        IF s.segments[i][j].u_transition = discontinuous THEN
+          RETURN(FALSE);
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    REPEAT i := 1 TO s.n_u BY 1;
+      REPEAT j := 1 TO s.n_v - 1 BY 1;
+        IF s.segments[i][j].v_transition = discontinuous THEN
+          RETURN(FALSE);
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- constraints_rectangular_composite_surface
+
+  FUNCTION cross_product(
+               arg1, arg2: direction
+      ): vector;
+
+    LOCAL
+      v2     : LIST [3:3] OF REAL;
+      v1     : LIST [3:3] OF REAL;
+      mag    : REAL;
+      res    : direction;
+      result : vector;
+    END_LOCAL;
+    IF (NOT EXISTS(arg1)) OR (arg1.dim = 2) OR (NOT EXISTS(arg2)) OR (arg2
+        .dim = 2) THEN
+      RETURN(?);
+    ELSE
+      BEGIN
+        v1 := normalise(arg1).direction_ratios;
+        v2 := normalise(arg2).direction_ratios;
+        res.name := '';
+        res.direction_ratios[1] := (v1[2] * v2[3]) - (v1[3] * v2[2]);
+        res.direction_ratios[2] := (v1[3] * v2[1]) - (v1[1] * v2[3]);
+        res.direction_ratios[3] := (v1[1] * v2[2]) - (v1[2] * v2[1]);
+        mag := 0;
+        REPEAT i := 1 TO 3 BY 1;
+          mag := mag + (res.direction_ratios[i] * res.direction_ratios[i]);
+        END_REPEAT;
+        IF mag > 0 THEN
+          result.orientation := res;
+          result.magnitude := SQRT(mag);
+        ELSE
+          result.orientation := arg1;
+          result.magnitude := 0;
+        END_IF;
+        result.name := '';
+        RETURN(result);
+      END;
+    END_IF;
+
+  END_FUNCTION; -- cross_product
+
+  FUNCTION curve_weights_positive(
+               b: rational_b_spline_curve
+      ): BOOLEAN;
+
+    LOCAL
+      result : BOOLEAN := TRUE;
+    END_LOCAL;
+    REPEAT i := 0 TO b.upper_index_on_control_points BY 1;
+      IF b.weights[i] <= 0 THEN
+        result := FALSE;
+        RETURN(result);
+      END_IF;
+    END_REPEAT;
+    RETURN(result);
+
+  END_FUNCTION; -- curve_weights_positive
+
+  FUNCTION derive_dimensional_exponents(
+               x: unit
+      ): dimensional_exponents;
+
+    LOCAL
+      i      : INTEGER;
+      result : dimensional_exponents := dimensional_exponents(0,0,0,0,0,0,
+                0);
+    END_LOCAL;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.DERIVED_UNIT' IN TYPEOF(x) THEN
+      REPEAT i := LOINDEX(x.elements) TO HIINDEX(x.elements) BY 1;
+        result.length_exponent := result.length_exponent + (x.elements[i].
+            exponent * x.elements[i].unit.dimensions.length_exponent);
+        result.mass_exponent := result.mass_exponent + (x.elements[i].
+            exponent * x.elements[i].unit.dimensions.mass_exponent);
+        result.time_exponent := result.time_exponent + (x.elements[i].
+            exponent * x.elements[i].unit.dimensions.time_exponent);
+        result.electric_current_exponent := result.
+            electric_current_exponent + (x.elements[i].exponent * x.
+            elements[i].unit.dimensions.electric_current_exponent);
+        result.thermodynamic_temperature_exponent := result.
+            thermodynamic_temperature_exponent + (x.elements[i].exponent * 
+            x.elements[i].unit.dimensions.
+            thermodynamic_temperature_exponent);
+        result.amount_of_substance_exponent := result.
+            amount_of_substance_exponent + (x.elements[i].exponent * x.
+            elements[i].unit.dimensions.amount_of_substance_exponent);
+        result.luminous_intensity_exponent := result.
+            luminous_intensity_exponent + (x.elements[i].exponent * x.
+            elements[i].unit.dimensions.luminous_intensity_exponent);
+      END_REPEAT;
+    ELSE
+      result := x.dimensions;
+    END_IF;
+    RETURN(result);
+
+  END_FUNCTION; -- derive_dimensional_exponents
+
+  FUNCTION dimension_of(
+               item: geometric_representation_item
+      ): dimension_count;
+
+    LOCAL
+      x : SET OF representation;
+      y : representation_context;
+    END_LOCAL;
+    x := using_representations(item);
+    y := x[1].context_of_items;
+    RETURN(y\geometric_representation_context.coordinate_space_dimension);
+
+  END_FUNCTION; -- dimension_of
+
+  FUNCTION dimensions_for_si_unit(
+               n: si_unit_name
+      ): dimensional_exponents;
+    CASE n OF
+      metre         :         RETURN(dimensional_exponents(1,0,0,0,0,0,0));
+      gram          :         RETURN(dimensional_exponents(0,1,0,0,0,0,0));
+      second        :         RETURN(dimensional_exponents(0,0,1,0,0,0,0));
+      ampere        :         RETURN(dimensional_exponents(0,0,0,1,0,0,0));
+      kelvin        :         RETURN(dimensional_exponents(0,0,0,0,1,0,0));
+      mole          :         RETURN(dimensional_exponents(0,0,0,0,0,1,0));
+      candela       :         RETURN(dimensional_exponents(0,0,0,0,0,0,1));
+      radian        :         RETURN(dimensional_exponents(0,0,0,0,0,0,0));
+      steradian     :         RETURN(dimensional_exponents(0,0,0,0,0,0,0));
+      hertz         :         RETURN(dimensional_exponents(0,0,-1,0,0,0,0));
+      newton        :         RETURN(dimensional_exponents(1,1,-2,0,0,0,0));
+      pascal        :         RETURN(dimensional_exponents(-1,1,-2,0,0,0,0));
+      joule         :         RETURN(dimensional_exponents(2,1,-2,0,0,0,0));
+      watt          :         RETURN(dimensional_exponents(2,1,-3,0,0,0,0));
+      coulomb       :         RETURN(dimensional_exponents(0,0,1,1,0,0,0));
+      volt          :         RETURN(dimensional_exponents(2,1,-3,-1,0,0,0));
+      farad         :         RETURN(dimensional_exponents(-2,-1,4,1,0,0,0));
+      ohm           :         RETURN(dimensional_exponents(2,1,-3,-2,0,0,0));
+      siemens       :         RETURN(dimensional_exponents(-2,-1,3,2,0,0,0));
+      weber         :         RETURN(dimensional_exponents(2,1,-2,-1,0,0,0));
+      tesla         :         RETURN(dimensional_exponents(0,1,-2,-1,0,0,0));
+      henry         :         RETURN(dimensional_exponents(2,1,-2,-2,0,0,0));
+      degree_celsius  :         RETURN(dimensional_exponents(0,0,0,0,1,0,0));
+      lumen         :         RETURN(dimensional_exponents(0,0,0,0,0,0,1));
+      lux           :         RETURN(dimensional_exponents(-2,0,0,0,0,0,1));
+      becquerel     :         RETURN(dimensional_exponents(0,0,-1,0,0,0,0));
+      gray          :         RETURN(dimensional_exponents(2,0,-2,0,0,0,0));
+      sievert       :         RETURN(dimensional_exponents(2,0,-2,0,0,0,0));
+      OTHERWISE     :         RETURN(?);
+      END_CASE;
+
+  END_FUNCTION; -- dimensions_for_si_unit
+
+  FUNCTION dot_product(
+               arg1, arg2: direction
+      ): REAL;
+
+    LOCAL
+      ndim   : INTEGER;
+      scalar : REAL;
+      vec1   : direction;
+      vec2   : direction;
+    END_LOCAL;
+    IF (NOT EXISTS(arg1)) OR (NOT EXISTS(arg2)) THEN
+      scalar := ?;
+    ELSE
+      IF arg1.dim <> arg2.dim THEN
+        scalar := ?;
+      ELSE
+        BEGIN
+          vec1 := normalise(arg1);
+          vec2 := normalise(arg2);
+          ndim := arg1.dim;
+          scalar := 0;
+          REPEAT i := 1 TO ndim BY 1;
+            scalar := scalar + (vec1.direction_ratios[i] * vec2.
+                direction_ratios[i]);
+          END_REPEAT;
+        END;
+      END_IF;
+    END_IF;
+    RETURN(scalar);
+
+  END_FUNCTION; -- dot_product
+
+  FUNCTION edge_reversed(
+               an_edge: edge
+      ): oriented_edge;
+
+    LOCAL
+      the_reverse : oriented_edge;
+    END_LOCAL;
+    the_reverse.name := '';
+    the_reverse.edge_start := an_edge.edge_end;
+    the_reverse.edge_end := an_edge.edge_start;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ORIENTED_EDGE' IN TYPEOF(an_edge) THEN
+      the_reverse.edge_element := an_edge\oriented_edge.edge_element;
+      the_reverse.orientation := NOT an_edge\oriented_edge.orientation;
+    ELSE
+      the_reverse.edge_element := an_edge;
+      the_reverse.orientation := FALSE;
+    END_IF;
+    RETURN(the_reverse);
+
+  END_FUNCTION; -- edge_reversed
+
+  FUNCTION face_bound_reversed(
+               a_face_bound: face_bound
+      ): face_bound;
+
+    LOCAL
+      the_reverse : face_bound;
+    END_LOCAL;
+    the_reverse.name := '';
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.FACE_OUTER_BOUND' IN TYPEOF(a_face_bound)
+         THEN
+      the_reverse.bound := a_face_bound\face_bound.bound;
+      the_reverse.orientation := NOT a_face_bound\face_bound.orientation;
+    ELSE
+      the_reverse.bound := a_face_bound.bound;
+      the_reverse.orientation := NOT a_face_bound.orientation;
+    END_IF;
+    RETURN(the_reverse);
+
+  END_FUNCTION; -- face_bound_reversed
+
+  FUNCTION face_reversed(
+               a_face: face
+      ): oriented_face;
+
+    LOCAL
+      the_reverse : oriented_face;
+    END_LOCAL;
+    the_reverse.name := '';
+    the_reverse.bounds := set_of_topology_reversed(a_face.bounds);
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ORIENTED_FACE' IN TYPEOF(a_face) THEN
+      the_reverse.face_element := a_face\oriented_face.face_element;
+      the_reverse.orientation := NOT a_face\oriented_face.orientation;
+    ELSE
+      the_reverse.face_element := a_face;
+      the_reverse.orientation := FALSE;
+    END_IF;
+    RETURN(the_reverse);
+
+  END_FUNCTION; -- face_reversed
+
+  FUNCTION first_proj_axis(
+               z_axis, arg: direction
+      ): direction;
+
+    LOCAL
+      x_vec  : vector;
+      v      : direction;
+      z      : direction;
+      x_axis : direction;
+    END_LOCAL;
+    IF NOT EXISTS(z_axis) THEN
+      RETURN(?);
+    ELSE
+      z := normalise(z_axis);
+      IF NOT EXISTS(arg) THEN
+        IF z.direction_ratios <> [1,0,0] THEN
+          v := representation_item('') || geometric_representation_item() 
+              || direction([1,0,0]);
+        ELSE
+          v := representation_item('') || geometric_representation_item() 
+              || direction([0,1,0]);
+        END_IF;
+      ELSE
+        IF arg.dim <> 3 THEN
+          RETURN(?);
+        END_IF;
+        IF cross_product(arg,z).magnitude = 0 THEN
+          RETURN(?);
+        ELSE
+          v := normalise(arg);
+        END_IF;
+      END_IF;
+      x_vec := scalar_times_vector(dot_product(v,z),z);
+      x_axis := vector_difference(v,x_vec).orientation;
+      x_axis := normalise(x_axis);
+    END_IF;
+    RETURN(x_axis);
+
+  END_FUNCTION; -- first_proj_axis
+
+  FUNCTION gbsf_check_curve(
+               cv: curve;
+               schema_name: STRING
+      ): BOOLEAN;
+    IF NOT ((schema_name + '.CURVE') IN TYPEOF(cv)) THEN
+      RETURN(TRUE);
+    END_IF;
+    IF SIZEOF([schema_name + '.CIRCLE',schema_name + '.ELLIPSE'] * TYPEOF(
+        cv)) = 1 THEN
+      RETURN(TRUE);
+    ELSE
+      IF (schema_name + '.B_SPLINE_CURVE') IN TYPEOF(cv) THEN
+        RETURN(NOT cv\b_spline_curve.self_intersect);
+      ELSE
+        IF (schema_name + '.COMPOSITE_CURVE') IN TYPEOF(cv) THEN
+          RETURN(SIZEOF(QUERY ( seg <* cv\composite_curve.segments | (NOT 
+              gbsf_check_curve(seg.parent_curve,schema_name)) )) = 0);
+        ELSE
+          IF (schema_name + '.CURVE_REPLICA') IN TYPEOF(cv) THEN
+            RETURN(gbsf_check_curve(cv\curve_replica.parent_curve,
+                schema_name));
+          ELSE
+            IF (schema_name + '.OFFSET_CURVE_3D') IN TYPEOF(cv) THEN
+              RETURN(gbsf_check_curve(cv\offset_curve_3d.basis_curve,
+                  schema_name) AND (NOT cv\offset_curve_3d.self_intersect));
+            ELSE
+              IF (schema_name + '.PCURVE') IN TYPEOF(cv) THEN
+                RETURN(gbsf_check_curve(cv\pcurve.reference_to_curve\
+                    representation.items[1],schema_name) AND 
+                    gbsf_check_surface(cv\pcurve.basis_surface,schema_name));
+              ELSE
+                IF (schema_name + '.POLYLINE') IN TYPEOF(cv) THEN
+                  IF (SIZEOF(cv\polyline.points) > 3) AND (SIZEOF(
+                      bag_to_set(USEDIN(cv,'')) - bag_to_set(USEDIN(cv,
+                      schema_name + '.INTERSECTION_CURVE.BASIS_CURVE'))) = 
+                      0) THEN
+                    RETURN(TRUE);
+                  END_IF;
+                ELSE
+                  IF (schema_name + '.SURFACE_CURVE') IN TYPEOF(cv) THEN
+                    IF gbsf_check_curve(cv\surface_curve.curve_3d,
+                        schema_name) THEN
+                      REPEAT i := 1 TO SIZEOF(cv\surface_curve.
+                          associated_geometry) BY 1;
+                        IF (schema_name + '.SURFACE') IN TYPEOF(cv\
+                            surface_curve.associated_geometry[i]) THEN
+                          IF NOT gbsf_check_surface(cv\surface_curve.
+                              associated_geometry[i],schema_name) THEN
+                            RETURN(FALSE);
+                          END_IF;
+                        ELSE
+                          IF (schema_name + '.PCURVE') IN TYPEOF(cv\
+                              surface_curve.associated_geometry[i]) THEN
+                            IF NOT gbsf_check_curve(cv\surface_curve.
+                                associated_geometry[i],schema_name) THEN
+                              RETURN(FALSE);
+                            END_IF;
+                          END_IF;
+                        END_IF;
+                      END_REPEAT;
+                      RETURN(TRUE);
+                    END_IF;
+                  ELSE
+                    IF (schema_name + '.TRIMMED_CURVE') IN TYPEOF(cv)
+                         THEN
+                      IF SIZEOF([schema_name + '.LINE',schema_name + 
+                          '.PARABOLA',schema_name + '.HYPERBOLA'] * TYPEOF(
+                          cv\trimmed_curve.basis_curve)) = 1 THEN
+                        RETURN(TRUE);
+                      ELSE
+                        RETURN(gbsf_check_curve(cv\trimmed_curve.
+                            basis_curve,schema_name));
+                      END_IF;
+                    END_IF;
+                  END_IF;
+                END_IF;
+              END_IF;
+            END_IF;
+          END_IF;
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- gbsf_check_curve
+
+  FUNCTION gbsf_check_point(
+               pnt: point;
+               schema_name: STRING
+      ): BOOLEAN;
+    IF NOT ((schema_name + '.POINT') IN TYPEOF(pnt)) THEN
+      RETURN(TRUE);
+    END_IF;
+    IF (schema_name + '.CARTESIAN_POINT') IN TYPEOF(pnt) THEN
+      RETURN(TRUE);
+    ELSE
+      IF (schema_name + '.POINT_ON_CURVE') IN TYPEOF(pnt) THEN
+        RETURN(gbsf_check_curve(pnt\point_on_curve.basis_curve,schema_name));
+      ELSE
+        IF (schema_name + '.POINT_ON_SURFACE') IN TYPEOF(pnt) THEN
+          RETURN(gbsf_check_surface(pnt\point_on_surface.basis_surface,
+              schema_name));
+        ELSE
+          IF (schema_name + '.DEGENERATE_PCURVE') IN TYPEOF(pnt) THEN
+            RETURN(gbsf_check_curve(pnt\degenerate_pcurve.
+                reference_to_curve\representation.items[1],schema_name) AND
+                 gbsf_check_surface(pnt\degenerate_pcurve.basis_surface,
+                schema_name));
+          END_IF;
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- gbsf_check_point
+
+  FUNCTION gbsf_check_surface(
+               sf: surface;
+               schema_name: STRING
+      ): BOOLEAN;
+    IF NOT ((schema_name + '.SURFACE') IN TYPEOF(sf)) THEN
+      RETURN(TRUE);
+    END_IF;
+    IF (schema_name + '.B_SPLINE_SURFACE') IN TYPEOF(sf) THEN
+      RETURN(NOT sf\b_spline_surface.self_intersect);
+    ELSE
+      IF SIZEOF([schema_name + '.SPHERICAL_SURFACE',schema_name + 
+          '.TOROIDAL_SURFACE'] * TYPEOF(sf)) = 3 THEN
+        RETURN(TRUE);
+      ELSE
+        IF (schema_name + '.CURVE_BOUNDED_SURFACE') IN TYPEOF(sf) THEN
+          IF SIZEOF([schema_name + '.CONICAL_SURFACE',schema_name + 
+              '.CYLINDRICAL_SURFACE',schema_name + '.PLANE'] * TYPEOF(sf)) 
+              = 1 THEN
+            RETURN(SIZEOF(QUERY ( bcurve <* sf\curve_bounded_surface.
+                boundaries | (NOT gbsf_check_curve(bcurve,schema_name)) )) 
+                = 0);
+          ELSE
+            IF gbsf_check_surface(sf\curve_bounded_surface.basis_surface,
+                schema_name) THEN
+              RETURN(SIZEOF(QUERY ( bcurve <* sf\curve_bounded_surface.
+                  boundaries | (NOT gbsf_check_curve(bcurve,schema_name)) )) 
+                  = 0);
+            END_IF;
+          END_IF;
+        ELSE
+          IF (schema_name + '.OFFSET_SURFACE') IN TYPEOF(sf) THEN
+            RETURN(gbsf_check_surface(sf\offset_surface.basis_surface,
+                schema_name) AND (NOT sf\offset_surface.self_intersect));
+          ELSE
+            IF (schema_name + '.RECTANGULAR_COMPOSITE_SURFACE') IN TYPEOF(
+                sf) THEN
+              REPEAT i := 1 TO SIZEOF(sf\rectangular_composite_surface.
+                  segments) BY 1;
+                REPEAT j := 1 TO SIZEOF(sf\rectangular_composite_surface.
+                    segments[i]) BY 1;
+                  IF NOT gbsf_check_surface(sf\
+                      rectangular_composite_surface.segments[i][j].
+                      parent_surface,schema_name) THEN
+                    RETURN(FALSE);
+                  END_IF;
+                END_REPEAT;
+              END_REPEAT;
+              RETURN(TRUE);
+            ELSE
+              IF (schema_name + '.RECTANGULAR_TRIMMED_SURFACE') IN TYPEOF(
+                  sf) THEN
+                IF SIZEOF([schema_name + '.CONICAL_SURFACE',schema_name + 
+                    '.CYLINDRICAL_SURFACE',schema_name + '.PLANE'] * 
+                    TYPEOF(sf\rectangular_trimmed_surface.basis_surface)) =
+                     1 THEN
+                  RETURN(TRUE);
+                ELSE
+                  RETURN(gbsf_check_surface(sf\rectangular_trimmed_surface
+                      .basis_surface,schema_name));
+                END_IF;
+              ELSE
+                IF (schema_name + '.SURFACE_REPLICA') IN TYPEOF(sf) THEN
+                  RETURN(gbsf_check_surface(sf\surface_replica.
+                      parent_surface,schema_name));
+                ELSE
+                  IF (schema_name + '.SWEPT_SURFACE') IN TYPEOF(sf) THEN
+                    RETURN(gbsf_check_curve(sf\swept_surface.swept_curve,
+                        schema_name));
+                  END_IF;
+                END_IF;
+              END_IF;
+            END_IF;
+          END_IF;
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- gbsf_check_surface
+
+  FUNCTION get_basis_surface(
+               c: curve_on_surface
+      ): SET [0:2] OF surface;
+
+    LOCAL
+      surfs : SET [0:2] OF surface;
+      n     : INTEGER;
+    END_LOCAL;
+    surfs := [];
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PCURVE' IN TYPEOF(c) THEN
+      surfs := [c\pcurve.basis_surface];
+    ELSE
+      IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SURFACE_CURVE' IN TYPEOF(c) THEN
+        n := SIZEOF(c\surface_curve.associated_geometry);
+        REPEAT i := 1 TO n BY 1;
+          surfs := surfs + associated_surface(c\surface_curve.
+              associated_geometry[i]);
+        END_REPEAT;
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.COMPOSITE_CURVE_ON_SURFACE' IN TYPEOF(c) THEN
+      n := SIZEOF(c\composite_curve_on_surface.segments);
+      surfs := get_basis_surface(c\composite_curve_on_surface.segments[1].
+          parent_curve);
+      IF n > 1 THEN
+        REPEAT i := 2 TO n BY 1;
+          surfs := surfs * get_basis_surface(c\composite_curve_on_surface.
+              segments[i].parent_curve);
+        END_REPEAT;
+      END_IF;
+    END_IF;
+    RETURN(surfs);
+
+  END_FUNCTION; -- get_basis_surface
+
+  FUNCTION get_description_value(
+               obj: description_attribute_select
+      ): text;
+
+    LOCAL
+      description_bag : BAG OF description_attribute := USEDIN(obj,
+                         'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'DESCRIPTION_ATTRIBUTE.' 
+                         + 'DESCRIBED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(description_bag) = 1 THEN
+      RETURN(description_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+  END_FUNCTION; -- get_description_value
+
+  FUNCTION get_id_value(
+               obj: id_attribute_select
+      ): identifier;
+
+    LOCAL
+      id_bag : BAG OF id_attribute := USEDIN(obj,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+                'ID_ATTRIBUTE.' + 'IDENTIFIED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(id_bag) = 1 THEN
+      RETURN(id_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+  END_FUNCTION; -- get_id_value
+
+  FUNCTION get_name_value(
+               obj: name_attribute_select
+      ): label;
+
+    LOCAL
+      name_bag : BAG OF name_attribute := USEDIN(obj,
+                  'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'NAME_ATTRIBUTE.' + 'NAMED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(name_bag) = 1 THEN
+      RETURN(name_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+  END_FUNCTION; -- get_name_value
+
+  FUNCTION get_role(
+               obj: role_select
+      ): object_role;
+
+    LOCAL
+      role_bag : BAG OF role_association := USEDIN(obj,
+                  'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 'ROLE_ASSOCIATION.' + 
+                  'ITEM_WITH_ROLE');
+    END_LOCAL;
+    IF SIZEOF(role_bag) = 1 THEN
+      RETURN(role_bag[1].role);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+  END_FUNCTION; -- get_role
+
+  FUNCTION item_in_context(
+               item: representation_item;
+               cntxt: representation_context
+      ): BOOLEAN;
+
+    LOCAL
+      y : BAG OF representation_item;
+    END_LOCAL;
+    IF SIZEOF(USEDIN(item,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.REPRESENTATION.ITEMS') * 
+        cntxt.representations_in_context) > 0 THEN
+      RETURN(TRUE);
+    ELSE
+      y := QUERY ( z <* USEDIN(item,'') | (
+          'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.REPRESENTATION_ITEM' IN TYPEOF(z)) );
+      IF SIZEOF(y) > 0 THEN
+        REPEAT i := 1 TO HIINDEX(y) BY 1;
+          IF item_in_context(y[i],cntxt) THEN
+            RETURN(TRUE);
+          END_IF;
+        END_REPEAT;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- item_in_context
+
+  FUNCTION leap_year(
+               year: year_number
+      ): BOOLEAN;
+    IF (((year MOD 4) = 0) AND ((year MOD 100) <> 0)) OR ((year MOD 400) =
+         0) THEN
+      RETURN(TRUE);
+    ELSE
+      RETURN(FALSE);
+    END_IF;
+
+  END_FUNCTION; -- leap_year
+
+  FUNCTION list_face_loops(
+               f: face
+      ): LIST [0:?] OF loop;
+
+    LOCAL
+      loops : LIST [0:?] OF loop := [];
+    END_LOCAL;
+    REPEAT i := 1 TO SIZEOF(f.bounds) BY 1;
+      loops := loops + f.bounds[i].bound;
+    END_REPEAT;
+    RETURN(loops);
+
+  END_FUNCTION; -- list_face_loops
+
+  FUNCTION list_of_topology_reversed(
+               a_list: list_of_reversible_topology_item
+      ): list_of_reversible_topology_item;
+
+    LOCAL
+      the_reverse : list_of_reversible_topology_item;
+    END_LOCAL;
+    the_reverse := [];
+    REPEAT i := 1 TO SIZEOF(a_list) BY 1;
+      the_reverse := topology_reversed(a_list[i]) + the_reverse;
+    END_REPEAT;
+    RETURN(the_reverse);
+
+  END_FUNCTION; -- list_of_topology_reversed
+
+  FUNCTION list_to_array(
+               lis: LIST [0:?] OF GENERIC:t;
+               low, u: INTEGER
+      ): ARRAY [low:u] OF GENERIC:t;
+
+    LOCAL
+      n   : INTEGER;
+      res : ARRAY [low:u] OF GENERIC:t;
+    END_LOCAL;
+    n := SIZEOF(lis);
+    IF n <> ((u - low) + 1) THEN
+      RETURN(?);
+    ELSE
+      REPEAT i := 1 TO n BY 1;
+        res[(low + i) - 1] := lis[i];
+      END_REPEAT;
+      RETURN(res);
+    END_IF;
+
+  END_FUNCTION; -- list_to_array
+
+  FUNCTION list_to_set(
+               l: LIST [0:?] OF GENERIC:t
+      ): SET OF GENERIC:t;
+
+    LOCAL
+      s : SET OF GENERIC:t := [];
+    END_LOCAL;
+    REPEAT i := 1 TO SIZEOF(l) BY 1;
+      s := s + l[i];
+    END_REPEAT;
+    RETURN(s);
+
+  END_FUNCTION; -- list_to_set
+
+  FUNCTION make_array_of_array(
+               lis: LIST [1:?] OF LIST [1:?] OF GENERIC:t;
+               low1, u1, low2, u2: INTEGER
+      ): ARRAY [low1:u1] OF ARRAY [low2:u2] OF GENERIC:t;
+
+    LOCAL
+      n2   : INTEGER;
+      n1   : INTEGER;
+      res  : ARRAY [low1:u1] OF ARRAY [low2:u2] OF GENERIC:t;
+      resl : LIST [1:?] OF ARRAY [low2:u2] OF GENERIC:t;
+    END_LOCAL;
+    n1 := SIZEOF(lis);
+    n2 := SIZEOF(lis[1]);
+    IF (n1 <> ((u1 - low1) + 1)) OR (n2 <> ((u2 - low2) + 1)) THEN
+      RETURN(?);
+    END_IF;
+    REPEAT i := 1 TO n1 BY 1;
+      IF SIZEOF(lis[i]) <> n2 THEN
+        RETURN(?);
+      END_IF;
+    END_REPEAT;
+    REPEAT i := 1 TO n1 BY 1;
+      resl[i] := list_to_array(lis[i],low2,u2);
+    END_REPEAT;
+    res := list_to_array(resl,low1,u1);
+    RETURN(res);
+
+  END_FUNCTION; -- make_array_of_array
+
+  FUNCTION mixed_loop_type_set(
+               l: SET [0:?] OF loop
+      ): LOGICAL;
+
+    LOCAL
+      i              : INTEGER;
+      poly_loop_type : LOGICAL;
+    END_LOCAL;
+    IF SIZEOF(l) <= 1 THEN
+      RETURN(FALSE);
+    END_IF;
+    poly_loop_type := 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.POLY_LOOP' IN TYPEOF(l[1]);
+    REPEAT i := 2 TO SIZEOF(l) BY 1;
+      IF ('CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.POLY_LOOP' IN TYPEOF(l[i])) <> 
+          poly_loop_type THEN
+        RETURN(TRUE);
+      END_IF;
+    END_REPEAT;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- mixed_loop_type_set
+
+  FUNCTION msb_shells(
+               brep: manifold_solid_brep;
+               schema_name: STRING
+      ): SET [1:?] OF closed_shell;
+    IF (schema_name + '.BREP_WITH_VOIDS') IN TYPEOF(brep) THEN
+      RETURN(brep\brep_with_voids.voids + brep.outer);
+    ELSE
+      RETURN([brep.outer]);
+    END_IF;
+
+  END_FUNCTION; -- msb_shells
+
+  FUNCTION normalise(
+               arg: vector_or_direction
+      ): vector_or_direction;
+
+    LOCAL
+      ndim   : INTEGER;
+      v      : direction;
+      vec    : vector;
+      mag    : REAL;
+      result : vector_or_direction;
+    END_LOCAL;
+    IF NOT EXISTS(arg) THEN
+      RETURN(?);
+    ELSE
+      ndim := arg.dim;
+      IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.VECTOR' IN TYPEOF(arg) THEN
+        BEGIN
+          vec := arg;
+          v := arg.orientation;
+          IF arg.magnitude = 0 THEN
+            RETURN(?);
+          ELSE
+            vec.magnitude := 1;
+          END_IF;
+        END;
+      ELSE
+        v := arg;
+      END_IF;
+      mag := 0;
+      REPEAT i := 1 TO ndim BY 1;
+        mag := mag + (v.direction_ratios[i] * v.direction_ratios[i]);
+      END_REPEAT;
+      IF mag > 0 THEN
+        mag := SQRT(mag);
+        REPEAT i := 1 TO ndim BY 1;
+          v.direction_ratios[i] := v.direction_ratios[i] / mag;
+        END_REPEAT;
+        IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.VECTOR' IN TYPEOF(arg) THEN
+          vec.orientation := v;
+          result := vec;
+        ELSE
+          result := v;
+        END_IF;
+      ELSE
+        RETURN(?);
+      END_IF;
+    END_IF;
+    RETURN(result);
+
+  END_FUNCTION; -- normalise
+
+  FUNCTION orthogonal_complement(
+               vec: direction
+      ): direction;
+
+    LOCAL
+      result : direction;
+    END_LOCAL;
+    IF (vec.dim <> 2) OR (NOT EXISTS(vec)) THEN
+      RETURN(?);
+    ELSE
+      result.name := '';
+      result.direction_ratios[1] := -vec.direction_ratios[2];
+      result.direction_ratios[2] := vec.direction_ratios[1];
+      RETURN(result);
+    END_IF;
+
+  END_FUNCTION; -- orthogonal_complement
+
+  FUNCTION path_head_to_tail(
+               a_path: path
+      ): LOGICAL;
+
+    LOCAL
+      n : INTEGER;
+      p : BOOLEAN := TRUE;
+    END_LOCAL;
+    n := SIZEOF(a_path.edge_list);
+    REPEAT i := 2 TO n BY 1;
+      p := p AND (a_path.edge_list[i - 1].edge_end :=: a_path.edge_list[i]
+          .edge_start);
+    END_REPEAT;
+    RETURN(p);
+
+  END_FUNCTION; -- path_head_to_tail
+
+  FUNCTION path_reversed(
+               a_path: path
+      ): oriented_path;
+
+    LOCAL
+      the_reverse : oriented_path;
+    END_LOCAL;
+    the_reverse.name := '';
+    the_reverse.edge_list := list_of_topology_reversed(path.edge_list);
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ORIENTED_PATH' IN TYPEOF(a_path) THEN
+      the_reverse.path_element := a_path\oriented_path.path_element;
+      the_reverse.orientation := NOT a_path\oriented_path.orientation;
+    ELSE
+      the_reverse.path_element := a_path;
+      the_reverse.orientation := FALSE;
+    END_IF;
+    RETURN(the_reverse);
+
+  END_FUNCTION; -- path_reversed
+
+  FUNCTION representations_mapped_into(
+               rep: representation
+      ): SET OF representation;
+
+    LOCAL
+      results : SET OF representation := [];
+      i       : INTEGER;
+      j       : INTEGER;
+      mi      : SET OF mapped_item;
+      rm      : SET OF representation_map;
+    END_LOCAL;
+    rm := USEDIN(rep,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+        'REPRESENTATION_MAP.MAPPED_REPRESENTATION');
+    REPEAT i := 1 TO HIINDEX(rm) BY 1;
+      mi := mi + rm[i].map_usage;
+    END_REPEAT;
+    REPEAT j := 1 TO HIINDEX(mi) BY 1;
+      results := results + USEDIN(mi[j],'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.' + 
+          'REPRESENTATION.ITEMS');
+    END_REPEAT;
+    RETURN(results);
+
+  END_FUNCTION; -- representations_mapped_into
+
+  FUNCTION scalar_times_vector(
+               scalar: REAL;
+               vec: vector_or_direction
+      ): vector;
+
+    LOCAL
+      v      : direction;
+      mag    : REAL;
+      result : vector;
+    END_LOCAL;
+    IF (NOT EXISTS(scalar)) OR (NOT EXISTS(vec)) THEN
+      RETURN(?);
+    ELSE
+      IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.VECTOR' IN TYPEOF(vec) THEN
+        v := vec.orientation;
+        mag := scalar * vec.magnitude;
+      ELSE
+        v := vec;
+        mag := scalar;
+      END_IF;
+      IF mag < 0 THEN
+        REPEAT i := 1 TO SIZEOF(v.direction_ratios) BY 1;
+          v.direction_ratios[i] := -v.direction_ratios[i];
+        END_REPEAT;
+        mag := -mag;
+      END_IF;
+      result.name := '';
+      result.orientation := normalise(v);
+      result.magnitude := mag;
+    END_IF;
+    RETURN(result);
+
+  END_FUNCTION; -- scalar_times_vector
+
+  FUNCTION second_proj_axis(
+               z_axis, x_axis, arg: direction
+      ): direction;
+
+    LOCAL
+      temp   : vector;
+      v      : direction;
+      y_axis : vector;
+    END_LOCAL;
+    IF NOT EXISTS(arg) THEN
+      v := representation_item('') || geometric_representation_item() || 
+          direction([0,1,0]);
+    ELSE
+      v := arg;
+    END_IF;
+    temp := scalar_times_vector(dot_product(v,z_axis),z_axis);
+    y_axis := vector_difference(v,temp);
+    temp := scalar_times_vector(dot_product(v,x_axis),x_axis);
+    y_axis := vector_difference(y_axis,temp);
+    y_axis := normalise(y_axis);
+    RETURN(y_axis.orientation);
+
+  END_FUNCTION; -- second_proj_axis
+
+  FUNCTION set_of_topology_reversed(
+               a_set: set_of_reversible_topology_item
+      ): set_of_reversible_topology_item;
+
+    LOCAL
+      the_reverse : set_of_reversible_topology_item;
+    END_LOCAL;
+    the_reverse := [];
+    REPEAT i := 1 TO SIZEOF(a_set) BY 1;
+      the_reverse := the_reverse + topology_reversed(a_set[i]);
+    END_REPEAT;
+    RETURN(the_reverse);
+
+  END_FUNCTION; -- set_of_topology_reversed
+
+  FUNCTION shell_reversed(
+               a_shell: shell
+      ): shell;
+
+    LOCAL
+      the_reverse : shell;
+    END_LOCAL;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ORIENTED_OPEN_SHELL' IN TYPEOF(a_shell) THEN
+      the_reverse := representation_item('') || 
+          topological_representation_item() || connected_face_set(
+          set_of_topology_reversed(a_shell\connected_face_set.cfs_faces)) 
+          || open_shell() || oriented_open_shell(a_shell\
+          oriented_open_shell.open_shell_element,NOT a_shell\
+          oriented_open_shell.orientation);
+    ELSE
+      IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.OPEN_SHELL' IN TYPEOF(a_shell) THEN
+        the_reverse := representation_item('') || 
+            topological_representation_item() || connected_face_set(
+            set_of_topology_reversed(a_shell\connected_face_set.cfs_faces)) 
+            || open_shell() || oriented_open_shell(a_shell,FALSE);
+      ELSE
+        IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ORIENTED_CLOSED_SHELL' IN TYPEOF(a_shell)
+             THEN
+          the_reverse := representation_item('') || 
+              topological_representation_item() || connected_face_set(
+              set_of_topology_reversed(a_shell\connected_face_set.cfs_faces)) 
+              || closed_shell() || oriented_closed_shell(a_shell\
+              oriented_closed_shell.closed_shell_element,NOT a_shell\
+              oriented_closed_shell.orientation);
+        ELSE
+          IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CLOSED_SHELL' IN TYPEOF(a_shell) THEN
+            the_reverse := representation_item('') || 
+                topological_representation_item() || connected_face_set(
+                set_of_topology_reversed(a_shell\connected_face_set.
+                cfs_faces)) || closed_shell() || oriented_closed_shell(
+                a_shell,FALSE);
+          ELSE
+            the_reverse := ?;
+          END_IF;
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(the_reverse);
+
+  END_FUNCTION; -- shell_reversed
+
+  FUNCTION surface_weights_positive(
+               b: rational_b_spline_surface
+      ): BOOLEAN;
+
+    LOCAL
+      result : BOOLEAN := TRUE;
+    END_LOCAL;
+    REPEAT i := 0 TO b.u_upper BY 1;
+      REPEAT j := 0 TO b.v_upper BY 1;
+        IF b.weights[i][j] <= 0 THEN
+          result := FALSE;
+          RETURN(result);
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+    RETURN(result);
+
+  END_FUNCTION; -- surface_weights_positive
+
+  FUNCTION topology_reversed(
+               an_item: reversible_topology
+      ): reversible_topology;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.EDGE' IN TYPEOF(an_item) THEN
+      RETURN(edge_reversed(an_item));
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PATH' IN TYPEOF(an_item) THEN
+      RETURN(path_reversed(an_item));
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.FACE_BOUND' IN TYPEOF(an_item) THEN
+      RETURN(face_bound_reversed(an_item));
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.FACE' IN TYPEOF(an_item) THEN
+      RETURN(face_reversed(an_item));
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SHELL' IN TYPEOF(an_item) THEN
+      RETURN(shell_reversed(an_item));
+    END_IF;
+    IF 'SET' IN TYPEOF(an_item) THEN
+      RETURN(set_of_topology_reversed(an_item));
+    END_IF;
+    IF 'LIST' IN TYPEOF(an_item) THEN
+      RETURN(list_of_topology_reversed(an_item));
+    END_IF;
+    RETURN(?);
+
+  END_FUNCTION; -- topology_reversed
+
+  FUNCTION unique_version_change_order(
+               c: action
+      ): BOOLEAN;
+
+    LOCAL
+      ords     : action_directive := c\directed_action.directive;
+      assign   : SET OF change_request := [];
+      versions : SET OF product_definition_formation := [];
+    END_LOCAL;
+    REPEAT i := 1 TO SIZEOF(ords.requests) BY 1;
+      assign := assign + QUERY ( ara <* bag_to_set(USEDIN(ords.requests[i],
+          'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ACTION_REQUEST_ASSIGNMENT.' + 
+          'ASSIGNED_ACTION_REQUEST')) | (
+          'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.CHANGE_REQUEST' IN TYPEOF(ara)) );
+    END_REPEAT;
+    REPEAT k := 1 TO SIZEOF(assign) BY 1;
+      versions := versions + assign[k].items;
+    END_REPEAT;
+    RETURN(SIZEOF(QUERY ( vers <* versions | (NOT (SIZEOF(
+        QUERY ( other_vers <* (versions - vers) | (vers.of_product :=: 
+        other_vers.of_product) )) = 0)) )) = 0);
+
+  END_FUNCTION; -- unique_version_change_order
+
+  FUNCTION using_items(
+               item: founded_item_select;
+               checked_items: SET OF founded_item_select
+      ): SET OF founded_item_select;
+
+    LOCAL
+      next_items      : SET OF founded_item_select;
+      new_check_items : SET OF founded_item_select;
+      result_items    : SET OF founded_item_select;
+    END_LOCAL;
+    result_items := [];
+    new_check_items := checked_items + item;
+    next_items := QUERY ( z <* bag_to_set(USEDIN(item,'')) | ((
+        'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.REPRESENTATION_ITEM' IN TYPEOF(z)) OR (
+        'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.FOUNDED_ITEM' IN TYPEOF(z))) );
+    IF SIZEOF(next_items) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(next_items) BY 1;
+        IF NOT (next_items[i] IN new_check_items) THEN
+          result_items := result_items + next_items[i] + using_items(
+              next_items[i],new_check_items);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(result_items);
+
+  END_FUNCTION; -- using_items
+
+  FUNCTION using_representations(
+               item: founded_item_select
+      ): SET OF representation;
+
+    LOCAL
+      results            : SET OF representation;
+      intermediate_items : SET OF founded_item_select;
+      result_bag         : BAG OF representation;
+    END_LOCAL;
+    results := [];
+    result_bag := USEDIN(item,'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.REPRESENTATION.ITEMS');
+    IF SIZEOF(result_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(result_bag) BY 1;
+        results := results + result_bag[i];
+      END_REPEAT;
+    END_IF;
+    intermediate_items := using_items(item,[]);
+    IF SIZEOF(intermediate_items) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(intermediate_items) BY 1;
+        result_bag := USEDIN(intermediate_items[i],
+            'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.REPRESENTATION.ITEMS');
+        IF SIZEOF(result_bag) > 0 THEN
+          REPEAT j := 1 TO HIINDEX(result_bag) BY 1;
+            results := results + result_bag[j];
+          END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(results);
+
+  END_FUNCTION; -- using_representations
+
+  FUNCTION valid_calendar_date(
+               date: calendar_date
+      ): LOGICAL;
+    CASE date.month_component OF
+      1 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      2 :         BEGIN
+          IF leap_year(date.year_component) THEN
+            RETURN((1 <= date.day_component) AND (date.day_component <= 29));
+          ELSE
+            RETURN((1 <= date.day_component) AND (date.day_component <= 28));
+          END_IF;
+        END;
+      3 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      4 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 30));
+      5 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      6 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 30));
+      7 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      8 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 31));
+      9 :         RETURN((1 <= date.day_component) AND (date.day_component 
+            <= 30));
+      10  :         RETURN((1 <= date.day_component) AND (date.
+            day_component <= 31));
+      11  :         RETURN((1 <= date.day_component) AND (date.
+            day_component <= 30));
+      12  :         RETURN((1 <= date.day_component) AND (date.
+            day_component <= 31));
+      END_CASE;
+
+  END_FUNCTION; -- valid_calendar_date
+
+  FUNCTION valid_geometrically_bounded_wf_curve(
+               crv: curve;
+               schma: STRING
+      ): BOOLEAN;
+    IF SIZEOF([schma + '.POLYLINE',schma + '.B_SPLINE_CURVE',schma + 
+        '.ELLIPSE',schma + '.CIRCLE'] * TYPEOF(crv)) = 1 THEN
+      RETURN(TRUE);
+    ELSE
+      IF (schma + '.TRIMMED_CURVE') IN TYPEOF(crv) THEN
+        IF SIZEOF([schma + '.LINE',schma + '.PARABOLA',schma + 
+            '.HYPERBOLA'] * TYPEOF(crv\trimmed_curve.basis_curve)) = 1
+             THEN
+          RETURN(TRUE);
+        ELSE
+          RETURN(valid_geometrically_bounded_wf_curve(crv\trimmed_curve.
+              basis_curve,schma));
+        END_IF;
+      ELSE
+        IF (schma + '.OFFSET_CURVE_3D') IN TYPEOF(crv) THEN
+          RETURN(valid_geometrically_bounded_wf_curve(crv\offset_curve_3d.
+              basis_curve,schma));
+        ELSE
+          IF (schma + '.CURVE_REPLICA') IN TYPEOF(crv) THEN
+            RETURN(valid_geometrically_bounded_wf_curve(crv\curve_replica.
+                parent_curve,schma));
+          ELSE
+            IF (schma + '.COMPOSITE_CURVE') IN TYPEOF(crv) THEN
+              RETURN(SIZEOF(QUERY ( ccs <* crv\composite_curve.segments | 
+                  (NOT valid_geometrically_bounded_wf_curve(ccs.
+                  parent_curve,schma)) )) = 0);
+            END_IF;
+          END_IF;
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- valid_geometrically_bounded_wf_curve
+
+  FUNCTION valid_geometrically_bounded_wf_point(
+               pnt: point;
+               schma: STRING
+      ): BOOLEAN;
+    IF (schma + '.CARTESIAN_POINT') IN TYPEOF(pnt) THEN
+      RETURN(TRUE);
+    ELSE
+      IF (schma + '.POINT_ON_CURVE') IN TYPEOF(pnt) THEN
+        RETURN(valid_geometrically_bounded_wf_curve(pnt\point_on_curve.
+            basis_curve,schma));
+      ELSE
+        IF (schma + '.POINT_REPLICA') IN TYPEOF(pnt) THEN
+          RETURN(valid_geometrically_bounded_wf_point(pnt\point_replica.
+              parent_pt,schma));
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- valid_geometrically_bounded_wf_point
+
+  FUNCTION valid_measure_value(
+               m: measure_value
+      ): BOOLEAN;
+    IF 'REAL' IN TYPEOF(m) THEN
+      RETURN(m > 0);
+    ELSE
+      IF 'INTEGER' IN TYPEOF(m) THEN
+        RETURN(m > 0);
+      ELSE
+        RETURN(TRUE);
+      END_IF;
+    END_IF;
+
+  END_FUNCTION; -- valid_measure_value
+
+  FUNCTION valid_time(
+               time: local_time
+      ): BOOLEAN;
+    IF EXISTS(time.second_component) THEN
+      RETURN(EXISTS(time.minute_component));
+    ELSE
+      RETURN(TRUE);
+    END_IF;
+
+  END_FUNCTION; -- valid_time
+
+  FUNCTION valid_units(
+               m: measure_with_unit
+      ): BOOLEAN;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.LENGTH_MEASURE' IN TYPEOF(m.value_component)
+         THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(1,0,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.MASS_MEASURE' IN TYPEOF(m.value_component)
+         THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,1,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.TIME_MEASURE' IN TYPEOF(m.value_component)
+         THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,1,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.ELECTRIC_CURRENT_MEASURE' IN TYPEOF(m.
+        value_component) THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,0,1,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.THERMODYNAMIC_TEMPERATURE_MEASURE' IN TYPEOF(m
+        .value_component) THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,0,0,1,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.AMOUNT_OF_SUBSTANCE_MEASURE' IN TYPEOF(m.
+        value_component) THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,0,0,0,1,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.LUMINOUS_INTENSITY_MEASURE' IN TYPEOF(m.
+        value_component) THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,0,0,0,0,1) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.PLANE_ANGLE_MEASURE' IN TYPEOF(m.
+        value_component) THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.SOLID_ANGLE_MEASURE' IN TYPEOF(m.
+        value_component) THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.AREA_MEASURE' IN TYPEOF(m.value_component)
+         THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(2,0,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.VOLUME_MEASURE' IN TYPEOF(m.value_component)
+         THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(3,0,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.RATIO_MEASURE' IN TYPEOF(m.value_component)
+         THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.POSITIVE_LENGTH_MEASURE' IN TYPEOF(m.
+        value_component) THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(1,0,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.POSITIVE_PLANE_ANGLE_MEASURE' IN TYPEOF(m.
+        value_component) THEN
+      IF derive_dimensional_exponents(m.unit_component) <> 
+          dimensional_exponents(0,0,0,0,0,0,0) THEN
+        RETURN(FALSE);
+      END_IF;
+    END_IF;
+    RETURN(TRUE);
+
+  END_FUNCTION; -- valid_units
+
+  FUNCTION valid_wireframe_edge_curve(
+               crv: curve;
+               schma: STRING
+      ): BOOLEAN;
+    IF SIZEOF([schma + '.LINE',schma + '.CIRCLE',schma + '.ELLIPSE',schma 
+        + '.PARABOLA',schma + '.HYPERBOLA',schma + '.B_SPLINE_CURVE',schma 
+        + '.POLYLINE'] * TYPEOF(crv)) = 1 THEN
+      RETURN(TRUE);
+    ELSE
+      IF (schma + '.CURVE_REPLICA') IN TYPEOF(crv) THEN
+        RETURN(valid_wireframe_edge_curve(crv\curve_replica.parent_curve,
+            schma));
+      ELSE
+        IF (schma + '.OFFSET_CURVE_3D') IN TYPEOF(crv) THEN
+          RETURN(valid_wireframe_edge_curve(crv\offset_curve_3d.
+              basis_curve,schma));
+        END_IF;
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- valid_wireframe_edge_curve
+
+  FUNCTION valid_wireframe_vertex_point(
+               pnt: point;
+               schma: STRING
+      ): BOOLEAN;
+    IF (schma + '.CARTESIAN_POINT') IN TYPEOF(pnt) THEN
+      RETURN(TRUE);
+    ELSE
+      IF (schma + '.POINT_REPLICA') IN TYPEOF(pnt) THEN
+        RETURN(valid_wireframe_vertex_point(pnt\point_replica.parent_pt,
+            schma));
+      END_IF;
+    END_IF;
+    RETURN(FALSE);
+
+  END_FUNCTION; -- valid_wireframe_vertex_point
+
+  FUNCTION vector_difference(
+               arg1, arg2: vector_or_direction
+      ): vector;
+
+    LOCAL
+      ndim   : INTEGER;
+      mag2   : REAL;
+      mag1   : REAL;
+      mag    : REAL;
+      res    : direction;
+      vec1   : direction;
+      vec2   : direction;
+      result : vector;
+    END_LOCAL;
+    IF (NOT EXISTS(arg1)) OR (NOT EXISTS(arg2)) OR (arg1.dim <> arg2.dim)
+         THEN
+      RETURN(?);
+    ELSE
+      BEGIN
+        IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.VECTOR' IN TYPEOF(arg1) THEN
+          mag1 := arg1.magnitude;
+          vec1 := arg1.orientation;
+        ELSE
+          mag1 := 1;
+          vec1 := arg1;
+        END_IF;
+        IF 'CONFIGURATION_CONTROLLED_3D_PARTS_AND_ASSEMBLIES_MIM.VECTOR' IN TYPEOF(arg2) THEN
+          mag2 := arg2.magnitude;
+          vec2 := arg2.orientation;
+        ELSE
+          mag2 := 1;
+          vec2 := arg2;
+        END_IF;
+        vec1 := normalise(vec1);
+        vec2 := normalise(vec2);
+        ndim := SIZEOF(vec1.direction_ratios);
+        mag := 0;
+        REPEAT i := 1 TO ndim BY 1;
+          res.direction_ratios[i] := (mag1 * vec1.direction_ratios[i]) - (
+              mag2 * vec2.direction_ratios[i]);
+          mag := mag + (res.direction_ratios[i] * res.direction_ratios[i]);
+        END_REPEAT;
+        IF mag > 0 THEN
+          result.magnitude := SQRT(mag);
+          result.orientation := res;
+        ELSE
+          result.magnitude := 0;
+          result.orientation := vec1;
+        END_IF;
+      END;
+    END_IF;
+    result.name := '';
+    RETURN(result);
+
+  END_FUNCTION; -- vector_difference
+
 
 END_SCHEMA;  -- Configuration_controlled_3d_parts_and_assemblies_mim

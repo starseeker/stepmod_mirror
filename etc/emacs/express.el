@@ -207,13 +207,14 @@
 	'("\\<\\(ENTITY\\|TYPE\\)\\>[ \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
 	  (1 font-lock-keyword-face)
 	  (2 font-lock-type-face))
-	'("\\<\\(FUNCTION\\|PROCEDURE\\|RULE\\)\\>[ \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
+	'("\\<\\(FUNCTION\\|PROCEDURE\\|RULE\\|CONSTANT\\)\\>[\n \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
 	  (1 font-lock-keyword-face)
 	  (2 font-lock-function-name-face))
 	'("\\<\\(SCHEMA\\)\\>[ \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
 	  (1 font-lock-keyword-face)
 	  (2 font-lock-variable-name-face))
-	'("\\<\\(CONSTANT\\|END_TYPE\\(SCHEMA\\|CONSTANT\\)\\)\\>"
+	'("\\<END_\\(ENTITY\\|TYPE\\)\\>"
+	;;  (1 font-lock-keyword-face)) this will not color END_
 	  . font-lock-keyword-face)
 	)
        ))
@@ -305,7 +306,7 @@
 
 (defun express-mode ()
   "Major mode for editing Express schemata in Emacs.
- (add some details later)."
+ (add details later)."
   (interactive)
   (kill-all-local-variables)
   (use-local-map express-mode-map)

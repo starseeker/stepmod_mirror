@@ -1,81 +1,55 @@
 (*
-   $Id: arm.exp,v 1.10 2005/02/02 14:44:44 budreckytej Exp $
+   $Id: arm.exp,v 1.1 2005/03/23 09:27:25 giedrius Exp $
    ISO TC184/SC4/WG12 N3618 - ISO/CD-TS 10303-1749 Styled curve - EXPRESS ARM
 *)
 
 SCHEMA Styled_curve_arm;
 
-	USE FROM Basic_curve_arm;	-- ISO/TS 10303-1651
-	USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753
+USE FROM Colour_arm;    -- ISO/TS 10303-1002
 
-  TYPE curve_font_or_scaled_curve_font_select = SELECT
-    (Curve_style_font_and_scaling,
-     curve_style_font_select);
-  END_TYPE;
+USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
 
-  TYPE curve_style_font_select = SELECT
-    (Solid_curve,
-     Externally_defined_curve_font,
-     Curve_style_font);
-  END_TYPE;
-  
-  TYPE extend_or_chord_2_extend_or_truncate_or_round = ENUMERATION OF
-    (truncate,
-     chord_2_extend,
-     round,
-     extend);
-  END_TYPE;
+ENTITY Curve_appearance;
+  colour : Colour;
+  font : Curve_font;
+  width : REAL;
+END_ENTITY;
 
-  TYPE extend_or_truncate = ENUMERATION OF
-    (truncate,
-     extend);
-  END_TYPE;
+ENTITY Curve_font
+  SUPERTYPE OF (ONEOF (Externally_defined_curve_font,
+                       Predefined_curve_font,
+                       User_defined_curve_font));
+  curve_font_name : STRING;
+END_ENTITY;
 
-  TYPE square_or_round = ENUMERATION OF
-    (square,
-     round);
-  END_TYPE;
+ENTITY Externally_defined_curve_font
+  SUBTYPE OF (Curve_font);
+  (* Do as in other AP210 modules IF possible *)
+  curve_font_reference : STRING;
+END_ENTITY;
 
-	TYPE styled_area_representation = 
-		EXTENSIBLE GENERIC_ENTITY SELECT (Styled_curve_occurrence);
-	END_TYPE;
+ENTITY Predefined_curve_font
+  SUBTYPE OF (Curve_font);
+WHERE
+  WR1: SELF.curve_font_name IN ['continuous', 'chain', 'chain double dash', 'dashed', 'dotted'];
+END_ENTITY;
 
-  ENTITY Curve_style;
-      curve_font        : OPTIONAL curve_font_or_scaled_curve_font_select;
-  END_ENTITY;
-
-  ENTITY Curve_style_parameters;
-      name              : STRING;
-      corner_style      : extend_or_chord_2_extend_or_truncate_or_round;
-      curve_width       : Length_data_element;
-      end_extension     : extend_or_truncate;
-      end_style         : square_or_round;
-      width_uncertainty : Length_data_element;
-    UNIQUE
-      UR1 : name;
-  END_ENTITY;
+ENTITY Solid_curve_font
+  SUBTYPE OF (Predefined_curve_font);
+WHERE
+  WR1: SELF.curve_font_name IN ['continuous'];
+END_ENTITY;
 
 
-  ENTITY Curve_style_font;
-  END_ENTITY;
+ENTITY User_defined_curve_font
+  SUBTYPE OF (Curve_font);
+  pattern : SET[1:?] OF Curve_font_pattern;
+  segment_symbol : Geometric_model;
+END_ENTITY;
 
-  ENTITY Curve_style_font_and_scaling;
-      name               : STRING;
-      curve_font         : curve_style_font_select;
-      curve_font_scaling : INTEGER; -- positive_ratio_measure;
-    UNIQUE
-      UR1 : name;
-  END_ENTITY;
-
-  ENTITY Externally_defined_curve_font;
-  END_ENTITY;
-
-  ENTITY Solid_curve;
-  END_ENTITY;
-
-  ENTITY Styled_curve_occurrence;
-      styled_curve   : Curve;
-      of_curve_style : Curve_style;
-  END_ENTITY;
+ENTITY Curve_font_pattern;
+  on_segment : REAL;
+  off_segment : REAL;
+END_ENTITY;
 
 END_SCHEMA;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+$Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -1447,7 +1447,7 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:apply-templates select="ballot_package/module">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/sys/5_mapping.xml'"/>
-        </xsl:apply-templates>
+		</xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
     
@@ -1718,6 +1718,7 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:variable name="mim_modules">
       <xsl:call-template name="get_mod_node_set"/>
     </xsl:variable>
+
     <xsl:variable name="mim_modules_node_set" select="exslt:node-set($mim_modules)"/>
 
     <!--    
@@ -8866,7 +8867,8 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
        -->
     
   <xsl:variable name="this-schema" select="substring-before(concat(normalize-space($todo),' '),' ')"/>
-    
+
+
   <xsl:if test="$this-schema">
 
     <!-- open up the relevant schema  - which can be a resource or a mim schema -->
@@ -8893,7 +8895,7 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-  
+
     <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
       <x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
       'abcdefghijklmnopqrstuvwxyz')"/></x>
@@ -9031,6 +9033,7 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 <!-- return a node set of all the dependent modules and resources,
      excluding any that are explicitly part of the ballot -->
 <xsl:template name="get_mod_node_set">
+
   <xsl:variable name="modules">
     <xsl:for-each select="/ballot_index/ballot_package/module">
       <xsl:variable name="mod_schema">
@@ -9119,17 +9122,17 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-	  <xsl:variable name="resource" 
-			select="substring-after(substring-before(.,'.xml'),'../../data/resources/')"/>
-	  <xsl:if test="not(contains($resdocs,concat(' ',substring-after($resource,'/'),' ')))">
-	    <resource>
-	      <xsl:attribute name="name">
-		<xsl:value-of select="$resource"/>
-	      </xsl:attribute>
-	    </resource>
-	  </xsl:if>
-      </xsl:otherwise>
-    </xsl:choose>
+		<xsl:variable name="resource" 
+					  select="substring-after(substring-before(.,'.xml'),'../../data/resources/')"/>
+		<xsl:if test="not(contains($resdocs,concat(' ',substring-after($resource,'/'),' ')))">
+		  <resource>
+			<xsl:attribute name="name">
+			  <xsl:value-of select="$resource"/>
+			</xsl:attribute>
+		  </resource>
+		</xsl:if>
+	  </xsl:otherwise>
+	</xsl:choose>
   </xsl:for-each>
 
 </xsl:template>
@@ -9281,6 +9284,33 @@ $Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:value-of select="$ret_val"/>
   </xsl:template>
 
+  <xsl:template match="res_doc|resource">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="terminate" select="'YES'"/>
+    <!-- the name of the resource directory should be in lower case -->
+    <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
+
+    <xsl:choose>
+      <xsl:when test="$terminate='YES'">
+        <xsl:choose>
+          <xsl:when test="position()=last()">
+            <xsl:value-of select="concat($prefix,$lname,$suffix)"/><xsl:text/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="resource" mode="name">
+    <xsl:value-of select="./@name" />     
+  </xsl:template>
 
 <xsl:template match="ballot_index" mode="abstract_variable">
 </xsl:template>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.23 2002/06/18 08:29:50 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -185,7 +185,7 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
     elements the following notational conventions apply: 
   </p>
   <table cellspacing="4">
-    <tr>
+    <tr valign="top">
       <td valign="top">[]</td>
       <td valign="top">
         enclosed section constrains multiple AIM elements or sections of
@@ -194,7 +194,7 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">()</td>
       <td valign="top">
         enclosed section constrains multiple AIM elements or sections of
@@ -203,7 +203,7 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">{}</td>
       <td valign="top">
         enclosed section constrains the reference path to satisfy an
@@ -211,21 +211,21 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">&lt;&gt;</td>
       <td valign="top">
         enclosed section constrains at one or more required reference path;   
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">||</td>
       <td valign="top">
         enclosed section constrains the supertype entity;
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">-&gt;</td>
       <td valign="top">
         attribute references the entity or select type given in the
@@ -233,7 +233,7 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">&lt;-</td>
       <td valign="top">
         entity or select type is referenced by the attribute in the
@@ -241,7 +241,7 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">[i]</td>
       <td valign="top">
         attribute is an aggregation of which a single member is given in
@@ -249,7 +249,7 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">[n]</td>
       <td valign="top">
         attribute is an aggregation of which member n is given in the
@@ -257,21 +257,21 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">=&gt;</td>
       <td valign="top">
         entity is a supertype of the entity given in the following row;
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">&lt;=</td>
       <td valign="top">
         entity is a subtype of the entity given in the following row;
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">=</td>
       <td valign="top">
         the string, select, or enumeration type is constrained to a choice
@@ -279,23 +279,23 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">\</td>
       <td valign="top">
         the reference path expression continues on the next line;
       </td>
     </tr>
 
-    <tr>
+    <tr valign="top">
       <td valign="top">*</td>
       <td valign="top">
         used in conjunction with braces to indicate that any number of
         relationship entity data types may be assembled in a relationship
-        tree structure 
+        tree structure.
       </td>
     </tr>
     <!-- we do not use or support templates yet
-    <tr>
+    <tr valign="top">
       <td valign="top">//</td>
       <td valign="top">
         enclosed section is an application of one of the mapping templates
@@ -303,13 +303,32 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
       </td>
     </tr>
     -->
-    <tr>
+    <tr valign="top">
       <td valign="top">--</td>
       <td valign="top">
-        the text following is a comment (normally a clause reference).
+        the text following is a comment (normally a clause reference);
+      </td>
+    </tr>
+
+    <tr valign="top">
+      <td valign="top">*&gt;</td>
+      <td valign="top">
+        the select, or enumeration type before the symbol is extended into
+        the select or enumeration after the symbol;  
+      </td>
+    </tr>
+ 
+
+    <tr valign="top">
+      <td valign="top">&lt;*</td>
+      <td valign="top">
+        the select, or enumeration type before the symbol is an extension
+        of the select or enumeration after the symbol.
       </td>
     </tr>
   </table>
+  The definition and use of mapping templates is not supported in the
+  present version of the application modules.  
 </xsl:template>
 
 
@@ -459,12 +478,11 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
 
 <xsl:template match="aimelt" mode="specification">
   <xsl:apply-templates select="." mode="check_ref_path"/>
-  <tr>
+  <tr valign="top">
     <td>AIM element:</td>
     <td>
-      <xsl:variable name="line" select="normalize-space(string(.))"/>
       <xsl:call-template name="output_string_with_linebreaks">
-        <xsl:with-param name="string" select="$line"/>
+        <xsl:with-param name="string" select="string(.)"/>
       </xsl:call-template>
     </td>
   </tr>
@@ -472,19 +490,23 @@ $Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
 
 
 <xsl:template match="source" mode="specification">
-  <tr>
+  <tr valign="top">
     <td>Source:</td>
     <td>
-      <xsl:value-of select="."/>
+      <xsl:call-template name="output_string_with_linebreaks">
+        <xsl:with-param name="string" select="string(.)"/>
+      </xsl:call-template>
     </td>
   </tr>
 </xsl:template>
 
 <xsl:template match="rules" mode="specification">
-  <tr>
+  <tr valign="top">
     <td>Rules:</td>
     <td>
-      <xsl:value-of select="."/>
+      <xsl:call-template name="output_string_with_linebreaks">
+        <xsl:with-param name="string" select="string(.)"/>
+      </xsl:call-template>
     </td>
   </tr>
 </xsl:template>

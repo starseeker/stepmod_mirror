@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.27 2003/04/14 03:37:16 thendrix Exp $
+$Id: resource.xsl,v 1.28 2003/04/23 02:45:55 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1343,8 +1343,10 @@ defined in annex D of ISO 10303-11.
 
   <!-- display the EXPRESS for the functions in the schema
        The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="$express_xml/express/schema/function"/>
+  <xsl:apply-templates select="$express_xml/express/schema/function">
+	<xsl:with-param name="main_clause" select="($schema_no+3)" />
+	</xsl:apply-templates>
+	
 
   <!-- display the EXPRESS for the entities in the schema. 
        The template is in sect4_express.xsl -->

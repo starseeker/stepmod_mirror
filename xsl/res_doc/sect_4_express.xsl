@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.11 2003/04/14 03:37:16 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.12 2003/04/18 22:04:10 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1500,9 +1500,9 @@
 </xsl:template>
 
 <xsl:template match="function">
+	<xsl:param name="main_clause"/>
   <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
+    name="schema_name" select="../@name"/>      
   <xsl:variable name="clause_number">
     <xsl:call-template name="express_clause_number">
       <xsl:with-param name="clause" select="'function'"/>
@@ -1512,7 +1512,7 @@
   <xsl:if test="position()=1">
     <!-- first entity so output the intro -->
     <xsl:variable name="clause_header">
-          <xsl:value-of select="concat($clause_number,' ',$schema_name,' function definitions')"/>
+          <xsl:value-of select="concat($main_clause, $clause_number,' ',$schema_name,' function definitions')"/>
     </xsl:variable>
 
     <xsl:variable name="clause_intro">
@@ -1542,7 +1542,7 @@
              
   <h2>
     <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+      <xsl:value-of select="concat($main_clause, $clause_number,'.',position(),' ',@name)"/>
     </A>
   </h2>
   <!-- output description from external file -->
@@ -2569,6 +2569,7 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
       </xsl:when>
 
       <xsl:when test="$clause='function'">
+	
         <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 

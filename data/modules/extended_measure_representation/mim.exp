@@ -1,9 +1,8 @@
 (*
-  $Id: mim.exp,v 1.4 2002/09/06 17:40:47 thendrix Exp $
-  ISO/TC184/SC4 WG12N1377 - ISO/CD-TS - 10303-1106 Extended measure representation - EXPRESS MIM
-*)
+  $Id: $
+  ISO/TC184/SC4 WG12N1377 - ISO/CD-TS - 10303-1106 
 
-SCHEMA Extended_measure_representation_mim;
+Extended_measure_representationSCHEMA Extended_measure_representation_mim;
 
 USE FROM Measure_representation_mim;
 
@@ -15,12 +14,17 @@ USE FROM representation_schema
 (compound_representation_item,
  list_representation_item);
 
-USE FROM shape_tolerance_schema
-(limits_and_fits,
- plus_minus_tolerance,
- tolerance_value);
-
 USE FROM Value_with_unit_mim;
+
+REFERENCE FROM support_resource_schema;
+
+ENTITY double_toleranced_measure_item
+SUBTYPE OF (compound_representation_item);
+  SELF\compound_representation_item.item_element : LIST [2 : 2] OF list_representation_item;
+DERIVE
+  tolerance_range : value_range := SELF\compound_representation_item.item_element[2];
+  toleranced_measure_value : measure_with_unit := SELF\compound_representation_item.item_element[1]\measure_with_unit;
+END_ENTITY;
 
 ENTITY value_range
 SUBTYPE OF (compound_representation_item);
@@ -36,10 +40,10 @@ FUNCTION value_range_wr1(
      agg: AGGREGATE OF representation_item): BOOLEAN;
   BEGIN
     IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY ( i1 <* agg | (
-    'value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
+    'VALUE_WITH_UNIT_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
     (i1)) ))
     = 2) OR (SIZEOF(QUERY ( i2 <* agg | (
-    'value_with_unit_mim.VALUE_REPRESENTATION_ITEM' IN TYPEOF
+    'VALUE_WITH_UNIT_MIM.VALUE_REPRESENTATION_ITEM' IN TYPEOF
     (i2)) ))
     = 2)) THEN
       RETURN(TRUE);
@@ -70,10 +74,10 @@ FUNCTION value_range_wr3(
     agg: AGGREGATE OF representation_item): BOOLEAN;
   BEGIN
     IF (SIZEOF(QUERY ( i <* agg | (
-    'value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' IN 
+    'VALUE_WITH_UNIT_MIM.MEASURE_REPRESENTATION_ITEM' IN 
     TYPEOF(i)) ))
     <> 2) OR (SIZEOF(QUERY ( i1 <* agg | 
-     ('value_with_unit_mim.MEASURE_REPRESENTATION_ITEM' 
+     ('VALUE_WITH_UNIT_MIM.MEASURE_REPRESENTATION_ITEM' 
      IN TYPEOF (i1))
      AND
      (SIZEOF(QUERY ( i2 <* agg
@@ -88,5 +92,28 @@ FUNCTION value_range_wr3(
     END_IF;
   END;
 END_FUNCTION;
+
+
+RULE subtype_exclusiveness_representation_item FOR
+    (representation_item);
+WHERE
+  WR1:  SIZEOF(QUERY (cri <* representation_item |
+                    NOT (type_check_function(cri,
+                       ['EXTENDED_MEASURE_REPRESENTATION.MEASURE_REPRESENTATION_ITEM',
+                        'EXTENDED_MEASURE_REPRESENTATION.VALUE_REPRESENTATION_ITEM',
+                        'EXTENDED_MEASURE_REPRESENTATION.COMPOUND_REPRESENTATION_ITEM'] , 3 )
+               ))) = 0;
+
+END_RULE;
+RULE subtype_exclusiveness_compound_representation_item FOR
+    (compound_representation_item);
+WHERE
+  WR1:  SIZEOF(QUERY (cri <* compound_representation_item |
+                    NOT (type_check_function(cri,
+                       ['EXTENDED_MEASURE_REPRESENTATION.DOUBLE_TOLERANCED_MEASURE_ITEM',
+                        'EXTENDED_MEASURE_REPRESENTATION.VALUE_RANGE'] , 3 )
+               ))) = 0;
+
+END_RULE;
 
 END_SCHEMA;

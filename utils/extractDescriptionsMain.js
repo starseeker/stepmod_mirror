@@ -1,13 +1,8 @@
-//$Id: extractDescriptionsMain.js,v 1.1 2002/03/19 15:11:15 robbod Exp $
+//$Id: extractDescriptionsMain.js,v 1.2 2002/04/03 07:32:13 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
-//  Purpose:  JScript to copy all the express files from the repository to
-//      Generate the XML for a module from GraphicalExpress pblished XML
-//      Convert the HTML files containing a single image map that have been 
-//      exported from GraphicalExpress to XML files
-//      Copy the GIFs
-//      Extract the Schema for the module
-//      e.g.
+//  Purpose:  JScript to create a xxx_descriptions.xml file from a xxx.xml file
+//	where xxx= arm or mim
 //      cscript extractDescriptionsMain.js "e:\My Documents\projects\nist_module_repo\stepmod\data\modules\work_order\arm.xml" foo.xml 
 
 

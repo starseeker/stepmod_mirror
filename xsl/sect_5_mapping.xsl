@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.47 2002/08/22 15:08:18 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.48 2002/08/28 13:22:05 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -191,17 +191,17 @@ $Id: sect_5_mapping.xsl,v 1.47 2002/08/22 15:08:18 robbod Exp $
   </p> 
   <p>
     <b>Reference path:</b> 
-    To describe fully the mapping of an application object, it may be
+    To fully describe the mapping of an application element, it may be
     necessary to specify a reference path involving several related MIM
     elements. Two or more such related MIM elements define the
     interpretation of the common resources that satisfies the requirement
     specified by the application element. Each line in the reference path
     documents the role of a MIM element relative to the referring MIM
     element or to the next referred MIM element. For each MIM element
-    that has been created for use within this part of ISO 10303, a
+    that has been created within this part of ISO 10303, a
     reference path to its supertype from a common resource 
     is specified. For the expression of reference paths and the
-    relationships between MIM elements the following notational conventions
+    relationships between MIM elements, the following notational conventions
     apply:
   </p> 
 
@@ -307,24 +307,25 @@ $Id: sect_5_mapping.xsl,v 1.47 2002/08/22 15:08:18 robbod Exp $
       <tr valign="top">
         <td valign="top">--</td>
         <td valign="top">
-          the text following is a comment (normally a clause
-          reference);
+          the text following is a comment or introduces a clause
+          reference;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">*&gt;</td>
         <td valign="top">
           the select, or enumeration type before the symbol is
-          extended into the select or enumeration after the symbol;
+          extended into the select or enumeration type after the symbol;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">&lt;*</td>
         <td valign="top">
           the select, or enumeration type before the symbol is an
-          extension of the select or enumeration after the symbol.
+          extension of the select or enumeration type after the symbol.
         </td>
       </tr>
+
     </tbody>
   </table>
   The definition and use of mapping templates is not supported in the

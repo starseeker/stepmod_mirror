@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="risk_schema" schema_file="risk_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2003/04/09 10:50:55 $" rcs.revision="$Revision: 1.11 $">
+<ext_descriptions module_directory="risk_schema" schema_file="risk_schema.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2003/09/11 15:32:27 $" rcs.revision="$Revision: 1.4 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: risk_schema
    <express_ref linkend="risk_schema::risk_schema"/>
@@ -37,13 +37,12 @@ An <b>applied_risk_consequence</b> is an association of a
 <express_ref linkend="risk_schema:ir_express:risk_schema.risk_consequence"/> 
 with its effect or <express_ref linkend="risk_schema:ir_express:risk_schema.risk_impact"/>.  
 <note number='1'>
-The association of risk to a <express_ref linkend="risk_schema:ir_express:risk_schema.risk_consequence"/> 
-without any particular <express_ref linkend="risk_schema:ir_express:risk_schema.risk_impact"/> is represented by 
+The association of <express_ref linkend="risk_schema:ir_express:risk_schema.risk"/> 
+to a <express_ref linkend="risk_schema:ir_express:risk_schema.risk_consequence"/> is represented by 
 <express_ref linkend="risk_schema:ir_express:risk_schema.defined_risk_consequence"/>.
 </note>
 <note number='2'>
-Consequence levels can be represented using 
-<express_ref linkend="risk_schema:ir_express:risk_schema.applied_risk_consequence"/>.
+Consequence levels can be represented using <b>applied_risk_consequence</b>.
 </note>
 <note number='3'>The role of <b>applied_risk_consequence</b> can be defined in the annoted EXPRESS schemas that use or specialize this entity, or by default, 
 in an agreement of common understanding between the partners sharing this information.
@@ -327,7 +326,45 @@ implemented.
   -->
 <ext_description linkend="risk_schema.risk">
 A <b>risk</b> is the combination of the probability of an event and its consequence.
-<note>In some situations, risk is a deviation from the expected.</note>
+<note number="1">
+In some situations, risk is a deviation from the expected.
+</note>
+<note number="2">
+The probability of a <b>risk</b> is represented by 
+<express_ref linkend="risk_schema:ir_express:risk_schema.defined_risk_probability"/> 
+which provides an identification and description of the association between <b>risk</b> and 
+<express_ref linkend="risk_schema:ir_express:risk_schema.risk_probability"/>.  
+The probability of an event is represented by the entity data type 
+<express_ref linkend="risk_schema:ir_express:risk_schema.risk_probability_assignment"/>.  
+The consequence of a <b>risk</b> is represented by 
+<express_ref linkend="risk_schema:ir_express:risk_schema.defined_risk_consequence"/>
+which provides an identification and description of the association between <b>risk</b> and 
+<express_ref linkend="risk_schema:ir_express:risk_schema.risk_consequence"/>.
+</note>
+<note number="3">
+In situations where the <express_ref linkend="risk_schema:ir_express:risk_schema.risk_consequence"/> 
+has an identifiable impact, <express_ref linkend="risk_schema:ir_express:risk_schema.applied_risk_consequence"/> 
+provides an identification and description of the association between 
+<express_ref linkend="risk_schema:ir_express:risk_schema.risk_consequence"/> and  
+<express_ref linkend="risk_schema:ir_express:risk_schema.risk_impact"/>. 
+</note>
+<example number="1">
+'Line shutdown' is an example of <b>risk</b> in the 
+<express_ref linkend="risk_schema:ir_express:risk_schema.risk_context"/> of a manufacturing system's reliability.
+</example>
+<example number="2">
+'Transportation jam-up', 'customer anger', 'collateral damage', and 
+'greater susceptibility to interruption of supply during crises' are all examples of <b>risk</b>. 
+</example>
+<example number="3">
+'Privacy' and 'security' are examples of <b>risk</b> for the telecommunications industry.
+</example>
+<example number="4">
+'Fly-by-wire', the form-fit-function replacement of mechanical devices with a combination of electrical, hydraulic, and pneumatic units.
+</example>
+<example number="5">
+Timing such as 'premature rejection' and 'premature commitment' are other examples of <b>risk</b>.
+</example>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -522,6 +559,10 @@ the text that characterizes the <b>risk_criteria_role</b>.  The value of the att
   -->
 <ext_description linkend="risk_schema.risk_impact">
 A <b>risk_impact</b> is the effect of a <express_ref linkend="risk_schema:ir_express:risk_schema.risk_consequence"/>.
+<note>
+The affected item is represented by the entity data type 
+<express_ref linkend="risk_schema:ir_express:risk_schema.risk_impact_assignment"/>.
+</note>
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -828,6 +869,16 @@ the text that characterizes the <b>risk_probability_role</b>.  The value of the 
 <ext_description linkend="risk_schema.risk_reduction">
 A <b>risk_reduction</b> is an action taken to lessen the probability, negative consequences, 
 or both, associated with a particular <express_ref linkend="risk_schema:ir_express:risk_schema.risk"/>.
+<example number="1">
+'Scheduling a series of intermediate goals to be reached by precursor or partial configurations' is an example of <b>risk_reduction</b>.
+</example>
+<example number="2">
+'Review why interfaces were placed where they were' is an example of <b>risk_reduction</b>.
+</example>
+<example number="3">
+'Reexamine the cost effectiveness of system features such as high-precision pointing for weather satellites' is an example of <b>risk_reduction</b>.
+</example>
+
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1053,9 +1104,16 @@ assigned a <b>risk_status</b>.
 A <b>risk_treatment</b> is the process of selection and implementation of measures to modify risk.
 <note number="1">The term risk treatment is sometimes used for the measures themselves.</note>
 <note number="2">Risk treatment measures can include avoiding, optimizing, transferring or retaining risk.</note>
-<example>
-None assigned, accept, watch, mitigate, and prevent are examples of <b>risk_treatment</b>.
+<example number="1">
+'None assigned', 'accept', 'watch', 'mitigate', and 'prevent' are examples of <b>risk_treatment</b>.
 </example>
+<example number="2">
+The heuristic process 'pause and reflect' is another example of <b>risk_treatment</b>.
+</example>
+<example number="3">
+'Build in and maintain options', 'use open architectures', and 'do the hard parts first' are other examples of <b>risk_treatment</b>.
+</example>
+
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.98 2003/06/24 23:59:03 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.99 2003/06/25 23:57:00 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -3491,6 +3491,7 @@
             </xsl:choose>
             <xsl:call-template name="link_list">
               <xsl:with-param name="suffix" select="', '"/>
+              <xsl:with-param name="bold" select="'yes'"/>
               <xsl:with-param name="list" select="@selectitems"/>
               <xsl:with-param name="object_used_in_schema_name"
                 select="../../@name"/>
@@ -3549,6 +3550,7 @@
           </xsl:choose>
           <xsl:call-template name="link_list">
             <xsl:with-param name="suffix" select="', '"/>
+            <xsl:with-param name="bold" select="'yes'"/>
             <xsl:with-param name="list" select="@selectitems"/>
             <xsl:with-param name="object_used_in_schema_name"
               select="../../@name"/>

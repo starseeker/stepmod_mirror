@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.14 2003/01/23 13:48:13 robbod Exp $
+     $Id: express_link.xsl,v 1.15 2003/03/10 01:26:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -561,6 +561,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
   <xsl:param name="object_used_in_schema_name"/>
   <xsl:param name="prefix"/>
   <xsl:param name="suffix"/>
+  <xsl:param name="bold"/>
   <!-- if linebreak = yes then output a line break after the suffix -->
   <xsl:param name="linebreak" select="'no'"/>
   <!-- If yes then output prefix on first object -->
@@ -591,13 +592,28 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
         </xsl:call-template>
       </xsl:if>
 
-      <xsl:call-template name="link_object">
-        <xsl:with-param name="object_name" select="$first"/>
-        <xsl:with-param 
-          name="object_used_in_schema_name" 
-          select="$object_used_in_schema_name"/>
-        <xsl:with-param name="clause" select="$clause"/>
-      </xsl:call-template>
+      <xsl:choose>
+        <xsl:when test="$bold='yes'">
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="$first"/>
+              <xsl:with-param 
+                name="object_used_in_schema_name" 
+                select="$object_used_in_schema_name"/>
+              <xsl:with-param name="clause" select="$clause"/>
+            </xsl:call-template>          
+          </b>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="link_object">
+            <xsl:with-param name="object_name" select="$first"/>
+            <xsl:with-param 
+              name="object_used_in_schema_name" 
+              select="$object_used_in_schema_name"/>
+            <xsl:with-param name="clause" select="$clause"/>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
 
       <xsl:if test="not( $and_for_last_pair='yes' and not
                     (string-length($rest) - string-length(translate($rest,',','')) > 1 ))">
@@ -627,44 +643,93 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
             <br/>
           </xsl:if>
           
-          <xsl:call-template name="link_object">
-            <xsl:with-param name="object_name" 
-              select="substring-before($rest,',')"/>
-            <xsl:with-param 
-              name="object_used_in_schema_name" 
-              select="$object_used_in_schema_name"/>
-            <xsl:with-param name="clause" select="$clause"/>
-          </xsl:call-template>
+          <xsl:choose>
+            <xsl:when test="$bold='yes'">
+              <b>
+                <xsl:call-template name="link_object">
+                  <xsl:with-param name="object_name" 
+                    select="substring-before($rest,',')"/>
+                  <xsl:with-param 
+                    name="object_used_in_schema_name" 
+                    select="$object_used_in_schema_name"/>
+                  <xsl:with-param name="clause" select="$clause"/>
+                </xsl:call-template>
+              </b>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:call-template name="link_object">
+                <xsl:with-param name="object_name" 
+                  select="substring-before($rest,',')"/>
+                <xsl:with-param 
+                  name="object_used_in_schema_name" 
+                  select="$object_used_in_schema_name"/>
+                <xsl:with-param name="clause" select="$clause"/>
+              </xsl:call-template>
+            </xsl:otherwise>
+          </xsl:choose>
           
           and
           
-          <xsl:call-template name="link_object">
-            <xsl:with-param name="object_name" 
-              select="substring-after($rest,',')"/>
-            <xsl:with-param 
-              name="object_used_in_schema_name" 
-              select="$object_used_in_schema_name"/>
-            <xsl:with-param name="clause" select="$clause"/>
-          </xsl:call-template>                    
+          <xsl:choose>
+            <xsl:when test="$bold='yes'">
+              <b>
+                <xsl:call-template name="link_object">
+                  <xsl:with-param name="object_name" 
+                    select="substring-after($rest,',')"/>
+                  <xsl:with-param 
+                    name="object_used_in_schema_name" 
+                    select="$object_used_in_schema_name"/>
+                  <xsl:with-param name="clause" select="$clause"/>
+                </xsl:call-template>                    
+              </b>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:call-template name="link_object">
+                  <xsl:with-param name="object_name" 
+                    select="substring-after($rest,',')"/>
+                  <xsl:with-param 
+                    name="object_used_in_schema_name" 
+                    select="$object_used_in_schema_name"/>
+                  <xsl:with-param name="clause" select="$clause"/>
+                </xsl:call-template>                    
+            </xsl:otherwise>
+          </xsl:choose>          
 	</xsl:when>
 
 	<xsl:when test="$and_for_last_pair='yes' and
                         (string-length($rest) - string-length(translate($rest,',','')) = 0 )">
           and
-          <xsl:call-template name="link_object">
-            <xsl:with-param name="object_name" 
-              select="$rest"/>
-            <xsl:with-param 
-              name="object_used_in_schema_name" 
-              select="$object_used_in_schema_name"/>
-            <xsl:with-param name="clause" select="$clause"/>
-          </xsl:call-template>
+          <xsl:choose>
+            <xsl:when test="$bold='yes'">
+              <b>
+                <xsl:call-template name="link_object">
+                  <xsl:with-param name="object_name" 
+                    select="$rest"/>
+                  <xsl:with-param 
+                    name="object_used_in_schema_name" 
+                    select="$object_used_in_schema_name"/>
+                  <xsl:with-param name="clause" select="$clause"/>
+                </xsl:call-template>
+              </b>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:call-template name="link_object">
+                  <xsl:with-param name="object_name" 
+                    select="$rest"/>
+                  <xsl:with-param 
+                    name="object_used_in_schema_name" 
+                    select="$object_used_in_schema_name"/>
+                  <xsl:with-param name="clause" select="$clause"/>
+                </xsl:call-template>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         
         <xsl:otherwise>
           <xsl:call-template name="link_list">
             <xsl:with-param name="prefix" select="$prefix"/>
             <xsl:with-param name="suffix" select="$suffix"/>
+            <xsl:with-param name="bold" select="$bold"/>
             <xsl:with-param name="linebreak" select="$linebreak"/>
             <xsl:with-param name="first_prefix" select="'yes'"/>
             <xsl:with-param name="list" select="$rest"/>
@@ -687,14 +752,28 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
         </xsl:call-template>
       </xsl:if>
 
-      <xsl:call-template name="link_object">
-        <xsl:with-param name="object_name" select="$nlist"/>
-        <xsl:with-param 
-          name="object_used_in_schema_name" 
-          select="$object_used_in_schema_name"/>
-        <xsl:with-param name="clause" select="$clause"/>
-      </xsl:call-template>
-      
+      <xsl:choose>
+        <xsl:when test="$bold='yes'">
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="$nlist"/>
+              <xsl:with-param 
+                name="object_used_in_schema_name" 
+                select="$object_used_in_schema_name"/>
+              <xsl:with-param name="clause" select="$clause"/>
+            </xsl:call-template>
+          </b>
+        </xsl:when>
+        <xsl:otherwise>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="$nlist"/>
+              <xsl:with-param 
+                name="object_used_in_schema_name" 
+                select="$object_used_in_schema_name"/>
+              <xsl:with-param name="clause" select="$clause"/>
+            </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.10 2004/10/20 07:26:05 robbod Exp $
+//$Id: checkModuleMain.js,v 1.11 2004/10/20 08:33:34 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -434,20 +434,20 @@ function checkModule(moduleName) {
 	var expNodes = xml.selectNodes(expr);
 	var members = expNodes.length;
 	var modNode = expNodes(0);
-	checkModuleStringAttribute(modNode, 'name');
-	checkModuleStringAttribute(modNode, 'name.french');
-	checkModuleNumericAttribute(modNode, 'version');
-	checkModuleNumericAttribute(modNode, 'wg.number');
-	checkModuleNumericAttribute(modNode, 'wg.number.arm');
-	checkModuleNumericAttribute(modNode, 'wg.number.mim');
-	checkModuleNumericAttribute(modNode, 'checklist.internal_review');
-	checkModuleNumericAttribute(modNode, 'checklist.project_leader');
-	checkModuleNumericAttribute(modNode, 'checklist.convener');
-	checkModuleStringAttribute(modNode, 'status');
-	checkModuleStringAttribute(modNode, 'language');
-	checkModuleNumericAttribute(modNode, 'publication.year');
-	checkModuleNumericAttribute(modNode, 'publication.date');
-	checkModuleStringAttribute(modNode, 'published');
+	checkModuleStringAttribute(moduleName, modNode, 'name');
+	checkModuleStringAttribute(moduleName, modNode, 'name.french');
+	checkModuleNumericAttribute(moduleName, modNode, 'version');
+	checkModuleNumericAttribute(moduleName, modNode, 'wg.number');
+	checkModuleNumericAttribute(moduleName, modNode, 'wg.number.arm');
+	checkModuleNumericAttribute(moduleName, modNode, 'wg.number.mim');
+	checkModuleNumericAttribute(moduleName, modNode, 'checklist.internal_review');
+	checkModuleNumericAttribute(moduleName, modNode, 'checklist.project_leader');
+	checkModuleNumericAttribute(moduleName, modNode, 'checklist.convener');
+	checkModuleStringAttribute(moduleName, modNode, 'status');
+	checkModuleStringAttribute(moduleName, modNode, 'language');
+	checkModuleNumericAttribute(moduleName, modNode, 'publication.year');
+	checkModuleNumericAttribute(moduleName, modNode, 'publication.date');
+	checkModuleStringAttribute(moduleName, modNode, 'published');
 	
 	// Checking EXPRESS-G
 	expr = '/module/arm/express-g/imgfile';	
@@ -477,15 +477,15 @@ function checkModule(moduleName) {
 // Check that a given module attribute exists and that it is a string. 
 // If not, flag an error
 //------------------------------------------------------------
-function checkModuleStringAttribute(modXmlNode, attribute) {
+function checkModuleStringAttribute(moduleName, modXmlNode, attribute) {
     var modAttr = modXmlNode.attributes.getNamedItem(attribute);
     if (modAttr == null) {
-	errorMessage("module/"+attribute + " does not exists");
+	errorMessage("module/"+attribute + " does not exist in "+moduleName+"/module.xml");
 	return(0);
     }
     var modVal = modAttr.nodeValue;
     if (!isNaN(modVal)) {
-	errorMessage("module/"+attribute + "="+modVal+" it should be a string");
+	errorMessage("module/"+attribute + "="+modVal+" it should be a string in "+moduleName+"/module.xml");
     }
 
 }
@@ -494,15 +494,15 @@ function checkModuleStringAttribute(modXmlNode, attribute) {
 // Check that a given module attribute exists and that it is a number. 
 // If not, flag an error
 //------------------------------------------------------------
-function checkModuleNumericAttribute(modXmlNode, attribute) {
+function checkModuleNumericAttribute(moduleName, modXmlNode, attribute) {
     var modAttr = modXmlNode.attributes.getNamedItem(attribute);
     if (modAttr == null) {
-	errorMessage("module/"+attribute + " does not exists");
+	errorMessage("module/"+attribute + " does not exist in "+moduleName+"/module.xml");
 	return(0);
     }     
     var modVal = modAttr.nodeValue;
     if (isNaN(modVal)) {
-	errorMessage("module/"+attribute + "="+modVal+" it should be a number");
+	errorMessage("module/"+attribute + "="+modVal+" it should be a number in "+moduleName+"/module.xml");
     }
 
 }
@@ -602,7 +602,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.10 2004/10/20 07:26:05 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.11 2004/10/20 08:33:34 robbod Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";
@@ -701,7 +701,7 @@ function Main() {
 //Main();
 
 //MainWindow("ap239_management_resource_information");
-testModule("condition");
+//testModule("condition");
 //testModule("ap239_product_life_cycle_support");
 //checkExpressFile("attachment_slot", "arm");
 //checkExpressFile("required_resource_characterized", "mim");

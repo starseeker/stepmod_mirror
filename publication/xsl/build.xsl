@@ -2146,7 +2146,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${EEXPMIMLFXML}'"/>
           </xsl:attribute>
           <xsl:attribute name="style">
-            <xsl:value-of select="'${STEPMODSTYLES}/sect_exp_mim_lf.xsl'"/>
+            <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
           </xsl:attribute>
           <xsl:apply-templates select="." mode="modules_target_style_attributes">
             <xsl:with-param name="menu" select="$menu"/>

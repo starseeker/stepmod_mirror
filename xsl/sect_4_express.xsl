@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-     $Id: sect_4_express.xsl,v 1.9 2002/01/28 11:07:18 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.10 2002/01/31 18:09:46 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1490,13 +1490,19 @@
      The order of the clauses describing the express is:
      Interfaces
      Constants
+     Imported Constants
      Types
+     Imported Types
      Entities
+     Imported Entities
      Functions
+     Imported Functions
      Rules
+     Imported Rules
      Procedures
+     Imported Procedures
      Each set of constructs is in a separate clause. The clauses are
-     numbered consequetively.
+     numbered consecutively.
      If the express does not contain a particular set of express
      constructs, then the clause is not output. This will obviously affect
      the numbering of the clauses.
@@ -1504,7 +1510,10 @@
      This template will return the number of the clause according to
      whether any of the previous express clauses are required.
      the clause argument is: 
-     interface constant type entity function rule procedure
+     interface 
+     constant type entity function rule procedure
+     imported_constant imported_type imported_entity 
+     imported_function imported_rule imported_procedure
 -->
 <xsl:template name="express_clause_number">
   <xsl:param name="clause"/>
@@ -1569,6 +1578,18 @@
     </xsl:choose>
   </xsl:variable>
 
+  <xsl:variable name="imported_constant_clause">
+    <xsl:choose>
+      <xsl:when
+        test="document(string($xml_file))/express/schema/interface/described.item[@kind='CONSTANT']">
+        1
+      </xsl:when>
+      <xsl:otherwise>
+        0
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:variable name="type_clause">
     <xsl:choose>
       <xsl:when
@@ -1580,6 +1601,19 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
+
+  <xsl:variable name="imported_type_clause">
+    <xsl:choose>
+      <xsl:when
+        test="document(string($xml_file))/express/schema/interface/described.item[@kind='TYPE']">
+        1
+      </xsl:when>
+      <xsl:otherwise>
+        0
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
 
   <xsl:variable name="entity_clause">
     <xsl:choose>
@@ -1593,10 +1627,35 @@
     </xsl:choose>
   </xsl:variable>
 
+  <xsl:variable name="imported_entity_clause">
+    <xsl:choose>
+      <xsl:when
+        test="document(string($xml_file))/express/schema/interface/described.item[@kind='ENTITY' or @kind='ATTRIBUTE']">
+        1
+      </xsl:when>
+      <xsl:otherwise>
+        0
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+
   <xsl:variable name="function_clause">
     <xsl:choose>
       <xsl:when
         test="document(string($xml_file))/express/schema/function">
+        1
+      </xsl:when>
+      <xsl:otherwise>
+        0
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="imported_function_clause">
+    <xsl:choose>
+      <xsl:when
+        test="document(string($xml_file))/express/schema/interface/described.item[@kind='FUNCTION']">
         1
       </xsl:when>
       <xsl:otherwise>
@@ -1617,10 +1676,34 @@
     </xsl:choose>
   </xsl:variable>
 
+  <xsl:variable name="imported_rule_clause">
+    <xsl:choose>
+      <xsl:when
+        test="document(string($xml_file))/express/schema/interface/described.item[@kind='RULE']">
+        1
+      </xsl:when>
+      <xsl:otherwise>
+        0
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:variable name="procedure_clause">
     <xsl:choose>
       <xsl:when
         test="document(string($xml_file))/express/schema/procedure">
+        1
+      </xsl:when>
+      <xsl:otherwise>
+        0
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="imported_procedure_clause">
+    <xsl:choose>
+      <xsl:when
+        test="document(string($xml_file))/express/schema/interface/described.item[@kind='PROCEDURE']">
         1
       </xsl:when>
       <xsl:otherwise>
@@ -1641,34 +1724,93 @@
       <xsl:when test="$clause='constant'">
         <xsl:value-of select="$interface_clause + $constant_clause"/>
       </xsl:when>
+      <xsl:when test="$clause='imported_constant'">
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause"/>
+      </xsl:when>
+
       <xsl:when test="$clause='type'">
-        <xsl:value-of select="$interface_clause + $constant_clause + $type_clause"/>
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause + 
+                              $type_clause"/>
       </xsl:when>
+      <xsl:when test="$clause='imported_type'">
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause + 
+                              $type_clause + $imported_type_clause"/>
+      </xsl:when>
+
       <xsl:when test="$clause='entity'">
-        <xsl:value-of 
-          select="$interface_clause + $constant_clause +
-                  $type_clause + $entity_clause"/>
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause +
+                              $entity_clause"/>
       </xsl:when>
+      <xsl:when test="$clause='imported_entity'">
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause + 
+                              $entity_clause + $imported_entity_clause"/>
+      </xsl:when>
+
       <xsl:when test="$clause='function'">
-        <xsl:value-of 
-          select="$interface_clause + $constant_clause +
-                  $type_clause + $entity_clause + $function_clause"/>
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause + 
+                              $entity_clause + $imported_entity_clause + 
+                              $function_clause"/>
       </xsl:when>
+      <xsl:when test="$clause='imported_function'">
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause + 
+                              $entity_clause + $imported_entity_clause + 
+                              $function_clause + $imported_function_clause"/>
+      </xsl:when>
+
       <xsl:when test="$clause='rule'">
-        <xsl:value-of 
-          select="$interface_clause + $constant_clause +
-                  $type_clause + $entity_clause + $function_clause
-                  + $rule_clause"/>
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause + 
+                              $entity_clause + $imported_entity_clause + 
+                              $function_clause + $imported_function_clause +
+                              $rule_clause"/>
       </xsl:when>
+      <xsl:when test="$clause='imported_rule'">
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause + 
+                              $entity_clause + $imported_entity_clause + 
+                              $function_clause + $imported_function_clause +
+                              $rule_clause + $imported_rule_clause"/>
+      </xsl:when>
+
       <xsl:when test="$clause='procedure'">
-        <xsl:value-of 
-          select="$interface_clause + $constant_clause +
-                  $type_clause + $entity_clause + $function_clause
-                  + $rule_clause"/>
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause +
+                              $entity_clause + $imported_entity_clause + 
+                              $function_clause + $imported_function_clause +
+                              $rule_clause + $imported_rule_clause +
+                              $procedure_clause"/>
+      </xsl:when>
+      <xsl:when test="$clause='imported_procedure'">
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause + 
+                              $entity_clause + $imported_entity_clause + 
+                              $function_clause + $imported_function_clause +
+                              $rule_clause + $imported_rule_clause +
+                              $procedure_clause + $imported_procedure_clause"/>
       </xsl:when>
 
     </xsl:choose>    
   </xsl:variable>
+
+        <xsl:message>
+          x<xsl:value-of select="concat($clause, ' ',$clause_number)"/>x
+        </xsl:message>
+
 
   <!-- if the schema ends in _arm then it is clause 4
        if it ends in _mim then it is clause 5.2
@@ -1698,6 +1840,113 @@
 
 <!-- to be implemented -->
 <xsl:template name="check_external_description">
+</xsl:template>
+
+
+<xsl:template name="imported_constructs">
+  <xsl:param name="desc_item"/>
+  <xsl:if test="$desc_item">
+    <xsl:variable name="kind" select="$desc_item/@kind"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="lkind" select="translate($kind,$UPPER, $LOWER)"/>
+
+    <xsl:variable name="imported_kind" select="concat('imported_',$lkind)"/>
+    <xsl:variable name="schema_name" select="$desc_item/../../@name"/>
+        <xsl:variable name="clause_number">
+          <xsl:call-template name="express_clause_number">
+            <xsl:with-param name="clause" select="$imported_kind"/>
+            <xsl:with-param name="schema_name" select="$schema_name"/>
+          </xsl:call-template>
+        </xsl:variable>
+
+        <xsl:variable name="clause_header">
+          <xsl:choose>
+            <xsl:when test="contains($schema_name,'_arm')">
+              <xsl:value-of select="concat($clause_number, 
+                                    ' ARM EXPRESS imported ',
+                                    $lkind,' modifications')"/>
+            </xsl:when>
+            <xsl:when test="contains($schema_name,'_mim')">
+              <xsl:value-of select="concat($clause_number, 
+                                    ' MIM  EXPRESS imported '
+                                    ,$lkind,' modifications')"/>
+            </xsl:when>
+          </xsl:choose>      
+        </xsl:variable>
+
+        <xsl:variable name="aname" select="concat('imported_',$lkind)"/>
+        <h3>
+          <A NAME="{$aname}">
+            <xsl:value-of select="$clause_header"/>
+          </A>
+        </h3>
+        <xsl:apply-templates select="$desc_item"/>                    
+      </xsl:if>
+</xsl:template>
+
+<xsl:template match="described.item">
+  <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+  <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+  <xsl:variable name="lkind" select="translate(@kind,$UPPER, $LOWER)"/>
+  <xsl:variable name="imported_kind" select="concat('imported_',$lkind)"/>
+
+  <xsl:variable name="schema_name" select="../../@name"/>
+  <xsl:variable name="clause_number">
+    <xsl:call-template name="express_clause_number">
+      <xsl:with-param name="clause" select="$imported_kind"/>
+      <xsl:with-param name="schema_name" select="$schema_name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <h4>
+    <xsl:value-of select="concat($clause_number,'.',position(),' ',@item )"/>
+  </h4>
+  <!-- get information about the module from which the construct is being
+       imported -->
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="../@schema"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="module_no"
+    select="document(concat($module_dir,'/module.xml'))/module/@part"/>
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_name">
+      <xsl:with-param name="module" select="../@schema"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="module_href"
+    select="concat('../../',$module_name,'/sys/1_scope',$FILE_EXT)"/>
+  
+  The base definition of the 
+  <xsl:call-template name="link_object">
+    <xsl:with-param name="object_name" select="@item"/>
+    <xsl:with-param name="object_used_in_schema_name" 
+      select="../../@name"/>
+    <xsl:with-param name="clause" select="'section'"/>
+  </xsl:call-template>
+  <xsl:value-of select="concat(' ',$lkind)"/>
+  is given in 
+  <a href="{$module_href}">
+    <xsl:value-of select="concat('ISO 10303-',$module_no)"/>
+  </a>
+  The following modifications apply to this part of ISO 10303.
+  <p>
+    The definition of 
+    <xsl:call-template name="link_object">
+      <xsl:with-param name="object_name" select="@item"/>
+      <xsl:with-param name="object_used_in_schema_name" 
+        select="../../@name"/>
+      <xsl:with-param name="clause" select="'section'"/>
+    </xsl:call-template>
+    is modified as follows:
+  </p>
+  <ul>
+    <li>
+      <xsl:apply-templates/>
+    </li>
+  </ul>
 </xsl:template>
 
 </xsl:stylesheet>

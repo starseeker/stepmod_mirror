@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.27 2002/01/28 11:07:18 robbod Exp $
+$Id: module.xsl,v 1.28 2002/01/29 17:25:16 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -926,11 +926,25 @@ $Id: module.xsl,v 1.27 2002/01/28 11:07:18 robbod Exp $
   <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($mim_xml)/express/schema[@name=$schema_name]/constant"/>
+  <!-- display any imported Constant constructs that have been described by 
+       description.item in the interface -->
+  <xsl:call-template name="imported_constructs">
+    <xsl:with-param name="desc_item" 
+      select="document($mim_xml)/express/schema/interface/described.item[@kind='CONSTANT']"/>
+  </xsl:call-template>
+
 
   <!-- display the EXPRESS for the types in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($mim_xml)/express/schema/type"/>
+  <!-- display any imported type constructs that have been described by 
+       description.item in the interface -->
+  <xsl:call-template name="imported_constructs">
+    <xsl:with-param name="desc_item" 
+      select="document($mim_xml)/express/schema/interface/described.item[@kind='TYPE']"/>
+  </xsl:call-template>
+
 
   
   <!-- display the EXPRESS for the entities in the MIM.
@@ -938,20 +952,48 @@ $Id: module.xsl,v 1.27 2002/01/28 11:07:18 robbod Exp $
   <xsl:apply-templates 
     select="document($mim_xml)/express/schema/entity"/>
 
+  <!-- display any imported entity constructs that have been described by 
+       description.item in the interface -->
+  <xsl:call-template name="imported_constructs">
+    <xsl:with-param name="desc_item" 
+      select="document($mim_xml)/express/schema/interface/described.item[@kind='ENTITY']"/>
+  </xsl:call-template>
+
+
+
   <!-- display the EXPRESS for the functions in the MIM
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($mim_xml)/express/schema/function"/>
+  <!-- display any imported function constructs that have been described by 
+       description.item in the interface -->
+  <xsl:call-template name="imported_constructs">
+    <xsl:with-param name="desc_item" 
+      select="document($mim_xml)/express/schema/interface/described.item[@kind='FUNCTION']"/>
+  </xsl:call-template>
+
 
   <!-- display the EXPRESS for the entities in the MIM. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($mim_xml)/express/schema/rule"/>
+  <!-- display any imported rule constructs that have been described by 
+       description.item in the interface -->
+  <xsl:call-template name="imported_constructs">
+    <xsl:with-param name="desc_item" 
+      select="document($mim_xml)/express/schema/interface/described.item[@kind='RULE']"/>
+  </xsl:call-template>
 
   <!-- display the EXPRESS for the procedures in the MIM. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($mim_xml)/express/schema/procedure"/>
+  <!-- display any imported procedure constructs that have been described by 
+       description.item in the interface -->
+  <xsl:call-template name="imported_constructs">
+    <xsl:with-param name="desc_item" 
+      select="document($mim_xml)/express/schema/interface/described.item[@kind='PROCEDURE']"/>
+  </xsl:call-template>
 
   <code>
     <br/>    <br/>

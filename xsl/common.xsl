@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.20 2002/01/15 09:07:34 robbod Exp $
+$Id: common.xsl,v 1.21 2002/01/29 17:25:16 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -184,7 +184,7 @@ $Id: common.xsl,v 1.20 2002/01/15 09:07:34 robbod Exp $
 </xsl:template>
 
 <!--
-     Output the tile for a table of contents banner for a module
+     Output the title for a table of contents banner for a module
      displayed on separate pages
      If the global parameter: output_rcs in parameter.xsl
      is set, then RCS version control information is displayed

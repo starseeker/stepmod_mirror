@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.5 2004/10/20 07:17:42 robbod Exp $
+$Id: sect_isocover.xsl,v 1.6 2004/10/20 10:47:26 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -142,13 +142,12 @@ $Id: sect_isocover.xsl,v 1.5 2004/10/20 07:17:42 robbod Exp $
               </b>
             </span>
           </div>
-
           <!-- French title -->
           <div align="center" style="margin-top:25pt">
             <span style="font-size:14; font-family:sans-serif;">
               <i>
                 Syst&#232;mes d'automatisation industrielle et int&#233;gration &#8212;
-                et &#233;change de donn&#233;es de produits
+                Repr&#233;sentation et &#233;change de donn&#233;es de produits
               </i>
             </span>
           </div>

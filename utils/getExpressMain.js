@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.8 2003/01/10 10:43:30 robbod Exp $
+//$Id: getExpressMain.js,v 1.9 2003/01/21 10:56:11 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -709,6 +709,7 @@ function MainWindowBallotExpress(ballotName) {
 		ErrorMessage("File does not exist: "+dst);
 	    }
 	}
+	UserMessage("Copied EXPRESS to:\n  "+ballotExpressFldr);
     }
 }
 

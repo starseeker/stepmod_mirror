@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.18 2003/06/27 04:15:14 thendrix Exp $
+     $Id: express_description.xsl,v 1.20 2003/06/28 01:00:52 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -126,6 +126,20 @@
     </xsl:if>
  -->
 
+      <xsl:for-each select="$description//b">
+        <xsl:choose>
+          <xsl:when test="not(contains(substring-after($description/@linkend,'.'),.))">
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Warning Ent7: bold text &quot;  ', . , ' &quot; found in definition of express identifier  &quot;',$description/@linkend,'&quot;','  If an express identifier, consider tagging as &lt;express_ref&gt;.')"/>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:for-each>
+      
+
+
       <xsl:variable name="ent_start_char"
         select="substring(normalize-space($entity),1,1)"/>
       <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
@@ -221,17 +235,6 @@ and  string is more than the schema name ( hence not the  schema )
                    
                  </xsl:if>  
                </xsl:template>
-
-<!--  <xsl:template name="chktxt" >
-       <xsl:param name="tnodes"  />      
-         <xsl:if test="contains($tnodes,'_')">
-           <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Warning Ent6: ',' check for express identifier not bold nor linked ')"/>
-      </xsl:call-template>
-    </xsl:if>
-</xsl:template>  -->
 
 
 <xsl:template match="text()" mode="chktxt" >

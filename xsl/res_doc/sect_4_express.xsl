@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.10 2003/04/11 23:34:37 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.11 2003/04/14 03:37:16 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -29,22 +29,32 @@
 
   <xsl:variable name="resdoc_name">
     <xsl:choose>  
-      <xsl:when test="/resource_clause">
-        <xsl:value-of select="/resource_clause/@directory" />
+    <xsl:when test="/resource_clause">
+      <xsl:value-of select="/resource_clause/@directory" />
       </xsl:when>
       <xsl:when test="/resource">
-            <xsl:value-of select="/resource/@name"/>
-          </xsl:when>
+        <xsl:value-of select="/resource/@name"/>
+      </xsl:when>
       <xsl:when test="/issues">
         <xsl:value-of select="/issues/@resource"/>
-          </xsl:when>
+      </xsl:when>
+      <xsl:when test="/imgfile.content">
+        <xsl:value-of select="/imgfile.content/@module"/>
+      </xsl:when>
     </xsl:choose>
   </xsl:variable>
 
   <xsl:variable name="resdoc_dir">
-    <xsl:call-template name="resdoc_directory">
-      <xsl:with-param name="resdoc" select="$resdoc_name" />
-    </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test="imgfile.area">    
+      <xsl:value-of select="$resdoc_name"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="resdoc_directory">
+        <xsl:with-param name="resdoc" select="$resdoc_name" />
+        </xsl:call-template>      
+      </xsl:otherwise>
+    </xsl:choose>  
   </xsl:variable>
 
   <xsl:variable name="resdoc_xml" select="document(concat($resdoc_dir,'/','resource.xml'))"/>
@@ -152,9 +162,10 @@
          stepmod/data/resource/?resource?/sys/
        Hence the relative root is: ../../../
        -->
-  <xsl:variable 
-    name="relative_root"
-    select="'../../../../'"/>
+  <xsl:variable name="relative_root">
+    <xsl:value-of select="'../../../../'"/>       
+  </xsl:variable>
+
 
 
   <!-- +++++++++++++++++++

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.7 2003/02/26 21:47:09 thendrix Exp $
+$Id: imgfile.xsl,v 1.8 2003/03/19 00:48:55 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -14,9 +14,8 @@ $Id: imgfile.xsl,v 1.7 2003/02/26 21:47:09 thendrix Exp $
 
   <xsl:import href="sect_4_express.xsl"/>
 
+
   <xsl:import href="res_toc.xsl"/>
-
-
 
   <xsl:output 
     method="html"
@@ -25,25 +24,34 @@ $Id: imgfile.xsl,v 1.7 2003/02/26 21:47:09 thendrix Exp $
     indent="yes"
     />
 
-
-<xsl:template match="imgfile.content">
   <xsl:variable name="resdoc_dir">
     <xsl:call-template name="resdoc_directory">
-      <xsl:with-param name="resdoc" select="@module"/>
+      <xsl:with-param name="resdoc" select="imgfile.content/@module"/>
     </xsl:call-template>
   </xsl:variable>
+
   <xsl:variable name="resdoc">
-    <xsl:value-of select="@module"/>
+    <xsl:value-of select="imgfile.content/@module"/>
   </xsl:variable>
 
+
+  <xsl:variable name="resdoc_root" select="concat('../',$resdoc_dir)"/>
+
   <xsl:variable name="resdoc_file" select="concat($resdoc_dir,'/resource.xml')"/>
-                  
+  <xsl:variable name="resdoc_xml" select="document($resdoc_file)"/>
+
+
+
+<xsl:template match="imgfile.content">
+  
+
+                 
   <!-- if a file is specified then might be able to deduce the figure title -->
   <xsl:variable name="fig_title">
     <xsl:choose>
       <xsl:when test="./@file">
         <xsl:apply-templates 
-          select="document($resdoc_file)/resource/*/express-g/imgfile"
+          select="$resdoc_xml/resource/*/express-g/imgfile"
           mode="title">
           <xsl:with-param name="file" select="@file"/>
           
@@ -71,17 +79,6 @@ $Id: imgfile.xsl,v 1.7 2003/02/26 21:47:09 thendrix Exp $
       <TITLE>
         <xsl:choose>
           <xsl:when test="@module">
-            <xsl:variable name="resdoc_root">
-              <xsl:choose>
-                <xsl:when test="contains(@file,'schema_diag')">
-                  <xsl:value-of select="'.'"/>                  
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:value-of select="$resdoc_dir"/>                  
-                </xsl:otherwise>
-              </xsl:choose>           
-            </xsl:variable>
-  
             <xsl:value-of select="concat(@module,' : ',$fig_title)"/>
           </xsl:when>
           <xsl:otherwise>
@@ -97,7 +94,7 @@ $Id: imgfile.xsl,v 1.7 2003/02/26 21:47:09 thendrix Exp $
       <xsl:choose>
         <xsl:when test="@module">
           <xsl:apply-templates 
-            select="document($resdoc_file)/resource"
+            select="$resdoc_xml/resource"
             mode="TOCmultiplePage">
             <xsl:with-param name="resdoc_root" select="concat('../',$resdoc_dir)"/>
           </xsl:apply-templates>
@@ -106,7 +103,7 @@ $Id: imgfile.xsl,v 1.7 2003/02/26 21:47:09 thendrix Exp $
           <xsl:choose>
             <xsl:when test="./@file">
               <xsl:apply-templates 
-                select="document($resdoc_file)/resource/*/express-g/imgfile"
+                select="$resdoc_xml/resource/*/express-g/imgfile"
                 mode="nav_arrows">
                 <xsl:with-param name="file" select="@file"/>
                 <xsl:with-param name="resdoc" select="$resdoc"/>
@@ -154,10 +151,71 @@ $Id: imgfile.xsl,v 1.7 2003/02/26 21:47:09 thendrix Exp $
         </xsl:otherwise>
       </xsl:choose>
       <br/><br/>
-      <p>&#169; ISO <xsl:value-of select="document($resdoc_file)/resource/@publication.year"/> &#8212; All rights reserved</p>
+      <p>&#169; ISO <xsl:value-of select="$resdoc_xml/resource/@publication.year"/> &#8212; All rights reserved</p>
 
     </body>
   </HTML>
+</xsl:template>
+
+
+<xsl:template match="img.area">
+  <xsl:variable name="href-temp">
+  <xsl:choose>
+    <xsl:when test="contains(@href,'/sys/')">
+      <xsl:value-of select="@href"/>
+    </xsl:when>
+    <xsl:otherwise>
+    <xsl:variable name="frag" select="substring-after(@href,'#')" />
+    <xsl:variable name="this-schema">
+      <xsl:choose> 
+      <xsl:when test="string-length(substring-before($frag,'.')) > 0" >
+        <xsl:value-of select="substring-before($frag,'.')" />
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$frag" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="this-object" select="substring-after($frag,'.')" />
+      <xsl:variable name="hash">
+        <when test="string-length($this-object) > 0">
+          <xsl:value-of select="'#'" />      
+        </when>
+     </xsl:variable>
+      <xsl:variable name="clauseno">
+        <xsl:apply-templates select="$resdoc_xml//schema" mode="pos">
+          <xsl:with-param name="schema_name" select="$this-schema"/>
+        </xsl:apply-templates>
+      </xsl:variable>
+      <xsl:value-of select="concat($resdoc_root,'/sys/',$clauseno,'_schema',$FILE_EXT,$hash,$frag)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="href">
+    <xsl:choose>
+      <xsl:when test="contains($href-temp,'.xml')">
+        <xsl:value-of select="concat(substring-before($href-temp,'.xml'),
+                              $FILE_EXT,
+                              substring-after($href-temp,'.xml'))"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$href-temp"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:element name="AREA">
+    <xsl:attribute name="href">
+      <xsl:value-of select="$href"/>
+    </xsl:attribute>
+    <xsl:attribute name="shape">
+      <xsl:value-of select="@shape"/>
+    </xsl:attribute>
+    <xsl:attribute name="coords">
+      <xsl:value-of select="@coords" /> 
+      </xsl:attribute>
+    </xsl:element>
 </xsl:template>
 
 <xsl:template match="imgfile" mode="title">

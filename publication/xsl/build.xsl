@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.18 2004/12/01 09:29:07 robbod Exp $
+<!--  $Id: build.xsl,v 1.19 2004/12/01 18:19:38 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -4848,6 +4848,7 @@
     
     <xsl:variable name="resdoc_iso_no" select="concat('iso10303_',$resdoc_xml/resource/@part)"/>
     <xsl:variable name="resdoc_dir" select="concat('${PUBDIR}/',$resdoc_iso_no,'/')"/>
+    <xsl:variable name="resdoc_express_dir" select="concat('${PUBDIR}/',$resdoc_iso_no,'express','/')"/>
 
     <xsl:variable name="data_resdoc_dir" select="concat($resdoc_dir,'data/resource_docs/',@name,'/')"/>
 
@@ -5034,6 +5035,23 @@
       </xsl:attribute>
       <xsl:attribute name="basedir">
         <xsl:value-of select="$resdoc_dir"/>
+      </xsl:attribute>
+      <xsl:attribute name="excludes">
+        <xsl:value-of select="'**/*.zip'"/>
+      </xsl:attribute>
+      <xsl:attribute name="includes">
+        <xsl:value-of select="'**'"/>
+      </xsl:attribute>
+    </xsl:element>
+
+    <!-- need express in zips, else why create it? -->
+
+    <xsl:element name="zip">
+      <xsl:attribute name="zipfile">
+        <xsl:value-of select="concat('${PUBDIR}/zip/iso10303_',$resdoc_xml/resource/@part,'express.zip')"/>
+      </xsl:attribute>
+      <xsl:attribute name="basedir">
+        <xsl:value-of select="$resdoc_express_dir"/>
       </xsl:attribute>
       <xsl:attribute name="excludes">
         <xsl:value-of select="'**/*.zip'"/>

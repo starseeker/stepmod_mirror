@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.5 2003/06/11 15:13:27 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.6 2003/06/29 13:03:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -154,7 +154,6 @@ $Id: sect_annex_shortnames.xsl,v 1.5 2003/06/11 15:13:27 robbod Exp $
               select="substring-after(substring-before(.,'/mim'),'modules/')"/>
             <xsl:variable name="module_path"
               select="concat('../../data/modules/',$module,'/module.xml')"/>
-
             <xsl:variable name="module_ok">
               <xsl:call-template name="check_module_exists">
                 <xsl:with-param name="module" select="$module"/>
@@ -333,7 +332,10 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
          Check if not already done
          Otherwise output and add to todo
          -->
-    <xsl:variable name="this-schema" select="substring-before(concat(normalize-space($todo),' '),' ')"/>
+    <xsl:variable name="this-schema" 
+      select="translate(substring-before(concat(normalize-space($todo),' '),' '),
+              'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
+
     <xsl:if test="$this-schema">
 
       <!-- open up the relevant schema  - which can be a resource or a mim schema -->

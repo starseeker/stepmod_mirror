@@ -1,7 +1,7 @@
-//$Id: make_module.js,v 1.1 2001/11/21 15:39:41 robbod Exp $
-// JScript to split an express file into its constituent schemas.
+//$Id: splitresource.js,v 1.1 2001/11/21 17:13:06 robbod Exp $
+// JScript to split an EXPRESS file into its constituent schemas.
 // A directory will be created for each schema with the same name as the
-// schema. The express for the schema will be stored in the schema
+// schema. The EXPRESS for the schema will be stored in the schema
 // directory in a file with the same name as the schema.  
 
 // cscript splitresource.js WG12N525.exp

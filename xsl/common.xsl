@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.113 2003/08/07 06:59:10 robbod Exp $
+$Id: common.xsl,v 1.114 2003/08/07 07:50:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3741,7 +3741,7 @@ is case sensitive.')"/>
     <xsl:call-template name="error_message">
       <xsl:with-param 
         name="message" 
-        select="'Error aam1: definition should be a phrase and so should not end in a period.'"/>
+        select="'Error defn1: definition should be a phrase and so should not end in a period.'"/>
     </xsl:call-template>
   </xsl:if>
 </xsl:template>

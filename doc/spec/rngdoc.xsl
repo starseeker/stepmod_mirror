@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.9 2004/10/14 19:21:19 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.10 2004/10/14 20:04:42 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -94,17 +94,15 @@
 	      <term>Content Model</term>
 	      <listitem>
 		<para>
-		  <literal>
-		    <xsl:apply-templates select="rng:empty |
-						 rng:zeroOrMore | 
-						 rng:oneOrMore | 
-						 rng:optional | 
-						 rng:choice | 
-						 rng:ref | 
-						 rng:element | 
-						 rng:text"
-					 mode="content"/>
-		  </literal>
+		  <xsl:apply-templates select="rng:empty |
+					       rng:zeroOrMore | 
+					       rng:oneOrMore | 
+					       rng:optional | 
+					       rng:choice | 
+					       rng:ref | 
+					       rng:element | 
+					       rng:text"
+				       mode="content"/>
 		</para>
 	      </listitem>
 	    </varlistentry>
@@ -120,28 +118,33 @@
 		</listitem>
 	      </varlistentry>
 	    </xsl:if>
+	    <xsl:variable name="attributes">
+	      <xsl:apply-templates select="rng:optional | rng:ref"
+				   mode="attributes"/>
+	    </xsl:variable>
+	    <xsl:if test="exsl:node-set($attributes)/row">
+	      <varlistentry>
+		<term>Attributes</term>
+		<listitem>
+		  <informaltable>
+		    <tgroup cols="4">
+		      <thead>
+			<row>
+			  <entry>Attribute</entry>
+			  <entry>Documentation</entry>
+			  <entry>Type</entry>
+			  <entry>Default</entry>
+			</row>
+		      </thead>
+		      <tbody>
+			<xsl:copy-of select="$attributes"/>
+		      </tbody>
+		    </tgroup>
+		  </informaltable>
+		</listitem>
+	      </varlistentry>
+	    </xsl:if>
 	  </variablelist>
-	  <xsl:variable name="attributes">
-	    <xsl:apply-templates select="rng:optional | rng:ref"
-				 mode="attributes"/>
-	  </xsl:variable>
-	  <xsl:if test="exsl:node-set($attributes)/row">
-	    <informaltable>
-	      <tgroup cols="4">
-		<thead>
-		  <row>
-		    <entry>Attribute</entry>
-		    <entry>Documentation</entry>
-		    <entry>Type</entry>
-		    <entry>Default</entry>
-		  </row>
-		</thead>
-		<tbody>
-		  <xsl:copy-of select="$attributes"/>
-		</tbody>
-	      </tgroup>
-	    </informaltable>
-	  </xsl:if>
 	</section>
       </xsl:for-each>
     </section>
@@ -166,9 +169,11 @@
   </xsl:template>
 
   <xsl:template match="rng:element" mode="content">
-    <link linkend="{@name}">
-      <xsl:value-of select="@name"/>
-    </link>
+    <literal>
+      <link linkend="{@name}">
+	<xsl:value-of select="@name"/>
+      </link>
+    </literal>
     <xsl:if test="local-name(..)='choice' and following-sibling::*">
       <xsl:text> | </xsl:text>
     </xsl:if>
@@ -247,18 +252,20 @@
   <xsl:template match="rng:attribute" mode="attributes">
     <row>
       <entry>
-	<literal>
 	  <xsl:choose>
 	    <xsl:when test="local-name(..)='optional'">
 	      <emphasis>
-		<xsl:value-of select="@name"/>
+		<literal>
+		  <xsl:value-of select="@name"/>
+		</literal>
 	      </emphasis>
 	    </xsl:when>
 	    <xsl:otherwise>
-	      <xsl:value-of select="@name"/>
+	      <literal>
+		<xsl:value-of select="@name"/>
+	      </literal>
 	    </xsl:otherwise>
 	  </xsl:choose>
-	</literal>
       </entry>
       <entry>
 	<xsl:choose>

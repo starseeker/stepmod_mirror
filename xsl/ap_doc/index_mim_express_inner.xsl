@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
+$Id: index_mim_express_inner.xsl,v 1.14 2004/11/04 15:52:24 thendrix Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -696,7 +696,10 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 	<xsl:variable name="orig" select="$called-schemas//entity[@name=$this-ent-name]" />
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
-	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)" />
+	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)"/>
+
+        <xsl:variable name="def_ref" select="translate(concat($schema-name,'.',@name), $UPPER,$LOWER)"/>
+        <xsl:variable name="lf_ref" select="translate(concat(../@name,'.',@name), $UPPER,$LOWER)"/>
 
         <xsl:variable name="prefix">
           <xsl:call-template name="get_last_section">
@@ -720,11 +723,16 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
                             <xsl:with-param name="target" select="'info'"/>
                             <xsl:with-param name="expressg" select="$expressg"/>
                           </xsl:apply-templates> 
-			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                          <!-- <A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>  -->
+			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$def_ref}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
+                        <!--
 			<A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+			<A 
+                          HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
+                          TARGET="info" >Long-form</A>
 			<br/>
 			
 		</xsl:when>
@@ -733,22 +741,29 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)"/>
                         <xsl:text> </xsl:text>
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A> -->
+                        <A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
+                        <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+                        <A 
+                          HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
+                          TARGET="info" >Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A> -->
+                        <A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
+                        <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+                        <A 
+                          HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info" >Long-form</A>
 			<br/>
 			</xsl:when>
 			<xsl:otherwise>
@@ -792,7 +807,11 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 		select="$called-schemas//constant[translate(@name,$UPPER, $LOWER)=$this-const-name]" />
 
 		<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
-                <xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)" />
+                <xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)"/>
+
+                <xsl:variable name="def_ref" select="translate(concat($schema-name,'.',@name), $UPPER,$LOWER)"/>
+                <xsl:variable name="lf_ref" select="translate(concat(../@name,'.',@name), $UPPER,$LOWER)"/>
+
                   <xsl:variable name="prefix">
                     <xsl:call-template name="get_last_section">
                       <xsl:with-param name="path" select="$schema-name"/>
@@ -813,11 +832,15 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						$module),$UPPER,$LOWER)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-				<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" 
-					TARGET="info" >Definition</A>
+                                <!-- <A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" 
+					TARGET="info" >Definition</A> -->
+
+                                  <A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$def_ref}" TARGET="info" >Definition</A>
 				<xsl:text> </xsl:text>
-				<A 
+                                <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+				TARGET="info" >Long-form</A> -->
+                                <A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
 				TARGET="info" >Long-form</A>
 				<br/>
 			
@@ -826,11 +849,15 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
  	 			<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-				<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" 
-					TARGET="info" >Definition</A>
+                                <!-- <A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" 
+					TARGET="info" >Definition</A> -->
+
+				<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 				<xsl:text> </xsl:text>
-				<A 
+                                <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+				TARGET="info" >Long-form</A> -->
+                                <A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
 				TARGET="info" >Long-form</A>
 				<br/>
 				</xsl:when>
@@ -838,11 +865,15 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 		    			<xsl:variable name="res-dir" 
 					 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                                        <!-- <A
+                                             HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}"
+                                             TARGET="info" >Definition</A> -->
+			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info" >Definition</A>
 				<xsl:text> </xsl:text>
-				<A 
+                                <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-				TARGET="info" >Long-form</A>
+				TARGET="info" >Long-form</A> -->
+                                <A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info">Long-form</A> 
 				<br/>
 				</xsl:when>
 				<xsl:otherwise>
@@ -874,7 +905,11 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 	<xsl:variable name="orig" select="$called-schemas//type[translate(@name,$UPPER, $LOWER)=$this-type-name]" />
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
-	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)" />
+	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)"/>
+
+        <xsl:variable name="def_ref" select="translate(concat($schema-name,'.',@name), $UPPER,$LOWER)"/>
+        <xsl:variable name="lf_ref" select="translate(concat(../@name,'.',@name), $UPPER,$LOWER)"/>
+
         <xsl:variable name="prefix">
           <xsl:call-template name="get_last_section">
             <xsl:with-param name="path" select="$schema-name"/>
@@ -897,33 +932,45 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
                             <xsl:with-param name="target" select="'info'"/>
                             <xsl:with-param name="expressg" select="$expressg"/>
                           </xsl:apply-templates> 
-			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
-			<A 
+                          <!-- <A
+                               HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}"
+                               TARGET="info" >Definition</A> -->
+                          <A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
+			<xsl:text> </xsl:text>
+                        <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
-			<br/>
-			
+			TARGET="info" >Long-form</A> -->
+                        <A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info">Long-form</A>
+			<br/>			
 		</xsl:when>
 		<xsl:when test="$prefix='schema'">
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A
+                             HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}"
+                             TARGET="info" >Definition</A> -->
+			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
-			<A
+                        <!-- <A
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+                        <A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info">Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A
+                             HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}"
+                             TARGET="info">Definition</A> -->
+			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
+                        <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+                        <A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info">Long-form</A>
 			<br/>
 			</xsl:when>
 			<xsl:otherwise>
@@ -948,7 +995,6 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 		<xsl:variable name="mod-name" select="substring-before(../@name,'_mim')" />
 
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)"/>
-
                 <xsl:apply-templates select="." mode="expressg_icon">
                   <xsl:with-param name="target" select="'info'"/>
                   <xsl:with-param name="expressg" select="$expressg"/>
@@ -973,6 +1019,10 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
 	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)" />
+
+        <xsl:variable name="def_ref" select="translate(concat($schema-name,'.',@name), $UPPER,$LOWER)"/>
+        <xsl:variable name="lf_ref" select="translate(concat(../@name,'.',@name), $UPPER,$LOWER)"/>
+
         <xsl:variable name="prefix">
           <xsl:call-template name="get_last_section">
             <xsl:with-param name="path" select="$schema-name"/>
@@ -993,11 +1043,17 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A
+                             HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}"
+                             TARGET="info" >Definition</A> -->
+                        <A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
+                        <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+                        <A 
+                          HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
+                          TARGET="info">Long-form</A>
 			<br/>
 			
 		</xsl:when>
@@ -1005,22 +1061,35 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A
+                             HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}"
+                             TARGET="info" >Definition</A> -->
+                        <A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
+                        <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+                        <A 
+                          HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
+                          TARGET="info">Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A
+                             HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}"
+                             TARGET="info" >Definition</A> -->
+                        <A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
+                        <!-- <A 
+                             HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+                             TARGET="info" >Long-form</A> -->
 			<A 
-			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+                          HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
+                          TARGET="info">Long-form</A>
+
 			<br/>
                       </xsl:when>
                         <!-- the rule: validate_dependently_instantiable_entity_data_types
@@ -1029,8 +1098,8 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
                              any short form schema -->
 		<xsl:when test="$this-rule-name='validate_dependently_instantiable_entity_data_types'">
                   &#160;&#160;<A 
-			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
+			TARGET="info">Long-form</A>
 			<br/>
                 </xsl:when>
                         
@@ -1062,6 +1131,10 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
 	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)" />
+
+        <xsl:variable name="def_ref" select="translate(concat($schema-name,'.',@name), $UPPER,$LOWER)"/>
+        <xsl:variable name="lf_ref" select="translate(concat(../@name,'.',@name), $UPPER,$LOWER)"/>
+
         <xsl:variable name="prefix">
           <xsl:call-template name="get_last_section">
             <xsl:with-param name="path" select="$schema-name"/>
@@ -1082,11 +1155,14 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						$module),$UPPER,$LOWER)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A> -->
+                        <A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
+                        <!--
 			<A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+			<A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info">Long-form</A>
 			<br/>
 			
 		</xsl:when>
@@ -1094,22 +1170,23 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+                        <!-- <A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A> -->
+			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
+
+                        <!-- <A 
 			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			TARGET="info" >Long-form</A> -->
+                        <A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info">Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
-			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			<A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info" >Long-form</A>
 			<br/>
 			</xsl:when>
                         <!-- the rule: validate_dependently_instantiable_entity_data_types
@@ -1118,7 +1195,7 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
                              any short form schema -->
 		<xsl:when test="$this-function-name='dependently_instantiated'">
                   &#160;&#160;<A 
-			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
 			TARGET="info" >Long-form</A>
 			<br/>
                 </xsl:when>
@@ -1148,6 +1225,10 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
 	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)" />
+
+        <xsl:variable name="def_ref" select="translate(concat($schema-name,'.',@name), $UPPER,$LOWER)"/>
+        <xsl:variable name="lf_ref" select="translate(concat(../@name,'.',@name), $UPPER,$LOWER)"/>
+
         <xsl:variable name="prefix">
           <xsl:call-template name="get_last_section">
             <xsl:with-param name="path" select="$schema-name"/>
@@ -1168,11 +1249,9 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						$module),$UPPER,$LOWER)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
-			<A 
-			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			<A HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}"	TARGET="info">Long-form</A>
 			<br/>
 			
 		</xsl:when>
@@ -1180,21 +1259,20 @@ $Id: index_mim_express_inner.xsl,v 1.13 2004/11/02 16:18:31 robbod Exp $
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
-			TARGET="info" >Long-form</A>
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" TARGET="info" >Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
-			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
+			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$def_ref}" TARGET="info">Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{$lf_ref}" 
 			TARGET="info" >Long-form</A>
 			<br/>
 			</xsl:when>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.14 2002/11/25 17:07:27 robbod Exp $
+$Id: modules_list.xsl,v 1.15 2002/12/12 23:17:24 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -211,6 +211,12 @@ $Id: modules_list.xsl,v 1.14 2002/11/25 17:07:27 robbod Exp $
 
       <p class="menuitem">
         &#160;&#160;<a href="{$developer}" target="content">XML references</a>
+      </p>
+
+      <p class="menuitem">
+        <xsl:variable name="issue_view" 
+          select="concat('../data/modules/',@name,'/nav/issues_dvlp',$FILE_EXT)"/>
+        &#160;&#160;<a href="{$issue_view}" target="content">Issue templates</a>
       </p>
 
       <p class="menuitem">

@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.4 2002/02/13 09:37:34 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 09:37:34 $"
-  rcs.revision="$Revision: 1.4 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $"
+  description.file="arm_descriptions.xml">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.9"
     source="../data/modules/part_and_version_identification/arm.exp"/>
 
   <schema name="Part_and_version_identification_arm">
@@ -20,52 +21,21 @@
       schema="Product_version_arm">
     </interface>
 
-    <interface
-      kind="use"
-      schema="Person_organization_assignment_arm">
-    </interface>
-
-    <type name="part_version_organization_or_person_in_organization_item">
-      <description>This select extends the assignment of an organization or a person in an organization to Part_version.</description>
-      <select
-        basedon="organization_or_person_in_organization_item"
-        selectitems="Part_version">
-      </select>
-
-    </type>
     <entity
       name="Part"
       supertypes="Product">
-      <description>A <b>Part</b> is a type of <b>Product</b> that is intended to be produced or employed in a production process. A Part may be either a single piece part, an assembly of arbitrary complexity, or a raw material.</description>
       <where
         label="WR1"
-        expression="SELF.product_type IN ['part', 'raw material']">
-        <description>The <b>product_type</b> role shall be 'part', or 'raw material'.</description>
+        expression="SIZEOF(['part', 'raw material']*types_of_product(SELF))=1">
       </where>
     </entity>
 
     <entity
       name="Part_version"
       supertypes="Product_version">
-      <description>A <b>Part_version</b> is a variant of a part.</description>
-      <inverse
-        name="supplier"
-        entity="Organization_or_person_in_organization_assignment"
-        attribute="items">
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
       <where
         label="WR1"
-        expression="SELF.supplier.role = 'part supplier' OR NOT EXISTS(supplier)">
-        <description>if the supplier exists, the supplier role shall be 'part supplier'.</description>
-      </where>
-      <where
-        label="WR2"
-        expression="SELF.of_product.product_type.name IN ['part', 'raw material']">
-        <description>The <b>Part_version</b> shall be a variant of a 'part' or 'raw material'.</description>
+        expression="'PART_AND_VERSION_IDENTIFICATION_ARM.PART' IN TYPEOF(SELF.of_product)">
       </where>
     </entity>
 

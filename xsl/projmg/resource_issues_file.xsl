@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues_file.xsl,v 1.6 2003/04/14 18:02:50 thendrix Exp $
+     $Id: resource_issues_file.xsl,v 1.7 2003/10/24 08:38:20 robbod Exp $
 
   Author: Tom Hendrix
   Owner:  
@@ -15,14 +15,21 @@
   <xsl:import href="../res_doc/sect_4_express.xsl"/>
   <xsl:import href="../res_doc/res_toc.xsl"/>
 
-  <xsl:output method="html"/>
+  <xsl:output 
+    method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
+    indent="yes"
+    />
+
 
   <xsl:template match="issues">
     <html>
-      <title>
-        <xsl:value-of select="concat(/issues/@resource,' - issues')"/>
-      </title>
-
+      <head>
+        <title>
+          <xsl:value-of select="concat(/issues/@resource,' - issues')"/>
+        </title>
+      </head>
       <body>
 
         <!-- Output a Table of contents -->
@@ -365,16 +372,18 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-      <span style="background-color: #FFFF99">
         <h3>
+      <span style="background-color: #FFFF99">
+
           <a name="{$aname}">
             <b>
               <xsl:value-of select="translate($aname,$LOWER,$UPPER)"/>
             </b>
           </a>
           issues
-        </h3>
       </span>
+        </h3>
+
     </xsl:if>
 
     <xsl:variable name="issue_target" 
@@ -391,8 +400,9 @@
     </xsl:variable>
 
     <!-- put in place to use CSS -->
-    <p class="{$status}">      
     <hr size="3" />
+    <p class="{$status}">      
+
       <!-- replace with CSS -->
       <xsl:choose>
         <xsl:when test="not($status='closed')">

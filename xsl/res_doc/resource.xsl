@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.26 2003/04/11 23:34:37 thendrix Exp $
+$Id: resource.xsl,v 1.27 2003/04/14 03:37:16 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -204,7 +204,7 @@ $Id: resource.xsl,v 1.26 2003/04/11 23:34:37 thendrix Exp $
   </xsl:variable>
   <h4>
     <xsl:value-of select="$stdnumber"/><br/>
-    Product data representation and exchange: Application module: 
+    Product data representation and exchange:  Integrated generic resource: 
     <xsl:value-of select="$resdoc_name"/>
   </h4>
   

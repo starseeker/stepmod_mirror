@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_arm_lf.xsl,v 1.4 2003/03/13 19:17:13 robbod Exp $
+$Id: sect_e_exp_arm_lf.xsl,v 1.5 2003/05/05 07:53:44 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM long form express 
@@ -59,6 +59,11 @@ $Id: sect_e_exp_arm_lf.xsl,v 1.4 2003/03/13 19:17:13 robbod Exp $
     <xsl:value-of 
       select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.arm_lf, ' - ',
               $stdnumber,' ', $module_name, ' - EXPRESS ARM Long form')"/>
+    <xsl:if test="string-length(normalize-space(@wg.number.arm_lf.supersedes))>0">
+      <br/>Supersedes 
+      <xsl:value-of 
+        select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.arm_lf.supersedes)"/>
+    </xsl:if>
     <br/>*)
   </code>
   <br/>

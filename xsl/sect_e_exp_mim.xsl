@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_mim.xsl,v 1.4 2002/12/24 09:56:35 robbod Exp $
+$Id: sect_e_exp_mim.xsl,v 1.5 2003/03/13 19:17:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the MIM short form express 
@@ -114,6 +114,11 @@ $Id: sect_e_exp_mim.xsl,v 1.4 2002/12/24 09:56:35 robbod Exp $
     <xsl:value-of 
       select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.mim, ' - ',
               $stdnumber,' ', $module_name, ' - EXPRESS MIM')"/>
+    <xsl:if test="string-length(normalize-space(@wg.number.mim.supersedes))>0">
+      <br/>Supersedes 
+      <xsl:value-of 
+        select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.mim.supersedes)"/>
+    </xsl:if>
     <br/>*)
   </code>
   <br/>

@@ -79,8 +79,6 @@ TYPE parameter_value = REAL;
 END_TYPE; 
 
 TYPE plane_angle_measure = REAL;
-WHERE
-  WR1: SELF > 0.0;
 END_TYPE; 
 
 TYPE positive_length_measure = length_measure;
@@ -205,8 +203,8 @@ END_ENTITY;
 
 ENTITY conversion_based_unit
   SUBTYPE OF (named_unit);
-  conversion_factor : measure_with_unit;
   name : label;
+  conversion_factor : measure_with_unit;
 END_ENTITY;
 
 ENTITY derived_unit;
@@ -219,8 +217,8 @@ WHERE
 END_ENTITY;
 
 ENTITY derived_unit_element;
-  exponent : REAL;
   unit : named_unit;
+  exponent : REAL;
 END_ENTITY;
 
 ENTITY dimensional_exponents;
@@ -264,6 +262,8 @@ END_ENTITY;
 
 ENTITY luminous_intensity_measure_with_unit
   SUBTYPE OF (measure_with_unit);
+WHERE
+  WR1: 'MEASURE_SCHEMA.LUMINOUS_INTENSITY_UNIT' IN TYPEOF(SELF\measure_with_unit.unit_component);
 END_ENTITY;
 
 ENTITY luminous_intensity_unit
@@ -298,8 +298,8 @@ ENTITY measure_with_unit
                        area_measure_with_unit,
                        volume_measure_with_unit,
                        ratio_measure_with_unit));
-  unit_component : unit;
   value_component : measure_value;
+  unit_component : unit;
 WHERE
   WR1: valid_units (SELF);
 END_ENTITY;
@@ -349,8 +349,8 @@ END_ENTITY;
 
 ENTITY si_unit
   SUBTYPE OF (named_unit);
-  name : si_unit_name;
   prefix : OPTIONAL si_prefix;
+  name : si_unit_name;
 DERIVE
   SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit (name);
 END_ENTITY;
@@ -399,6 +399,8 @@ END_ENTITY;
 
 ENTITY volume_unit
   SUBTYPE OF (named_unit);
+WHERE
+  WR1: (SELF\named_unit.dimensions.length_exponent = 3.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000);
 END_ENTITY;
 
 FUNCTION derive_dimensional_exponents

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
+$Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -301,49 +301,62 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 		Otherwise output and add to todo
 	-->
 
-	<xsl:variable name="this-schema" select="substring-before(concat(normalize-space($todo),' '),' ')" />
+	<xsl:variable name="this-schema"
+          select="substring-before(concat(normalize-space($todo),' '),' ')"/>
+        
+        <xsl:variable name="prefix">
+          <xsl:call-template name="get_last_section">
+            <xsl:with-param name="path" select="$this-schema"/>
+            <xsl:with-param name="divider" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module">
+          <xsl:call-template name="get_string_before">
+            <xsl:with-param name="str" select="$this-schema"/>
+            <xsl:with-param name="char" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
 
-		<xsl:if test="$this-schema" >
+        <xsl:if test="$this-schema" >
 
-
-<!-- open up the relevant schema  - which can be a resource or a mim schema -->
-
-	<xsl:variable name="file_name" >
-		<xsl:choose>
-			<xsl:when test="function-available('msxsl:node-set')" >
-			<xsl:choose>
-				<xsl:when test="substring-before($this-schema,'_mim')" >
-			    		<xsl:value-of select="concat('../../../modules/',substring-before($this-schema,'_mim'),'/mim.xml')" />
-				</xsl:when>
-				<xsl:when test="substring-before($this-schema,'_schema')" >
-			    <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')" />
-				</xsl:when>
-				<xsl:when test="starts-with($this-schema,'aic_')" >
-			    <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')" />
-				</xsl:when>
-				<xsl:otherwise>
-				BAD SCHEMA name !!! <xsl:value-of select="$this-schema"/>
-				</xsl:otherwise>
-			</xsl:choose>
-			</xsl:when>
-			<xsl:when test="function-available('exslt:node-set')" >
-			<xsl:choose>
-				<xsl:when test="substring-before($this-schema,'_mim')" >
-			    		<xsl:value-of select="concat('../../data/modules/',substring-before($this-schema,'_mim'),'/mim.xml')" />
-				</xsl:when>
-				<xsl:when test="substring-before($this-schema,'_schema')" >
-			    <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')" />
-				</xsl:when>
-				<xsl:when test="starts-with($this-schema,'aic_')" >
-			    <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')" />
-				</xsl:when>
-				<xsl:otherwise>
-				BAD SCHEMA name !!! <xsl:value-of select="$this-schema"/>
-				</xsl:otherwise>
-			</xsl:choose>
-			</xsl:when>
-		</xsl:choose>
-			</xsl:variable>
+          <!-- open up the relevant schema  - which can be a resource or a mim schema -->
+          <xsl:variable name="file_name">
+            <xsl:choose>
+              <xsl:when test="function-available('msxsl:node-set')" >
+                <xsl:choose>
+                  <xsl:when test="$prefix='mim'" >
+                    <xsl:value-of select="concat('../../../modules/',$module,'/mim.xml')"/>
+                  </xsl:when>
+                  <xsl:when test="$prefix='schema'" >
+                    <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')"/>
+                  </xsl:when>
+                  <xsl:when test="starts-with($this-schema,'aic_')">
+                    <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    BAD SCHEMA name !!! <xsl:value-of select="$this-schema"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+              <xsl:when test="function-available('exslt:node-set')" >
+                <xsl:choose>
+                  <xsl:when test="$prefix='mim'" >
+                    <xsl:value-of select="concat('../../data/modules/',$module,'/mim.xml')"/>
+                  </xsl:when>
+                  <xsl:when test="$prefix='schema'">
+                    <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
+                  </xsl:when>
+                  <xsl:when test="starts-with($this-schema,'aic_')">
+                    <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    BAD SCHEMA name !!! <xsl:value-of select="$this-schema"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+            </xsl:choose>
+          </xsl:variable>
 
 			<xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))" >
 				<x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -681,11 +694,24 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
 	<xsl:variable name="schema-name-l" select="translate($schema-name, $UPPER,$LOWER)" />
 
+        <xsl:variable name="prefix">
+          <xsl:call-template name="get_last_section">
+            <xsl:with-param name="path" select="$schema-name-l"/>
+            <xsl:with-param name="divider" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module">
+          <xsl:call-template name="get_string_before">
+            <xsl:with-param name="str" select="$schema-name-l"/>
+            <xsl:with-param name="char" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
+
 	<xsl:choose>
-		<xsl:when test="substring-before($schema-name-l,'_mim')" >
+		<xsl:when test="$prefix='mim'" >
     			<xsl:variable name="mod-dir" 
-				 select="translate(concat($STEPMOD_DATA_MODULES,
-						substring-before($schema-name-l,'_mim')),$UPPER,$LOWER)" />
+				 select="translate(concat($STEPMOD_DATA_MODULES,$module),$UPPER,$LOWER)" />
                           <xsl:apply-templates select="." mode="expressg_icon">
                             <xsl:with-param name="target" select="'info'"/>
                             <xsl:with-param name="expressg" select="$expressg"/>
@@ -698,7 +724,7 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 			<br/>
 			
 		</xsl:when>
-		<xsl:when test="substring-before($schema-name-l,'_schema')" >
+		<xsl:when test="$prefix='schema'" >
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)"/>
                         <xsl:text> </xsl:text>
@@ -762,12 +788,25 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 		select="$called-schemas//constant[translate(@name,$UPPER, $LOWER)=$this-const-name]" />
 
 		<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
+                  <xsl:variable name="prefix">
+                    <xsl:call-template name="get_last_section">
+                      <xsl:with-param name="path" select="$schema-name"/>
+                      <xsl:with-param name="divider" select="'_'"/>
+                    </xsl:call-template>
+                  </xsl:variable>
+                  
+                  <xsl:variable name="module">
+                    <xsl:call-template name="get_string_before">
+                      <xsl:with-param name="str" select="$schema-name"/>
+                        <xsl:with-param name="char" select="'_'"/>
+                      </xsl:call-template>
+                    </xsl:variable>
 
 		<xsl:choose>
-			<xsl:when test="substring-before($schema-name,'_mim')" >
+			<xsl:when test="$prefix='mim'" >
     				<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
-						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+						$module),$UPPER,$LOWER)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 				<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" 
 					TARGET="info" >Definition</A>
@@ -778,7 +817,7 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 				<br/>
 			
 			</xsl:when>
-			<xsl:when test="substring-before($schema-name,'_schema')" >
+			<xsl:when test="$prefix='schema'">
  	 			<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
@@ -830,12 +869,25 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 	<xsl:variable name="orig" select="$called-schemas//type[translate(@name,$UPPER, $LOWER)=$this-type-name]" />
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
+        <xsl:variable name="prefix">
+          <xsl:call-template name="get_last_section">
+            <xsl:with-param name="path" select="$schema-name"/>
+            <xsl:with-param name="divider" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module">
+          <xsl:call-template name="get_string_before">
+            <xsl:with-param name="str" select="$schema-name"/>
+            <xsl:with-param name="char" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
 
 	<xsl:choose>
-		<xsl:when test="substring-before($schema-name,'_mim')" >
+		<xsl:when test="$prefix='mim'">
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
-						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" /><xsl:apply-templates select="." mode="expressg_icon">
+						$module),$UPPER,$LOWER)" /><xsl:apply-templates select="." mode="expressg_icon">
                             <xsl:with-param name="target" select="'info'"/>
                             <xsl:with-param name="expressg" select="$expressg"/>
                           </xsl:apply-templates> 
@@ -846,7 +898,7 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 			<br/>
 			
 		</xsl:when>
-		<xsl:when test="substring-before($schema-name,'_schema')" >
+		<xsl:when test="$prefix='schema'">
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
@@ -915,6 +967,19 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
 
+        <xsl:variable name="prefix">
+          <xsl:call-template name="get_last_section">
+            <xsl:with-param name="path" select="$schema-name"/>
+            <xsl:with-param name="divider" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module">
+          <xsl:call-template name="get_string_before">
+            <xsl:with-param name="str" select="$schema-name"/>
+            <xsl:with-param name="char" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
 
 	<xsl:choose>
 		<xsl:when test="substring-before($schema-name,'_mim')" >
@@ -930,7 +995,7 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 			<br/>
 			
 		</xsl:when>
-		<xsl:when test="substring-before($schema-name,'_schema')" >
+		<xsl:when test="$prefix='schema'" >
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
@@ -991,12 +1056,25 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
 
+        <xsl:variable name="prefix">
+          <xsl:call-template name="get_last_section">
+            <xsl:with-param name="path" select="$schema-name"/>
+            <xsl:with-param name="divider" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module">
+          <xsl:call-template name="get_string_before">
+            <xsl:with-param name="str" select="$schema-name"/>
+            <xsl:with-param name="char" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
 
 	<xsl:choose>
-		<xsl:when test="substring-before($schema-name,'_mim')" >
+		<xsl:when test="$prefix='mim'">
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
-						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+						$module),$UPPER,$LOWER)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
@@ -1006,7 +1084,7 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 			<br/>
 			
 		</xsl:when>
-		<xsl:when test="substring-before($schema-name,'_schema')" >
+		<xsl:when test="$prefix='schema'">
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
@@ -1064,12 +1142,25 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 
 	<xsl:variable name="schema-name" select="$orig/ancestor::schema/@name" />
 
+        <xsl:variable name="prefix">
+          <xsl:call-template name="get_last_section">
+            <xsl:with-param name="path" select="$schema-name"/>
+            <xsl:with-param name="divider" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module">
+          <xsl:call-template name="get_string_before">
+            <xsl:with-param name="str" select="$schema-name"/>
+            <xsl:with-param name="char" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
 
 	<xsl:choose>
-		<xsl:when test="substring-before($schema-name,'_mim')" >
+		<xsl:when test="$prefix='mim'">
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
-						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+						$module),$UPPER,$LOWER)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
@@ -1079,7 +1170,7 @@ $Id: index_mim_express_inner.xsl,v 1.9 2003/10/31 16:44:40 robbod Exp $
 			<br/>
 			
 		</xsl:when>
-		<xsl:when test="substring-before($schema-name,'_schema')" >
+		<xsl:when test="$prefix='schema'">
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
                           &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>

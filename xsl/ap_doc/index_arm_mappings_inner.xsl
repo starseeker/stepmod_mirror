@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.15 2003/08/12 06:37:06 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.16 2003/08/17 20:17:39 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -639,9 +639,15 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 
 
 				<x>
-					<xsl:choose>
-						<xsl:when test="contains($this-schema,'_schema')">
-							<xsl:value-of 
+                                  <xsl:variable name="prefix">
+                                    <xsl:call-template name="get_last_section">
+                                      <xsl:with-param name="path" select="$this-schema"/>
+                                      <xsl:with-param name="divider" select="'_'"/>
+                                    </xsl:call-template>
+                                  </xsl:variable>
+                                  <xsl:choose>
+                                    <xsl:when test="$prefix='schema'">
+                                      <xsl:value-of 
 			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
 						</xsl:when>
 						<xsl:when test="starts-with($this-schema,'aic_')">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.9 2003/07/28 12:32:41 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.10 2003/08/01 08:58:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -337,17 +337,32 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
       select="translate(substring-before(concat(normalize-space($todo),' '),' '),
               'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
 
+
+
     <xsl:if test="$this-schema">
+        <xsl:variable name="prefix">
+          <xsl:call-template name="get_last_section">
+            <xsl:with-param name="path" select="$this-schema"/>
+            <xsl:with-param name="divider" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module">
+          <xsl:call-template name="get_string_before">
+            <xsl:with-param name="str" select="$this-schema"/>
+            <xsl:with-param name="char" select="'_'"/>
+          </xsl:call-template>
+        </xsl:variable>
 
       <!-- open up the relevant schema  - which can be a resource or a mim schema -->
       <xsl:variable name="file_name">
         <xsl:choose>
           <xsl:when test="function-available('msxsl:node-set')">
             <xsl:choose>
-              <xsl:when test="substring-before($this-schema,'_mim')">
-                <xsl:value-of select="concat('../../../modules/',substring-before($this-schema,'_mim'),'/mim.xml')"/>
+              <xsl:when test="$prefix='mim'">
+                <xsl:value-of select="concat('../../../modules/',$module,'/mim.xml')"/>
               </xsl:when>
-              <xsl:when test="substring-before($this-schema,'_schema')" >
+              <xsl:when test="$prefix='schema'">
                 <xsl:value-of select="concat('../../../resources/',$this-schema,'/',$this-schema,'.xml')"/>
               </xsl:when>
               <xsl:when test="starts-with($this-schema,'aic_')">
@@ -360,10 +375,10 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
         </xsl:when>
         <xsl:when test="function-available('exslt:node-set')" >
           <xsl:choose>
-            <xsl:when test="substring-before($this-schema,'_mim')">
-              <xsl:value-of select="concat('../../data/modules/',substring-before($this-schema,'_mim'),'/mim.xml')"/>
+            <xsl:when test="$prefix='mim'">
+              <xsl:value-of select="concat('../../data/modules/',$module,'/mim.xml')"/>
             </xsl:when>
-            <xsl:when test="substring-before($this-schema,'_schema')">
+            <xsl:when test="$prefix='schema'">
               <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
             </xsl:when>
             <xsl:when test="starts-with($this-schema,'aic_')">

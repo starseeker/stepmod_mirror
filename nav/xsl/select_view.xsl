@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.20 2003/08/15 14:40:22 nigelshaw Exp $
+$Id: select_view.xsl,v 1.21 2003/11/25 08:35:14 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -925,7 +925,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
                                     </xsl:call-template>
                                   </xsl:variable>
                                   <xsl:choose>
-                                    <xsl:when test="$prefix = '_schema'">
+                                    <xsl:when test="$prefix='schema'">
                                       <xsl:value-of 
                                         select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')"/>
                                     </xsl:when>

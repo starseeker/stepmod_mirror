@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-
 <!--
-     $Id: express_description.xsl,v 1.24 2003/06/30 16:33:30 thendrix Exp $
-
+$Id: express_description.xsl,v 1.25 2003/06/30 20:51:49 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -97,10 +95,13 @@
       </xsl:variable>
       <xsl:value-of select="$return2"/>
     </xsl:variable>
-    
-    <xsl:variable name="description"
-      select="document($description_file)/ext_descriptions/ext_description[@linkend=$xref]"/>
 
+    <xsl:variable name="descriptions"
+      select="document($description_file)/ext_descriptions"/>    
+
+    <xsl:variable name="description"
+
+      select="$descriptions/ext_description[@linkend=$xref]"/>
 
     <xsl:if test="string-length($object/description)>0 and /express/@description.file">
       <xsl:variable name="arm_mim_file" select="concat(substring-before($description_file,'_'),'.xml')"/>
@@ -111,7 +112,6 @@
                   ' in ',$arm_mim_file,' and ', $description_file)"/>
       </xsl:call-template>
     </xsl:if>
-
 
     <xsl:if test="string-length($attribute)>0">
       <xsl:variable name="attr_start_char"
@@ -142,8 +142,21 @@
  -->
 
       <xsl:for-each select="$description//b">
+
+        <xsl:variable name="candidate-express-ref">
+          <xsl:choose>
+            <xsl:when test="string-length(substring-before(substring-after($description/@linkend,'.'),'.'))=0">
+              <xsl:value-of select="concat(substring-before($description/@linkend,'.'),'.',substring-after($description/@linkend,'.'),'.',.)"/>
+            </xsl:when>
+            <xsl:otherwise>
+           <xsl:value-of select="concat(substring-before($description/@linkend,'.'),'.', substring-before(substring-after($description/@linkend,'.'),'.'),'.',.)"/>              
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
         <xsl:choose>
+
           <xsl:when test="(
+(
 not(contains(.,substring-before(substring-after($description/@linkend,'.'),'.'))) 
 and  
 string-length(substring-before(substring-after($description/@linkend,'.'),'.'))>0)
@@ -151,12 +164,34 @@ string-length(substring-before(substring-after($description/@linkend,'.'),'.'))>
 (
 not(contains(.,substring-after($description/@linkend,'.'))) 
 and 
-string-length(substring-before(substring-after($description/@linkend,'.'),'.'))=0)">
+string-length(substring-before(substring-after($description/@linkend,'.'),'.'))=0)
+)
+
+and
+            not($descriptions/ext_description[@linkend =  $candidate-express-ref])">
+
+
             <xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 
-                select="concat('Warning Ent7: bold text &quot;  ', . , '&quot; found in definition of express identifier  &quot;',$description/@linkend,'&quot;','  If an express identifier, consider tagging as &lt;express_ref&gt;.')"/>
+                select="concat('Warning Ent7: bold text &quot;', . , '&quot; found in definition of express identifier  &quot;',$description/@linkend,'&quot;','  If an express identifier, consider tagging as &lt;express_ref&gt;.')"/>
             </xsl:call-template>
+
+            <!--
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Test1 Ent7  cand-ex-ref: ', $candidate-express-ref)"/>
+            </xsl:call-template>
+
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Test2 Ent7  match cand-ex-ref: ', count($descriptions/ext_description[@linkend =  $candidate-express-ref]))"/>
+            </xsl:call-template>
+
+-->
+
           </xsl:when>
         </xsl:choose>
       </xsl:for-each>
@@ -242,7 +277,6 @@ and  string is more than the schema name ( hence not the  schema )
       </xsl:if>
 -->
 
-
 <xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),'is a type of '))" >
         
         <xsl:call-template name="error_message">
@@ -255,7 +289,7 @@ and  string is more than the schema name ( hence not the  schema )
         
       </xsl:if>
 
-      <!-- cheap and cheerful check for supertypes -->
+
 
 
 

@@ -13,6 +13,9 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   version="1.0">
   
   <xsl:import href="../file_ext.xsl"/>
+  <xsl:import href="../ap_doc/common.xsl"/>
+  <xsl:import href="../res_doc/common.xsl"/>
+
 
   <xsl:output method="html"
     doctype-system="http://www.w3.org/TR/html4/loose.dtd"
@@ -30,6 +33,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
               <xsl:value-of select="concat('0; URL=',$new_page)"/>
             </xsl:attribute>
           </xsl:element>
+          <title>
+          <!-- output the part page title -->
+          <xsl:apply-templates 
+            select="."
+            mode="title"/>
+        </title>
       </head>
       <body>
         <xsl:value-of select="concat('You will be redirected to ',$new_page,' in 0 seconds')"/><br/>
@@ -51,6 +60,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
               <xsl:value-of select="concat('0; URL=',$new_page)"/>
             </xsl:attribute>
           </xsl:element>
+          <title>
+          <!-- output the part page title -->
+          <xsl:apply-templates 
+            select="."
+            mode="title"/>
+        </title>
       </head>
       <body>
         <xsl:value-of select="concat('You will be redirected to ',$new_page,' in 0 seconds')"/><br/>
@@ -72,7 +87,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
               <xsl:value-of select="concat('0; URL=',$new_page)"/>
             </xsl:attribute>
           </xsl:element>
-          <title></title>
+          <title>
+          <!-- output the part page title -->
+          <xsl:apply-templates 
+            select="."
+            mode="title"/>
+        </title>
       </head>
       <body>
         <xsl:value-of select="concat('You will be redirected to ',$new_page,' in 0 seconds')"/><br/>

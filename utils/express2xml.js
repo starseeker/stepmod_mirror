@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $
+//$Id: express2xml.js,v 1.5 2001/12/28 15:59:29 robbod Exp $
 // JScript to convert an Express file to an XML file
 // cscript express2xml.js <express.exp>
 // cscript express2xml.js <module> arm
@@ -308,7 +308,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.5 2001/12/28 15:59:29 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -318,7 +318,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.4 $";
+    var appCVSRevision = "$Revision: 1.5 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -578,9 +578,16 @@ function xmlUnique(statement, outTs) {
 
 function getInverseEntity(statement) {
     statement=normaliseStatement(statement);
+    var entity;
     var pos = statement.search(/\bOF\b/);
-    var entity = statement.substr(pos+3);
-    entity = getWord(1,entity);
+    if (pos > 0) {
+	entity = statement.substr(pos+3);
+	entity = getWord(1,entity);
+    } else {
+	pos = statement.search(/:/);
+	entity = statement.substr(pos+1);
+	entity = getWord(1,entity);
+    }
     return(entity);
 }
 

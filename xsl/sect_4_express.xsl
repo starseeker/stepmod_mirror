@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.45 2002/06/18 07:56:41 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.46 2002/06/21 09:35:52 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -698,7 +698,7 @@ select="document($module_file)/module/arm/express-g/imgfile">
   
 
   SELECT<xsl:if test="@basedon">
-    BASED ON 
+    BASED_ON 
       <xsl:call-template name="link_object">
         <xsl:with-param name="object_name" select="@basedon"/>
         <xsl:with-param name="object_used_in_schema_name" 

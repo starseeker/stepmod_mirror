@@ -1,6 +1,7 @@
 (*
-   $Id: arm.exp,v 1.13 2002/12/17 16:27:46 ianbailey Exp $
-ISO TC184/SC4/WG12 N1373 - ISO/CD-TS 10303-1248 Product breakdown - EXPRESS ARM
+$Id: $
+ISO TC184/SC4/WG12 N2294 - ISO/TS 10303-1248 Product breakdown - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N1373
 *) 
 
 
@@ -14,6 +15,12 @@ USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
 
 USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
 
+USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
+
+
+TYPE breakdown_element_realization_property_assignment_select = SELECT BASED_ON property_assignment_select WITH 
+   (Breakdown_element_realization);
+END_TYPE; 
 
 TYPE breakdown_item = EXTENSIBLE SELECT
    (Breakdown_element_definition, 
@@ -22,7 +29,7 @@ END_TYPE;
 
 TYPE product_item = EXTENSIBLE SELECT
    (Product_view_definition, 
-    View_definition_relationship);
+    View_definition_usage);
 END_TYPE; 
 
 ENTITY Breakdown
@@ -51,10 +58,10 @@ ENTITY Breakdown_element_realization
 END_ENTITY;
 
 ENTITY Breakdown_element_usage
-  SUBTYPE OF (View_definition_relationship);
-  SELF\View_definition_relationship.related_view RENAMED child_element : Breakdown_element_definition;
+  SUBTYPE OF (View_definition_usage);
   name : STRING;
-  SELF\View_definition_relationship.relating_view RENAMED parent_element : Breakdown_element_definition;
+  SELF\View_definition_usage.relating_view RENAMED parent_element : Breakdown_element_definition;
+  SELF\View_definition_usage.related_view RENAMED child_element : Breakdown_element_definition;
 END_ENTITY;
 
 ENTITY Breakdown_element_version

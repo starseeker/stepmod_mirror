@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.13 2004/02/10 23:47:54 thendrix Exp $
+$Id: common.xsl,v 1.14 2004/02/20 22:24:46 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1339,8 +1339,9 @@ $Id: common.xsl,v 1.13 2004/02/10 23:47:54 thendrix Exp $
                         or $section_tmp='4_constants'
                         or $section_tmp='4_types'
                         or $section_tmp='4_entities'
-												or $section_tmp='4_subtype_constraints'
+                        or $section_tmp='4_subtype_constraints'
                         or $section_tmp='4_rules'
+			or $section_tmp='4_subtype_constraints'
                         or $section_tmp='4_functions'
                         or $section_tmp='4_procedures'
                         or $section_tmp='5_mapping'

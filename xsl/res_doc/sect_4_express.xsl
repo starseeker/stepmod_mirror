@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.15 2004/02/10 23:46:25 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.16 2004/02/25 09:15:13 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1455,9 +1455,14 @@
 
 
 <xsl:template match="subtype.constraint">
-  <xsl:variable name="schema_name" select="../@name"/>      
+  <xsl:param name="main_clause"/>
+ <xsl:variable 
+   name="schema_name" 
+   select="../@name"/>      
+
   <xsl:variable name="clause_number">
-    <xsl:call-template name="express_clause_number">
+     <xsl:call-template name="express_clause_number">
+      <xsl:with-param name="main_clause" select="$main_clause"/>
       <xsl:with-param name="clause" select="'subtype.constraint'"/>
       <xsl:with-param name="schema_name" select="$schema_name"/>
     </xsl:call-template>
@@ -1465,7 +1470,15 @@
   <xsl:if test="position()=1">
     <!-- first subtype constraint so output the intro -->
     <xsl:variable name="clause_header">
-          <xsl:value-of select="concat($clause_number,' ',$schema_name,' subtype constraint definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../subtype.constraint)>1">
+              <xsl:value-of select="concat($main_clause, $clause_number,' ',$schema_name,' subtype constraint definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+          <xsl:value-of select="concat($main_clause, $clause_number,' ',$schema_name,' subtype constraint definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+
     </xsl:variable>
 
     <xsl:variable name="clause_intro">
@@ -1483,7 +1496,7 @@
     </xsl:variable>
 
     <h2>
-      <a name="subtype_constraints">
+      <a NAME="subtype_constraints">
         <xsl:value-of select="$clause_header"/>
       </a>
     </h2>
@@ -1499,7 +1512,7 @@
              
   <h2>
     <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+      <xsl:value-of select="concat($main_clause, $clause_number,'.',position(),' ',@name)"/>
     </A>
   </h2>
   <!-- output description from external file -->
@@ -2335,7 +2348,6 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
             test="document(string($xml_file))/express/schema/entity">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="main_clause" select="$main_clause"/>
-
               <xsl:with-param name="clause" select="'entity'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2354,7 +2366,6 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
             test="document(string($xml_file))/express/schema/subtype.constraint">
             <xsl:call-template name="express_clause_number">
               <xsl:with-param name="main_clause" select="$main_clause"/>
-
               <xsl:with-param name="clause" select="'subtype.constraint'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2845,12 +2856,11 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
       </xsl:when>
 
       <xsl:when test="$clause='function'">
-	
         <xsl:value-of select="1 + 
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause + 
                               $entity_clause + $imported_entity_clause +
-															$subtype_constraint_clause + 
+			      $subtype_constraint_clause + 
                               $function_clause"/>
       </xsl:when>
       <xsl:when test="$clause='imported_function'">

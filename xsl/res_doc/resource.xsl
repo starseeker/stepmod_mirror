@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.41 2004/04/22 17:35:40 thendrix Exp $
+$Id: resource.xsl,v 1.42 2004/09/16 17:24:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1429,7 +1429,9 @@ defined in Annex D of ISO 10303-11.
   <!-- display the EXPRESS for the subtype.contraints in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="$express_xml/express/schema/subtype.constraint"/>
+    select="$express_xml/express/schema/subtype.constraint">
+    <xsl:with-param name="main_clause" select="$schema_no+3" />
+    </xsl:apply-templates>
 
   <!-- display the EXPRESS for the functions in the schema
        The template is in sect4_express.xsl -->
@@ -1437,18 +1439,19 @@ defined in Annex D of ISO 10303-11.
 	<xsl:with-param name="main_clause" select="($schema_no+3)" />
 	</xsl:apply-templates>
 	
-
-  <!-- display the EXPRESS for the entities in the schema. 
+  <!-- display the EXPRESS for the rules in the schema. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="$express_xml/express/schema/rule"/>
+    select="$express_xml/express/schema/rule">
+    <xsl:with-param name="main_clause" select="$schema_no+3" />
+    </xsl:apply-templates>
 
   <!-- display the EXPRESS for the procedures in the schema. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="$express_xml/express/schema/procedure"/>
-
-  
+    select="$express_xml/express/schema/procedure">
+    <xsl:with-param name="main_clause" select="$schema_no+3" />
+    </xsl:apply-templates>
   <code>
     <br/>    <br/>
     *)<br/>

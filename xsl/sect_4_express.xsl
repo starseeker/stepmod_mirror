@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.90 2003/04/11 14:27:22 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.91 2003/05/04 07:51:15 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -3540,7 +3540,7 @@
               The <b><xsl:value-of select="$typename"/></b> type is an
               extensible list of alternate data types. It provides a
               mechanism to refer to instances of the data types included in
-              the <b><xsl:value-of select="$typename"/></b> type or in it's
+              the <b><xsl:value-of select="$typename"/></b> type or in its
               extensions.  
             </p>
             <p class="note">

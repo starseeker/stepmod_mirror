@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-03T15:24:50" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-05T11:42:12" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="analytical_model_arm schema_instance"/>
    <schema name="Analytical_model_arm">
       <interface kind="use" schema="Model_parameter_arm"/>
@@ -77,9 +77,6 @@
          <explicit name="representation_language">
             <typename name="Language_reference_manual"/>
          </explicit>
-         <explicit name="reference_document">
-            <typename name="Document_definition"/>
-         </explicit>
          <explicit name="source_code">
             <typename name="Software_definition"/>
          </explicit>
@@ -89,6 +86,7 @@
          <inverse name="parameter" entity="Analytical_model_parameter" attribute="accessed_analytical_model">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
+         <inverse name="reference_document" entity="Document_assignment" attribute="is_assigned_to"/>
       </entity>
       <entity name="Analytical_model_make_from_relationship" supertypes="Document_definition_relationship">
          <explicit name="reusable_model">
@@ -211,5 +209,11 @@
          <where label="WR1" expression=" not_applicable &lt;&gt; nominal_signal_flow_direction "/>
          <where label="WR2" expression=" bidirectional &lt;&gt; nominal_signal_flow_direction "/>
       </entity>
+      <rule name="analytical_model_definition_constraint" appliesto="Product_view_definition">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_DEFINITION' IN TYPEOF ( pvd ) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pvd . defined_version ) ) ) ) = 0 "/>
+      </rule>
+      <rule name="analytical_model_version_constraint" appliesto="Product_version">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF ( pv ) ) ) AND ( 'ANALYTICAL_MODEL_ARM.' + 'ANALYTICAL_MODEL' IN TYPEOF ( pv . of_product ) ) ) ) = 0 "/>
+      </rule>
    </schema>
 </express>

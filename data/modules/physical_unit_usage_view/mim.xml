@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-03T15:26:51" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-05T11:43:25" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_usage_view_mim schema_instance"/>
    <schema name="Physical_unit_usage_view_mim">
       <interface kind="use" schema="Analytical_model_mim"/>
@@ -102,6 +102,12 @@
          <where label="WR3" expression=" SIZEOF ( QUERY ( sa &lt;* shape_aspect | ( ( sa \ shape_aspect . description = 'part group feature' ) OR ( sa \ shape_aspect . description = 'part generic feature' ) OR ( sa \ shape_aspect . description = 'polarity indication feature' ) ) AND ( SIZEOF ( QUERY ( sar &lt;* USEDIN ( sa , 'PHYSICAL_UNIT_USAGE_VIEW_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | sar \ shape_aspect_relationship . name = 'precedent feature' ) ) &gt; 1 ) ) ) = 0 "/>
          <where label="WR4" expression=" SIZEOF ( QUERY ( sa &lt;* shape_aspect | ( ( sa \ shape_aspect . description = 'interconnect module edge segment surface' ) OR ( sa \ shape_aspect . description = 'interconnect module cavity surface' ) OR ( sa \ shape_aspect . description = 'interconnect module cutout surface' ) OR ( sa \ shape_aspect . description = 'interconnect module edge surface' ) OR ( sa \ shape_aspect . description = 'interconnect module primary surface' ) OR ( sa \ shape_aspect . description = 'interconnect module secondary surface' ) OR ( sa \ shape_aspect . description = 'interconnect module surface feature' ) ) AND ( SIZEOF ( QUERY ( sar &lt;* USEDIN ( sa , 'PHYSICAL_UNIT_USAGE_VIEW_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | sar \ shape_aspect_relationship . name = 'precedent feature' ) ) &gt; 0 ) ) ) = 0 "/>
       </rule>
+      <rule name="product_definition_requires_date_or_date_and_time" appliesto="product_definition applied_date_and_time_assignment applied_date_assignment">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pd &lt;* product_definition | NOT ( NOT ( is_ee_product_definition ( pd ) ) OR ( ( SIZEOF ( QUERY ( adata &lt;* applied_date_and_time_assignment | pd IN adata . items ) ) = 1 ) OR ( SIZEOF ( QUERY ( ada &lt;* applied_date_assignment | pd IN ada . items ) ) = 1 ) ) ) ) ) = 0 "/>
+      </rule>
+      <rule name="product_definition_requires_person_organization" appliesto="product_definition applied_person_and_organization_assignment applied_organization_assignment">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( pd &lt;* product_definition | NOT ( NOT ( is_ee_product_definition ( pd ) ) OR ( ( SIZEOF ( QUERY ( apaoa &lt;* applied_person_and_organization_assignment | pd IN apaoa . items ) ) = 1 ) OR ( SIZEOF ( QUERY ( aoa &lt;* applied_organization_assignment | pd IN aoa . items ) ) = 1 ) ) ) ) ) = 0 "/>
+      </rule>
       <rule name="promissory_usage_relationship_constraint" appliesto="promissory_usage_occurrence">
          <where label="WR1" expression=" SIZEOF ( QUERY ( puo &lt;* promissory_usage_occurrence | ( 'PHYSICAL_UNIT_USAGE_VIEW_MIM.' + 'PHYSICAL_UNIT' IN TYPEOF ( puo . relating_product_definition ) ) AND ( puo . relating_product_definition . frame_of_reference . name = 'physical design' ) ) ) = 0 "/>
          <where label="WR2" expression=" SIZEOF ( QUERY ( puo &lt;* promissory_usage_occurrence | SIZEOF ( USEDIN ( puo , 'PHYSICAL_UNIT_USAGE_VIEW_MIM.' + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS' ) ) = 0 ) ) = 0 "/>
@@ -137,6 +143,13 @@
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; IF NOT ( EXISTS ( pd \ product_definition . name ) ) THEN RETURN ( FALSE ) ; END_IF ; IF ( ( pd \ product_definition . name = 'interconnect module' ) AND ( pd . frame_of_reference \ application_context_element . name = 'physical design' ) ) THEN RETURN ( TRUE ) ; END_IF ; RETURN ( pass ) ; </algorithm>
+      </function>
+      <function name="is_interconnect_module_usage">
+         <parameter name="pd">
+            <typename name="product_definition"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; IF NOT ( EXISTS ( pd \ product_definition . name ) ) THEN RETURN ( FALSE ) ; END_IF ; IF ( ( pd \ product_definition . name = 'interconnect module' ) AND ( pd . frame_of_reference \ application_context_element . name = 'physical design usage' ) ) THEN RETURN ( TRUE ) ; END_IF ; RETURN ( pass ) ; </algorithm>
       </function>
       <function name="is_laminate_component">
          <parameter name="pd">

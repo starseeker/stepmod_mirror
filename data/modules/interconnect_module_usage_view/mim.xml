@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-03T15:26:49" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-05T11:43:23" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_module_usage_view_mim schema_instance"/>
    <schema name="Interconnect_module_usage_view_mim">
       <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
@@ -46,12 +46,5 @@
          <algorithm> LOCAL limrt : BAG OF property_definition_representation := QUERY ( pdr &lt;* property_definition_representation | ( pdr . definition \ property_definition . name = 'located interconnect module thickness' ) AND ( 'INTERCONNECT_MODULE_USAGE_VIEW_MIM.' + 'SHAPE_ASPECT' IN TYPEOF ( pdr . definition . definition ) ) ) ; pu_bag : BAG OF physical_unit := [ ] ; pdr_bag : BAG OF property_definition_representation ; rr_bag : BAG OF representation_relationship ; pass : BOOLEAN := TRUE ; ri_bag : BAG OF representation_item ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( limrt ) by 1 ; IF EXISTS ( limrt [ i ] . definition . definition . of_shape . definition ) THEN IF ( ( 'INTERCONNECT_MODULE_USAGE_VIEW_MIM.' + 'PHYSICAL_UNIT' IN TYPEOF ( limrt [ i ] . definition . definition . of_shape . definition ) ) ) THEN IF ( NOT ( limrt [ i ] . definition . definition . of_shape . definition IN pu_bag ) ) THEN pu_bag := pu_bag + limrt [ i ] . definition . definition . of_shape . definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; ri_bag := [ ] ; pdr_bag := QUERY ( pdr &lt;* limrt | ( pdr . definition . definition . of_shape . definition :=: pu_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( pdr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; rr_bag := QUERY ( rr &lt;* USEDIN ( pdr_bag [ j ] . used_representation , 'INTERCONNECT_MODULE_USAGE_VIEW_MIM.' + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | ( rr \ representation_relationship . name = 'reference location' ) ) ; REPEAT k := 1 to SIZEOF ( rr_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; REPEAT l := 1 to SIZEOF ( rr_bag [ k ] . rep_1 . items ) by 1 ; IF ( ( 'INTERCONNECT_MODULE_USAGE_VIEW_MIM.' + 'AXIS2_PLACEMENT_2D' IN TYPEOF ( rr_bag [ k ] . rep_1 . items [ l ] ) ) OR ( 'INTERCONNECT_MODULE_USAGE_VIEW_MIM.' + 'AXIS2_PLACEMENT_3D' IN TYPEOF ( rr_bag [ k ] . rep_1 . items [ l ] ) ) ) THEN IF EXISTS ( rr_bag [ k ] . rep_1 . items [ l ] ) THEN IF ( rr_bag [ k ] . rep_1 . items [ l ] IN ri_bag ) THEN pass := FALSE ; ESCAPE ; ELSE ri_bag := ri_bag + rr_bag [ k ] . rep_1 . items [ l ] ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
          <where label="WR1" expression=" pass "/>
       </rule>
-      <function name="is_interconnect_module_usage">
-         <parameter name="pd">
-            <typename name="product_definition"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; IF NOT ( EXISTS ( pd \ product_definition . name ) ) THEN RETURN ( FALSE ) ; END_IF ; IF ( ( pd \ product_definition . name = 'interconnect module' ) AND ( pd . frame_of_reference \ application_context_element . name = 'physical design usage' ) ) THEN RETURN ( TRUE ) ; END_IF ; RETURN ( pass ) ; </algorithm>
-      </function>
    </schema>
 </express>

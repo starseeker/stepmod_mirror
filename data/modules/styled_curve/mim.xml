@@ -2,11 +2,23 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-03T15:26:52" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-05T11:43:25" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="styled_curve_mim schema_instance"/>
    <schema name="Styled_curve_mim">
       <interface kind="use" schema="Basic_curve_mim"/>
       <interface kind="use" schema="Value_with_unit_extension_mim"/>
+      <interface kind="use" schema="presentation_definition_schema">
+         <interfaced.item name="annotation_curve_occurrence"/>
+         <interfaced.item name="annotation_occurrence"/>
+      </interface>
+      <interface kind="use" schema="presentation_appearance_schema">
+         <interfaced.item name="presentation_style_assignment"/>
+         <interfaced.item name="presentation_style_select"/>
+         <interfaced.item name="styled_item"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="parametric_representation_context"/>
+      </interface>
       <interface kind="use" schema="presentation_appearance_schema">
          <interfaced.item name="curve_style"/>
          <interfaced.item name="curve_style_font"/>
@@ -20,10 +32,10 @@
          <where label="WR1" expression=" pass "/>
       </rule>
       <rule name="curve_style_requires_length_measure_with_unit" appliesto="curve_style">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( cs &lt;* curve_style | NOT ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF ( cs ) ) ) ) = 0 "/>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( cs &lt;* curve_style | NOT ( 'STYLED_CURVE_MIM.' + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF ( cs ) ) ) ) = 0 "/>
       </rule>
       <rule name="curve_style_unique_constraint" appliesto="representation">
-         <algorithm> LOCAL cs : BAG OF representation := QUERY ( r &lt;* representation | ( ( r \ representation . name = 'curve style parameters' ) AND ( r . context_of_items \ representation_context . context_type = 'curve style parametric context' ) ) ) ; pass : BOOLEAN := TRUE ; desc_bag : BAG OF STRING := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( cs ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; REPEAT j := 1 to SIZEOF ( cs [ i ] . items ) by 1 ; IF ( ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( cs [ i ] . items [ j ] ) ) AND ( cs [ i ] . items [ j ] \ representation_item . name = 'curve style name' ) ) THEN IF EXISTS ( cs [ i ] . items [ j ] \ descriptive_representation_item . description ) THEN IF ( cs [ i ] . items [ j ] \ descriptive_representation_item . description IN desc_bag ) THEN pass := FALSE ; ESCAPE ; ELSE desc_bag := desc_bag + cs [ i ] . items [ j ] \ descriptive_representation_item . description ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <algorithm> LOCAL cs : BAG OF representation := QUERY ( r &lt;* representation | ( ( r \ representation . name = 'curve style parameters' ) AND ( r . context_of_items \ representation_context . context_type = 'curve style parametric context' ) ) ) ; pass : BOOLEAN := TRUE ; desc_bag : BAG OF STRING := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( cs ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; REPEAT j := 1 to SIZEOF ( cs [ i ] . items ) by 1 ; IF ( ( 'STYLED_CURVE_MIM.' + 'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( cs [ i ] . items [ j ] ) ) AND ( cs [ i ] . items [ j ] \ representation_item . name = 'curve style name' ) ) THEN IF EXISTS ( cs [ i ] . items [ j ] \ descriptive_representation_item . description ) THEN IF ( cs [ i ] . items [ j ] \ descriptive_representation_item . description IN desc_bag ) THEN pass := FALSE ; ESCAPE ; ELSE desc_bag := desc_bag + cs [ i ] . items [ j ] \ descriptive_representation_item . description ; END_IF ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
          <where label="WR1" expression=" pass "/>
       </rule>
    </schema>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-03T15:26:50" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-05T11:43:24" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="package_mim schema_instance"/>
    <schema name="Package_mim">
       <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
@@ -97,7 +97,7 @@
          <where label="WR4" expression=" ( SIZEOF ( QUERY ( sar &lt;* USEDIN ( SELF , 'PACKAGE_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT' ) | ( sar \ shape_aspect_relationship . name = 'internal connection zone' ) AND ( sar . related_shape_aspect \ shape_aspect . description = 'connection zone' ) ) ) = 1 ) "/>
       </entity>
       <rule name="package_unique_constraint" appliesto="package">
-         <algorithm> LOCAL p : BAG OF physical_unit := QUERY ( r &lt;* package | ( r . frame_of_reference . name = 'physical design usage' ) ) ; pu : BAG OF physical_unit ; pd_bag : BAG OF property_definition ; pdr_bag : BAG OF property_definition_representation ; pass : BOOLEAN := TRUE ; r_bag : BAG OF representation := [ ] ; END_LOCAL ; pu := p + edp + ldp ; REPEAT i := 1 to SIZEOF ( pu ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pd_bag := USEDIN ( pu [ i ] , 'PACKAGE_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) ; REPEAT j := 1 to SIZEOF ( pd_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( pd_bag [ j ] , 'PACKAGE_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( pdr . used_representation \ representation . name = 'registered case style' ) ) ; REPEAT k := 1 to SIZEOF ( pdr_bag ) by 1 ; IF EXISTS ( pdr_bag [ k ] . used_representation ) THEN IF ( pdr_bag [ k ] . used_representation IN r_bag ) THEN pass := FALSE ; ESCAPE ; ELSE r_bag := r_bag + pdr_bag [ k ] . used_representation ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
+         <algorithm> LOCAL p : BAG OF physical_unit := QUERY ( r &lt;* package | ( r . frame_of_reference . name = 'physical design usage' ) ) ; pu : BAG OF physical_unit ; pd_bag : BAG OF property_definition ; pdr_bag : BAG OF property_definition_representation ; pass : BOOLEAN := TRUE ; r_bag : BAG OF representation := [ ] ; END_LOCAL ; pu := p ; REPEAT i := 1 to SIZEOF ( pu ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pd_bag := USEDIN ( pu [ i ] , 'PACKAGE_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) ; REPEAT j := 1 to SIZEOF ( pd_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( pd_bag [ j ] , 'PACKAGE_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | ( pdr . used_representation \ representation . name = 'registered case style' ) ) ; REPEAT k := 1 to SIZEOF ( pdr_bag ) by 1 ; IF EXISTS ( pdr_bag [ k ] . used_representation ) THEN IF ( pdr_bag [ k ] . used_representation IN r_bag ) THEN pass := FALSE ; ESCAPE ; ELSE r_bag := r_bag + pdr_bag [ k ] . used_representation ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
          <where label="WR1" expression=" pass "/>
       </rule>
       <rule name="polarity_indication_feature_constraint" appliesto="shape_aspect">

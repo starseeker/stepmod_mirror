@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.24 2002/01/21 14:22:10 robbod Exp $
+$Id: module.xsl,v 1.25 2002/01/23 14:24:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -57,7 +57,7 @@ $Id: module.xsl,v 1.24 2002/01/21 14:22:10 robbod Exp $
 <!-- Outputs the cover page -->
 <xsl:template match="module" mode="coverpage">
   <xsl:variable name="n_number"
-    select="concat('ISO TC184/SC4/WG12 ',./@version)"/>
+    select="concat('ISO TC184/SC4/WG12 ',./@wg.number)"/>
   <xsl:variable name="date"
     select="translate(
             substring-before(substring-after(@rcs.date,'$Date: '),' '),
@@ -306,12 +306,13 @@ $Id: module.xsl,v 1.24 2002/01/21 14:22:10 robbod Exp $
 </xsl:template>
 
 <!-- Outputs the foreword -->
-<!-- foreword as in the balloted modules - in fact incorrect
 <xsl:template match="module" mode="foreword">
-  <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Foreword'"/>
-    <xsl:with-param name="aname" select="'foreword'"/>
-  </xsl:call-template>
+  <h3>
+    <a name="foreword"/>
+    <a href="../../../basic/foreword.htm">
+      Foreword
+    </a>
+  </h3>
   <p>
     <xsl:choose>
       <xsl:when test="string-length(@part)>0">
@@ -348,11 +349,11 @@ $Id: module.xsl,v 1.24 2002/01/21 14:22:10 robbod Exp $
   </blockquote>
   <p>
     Annexes A and B form an integral part of this part of ISO 10303. Annexes C,
-    D, E, and F are for information only.  
+    D, E<xsl:if test="./usage_guide"> and F </xsl:if> are for information only.  
   </p> 
 </xsl:template>
--->
-<!-- foreword as in n1112 -->
+
+<!-- foreword as in n1112 
 <xsl:template match="module" mode="foreword">
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" select="'Foreword'"/>
@@ -425,12 +426,15 @@ $Id: module.xsl,v 1.24 2002/01/21 14:22:10 robbod Exp $
 </p>
 
 </xsl:template>
+-->
 
 <xsl:template match="purpose">
-  <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Introduction'"/>
-    <xsl:with-param name="aname" select="'introduction'"/>
-  </xsl:call-template>
+  <h3>
+    <a name="introduction"/>
+    <a href="../../../basic/introduction.htm">
+      Introduction
+    </a>
+  </h3>
   <xsl:apply-templates/>
 </xsl:template>
 

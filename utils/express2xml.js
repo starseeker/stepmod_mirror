@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.1 2001/11/21 07:20:08 robbod Exp $
+//$Id: express2xml.js,v 1.2 2001/11/21 15:38:19 robbod Exp $
 // JScript to convert an Express file to an XML file
 // cscript express2xml.js <express.exp>
 // cscript express2xml.js <module> arm
@@ -299,7 +299,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.1 2001/11/21 07:20:08 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.2 2001/11/21 15:38:19 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -309,7 +309,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.1 $";
+    var appCVSRevision = "$Revision: 1.2 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -461,6 +461,7 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	    var expression = getAfterEquals(rest);
 	    var reg = /^\s*/;
 	    expression = expression.replace(reg,"");
+	    expression = tidyExpression(expression);
 	    typedef = rest.replace(/:=.*/,"");
 	    xmlAttr("name",name,outTs);
 	    xmlAttr("expression",expression,outTs);

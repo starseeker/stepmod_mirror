@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_pics.xsl,v 1.5 2004/11/02 16:04:15 robbod Exp $
+$Id: sect_annex_pics.xsl,v 1.6 2004/11/08 16:24:33 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -40,7 +40,7 @@ $Id: sect_annex_pics.xsl,v 1.5 2004/11/02 16:04:15 robbod Exp $
 		<table border="1">
 			<tr>
 				<th align="left">
-					ISO PAS <xsl:value-of select="$iso_no"/> implementation name
+					ISO <xsl:value-of select="$iso_no"/> implementation name
 				</th>
 				<td>
 					&#160; &#160; &#160; &#160;

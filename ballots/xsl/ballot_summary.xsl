@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.29 2005/02/02 23:14:49 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.30 2005/02/08 00:29:45 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -140,7 +140,7 @@ $Id: ballot_summary.xsl,v 1.29 2005/02/02 23:14:49 thendrix Exp $
         <xsl:call-template name="ap_doc_table_hdr"/>
       </xsl:if>
 
-      <xsl:if test="./ballot_package/resource">
+      <xsl:if test="./ballot_package/res_doc">
         <xsl:call-template name="resource_table_hdr"/>
       </xsl:if>
 
@@ -291,7 +291,7 @@ $Id: ballot_summary.xsl,v 1.29 2005/02/02 23:14:49 thendrix Exp $
       <td><b>Stage</b></td>
       <td><b>Year of<br/>Publication</b></td>
     </tr>
-    <xsl:apply-templates select="//*/resource"/>
+    <xsl:apply-templates select="//*/res_doc"/>
   </table>
 </xsl:template>
 
@@ -344,7 +344,7 @@ $Id: ballot_summary.xsl,v 1.29 2005/02/02 23:14:49 thendrix Exp $
       <xsl:value-of select="$ret_val"/>
   </xsl:template>
 
-<xsl:template match="resource">
+<xsl:template match="res_doc">
   <xsl:variable name="resdoc_ok">
     <xsl:call-template name="check_resdoc_exists">
       <xsl:with-param name="resdoc" select="@name"/>

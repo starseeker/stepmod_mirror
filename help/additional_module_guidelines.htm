@@ -11,7 +11,7 @@
 <body>
 
 <h1 align="center"><a name="20020422182450_1">Additional module guidelines</a></h1>
-<p>Version $Id: additional_module_guidelines.htm,v 1.15 2002/07/24 00:16:55 thendrix Exp $</p>
+<p>Version $Id: additional_module_guidelines.htm,v 1.16 2002/07/24 00:21:11 thendrix Exp $</p>
 <b>Contents</b><br>
 
 
@@ -52,6 +52,11 @@ to include extension of Select types</a><i><a target="_self" href="#200204221824
 <img src="item-h0.gif" alt="" width="72" height="9" valign="middle">
 <a target="_self" " href="#map_alt"><i>- Alternate mappings</a></i><br>
 
+<img src="item-h0.gif" alt="" width="72" height="9" valign="middle"/>
+  <a target="_self" href="#map_ext"><i>- Mapping of an extended select through USE FROM</a></i><br/>
+<img src="item-h0.gif" alt="" width="72" height="9" valign="middle"/>
+<a target="_self" href="#map_inh"><i>- Mapping of an extended select
+through inheritance</a></i><br/>
 
 <img src="item-h0.gif" alt="" width="18" height="9" valign="middle"><a target="_self" href="#20020422182450_11">Comments in Express files</a><br>
 <img src="item-h0.gif" alt="" width="18" height="9" valign="middle"><a target="_self" href="#20020422182450_12">Inserting Notes and examples in xml files</a><br>
@@ -210,8 +215,8 @@ e.g.</p>
 <p>&lt;ext_descriptions<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; module_directory=&quot;activity_as_directed&quot;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; schema_file=&quot;arm.xml&quot;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rcs.date=&quot;$Date: 2002/07/24 00:16:55 $"<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rcs.revision=&quot;$Revision: 1.15 $"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rcs.date=&quot;$Date: 2002/07/24 00:21:11 $"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rcs.revision=&quot;$Revision: 1.16 $"<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; describe.selects=&quot;YES&quot;<br>
 &gt;</p>
 
@@ -440,7 +445,7 @@ specification will be displayed as:
 <blockquote>
 <table border="1">
   <tr><td>
-      <h4>5.1.1.2 Document_assignment to document_reference_item (as is_assigned_to)</h4>
+  <h4>5.1.1.2 Document_assignment to document_reference_item (as is_assigned_to)</h4>
 <table border="0">
 <tr valign="top">
 <td>AIM element:</td>
@@ -473,11 +478,11 @@ shall be provided for every entity types in the SELECT type.<br>
 
 <h3><a name="map_alt">Alternate mappings</a></h3>
 Alternate mappings will be displayed:
-<p>&nbsp;</p>
+
 <blockquote>
-<table border="1" height="100%" width="75%">
+<table border="1">
   <tr><td>
-      <h4>5.1.1 DOCUMENT_ASSIGNMENT</h4>
+  <h4>5.1.1 DOCUMENT_ASSIGNMENT</h4>
 <table border="0">
 <p></p>#1   
          If document assignment is not a partial document assignment.
@@ -496,6 +501,7 @@ Alternate mappings will be displayed:
 <td>(applied_document_reference &lt;=<br>document_reference)</td>
 </tr>
 </table>
+
 <p></p>#2   
          If document assignment is also a partial document assignment.
        <p></p>
@@ -513,8 +519,12 @@ Alternate mappings will be displayed:
 <td>(applied_document_usage_constraint_assignment &lt;=<br>       document_usage_constraint_assignment)</td>
 </tr>
 </table>
-
 </table>
+</td>
+</tr>
+</table>
+</blockquote>
+
 
 The XML for this specification is:
 <blockquote>
@@ -583,11 +593,15 @@ below were re-used from the description for Document_assignment above.
 </tr>
 <tr valign="top">
 <td>Reference path:  </td>
-<td>(applied_document_usage_constraint_assignment &lt;=<br>document_usage_constraint_assignment<br>document_usage_constraint_assignment.role -&gt;<br>document_usage_role<br>document_usage_role.name)<br>       </td>
+<td>(applied_document_usage_constraint_assignment &lt;=<br>/document_usage_constraint_assignment<br/>document_usage_constraint_assignment.role -&gt;<br/>document_usage_role<br/>document_usage_role.name)<br/>       </td>
 </tr>
 </table>
 
 </table>
+</td>
+</tr>
+</table>
+</blockquote>
 
 The XML for this specification is:
 <blockquote>
@@ -620,9 +634,144 @@ document_usage_role.name)
 </blockquote>
 
 
+<h3><a name="map_ext">Mapping of an extended select through USE FROM</a></h3>
+A number of module declare entities with attributes whose types are empty
+extensible selects. These selects are then extended in other modules that
+USE FROM the original module.
+When this occurs, the mapping of the attribute must be refined in the
+module that is using the original module.
+<p>For example, the ARM entity, <b>Assigned_property</b>, is defined in the module
+<b>property_assignment</b> as below: </p>
+<code>
+  <pre>
+TYPE property_assignment_select = EXTENSIBLE SELECT;
+END_TYPE; 
+
+ENTITY Assigned_property; 
+   described_element : property_assignment_select;
+   description : OPTIONAL STRING;
+   id : OPTIONAL STRING;
+   name : STRING;
+END_ENTITY;
+  </pre>
+</code>
+The module <b>product_view_definition_properties</b> then use from the
+module <b>property_assignment</b> and extends the select
+<b>property_assignment_select</b> as shown below:
+<code>
+  <pre>
+
+SCHEMA Product_view_definition_properties_arm; 
+
+USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+
+USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
+
+USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
+
+TYPE product_property_assignment = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH (Product_view_definition, View_definition_relationship);
+END_TYPE; 
+
+END_SCHEMA; 
+  </pre>
+</code>
+The mapping specification in <b>product_view_definition_properties</b> must
+therefore extend the mapping of <b>Assigned_property</b>, to include
+assertions defined in the module <b>product_view_definition_properties</b>.
+<p>This is achieved by providing a new mapping for the entity
+<b>Assigned_property</b> in the module
+<b>product_view_definition_properties</b> and indicating that the entity
+was originally defined in the module <b>property_assignment</b>.
+<p>The XML for this is:</p>
+<blockquote>
+<pre>
+&lt;mapping_table&gt;
+  &lt;ae entity="Assigned_property" original_module="property_assignment"&gt;
+</pre>
+</blockquote>
+This results in a mapping specification:
+<blockquote>
+<table border="1">
+  <tr><td>
+  <h4>5.1.1 ASSIGNED_PROPERTY</h4>
+This application object, Assigned_property, is defined in the module property_assignment. This mapping section extends the mapping of Assigned_property, to include assertions defined in this module.
+</td>
+</tr>
+</table>
+</blockquote>
+
+<h3>
+  <a name="map_inh">Mapping of an extended select through inheritance</a>
+</h3>
+A module can define an entity with attributes whose
+types are empty extensible selects. A sub-type of the entity can then be
+created in another module. These selects are then extended in other modules
+that USE FROM the original module. In which case, the assertions to the
+entities added to the extended select must be mapped.
+<p>For example, consider module <b>property_assignment</b>
+<blockquote>
+  <pre>
+TYPE property_assignment_select = EXTENSIBLE SELECT;
+END_TYPE; 
+
+ENTITY Assigned_property; 
+   described_element : property_assignment_select;
+   description : OPTIONAL STRING;
+   id : OPTIONAL STRING;
+   name : STRING;
+END_ENTITY;
+  </pre>
+</blockquote>
+
+The module is used by the module <b>document_properties</b> in which the
+extensible select <b>property_assignment_select</b> is extended:
+<blockquote>
+  <pre>
+TYPE document_property_item = SELECT BASED_ON property_assignment_select WITH (Document_definition, File);
+END_TYPE; 
+
+ENTITY Assigned_document_property
+  SUBTYPE OF (Assigned_property) ; 
+  DERIVE
+    SELF\Assigned_property.name : STRING := 'document property';
+  UNIQUE
+    UR1: SELF\Assigned_property.described_element;
+WHERE
+   WR1: SIZEOF(['DOCUMENT_PROPERTIES_ARM.DOCUMENT_DEFINITION', 'DOCUMENT_PROPERTIES_ARM.FILE']*TYPEOF(SELF\Assigned_property.described_element)) = 1;
+END_ENTITY;
+  </pre>
+</blockquote>
+
+Consequently, the mapping of the attribute <b>described_element</b> must be
+extended to include the assertions to Document_definition and File.
+<p>The XML to do this is:</p>
+<pre>
+  <blockquote>
+    &lt;mapping_table&gt;
+      &lt;ae entity="Assigned_document_property"&gt;
+        &lt;aimelt&gt;property_definition&lt;/aimelt&gt;
+        &lt;source&gt;ISO 10303-41&lt;/source&gt;
+        &lt;refpath&gt;
+          property_definition
+          {property_definition.name = 'document property'}
+        &lt;/refpath&gt;
+        
+        &lt;aa 
+          attribute="described_element" 
+          assertion_to="Document_definition"
+          inherited_from_module="property_assignment"
+          inherited_from_entity="Assigned_property"&gt;
+          .........
+  </blockquote>
+</pre>
+
+
+
+
+
 <h2><a name="20020422182450_11">Comments in Express files</a></h2>
 <span class="606025315-27032002"><font face="Arial" size="2">The arm.exp and
-mim.exp files should include the CVS $Id: additional_module_guidelines.htm,v 1.15 2002/07/24 00:16:55 thendrix Exp $ keyword and the SC4 N number as a
+mim.exp files should include the CVS $Id: additional_module_guidelines.htm,v 1.16 2002/07/24 00:21:11 thendrix Exp $ keyword and the SC4 N number as a
 comment on the first few lines of the file.</font></span>
 <p><span class="606025315-27032002"><font face="Arial" size="2">The Id will get
 expanded and updated every time you check in the file to CVS. That way you can
@@ -630,7 +779,7 @@ immediately tell when the file was last updated and will get around the issue
 raised by Greg about multiple versions of express files with the same N number.</font></span>
 <p><span class="606025315-27032002"><font face="Arial" size="2">E.g.</font>&nbsp;</span>
 <p><span class="606025315-27032002"><font face="Arial" size="2">(*<br>
-&nbsp; $Id: additional_module_guidelines.htm,v 1.15 2002/07/24 00:16:55 thendrix Exp $<br>
+&nbsp; $Id: additional_module_guidelines.htm,v 1.16 2002/07/24 00:21:11 thendrix Exp $<br>
 &nbsp; N773 - ISO/CD TS - 10303-1042 Work request - EXPRESS MIM<br>
 *)</font></span>
 <p>&nbsp;
@@ -639,7 +788,7 @@ work_request_mim;</font></span>
 <p>&nbsp;
 <p><span class="606025315-27032002"><font face="Arial" size="2">We should also
 delete the last update comment at the bottom of the file as this is redundant -
-the update information is held by the $Id: additional_module_guidelines.htm,v 1.15 2002/07/24 00:16:55 thendrix Exp $ field.</font></span>
+the update information is held by the $Id: additional_module_guidelines.htm,v 1.16 2002/07/24 00:21:11 thendrix Exp $ field.</font></span>
 <p>&nbsp;
 <h2><a name="20020422182450_12">Inserting Notes and examples in xml files</a></h2>
 <p><span class="198333009-21032002"><font face="Arial">In order to get the following output:</font></span><span class="919371121-26032002">
@@ -983,8 +1132,8 @@ schema. These USE FROM statements may contain a list of imported constructs.</p>
     &nbsp;&nbsp; publication.year=&quot;2002&quot;<br>
     &nbsp;&nbsp; published=&quot;y&quot;<br>
     </b>
-    &nbsp;&nbsp; rcs.date=&quot;$Date: 2002/07/24 00:16:55 $&quot;<br>
-    &nbsp;&nbsp; rcs.revision=&quot;$Revision: 1.15 $&quot;&gt;
+    &nbsp;&nbsp; rcs.date=&quot;$Date: 2002/07/24 00:21:11 $&quot;<br>
+    &nbsp;&nbsp; rcs.revision=&quot;$Revision: 1.16 $&quot;&gt;
   </div>
   &nbsp;
 <p>
@@ -1258,17 +1407,17 @@ file will be modified like this:</span></font></p>
 <p><font size="2" face="Arial"><span class="573095806-30052002">&lt;?xml
 version=&quot;1.0&quot;?&gt;<br>
 &lt;&lt;&lt;&lt;&lt;&lt;&lt; arm.xml<br>
-&lt;!-- $Id: additional_module_guidelines.htm,v 1.15 2002/07/24 00:16:55 thendrix Exp $ --&gt;<br>
+&lt;!-- $Id: additional_module_guidelines.htm,v 1.16 2002/07/24 00:21:11 thendrix Exp $ --&gt;<br>
 =======<br>
-&lt;!-- $Id: additional_module_guidelines.htm,v 1.15 2002/07/24 00:16:55 thendrix Exp $ --&gt;<br>
+&lt;!-- $Id: additional_module_guidelines.htm,v 1.16 2002/07/24 00:21:11 thendrix Exp $ --&gt;<br>
 &gt;&gt;&gt;&gt;&gt;&gt;&gt; 1.11<br>
 &lt;?xml-stylesheet type=&quot;text/xsl&quot; href=&quot;../../../xsl/express.xsl&quot;?&gt;<br>
 &lt;!DOCTYPE express SYSTEM &quot;../../../dtd/express.dtd&quot;&gt;<br>
 &lt;express<br>
 &nbsp; language_version=&quot;2&quot;<br>
 &lt;&lt;&lt;&lt;&lt;&lt;&lt; arm.xml<br>
-&nbsp; rcs.date=&quot;$Date: 2002/07/24 00:16:55 $&quot;<br>
-&nbsp; rcs.revision=&quot;$Revision: 1.15 $&quot;&gt;</span></font></p>
+&nbsp; rcs.date=&quot;$Date: 2002/07/24 00:21:11 $&quot;<br>
+&nbsp; rcs.revision=&quot;$Revision: 1.16 $&quot;&gt;</span></font></p>
 
 <h2><a name="20020422182450_17">Module renaming</a></h2>
 <span class="746125613-27032002"><font face="Arial" size="2">To

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.15 2002/04/03 16:16:55 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.16 2002/04/18 13:33:38 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -344,11 +344,18 @@ NOT USED
 </xsl:template>
 
 <xsl:template match="refpath">
-  <small>
-    <xsl:call-template name="output_string_with_linebreaks">
-      <xsl:with-param name="string" select="string(.)"/>
-    </xsl:call-template>
-  </small>
+  <xsl:choose>
+    <xsl:when test="string-length(.)=0">
+      &#160;
+    </xsl:when>
+    <xsl:otherwise>
+      <small>
+        <xsl:call-template name="output_string_with_linebreaks">
+          <xsl:with-param name="string" select="string(.)"/>
+        </xsl:call-template>
+      </small>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 

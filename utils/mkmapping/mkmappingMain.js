@@ -1,4 +1,4 @@
-//$Id: extractDescriptionsMain.js,v 1.1 2002/03/19 15:11:15 robbod Exp $
+//$Id: mkmappingMain.js,v 1.1 2002/08/22 15:06:47 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -60,12 +60,14 @@ function mkMapping(module) {
 
 	var armXmlDom = new ActiveXObject("Msxml2.DOMDocument.3.0");
 	armXmlDom.async = false;
+	armXmlDom.validateOnParse = false;
 	armXmlDom.load(armFile);
 	armXmlDom.preserveWhiteSpace = true;
 
 	var xslFile = "./mkmapping.xsl";
 	var xslXmlDom = new ActiveXObject("Msxml2.DOMDocument.3.0");
 	xslXmlDom.async = false;
+	xslXmlDom.validateOnParse = false;
 	xslXmlDom.load(xslFile);
 
 	var result = new ActiveXObject("Msxml2.DOMDocument");
@@ -75,7 +77,7 @@ function mkMapping(module) {
  
 	// Parse results into a result DOM Document.
 	var mapNode = armXmlDom.transformNode(xslXmlDom); 
-	//mapNode.preserveWhiteSpace = true;
+	mapNode.preserveWhiteSpace = true;
 
 	var replace = true; var unicode = false; //output file properties
 	var fso = new ActiveXObject("Scripting.FileSystemObject");   
@@ -110,4 +112,4 @@ function Main() {
     }
 }
 
-Main();
+//Main();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.159 2003/08/15 07:14:24 robbod Exp $
+$Id: impl.xsl,v 1.1 2004/02/06 13:46:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose:
@@ -60,13 +60,13 @@ $Id: module.xsl,v 1.159 2003/08/15 07:14:24 robbod Exp $
       select="document(concat('../../data/modules/',../@module,'/module.xml'))"/>  
     <xsl:choose>
       <xsl:when test="$module_xml/module/arm_lf">
-        <h3>ISO 103030 Part 28 XML Schema binding</h3>
+        <h3>ISO 103030 Part 28 XML Schema binding for ARM long form</h3>
         <ul>
           <li>
-            <a href="sys/p28xsd{$FILE_EXT}">Generate p28.xsd</a>
+            <a href="sys/p28xsd{$FILE_EXT}">Generate arm_lf_p28xsd.xsd</a>
           </li>
           <li>
-            <a href="p28.xsd">p28.xsd</a>
+            <a href="p28.xsd">arm_lf_p28xsd.xsd</a>
           </li>
         </ul>
       </xsl:when>

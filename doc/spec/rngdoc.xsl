@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.3 2004/10/01 18:34:50 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.4 2004/10/04 21:16:09 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -11,14 +11,16 @@
 		xmlns:rng="http://relaxng.org/ns/structure/1.0" 
 		xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" 
 		version="1.0"
-		exclude-result-prefixes="rng a">
+		exclude-result-prefixes="rng a exsl">
 
   <xsl:output method="xml" indent="yes"/>
 
-  <xsl:param name="title">RELAX NG Schema Documentation</xsl:param>
+  <xsl:param name="title">XML Schema Documentation</xsl:param>
 
-  <xsl:param name="intro.boilerplate">The RELAX NG schema contains the 
-following constructs.</xsl:param>
+  <xsl:param name="intro.boilerplate">The XML schema contains the following 
+  constructs. The schema's root element is </xsl:param>
+
+  <xsl:param name="root"/>
 
   <xsl:template match="rng:grammar">
     <section>
@@ -27,26 +29,60 @@ following constructs.</xsl:param>
       </title>
       <para>
 	<xsl:value-of select="$intro.boilerplate"/>
+	<literal>
+	  <link linkend="{$root}">
+	    <xsl:value-of select="$root"/>
+	  </link>
+	</literal>
+	<xsl:text>.</xsl:text>
       </para>
+      <para>
+
+	The documentation uses the following notational conveniences:
+
+      </para>
+      <itemizedlist>
+	<listitem>
+	  <para><literal>?</literal> means <quote>optional.</quote></para>
+	</listitem>
+	<listitem>
+	  <para><literal>*</literal> means <quote>zero or more.</quote></para>
+	</listitem>
+	<listitem>
+	  <para><literal>+</literal> means <quote>one or more.</quote></para>
+	</listitem>
+	<listitem>
+	  <para><literal>|</literal> means <quote>or.</quote></para>
+	</listitem>
+	<listitem>
+	  <para>Literals are enclosed in single quotes.</para>
+	</listitem>
+	<listitem>
+	  <para><literal>#PCDATA</literal> denotes a character string in a content model.</para>
+	</listitem>
+	<listitem>
+	  <para><literal>text</literal> denotes a string XML attribute type.</para>
+	</listitem>
+      </itemizedlist>
       <xsl:for-each select="//rng:element">
 	<xsl:sort select="@name"/>
-	<section>
-	  <title>Element <code><xsl:value-of select="@name"/></code></title>
+	<section id="{@name}">
+	  <title>Element <literal><xsl:value-of select="@name"/></literal></title>
 	  <informaltable>
 	    <tgroup cols="2">
 	      <tbody>
 		<xsl:if test="a:documentation">
 		  <row>
-		    <entry>Documentation</entry>
+		    <entry><emphasis role="bold">Documentation</emphasis></entry>
 		    <entry>
 		      <xsl:value-of select="a:documentation"/>
 		    </entry>
 		  </row>
 		</xsl:if>
 		<row>
-		  <entry>Content Model</entry>
+		  <entry><emphasis role="bold">Content Model</emphasis></entry>
 		  <entry>
-		    <code>
+		    <literal>
 		      <xsl:apply-templates select="rng:empty |
 						   rng:zeroOrMore | 
 						   rng:oneOrMore | 
@@ -56,7 +92,7 @@ following constructs.</xsl:param>
 						   rng:element | 
 						   rng:text"
 					   mode="content"/>
-		    </code>
+		    </literal>
 		  </entry>
 		</row>
 	      </tbody>
@@ -92,38 +128,59 @@ following constructs.</xsl:param>
     <xsl:variable name="name" select="@name"/>
     <xsl:apply-templates select="//rng:define[@name=$name]"
 			 mode="content"/>
+    <xsl:if test="local-name(..)='choice' and following-sibling::*">
+      <xsl:text> | </xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:define" mode="content">
     <xsl:if test="not(rng:empty)">
       <xsl:apply-templates mode="content"/>
+      <xsl:if test="local-name(..)='choice' and following-sibling::*">
+	<xsl:text> | </xsl:text>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:element" mode="content">
-    <xsl:text> </xsl:text>
-    <xsl:value-of select="@name"/>
-    <xsl:text> </xsl:text>
+    <link linkend="{@name}">
+      <xsl:value-of select="@name"/>
+    </link>
+    <xsl:if test="local-name(..)='choice' and following-sibling::*">
+      <xsl:text> | </xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:text" mode="content">
     <xsl:text> #PCDATA </xsl:text>
+    <xsl:if test="local-name(..)='choice' and following-sibling::*">
+      <xsl:text> | </xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:empty" mode="content">
     <xsl:text> EMPTY </xsl:text>
+    <xsl:if test="local-name(..)='choice' and following-sibling::*">
+      <xsl:text> | </xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:zeroOrMore" mode="content">
     <xsl:text>(</xsl:text>
     <xsl:apply-templates mode="content"/>
     <xsl:text>)*</xsl:text>
+    <xsl:if test="local-name(..)='choice' and following-sibling::*">
+      <xsl:text> | </xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:oneOrMore" mode="content">
     <xsl:text>(</xsl:text>
     <xsl:apply-templates mode="content"/>
     <xsl:text>)+</xsl:text>
+    <xsl:if test="local-name(..)='choice' and following-sibling::*">
+      <xsl:text> | </xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:optional" mode="content">
@@ -131,13 +188,19 @@ following constructs.</xsl:param>
       <xsl:text>(</xsl:text>
       <xsl:apply-templates mode="content"/>
       <xsl:text>)?</xsl:text>
+      <xsl:if test="local-name(..)='choice' and following-sibling::*">
+	<xsl:text> | </xsl:text>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:choice" mode="content">
-    <xsl:text>(CHOICE </xsl:text>
+    <xsl:text>(</xsl:text>
     <xsl:apply-templates mode="content"/>
     <xsl:text>)</xsl:text>
+    <xsl:if test="local-name(..)='choice' and following-sibling::*">
+      <xsl:text> | </xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:attribute | a:documentation" mode="content"/>
@@ -161,9 +224,12 @@ following constructs.</xsl:param>
   <xsl:template match="rng:attribute" mode="attributes">
     <row>
       <entry>
-	<code>
+	<literal>
 	  <xsl:value-of select="@name"/>
-	</code>
+	</literal>
+	<xsl:if test="local-name(..)='optional'">
+	  <xsl:text>?</xsl:text>
+	</xsl:if>
       </entry>
       <entry>
 	<xsl:choose>
@@ -176,7 +242,7 @@ following constructs.</xsl:param>
 	</xsl:choose>
       </entry>
       <entry>
-	<code>
+	<literal>
 	  <xsl:choose>
 	    <xsl:when test="rng:choice | rng:data">
 	      <xsl:apply-templates mode="att-type"/>
@@ -185,12 +251,12 @@ following constructs.</xsl:param>
 	      <xsl:text>text</xsl:text>
 	    </xsl:otherwise>
 	  </xsl:choose>
-	</code>
+	</literal>
       </entry>
       <entry>
-	<code>
+	<literal>
 	  <xsl:value-of select="@a:defaultValue"/>
-	</code>
+	</literal>
       </entry>
     </row>
   </xsl:template>
@@ -209,13 +275,9 @@ following constructs.</xsl:param>
     <xsl:text>&#x27;</xsl:text>
     <xsl:apply-templates mode="att-type"/>
     <xsl:text>&#x27;</xsl:text>
-    <xsl:text> | </xsl:text>
-  </xsl:template>
-
-  <xsl:template match="rng:value[last()]" mode="att-type">
-    <xsl:text>&#x27;</xsl:text>
-    <xsl:apply-templates mode="att-type"/>
-    <xsl:text>&#x27;</xsl:text>
+    <xsl:if test="following-sibling::*">
+      <xsl:text> | </xsl:text>
+    </xsl:if>
   </xsl:template>
 
 </xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_toc.xsl,v 1.6 2004/02/05 17:51:07 robbod Exp $
+$Id: frame_toc.xsl,v 1.7 2004/11/03 11:23:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -25,6 +25,7 @@ $Id: frame_toc.xsl,v 1.6 2004/02/05 17:51:07 robbod Exp $
       select="document(concat('../../data/application_protocols/',@directory,'/application_protocol.xml'))"/>
     <html>
       <head>
+        <xsl:apply-templates select="$application_protocol_xml_file/application_protocol" mode="meta_data"/>
         <title>
           <xsl:apply-templates 
             select="$application_protocol_xml_file/application_protocol" mode="title"/>

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.23 2004/12/04 11:00:16 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.24 2004/12/10 18:16:27 thendrix Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -23,7 +23,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.23 2004/12/04 11:00:16 robbod Exp $
 <!--	<xsl:import href="../../xsl/express.xsl"/>
 -->
 
-  <xsl:import href="../../xsl/common.xsl"/>
+  <xsl:import href="common.xsl"/>
 
 
   <xsl:variable name="selected_ap" select="/application_protocol/@directory"/>
@@ -60,7 +60,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.23 2004/12/04 11:00:16 robbod Exp $
 <!--      <link rel="stylesheet" type="text/css" 
         href="../../../../nav/css/developer.css"/>
 -->
-
+      <xsl:apply-templates select="$ap_node" mode="meta_data"/>
       <title>
         <xsl:value-of select="concat('AP Index for ',$selected_ap)"/>
       </title>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: index_arm_mappings.xsl,v 1.2 2004/02/05 17:51:07 robbod Exp $
+$Id: index_arm_mappings.xsl,v 1.3 2004/11/27 18:05:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -22,8 +22,14 @@ $Id: index_arm_mappings.xsl,v 1.2 2004/02/05 17:51:07 robbod Exp $
   </xsl:template>
 
   <xsl:template match="application_protocol">
+    <xsl:variable name="selected_ap" select="/application_protocol/@directory"/>
+    <xsl:variable name="ap_file" 
+      select="concat('../../data/application_protocols/',$selected_ap,'/application_protocol.xml')"/>
+    <xsl:variable name="ap_node" select="document($ap_file)"/>
+
     <html>
       <head>
+        <xsl:apply-templates select="$ap_node" mode="meta_data"/>
         <title>Mappings</title>
       </head>
       <!--    <frameset rows="25,75"> -->

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_top.xsl,v 1.9 2004/10/21 14:48:23 nigelshaw Exp $
+$Id: index_mim_express_top.xsl,v 1.10 2004/11/27 18:05:33 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -20,7 +20,7 @@ $Id: index_mim_express_top.xsl,v 1.9 2004/10/21 14:48:23 nigelshaw Exp $
 <!--	<xsl:import href="../../xsl/express.xsl"/>
 -->
 
-  <xsl:import href="../../xsl/common.xsl"/>
+  <xsl:import href="common.xsl"/>
 
 
   <xsl:output method="html"
@@ -51,6 +51,7 @@ $Id: index_mim_express_top.xsl,v 1.9 2004/10/21 14:48:23 nigelshaw Exp $
 <!--      <link rel="stylesheet" type="text/css" 
         href="../../../../nav/css/developer.css"/>
 -->
+      <xsl:apply-templates select="$ap_node" mode="meta_data"/>
       <title>
         <xsl:value-of select="concat('AP Index for ',$selected_ap)"/>
       </title>

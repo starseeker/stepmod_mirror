@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.22 2003/06/30 03:19:48 thendrix Exp $
+     $Id: express_description.xsl,v 1.23 2003/06/30 15:52:17 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -212,7 +212,9 @@ and  string is more than the schema name ( hence not the  schema )
         
       </xsl:if>
       
-      <xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),concat('is a type of ',substring-before($supertypes,' '))))and not(contains(normalize-space($description),concat('is a type of ',substring-after($supertypes,' '))))" >
+      <!--       NOTE this does not work when supertyp is an express_ref
+
+<xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),concat('is a type of ',substring-before($supertypes,' ')))) and not(contains(normalize-space($description),concat('is a type of ',substring-after($supertypes,' '))))" >
         
         <xsl:call-template name="error_message">
           <xsl:with-param  name="message" >
@@ -223,6 +225,25 @@ and  string is more than the schema name ( hence not the  schema )
         </xsl:call-template>        
         
       </xsl:if>
+-->
+
+
+<xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),'is a type of '))" >
+        
+        <xsl:call-template name="error_message">
+          <xsl:with-param  name="message" >
+            <xsl:value-of select="concat('Warning Ent5: ',$description/@linkend, ' check for')" />
+
+&quot;              <xsl:value-of select="concat(' is a type of ', $supertypes,'.')" /> 
+      &quot; . Supertype(s) should be tagged as express_ref    </xsl:with-param>
+        </xsl:call-template>        
+        
+      </xsl:if>
+
+      <!-- cheap and cheerful check for supertypes -->
+
+
+
     </xsl:if>
     
     <xsl:variable name="d" select="$description" />

@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: mim.xml,v 1.9 2002/05/29 16:16:22 darla Exp $ -->
+<!-- $Id: express2xml.js,v 1.16 2002/07/05 11:10:27 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/05/29 16:16:22 $"
-  rcs.revision="$Revision: 1.9 $"
-  description.file="mim_descriptions.xml">
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.9"
+    version="1.16"
     source="../data/modules/identification_assignment/mim.exp"/>
 
   <schema name="Identification_assignment_mim">
@@ -27,8 +27,14 @@
       <select
         extensible="YES">
       </select>
+
     </type>
-		
+    <type name="versionable_item">
+      <select
+        extensible="YES">
+      </select>
+
+    </type>
     <entity
       name="applied_identification_assignment"
       supertypes="identification_assignment">
@@ -42,6 +48,50 @@
           name="identification_item"/>
       </explicit>
     </entity>
+
+    <rule
+      name="version_assignments_are_valid"
+      appliesto="applied_identification_assignment">
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(aia &lt;* applied_identification_assignment | 		NOT version_assignment_is_valid(aia)))=0">
+      </where>
+
+    </rule>
+
+    <function
+      name="version_assignment_is_valid">
+      <parameter
+        name="aia">
+        <typename
+          name="applied_identification_assignment"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+LOCAL
+  item: identification_item;
+  role: identification_role;
+END_LOCAL;
+
+role:= aia.role;
+IF role.name='version' THEN
+  REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
+    item:= aia.items[i];
+
+    IF (SIZEOF(['IDENTIFICATION_ASSIGNMENT_MIM.' + 'VERSIONABLE_ITEM']*TYPEOF(item))=0) THEN
+-- item invalid if item does not belong to versionable types
+	RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);
+
+ELSE		-- case where aia does not convey a version id
+  RETURN(TRUE);
+END_IF;
+      </algorithm>
+
+    </function>
 
   </schema>
 

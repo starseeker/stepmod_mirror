@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.4 2002/03/25 14:31:07 robbod Exp $
+$Id: imgfile.xsl,v 1.5 2002/05/09 07:32:44 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -60,13 +60,17 @@ $Id: imgfile.xsl,v 1.4 2002/03/25 14:31:07 robbod Exp $
         <xsl:when test="@module">
           <!-- only proceed if a module is specified -->
           <small>
-            ARM EXPRESS-G:&#160;
+            <xsl:variable name="armhref" 
+              select="concat('./sys/4_info_reqs',$FILE_EXT,'#interfaces')"/>
+            <a href="{$armhref}">ARM</a> EXPRESS-G:&#160;
             <xsl:apply-templates 
               select="document(concat('../data/modules/',@module,'/module.xml'))/module/arm/express-g"/>
           </small>
 &#160;&#160;&#160;
           <small>
-            MIM EXPRESS-G:&#160;
+            <xsl:variable name="mimhref" 
+              select="concat('./sys/5_mim',$FILE_EXT,'#mim_express')"/>
+            <a href="{$mimhref}">MIM</a> EXPRESS-G:&#160;
             <xsl:apply-templates 
               select="document(concat('../data/modules/',@module,'/module.xml'))/module/mim/express-g"/>
           </small>

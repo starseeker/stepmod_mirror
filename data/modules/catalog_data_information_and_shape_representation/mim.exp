@@ -1,0 +1,165 @@
+(*
+   $Id: mim.exp,v 1.5 2003/02/08 22:46:32 goset1 Exp $
+   N - ISO/CD-TS - 10303- furniture_catalog_and_interior_design_cc2 - EXPRESS MIM*)
+
+SCHEMA Furniture_catalog_and_interior_design_cc2_mim;
+
+USE FROM Advanced_boundary_representation_mim;
+
+USE FROM Constructive_solid_geometry_3d_mim;
+
+USE FROM Dimension_tolerance_mim;
+
+USE FROM Edge_based_wireframe_mim;
+
+USE FROM Faceted_boundary_representation_mim;
+
+USE FROM Geometric_tolerance_mim;
+
+USE FROM Geometric_validation_property_representation_mim;
+
+USE FROM Geometrically_bounded_surface_mim;
+
+USE FROM Geometrically_bounded_wireframe_mim;
+
+USE FROM Manifold_surface_mim;
+
+USE FROM Shell_based_wireframe_mim;
+
+USE FROM Surface_conditions_mim;
+
+USE FROM Wireframe_2d_mim;
+
+USE FROM Furniture_catalog_and_interior_design_cc1_mim;
+
+
+CONSTANT 
+  schema_name : STRING := 'FURNITURE_CATALOG_AND_INTERIOR_DESIGN_CC2_MIM';
+END_CONSTANT;
+
+
+TYPE attribute_language_item_236cc2 = EXTENSIBLE SELECT BASED_ON attribute_language_item_236cc1 WITH
+	(geometric_tolerance,
+	topological_representation_item);
+END_TYPE;
+
+TYPE multi_language_attribute_item_236cc2 = EXTENSIBLE SELECT BASED_ON multi_language_attribute_item_236cc1 WITH
+	(geometric_tolerance,
+	topological_representation_item);
+END_TYPE;
+
+RULE dependent_instantiable_dimensional_size FOR
+    (dimensional_size);
+WHERE
+ WR1: SIZEOF ( QUERY ( d <* dimensional_size | NOT ( SIZEOF (
+     USEDIN ( d , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE dependent_instantiable_tolerance_value FOR
+    (tolerance_value);
+WHERE
+ WR1: SIZEOF ( QUERY ( t <* tolerance_value | NOT ( SIZEOF (
+     USEDIN ( t , '' ) ) >0 ) ) ) =0;
+END_RULE;
+
+RULE restrict_multi_language_for_geometric_tolerance FOR
+    (geometric_tolerance);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* geometric_tolerance | 
+	NOT allowed_translations (ent, ['description', 'name']) ))=0;
+END_RULE;
+
+RULE restrict_multi_language_for_topological_representation_item FOR
+    (topological_representation_item);
+WHERE
+ WR1: SIZEOF ( QUERY ( ent <* topological_representation_item |
+	NOT allowed_translations (ent, ['name']) ))=0;
+END_RULE;
+
+RULE restrict_representation_item_for_hybrid_geometric_model_3d FOR
+    (shape_representation);
+WHERE
+WR1: SIZEOF ( QUERY ( sr <* shape_representation | 
+	( sr. name ='hybrid 3d shape representation' ) AND 
+	( SIZEOF ( QUERY ( i <* sr. items | 
+	NOT ( schema_name + '.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) ) ) >0 )) ) =0;
+END_RULE;
+
+RULE restrict_zone_boundary FOR
+    (tolerance_zone_definition);
+WHERE
+WR1: SIZEOF ( QUERY ( tzd <* tolerance_zone_definition | 
+	SIZEOF( tzd. boundaries ) >2 ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_founded_item FOR
+    (founded_item);
+WHERE
+ WR1: SIZEOF ( QUERY ( fi <* founded_item | NOT (
+     type_check_function ( fi , 
+	[schema_name + '.COMPOSITE_CURVE_SEGMENT' , 
+	schema_name + '.SURFACE_PATCH' , 
+	schema_name + '.VIEW_VOLUME'] , 3
+     ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_representation FOR
+    (representation);
+WHERE
+ WR1: SIZEOF ( QUERY ( r <* representation | NOT (
+     type_check_function ( r ,
+	[schema_name + '.CONSTRUCTIVE_GEOMETRY_REPRESENTATION' ,
+     schema_name + '.CONTACT_RATIO_REPRESENTATION' ,
+     schema_name + '.DEFAULT_TOLERANCE_TABLE' ,
+     schema_name + '.DEFINITIONAL_REPRESENTATION' ,
+     schema_name + '.HARDNESS_REPRESENTATION' ,
+     schema_name + '.MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION' ,
+     schema_name + '.MOMENTS_OF_INERTIA_REPRESENTATION' ,
+     schema_name + '.PRESENTATION_REPRESENTATION' ,
+     schema_name + '.SHAPE_REPRESENTATION' ,
+     schema_name + '.SURFACE_TEXTURE_REPRESENTATION' ,
+     schema_name + '.SYMBOL_REPRESENTATION' ,
+     schema_name + '.TACTILE_APPEARANCE_REPRESENTATION' ,
+     schema_name + '.TEXT_STRING_REPRESENTATION' ,
+     schema_name + '.VISUAL_APPEARANCE_REPRESENTATION'] , 3 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_shape_aspect_relationship FOR
+    (shape_aspect_relationship);
+WHERE
+ WR1: SIZEOF ( QUERY ( sar <* shape_aspect_relationship | NOT (
+     type_check_function ( sar , 
+	[schema_name + '.DIMENSIONAL_LOCATION' , 
+	schema_name + '.SHAPE_ASPECT_ASSOCIATIVITY' , 
+	schema_name + '.SHAPE_ASPECT_DERIVING_RELATIONSHIP' ,
+     schema_name + '.SHAPE_DEFINING_RELATIONSHIP'] , 3 )
+     ) ) ) =0;
+END_RULE;
+
+RULE subtype_exclusiveness_shape_representation_geometry FOR
+    (shape_representation);
+WHERE
+WR1: SIZEOF ( QUERY ( sr <* shape_representation | NOT (
+     type_check_function ( sr , 
+	[schema_name + '.ADVANCED_BREP_SHAPE_REPRESENTATION' ,
+     schema_name + '.CSG_SHAPE_REPRESENTATION' ,
+     schema_name + '.EDGE_BASED_WIREFRAME_SHAPE_REPRESENTATION' ,
+     schema_name + '.FACETED_BREP_SHAPE_REPRESENTATION' ,
+     schema_name + '.GEOMETRICALLY_BOUNDED_2D_WIREFRAME_REPRESENTATION' ,
+     schema_name + '.GEOMETRICALLY_BOUNDED_SURFACE_SHAPE_REPRESENTATION' ,
+     schema_name + '.GEOMETRICALLY_BOUNDED_WIREFRAME_SHAPE_REPRESENTATION' ,
+     schema_name + '.MANIFOLD_SURFACE_SHAPE_REPRESENTATION' ,
+     schema_name + '.NON_MANIFOLD_SURFACE_SHAPE_REPRESENTATION' ] , 3 ) ) ) ) =0;
+END_RULE;
+
+RULE subtype_mandatory_founded_item FOR
+    (founded_item);
+WHERE
+ WR1: SIZEOF ( QUERY ( fi <* founded_item | NOT (
+     type_check_function ( fi , 
+	[schema_name + '.COMPOSITE_CURVE_SEGMENT' , 
+	schema_name + '.SURFACE_PATCH' , 
+	schema_name + '.VIEW_VOLUME'] , 0) ) ) ) =0;
+END_RULE;
+
+END_SCHEMA;

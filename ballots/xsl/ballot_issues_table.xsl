@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
+$Id: ballot_issues_table.xsl,v 1.5 2004/09/16 23:13:14 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -39,6 +39,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
       <xsl:with-param name="filter_member_body" select="normalize-space(/ballot/@filter_member_body)"/>
       <xsl:with-param name="filter_status" select="normalize-space(/ballot/@filter_status)"/>
       <xsl:with-param name="filter_ballot_comment" select="normalize-space(/ballot/@filter_ballot_comment)"/>
+      <xsl:with-param name="filter_ballot" select="normalize-space(/ballot/@filter_ballot)"/>
       <xsl:with-param name="filter_seds" select="normalize-space(/ballot/@filter_seds)"/>
       <xsl:with-param name="filter_resolution" select="normalize-space(/ballot/@filter_resolution)"/>
       <!-- thx added - similar throughout -->
@@ -52,6 +53,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:param name="id_mode"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
@@ -163,6 +165,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
           <xsl:with-param name="id_mode" select="$id_mode"/>
           <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
           <xsl:with-param name="filter_status" select="$filter_status"/>
+          <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -174,6 +177,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
           <xsl:with-param name="id_mode" select="$id_mode"/>
           <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
           <xsl:with-param name="filter_status" select="$filter_status"/>
+          <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -185,6 +189,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
           <xsl:with-param name="id_mode" select="$id_mode"/>
           <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
           <xsl:with-param name="filter_status" select="$filter_status"/>
+          <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
           <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
           <xsl:with-param name="filter_seds" select="$filter_seds"/>
           <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -204,6 +209,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:param name="id_mode"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
@@ -240,6 +246,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
             <xsl:with-param name="id_mode" select="$id_mode"/>
             <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
             <xsl:with-param name="filter_status" select="$filter_status"/>
+            <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
             <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
             <xsl:with-param name="filter_seds" select="$filter_seds"/>
             <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -280,6 +287,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:param name="id_mode"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
@@ -298,6 +306,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
     <xsl:with-param name="id_mode" select="$id_mode"/>
     <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
     <xsl:with-param name="filter_status" select="$filter_status"/>
+    <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
     <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
     <xsl:with-param name="filter_seds" select="$filter_seds"/>
     <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -312,6 +321,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:param name="id_mode"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
+  <xsl:param name="filter_ballot"/>  
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
@@ -331,6 +341,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
     <xsl:with-param name="id_mode" select="$id_mode"/>
     <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
     <xsl:with-param name="filter_status" select="$filter_status"/>
+    <xsl:with-param name="filter_ballot" select="$filter_ballot"/>
     <xsl:with-param name="filter_ballot_comment" select="$filter_ballot_comment"/>
     <xsl:with-param name="filter_seds" select="$filter_seds"/>
     <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
@@ -360,6 +371,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:param name="id_mode"/>
   <xsl:param name="filter_member_body"/>
   <xsl:param name="filter_status"/>
+  <xsl:param name="filter_ballot"/>
   <xsl:param name="filter_ballot_comment"/>
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_resolution"/>
@@ -484,6 +496,20 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   </xsl:variable>
 
   <!-- THX added -->
+<xsl:variable name="ballot">
+    <xsl:choose>
+      <xsl:when test="string-length(normalize-space($filter_ballot))=0">
+        <xsl:value-of select="''"/>
+      </xsl:when>
+      <xsl:when test="string-length(@ballot)=0">
+        <xsl:value-of select="'none'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@ballot"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:variable name="by">
     <xsl:choose>
       <xsl:when test="string-length(normalize-space($filter_by))=0">
@@ -502,6 +528,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <!-- end THX added -->
 
   <xsl:if test="$ballot_comment = $filter_ballot_comment and
+                $ballot = $filter_ballot and 
                 $country = $filter_country and
                 $seds = $filter_seds and
                 $status = $filter_status1 and
@@ -516,6 +543,9 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
                 <xsl:choose>
           <xsl:when test="$id_mode='ballot'">
             <xsl:value-of select="concat($country,'-',$number,'-',position())"/><br/>
+          </xsl:when>
+          <xsl:when test="$id_mode='resolutions'">
+            <xsl:value-of select="concat($country,'-',$number,'-',@ballot_comment_id)"/><br/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="concat('Issue: ',$module,'.',@id)"/><br/>          

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.101 2003/07/09 16:09:20 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.102 2003/07/18 22:39:57 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1032,6 +1032,31 @@
       <xsl:with-param name="schema_name" select="$schema_name"/>
     </xsl:call-template>
   </xsl:variable>
+  <!--  I decided to put them in-line with the code. These are left here as examples  
+  <xsl:if test="count(.//explicit[contains(@name,'relating' )]/preceding-sibling::explicit[contains(@name,'related')]) > 0" >
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error a1:   ','&quot;relating&quot;','  attribute must precede ','&quot;related&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+<xsl:if test="count(.//explicit[@name='name']/preceding-sibling::explicit[@name='description'])> 0">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error',' a1:   ','&quot;name&quot;','  attribute must precede ','&quot;description&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+<xsl:if test="count(.//explicit[@name='name']/preceding-sibling::explicit[contains(@name,'related')]) > 0">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error a1:   ','&quot;description&quot;','  attribute must precede ','&quot;relating&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+-->
 
   <xsl:if test="position()=1">
     <!-- first entity so output the intro -->    
@@ -1290,6 +1315,44 @@
 </xsl:template>
 
 <xsl:template match="explicit" mode="code">
+
+  <xsl:if test="@name='id' or substring-after(@name,'_')='id'" >
+    <xsl:if test="preceding-sibling::node()[not(@name='id' or substring-after(@name,'_')='id')]">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error a1:   ','identifier',' must be first attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+  </xsl:if>
+
+  <xsl:if test="contains(@name,'relating' ) and ./preceding-sibling::explicit[contains(@name,'related')]" >
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error a2:   ','&quot;relating&quot;','  attribute must precede ','&quot;related&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+<xsl:if test="@name='name' and ./preceding-sibling::explicit[@name='description']">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error',' a3:   ','&quot;name&quot;','  attribute must precede ','&quot;description&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+<xsl:if test="@name='name' and ./preceding-sibling::explicit[contains(@name,'related')]">
+   <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error a4:   ','&quot;description&quot;','  attribute must precede ','&quot;relating&quot;',' attribute')"/>
+      </xsl:call-template>
+    </xsl:if>
+
+
+
+
 &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:if test="@optional='YES' or @optional='yes'">

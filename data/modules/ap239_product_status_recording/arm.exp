@@ -1,12 +1,12 @@
 (*
-   $Id: arm.exp,v 1.3 2003/05/14 01:55:43 magnevs Exp $
+   $Id: arm.exp,v 1.4 2003/05/15 08:24:15 magnevs Exp $
    N - ISO/CD-TS - 10303-1304 ap239_product_status_recording - EXPRESS ARM*)
    
 SCHEMA Ap239_product_status_recording_arm; 
 
-USE FROM Ap239_product_definition_information_arm;    -- ISO/CD-TS 10303-1292
+USE FROM Activity_arm;    -- ISO/TS 10303-1047
 
-USE FROM Ap239_task_specification_resourced_arm;    -- ISO/CD-TS 10303-1306
+USE FROM Alias_identification_arm;    -- ISO/TS 10303-1025
 
 USE FROM Document_and_version_identification_arm;    -- ISO/TS 10303-1121
 
@@ -18,7 +18,9 @@ USE FROM Event_assignment_arm;    -- ISO/TS 10303-1364
 
 USE FROM File_identification_arm;    -- ISO/TS 10303-1127
 
-USE FROM Location_arm;    -- ISO/CD-TS 10303-1278
+USE FROM Justification_arm;    -- ISO/CD-TS 10303-1263
+
+USE FROM Location_arm;    -- ISO/CD-TS 10303-1276
 
 USE FROM Observation_arm;    -- ISO/CD-TS 10303-1258
 
@@ -32,24 +34,29 @@ USE FROM Person_organization_arm;    -- ISO/TS 10303-1011
 
 USE FROM Position_in_organization_arm;    -- ISO/CD-TS 10303-1242
 
-USE FROM Probability_arm;    -- ISO/CD-TS 10303-1252
-
-USE FROM Probability_distribution_arm;    -- ISO/CD-TS 10303-1274
-
 USE FROM Product_as_individual_arm;    -- ISO/CD-TS 10303-1164
 
 USE FROM Product_group_arm;    -- ISO/CD-TS 10303-1278
 
 USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
+USE FROM Requirement_assignment_arm;    -- ISO/CD-TS 10303-1233
+
 USE FROM State_definition_arm;    -- ISO/CD-TS 10303-1255
 
 USE FROM State_observed_arm;    -- ISO/CD-TS 10303-1256
 
-USE FROM Task_specification_arm;    -- ISO/CD-TS 10303-1262
-
 USE FROM Type_of_person_arm;    -- ISO/CD-TS 10303-1245
 
+
+TYPE ap239_psr_activity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_item WITH 
+   (Applied_state_assignment);
+END_TYPE; 
+
+TYPE ap239_psr_alias_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON alias_identification_item WITH 
+   (State, 
+    State_relationship);
+END_TYPE; 
 
 TYPE ap239_psr_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
    (Applied_state_assignment, 
@@ -66,24 +73,21 @@ END_TYPE;
 
 TYPE ap239_psr_event_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_item WITH 
    (Applied_state_assignment, 
-    Observation, 
-    State, 
+    Observation);
+END_TYPE; 
+
+TYPE ap239_psr_justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_support_item WITH 
+   (State, 
     State_relationship);
 END_TYPE; 
 
-TYPE ap239_psr_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
-
-TYPE ap239_psr_probability_select = SELECT
-   (Probability, 
-    Probability_distribution);
-END_TYPE; 
-
 TYPE ap239_psr_property_assignment_select = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH 
-   (Defined_state_relationship, 
-    State, 
-    State_assertion, 
-    State_assessment, 
+   (State, 
+    State_relationship);
+END_TYPE; 
+
+TYPE ap239_psr_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+   (State, 
     State_relationship);
 END_TYPE; 
 
@@ -124,36 +128,10 @@ TYPE ap239_psr_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_o
     Position_type, 
     Product_as_individual, 
     Product_group, 
-    task_resource_select, 
-    tsr_required_resource_item, 
-    tsr_resource_assignment_item, 
     Type_of_person);
 END_TYPE; 
 
 TYPE ap239_psr_task_item = SELECT BASED_ON ;
 END_TYPE; 
-
-TYPE assigned_item = SELECT
-   (ap239_prdi_state_definition_of_item, 
-    ap239_prdi_state_of_item, 
-    Applied_state_assignment, 
-    Applied_task_result_state_relationship, 
-    Observation, 
-    State, 
-    State_predicted, 
-    State_relationship);
-END_TYPE; 
-
-ENTITY Ap239_psr_probability_assignment;
-  assigned_to : assigned_item;
-  probability : SET[1:?] OF ap239_psr_probability_select;
-  role : STRING;
-END_ENTITY;
-
-ENTITY Applied_task_result_state_relationship;
-  assigned_task_result_state_relationship : Task_result_state_relationship;
-  items : SET[1:?] OF ap239_psr_item;
-  role : STRING;
-END_ENTITY;
 
 END_SCHEMA;  -- Ap239_product_status_recording_arm

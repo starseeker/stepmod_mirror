@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_index.xsl,v 1.3 2003/04/17 12:30:42 robbod Exp $
+$Id: module_index.xsl,v 1.4 2003/04/17 15:49:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -1400,13 +1400,6 @@ $Id: module_index.xsl,v 1.3 2003/04/17 12:30:42 robbod Exp $
         select="concat('5.1.',$sect_no,' ',$ae_aname)"/>
     </a>
   </p>
-
-  <!-- no need to go to this depth - there is a bug in the link with
-       inherited attributes as well 
-  <xsl:apply-templates select="aa" mode="toc">
-    <xsl:with-param name="sect" select="concat('5.1.',$sect_no)"/>
-  </xsl:apply-templates>
-  -->
 </xsl:template>
 
 <xsl:template match="ae" mode="toc">

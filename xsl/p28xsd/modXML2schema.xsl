@@ -2,23 +2,24 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="urn:iso10303-28:ex">
 	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 	
-	<!-- xsl:variable name="namespace_prefix" select="string('ap239:')"/ -->
+	
 	<xsl:variable name="module_directory_name" select="//module_clause/@directory"/>
 	<xsl:variable name="dex_directory_name" select="//dex_clause/@directory"/>
-	<xsl:variable name="directory_name">
+	<xsl:variable name="directory_path">
 		<xsl:choose>
 			<xsl:when test="string-length($dex_directory_name)>0">
-				<xsl:value-of select="$dex_directory_name"/>
+				<xsl:value-of select="concat('../../../dexlib/data/dex/', $dex_directory_name)"/>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:value-of select="$module_directory_name"/>
+				<xsl:value-of select="concat('../../data/modules/', $module_directory_name)"/>
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
 	
-	<xsl:variable name="ap_namespace_file" select="document(concat('../../data/modules/', $directory_name, '/ap_namespace.xml'))"/>
-	<xsl:variable name="schema_name" select="$ap_namespace_file//dummy/@schema_name"/>
-	<xsl:variable name="namespace_prefix" select="concat($ap_namespace_file//dummy/@ns_prefix_name, ':')"/>
+
+	<xsl:variable name="stepmod_namespace_file" select="document(concat($directory_path, '/stepmod_namespace.xml'))"/>
+	<xsl:variable name="schema_name" select="$stepmod_namespace_file//dummy/@schema_name"/>
+	<xsl:variable name="namespace_prefix" select="concat($stepmodamespace_file//dummy/@ns_prefix_name, ':')"/>
 	
 	
 	<xsl:template match="/">
@@ -35,7 +36,7 @@
 		<xsl:element name="xs:schema">
 			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:xs/', $schema_name)"/></xsl:attribute>
 			<xsl:copy-of select="document('../../dtd/part28/ex_namespace.xml')/*/namespace::ex"/>
-			<xsl:copy-of select="document(concat('../../data/modules/', $directory_name, '/ap_namespace.xml'))/*/namespace::*"/>
+			<xsl:copy-of select="document(concat($directory_path, '/stepmod_namespace.xml'))/*/namespace::*"/>
 			<xsl:text>&#xa;</xsl:text>
 			
 			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
@@ -92,7 +93,7 @@
 			<xsl:text>&#xa;</xsl:text>
 			
 			<!-- SYNTHETIC ENTITIES -->
-			<xsl:variable name="configuration" select="document(concat('../../data/modules/', $directory_name, '/p28_config.xml'))"/>
+			<xsl:variable name="configuration" select="document(concat($directory_path, '/p28_config.xml'))"/>
 			
 			<xsl:for-each select="$configuration//ex:entity">
 				<xsl:variable name="synthetic_entity_name" select="./@name"/>

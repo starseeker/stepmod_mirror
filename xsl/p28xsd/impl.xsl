@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: impl.xsl,v 1.2 2004/02/06 13:58:38 robbod Exp $
+$Id: impl.xsl,v 1.3 2004/02/10 14:57:21 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose:
@@ -42,12 +42,12 @@ $Id: impl.xsl,v 1.2 2004/02/06 13:58:38 robbod Exp $
         <xsl:choose>
           <xsl:when test="child::*">
             <p>
-              The following implementation forms are available for this module:
+              The following implementation methods are available for this module:
             </p>
             <xsl:apply-templates/>
           </xsl:when>
           <xsl:otherwise>
-            Part 21 is the only implementation form available for this module.
+            Part 21 is the only implementation method available for this module.
           </xsl:otherwise>
         </xsl:choose>
       </BODY>

@@ -26,7 +26,7 @@
         
       <property name="GIFS" value=""/>
       <property name="RESDOCGIFS" value="data/resource_docs/state/*.exp,data/resource_docs/state/*.gif,data/resource_docs/state/*.png,data/resource_docs/state/*.jpg"/>
-      <property name="RESDOCINDEXXML" value="data/resource_docs/state/index.xml"/>
+      <property name="RESDOCINDEXXML" value="data/resource_docs/state/sys/resdocindex.xml"/>
       <property name="RESDOCISSUESXML" value="data/resource_docs/state/dvlp/issues.xml"/>
       <property name="RESDOCABSTRACTXML" value="data/resource_docs/state/sys/abstract.xml"/>
       <property name="RESDOCCONTENTSXML" value="data/resource_docs/state/sys/contents.xml"/>
@@ -107,6 +107,28 @@
     
    <target name="zip" depends="all" description="create .zip file">
       <zip zipfile="${ISODIR}/${ARCHIVE}.zip" basedir="${ISODIR}" excludes="**/*.zip" includes="**"/>
+   </target>
+   <target name="validhtml" depends="variables" description="validate html">
+      <property name="HTMLDTDCAT" value="../../../etc/html/dtds/HTML4.cat"/>
+      <property name="HTMLVALID" value="&#34;C:/sp1.3.4/bin/nsgmls.exe&#34;"/>
+      <property name="HTMLNAME" value="&#34;*.htm&#34;"/>
+      <property name="HTMLVALIDERR" value="${BALLOTDIR}/part_56-${DSTAMP}-html-valid-errors.txt"/>
+      <echo>Validating HTML ISODIR ${ISODIR}</echo>
+      <echo> HTMLVALID ${HTMLVALID}</echo>
+      <echo> HTMLDTDCAT ${HTMLDTDCAT}</echo>
+      <echo> HTMLVALIDERR ${HTMLVALIDERR}</echo>
+      <exec executable="c:/cygwin/bin/find" dir="${ISODIR}" output="${HTMLVALIDERR}">
+         <arg value="."/>
+         <arg value="-name"/>
+         <arg value="${HTMLNAME}"/>
+         <arg value="-exec"/>
+         <arg value="${HTMLVALID}"/>
+         <arg value="-c${HTMLDTDCAT}"/>
+         <arg value="-s"/>
+         <arg value="{}"/>
+         <arg value="&#34;;&#34;"/>
+      </exec>
+        
    </target>
     
    <target name="isoindex" depends="init" description="Create HTML index">
@@ -381,7 +403,7 @@
          <srcfileset dir="." includes="${RESDOCGIFS}"/>
          <targetfileset dir="${ISODIR}" includes="/data/resource_docs/**/*.htm"/>
       </dependset>
-      <style includes="${RESDOCINDEXXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/index.xsl">
+      <style includes="${RESDOCINDEXXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_resdocindex.xsl">
          <param name="output_type" expression="HTM"/>
          <param name="output_rcs" expression="${OUTPUT_RCS}"/>
          <param name="menubar_file" expression="${ISOMENU}"/>

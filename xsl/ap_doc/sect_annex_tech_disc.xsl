@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_tech_disc.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
+$Id: sect_annex_tech_disc.xsl,v 1.2 2004/09/25 07:12:54 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -25,7 +25,7 @@ $Id: sect_annex_tech_disc.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
 
     <xsl:call-template name="annex_header" >
       <xsl:with-param name="annex_no" select="$annex_letter"/>
-      <xsl:with-param name="heading" select="'Technical discussion'"/>
+      <xsl:with-param name="heading" select="'Technical discussions'"/>
       <xsl:with-param name="aname" select="'annexj'"/>
     </xsl:call-template>
 

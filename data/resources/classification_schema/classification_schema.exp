@@ -1,0 +1,70 @@
+(* Genenerated from: e:\My Documents\technology\stepparts\set_theory\wg12n984\wg12n957.exp *)
+
+SCHEMA classification_schema;
+
+  REFERENCE FROM support_resource_schema -- ISO 10303-41
+    (identifier,
+    label,
+    text);
+
+TYPE classified_select = EXTENSIBLE SELECT (
+  attribute_reference,
+  thing);
+END_TYPE; 
+
+TYPE classifier_select = EXTENSIBLE SELECT (
+  class);
+END_TYPE; 
+
+TYPE entity_for_attribute_select = EXTENSIBLE SELECT (
+  );
+END_TYPE; 
+
+ENTITY attribute_reference;
+  id               : identifier;
+  name             : label;
+  description      : OPTIONAL text;
+  entity_reference : entity_for_attribute_select;
+  attribute_id     : STRING;
+END_ENTITY; 
+
+ENTITY class
+  SUPERTYPE OF (ONEOF (
+    class_by_extension,
+    class_by_intension))
+  SUBTYPE OF (thing);
+END_ENTITY;
+
+ENTITY class_by_extension
+  SUBTYPE OF (class);
+END_ENTITY;
+
+ENTITY class_by_intension
+  SUBTYPE OF (class);
+END_ENTITY;
+
+ENTITY classification;
+  id          : identifier;
+  name        : label;
+  description : OPTIONAL text;
+  classified  : classified_select;
+  classifier  : classifier_select;
+END_ENTITY;
+
+ENTITY complete_membership;
+  id             : identifier;
+  name           : label;
+  description    : OPTIONAL text;
+  containing_set : classifier_select;
+  members        : SET[0:?] OF classified_select;
+END_ENTITY;
+
+ENTITY thing
+  ABSTRACT SUPERTYPE;
+  id             : identifier;
+  name           : label;
+  description    : OPTIONAL text;
+END_ENTITY;
+
+END_SCHEMA;
+

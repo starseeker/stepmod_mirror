@@ -1,28 +1,36 @@
-(*
-  $Id: $
-*) 
 { iso standard 10303 part (11) version (4) }
-
+(*  $Id: $ *) 
 SCHEMA Process_property_assignment_arm;
 
-   USE FROM Foundation_representation_arm;
+USE FROM Activity_arm;
 
-   USE FROM Independent_property_usage_arm;
+USE FROM Activity_method_arm;
 
-   USE FROM Work_order_arm;
+USE FROM Foundation_representation_arm;
 
-   TYPE independent_process_property_assignment = EXTENSIBLE SELECT BASED_ON independent_property_usage_select WITH (Activity_property);
-   END_TYPE;
+USE FROM Independent_property_arm;
 
-   ENTITY Activity_property;
-      described_element : Activity;
-      description : STRING;
-      name : STRING;
-   END_ENTITY;
+TYPE activity_or_activity_method_select = SELECT 
+  (Activity,
+   Activity_method);
+END_TYPE;
 
-   ENTITY Activity_property_representation;
-      item : Activity_property;
-      representation : Rrepresentation;
-   END_ENTITY;
+ENTITY Activity_property;
+  described_element : activity_or_activity_method_select;
+  description : STRING;
+  name : STRING;
+END_ENTITY;
+
+ENTITY Activity_property_representation;
+  item : Activity_property;
+  rep : Representation;
+END_ENTITY;
+
+ENTITY Activity_property_with_derived_property
+SUBTYPE OF (Activity_property);
+  base_element_property : Independent_property;
+DERIVE
+  name : Independent_property := STRING := based_element_property.property_type;
+END_ENTITY;
 
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.17 2004/02/12 19:23:36 thendrix Exp $
+$Id: res_toc.xsl,v 1.18 2004/09/16 17:24:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -328,7 +328,19 @@ NEED TO FIX up the hrefs -->
     <TR>
       <TD valign="TOP">
         <p class="toc">
-          <A HREF="{$resdoc_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
+          <xsl:choose>
+            <xsl:when test="$PUBLICATION='YES'">
+              <A HREF="{$resdoc_root}/sys/isocover{$FILE_EXT}">Cover page</A><BR/>
+            </xsl:when>
+            <xsl:when test="$BALLOT='YES'">
+              <A HREF="{$resdoc_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
+            </xsl:when>
+            <xsl:otherwise>
+              <A HREF="{$resdoc_root}/sys/cover{$FILE_EXT}">SC4 cover page</A><BR/>
+              <A HREF="{$resdoc_root}/sys/isocover{$FILE_EXT}">ISO cover page</A><BR/>
+
+            </xsl:otherwise>
+          </xsl:choose>
       
           <A HREF="{$resdoc_root}/sys/contents{$FILE_EXT}">Table of contents</A><BR/>
           

@@ -1,5 +1,5 @@
-(* Nxxx  ISO/CD TS 10303-1051
-$Id: mim.exp,v 1.4 2002/11/12 20:58:44 goset1 Exp $ *)
+(* Nxxx  ISO/CD TS 10303-1051	Geometric Tolerance - EXPRESS MIM
+$Id: mim.exp,v 1.5 2002/11/18 11:16:11 goset1 Exp $ *)
 
 SCHEMA Geometric_tolerance_mim;
 
@@ -14,6 +14,9 @@ USE FROM Shape_property_assignment_mim;
 USE FROM Value_with_unit_mim;
 
 USE FROM aic_geometric_tolerances;
+
+REFERENCE FROM support_resource_schema(
+	type_check_function);
 
 
 ENTITY placed_datum_target_feature
@@ -41,12 +44,29 @@ WR1: SIZEOF( QUERY( i <* SELF.items |
 END_ENTITY;
 
 
-FUNCTION valid_datum_target_parameters (pdf: placed_datum_feature): BOOLEAN;
+FUNCTION get_shape_aspect_property_definition_representations (s_a_instance : shape_aspect) : SET OF property_definition_representation; 
+LOCAL 
+  pd_set : SET OF property_definition := []; 
+  pdr_set : SET OF property_definition_representation := [] ; 
+END_LOCAL; 
+pd_set := bag_to_set(USEDIN(s_a_instance, 'GEOMETRIC_TOLERANCE_MIM.PROPERTY_DEFINITION.DEFINITION')); 
+IF (SIZEOF(pd_set) < 1) THEN 
+  RETURN (pdr_set); 
+END_IF; 
+REPEAT i := 1 TO HIINDEX(pd_set); 
+  pdr_set := pdr_set + (QUERY(pdr <* USEDIN(pd_set[i], 'GEOMETRIC_TOLERANCE_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.' + 'DEFINITION') |
+     'GEOMETRIC_TOLERANCE_MIM.SHAPE_DEFINITION_REPRESENTATION' IN TYPEOF(pdr ))); 
+END_REPEAT; 
+RETURN (pdr_set); 
+END_FUNCTION; 
+
+
+FUNCTION valid_datum_target_parameters (pdf: placed_datum_target_feature): BOOLEAN;
 LOCAL
   parameter_representations: SET OF representation;
 END_LOCAL;
 
-parameter_representations := QUERY( pdr <* representation_associations |
+parameter_representations := QUERY( pdr <* pdf.representation_associations |
               ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
                TYPEOF(pdr.used_representation)));
 

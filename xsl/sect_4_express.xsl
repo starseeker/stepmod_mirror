@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.23 2002/03/27 09:38:09 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.24 2002/04/02 07:07:16 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -766,7 +766,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <blockquote>
+    <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="@name"/>:
@@ -802,7 +802,7 @@
       </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
-</blockquote>
+</p>
 </xsl:template>
 
 <xsl:template match="derived" mode="description">
@@ -821,7 +821,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <blockquote>
+    <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="@name"/>:
@@ -855,7 +855,7 @@
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
-  </blockquote>
+  </p>
 </xsl:template>
 
 <xsl:template match="inverse" mode="description">
@@ -872,7 +872,7 @@
     </xsl:call-template>
   </xsl:variable>
   
-  <blockquote>
+    <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="@name"/>:
@@ -907,7 +907,7 @@
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
-  </blockquote>
+  </p>
 </xsl:template>
 
 
@@ -926,7 +926,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <blockquote>
+    <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="concat(@label,' : ')"/>
@@ -961,7 +961,7 @@
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
-  </blockquote>
+  </p>
 </xsl:template>
 
 <xsl:template name="output_where_formal">
@@ -990,7 +990,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <blockquote>
+    <p class="expressdescription">
     <b>
       <a name="{$aname}">
         <xsl:value-of select="concat(@label,' : ')"/>
@@ -1027,7 +1027,7 @@
         </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
-  </blockquote>
+  </p>
 </xsl:template>
 
 

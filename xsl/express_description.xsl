@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.21 2003/06/30 01:14:23 thendrix Exp $
+     $Id: express_description.xsl,v 1.22 2003/06/30 03:19:48 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -212,7 +212,7 @@ and  string is more than the schema name ( hence not the  schema )
         
       </xsl:if>
       
-      <xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),concat('is a type of ',substring-before($supertypes,' '))))" >
+      <xsl:if test="string-length($supertypes)>0 and not(contains(normalize-space($description),concat('is a type of ',substring-before($supertypes,' '))))and not(contains(normalize-space($description),concat('is a type of ',substring-after($supertypes,' '))))" >
         
         <xsl:call-template name="error_message">
           <xsl:with-param  name="message" >

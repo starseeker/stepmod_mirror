@@ -28,48 +28,72 @@
 </interface>
 <interface kind="use" schema="Value_with_unit_arm">
 </interface>
-<interface kind="reference" schema="Expressions_for_logic_arm">
-</interface>
+<type name="condition_date">
+<description>
+        The date which the current condition is created of updated.
+      </description>
+<select basedon="date_or_date_time_item" selectitems="Condition" />
+<graphic.element page="2" xcoord="396" ycoord="396" />
+</type>
 <type name="condition_identification">
+<description>
+        The idnetifier or version identifier of the condition.
+      </description>
 <select basedon="identification_item" selectitems="Condition" />
 <graphic.element page="2" xcoord="396" ycoord="467" />
-</type>
-<type name="criterion_sepcification">
-<select selectitems="Criterion text" />
-<graphic.element page="2" xcoord="361" ycoord="666" />
 </type>
 <type name="criterion_source_select">
 <select extensible="YES" selectitems="Class Event Product_view_definition State_definition" />
 <graphic.element page="7" xcoord="237" ycoord="274" />
 </type>
-<type name="dated_condition">
-<select basedon="date_or_date_time_item" selectitems="Condition" />
-<graphic.element page="2" xcoord="396" ycoord="396" />
+<type name="criterion_specification">
+<description>
+        Selection between a simple textual description or a fully established expression construct.
+      </description>
+<select selectitems="Criterion text" />
+<graphic.element page="2" xcoord="361" ycoord="680" />
 </type>
-<type name="organizational_responsibility">
-<select basedon="orgqanization_or_person_in_organization_item" selectitems="Condition" />
+<type name="organization_ownership">
+<description>
+        The organization which authers and maitains the Condition definition.
+      </description>
+<select basedon="organization_or_person_in_organization_item" selectitems="Condition" />
 <graphic.element page="2" xcoord="396" ycoord="325" />
 </type>
 <type name="parameter_value">
 <select extensible="YES" selectitems="AND_expression date_or_date_time_select label text Value_with_unit" />
-<graphic.element page="7" xcoord="240" ycoord="501" />
+<graphic.element page="7" xcoord="240" ycoord="446" />
 </type>
 <entity name="Compound_criteria" abstract.supertype="YES" supertypes="Criterion Multiple_arity_logical_expression">
 <description>
         A Compound_criterioa is an aggregation of multiple crterion instances through a logical operator. The aggregation operations of AND_structure and OR_structure may be nested.
       </description>
-<graphic.element page="2" xcoord="198" ycoord="503" />
+<graphic.element page="2" xcoord="141" ycoord="503" />
 </entity>
 <entity name="Condition">
 <description>
         A condition is a criterion and an information object which is used as the condition for evaluating the applicability of an object of interest in a context. The condition is identified through the identitiers of the parent document information object. The object of interest is identified through the document_assignment  relationship inherited from document. The context of a condition is established when an information object acquires the condition. For example, a state may use a condition to define the state.
       </description>
 <explicit name="criterion">
-<typename name="criterion_sepcification" />
+<description>
+          The criterion that defines the condition.
+        </description>
+<typename name="criterion_specification" />
+</explicit>
+<explicit name="role">
+<description>
+          The role of the condition.
+
+EXAMPLE: Validity, applicability, state
+        </description>
+<builtintype type="STRING" />
 </explicit>
 <graphic.element page="2" xcoord="311" ycoord="602" />
 </entity>
 <entity name="Condition_relationship">
+<description>
+        Relationships among individual conditions.
+      </description>
 <explicit name="related">
 <description>
           The condition related to.
@@ -88,7 +112,7 @@
         </description>
 <builtintype type="STRING" />
 </explicit>
-<graphic.element page="2" xcoord="467" ycoord="602" />
+<graphic.element page="2" xcoord="510" ycoord="659" />
 </entity>
 <entity name="Criterion" abstract.supertype="YES" supertypes="Logical_expression" super.expression="ONEOF(Class_membership_criterion, Compound_criteria,  Date_time_criterion, Descritptive_criterion, Event_based_criterion) ANDOR Condition, NOT_assertion Numeric_value_citerion)">
 <description>
@@ -97,7 +121,13 @@
 <graphic.element page="2" xcoord="141" ycoord="602" />
 </entity>
 <entity name="Criterion_parameter">
+<description>
+        A specific property value that constitutes a part of the criterion definition.
+      </description>
 <explicit name="criterion">
+<description>
+          The criterion to which the parameter prtains.
+        </description>
 <typename name="Criterion" />
 </explicit>
 <explicit name="parameter_name" optional="YES">
@@ -113,27 +143,31 @@
 <builtintype type="STRING" />
 </explicit>
 <explicit name="parameter_value">
+<description>
+          The value of a parameter. In some parameters, the value construct may contain the name, structure and applicable measure of the parameter. 
+
+EXAMPLE: A date value may be composed of named integer values of Year, Month and Date in addition to a string date type indicator.
+        </description>
 <typename name="parameter_value" />
 </explicit>
 <graphic.element page="7" xcoord="85" ycoord="559" />
 </entity>
-<entity name="NOT_assertion" supertypes="Criterion">
+<entity name="Parameter_source_reference">
 <description>
-        A NOT_assertion negates the parameter value or values encapsulated by the criterion.
+        A referencing relationship to the actual source instance of a property value, from which the criterion parameter is based. The reference path also facilitates the validation evaluation process in applications. 
+
+EXAMPLE: If a Class identifier is used as a criterion, the reference may point to the actual Class repository where member instances of the class can be found.
       </description>
-<graphic.element page="2" xcoord="85" ycoord="504" />
-</entity>
-<entity name="Parameter_source_reference" supertypes="Criterion_parameter">
-<description>
-        A referencing relationship to the actual source instance of a property value, from which the criterion parameter is based. The reference path also facilitates the validation evaluation process in applications.
-      </description>
+<explicit name="parameter">
+<typename name="Criterion_parameter" />
+</explicit>
 <explicit name="source">
 <description>
           A pointer to the actual entity instance from which this parameter value is based.
         </description>
 <typename name="criterion_source_select" />
 </explicit>
-<graphic.element page="7" xcoord="85" ycoord="481" />
+<graphic.element page="7" xcoord="85" ycoord="453" />
 </entity>
 <graphic.element page="1" xcoord="269" ycoord="623" />
 </schema>

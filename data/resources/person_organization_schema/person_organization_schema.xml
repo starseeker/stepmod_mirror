@@ -1,470 +1,288 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.17 2002/07/09 14:29:45 robbod Exp $ -->
+<!-- $Id: person_organization_schema.xml,v 1.5 2002/07/14 16:43:49 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-41"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/person_organization_schema/person_organization_schema.exp"/>
-
-  <schema name="person_organization_schema">
-    <interface
-      kind="reference"
-      schema="basic_attribute_schema">
-      <interfaced.item
-        name="description_attribute"/>
-      <interfaced.item
-        name="get_description_value"/>
-      <interfaced.item
-        name="get_id_value"/>
-      <interfaced.item
-        name="get_name_value"/>
-      <interfaced.item
-        name="get_role"/>
-      <interfaced.item
-        name="id_attribute"/>
-      <interfaced.item
-        name="name_attribute"/>
-      <interfaced.item
-        name="object_role"/>
-      <interfaced.item
-        name="role_association"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="bag_to_set"/>
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-
-    <type name="person_organization_select">
-      <select
-        selectitems="person organization person_and_organization">
-      </select>
-
-    </type>
-    <entity
-      name="address">
-      <explicit
-        name="internal_location"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="street_number"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="street"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="postal_box"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="town"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="region"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="postal_code"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="country"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="facsimile_number"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="telephone_number"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="electronic_mail_address"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="telex_number"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <derived
-        name="name"
-        expression="get_name_value (SELF)">
-        <typename
-          name="label"/>
-      </derived>
-      <derived
-        name="url"
-        expression="get_id_value (SELF)">
-        <typename
-          name="identifier"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="EXISTS(internal_location)       OR       EXISTS(street_number)           OR       EXISTS(street)                  OR       EXISTS(postal_box)              OR       EXISTS(town)                    OR       EXISTS(region)                  OR       EXISTS(postal_code)             OR       EXISTS(country)                 OR       EXISTS(facsimile_number)        OR       EXISTS(telephone_number)        OR       EXISTS(electronic_mail_address) OR       EXISTS(telex_number)">
-      </where>
-    </entity>
-
-    <entity
-      name="organization">
-      <explicit
-        name="id"
-        optional="YES">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="organization_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_organization">
-        <typename
-          name="organization"/>
-      </explicit>
-      <explicit
-        name="related_organization">
-        <typename
-          name="organization"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="organization_role">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <derived
-        name="description"
-        expression="get_description_value (SELF)">
-        <typename
-          name="text"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="organizational_address"
-      supertypes="address">
-      <explicit
-        name="organizations">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="organization"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="organizational_project">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="responsible_organizations">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="organization"/>
-      </explicit>
-      <derived
-        name="id"
-        expression="get_id_value (SELF)">
-        <typename
-          name="identifier"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +               'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="organizational_project_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_organizational_project">
-        <typename
-          name="organizational_project"/>
-      </explicit>
-      <explicit
-        name="related_organizational_project">
-        <typename
-          name="organizational_project"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="person">
-      <explicit
-        name="id">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="last_name"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="first_name"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="middle_names"
-        optional="YES">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="prefix_titles"
-        optional="YES">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="suffix_titles"
-        optional="YES">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="label"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="EXISTS(last_name) OR EXISTS(first_name)">
-      </where>
-    </entity>
-
-    <entity
-      name="person_and_organization">
-      <explicit
-        name="the_person">
-        <typename
-          name="person"/>
-      </explicit>
-      <explicit
-        name="the_organization">
-        <typename
-          name="organization"/>
-      </explicit>
-      <derived
-        name="name"
-        expression="get_name_value (SELF)">
-        <typename
-          name="label"/>
-      </derived>
-      <derived
-        name="description"
-        expression="get_description_value (SELF)">
-        <typename
-          name="text"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="person_and_organization_role">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <derived
-        name="description"
-        expression="get_description_value (SELF)">
-        <typename
-          name="text"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="person_role">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <derived
-        name="description"
-        expression="get_description_value (SELF)">
-        <typename
-          name="text"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="personal_address"
-      supertypes="address">
-      <explicit
-        name="people">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="person"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <function
-      name="acyclic_organization_relationship">
-      <parameter
-        name="relation">
-        <typename
-          name="organization_relationship"/>
-      </parameter>
-      <parameter
-        name="relatives">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="organization"/>
-      </parameter>
-      <parameter
-        name="specific_relation">
-        <builtintype
-          type="STRING"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+<express language_version="2" reference="ISO 10303-41ed3" rcs.date="$Date: 2002/07/14 16:43:49 $" rcs.revision="$Revision: 1.5 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.17" source="../data/resources/person_organization_schema/person_organization_schema.exp"/>
+	<schema name="person_organization_schema">
+		<interface kind="reference" schema="basic_attribute_schema">
+			<interfaced.item name="description_attribute"/>
+			<interfaced.item name="get_description_value"/>
+			<interfaced.item name="get_id_value"/>
+			<interfaced.item name="get_name_value"/>
+			<interfaced.item name="get_role"/>
+			<interfaced.item name="id_attribute"/>
+			<interfaced.item name="name_attribute"/>
+			<interfaced.item name="object_role"/>
+			<interfaced.item name="role_association"/>
+		</interface>
+		<interface kind="reference" schema="support_resource_schema">
+			<interfaced.item name="bag_to_set"/>
+			<interfaced.item name="identifier"/>
+			<interfaced.item name="label"/>
+			<interfaced.item name="text"/>
+		</interface>
+		<type name="person_organization_select">
+			<select selectitems="person organization person_and_organization"/>
+		</type>
+		<entity name="address">
+			<explicit name="internal_location" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="street_number" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="street" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="postal_box" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="town" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="region" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="postal_code" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="country" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="facsimile_number" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="telephone_number" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="electronic_mail_address" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="telex_number" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<derived name="name" expression="get_name_value (SELF)">
+				<typename name="label"/>
+			</derived>
+			<derived name="url" expression="get_id_value (SELF)">
+				<typename name="identifier"/>
+			</derived>
+			<where label="WR1" expression="EXISTS(internal_location)       OR       EXISTS(street_number)           OR       EXISTS(street)                  OR       EXISTS(postal_box)              OR       EXISTS(town)                    OR       EXISTS(region)                  OR       EXISTS(postal_code)             OR       EXISTS(country)                 OR       EXISTS(facsimile_number)        OR       EXISTS(telephone_number)        OR       EXISTS(electronic_mail_address) OR       EXISTS(telex_number)"/>
+		</entity>
+		<entity name="organization">
+			<explicit name="id" optional="YES">
+				<typename name="identifier"/>
+			</explicit>
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+		</entity>
+		<entity name="organization_relationship">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="relating_organization">
+				<typename name="organization"/>
+			</explicit>
+			<explicit name="related_organization">
+				<typename name="organization"/>
+			</explicit>
+		</entity>
+		<entity name="organization_role">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<derived name="description" expression="get_description_value (SELF)">
+				<typename name="text"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
+		</entity>
+		<entity name="organizational_address" supertypes="address">
+			<explicit name="organizations">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="organization"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+		</entity>
+		<!-- added 2003-04-09 mwd -->
+		<entity name="organization_type">
+			<explicit name="id">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="name">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<builtintype type="STRING"/>
+			</explicit>
+		</entity>
+		<!-- added 2003-04-11 mwd -->
+		<entity name="organization_type_relationship">
+			<explicit name="description" optional="YES">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="id">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="name">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="related_organization_type">
+				<typename name="organization_type"/>
+			</explicit>
+			<explicit name="relating_organization_type">
+				<typename name="organization_type"/>
+			</explicit>
+		</entity>
+		<entity name="organizational_project">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="responsible_organizations">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="organization"/>
+			</explicit>
+			<derived name="id" expression="get_id_value (SELF)">
+				<typename name="identifier"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +               'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+		</entity>
+		<entity name="organizational_project_relationship">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+			<explicit name="relating_organizational_project">
+				<typename name="organizational_project"/>
+			</explicit>
+			<explicit name="related_organizational_project">
+				<typename name="organizational_project"/>
+			</explicit>
+		</entity>
+		<entity name="person">
+			<explicit name="id">
+				<typename name="identifier"/>
+			</explicit>
+			<explicit name="last_name" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="first_name" optional="YES">
+				<typename name="label"/>
+			</explicit>
+			<explicit name="middle_names" optional="YES">
+				<aggregate type="LIST" lower="1" upper="?"/>
+				<typename name="label"/>
+			</explicit>
+			<explicit name="prefix_titles" optional="YES">
+				<aggregate type="LIST" lower="1" upper="?"/>
+				<typename name="label"/>
+			</explicit>
+			<explicit name="suffix_titles" optional="YES">
+				<aggregate type="LIST" lower="1" upper="?"/>
+				<typename name="label"/>
+			</explicit>
+			<where label="WR1" expression="EXISTS(last_name) OR EXISTS(first_name)"/>
+		</entity>
+		<!-- added 2003-04-09 mwd -->
+		<entity name="person_type">
+			<explicit name="id">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="name">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<builtintype type="STRING"/>
+			</explicit>
+		</entity>
+		<!-- added 2003-04-11 mwd -->
+		<entity name="person_type_relationship">
+			<explicit name="description" optional="YES">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="id">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="name">
+				<builtintype type="STRING"/>
+			</explicit>
+			<explicit name="related_person_type">
+				<typename name="person_type"/>
+			</explicit>
+			<explicit name="relating_person_type">
+				<typename name="person_type"/>
+			</explicit>
+		</entity>
+		<entity name="person_and_organization">
+			<explicit name="the_person">
+				<typename name="person"/>
+			</explicit>
+			<explicit name="the_organization">
+				<typename name="organization"/>
+			</explicit>
+			<derived name="name" expression="get_name_value (SELF)">
+				<typename name="label"/>
+			</derived>
+			<derived name="description" expression="get_description_value (SELF)">
+				<typename name="text"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1"/>
+			<where label="WR2" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
+		</entity>
+		<entity name="person_and_organization_role">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<derived name="description" expression="get_description_value (SELF)">
+				<typename name="text"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
+		</entity>
+		<entity name="person_role">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<derived name="description" expression="get_description_value (SELF)">
+				<typename name="text"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
+		</entity>
+		<entity name="personal_address" supertypes="address">
+			<explicit name="people">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="person"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
+			</explicit>
+		</entity>
+		<function name="acyclic_organization_relationship">
+			<parameter name="relation">
+				<typename name="organization_relationship"/>
+			</parameter>
+			<parameter name="relatives">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="organization"/>
+			</parameter>
+			<parameter name="specific_relation">
+				<builtintype type="STRING"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
   LOCAL
     x                : SET OF organization_relationship;
   END_LOCAL;
@@ -487,33 +305,20 @@
   END_REPEAT;
   RETURN(TRUE);
       </algorithm>
-
-    </function>
-
-    <function
-      name="acyclic_organizational_project_relationship">
-      <parameter
-        name="relation">
-        <typename
-          name="organizational_project_relationship"/>
-      </parameter>
-      <parameter
-        name="relatives">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="organizational_project"/>
-      </parameter>
-      <parameter
-        name="specific_relation">
-        <builtintype
-          type="STRING"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
+		</function>
+		<function name="acyclic_organizational_project_relationship">
+			<parameter name="relation">
+				<typename name="organizational_project_relationship"/>
+			</parameter>
+			<parameter name="relatives">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="organizational_project"/>
+			</parameter>
+			<parameter name="specific_relation">
+				<builtintype type="STRING"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
   LOCAL
     x                : SET OF organizational_project_relationship;
   END_LOCAL;
@@ -536,9 +341,6 @@
   END_REPEAT;
   RETURN(TRUE);
       </algorithm>
-
-    </function>
-
-  </schema>
-
+		</function>
+	</schema>
 </express>

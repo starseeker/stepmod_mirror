@@ -1,4 +1,4 @@
-//$Id: mkmodule.js,v 1.17 2002/07/15 09:00:07 goset1 Exp $
+//$Id: mkmodule.js,v 1.18 2002/08/13 10:04:16 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate the default XML for the module.
@@ -103,7 +103,7 @@ function GetModuleDir(module) {
 }
 
 // Create the dvlp directory and insert the projmg and issues file
-function MakeDvlpDir(module) {
+function MakeDvlpFldr(module) {
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
     var fso = new ActiveXObject("Scripting.FileSystemObject");
@@ -116,17 +116,187 @@ function MakeDvlpDir(module) {
     if (!fso.FolderExists(modDvlpFldr)) 
 	fso.CreateFolder(modDvlpFldr);
     if (!fso.FileExists(projmgXML)) { 
-	fso.CreateTextFile(projmgXML, true );
+	fso.CreateTextFile(projmgXML, true);
 	f = fso.GetFile(projmgXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
-	// ADD XML HERE
+	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.18 2002/08/13 10:04:16 robbod Exp $ -->");
+	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/projmg.xsl\"?>");
+  	ts.WriteLine("<!DOCTYPE issues SYSTEM \"../../../../dtd/projmg/projmg.dtd\">");
+	ts.WriteLine("<management module=\""+module+"\"");
+	ts.WriteLine("  percentage_complete=\"0\"");
+	ts.WriteLine("  issues=\"issues.xml\">");
+	ts.WriteLine("");
+	ts.WriteLine("  <developers>");
+	ts.WriteLine("    <developer ref=\"\"/>");
+	ts.WriteLine("  </developers>");
+	ts.WriteLine("");
+	ts.WriteLine("  <module.milestones>");
+	ts.WriteLine("    <milestone");
+	ts.WriteLine("      name=\"M1\"");
+	ts.WriteLine("      description=\"Requirements allocated to module\"");
+	ts.WriteLine("      status=\"not-achieved\"");
+	ts.WriteLine("      planned_date=\"\"");
+	ts.WriteLine("      predicted_date=\"\"");
+	ts.WriteLine("      achieved_date=\"\">");
+	ts.WriteLine("    </milestone>");
+	ts.WriteLine("");
+	ts.WriteLine("    <milestone");
+	ts.WriteLine("      name=\"M2\"");
+	ts.WriteLine("      description=\"Draft for team review\"");
+	ts.WriteLine("      status=\"not-achieved\"");
+	ts.WriteLine("      planned_date=\"\"");
+	ts.WriteLine("      predicted_date=\"\"");
+	ts.WriteLine("      achieved_date=\"\">");
+	ts.WriteLine("    </milestone>");
+	ts.WriteLine("");
+	ts.WriteLine("    <milestone");
+	ts.WriteLine("      name=\"M3\"");
+	ts.WriteLine("      description=\"Ready for QC\"");
+	ts.WriteLine("      status=\"not-achieved\"");
+	ts.WriteLine("      planned_date=\"\"");
+	ts.WriteLine("      predicted_date=\"\"");
+	ts.WriteLine("      achieved_date=\"\">");
+	ts.WriteLine("    </milestone>");
+	ts.WriteLine("");
+	ts.WriteLine("    <milestone");
+	ts.WriteLine("      name=\"M4\"");
+	ts.WriteLine("      description=\"QC form completed\"");
+	ts.WriteLine("      status=\"not-achieved\"");
+	ts.WriteLine("      planned_date=\"\"");
+	ts.WriteLine("      predicted_date=\"\"");
+	ts.WriteLine("      achieved_date=\"\">");
+	ts.WriteLine("    </milestone>");
+	ts.WriteLine("");
+	ts.WriteLine("    <milestone");
+	ts.WriteLine("      name=\"M5\"");
+	ts.WriteLine("      description=\"Submitted for ballot\"");
+	ts.WriteLine("      status=\"not-achieved\"");
+	ts.WriteLine("      planned_date=\"\"");
+	ts.WriteLine("      predicted_date=\"\"");
+	ts.WriteLine("      achieved_date=\"\">");
+	ts.WriteLine("    </milestone>");
+	ts.WriteLine("");
+	ts.WriteLine("    <milestone");
+	ts.WriteLine("      name=\"M6\"");
+	ts.WriteLine("      description=\"Ballot comments resolved\"");
+	ts.WriteLine("      status=\"not-achieved\"");
+	ts.WriteLine("      planned_date=\"\"");
+	ts.WriteLine("      predicted_date=\"\"");
+	ts.WriteLine("      achieved_date=\"\">");
+	ts.WriteLine("    </milestone>");
+	ts.WriteLine("");
+	ts.WriteLine("    <milestone");
+	ts.WriteLine("      name=\"M7\"");
+	ts.WriteLine("      description=\"Published as TS\"");
+	ts.WriteLine("      status=\"not-achieved\"");
+	ts.WriteLine("      planned_date=\"\"");
+	ts.WriteLine("      predicted_date=\"\"");
+	ts.WriteLine("      achieved_date=\"\">");
+	ts.WriteLine("    </milestone>");
+	ts.WriteLine("  </module.milestones>");
+	ts.WriteLine("");
+	ts.WriteLine("  <module.checklist>");
+	ts.WriteLine("    <status section=\"module.header\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("    ");
+	ts.WriteLine("    <status section=\"module.intro\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("        Reviewed by PLCS");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("    ");
+	ts.WriteLine("    <status section=\"mapping\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("");
+	ts.WriteLine("    <status section=\"arm.xml\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("");
+	ts.WriteLine("    <status section=\"arm_expressg\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("");
+	ts.WriteLine("    <status section=\"arm.exp\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("");
+	ts.WriteLine("    <status section=\"arm_lf.exp\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("");
+	ts.WriteLine("    <status section=\"mim.xml\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("");
+	ts.WriteLine("    <status section=\"mim_expressg\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("");
+	ts.WriteLine("    <status section=\"mim.exp\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("");
+	ts.WriteLine("    <status section=\"mim_lf.exp\"");
+	ts.WriteLine("      by=\"\"");
+	ts.WriteLine("      date=\"\"");
+	ts.WriteLine("      status=\"in-work\">");
+	ts.WriteLine("      <description>");
+	ts.WriteLine("      </description>");
+	ts.WriteLine("    </status>");
+	ts.WriteLine("  </module.checklist>");
+	ts.WriteLine("</management>");
 	ts.Close();
     }
     if (!fso.FileExists(issuesXML)) {
 	fso.CreateTextFile(issuesXML, true );
 	f = fso.GetFile(issuesXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
-	// ADD XML HERE
+	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.18 2002/08/13 10:04:16 robbod Exp $ -->");
+	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/issues_file.xsl\"?>");
+  	ts.WriteLine("<!DOCTYPE issues SYSTEM \"../../../../dtd/projmg/issues.dtd\">");
+	ts.WriteLine("<issues module=\""+module+"\">");
+	ts.WriteLine("</issues>");
 	ts.Close();
     }
 }
@@ -147,7 +317,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.17 2002/07/15 09:00:07 goset1 Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.18 2002/08/13 10:04:16 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -170,7 +340,7 @@ function MakeModuleXML(module, long_form, partNo) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.17 2002/07/15 09:00:07 goset1 Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.18 2002/08/13 10:04:16 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     //ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     //ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -199,7 +369,12 @@ function MakeModuleXML(module, long_form, partNo) {
     var rcsdate = "$"+"Date: $";
     ts.WriteLine("   rcs.date=\""+rcsdate+"\"");
     var rcsrevision = "$"+"Revision: $";
+
     ts.WriteLine("   rcs.revision=\""+rcsrevision+"\">");
+    
+    // Do not want to make issues and proj mg available just yet
+    //ts.WriteLine("   rcs.revision=\""+rcsrevision+"\"");
+    //ts.WriteLine("   development.folder=\"dvlp\">");
     ts.WriteLine("");
     ts.WriteLine(" <keywords>");
     ts.WriteLine("    module");
@@ -216,9 +391,12 @@ function MakeModuleXML(module, long_form, partNo) {
     ts.WriteLine(" </contacts>");
     ts.WriteLine("");
     ts.WriteLine(" <!-- Introduction -->");
-    ts.WriteLine(" <!-- The introduction should start as follows: -->");
-    ts.WriteLine(" <!-- This part of ISO 10303 specifies an application module for the representation of  -->");
+    ts.WriteLine(" <!-- The introduction should start as shown: -->");
     ts.WriteLine(" <purpose>");
+    ts.WriteLine("   <p>");
+    ts.WriteLine("     This part of ISO 10303 specifies an application module for the");
+    ts.WriteLine("     representation of ");
+    ts.WriteLine("   </p>");
     ts.WriteLine(" </purpose>");
     ts.WriteLine("");
     ts.WriteLine(" <!-- Items in scope -->");
@@ -315,7 +493,7 @@ function MakeExpressG(module, expgfile, title) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.17 2002/07/15 09:00:07 goset1 Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.18 2002/08/13 10:04:16 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("    href=\"../../../xsl/imgfile.xsl\"?>");
@@ -346,7 +524,7 @@ function MakeExpress(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("(*");
-    ts.WriteLine("   $Id: arm.exp,v 1.12 2002/07/22 20:46:15 thendrix Exp $");
+    ts.WriteLine("   $Id: mkmodule.js,v 1.18 2002/08/13 10:04:16 robbod Exp $");
     ts.Write("   N - ISO/CD-TS - 10303- ");
     ts.Write(module);
     ts.Write(" - EXPRESS ");
@@ -373,14 +551,14 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.17 2002/07/15 09:00:07 goset1 Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.18 2002/08/13 10:04:16 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
     ts.WriteLine("<express");
     ts.WriteLine("   language_version=\"2\"");
-    ts.WriteLine("   rcs.date=\"$Date: 2002/07/15 09:00:07 $\"");
-    ts.WriteLine("   rcs.revision=\"$Revision: 1.17 $\">");
+    ts.WriteLine("   rcs.date=\"$Date: 2002/08/13 10:04:16 $\"");
+    ts.WriteLine("   rcs.revision=\"$Revision: 1.18 $\">");
     var schema = schemaName(module,armOrMim);
     ts.WriteLine("  <schema name=\""+schema+"\">");
     ts.WriteLine("  </schema>");
@@ -444,7 +622,6 @@ function NameModule(module) {
 } 
 
 
-
 function MakeModule(module, long_form, partNo) {
     // make sure module has a valid name
     module = NameModule(module);
@@ -458,6 +635,7 @@ function MakeModule(module, long_form, partNo) {
 
 	fso.CreateFolder(modFldr);
 	fso.CreateFolder(modSysFldr);	
+	MakeDvlpFldr(module);
 
 	for (var i=0; i<moduleClauses.length; i++) {
 	    MakeModuleClause(module, moduleClauses[i]);
@@ -505,6 +683,34 @@ function Main() {
     }
 }
 
+function MainDvlpWindow(module) {
+    var objShell = WScript.CreateObject("WScript.Shell");
+    var modName = NameModule(module);
+    if (modName.length > 1) {
+
+	var fso = new ActiveXObject("Scripting.FileSystemObject");
+	var modFldr = GetModuleDir(modName);
+	var modDvlpFldr = modFldr+"dvlp/";
+	if (!fso.FolderExists(modFldr)) {
+	    objShell.Popup("Module "+modName+" does not exist");
+	} else {
+	    var intRet = objShell.Popup("You are about to create a dvlp directory in module: "+module,0, "Creating DVLP", 49);
+	    if (intRet == 1) {
+		// OK
+		MakeDvlpFldr(module);
+		objShell.Popup("Created dvlp folder: "+modDvlpFldr+"\n"+
+			       "  ProjMg: stepmod/data/modules/"+modName+"/dvlp/projmg.xml\n"+
+			       "  Issues: stepmod/data/modules/"+modName+"/dvlp/issues.xml\n"+
+			       "  Add    development.folder=\"dvlp\" to module.xml\n",
+			       0, "Created module", 64);
+	    }
+	}
+    } else {
+	objShell.Popup("You must enter a module name");
+    }
+}
+
+
 function MainWindow(module) {
     var objShell = WScript.CreateObject("WScript.Shell");
     var modName = NameModule(module);
@@ -539,8 +745,4 @@ function MainWindow(module) {
 
 
 //Main();
-
-
-
-
 

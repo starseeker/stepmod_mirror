@@ -2545,7 +2545,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/res_doc/sect_abstract.xsl'"/>
-        </xsl:attribut e>
+        </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">

@@ -1,56 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by Ricardo Olavo (UNINOVA) -->
-<!-- $Id: arm.xml,v 1.11 2003/06/04 17:42:48 rocc Exp $ -->
+<!-- $Id: arm.xml,v 1.12 2003/07/16 09:47:12 rocc Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/06/04 17:42:48 $" rcs.revision="$Revision: 1.11 $">
+<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/07/16 09:47:12 $" rcs.revision="$Revision: 1.12 $">
 	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.33" source="../data/modules/generic_expression/arm.exp"/>
 	<schema name="Generic_expression_arm">
 		<interface kind="use" schema="Expression_arm"/>
-		<entity name="Generic_expression" abstract.supertype="YES" super.expression="(ONEOF(Simple_generic_expression, Unary_generic_expression, Binary_generic_expression, Multiple_arity_generic_expression))">
-			<where label="WR1" expression="Is_Acyclic(SELF)"/>
-			<where label="IP1" expression=""/>
+		<entity name="Binary_generic_expression" abstract.supertype="YES" supertypes="Generic_expression">
+			<explicit name="operands">
+				<aggregate type="LIST" lower="2" upper="2"/>
+				<typename name="Generic_expression"/>
+			</explicit>
 		</entity>
-		<entity name="Simple_generic_expression" abstract.supertype="YES" super.expression="(ONEOF(Generic_literal, Generic_variable))" supertypes="Generic_expression"/>
-		<entity name="Generic_literal" abstract.supertype="YES" supertypes="Simple_generic_expression"/>
-		<entity name="Generic_variable" abstract.supertype="YES" super.expression="(Variable)" supertypes="Simple_generic_expression">
-			<inverse name="interpretation" entity="Environment" attribute="syntactic_representation"/>
-		</entity>
-		<entity name="Variable" abstract.supertype="YES" super.expression="(ONEOF (Numeric_variable, Boolean_variable, String_variable))" supertypes="Generic_variable"/>
-		<entity name="Variable_semantics" abstract.supertype="YES"/>
 		<entity name="Environment">
 			<explicit name="syntactic_representation">
-				<builtintype type="GENERIC"/>
+				<typename name="Generic_expression"/>
 			</explicit>
 			<explicit name="semantics">
 				<typename name="Variable_semantics"/>
 			</explicit>
 		</entity>
-		<entity name="Unary_generic_expression" abstract.supertype="YES" supertypes="Generic_expression">
-			<explicit name="operand">
-				<builtintype type="GENERIC"/>
-			</explicit>
+		<entity name="Generic_expression" abstract.supertype="YES" super.expression="(ONEOF(Simple_generic_expression, Unary_generic_expression, Binary_generic_expression, Multiple_arity_generic_expression))">
+			<where label="WR1" expression="Is_Acyclic(SELF)"/>
+			<where label="IP1" expression=""/>
 		</entity>
-		<entity name="Binary_generic_expression" abstract.supertype="YES" supertypes="Generic_expression">
-			<explicit name="operands">
-				<aggregate type="LIST" lower="2" upper="2"/>
-				<builtintype type="GENERIC"/>
-			</explicit>
+		<entity name="Generic_literal" abstract.supertype="YES" supertypes="Simple_generic_expression"/>
+		<entity name="Generic_variable" abstract.supertype="YES" super.expression="(Variable)" supertypes="Simple_generic_expression">
+			<inverse name="interpretation" entity="Environment" attribute="syntactic_representation"/>
 		</entity>
 		<entity name="Multiple_arity_generic_expression" abstract.supertype="YES" supertypes="Generic_expression">
 			<explicit name="operands">
 				<aggregate type="LIST" lower="2" upper="?"/>
-				<builtintype type="GENERIC"/>
+				<typename name="Generic_expression"/>
 			</explicit>
 		</entity>
-		<function name="Is_Acyclic">
-			<parameter name="arg">
-				<builtintype type="GENERIC"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-RETURN (Acyclic (arg, []));      </algorithm>
-		</function>
+		<entity name="Simple_generic_expression" abstract.supertype="YES" super.expression="(ONEOF(Generic_literal, Generic_variable))" supertypes="Generic_expression"/>
+		<entity name="Unary_generic_expression" abstract.supertype="YES" supertypes="Generic_expression">
+			<explicit name="operand">
+				<typename name="Generic_expression"/>
+			</explicit>
+		</entity>
+		<entity name="Variable" abstract.supertype="YES" super.expression="(ONEOF (Numeric_variable, Boolean_variable, String_variable))" supertypes="Generic_variable"/>
+		<entity name="Variable_semantics" abstract.supertype="YES"/>
 		<function name="Acyclic">
 			<parameter name="arg1">
 				<builtintype type="GENERIC"/>
@@ -105,6 +97,14 @@ END_REPEAT;
 
 RETURN (result);
 END_IF;      </algorithm>
+		</function>
+		<function name="Is_Acyclic">
+			<parameter name="arg">
+				<builtintype type="GENERIC"/>
+			</parameter>
+			<builtintype type="BOOLEAN"/>
+			<algorithm>
+RETURN (Acyclic (arg, []));      </algorithm>
 		</function>
 		<function name="Used_variables">
 			<parameter name="arg">

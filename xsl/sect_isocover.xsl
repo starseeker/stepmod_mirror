@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.3 2004/10/16 19:20:11 thendrix Exp $
+$Id: sect_isocover.xsl,v 1.4 2004/10/20 07:16:08 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -554,7 +554,7 @@ $Id: sect_isocover.xsl,v 1.3 2004/10/16 19:20:11 thendrix Exp $
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Error FT: No French title (module/@name.french) provided for ',@name)"/>
+            select="concat('Error FT: No French title (resource/@name.french) provided for ',@name)"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>

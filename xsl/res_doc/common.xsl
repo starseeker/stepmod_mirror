@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.16 2004/09/27 19:22:25 thendrix Exp $
+$Id: common.xsl,v 1.17 2004/10/09 23:00:25 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2493,6 +2493,11 @@ is case sensitive.')"/>
     <xsl:param name="new_menubar_file"/>
     <!-- the relative path from XSL directory to stepmod -->
     <xsl:param name="xsl_path" select="'../..'"/>
+
+    <!-- output link to ISO cover page. The publication process will swap the
+         cover.xml for isocover.xml This is just here for reader convenience -->
+    <small><a href="isocover{$FILE_EXT}">ISO cover</a></small> |
+
     <xsl:variable name="rel_menubar_file">
       <xsl:choose>
         <xsl:when test="string-length($new_menubar_file)>0">

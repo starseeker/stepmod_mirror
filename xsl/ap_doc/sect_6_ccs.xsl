@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.20 2004/11/08 16:24:33 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.21 2005/01/27 20:45:36 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -190,7 +190,7 @@ $Id: sect_6_ccs.xsl,v 1.20 2004/11/08 16:24:33 robbod Exp $
     <div align="center">
       <table border="1" cellspacing="1">
         <tr>
-          <td rowspan="2"><b>ARM Entity</b></td>
+          <td rowspan="2"><b>ARM entity</b></td>
           <td colspan="{$no_of_ccs}">
             <b>Conformance class</b>
           </td>
@@ -208,7 +208,7 @@ $Id: sect_6_ccs.xsl,v 1.20 2004/11/08 16:24:33 robbod Exp $
     <div align="center">
       <table border="1" cellspacing="1">
         <tr>
-          <td rowspan="2"><b>MIM Entity</b></td>
+          <td rowspan="2"><b>MIM entity</b></td>
           <td colspan="{$no_of_ccs}">
             <b>Conformance class</b>
           </td>
@@ -681,7 +681,7 @@ conformance class')"/>
         <small>
           NOTE&#160;&#160;Conformance to 
           <b><xsl:value-of select="@name"/></b>
-          requires that all ARM and MIM elements defined in the AP module, 
+          requires that all ARM and MIM elements defined in the AP module 
           <xsl:choose>
             <xsl:when test="$module_ok='true'">
               <xsl:variable name="module_dir">
@@ -691,7 +691,7 @@ conformance class')"/>
               </xsl:variable>
               <xsl:variable name="module_node"
                 select="document(concat($module_dir,'/module.xml'))/module"/>              
-              (<a href="../../../modules/{$module}/sys/cover{$FILE_EXT}">ISO 10303-<xsl:value-of select="$module_node/@part"/></a>),
+              (<a href="../../../modules/{$module}/sys/cover{$FILE_EXT}">ISO 10303-<xsl:value-of select="$module_node/@part"/></a>)
             </xsl:when>
             <xsl:otherwise>
               <xsl:call-template name="error_message">

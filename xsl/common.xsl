@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.28 2002/03/21 09:28:13 robbod Exp $
+$Id: common.xsl,v 1.29 2002/03/25 14:31:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -734,6 +734,12 @@ $Id: common.xsl,v 1.28 2002/03/21 09:28:13 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
 
+    <xsl:variable name="item">
+      <xsl:call-template name="get_last_section">
+        <xsl:with-param name="path" select="@linkend"/>
+      </xsl:call-template>
+    </xsl:variable>
+
     <xsl:choose>
       <xsl:when test="$href=''">
         <xsl:call-template name="error_message">
@@ -743,10 +749,24 @@ $Id: common.xsl,v 1.28 2002/03/21 09:28:13 robbod Exp $
                     @linkend, 
                     ' is incorrectly specified')"/>
         </xsl:call-template>
-        <xsl:apply-templates/>
+        <xsl:choose>
+          <xsl:when test="string-length(.)>0">
+            <b><xsl:apply-templates/></b>
+          </xsl:when>
+          <xsl:otherwise>
+            <b><xsl:value-of select="$item"/></b>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <a href="{$href}"><xsl:apply-templates/></a>
+        <xsl:choose>
+          <xsl:when test="string-length(.)>0">
+            <a href="{$href}"><b><xsl:apply-templates/></b></a>
+          </xsl:when>
+          <xsl:otherwise>
+            <a href="{$href}"><b><xsl:value-of select="$item"/></b></a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -1343,6 +1363,22 @@ $Id: common.xsl,v 1.28 2002/03/21 09:28:13 robbod Exp $
     <xsl:variable name="stdnumber"
       select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
     <xsl:value-of select="$stdnumber"/>
+</xsl:template>
+
+
+<!-- given a string xxx.ccc.qqq return the value after the last . -->
+<xsl:template name="get_last_section">
+  <xsl:param name="path"/>
+  <xsl:choose>
+    <xsl:when test="contains($path,'.')">
+      <xsl:call-template name="get_last_section">
+        <xsl:with-param name="path" select="substring-after($path,'.')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$path"/>
+      </xsl:otherwise>
+    </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

@@ -7,7 +7,7 @@
 	<xsl:variable name="ap_namespace_file" select="document(concat('../../data/modules/', $module_directory_name, '/ap_namespace.xml'))"/>
 	<xsl:variable name="schema_name" select="$ap_namespace_file//dummy/@schema_name"/>
 	<xsl:variable name="namespace_prefix" select="concat($ap_namespace_file//dummy/@ns_prefix_name, ':')"/>
-	<xsl:variable name="configuration" select="document('p28_config.xml')"/>
+	<!-- xsl:variable name="configuration" select="document('p28_config.xml')"/ -->
 	
 	<xsl:template match="/">
 				<xsl:apply-templates select="express"/>
@@ -80,7 +80,7 @@
 			<xsl:text>&#xa;</xsl:text>
 			
 			<!-- SYNTHETIC ENTITIES -->
-			<!-- xsl:variable name="configuration" select="document(concat('../../data/modules/', $module_directory_name, '/p28_config.xml'))"/ -->
+			<xsl:variable name="configuration" select="document(concat('../../data/modules/', $module_directory_name, '/p28_config.xml'))"/>
 			
 			<xsl:for-each select="$configuration//ex:entity">
 				<xsl:variable name="synthetic_entity_name" select="./@name"/>
@@ -95,7 +95,7 @@
 				</xsl:call-template>
 			</xsl:for-each>
 		</xsl:element>
-		<xsl:text>&#xa;</xsl:text>
+		<xsl:text>&#xa;</xsl:text>FUCK
 	</xsl:template>
 	
 	<!-- xsl:template match="entity" mode="and_ors">

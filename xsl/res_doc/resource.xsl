@@ -1362,7 +1362,7 @@ defined in annex D of ISO 10303-11.
   <!-- display the EXPRESS for the interfaces in the ARM.
        The template is in sect4_express.xsl -->
   <xsl:if test="$express_xml/express/schema/interface">
-    <a name="#interfaces"/>
+    <a name="interfaces"/>
   </xsl:if>
   <xsl:apply-templates 
     select="$express_xml/express/schema/interface"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.19 2003/06/03 08:49:43 robbod Exp $
+$Id: common.xsl,v 1.20 2003/06/03 18:20:00 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -594,6 +594,80 @@ $Id: common.xsl,v 1.19 2003/06/03 08:49:43 robbod Exp $
                          count(//outscope//table) +
                          count(//changes/change_summary//table) +
                          count(//inforeqt//table)"/>
+</xsl:template>
+
+<xsl:template match="application_protocol" mode="this_edition">
+  <xsl:if test="@version!='1'">
+    <xsl:variable name="this_edition">
+      <xsl:choose>
+        <xsl:when test="@version='2'">
+          second
+        </xsl:when>
+        <xsl:when test="@version='3'">
+          third
+        </xsl:when>
+        <xsl:when test="@version='4'">
+          fourth
+        </xsl:when>
+        <xsl:when test="@version='5'">
+          fifth
+        </xsl:when>
+        <xsl:when test="@version='6'">
+          sixth
+        </xsl:when>
+        <xsl:when test="@version='7'">
+          seventh
+        </xsl:when>
+        <xsl:when test="@version='8'">
+          eighth
+        </xsl:when>
+        <xsl:when test="@version='9'">
+          ninth
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@version"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$this_edition"/>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="application_protocol" mode="previous_edition">
+  <xsl:if test="@version!='1'">
+    <xsl:variable name="prev_edition">
+      <xsl:choose>
+        <xsl:when test="@version='2'">
+          first
+        </xsl:when>
+        <xsl:when test="@version='3'">
+          second
+        </xsl:when>
+        <xsl:when test="@version='4'">
+          third
+        </xsl:when>
+        <xsl:when test="@version='5'">
+          fourth
+        </xsl:when>
+        <xsl:when test="@version='6'">
+          fifth
+        </xsl:when>
+        <xsl:when test="@version='7'">
+          sixth
+        </xsl:when>
+        <xsl:when test="@version='8'">
+          seventh
+        </xsl:when>
+        <xsl:when test="@version='9'">
+          eighth
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@previous.revision.number"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+      <xsl:value-of select="$prev_edition"/>
+  </xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>

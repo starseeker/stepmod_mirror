@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.7 2003/06/02 10:34:49 robbod Exp $
+$Id: sect_foreword.xsl,v 1.8 2003/06/03 18:20:33 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -21,21 +21,16 @@ $Id: sect_foreword.xsl,v 1.7 2003/06/02 10:34:49 robbod Exp $
 
   <xsl:template match="application_protocol" mode="foreword">
     <xsl:variable name="part_no">
-      <xsl:choose>
-        <xsl:when test="string-length(@part)>0">
-          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          ISO/TS 10303-XXXX
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:call-template name="get_protocol_stdnumber">
+        <xsl:with-param name="application_protocol" select="."/>
+      </xsl:call-template>
     </xsl:variable>
     
-    <h3>
+    <h2>
       <a name="foreword">
         Foreword
       </a>
-    </h3>
+    </h2>
     <p>
       ISO (the International Organization for Standardization) is a worldwide
       federation of national standards bodies (ISO member bodies). The work of
@@ -113,62 +108,13 @@ $Id: sect_foreword.xsl,v 1.7 2003/06/02 10:34:49 robbod Exp $
 
     <xsl:if test="@version!='1'">
       <xsl:variable name="this_edition">
-        <xsl:choose>
-          <xsl:when test="@version='2'">
-            second
-          </xsl:when>
-          <xsl:when test="@version='3'">
-            third
-          </xsl:when>
-          <xsl:when test="@version='4'">
-            fourth
-          </xsl:when>
-          <xsl:when test="@version='5'">
-            fifth
-          </xsl:when>
-          <xsl:when test="@version='6'">
-            sixth
-          </xsl:when>
-          <xsl:when test="@version='7'">
-            seventh
-          </xsl:when>
-          <xsl:when test="@version='8'">
-            eighth
-          </xsl:when>
-          <xsl:when test="@version='9'">
-            ninth
-          </xsl:when>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="this_edition"/>
       </xsl:variable>
 
       <xsl:variable name="prev_edition">
-        <xsl:choose>
-          <xsl:when test="@version='2'">
-            first
-          </xsl:when>
-          <xsl:when test="@version='3'">
-            second
-          </xsl:when>
-          <xsl:when test="@version='4'">
-            third
-          </xsl:when>
-          <xsl:when test="@version='5'">
-            fourth
-          </xsl:when>
-          <xsl:when test="@version='6'">
-            fifth
-          </xsl:when>
-          <xsl:when test="@version='7'">
-            sixth
-          </xsl:when>
-          <xsl:when test="@version='8'">
-            seventh
-          </xsl:when>
-          <xsl:when test="@version='9'">
-            eighth
-          </xsl:when>
-        </xsl:choose>
+        <xsl:apply-templates select="." mode="previous_edition"/>
       </xsl:variable>
+
       <xsl:choose>
         <xsl:when test="@previous.revision.cancelled='NO'">
           This <xsl:value-of select="$this_edition"/> edition of  

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.12 2003/05/30 06:17:42 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.13 2003/06/01 13:56:35 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -152,14 +152,18 @@ $Id: sect_4_info_reqs.xsl,v 1.12 2003/05/30 06:17:42 robbod Exp $
        </xsl:when>
      </xsl:choose>
 
-     <xsl:if test="terminology">
-       <p> XSLe1: XSL INCOMPLETE
+     <xsl:if test="/application_protocol/terminology_map">
+       <p> 
+       <a name="terminology"/>
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<br/>
+       XSLe1: XSL INCOMPLETE
          The application module that provides the detailed information
          requirements for this AP may be shared across multiple domains and the
          terminology used therein may differ from that of the business users of this
          AP.  This subclause provides the correlation between the different terms in
          Table .  (if terminology mapping 
          provided)
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<br/>
        </p>
      </xsl:if>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.17 2003/06/03 13:38:40 robbod Exp $
+$Id: sect_contents.xsl,v 1.18 2003/06/04 09:50:16 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -127,6 +127,20 @@ $Id: sect_contents.xsl,v 1.17 2003/06/03 13:38:40 robbod Exp $
       <a
         href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
         <xsl:value-of select="$al_armexpressg"/> ARM EXPRESS-G diagrams
+      </a>
+      <br/>
+    </xsl:if>
+
+    <xsl:if test="$module_xml/module/mim_lf/express-g">
+      <xsl:variable name="al_armexpressg">
+        <xsl:call-template name="annex_letter" >
+          <xsl:with-param name="annex_name" select="'MIMexpressG'"/>
+          <xsl:with-param name="annex_list" select="$annex_list"/>
+        </xsl:call-template>
+      </xsl:variable>
+      <a
+        href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
+        <xsl:value-of select="$al_armexpressg"/> MIM EXPRESS-G diagrams
       </a>
       <br/>
     </xsl:if>
@@ -540,11 +554,10 @@ $Id: sect_contents.xsl,v 1.17 2003/06/03 13:38:40 robbod Exp $
   <xsl:variable name="fig_title" select="$aam_xml/idef0/page[position() = $fig_no]/@title"/>
   <xsl:variable name="node" select="$aam_xml/idef0/page[position() = $fig_no]/@node"/>
 
-  <p>
-    <a href="{$aam_href}" target="{$target}">
-      Figure F.<xsl:value-of select="$fig_no"/> &#8212; <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
+  <a href="{$aam_href}" target="{$target}">
+    Figure F.<xsl:value-of select="$fig_no"/> &#8212; <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
   </a>
-</p>
+  <br/>
 </xsl:template>
 
 </xsl:stylesheet>

@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.28 2003/12/13 08:51:56 robbod Exp $
+ $Id: mim.exp,v 1.29 2004/11/03 09:06:59 robbod Exp $
  ISO TC184/SC4/WG3 N1564 - ISO/TS 10303-1293 AP239 part definition information - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG3 N1382
 *) 
@@ -70,6 +70,8 @@ USE FROM Document_definition_mim;    -- ISO/TS 10303-1123
 
 USE FROM Document_management_mim;    -- ISO/TS 10303-1290
 
+USE FROM Document_properties_mim;    -- ISO/TS 10303-1126
+
 USE FROM document_schema   -- ISO 10303-41
   (document_relationship,
    document_type); 
@@ -81,7 +83,8 @@ USE FROM Effectivity_application_mim;    -- ISO/TS 10303-1059
 USE FROM Effectivity_mim;    -- ISO/TS 10303-1057
 
 USE FROM effectivity_schema   -- ISO 10303-41
-  (effectivity); 
+  (effectivity,
+   effectivity_relationship); 
 
 USE FROM External_item_identification_assignment_mim;    -- ISO/TS 10303-1128
 
@@ -150,6 +153,7 @@ USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
 USE FROM product_property_definition_schema   -- ISO 10303-41
   (characterized_object,
    general_property,
+   general_property_relationship,
    property_definition); 
 
 USE FROM product_property_representation_schema   -- ISO 10303-41
@@ -166,6 +170,10 @@ USE FROM Product_view_definition_relationship_mim;    -- ISO/TS 10303-1041
 USE FROM Project_mim;    -- ISO/TS 10303-1061
 
 USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
+
+USE FROM qualified_measure_schema   -- ISO 10303-45
+  (descriptive_representation_item,
+   measure_representation_item); 
 
 USE FROM representation_schema   -- ISO 10303-43
   (representation); 
@@ -208,6 +216,8 @@ TYPE ap239_padi_aliasable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON alias
     justification_group_assignment, 
     justification_support_assignment, 
     product, 
+    product_as_individual, 
+    product_as_individual_view, 
     product_as_planned, 
     product_as_realized, 
     product_concept, 
@@ -230,13 +240,18 @@ TYPE ap239_padi_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approv
     justification_group_assignment, 
     justification_support_assignment, 
     product, 
+    product_as_individual, 
     product_as_planned, 
     product_as_realized, 
     product_concept, 
     product_definition, 
+    product_definition, 
     product_definition_context, 
     product_definition_formation, 
+    product_definition_formation_relationship, 
+    product_definition_relationship, 
     product_design_to_individual, 
+    product_design_version_to_individual, 
     product_planned_to_realized, 
     product_related_product_category, 
     product_relationship);
@@ -246,6 +261,7 @@ TYPE ap239_padi_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT
    (application_context, 
     application_context_element, 
     effectivity, 
+    effectivity_relationship, 
     group, 
     object_role, 
     product, 
@@ -256,7 +272,8 @@ TYPE ap239_padi_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT
     product_definition, 
     product_definition_context, 
     product_definition_formation_relationship, 
-    product_definition_relationship);
+    product_definition_relationship, 
+    product_design_version_to_individual);
 END_TYPE; 
 
 TYPE ap239_padi_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_language_item WITH 
@@ -264,6 +281,9 @@ TYPE ap239_padi_attribute_language_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED
     justification_group_assignment, 
     justification_support_assignment, 
     product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
     product_definition, 
     product_definition_formation, 
     product_relationship);
@@ -272,6 +292,7 @@ END_TYPE;
 TYPE ap239_padi_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
    (interface_connection, 
     product, 
+    product_as_individual, 
     product_as_planned, 
     product_as_realized, 
     product_definition_formation, 
@@ -281,6 +302,7 @@ END_TYPE;
 TYPE ap239_padi_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
    (applied_effectivity_assignment, 
     effectivity, 
+    effectivity_relationship, 
     interface_connection, 
     interface_connector_as_planned, 
     interface_connector_as_realized, 
@@ -302,6 +324,7 @@ TYPE ap239_padi_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
     product_definition_formation_relationship, 
     product_definition_relationship, 
     product_design_to_individual, 
+    product_design_version_to_individual, 
     product_planned_to_realized, 
     product_relationship, 
     requirement_assignment, 
@@ -370,6 +393,7 @@ TYPE ap239_padi_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contra
     interface_connector_design, 
     organizational_project, 
     product, 
+    product_as_individual, 
     product_as_planned, 
     product_as_realized, 
     product_definition_formation);
@@ -393,7 +417,9 @@ TYPE ap239_padi_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON d
     product_definition, 
     product_definition_context, 
     product_definition_formation, 
+    product_definition_formation_relationship, 
     product_design_to_individual, 
+    product_design_version_to_individual, 
     product_planned_to_realized, 
     product_related_product_category, 
     product_relationship);
@@ -417,7 +443,9 @@ TYPE ap239_padi_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item 
     product_definition, 
     product_definition_context, 
     product_definition_formation, 
+    product_definition_formation_relationship, 
     product_design_to_individual, 
+    product_design_version_to_individual, 
     product_planned_to_realized, 
     product_related_product_category, 
     product_relationship);
@@ -444,6 +472,7 @@ TYPE ap239_padi_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED
     product_definition_formation, 
     product_definition_formation_relationship, 
     product_design_to_individual, 
+    product_design_version_to_individual, 
     product_planned_to_realized, 
     requirement_assignment, 
     requirement_source, 
@@ -487,6 +516,7 @@ TYPE ap239_padi_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON eff
     product_definition_formation_relationship, 
     product_definition_relationship, 
     product_design_to_individual, 
+    product_design_version_to_individual, 
     product_planned_to_realized, 
     product_relationship, 
     property_definition, 
@@ -501,6 +531,8 @@ TYPE ap239_padi_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
     justification_group_assignment, 
     justification_support_assignment, 
     product, 
+    product_as_individual, 
+    product_as_individual_view, 
     product_as_planned, 
     product_as_realized, 
     product_concept, 
@@ -516,6 +548,8 @@ TYPE ap239_padi_ir_usage_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usa
     interface_connector_as_realized, 
     interface_connector_design, 
     product, 
+    product_as_individual, 
+    product_as_individual_view, 
     product_as_planned, 
     product_as_realized, 
     product_definition, 
@@ -532,8 +566,12 @@ TYPE ap239_padi_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON j
     applied_document_usage_constraint_assignment, 
     approval, 
     ascribable_state, 
+    descriptive_representation_item, 
     document_relationship, 
     effectivity, 
+    general_property, 
+    general_property_relationship, 
+    measure_representation_item, 
     product, 
     product_definition, 
     product_definition_formation, 
@@ -550,7 +588,11 @@ TYPE ap239_padi_justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT BA
     ascribable_state, 
     certification, 
     contract, 
+    descriptive_representation_item, 
     document_relationship, 
+    general_property, 
+    general_property_relationship, 
+    measure_representation_item, 
     product, 
     product_definition, 
     product_definition_formation, 
@@ -569,6 +611,9 @@ TYPE ap239_padi_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT
     justification_group_assignment, 
     justification_support_assignment, 
     product, 
+    product_as_individual, 
+    product_as_individual_version, 
+    product_as_individual_view, 
     product_definition, 
     product_definition_formation, 
     product_relationship);
@@ -582,6 +627,7 @@ TYPE ap239_padi_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON or
     justification_group_assignment, 
     justification_support_assignment, 
     product, 
+    product_as_individual, 
     product_as_planned, 
     product_as_realized, 
     product_category, 
@@ -600,6 +646,7 @@ TYPE ap239_padi_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT 
     justification_group_assignment, 
     justification_support_assignment, 
     product, 
+    product_as_individual, 
     product_as_planned, 
     product_as_realized, 
     product_category, 
@@ -620,6 +667,7 @@ END_TYPE;
 TYPE ap239_padi_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
    (organizational_project, 
     product, 
+    product_as_individual_version, 
     product_as_planned, 
     product_as_realized, 
     product_definition, 
@@ -627,7 +675,7 @@ TYPE ap239_padi_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BAS
 END_TYPE; 
 
 TYPE ap239_padi_requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_source_item WITH 
-   (product_as_individual, 
+   (product_as_individual_version, 
     product_definition, 
     product_definition_formation);
 END_TYPE; 
@@ -636,10 +684,15 @@ TYPE ap239_padi_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT 
    (interface_connector_as_planned, 
     interface_connector_as_realized, 
     interface_connector_design, 
+    product, 
+    product_as_individual, 
+    product_as_individual_view, 
     product_as_planned, 
     product_as_realized, 
     product_definition, 
-    product_definition_formation);
+    product_definition_formation, 
+    product_design_to_individual, 
+    product_design_version_to_individual);
 END_TYPE; 
 
 TYPE ap239_padi_state_observed_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_observed_of_item WITH 
@@ -654,6 +707,8 @@ TYPE ap239_padi_state_observed_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_
     organizational_project, 
     person_and_organization, 
     product, 
+    product_as_individual, 
+    product_as_individual_view, 
     product_as_planned, 
     product_as_realized, 
     product_definition, 
@@ -673,6 +728,8 @@ TYPE ap239_padi_state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON s
     organizational_project, 
     person_and_organization, 
     product, 
+    product_as_individual, 
+    product_as_individual_view, 
     product_as_planned, 
     product_as_realized, 
     product_category, 
@@ -683,7 +740,7 @@ END_TYPE;
 
 ENTITY applied_effectivity_context_assignment
   SUBTYPE OF (effectivity_context_assignment);
-  items : SET[1:?] OF product_as_individual;
+  items : product_as_individual;
 END_ENTITY;
 
 ENTITY characterized_applied_organization_assignment
@@ -692,6 +749,10 @@ END_ENTITY;
 
 ENTITY characterized_applied_person_and_organization_assignment
   SUBTYPE OF (applied_person_and_organization_assignment, characterized_object);
+END_ENTITY;
+
+ENTITY characterized_organizational_project
+  SUBTYPE OF (characterized_object, organizational_project);
 END_ENTITY;
 
 END_SCHEMA;  -- Ap239_part_definition_information_mim

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.16 2002/01/03 12:22:13 robbod Exp $
+$Id: module.xsl,v 1.17 2002/01/04 10:08:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -323,7 +323,37 @@ $Id: module.xsl,v 1.16 2002/01/03 12:22:13 robbod Exp $
     (*
   </code>
 
-  <xsl:apply-templates select="uof" mode="toc"/>
+  <a name="uof">
+    <h3>4.1 Units of functionality</h3>
+  </a>
+  This subclause specifies the units of functionality (UoF) for this part
+  ISO 10303 as well as any support elements needed for the application module
+  definition. This part of ISO 10303 specifies the following units of
+  functionality:    
+  <ul>
+    <xsl:apply-templates select="uof" mode="toc"/>
+  </ul>
+  <!-- output any UoFs in other modules -->
+  <xsl:choose>
+    <xsl:when test="(./uoflink)">
+      <p>
+        This part of ISO 10303 uses the following units of functionality:
+      </p>
+      <ul>
+        <xsl:apply-templates select="./uoflink"/>
+      </ul>
+    </xsl:when>
+    <xsl:otherwise>
+      <p>
+        This part of ISO 10303 uses no other units of functionality. 
+      </p>        
+    </xsl:otherwise>
+  </xsl:choose>
+  <p>
+    The units of functionality and a description of the functions that
+    each UoF supports are given below.  
+  </p>
+  
   <xsl:apply-templates select="uof" mode="uof_toc"/>
 
   <!-- output all the EXPRESS specifications -->
@@ -372,41 +402,43 @@ $Id: module.xsl,v 1.16 2002/01/03 12:22:13 robbod Exp $
   </code>
 
 </xsl:template>
-
 <xsl:template match="uof" mode="toc">
-  <xsl:if test="position()=1">
-    <a name="uof">
-      <h3>4.1 Units of functionality</h3>
+  <xsl:variable name="href" select="concat('#uof',@name)"/>
+  <li>
+    <a href="{$href}">
+      <xsl:choose>
+        <xsl:when test="position()!=last()">
+          <xsl:value-of select="concat(@name,';')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat(@name,'.')"/>        
+        </xsl:otherwise>
+      </xsl:choose>
     </a>
-    This subclause specifies the units of functionality (UoF) for this part
-    ISO 10303 as well as any support elements needed for the application module
-    definition. This part of ISO 10303 specifies the following units of
-    functionality:  
-  </xsl:if>
-
-  <ul>
-    <li><xsl:value-of select="@name"/></li>
-  </ul>
-
-  <xsl:if test="position()=last()">
-    <p>
-      This part of ISO 10303 uses no other units of functionality. 
-    </p>
-    <p>
-      The units of functionality and a description of the functions that
-      each UoF supports are given below.  
-    </p>
-  </xsl:if>
+  </li>
 </xsl:template>
 
+<xsl:template match="uoflink">
+  <li>
+    <xsl:choose>
+      <xsl:when test="position()!=last()">
+        <xsl:value-of select="concat(@linkend,';')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat(@linkend,'.')"/>        
+      </xsl:otherwise>
+    </xsl:choose>
+  </li>
+</xsl:template>
 
 <xsl:template match="uof" mode="uof_toc">
   <h3>
-    <a name="uof">
+    <xsl:variable name="name" select="concat('uof',@name)"/>
+    <a name="{$name}">
       <xsl:value-of select="concat('4.1.',position(),' ',@name)"/>
     </a>
   </h3>
-  The <xsl:value-of select="@name"/> UoF specifies 
+  <!-- The <xsl:value-of select="@name"/> UoF specifies -->
   <xsl:apply-templates select="description"/>
 
   <p>

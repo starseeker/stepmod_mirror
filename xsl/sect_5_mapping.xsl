@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_5_mapping.xsl,v 1.3 2001/11/14 18:25:13 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.4 2001/11/21 15:34:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -149,10 +149,17 @@ $Id: sect_5_mapping.xsl,v 1.3 2001/11/14 18:25:13 robbod Exp $
     name="ae_xref"
     select="concat('./4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
 
+  <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+  <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+  <xsl:variable name="arm_entity"
+    select="translate(@entity,$LOWER,$UPPER)"/>
+
+
+
   <td VALIGN="TOP" width="21%">
     <font size="-1">
       <a href="{$ae_xref}">
-        <xsl:value-of select="@entity"/>
+        <xsl:value-of select="$arm_entity"/>
       </a>
     </font>
   </td>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.12 2003/04/18 22:04:10 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.13 2003/06/02 09:59:53 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -597,6 +597,8 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="./@name"/>
+    <xsl:with-param name="type" select="./@name"/>
+
   </xsl:call-template> 
   <!-- output description from express -->
 
@@ -820,6 +822,7 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
+    <xsl:with-param name="supertypes" select="@supertypes"/>
   </xsl:call-template> 
   <!-- output description from express -->
   <p>
@@ -1549,6 +1552,8 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
+    <xsl:with-param name="type" select="@name"/>
+    <xsl:with-param name="function" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
@@ -1648,6 +1653,7 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
+    <xsl:with-param name="type" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
@@ -1837,6 +1843,8 @@
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
+    <xsl:with-param name="type" select="@name"/>
+    <xsl:with-param name="rule" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>

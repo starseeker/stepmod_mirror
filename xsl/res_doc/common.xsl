@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.9 2003/04/11 23:34:37 thendrix Exp $
+$Id: common.xsl,v 1.10 2003/08/24 22:10:35 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1152,7 +1152,7 @@ $Id: common.xsl,v 1.9 2003/04/11 23:34:37 thendrix Exp $
   </xsl:template>
 
 
-   <xsl:template name="get_href_from_express_ref">
+  <xsl:template name="get_href_from_express_ref">
      <xsl:param name="linkend"/>
      <!-- the relative path to be added to the url -->
      <xsl:param name="baselink" select="'../../../'"/>
@@ -1198,11 +1198,14 @@ $Id: common.xsl,v 1.9 2003/04/11 23:34:37 thendrix Exp $
                href variable is set.
                -->
         </xsl:when>
+
         <xsl:when test="$arm_mim_ir='ir_express'">
           <xsl:value-of
             select="concat($baselink,'resources/',$module,'/',
                     $module,$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
+
+
         <xsl:when test="$arm_mim_ir='arm'">
           <xsl:value-of
             select="concat($baselink,'modules/',$module,
@@ -2050,7 +2053,7 @@ $Id: common.xsl,v 1.9 2003/04/11 23:34:37 thendrix Exp $
       <xsl:variable name="express_file">
         <xsl:choose>
           <xsl:when test="$arm_mim_res='ir_express'">
-            <xsl:value-of select="concat('../data/resources/',$schema,'/',$schema,'.xml')"/>
+            <xsl:value-of select="concat('../../data/resources/',$schema,'/',$schema,'.xml')"/>
           </xsl:when>
         </xsl:choose>
       </xsl:variable>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.21 2002/01/29 17:25:16 robbod Exp $
+$Id: common.xsl,v 1.22 2002/02/07 16:14:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -372,9 +372,6 @@ $Id: common.xsl,v 1.21 2002/01/29 17:25:16 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  <xsl:message>
-    <xsl:value-of select="$href"/>]]]
-  </xsl:message>
   <AREA shape="{$shape}" coords="{$coords}" href="{$href}"/>
 </xsl:template>
 

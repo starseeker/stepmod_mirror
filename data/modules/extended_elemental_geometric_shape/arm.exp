@@ -1,11 +1,12 @@
 (*
-   $Id: arm.exp,v 1.4 2005/02/02 15:03:09 budreckytej Exp $
+   $Id: arm.exp,v 1.5 2005/02/04 17:35:09 budreckytej Exp $
    ISO TC184/SC4/WG12 N3672 - ISO/CD-TS 10303-1667 Extended elemental geometric shape - EXPRESS ARM
 *)
 
 SCHEMA Extended_elemental_geometric_shape_arm;
 
 	USE FROM Basic_geometry_arm;	-- ISO/TS 10303-1652
+	USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
 
   	TYPE axis_placement_or_cto2d = SELECT
     	(Axis_placement,
@@ -20,6 +21,18 @@ SCHEMA Extended_elemental_geometric_shape_arm;
     SUBTYPE OF (Axis_placement);
   END_ENTITY;
 
+  ENTITY Contextual_shape_representation_relationship;
+    representing_relationship : Geometric_model_relationship;
+    contextual_shape          : Item_shape;
+    DERIVE  
+      context_representation : Geometric_model := representing_relationship.rep_2;
+      positioned_representation : Geometric_model := representing_relationship.rep_1;
+  END_ENTITY;
+
+  ENTITY Definitional_representation_relationship
+    SUBTYPE OF (Representation_relationship);
+  END_ENTITY;  
+
   ENTITY Detailed_geometric_model_element_relationship;
     item_1: Detailed_geometric_model_element;
     item_2: Detailed_geometric_model_element;
@@ -32,12 +45,16 @@ SCHEMA Extended_elemental_geometric_shape_arm;
   END_ENTITY;
 
   ENTITY Geometric_model_relationship
-    ABSTRACT SUPERTYPE
    SUBTYPE OF (Representation_relationship);
       SELF\Representation_relationship.rep_1 : Geometric_model;
       SELF\Representation_relationship.rep_2 : Geometric_model;
     WHERE
       WR1 : rep_1 <> rep_2;
+  END_ENTITY;
+
+  ENTITY Product_definition_usage_based_contextual_shape_representation_relationship
+    SUBTYPE OF (Contextual_shape_representation_relationship);
+      SELF\Contextual_shape_representation_relationship.contextual_shape : Contextual_item_shape;
   END_ENTITY;
 
   ENTITY Shape_item_relationship

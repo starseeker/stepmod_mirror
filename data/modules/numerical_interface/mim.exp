@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.5 2003/04/14 16:12:33 rugarcia Exp $
+   $Id: mim.exp,v 1.6 2003/05/15 14:57:22 rocc Exp $
    ISO/TC184/SC4 WG12N1800 - ISO/CD-TS 10303-1344 Numerical_interface - Express MIM
 *)
 
@@ -12,6 +12,10 @@ USE FROM Value_with_unit_mim;
 USE FROM Dimension_tolerance_mim;
 USE FROM Measure_representation_mim;
 
+USE FROM ISO13584_expressions_schema(
+	numeric_expression,
+	string_expression
+);
 
 TYPE property_variable_rep_select = SELECT
     (
@@ -22,14 +26,21 @@ END_TYPE;
 
 TYPE expression_extension_select = SELECT
     (
-      string_expression,
-      numeric_expression
+    expression_extension_string,
+    expression_extension_numeric
     );
-END_TYPE;
+END_ENTITY;
 
-ENTITY expression_extension
-    SUBTYPE OF (measure_with_unit);
-    expression_associated: expression_extension_select;
+ENTITY expression_extension_numeric
+    SUBTYPE OF (measure_with_unit, numeric_expression);    
+END_ENTITY;
+
+ENTITY expression_extension_string
+    SUBTYPE OF (measure_with_unit, string_expression);    
+END_ENTITY;
+
+ENTITY expression_extension_to_select
+    type_expression_associated: expression_extension_select;
 END_ENTITY;
  
 ENTITY variable_expression

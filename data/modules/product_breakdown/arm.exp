@@ -1,5 +1,5 @@
 (*
-  $Id: arm.exp,v 1.3 2002/09/10 14:11:25 robbod Exp $
+  $Id: arm.exp,v 1.4 2002/09/12 17:09:38 robbod Exp $
   ISO TC184/SC4/WG12N1373 - ISO/CD-TS 10303-1248 Product breakdown - EXPRESS ARM
 *) 
 
@@ -27,11 +27,12 @@ ENTITY Breakdown
   SUBTYPE OF (Product);
 END_ENTITY;
 
-ENTITY Breakdown_definition
-  SUBTYPE OF (Product_view_definition);
-  SELF\Product_view_definition.defined_version : Breakdown_version;
-INVERSE
-  breakdown_of : BAG[1:1] OF Breakdown_of FOR breakdown;
+ENTITY Breakdown_context;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  breakdown : Breakdown_version;
+  breakdown_element : Breakdown_element_definition;
 END_ENTITY;
 
 ENTITY Breakdown_element
@@ -49,6 +50,8 @@ ENTITY Breakdown_element_definition
                        Zone_element_definition))
   SUBTYPE OF (Product_view_definition);
   SELF\Product_view_definition.defined_version : Breakdown_element_version;
+INVERSE
+  breakdown_context : BAG[1:1] OF Breakdown_context FOR breakdown_element;
 END_ENTITY;
 
 ENTITY Breakdown_element_realization;
@@ -63,7 +66,6 @@ ENTITY Breakdown_element_usage;
   id : STRING;
   name : STRING;
   description : OPTIONAL STRING;
-  breakdown_context : Breakdown_definition;
   child_element : Breakdown_element_definition;
   parent_element : Breakdown_element_definition;
 END_ENTITY;
@@ -81,13 +83,15 @@ ENTITY Breakdown_of;
   id : STRING;
   name : STRING;
   description : OPTIONAL STRING;
-  breakdown : Breakdown_definition;
+  breakdown : Breakdown_version;
   of_view : Product_view_definition;
 END_ENTITY;
 
 ENTITY Breakdown_version
   SUBTYPE OF (Product_version);
   SELF\Product_version.of_product : Breakdown;
+INVERSE
+  breakdown_of : BAG[1:1] OF Breakdown_of FOR breakdown;
 END_ENTITY;
 
 ENTITY Functional_element

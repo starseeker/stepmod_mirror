@@ -1108,13 +1108,13 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:attribute name="name">EEXPARMLFXML</xsl:attribute>
       <xsl:attribute name="value">
         <!-- <xsl:value-of select="$long_forms"/> -->        
-          <xsl:apply-templates select="ballot_package/module">
-            <xsl:with-param name="prefix" select="'data/modules/'"/>
-            <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
-          </xsl:apply-templates>
-        </xsl:attribute>
-      </xsl:element>
-    </xsl:if>
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/e_exp_arm_lf.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+
     
     <xsl:element name="property">
       <xsl:attribute name="name">EEXPMIMXML</xsl:attribute>

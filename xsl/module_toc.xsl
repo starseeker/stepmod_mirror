@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.26 2002/08/22 15:08:18 robbod Exp $
+$Id: module_toc.xsl,v 1.27 2002/09/04 16:27:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -202,7 +202,7 @@ $Id: module_toc.xsl,v 1.26 2002/08/22 15:08:18 robbod Exp $
           <xsl:if test="$subtype_constraint_clause != 0">
             &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#subtype_constraints">
               <xsl:value-of select="concat($subtype_constraint_clause,
-                                    ' ARM subtype constraints')"/>
+                                    ' ARM subtype constraint definitions')"/>
             </A><BR/>
           </xsl:if>
 

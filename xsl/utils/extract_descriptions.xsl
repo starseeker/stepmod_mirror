@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: extract_descriptions.xsl,v 1.5 2002/04/03 07:32:28 robbod Exp $
+     $Id: extract_descriptions.xsl,v 1.6 2002/07/15 08:58:01 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -61,10 +61,10 @@
  </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="'$Date: 2002/04/03 07:32:28 $'"/>
+    <xsl:value-of select="'$Date: 2002/07/15 08:58:01 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="'$Revision: 1.5 $'"/>
+    <xsl:value-of select="'$Revision: 1.6 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      
@@ -423,6 +423,25 @@
 
 
 <xsl:template match="subtype.constraint">  
+  <xsl:variable name="linkend" 
+    select="concat(../@name, '.', @name)"/>
+  <xsl:comment> 
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
+  <xsl:value-of select="concat(' Subtype constraint: ',@name,' ')"/> 
+  &#x20;<xsl:call-template name="output_express_ref">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+  </xsl:comment>
+  <xsl:element name="ext_description">
+    <xsl:attribute name="linkend">
+      <xsl:value-of select="$linkend"/>
+    </xsl:attribute>
+    <!-- <xsl:copy-of select="./description"/> -->
+    <xsl:apply-templates select="./description"/>
+  </xsl:element>
 </xsl:template>
 
 

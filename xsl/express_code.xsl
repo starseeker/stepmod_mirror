@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.40 2002/08/14 06:45:28 goset1 Exp $
+     $Id: express_code.xsl,v 1.41 2002/08/14 14:08:55 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -47,10 +47,10 @@
   <xsl:apply-templates select="./constant" mode="code"/>
   <xsl:apply-templates select="./type" mode="code"/>
   <xsl:apply-templates select="./entity" mode="code"/>
+  <xsl:apply-templates select="./subtype.constraint" mode="code"/>
   <xsl:apply-templates select="./rule" mode="code"/>
   <xsl:apply-templates select="./function" mode="code"/>
   <xsl:apply-templates select="./procedure" mode="code"/>
-	<xsl:apply-templates select="./subtype.constraint" mode="code"/>
   <br/>
   END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="@name"/>
   <br/>
@@ -743,6 +743,7 @@
     </xsl:call-template>
   </xsl:variable>
 
+  <!--
   <br/>
   <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
 	<xsl:value-of select="@name"/></b></A>
@@ -757,5 +758,48 @@
 &#160;&#160; <xsl:value-of select="@super.expression"/>;<br/>
     </xsl:if>      
   END_SUBTYPE_CONSTRAINT;<br/>
+-->
+<br/>
+  <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
+	<xsl:value-of select="@name"/></b></A>
+  <xsl:text> FOR </xsl:text>
+  <xsl:call-template name="link_object">
+    <xsl:with-param name="object_name" select="@entity"/>
+    <xsl:with-param name="object_used_in_schema_name" 
+      select="../@name"/>
+    <xsl:with-param name="clause" select="'annexe'"/>
+  </xsl:call-template>;<br/>
+
+  <xsl:if test="@abstract.supertype='YES' or @abstract.supertype='yes'">
+      &#160;&#160;ABSTRACT SUPERTYPE;<br/>
+  </xsl:if>
+
+  <xsl:if test="@totalover and 
+                (string-length(@totalover)!=0)">
+      &#160;&#160;TOTAL_OVER&#160;(<xsl:call-template name="link_list">
+    <xsl:with-param name="list" select="@totalover"/>
+    <xsl:with-param name="linebreak" select="'yes'"/>
+    <xsl:with-param name="prefix" select="'&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;'"/>
+    <xsl:with-param name="first_prefix" select="'no'"/>
+    <xsl:with-param name="suffix" select="', '"/>
+    <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+    <xsl:with-param name="clause" select="'annexe'"/>
+  </xsl:call-template>);<br/>
+  </xsl:if>
+
+  
+  <xsl:variable name="sup_expr" select="@super.expression"/>
+  <xsl:if test="@super.expression">
+    &#160;&#160;<xsl:call-template name="link_super_expression_list">
+        <xsl:with-param name="list" select="$sup_expr"/>
+        <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+        <xsl:with-param name="clause" select="'annexe'"/>
+        <xsl:with-param name="indent" select="3"/>
+      </xsl:call-template>;<br/>
+    </xsl:if>      
+  END_SUBTYPE_CONSTRAINT;<br/>
+
+
+
 </xsl:template>
 </xsl:stylesheet>

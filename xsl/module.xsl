@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.101 2002/09/02 09:06:20 robbod Exp $
+$Id: module.xsl,v 1.102 2002/09/04 16:27:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1652,6 +1652,17 @@ o=isocs; s=central<br/>
   <xsl:call-template name="imported_constructs">
     <xsl:with-param name="desc_item" 
       select="document($mim_xml)/express/schema/interface/described.item[@kind='ENTITY']"/>
+  </xsl:call-template>
+
+  <!-- display the EXPRESS for the subtype.contraints in the MIM.
+       The template is in sect4_express.xsl -->
+  <xsl:apply-templates 
+    select="document($mim_xml)/express/schema/subtype.constraint"/>
+  <!-- display any imported function constructs that have been described by 
+       description.item in the interface -->
+  <xsl:call-template name="imported_constructs">
+    <xsl:with-param name="desc_item" 
+      select="document($mim_xml)/express/schema/interface/described.item[@kind='SUBTYPE.CONSTRAINT']"/>
   </xsl:call-template>
 
 

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.4 2003/06/02 12:07:47 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.5 2003/06/04 18:30:45 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -185,10 +185,11 @@ $Id: index_arm_mappings_inner.xsl,v 1.4 2003/06/02 12:07:47 nigelshaw Exp $
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
 		<xsl:variable name="lc-ent" select="translate(../@name,$UPPER,$LOWER)"/>
 
-		&#160;&#160;<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
+<!--		&#160;&#160;<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
 		<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 		</A>
 		<br/>
+-->
 
 <!-- if attribute points to an extensible select then may have further mappings in other modules -->
 		
@@ -196,8 +197,12 @@ $Id: index_arm_mappings_inner.xsl,v 1.4 2003/06/02 12:07:47 nigelshaw Exp $
 		<xsl:variable name="found-type" 
 			select="$called-schemas//type[@name=$attr-type-name][select/@extensible='YES']" />
 		
+	<xsl:choose>	
+		<xsl:when test="$found-type" >
 		
-		<xsl:if test="$found-type" >
+			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+			<br/>
+			
 			<blockquote>
 				
 			<xsl:variable name="extensions" >
@@ -221,20 +226,21 @@ $Id: index_arm_mappings_inner.xsl,v 1.4 2003/06/02 12:07:47 nigelshaw Exp $
 			EXTENDED to:
 			<br/>
 			<xsl:variable name="lc-attr" select="@name"/>
-			<xsl:for-each select="$called-schemas//type[select][../@name != $current-schema]
+			<xsl:for-each select="$called-schemas//type[select]
 				[contains($extensions,concat(' ',@name,' '))]" >
 				<xsl:sort select="concat(../@name,'.',@name)" />
 
 				<xsl:variable name="the-mod-name" 
 					select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
-
 				<xsl:call-template name="assertion-links-for-select">
 					<xsl:with-param name="select-items" select="./select/@selectitems" />
+					<xsl:with-param name="this-select" select="." />
+					<xsl:with-param name="this-select-mod" select="../@name" />
 					<xsl:with-param name="this-attribute" select="$lc-attr" />
 					<xsl:with-param name="this-entity" select="$lc-ent" />
 					<xsl:with-param name="this-module" select="$the-mod-name" />
-					
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
 				</xsl:call-template>
 
 				
@@ -242,35 +248,72 @@ $Id: index_arm_mappings_inner.xsl,v 1.4 2003/06/02 12:07:47 nigelshaw Exp $
 
 			</blockquote>
 			
-		</xsl:if>
+		</xsl:when>
+		<xsl:otherwise>
+			&#160;&#160;
+			<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
+			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+			</A>
+			<br/>
+		</xsl:otherwise>
 		
+	</xsl:choose>
+
 </xsl:template>
 
 <xsl:template name="assertion-links-for-select" >
 	<xsl:param name="select-items" />
+	<xsl:param name="this-select" />
+	<xsl:param name="this-select-mod" />
 	<xsl:param name="this-attribute" />
 	<xsl:param name="this-entity" />
 	<xsl:param name="this-module" />
+	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-item" select="substring-before(concat(normalize-space($select-items),' '),' ')" />
 
 	<xsl:if test="string-length($this-item) > 0" >
 
+<!-- this may fail if a select type contains another select type -->
+
+				<xsl:variable name="this-item-mod" 
+					select="translate($called-schemas//schema[entity/@name=$this-item]/@name,$UPPER,$LOWER)" />
+				<xsl:variable name="this-item-dir" 
+					select="concat('../../../../../stepmod/data/modules/',
+					substring-before($this-item-mod,'_arm'))" />
+						
+				<xsl:variable name="lc-this-item" 
+					select="translate($this-item,$UPPER,$LOWER)" />
+
+				<A HREF="{$this-item-dir}/sys/4_info_reqs{$FILE_EXT}#{$this-item-mod}.{$lc-this-item}" 
+					TARGET="content"><xsl:value-of select="$this-item" /></A>
+				<xsl:text>  </xsl:text>
 				<xsl:variable name="the-mod-dir" 
 					select="concat('../../../../../stepmod/data/modules/',$this-module)" />
+				<br/>&#160;&#160;
+				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$this-item}" TARGET="content">map</A>
+				<xsl:text> </xsl:text>
 
-				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$this-item}" TARGET="content">
-				<xsl:value-of select="$this-item" />
-				</A>
+				<xsl:variable name="the-select-mod" 
+					select="substring-before($this-select-mod,'_arm')" />
+
+				<xsl:variable name="the-select-mod-dir" 
+					select="concat('../../../../../stepmod/data/modules/', $the-select-mod)" />
+
+				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$this-select-mod}.{$this-select/@name}" 
+					TARGET="content">select</A>
 				<br/>
 
 
 
 		<xsl:call-template name="assertion-links-for-select" >
 			<xsl:with-param name="select-items" select="substring-after(normalize-space($select-items),' ')" />
+			<xsl:with-param name="this-select" select="$this-select"/>
+			<xsl:with-param name="this-select-mod" select="$this-select-mod" />
 			<xsl:with-param name="this-attribute" select="$this-attribute" />
 			<xsl:with-param name="this-entity" select="$this-entity" />
 			<xsl:with-param name="this-module" select="$this-module" />
+			<xsl:with-param name="called-schemas" select="$called-schemas" />
 		</xsl:call-template>
 
 	</xsl:if>

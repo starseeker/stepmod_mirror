@@ -1,12 +1,181 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.24 2002/09/30 09:10:26 robbod Exp $ -->
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
 <express
-   language_version="2"
-   rcs.date="$Date: 2002/09/30 09:10:26 $"
-   rcs.revision="$Revision: 1.24 $">
+  language_version="2"
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.24"
+    source="../data/modules/building_structure/mim.exp"/>
+
   <schema name="Building_structure_mim">
+    <interface
+      kind="use"
+      schema="management_resources_schema">
+      <interfaced.item
+        name="organization_assignment"/>
+      <interfaced.item
+        name="person_assignment"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="person_organization_schema">
+      <interfaced.item
+        name="organization"/>
+      <interfaced.item
+        name="organization_role"/>
+      <interfaced.item
+        name="person"/>
+      <interfaced.item
+        name="person_role"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_definition_schema">
+      <interfaced.item
+        name="product"/>
+      <interfaced.item
+        name="product_definition"/>
+      <interfaced.item
+        name="product_definition_formation"/>
+      <interfaced.item
+        name="product_definition_relationship"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_definition_schema">
+      <interfaced.item
+        name="characterized_product_definition"/>
+      <interfaced.item
+        name="property_definition"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_structure_schema">
+      <interfaced.item
+        name="assembly_component_usage"/>
+      <interfaced.item
+        name="product_definition_usage"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_representation_schema">
+      <interfaced.item
+        name="property_definition_representation"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="qualified_measure_schema">
+      <interfaced.item
+        name="descriptive_representation_item"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="representation"/>
+      <interfaced.item
+        name="representation_item"/>
+    </interface>
+
+    <type name="building_design_organization_item">
+      <select
+        selectitems="building">
+      </select>
+
+    </type>
+    <type name="building_design_person_item">
+      <select
+        selectitems="building">
+      </select>
+
+    </type>
+    <entity
+      name="building"
+      supertypes="product_definition">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_MIM.'+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |       'BUILDING_STRUCTURE_MIM.BUILDING_SECTION'       IN TYPEOF (pdr.related_product_definition))) &gt;= 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (QUERY (bdpa &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_MIM.' +       'BUILDING_DESIGN_PERSON_ASSIGNMENT.ITEMS') |       bdpa.role.name = 'owner')) +       SIZEOF (QUERY (bdoa &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_MIM.' +       'BUILDING_DESIGN_ORGANIZATION_ASSIGNMENT.ITEMS') |       bdoa.role.name = 'owner')) = 1">
+      </where>
+    </entity>
+
+    <entity
+      name="building_design_organization_assignment"
+      supertypes="organization_assignment">
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="building_design_organization_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="building_design_person_assignment"
+      supertypes="person_assignment">
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="building_design_person_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="building_element_assembly"
+      supertypes="product_definition">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (acu &lt;* QUERY (pdr &lt;* USEDIN (SELF,       'BUILDING_STRUCTURE_MIM.PRODUCT_DEFINITION_RELATIONSHIP.' +       'RELATING_PRODUCT_DEFINITION') |       'BUILDING_STRUCTURE_MIM.ASSEMBLY_COMPONENT_USAGE' IN       TYPEOF (pdr)) |       SIZEOF (TYPEOF (acu.related_product_definition) *       ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',       'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',       'BUILDING_ITEM_MIM.SERVICE_ELEMENT',       'BUILDING_ITEM_MIM.SPACE_ELEMENT',       'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT',       'BUILDING_STRUCTURE_MIM.BUILDING_ELEMENT_ASSEMBLY']) = 1)) &gt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="building_level"
+      supertypes="product_definition">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, ''BUILDING_STRUCTURE_MIM.' +       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |       ''BUILDING_STRUCTURE_MIM.BUILDING_SECTION' IN       TYPEOF (pdr.relating_product_definition))) = 1">
+      </where>
+    </entity>
+
+    <entity
+      name="building_section"
+      supertypes="product_definition">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF,''BUILDING_STRUCTURE_MIM.'+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |       ''BUILDING_STRUCTURE_MIM.BUILDING' IN       TYPEOF (pdr.relating_product_definition))) = 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,'BUILDING_ITEM_MIM.' +       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |       SIZEOF (TYPEOF (pdr.related_product_definition) *       ['BUILDING_STRUCTURE_MIM.BUILDING_LEVEL',       'BUILDING_ITEM_MIM.BUILDING_ELEMENT',       'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',       'BUILDING_ITEM_MIM.SERVICE_ELEMENT',       'BUILDING_ITEM_MIM.SPACE_ELEMENT',       'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1)) &gt;= 1">
+      </where>
+    </entity>
+
   </schema>
+
 </express>

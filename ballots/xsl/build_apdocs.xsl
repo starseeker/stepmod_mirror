@@ -60,9 +60,9 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         
         <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_BACKGROUND</xsl:attribute>
+          <xsl:attribute name="name">OUTPUT_MODULES_BACKGROUND</xsl:attribute>
           <xsl:choose>
-            <xsl:when test="./@output_background='YES'">
+            <xsl:when test="./@output_modules_background='YES'">
               <xsl:attribute name="value">YES</xsl:attribute>
             </xsl:when>            
             <xsl:otherwise>
@@ -71,6 +71,18 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:choose>
         </xsl:element>
         
+        <xsl:element name="property">
+          <xsl:attribute name="name">OUTPUT_APDOCS_BACKGROUND</xsl:attribute>
+          <xsl:choose>
+            <xsl:when test="./@output_apdocs_background='YES'">
+              <xsl:attribute name="value">YES</xsl:attribute>
+            </xsl:when>            
+            <xsl:otherwise>
+              <xsl:attribute name="value">NO</xsl:attribute>            
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:element>
+
         <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_RESOURCES_BACKGROUND</xsl:attribute>
           <xsl:choose>
@@ -82,6 +94,26 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:otherwise>
           </xsl:choose>
         </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">STEPMOD_DATA_MODULES</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/modules/')"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="property">
+          <xsl:attribute name="name">STEPMOD_DATA_APS</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/application_protocol/')"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="property">
+          <xsl:attribute name="name">STEPMOD_DATA_RESOURCES</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/resources/')"/>
+          </xsl:attribute>
+        </xsl:element>
+
         
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMODSTYLES</xsl:attribute>
@@ -99,6 +131,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:attribute name="name">ISODIR</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:value-of select="concat('ballots/isohtml/',@name)"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="property">
+          <xsl:attribute name="name">ABSTRACTDIR</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="concat('ballots/isohtml/',@name,'/abstracts')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="property">
@@ -154,6 +192,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:if test="./ballot_package/module">
           <xsl:apply-templates select="."  mode="modules_variables"/>
         </xsl:if>
+        <xsl:apply-templates select="."  mode="abstract_variable"/>
       </xsl:element>
       
       <xsl:text>
@@ -193,7 +232,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-      <xsl:variable name="all_target">
+      <xsl:variable name="all_target3">
         <xsl:choose>
           <xsl:when test="./ballot_package/module">
             <xsl:value-of select="concat($all_target2, ', isomodules')"/>
@@ -203,6 +242,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
+
+      <xsl:variable name="all_target" select="concat($all_target3,', copy_abstracts')"/>
       <target
         xsl:extension-element-prefixes="exslt"        
         name="all" depends="{$all_target}" 
@@ -327,6 +368,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:apply-templates select="." mode="modules_target"/>
       </xsl:if>
       <xsl:apply-templates select="." mode="resources_target"/>      
+      <xsl:apply-templates select="." mode="abstracts_target"/>      
     </project>
 
   </xsl:template>
@@ -461,6 +503,11 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:attribute name="name">APDOCANNEXAAM</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/annex_aam.xml</xsl:attribute>
     </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCABSTRACT</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/abstract.xml</xsl:attribute>
+    </xsl:element>
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCANNEXARMEXPGXML</xsl:attribute>
@@ -551,7 +598,22 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:attribute name="name">APDOCFRAMETOCXML</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/frame_toc.xml</xsl:attribute>
     </xsl:element>
-    
+  
+    <xsl:element name="property">
+      <xsl:attribute name="name">INDEXARMEXPRESSNAVXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_express_nav.xml</xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">INDEXARMEXPRESSNAVINNERXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_express_nav_inner.xml</xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">INDEXARMEXPRESSNAVTOPXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/index_arm_express_nav_top.xml</xsl:attribute>
+    </xsl:element>
+
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCINDEXARMEXPRESSXML</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/index_arm_express.xml</xsl:attribute>
@@ -1506,13 +1568,52 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-        <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -1547,13 +1648,44 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-        <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -1588,13 +1720,44 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-        <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+                <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -1629,13 +1792,44 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-        <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+                <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -1726,7 +1920,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCREFSXML}'"/>
@@ -1763,6 +1982,30 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -1805,7 +2048,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINFOREQSXML}'"/>
@@ -1844,7 +2112,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCMAINXML}'"/>
@@ -1883,7 +2176,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCCCSXML}'"/>
@@ -1922,7 +2240,96 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCABSTRACT}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_abstract.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXAAM}'"/>
@@ -1961,7 +2368,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXARMEXPGXML}'"/>
@@ -2000,7 +2432,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXCHANGESXML}'"/>
@@ -2039,7 +2496,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXCOMP}'"/>
@@ -2078,7 +2560,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXEXPLFXML}'"/>
@@ -2117,7 +2624,32 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-       </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
        <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXGUIDEXML}'"/>
@@ -2156,6 +2688,30 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -2188,7 +2744,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2197,7 +2760,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-       </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
        <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2229,7 +2816,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2238,9 +2832,33 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
-         <xsl:element name="style">
+      <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCANNEXPICSXML}'"/>
         </xsl:attribute>
@@ -2270,7 +2888,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2279,7 +2904,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2311,7 +2960,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2320,7 +2976,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2352,7 +3032,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2361,7 +3048,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2393,7 +3104,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2402,7 +3120,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2434,7 +3176,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2443,7 +3192,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2475,7 +3248,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2484,7 +3264,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2516,7 +3320,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2525,8 +3336,248 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
       
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${INDEXARMEXPRESSNAVXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_arm_express_nav.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${INDEXARMEXPRESSNAVINNERXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_arm_express_nav_inner.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${INDEXARMEXPRESSNAVTOPXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/index_arm_express_nav_top.xsl'"/>
+        </xsl:attribute>
+         <param name="output_type" expression="HTM"/>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINDEXARMEXPRESSXML}'"/>
@@ -2557,7 +3608,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2566,7 +3624,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2598,7 +3680,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2607,7 +3696,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2639,7 +3752,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2648,7 +3768,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2680,7 +3824,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2689,7 +3840,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2721,7 +3896,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2730,7 +3912,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2762,7 +3968,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2771,7 +3984,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2803,7 +4040,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2812,7 +4056,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2844,7 +4112,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2853,7 +4128,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2885,7 +4184,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -2894,7 +4200,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -2926,13 +4256,44 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -2967,13 +4328,44 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -3008,7 +4400,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3017,7 +4416,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3049,7 +4472,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3058,7 +4488,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3090,7 +4544,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3099,7 +4560,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3131,7 +4616,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3140,7 +4632,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3172,7 +4688,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3181,7 +4704,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3213,7 +4760,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3222,7 +4776,31 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
 
         <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3254,7 +4832,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -3263,8 +4848,33 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
-         </xsl:element>
-        <xsl:element name="style">
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${APDOCINTRODUCTION}'"/>
         </xsl:attribute>
@@ -3294,13 +4904,44 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-         <param name="output_background" expression="${OUTPUT_BACKGROUND}"/>
-         <xsl:element name="param">
+ <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_apdocs_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -3507,7 +5148,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -3520,14 +5193,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -3565,7 +5230,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -3578,14 +5275,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -3623,7 +5312,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -3636,14 +5357,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -3681,7 +5394,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -3694,14 +5439,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -3739,7 +5476,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -3752,14 +5521,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -3797,7 +5558,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -3810,14 +5603,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -3855,7 +5640,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -3868,14 +5685,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -3913,7 +5722,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -3926,14 +5767,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
 
       <xsl:element name="style">
@@ -3966,6 +5799,30 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
 
       <xsl:element name="style">
@@ -3996,6 +5853,30 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:element>
@@ -4035,7 +5916,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4048,14 +5961,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4093,7 +5998,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4106,14 +6043,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4151,7 +6080,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4164,14 +6125,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4209,7 +6162,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4222,14 +6207,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4275,7 +6252,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4288,14 +6297,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -4333,7 +6334,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4346,15 +6379,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4391,7 +6416,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4404,15 +6461,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4449,7 +6498,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4462,15 +6543,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4502,15 +6575,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4547,7 +6612,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4560,15 +6657,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4605,7 +6694,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4618,15 +6739,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4663,7 +6776,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4676,15 +6821,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4721,7 +6858,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4734,15 +6903,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4779,7 +6940,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4792,15 +6985,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4837,7 +7022,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4850,15 +7067,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4895,7 +7104,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4908,15 +7149,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -4953,7 +7186,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -4966,15 +7231,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="copy">
         <xsl:attribute name="todir">
@@ -5010,9 +7267,9 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:text>
     </xsl:text>    
      <target
-        xsl:extension-element-prefixes="exslt"        
-        name="isodepmodules" depends="init" 
-      description="generate HTML for all modules">
+       xsl:extension-element-prefixes="exslt"        
+       name="isodepmodules" depends="init" 
+       description="generate HTML for all modules">
       <dependset>
         <xsl:element name="srcfileset">
           <xsl:attribute name="dir">
@@ -5099,7 +7356,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5112,15 +7401,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5157,7 +7438,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5170,15 +7483,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5215,7 +7520,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5228,15 +7565,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5273,7 +7602,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5286,15 +7647,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5331,7 +7684,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5344,15 +7729,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5389,7 +7766,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5402,15 +7811,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5447,7 +7848,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5460,15 +7893,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5505,7 +7930,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5518,15 +7975,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5550,15 +7999,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5582,15 +8023,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5627,7 +8060,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5640,15 +8105,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5685,7 +8142,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5698,15 +8187,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5743,7 +8224,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5756,15 +8269,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5801,7 +8306,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5814,15 +8351,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5867,7 +8396,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5880,15 +8441,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5925,7 +8478,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5938,15 +8523,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -5983,7 +8560,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -5996,15 +8605,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6041,7 +8642,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6054,15 +8687,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6094,15 +8719,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6139,7 +8756,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6152,15 +8801,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6197,7 +8838,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6210,15 +8883,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6255,7 +8920,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6268,15 +8965,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6313,7 +9002,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6326,15 +9047,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6371,7 +9084,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6384,15 +9129,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6429,7 +9166,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6442,15 +9211,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6487,7 +9248,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6500,15 +9293,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6545,7 +9330,39 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:if test="./@background_image">
@@ -6558,15 +9375,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:attribute>
           </xsl:element>
         </xsl:if>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
+             </xsl:element>
 
       <xsl:element name="copy">
         <xsl:attribute name="todir">
@@ -6826,7 +9635,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
                 <xsl:with-param name="arm_mim" select="'mim'"/>
               </xsl:call-template>
             </xsl:variable>
-            <xsl:if test="not(contains($todo_schema_list,concat(' ',$mod_schema,' ')))">
+            <xsl:if test="not(contains($modules,concat(' ',$mod_schema,' ')))">
               <module>
                 <xsl:attribute name="name">
                   <xsl:value-of select="$module"/>
@@ -6854,5 +9663,40 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:for-each>
 
 </xsl:template>
+
+
+<xsl:template match="ballot_index" mode="abstracts_target">
+   <target 
+     xsl:extension-element-prefixes="exslt"
+     name="copy_abstracts" 
+     depends="init" 
+     description="Copy abstracts to ISOHTML">
+
+    <xsl:for-each select="/ballot_index/ballot_package/ap_doc">
+      <xsl:element name="copy">
+        <xsl:attribute name="file">
+          <xsl:value-of select="concat('${ISODIR}/data/application_protocols/',@name,'/sys/abstract.htm')"/>
+        </xsl:attribute>
+        <xsl:attribute name="tofile">
+          <xsl:value-of select="concat('${ABSTRACTDIR}/ap_abstract_',@name,'.htm')"/>
+        </xsl:attribute>
+      </xsl:element>
+    </xsl:for-each>
+    <xsl:for-each select="/ballot_index/ballot_package/module">
+      <xsl:element name="copy">
+        <xsl:attribute name="file">
+          <xsl:value-of select="concat('${ISODIR}/data/modules/',@name,'/sys/abstract.htm')"/>
+        </xsl:attribute>
+        <xsl:attribute name="tofile">
+          <xsl:value-of select="concat('${ABSTRACTDIR}/module_abstract_',@name,'.htm')"/>
+        </xsl:attribute>
+      </xsl:element>
+    </xsl:for-each>
+   </target>
+</xsl:template>
+
+<xsl:template match="ballot_index" mode="abstract_variable">
+</xsl:template>
+
 
 </xsl:stylesheet>

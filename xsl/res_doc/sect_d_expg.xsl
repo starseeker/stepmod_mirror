@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_d_schema_expg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_d_expg.xsl,v 1.1 2002/10/22 03:47:34 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -20,7 +20,7 @@ $Id: sect_d_schema_expg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 
   <xsl:output method="html"/>
 
-<!-- overwrites the template declared in module.xsl -->
+<!-- overwrites the template declared in resource.xsl -->
 <xsl:template match="resource">
   <xsl:apply-templates select="." mode="annexd"/>
 </xsl:template>

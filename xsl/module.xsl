@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.161 2004/02/06 17:52:23 robbod Exp $
+$Id: module.xsl,v 1.162 2004/02/18 20:04:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -983,7 +983,7 @@ o=isocs; s=central<br/>
     the application. 
 
     A graphical representation of the information requirements, referred to
-    as the application reference model, is given in annex 
+    as the application reference model, is given in Annex 
     <a href="c_arm_expg{$FILE_EXT}">C</a>. 
 
     Resource constructs are interpreted to meet the information
@@ -995,7 +995,7 @@ o=isocs; s=central<br/>
     resources and is given in <a href="5_mim{$FILE_EXT}#mim_express">5.2</a>.  
 
     A graphical representation of the short listing of the MIM is given
-    in annex <a href="d_mim_expg{$FILE_EXT}">D</a>.
+    in Annex <a href="d_mim_expg{$FILE_EXT}">D</a>.
   </p>
   <p>
     In this International Standard, the same English language words may be

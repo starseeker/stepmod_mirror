@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_arm_expg.xsl,v 1.9 2002/07/22 09:33:18 robbod Exp $
+$Id: sect_c_arm_expg.xsl,v 1.10 2003/02/28 17:49:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -94,7 +94,7 @@ $Id: sect_c_arm_expg.xsl,v 1.9 2002/07/22 09:33:18 robbod Exp $
   </xsl:choose>
 
       <p>
-        The EXPRESS-G graphical notation is defined in annex D of ISO 10303-11.
+        The EXPRESS-G graphical notation is defined in Annex D of ISO 10303-11.
       </p> 
 
 

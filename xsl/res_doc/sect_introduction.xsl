@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.6 2004/01/27 22:26:30 thendrix Exp $
+$Id: sect_introduction.xsl,v 1.7 2004/02/10 23:45:29 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -84,7 +84,7 @@ $Id: sect_introduction.xsl,v 1.6 2004/01/27 22:26:30 thendrix Exp $
 
 <!-- prepare variables to output list of used schemas and parts -->
   
-  <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1  using the EXPRESS-G notation. EXPRESS-G is defined in annex D of ISO 10303-11. 
+  <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1 using the EXPRESS-G notation. EXPRESS-G is defined in Annex D of ISO 10303-11. 
   </p>
 	<xsl:variable name="used" >
 		<xsl:apply-templates select="../schema_diag" mode="use_reference_list" />

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.14 2003/09/06 00:16:08 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.15 2004/02/10 23:46:25 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -390,7 +390,7 @@
         </xsl:variable>
         <xsl:variable name="resource_file"
           select="concat($resource_dir,'/resource.xml')"/>
-            See annex <a href="d_expg{$FILE_EXT}">D</a>
+            See Annex <a href="d_expg{$FILE_EXT}">D</a>
             for a graphical representation of this schema.
       </small>
     </p>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_arm_expg.xsl,v 1.9 2002/07/22 09:33:18 robbod Exp $
+$Id: sect_d_schema_expg.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -63,7 +63,7 @@ $Id: sect_c_arm_expg.xsl,v 1.9 2002/07/22 09:33:18 robbod Exp $
     </small>
   </p>
   <p>
-    The EXPRESS-G  graphical notation is defined in annex D of ISO
+    The EXPRESS-G graphical notation is defined in Annex D of ISO
     10303-11.
   </p> 
   <a name="armexpg"/>

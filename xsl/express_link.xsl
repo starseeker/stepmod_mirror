@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.15 2003/03/10 01:26:26 robbod Exp $
+     $Id: express_link.xsl,v 1.16 2003/07/03 06:22:12 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -442,7 +442,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
      The clause parameter can be used to specify what express should be
      linked. either:
       section for referencing ARM and MIM express in section 4 and 5
-      annexe for referencing ARM and MIM express in annex E
+      annexe for referencing ARM and MIM express in Annex E
 
      Check to see whether the schema is in the current file, 
      If not, then it is assumed that all short form schema end in _mim or
@@ -498,7 +498,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
      The clause parameter can be used to specify what express should be
      linked. either:
       section for referencing ARM and MIM express in section 4 and 5
-      annexe for referencing ARM and MIM express in annex E
+      annexe for referencing ARM and MIM express in Annex E
 
      The object may be defined within a schema in the current file,
      or through a USE-FROM or REFERENCE interface.
@@ -551,7 +551,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
      The clause parameter can be used to specify what express should be
      referenced. either:
       section for referencing ARM and MIM express in section 4 and 5
-      annexe for referencing ARM and MIM express in annex E
+      annexe for referencing ARM and MIM express in Annex E
 
      prefix and suffix are the prefixes and suffixes to be added to each
      object in the list
@@ -1120,7 +1120,7 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
      The clause parameter can be used to specify what express should be
      referenced. either:
       section for referencing ARM and MIM express in section 4 and 5
-      annexe for referencing ARM and MIM express in annex E
+      annexe for referencing ARM and MIM express in Annex E
 
      It is assumed that every module is stored in a directory which is
      given the name of the module.

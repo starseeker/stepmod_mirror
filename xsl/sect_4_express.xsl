@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.109 2003/10/31 08:01:32 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.110 2004/02/05 07:42:51 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -375,7 +375,7 @@
           <xsl:when test="contains($schema_node/@name,'_arm')">
             <xsl:variable name="penultimate"
               select="count(document($module_file)/module/arm/express-g/imgfile)-1"/>
-            See annex <a href="c_arm_expg{$FILE_EXT}">C</a>, 
+            See Annex <a href="c_arm_expg{$FILE_EXT}">C</a>, 
             <xsl:choose>
               <xsl:when
                 test="count(document($module_file)/module/arm/express-g/imgfile)=1">
@@ -408,7 +408,7 @@
           <xsl:otherwise>
             <xsl:variable name="penultimate"
               select="count(document($module_file)/module/mim/express-g/imgfile)-1"/>
-            See annex <a href="d_mim_expg{$FILE_EXT}">D</a>, 
+            See Annex <a href="d_mim_expg{$FILE_EXT}">D</a>, 
             <xsl:choose>
               <xsl:when
                 test="count(document($module_file)/module/mim/express-g/imgfile)=1">

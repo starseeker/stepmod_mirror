@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.20 2004/02/05 17:51:07 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.21 2004/02/24 15:10:03 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -76,7 +76,7 @@ $Id: sect_4_info_reqs.xsl,v 1.20 2004/02/05 17:51:07 robbod Exp $
     <p class="note">
       <small>
         NOTE&#160;2&#160;&#160;A graphical representation of the information requirements is given in 
-        annex <a href="{$f_expg}">G</a>.
+        Annex <a href="{$f_expg}">G</a>.
         XXXX NEED TO TEST WHETHER THERE IS ANNEX G
       </small>
     </p> -->

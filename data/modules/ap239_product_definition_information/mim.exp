@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.22 2004/10/30 09:06:31 robbod Exp $
+ $Id: mim.exp,v 1.23 2004/11/22 08:20:50 robbod Exp $
  ISO TC184/SC4/WG3 N1563 - ISO/TS 10303-1292 AP239 product definition information - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG3 N1391
 *) 
@@ -32,7 +32,9 @@ USE FROM Configuration_effectivity_mim;    -- ISO/TS 10303-1058
 USE FROM Configuration_item_mim;    -- ISO/TS 10303-1056
 
 USE FROM configuration_management_schema   -- ISO 10303-44
-  (configuration_item); 
+  (configuration_design,
+   configuration_effectivity,
+   configuration_item); 
 
 USE FROM Contract_mim;    -- ISO/TS 10303-1062
 
@@ -109,7 +111,9 @@ USE FROM product_definition_schema   -- ISO 10303-41
 USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
 
 USE FROM product_property_definition_schema   -- ISO 10303-41
-  (property_definition); 
+  (characterized_object,
+   product_definition_shape,
+   property_definition); 
 
 USE FROM Product_relationship_mim;    -- ISO/TS 10303-1024
 
@@ -162,6 +166,7 @@ TYPE ap239_prdi_aliasable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON alias
     product_definition, 
     product_definition_formation, 
     product_definition_relationship, 
+    product_definition_shape, 
     product_relationship);
 END_TYPE; 
 
@@ -182,6 +187,7 @@ TYPE ap239_prdi_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approv
     in_zone, 
     product, 
     product_definition, 
+    product_definition_element_relationship, 
     product_definition_formation, 
     product_definition_group_assignment, 
     product_in_attachment_slot, 
@@ -209,15 +215,22 @@ TYPE ap239_prdi_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
     assembly_component_usage_substitute, 
     attachment_slot_design_to_planned, 
     attachment_slot_design_to_realized, 
+    attachment_slot_on_product, 
     attachment_slot_planned_to_realized, 
     breakdown_context, 
     breakdown_element_group_assignment, 
     breakdown_element_usage, 
+    breakdown_of, 
+    characterized_object, 
+    configuration_design, 
+    configuration_effectivity, 
     configuration_item, 
+    in_zone, 
     product, 
     product_definition_formation, 
     product_definition_group_assignment, 
     product_definition_relationship, 
+    product_definition_shape, 
     product_relationship, 
     selected_item, 
     selected_item_assignment);
@@ -354,7 +367,12 @@ TYPE ap239_prdi_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
     product_definition, 
     product_definition_formation, 
     product_definition_relationship, 
+    product_definition_shape, 
     product_relationship);
+END_TYPE; 
+
+TYPE ap239_prdi_in_zone_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON in_zone_groupable_item WITH 
+   (interface_definition_connection);
 END_TYPE; 
 
 TYPE ap239_prdi_ir_usage_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usage_item WITH 
@@ -422,6 +440,10 @@ TYPE ap239_prdi_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT 
     selected_item_assignment);
 END_TYPE; 
 
+TYPE ap239_prdi_product_definition_or_product_definition_relationship = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON product_definition_or_product_definition_relationship WITH 
+   (interface_connector_occurrence);
+END_TYPE; 
+
 TYPE ap239_prdi_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WITH 
    (configuration_item, 
     product);
@@ -469,7 +491,11 @@ TYPE ap239_prdi_selected_item_context_items = EXTENSIBLE GENERIC_ENTITY SELECT B
 END_TYPE; 
 
 TYPE ap239_prdi_selected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON selected_item_select WITH 
-   (product, 
+   (interface_connection, 
+    interface_connector_definition, 
+    interface_connector_occurrence, 
+    interface_definition_connection, 
+    product, 
     product_definition_formation);
 END_TYPE; 
 
@@ -514,11 +540,11 @@ SUBTYPE_CONSTRAINT restrict_product_definition_relationship_subtypes FOR product
          breakdown_context,
          breakdown_element_usage,
          breakdown_of,
-         in_zone,
-         interface_connection,
+         interface_definition_connection,
          interface_definition_for,
          product_in_attachment_slot);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Ap239_product_definition_information_mim
+
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_biblio.xsl,v 1.5 2002/06/17 15:48:54 robbod Exp $
+$Id: sect_biblio.xsl,v 1.6 2002/08/02 15:58:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -18,6 +18,7 @@ $Id: sect_biblio.xsl,v 1.5 2002/06/17 15:48:54 robbod Exp $
        -->
   <xsl:import href="module_clause.xsl"/>
 
+  <xsl:import href="projmg/issues.xsl"/> 
 
   <xsl:output method="html"/>
 
@@ -29,6 +30,12 @@ $Id: sect_biblio.xsl,v 1.5 2002/06/17 15:48:54 robbod Exp $
     </h3>
   </div>
   
+  <!-- output any issues -->
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'bibliography'"/>
+  </xsl:apply-templates>
+
+
   <xsl:choose>
     <xsl:when test="./bibliography">
       <xsl:apply-templates select="./bibliography"/>

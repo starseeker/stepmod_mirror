@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.3 2002/09/10 08:54:11 robbod Exp $
+     $Id: issues.xsl,v 1.4 2002/09/12 09:36:18 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -19,6 +19,31 @@
   <xsl:output method="html"/>
 
   <!--  <xsl:import href="module_toc.xsl"/> -->
+
+  <!-- output any issues against the clause identified by type
+       general | keywords | contacts | purpose | inscope | outscope
+       | normrefs | definition | abbreviations
+       | usage_guide | bibliography
+       -->
+<xsl:template match="module" mode="output_clause_issue">
+  <xsl:param name="clause"/>
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="dvlp_fldr" select="@development.folder"/>
+  <xsl:if test="string-length($dvlp_fldr)>0">
+    <xsl:variable name="issue_file" 
+      select="concat('../',$module_dir,'/dvlp/issues.xml')"/>
+    <xsl:apply-templates
+      select="document($issue_file)/issues/issue[@type=$clause]" 
+      mode="inline_issue">
+      <xsl:sort select="@status" order="descending"/>
+    </xsl:apply-templates>
+  </xsl:if>
+</xsl:template>
+
   
 
 <xsl:template name="output_express_issue">
@@ -171,7 +196,7 @@
                                 string(@id), 
                                 ' by ', string(@by),
                                 ' (', string(@date), 
-                                ') [', string(@status),']')" />
+                                ') [', string(@category),', ', string(@status),']')" />
         </a>
       </b>
       <br/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     $Id: issues_file.xsl,v 1.5 2002/09/03 10:34:02 nigelshaw Exp $
+     $Id: issues_file.xsl,v 1.6 2002/09/10 08:54:11 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -333,6 +333,7 @@
                                 ')')" /> 
           </A>
         </b>
+        <xsl:value-of select="concat(' ',@category,' issue ')"/>
         <xsl:call-template name="resolve_linkend"/>
       </i>
     <br/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.103 2002/09/05 07:53:54 robbod Exp $
+$Id: module.xsl,v 1.104 2002/09/05 09:10:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -14,6 +14,7 @@ $Id: module.xsl,v 1.103 2002/09/05 07:53:54 robbod Exp $
 
   <xsl:import href="sect_4_express.xsl"/>
 
+  <xsl:import href="projmg/issues.xsl"/> 
 
   <xsl:output 
     method="html"
@@ -88,6 +89,18 @@ $Id: module.xsl,v 1.103 2002/09/05 07:53:54 robbod Exp $
 
 <!-- Outputs the cover page -->
 <xsl:template match="module" mode="coverpage">
+
+  <!-- output any issues -->
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'general'"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'keywords'"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'contacts'"/>
+  </xsl:apply-templates>
+
   <xsl:variable name="n_number"
     select="concat('ISO TC184/SC4/WG12&#160;N',./@wg.number)"/>
   <xsl:variable name="date"
@@ -792,8 +805,12 @@ o=isocs; s=central<br/>
     sharing product databases, and as a basis 
     for archiving.
   </p>
-  <xsl:apply-templates/>
 
+  <!-- output any issues -->
+  <xsl:apply-templates select=".." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'purpose'"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates/>
   <p>
     Clause <a href="1_scope{$FILE_EXT}">1</a> defines the scope of the
     application module and summarizes the functionality and data covered. 
@@ -861,6 +878,12 @@ o=isocs; s=central<br/>
     <a name="inscope"/>
     The following are within the scope of this part of ISO 10303: 
   </p>
+
+  <!-- output any issues -->
+  <xsl:apply-templates select=".." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'inscope'"/>
+  </xsl:apply-templates>
+
   <ul>
     <xsl:apply-templates/>
   </ul>
@@ -872,6 +895,11 @@ o=isocs; s=central<br/>
     <a name="outscope"/>
     The following are outside the scope of this part of ISO 10303: 
   </p>
+  <!-- output any issues -->
+  <xsl:apply-templates select=".." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'outscope'"/>
+  </xsl:apply-templates>
+
   <ul>
     <xsl:apply-templates/>
   </ul>
@@ -2198,6 +2226,11 @@ o=isocs; s=central<br/>
   normative document referred to applies. Members of ISO and IEC maintain
   registers of currently valid International Standards. 
 
+  <!-- output any issues -->
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'normrefs'"/>
+  </xsl:apply-templates>
+
   <!-- output the normative reference explicitly defined in the module -->
   <xsl:apply-templates select="/modules/normrefs/normref">
     <xsl:with-param name="current_module" select="$current_module"/>
@@ -2762,6 +2795,13 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       <xsl:value-of select="concat('3.',$section)"/> Abbreviations
     </a>
   </h3>
+
+  <!-- output any issues -->
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'abbreviations'"/>
+  </xsl:apply-templates>
+
+
   <p>
     For the purposes of this part of ISO 10303, the following abbreviations
     apply:
@@ -2864,6 +2904,12 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 <!-- output the normative references, terms, definitions and abbreviations -->
 <xsl:template name="output_terms">
   <xsl:param name="module_number"/>
+
+  <!-- output any issues -->
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'definition'"/>
+  </xsl:apply-templates>
+
   <!-- get a list of normative references that have terms defined -->
   <xsl:variable name="normrefs">
     <xsl:call-template name="normrefs_terms_list"/>
@@ -3420,6 +3466,11 @@ $module_ok,' Check the normatives references')"/>
   </xsl:template>
 
 <xsl:template match="usage_guide">
+  <!-- output any issues -->
+  <xsl:apply-templates select=".." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'usage_guide'"/>
+  </xsl:apply-templates>
+
   <xsl:apply-templates/>
 </xsl:template>
 

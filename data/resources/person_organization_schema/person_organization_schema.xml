@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<!-- $Id: person_organization_schema.xml,v 1.11 2003/04/29 09:51:55 mikeward Exp $ -->
+<!-- $Id: person_organization_schema.xml,v 1.12 2003/04/29 09:57:22 mikeward Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" reference="ISO 10303-41" rcs.date="$Date: 2003/04/29 09:51:55 $" rcs.revision="$Revision: 1.11 $">
+<express language_version="2" reference="ISO 10303-41" rcs.date="$Date: 2003/04/29 09:57:22 $" rcs.revision="$Revision: 1.12 $" description.file="descriptions.xml">
 	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.17" source="../data/resources/person_organization_schema/person_organization_schema.exp"/>
 	<schema name="person_organization_schema">
 		<interface kind="reference" schema="basic_attribute_schema">
@@ -104,15 +104,6 @@
 			</derived>
 			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
 		</entity>
-		<entity name="organizational_address" supertypes="address">
-			<explicit name="organizations">
-				<aggregate type="SET" lower="1" upper="?"/>
-				<typename name="organization"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-		</entity>
 		<!-- added 2003-04-09 mwd -->
 		<entity name="organization_type">
 			<explicit name="id">
@@ -127,20 +118,29 @@
 		</entity>
 		<!-- added 2003-04-11 mwd -->
 		<entity name="organization_type_relationship">
-			<explicit name="description" optional="YES">
-				<builtintype type="STRING"/>
-			</explicit>
 			<explicit name="id">
 				<builtintype type="STRING"/>
 			</explicit>
 			<explicit name="name">
 				<builtintype type="STRING"/>
 			</explicit>
-			<explicit name="related_organization_type">
-				<typename name="organization_type"/>
+			<explicit name="description" optional="YES">
+				<builtintype type="STRING"/>
 			</explicit>
 			<explicit name="relating_organization_type">
 				<typename name="organization_type"/>
+			</explicit>
+			<explicit name="related_organization_type">
+				<typename name="organization_type"/>
+			</explicit>
+		</entity>
+		<entity name="organizational_address" supertypes="address">
+			<explicit name="organizations">
+				<aggregate type="SET" lower="1" upper="?"/>
+				<typename name="organization"/>
+			</explicit>
+			<explicit name="description" optional="YES">
+				<typename name="text"/>
 			</explicit>
 		</entity>
 		<entity name="organizational_project">
@@ -221,7 +221,16 @@
 				<typename name="text"/>
 			</derived>
 			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
-		</entity>		
+		</entity>
+		<entity name="person_role">
+			<explicit name="name">
+				<typename name="label"/>
+			</explicit>
+			<derived name="description" expression="get_description_value (SELF)">
+				<typename name="text"/>
+			</derived>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
+		</entity>
 		<!-- added 2003-04-09 mwd -->
 		<entity name="person_type">
 			<explicit name="id">
@@ -274,21 +283,12 @@
 			<explicit name="description" optional="YES">
 				<builtintype type="STRING"/>
 			</explicit>
-			<explicit name="related_person_type_definition">
-				<typename name="person_type_definition"/>
-			</explicit>
 			<explicit name="relating_person_type_definition">
 				<typename name="person_type_definition"/>
 			</explicit>
-		</entity>
-		<entity name="person_role">
-			<explicit name="name">
-				<typename name="label"/>
+			<explicit name="related_person_type_definition">
+				<typename name="person_type_definition"/>
 			</explicit>
-			<derived name="description" expression="get_description_value (SELF)">
-				<typename name="text"/>
-			</derived>
-			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
 		</entity>
 		<entity name="personal_address" supertypes="address">
 			<explicit name="people">
@@ -334,13 +334,14 @@
 			<explicit name="description" optional="YES">
 				<builtintype type="STRING"/>
 			</explicit>
-			<explicit name="related_position_in_organization">
-				<typename name="position_in_organization"/>
-			</explicit>
 			<explicit name="relating_position_in_organization">
 				<typename name="position_in_organization"/>
 			</explicit>
+			<explicit name="related_position_in_organization">
+				<typename name="position_in_organization"/>
+			</explicit>
 		</entity>
+		
 		<function name="acyclic_organization_relationship">
 			<parameter name="relation">
 				<typename name="organization_relationship"/>
@@ -375,7 +376,7 @@
     END_IF;
   END_REPEAT;
   RETURN(TRUE);
-      </algorithm>
+			</algorithm>
 		</function>
 		<function name="acyclic_organizational_project_relationship">
 			<parameter name="relation">

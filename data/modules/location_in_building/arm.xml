@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.2 2002/11/29 13:35:29 whaas Exp $ -->
+<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
   description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2002/11/29 13:35:29 $"
-  rcs.revision="$Revision: 1.2 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.24"
+    version="1.26"
     source="../data/modules/location_in_building/arm.exp"/>
 
   <schema name="Location_in_building_arm">
@@ -33,101 +33,79 @@
 
     <interface
       kind="use"
-      schema="Elemental_geometric_shape_arm">
+      schema="Contextual_shape_positioning_arm">
     </interface>
+
+    <interface
+      kind="use"
+      schema="Product_view_definition_arm">
+    </interface>
+
+    <type name="reference_item_select">
+      <select
+        selectitems="Building Building_section Space">
+      </select>
+
+    </type>
+    <type name="placed_item_select">
+      <select
+        selectitems="Building_element Building_section Building_level">
+      </select>
+
+    </type>
+    <entity
+      name="Contextual_position_in_building">
+      <explicit
+        name="reference_context">
+        <typename
+          name="reference_item_select"/>
+      </explicit>
+      <explicit
+        name="reference_geometric_space">
+        <typename
+          name="Geometric_model"/>
+      </explicit>
+      <explicit
+        name="positioned_item">
+        <typename
+          name="placed_item_select"/>
+      </explicit>
+      <explicit
+        name="positioned_representation">
+        <typename
+          name="template_instance"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="reference_context\Product_view_definition.defined_version :&lt;&gt;: 	positioned_item\Product_view_definition.defined_version">
+      </where>
+      <where
+        label="WR2"
+        expression="(('LOCATION_IN_BUILDING_ARM.'+ 'BUILDING' IN TYPEOF(reference_context)) AND	('LOCATION_IN_BUILDING_ARM.'+ 'BUILDING_SECTION' IN TYPEOF(positioned_item)) ) 	OR     (('LOCATION_IN_BUILDING_ARM.'+ 'SPACE' IN TYPEOF(reference_context)) AND	('LOCATION_IN_BUILDING_ARM.'+ 'BUILDING_ELEMENT' IN TYPEOF(positioned_item)) ) 	OR     (('LOCATION_IN_BUILDING_ARM.'+ 'BUILDING_SECTION' IN TYPEOF(reference_context)) AND	('LOCATION_IN_BUILDING_ARM.'+ 'BUILDING_ITEM' IN TYPEOF(positioned_item)) ) 	OR     (('LOCATION_IN_BUILDING_ARM.'+ 'BUILDING_SECTION' IN TYPEOF(reference_context)) AND	('LOCATION_IN_BUILDING_ARM.'+ 'BUILDING_LEVEL' IN TYPEOF(positioned_item)) ) 	">
+      </where>
+    </entity>
 
     <entity
       name="Component_position_in_element">
       <explicit
-        name="positioned_item">
+        name="reference_context">
+        <typename
+          name="Building_element"/>
+      </explicit>
+      <explicit
+        name="reference_geometric_space">
+        <typename
+          name="Geometric_model"/>
+      </explicit>
+      <explicit
+        name="positioned_shape_element">
         <typename
           name="Building_element_component"/>
       </explicit>
       <explicit
-        name="positioned_within">
+        name="positioned_representation">
         <typename
-          name="Building_element"/>
-      </explicit>
-      <explicit
-        name="location">
-        <typename
-          name="Axis_placement"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Element_position_in_space">
-      <explicit
-        name="positioned_item">
-        <typename
-          name="Building_element"/>
-      </explicit>
-      <explicit
-        name="positioned_within">
-        <typename
-          name="Space"/>
-      </explicit>
-      <explicit
-        name="location">
-        <typename
-          name="Axis_placement"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Item_position_in_section">
-      <explicit
-        name="positioned_item">
-        <typename
-          name="Building_item"/>
-      </explicit>
-      <explicit
-        name="positioned_within">
-        <typename
-          name="Building_section"/>
-      </explicit>
-      <explicit
-        name="location">
-        <typename
-          name="Axis_placement"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Level_position_in_section">
-      <explicit
-        name="positioned_item">
-        <typename
-          name="Building_level"/>
-      </explicit>
-      <explicit
-        name="positioned_within">
-        <typename
-          name="Building_section"/>
-      </explicit>
-      <explicit
-        name="location">
-        <typename
-          name="Axis_placement"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Section_position_in_building">
-      <explicit
-        name="positioned_item">
-        <typename
-          name="Building_section"/>
-      </explicit>
-      <explicit
-        name="positioned_within">
-        <typename
-          name="Building"/>
-      </explicit>
-      <explicit
-        name="location">
-        <typename
-          name="Axis_placement"/>
+          name="template_instance"/>
       </explicit>
     </entity>
 

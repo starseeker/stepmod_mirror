@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.3 2002/12/05 09:31:11 robbod Exp $
+$Id: common.xsl,v 1.4 2004/02/23 18:55:36 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -84,6 +84,33 @@ $Id: common.xsl,v 1.3 2002/12/05 09:31:11 robbod Exp $
   </xsl:choose>
 </xsl:template>
 
+  <xsl:template name="check_resdoc_exists">
+    <xsl:param name="resdoc"/>
 
+    <xsl:variable name="resdoc_name">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$resdoc"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="ret_val">
+        <xsl:choose>
+          <xsl:when
+            test="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc_name]">
+            <xsl:value-of select="'true'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of
+              select="concat(' The resource document ', $resdoc_name,
+                      ' is not identified as a resource document  in repository_index.xml')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+
+  <xsl:template name="resdoc_directory">
+    <xsl:param name="resdoc"/>
+    <xsl:value-of select="concat('../../data/resource_docs/',$resdoc)"/>
+  </xsl:template>
 
 </xsl:stylesheet>

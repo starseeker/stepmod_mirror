@@ -1,5 +1,5 @@
-
-REM $Id: make_html.bat,v 1.1 2001/11/21 15:41:20 robbod Exp $
+@echo off
+REM $Id: make_html.bat,v 1.2 2002/02/14 16:54:50 robbod Exp $
 
 REM Generate the html for a module.
 REM make_html [module]
@@ -71,7 +71,7 @@ echo .... %MODULE_PATH%\..\mimexpg3.htm
 echo.
 echo .... %MODULE_PATH%\..\mimexpg4.htm
 %SAXON% -a -o "%MODULE_PATH%\..\mimepxg4.htm" "%MODULE_PATH%\..\mimexpg4.xml" output_type="HTM"
-goto :END 
+rem goto :END 
 
 :MAINHTML
 echo.

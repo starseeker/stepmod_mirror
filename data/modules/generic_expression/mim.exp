@@ -1,79 +1,79 @@
 (*
-   $Id: mim.exp,v 1.3 2002/10/25 08:10:51 rugarcia Exp $
+   $Id: mim.exp,v 1.4 2002/12/03 12:48:07 rocc Exp $
    N - ISO/CD-TS - 10303- generic_expression - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
-SCHEMA Generic_expression_mim;
+SCHEMA generic_expression_mim;
 
-USE FROM Expression_arm;
+USE FROM Expression_mim;
 
-ENTITY Generic_expression
-ABSTRACT SUPERTYPE OF(ONEOF(Simple_generic_expression,
-			    Unary_generic_expression,
-			    Binary_generic_expression,
-			    Multiple_arity_generic_expression));
+ENTITY generic_expression
+ABSTRACT SUPERTYPE OF(ONEOF(simple_generic_expression,
+			    unary_generic_expression,
+			    binary_generic_expression,
+			    multiple_arity_generic_expression));
 WHERE 
 	WR1: Is_Acyclic(SELF);
 END_ENTITY;
 
-ENTITY Simple_generic_expression
-ABSTRACT SUPERTYPE OF (ONEOF(Generic_literal, Generic_variable))
-SUBTYPE OF (Generic_expression);
+ENTITY simple_generic_expression
+ABSTRACT SUPERTYPE OF (ONEOF(generic_literal, generic_variable))
+SUBTYPE OF (generic_expression);
 END_ENTITY;
 
-ENTITY Generic_literal
+ENTITY generic_literal
 ABSTRACT SUPERTYPE
-SUBTYPE OF (Simple_generic_expression);
+SUBTYPE OF (simple_generic_expression);
 END_ENTITY; 
 
-ENTITY Generic_variable
-ABSTRACT SUPERTYPE OF(Variable)
-SUBTYPE OF (Simple_generic_expression);
+ENTITY generic_variable
+ABSTRACT SUPERTYPE OF(variable)
+SUBTYPE OF (simple_generic_expression);
 INVERSE
-	interpretation : Environment FOR syntactic_representation;
+	interpretation : environment FOR syntactic_representation;
 END_ENTITY;
 
-ENTITY Variable_semantics
+ENTITY variable_semantics
 ABSTRACT SUPERTYPE;
 END_ENTITY;
 
-ENTITY Environment;
-	syntactic_representation: Generic_variable;
-	semantics: Variable_semantics;
+ENTITY environment;
+	syntactic_representation: generic_variable;
+	semantics: variable_semantics;
 END_ENTITY;
 
-ENTITY Unary_generic_expression
+ENTITY unary_generic_expression
 ABSTRACT SUPERTYPE
-SUBTYPE OF(Generic_expression);
-	operand: Generic_expression;
+SUBTYPE OF(generic_expression);
+	operand: generic_expression;
 END_ENTITY;
 
-ENTITY Binary_generic_expression
+ENTITY binary_generic_expression
 ABSTRACT SUPERTYPE
-SUBTYPE OF(Generic_expression);
-	operands: LIST [2:2] OF Generic_expression;
+SUBTYPE OF(generic_expression);
+	operands: LIST [2:2] OF generic_expression;
 END_ENTITY;
 
-ENTITY Multiple_arity_generic_expression
+ENTITY multiple_arity_generic_expression
 ABSTRACT SUPERTYPE
-SUBTYPE OF(Generic_expression);
-	operands: LIST [2:?] OF Generic_expression;
+SUBTYPE OF(generic_expression);
+	operands: LIST [2:?] OF generic_expression;
 END_ENTITY;
 
 
 
 
-FUNCTION Is_Acyclic (arg: Generic_expression): BOOLEAN;
+FUNCTION Is_Acyclic (arg: generic_expression): BOOLEAN;
 RETURN (Acyclic (arg, []));
 END_FUNCTION ; -- Is_Acyclic
 
-FUNCTION Acyclic (arg1: Generic_expression; 
-			arg2: SET OF Generic_expression): BOOLEAN;
+FUNCTION Acyclic (arg1: generic_expression; 
+			arg2: SET OF generic_expression): BOOLEAN;
 
 LOCAL
 	result: BOOLEAN;
 END_LOCAL;
 
-IF ('ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Simple_generic_expression'
+IF ('ISO13584_generic_expressionS_SCHEMA.simple_generic_expression'
 	IN TYPEOF (arg1)) 
 THEN
 	RETURN (TRUE);
@@ -84,31 +84,31 @@ THEN
 	RETURN (FALSE);
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
+IF 'ISO13584_generic_expressionS_SCHEMA.unary_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	RETURN 
-	(Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
+	(Acyclic(arg1\unary_generic_expression.operand,arg2+[arg1]));
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression' 
+IF 'ISO13584_generic_expressionS_SCHEMA.binary_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	RETURN 
-	(Acyclic(arg1\Binary_generic_expression.operands[1],arg2+[arg1])
+	(Acyclic(arg1\binary_generic_expression.operands[1],arg2+[arg1])
 	AND
-	Acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
+	Acyclic(arg1\binary_generic_expression.operands[2],arg2+[arg1]));
 END_IF;
 
 IF 
-'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
+'ISO13584_generic_expressionS_SCHEMA.multiple_arity_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	result := TRUE;
 	REPEAT i := 1 TO 
-			SIZEOF (arg1\Multiple_arity_generic_expression.operands);
+			SIZEOF (arg1\multiple_arity_generic_expression.operands);
 		result := result AND
-		Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2+[arg1]);
+		Acyclic(arg1\multiple_arity_generic_expression.operands[i], arg2+[arg1]);
 	END_REPEAT;
 
 	RETURN (result);
@@ -116,46 +116,46 @@ END_IF;
 
 END_FUNCTION; -- Acyclic
 
-FUNCTION Used_variables (arg : Generic_expression) : 
-			SET OF Generic_variable;
+FUNCTION Used_variables (arg : generic_expression) : 
+			SET OF generic_variable;
 
 LOCAL
-	result : SET OF Generic_variable := [];
+	result : SET OF generic_variable := [];
 END_LOCAL;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Generic_variable' 
+IF 'ISO13584_generic_expressionS_SCHEMA.generic_variable' 
 	IN TYPEOF (arg) 
 THEN 
 	RETURN ([arg]);
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
+IF 'ISO13584_generic_expressionS_SCHEMA.unary_generic_expression' 
 	IN TYPEOF (arg)
 THEN 
-	RETURN (Used_variables (arg\Unary_generic_expression.operand));
+	RETURN (Used_variables (arg\unary_generic_expression.operand));
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression'
+IF 'ISO13584_generic_expressionS_SCHEMA.binary_generic_expression'
 	IN TYPEOF (arg)
 THEN 
-	RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
-		+ Used_variables (arg\Binary_generic_expression.operands[2]));
+	RETURN(Used_variables(arg\binary_generic_expression.operands[1])
+		+ Used_variables (arg\binary_generic_expression.operands[2]));
 END_IF;
 
 IF
-'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
+'ISO13584_generic_expressionS_SCHEMA.multiple_arity_generic_expression' 
 	IN TYPEOF (arg)
 THEN
 	REPEAT i := 1 TO 
-		SIZEOF(arg\Multiple_arity_generic_expression.operands);
+		SIZEOF(arg\multiple_arity_generic_expression.operands);
 		result := result + Used_variables(
-			arg\Multiple_arity_generic_expression.operands[i]);
+			arg\multiple_arity_generic_expression.operands[i]);
 	END_REPEAT;
 	
 	RETURN (result);
 END_IF;
 RETURN ([ ]);      -- in this case the subtype shall not contain
-			            -- any Variable (see IP1 in Generic_expression)
+			            -- any variable (see IP1 in generic_expression)
 END_FUNCTION; -- Used_variables
 
 

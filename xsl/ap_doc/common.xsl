@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.39 2005/01/18 20:03:30 thendrix Exp $
+$Id: common.xsl,v 1.40 2005/03/02 10:47:35 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -1000,7 +1000,7 @@ $Id: common.xsl,v 1.39 2005/01/18 20:03:30 thendrix Exp $
             <a href="4_info_reqs{$FILE_EXT}"><xsl:apply-templates/></a>
           </xsl:when>
           <xsl:otherwise>
-            Clause <a href="4_info_reqs{$FILE_EXT}">4.1</a>
+            Clause <a href="4_info_reqs{$FILE_EXT}#41">4.1</a>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

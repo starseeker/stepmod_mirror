@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: $
+$Id: module_clause.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -24,6 +24,13 @@ $Id: $
       select="concat('../data/modules/',@directory,'/module.xml')"/>
     <HTML>
       <HEAD>
+        <!-- apply a cascading stylesheet.
+             the stylesheet will only be applied if the parameter output_css
+             is set in parameter.xsl 
+             -->
+        <xsl:call-template name="output_css">
+          <xsl:with-param name="path" select="'../../../../css/'"/>
+        </xsl:call-template>
         <TITLE>
           <!-- output the module page title -->
           <xsl:apply-templates 

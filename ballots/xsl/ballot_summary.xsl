@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.22 2004/02/23 18:55:49 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -35,7 +35,10 @@ $Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
 
 
 
+
+
   <xsl:template match="/">
+
     <xsl:variable name="ballot_index" 
       select="concat('../ballots/',./ballot/@directory,'/ballot_index.xml')"/>
     <xsl:apply-templates select="document($ballot_index)/ballot_index"/>
@@ -48,6 +51,16 @@ $Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
   <xsl:variable name="resdoc_xref"
     select="concat($stepmodhome,'/data/resource_docs/',.//resource/@name,'/sys/cover',$FILE_EXT)"/>
 -->
+  <xsl:variable name="ballot_title">
+    <xsl:choose>
+      <xsl:when test="./@title or ./title">
+        <xsl:value-of select="./@title"/><xsl:value-of select="./title"/>              </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="/ballot_index/@name"/>
+        </xsl:otherwise>
+      </xsl:choose>            
+    </xsl:variable>
+
   <HTML>
     <head>
       <!-- removed at request of wg12 convener.
@@ -55,18 +68,13 @@ $Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
           <meta http-equiv="Refresh" content="0;URL={$resdoc_xref}"/>
       </xsl:if>
 -->
-      <xsl:call-template name="meta_data"/>
-
-
+      <xsl:call-template name="meta_data">
+        <xsl:with-param name="clause" select="$ballot_title"/>
+      </xsl:call-template>
       <title>
-        <xsl:choose>
-              <xsl:when test="@title or ./title">
-                <xsl:value-of select="@title"/><xsl:value-of select="./title"/>              </xsl:when>
-                <xsl:otherwise>
-                  <xsl:value-of select="@name"/>
-                </xsl:otherwise>
-            </xsl:choose>            
+        <xsl:value-of select="$ballot_title"/>    
       </title>
+
     </head>
     <body>
       <!-- As there is only one entry no point
@@ -86,15 +94,7 @@ $Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
         <tr>
           <td>Title:</td>
           <td>
-            <xsl:choose>
-              <xsl:when test="@title or ./title">
-                <xsl:value-of select="@title"/><xsl:value-of
-                select="./title"/>
-              </xsl:when>
-                <xsl:otherwise>
-                  <xsl:value-of select="@name"/>
-                </xsl:otherwise>
-            </xsl:choose>
+        <xsl:value-of select="$ballot_title"/>    
           </td>
         </tr>
         <tr>
@@ -682,12 +682,10 @@ $Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
       <xsl:variable name="ballot_name" select="./@name"/>
       <xsl:variable name="stdnumber"  select="./@wg.number.ballot_package"/>
 
-  <xsl:variable name="ballot_title">
-    <xsl:value-of select="./description"/>
-  </xsl:variable>
+ 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Title'"/>
-    <xsl:with-param name="content" select="$ballot_title"/>
+    <xsl:with-param name="content" select="$clause"/>
   </xsl:call-template>
 
   <xsl:variable name="dc.dates"
@@ -708,12 +706,14 @@ $Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
     <xsl:with-param name="content" select="$dc.contributor"/>
   </xsl:call-template>
 
+
   <xsl:variable name="projlead_ref" select="./contacts/projlead/@ref"/>
   <xsl:variable name="projlead_contact"
     select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$projlead_ref]"/>
   <xsl:variable name="dc.creator">
     <xsl:value-of select="normalize-space(concat($projlead_contact/lastname,', ',$projlead_contact/firstname))"/>
   </xsl:variable>
+
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Creator'"/>
     <xsl:with-param name="content" select="$dc.creator"/>
@@ -721,7 +721,9 @@ $Id: ballot_summary.xsl,v 1.21 2004/01/27 22:28:04 thendrix Exp $
 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Description'"/>
-    <xsl:with-param name="content" select="./description"/>
+    <xsl:with-param name="content">
+      <xsl:value-of select="@description"/><xsl:value-of select="./description"/>
+    </xsl:with-param>
   </xsl:call-template>
 
   <xsl:variable name="keywords">

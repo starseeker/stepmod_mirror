@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.7 2002/11/26 15:04:49 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.8 2002/11/26 17:32:49 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -212,7 +212,9 @@ $Id: mapping_view.xsl,v 1.7 2002/11/26 15:04:49 nigelshaw Exp $
 		</xsl:if>
 	</H3>
 	<blockquote>
+
 		<xsl:variable name="the-ent" select="@entity" />
+		<xsl:variable name="the-attr" select="@entity" />
 	
 		<xsl:if test="not(@original_module)" >
 			<xsl:if test="not($arm_node//entity[@name=$the-ent])" >
@@ -226,6 +228,51 @@ $Id: mapping_view.xsl,v 1.7 2002/11/26 15:04:49 nigelshaw Exp $
 			
 			</xsl:if>
 		</xsl:if>
+
+		<xsl:if test="@assertion_to" >
+		<xsl:choose>
+			<xsl:when test="@assertion_to = translate(@assertion_to,$UPPER,'')" >
+				<xsl:value-of select="@assertion_to" /> as reference by "Assertion to" must be an ARM SELECT type
+				<br/>
+
+				<xsl:variable name="this_sel" select="@assertion_to" />
+				
+				<xsl:if test="not($arm_node//type[@name=$this_sel][select]
+				        | $arm_node//typename[@name=$this_sel])" >
+					<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+				            select="concat('Error Map27: ',$this_sel,' is not an ARM SELECT type')"/>
+					</xsl:call-template>    
+				
+				</xsl:if>
+			</xsl:when>
+			<xsl:otherwise>
+
+				<xsl:variable name="this_ent" select="@assertion_to" />
+
+				<xsl:choose>
+				<xsl:when test="$arm_node//entity[@name=$this_ent] | $arm_node//typename[@name=$this_ent] 
+				 | $arm_node//type/select[contains(concat(' ',@selectitems,' '),concat(' ',$this_ent,' '))]
+				 " >
+				 	<xsl:value-of select="$this_ent" /> referenced within the arm
+					<br/>
+					<br/>
+				</xsl:when>
+				<xsl:otherwise>
+				 	!! <xsl:value-of select="$this_ent" /> NOT referenced within the arm !!
+					<br/>
+					<br/>
+				</xsl:otherwise>
+				</xsl:choose>
+
+			</xsl:otherwise>
+		</xsl:choose>
+		</xsl:if>
+
+
 
 		<xsl:choose>
 		<xsl:when test="@original_module" >
@@ -444,46 +491,6 @@ $Id: mapping_view.xsl,v 1.7 2002/11/26 15:04:49 nigelshaw Exp $
 		
 		</xsl:choose>
 
-		<xsl:if test="@assertion_to" >
-		<xsl:choose>
-			<xsl:when test="@assertion_to = translate(@assertion_to,$UPPER,'')" >
-				<xsl:value-of select="@assertion_to" /> as reference by "Assertion to" must be an ARM SELECT type
-				<br/>
-
-				<xsl:variable name="this_sel" select="@assertion_to" />
-				
-				<xsl:if test="not($arm_node//type[@name=$this_sel][select]
-				        | $arm_node//typename[@name=$this_sel])" >
-					<xsl:call-template name="error_message">
-					  <xsl:with-param name="inline" select="'yes'"/>
-					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-				          <xsl:with-param 
-				            name="message" 
-				            select="concat('Error Map27: ',$this_sel,' is not an ARM SELECT type')"/>
-					</xsl:call-template>    
-				
-				</xsl:if>
-			</xsl:when>
-			<xsl:otherwise>
-
-				<xsl:variable name="this_ent" select="@assertion_to" />
-
-				<xsl:if test="not($arm_node//entity[@name=$this_ent] | $arm_node//typename[@name=$this_ent] 
-				 | $arm_node//type/select[contains(concat(' ',@selectitems,' '),concat(' ',$this_ent,' '))]
-				 )" >
-					<xsl:call-template name="error_message">
-					  <xsl:with-param name="inline" select="'yes'"/>
-					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-				          <xsl:with-param 
-				            name="message" 
-				            select="concat('Warning Map28: ',$this_ent,' is not referenced as ENTITY or type in the ARM')"/>
-					</xsl:call-template>    
-				
-				</xsl:if>
-
-			</xsl:otherwise>
-		</xsl:choose>
-		</xsl:if>
 
 	</blockquote>
 	<hr/>
@@ -516,10 +523,11 @@ $Id: mapping_view.xsl,v 1.7 2002/11/26 15:04:49 nigelshaw Exp $
 				</xsl:when>
 				<xsl:when test="contains(aimelt,'.')" >
 				<!-- attribute mapping case -->
+					<xsl:variable name="this_aimelt" select="translate(aimelt,'|()[]','')" />
 					<xsl:variable name="find-ent" 
-						select="substring-before(normalize-space(aimelt),'.')" />
+						select="substring-before(normalize-space($this_aimelt),'.')" />
 					<xsl:variable name="find-attr" 
-						select="substring-after(normalize-space(aimelt),'.')" />
+						select="substring-after(normalize-space($this_aimelt),'.')" />
 					<xsl:variable name="found-ent" 
 						select="$schemas//entity[@name=$find-ent][explicit/@name=$find-attr]" />
 					<blockquote>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.114 2004/07/16 23:21:51 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.115 2004/08/31 10:59:16 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1474,28 +1474,39 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     <xsl:with-param name="supertypes" select="@supertypes"/>
   </xsl:call-template> 
   <!-- output description from express -->
-  <p>
-    <xsl:choose>
+  <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description" mode="exp_description"/>
+        <!-- only output <p> if description starts with text, otherwsie
+             assume that the description sarts with <p> -->
+        <xsl:choose>
+          <xsl:when test="string-length(./description/text())=0">
+            <xsl:apply-templates select="./description" mode="exp_description"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <p>
+              <xsl:apply-templates select="./description" mode="exp_description"/>
+            </p>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:variable name="external_description">
-          <xsl:call-template name="check_external_description">
-            <xsl:with-param name="schema" select="../@name"/>
-            <xsl:with-param name="entity" select="@name"/>
-          </xsl:call-template>        
-        </xsl:variable>
-        <xsl:if test="$external_description='false'">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('Error e4: No description provided for ',@name)"/>
-          </xsl:call-template>
-        </xsl:if>
+        <p>
+          <xsl:variable name="external_description">
+            <xsl:call-template name="check_external_description">
+              <xsl:with-param name="schema" select="../@name"/>
+              <xsl:with-param name="entity" select="@name"/>
+            </xsl:call-template>        
+          </xsl:variable>
+          <xsl:if test="$external_description='false'">
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Error e4: No description provided for ',@name)"/>
+            </xsl:call-template>
+          </xsl:if>
+        </p>
       </xsl:otherwise>
     </xsl:choose>
-  </p>
     <xsl:call-template name="deprecated_entity_note">     
     <xsl:with-param name="type" select="."/>
     </xsl:call-template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.6 2003/06/02 09:26:52 robbod Exp $
+$Id: sect_foreword.xsl,v 1.7 2003/06/02 10:34:49 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -80,8 +80,12 @@ $Id: sect_foreword.xsl,v 1.6 2003/06/02 09:26:52 robbod Exp $
       </li>
     </ul>
     <p>
-      An ISO/PAS or ISO/TS is reviewed every three years with a view to
-      deciding whether it can be transformed into an International Standard.
+      An ISO/PAS or ISO/TS is reviewed after three years in order to decide
+      whether it will be confirmed for a further three years, revised to become
+      an International Standard, or withdrawn.  If the ISO/PAS or ISO/TS is
+      confirmed, it is reviewed again after a further three years, at which time
+      it must either be transformed into an International Standard or be
+      withdrawn. 
     </p>
     <p>
       Attention is drawn to the possibility that some of the elements of this
@@ -170,7 +174,7 @@ $Id: sect_foreword.xsl,v 1.6 2003/06/02 09:26:52 robbod Exp $
           This <xsl:value-of select="$this_edition"/> edition of  
         <xsl:value-of select="$part_no"/> 
         constitutes a technical revision of the
-        <xsl:value-of select="@previous.revision.year"/> edition  
+        <xsl:value-of select="$prev_edition"/> edition  
         (<xsl:value-of
         select="@previous.revision.number"/>),
         which is provisionally retained in order to support continued use

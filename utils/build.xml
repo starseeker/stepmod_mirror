@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.12 2002/09/13 06:32:20 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.13 2002/09/13 12:03:29 robbod Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -35,6 +35,9 @@ generates HTML for all the resource schemas
 
 "ant -DRESOURCES=data/resources/[schema-name] resources" 
 generates HTML for a single resource schema
+
+"ant -DRESOURCES=data/resources/[schema-name] clean_resource" 
+deletes all HTML generated for a single module
 
 "ant modules" 
 generates HTML for all the modules
@@ -87,6 +90,9 @@ tar.gz format)
     <property name="NAVDIR" value="nav"/>
     <property name="NAV" value="${NAVDIR}/**"/>
     <property name="NAVXSL" value="nav/xsl"/>
+    <property name="MODNAV" value="${MODULES}/nav"/>
+    <property name="DVLPXSL" value="xsl/projmg"/>
+    <property name="MODDVLP" value="${MODULES}/dvlp"/>
 
     <property name="SYS" value="${MODULES}/sys"/>
     <property name="ARCHIVE" value="stepmod-html-${DSTAMP}"/>
@@ -115,6 +121,13 @@ tar.gz format)
     </delete>
   </target>
 
+  <target name="clean_resource" depends="init" 
+    description="delete generated files">
+    <delete>
+      <fileset dir="${RESOURCES}" includes="**/*.htm*"/>
+    </delete>
+  </target>
+
   <target name="index" depends="init, ballots, nav" 
           description="generate repository index">
     <dependset>
@@ -136,9 +149,19 @@ tar.gz format)
       <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
       <targetfileset dir="." includes="${RESOURCES}/*.htm*"/>
     </dependset>
-    <style includes="${RESOURCES}/*.xml"
+
+    <style includes="${RESOURCES}/developer.xml"
            destdir="." extension=".htm"
-	   style="${STYLES}/express.xsl">
+	   style="${NAVXSL}/schema_developer.xsl">
+      <param name="output_type" expression="HTM"/>
+    </style>
+
+
+    <style 
+      includes="${RESOURCES}/*.xml"
+      destdir="." extension=".htm"
+      excludesfile="${RESOURCES}/developer.xml"
+      style="${STYLES}/express.xsl">
       <param name="output_type" expression="HTM"/>
     </style>
   </target>
@@ -151,6 +174,27 @@ tar.gz format)
       <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
       <targetfileset dir="." includes="${MODULES}/*.htm*"/>
     </dependset>
+    <style includes="${MODNAV}/developer.xml" destdir="."
+	   extension=".htm"
+	   style="${NAVXSL}/developer.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${MODDVLP}/projmg.xml" destdir="."
+	   extension=".htm"
+	   style="${DVLPXSL}/projmg.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${MODDVLP}/issues.xml" destdir="."
+	   extension=".htm"
+	   style="${DVLPXSL}/issues_file.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
     <style includes="${MODULES}/arm.xml, ${MODULES}/mim.xml" 
       destdir="." extension=".htm"
       style="${STYLES}/express.xsl">
@@ -375,6 +419,7 @@ tar.gz format)
       <targetfileset dir="." includes="${NAV}/*.htm*"/>
     </dependset>
 
+    <!-- Main navigation frames -->
     <style includes="${NAV}/index.xml" destdir="."
       extension=".htm"
       style="${NAVXSL}/index.xsl">
@@ -446,13 +491,6 @@ tar.gz format)
       <param name="output_rcs" expression="${OUTPUT_RCS}"/>
     </style>
 
-    <style includes="${NAV}/resource_schema_alpha.xml" destdir="."
-      extension=".htm"
-      style="${NAVXSL}/resource_schema_alpha.xsl">
-      <param name="output_type" expression="HTM"/>
-      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
-    </style>
-
     <!-- EXPRESS menu -->
     <style includes="${NAV}/arm_objects.xml" destdir="."
       extension=".htm"
@@ -484,6 +522,13 @@ tar.gz format)
     </style>
 
     <!-- Common resources menu -->
+    <style includes="${NAV}/resource_schema_alpha.xml" destdir="."
+      extension=".htm"
+      style="${NAVXSL}/resource_schema_alpha.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
     <style includes="${NAV}/resource_mappings.xml" destdir="."
       extension=".htm"
       style="${NAVXSL}/resource_mappings.xsl">

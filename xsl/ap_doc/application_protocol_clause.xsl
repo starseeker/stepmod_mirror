@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_clause.xsl,v 1.13 2003/05/27 07:34:15 robbod Exp $
+$Id: application_protocol_clause.xsl,v 1.14 2003/05/28 14:34:04 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
+  <xsl:import href="parameters.xsl"/>
 	
   <xsl:template match="/" >
     <xsl:apply-templates select="./application_protocol_clause"/>
@@ -30,7 +31,15 @@ $Id: application_protocol_clause.xsl,v 1.13 2003/05/27 07:34:15 robbod Exp $
             select="$application_protocol_xml/application_protocol" mode="title"/>
         </title>
       </head>
-      <body bgcolor="#eeeeee">
+      <xsl:element name="body">
+        <xsl:if test="$output_ap_background='YES'">
+          <xsl:attribute name="background">
+            <xsl:value-of select="concat('../../../../images/',$ap_background_image)"/>
+          </xsl:attribute>
+          <xsl:attribute name="bgproperties" >
+            <xsl:value-of select="'fixed'"/>
+          </xsl:attribute>
+        </xsl:if>
         
         <xsl:variable name="module" select="$application_protocol_xml/application_protocol/@module_name"/>
         <xsl:variable name="module_ok">
@@ -56,7 +65,7 @@ $Id: application_protocol_clause.xsl,v 1.13 2003/05/27 07:34:15 robbod Exp $
         <br/><br/>
         <p>&#169; ISO <xsl:value-of select="$application_protocol_xml/application_protocol/@publication.year"/> &#8212; All rights reserved</p>
 
-      </body>
+      </xsl:element>
     </html>
   </xsl:template>
 

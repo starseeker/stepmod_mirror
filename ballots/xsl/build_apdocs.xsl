@@ -61,16 +61,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         
         <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_MODULES_BACKGROUND</xsl:attribute>
-          <xsl:choose>
-            <xsl:when test="./@output_modules_background='YES'">
-              <xsl:attribute name="value">YES</xsl:attribute>
-            </xsl:when>            
-            <xsl:otherwise>
-              <xsl:attribute name="value">NO</xsl:attribute>            
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:attribute name="value">YES</xsl:attribute>
         </xsl:element>
-        
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">OUTPUT_DEPMODULES_BACKGROUND</xsl:attribute>
+          <xsl:attribute name="value">YES</xsl:attribute>
+        </xsl:element>
+
         <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_APDOCS_BACKGROUND</xsl:attribute>
           <xsl:choose>
@@ -5281,16 +5279,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_RESOURCES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.resources">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.resources"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
 
       <xsl:element name="copy">
@@ -5437,16 +5447,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -5519,16 +5541,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -5601,16 +5635,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -5683,16 +5729,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -5765,16 +5823,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -5847,16 +5917,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -5929,16 +6011,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -6011,16 +6105,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
 
       <xsl:element name="style">
@@ -6205,16 +6311,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -6287,16 +6405,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -6369,16 +6499,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
 
       <xsl:element name="style">
@@ -6451,16 +6593,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -6533,16 +6687,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -6623,16 +6789,28 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:element>
       
       <xsl:element name="style">
@@ -6705,17 +6883,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6787,17 +6977,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6869,17 +7071,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -6983,17 +7197,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7065,17 +7291,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7147,17 +7385,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7229,17 +7479,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7311,17 +7573,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7393,17 +7667,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7475,17 +7761,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7557,17 +7855,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
 
       <xsl:element name="copy">
         <xsl:attribute name="todir">
@@ -7692,7 +8002,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7727,17 +8037,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7774,7 +8096,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7809,17 +8131,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7856,7 +8190,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7891,17 +8225,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -7938,7 +8284,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7973,17 +8319,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8020,7 +8378,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8055,17 +8413,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8102,7 +8472,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8137,17 +8507,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8184,7 +8566,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8219,17 +8601,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8266,7 +8660,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8301,17 +8695,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8396,7 +8802,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8431,17 +8837,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8478,7 +8896,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8513,17 +8931,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8560,7 +8990,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8642,7 +9072,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8724,7 +9154,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8759,17 +9189,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8814,7 +9256,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8849,17 +9291,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8896,7 +9350,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8931,17 +9385,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -8978,7 +9444,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9013,17 +9479,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9060,7 +9538,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9095,17 +9573,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9182,7 +9672,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9217,17 +9707,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9272,7 +9774,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9307,17 +9809,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9354,7 +9868,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9389,17 +9903,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9436,7 +9962,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9471,17 +9997,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9518,7 +10056,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9553,17 +10091,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9600,7 +10150,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9635,17 +10185,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9682,7 +10244,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9717,17 +10279,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -9764,7 +10338,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'output_background'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+            <xsl:value-of select="'${OUTPUT_DEPMODULES_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9799,17 +10373,29 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
           </xsl:attribute>
         </xsl:element>
-        <xsl:if test="./@background_image">
-          <xsl:element name="param">
-            <xsl:attribute name="name">
-              <xsl:value-of select="'background_image'"/>
-            </xsl:attribute>
-            <xsl:attribute name="expression">
-              <xsl:value-of select="./@background_image"/>
-            </xsl:attribute>
-          </xsl:element>
-        </xsl:if>
-             </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.dependent.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
 
       <xsl:element name="copy">
         <xsl:attribute name="todir">

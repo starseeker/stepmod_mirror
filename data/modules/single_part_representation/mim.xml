@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
+<!-- $Id: mim.xml,v 1.3 2003/01/21 08:26:45 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
   description.file="mim_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2003/01/21 08:26:45 $"
+  rcs.revision="$Revision: 1.3 $">
 
   <application
     name="express2xml.js"
@@ -61,9 +61,11 @@
       schema="Shape_property_assignment_mim">
     </interface>
 
-    <constant name="schema_name"
-      expression="STRING := 'SINGLE_PART_REPRESENTATION_MIM';">
-    </constant>
+   <constant name="schema_name"
+          expression="SINGLE_PART_REPRESENTATION_ARM">
+       <builtintype type="STRING"/>
+     </constant>
+
     <type name="spr_document_reference_item">
       <select
         basedon="document_reference_item"
@@ -87,6 +89,30 @@
       </select>
 
     </type>
+    
+     <function name="categories_of_product">
+      <parameter name="obj">
+        <typename name="product"/>
+      </parameter>
+      <aggregate type="SET"/>
+      <builtintype type="STRING"/>
+      <algorithm>
+LOCAL
+  category_assignments: BAG OF product_category;
+  categories: SET OF STRING:=[];
+  i: INTEGER;
+END_LOCAL;
+
+category_assignments := USEDIN(obj, schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+   
+REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+  categories := categories + category_assignments[i].name;
+END_REPEAT;
+
+RETURN(categories);
+      </algorithm>
+
+    </function>
     <rule
       name="product_requires_category"
       appliesto="product">
@@ -119,8 +145,7 @@ END_LOCAL;
 
     </rule>
 
-    <rule
-      name="part_requires_id_owner"
+    <rule name="part_requires_id_owner"
       appliesto="product">
       <algorithm>
 LOCAL
@@ -137,34 +162,7 @@ END_LOCAL;
 
     </rule>
 
-    <function
-      name="categories_of_product">
-      <parameter
-        name="obj">
-        <typename
-          name="product"/>
-      </parameter>
-      <aggregate
-        type="SET"/>
-      <builtintype
-        type="STRING"/>
-      <algorithm>
-LOCAL
-  category_assignments: BAG OF product_category;
-  categories: SET OF STRING:=[];
-  i: INTEGER;
-END_LOCAL;
-
-category_assignments := USEDIN(obj, schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
    
-REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-  categories := categories + category_assignments[i].name;
-END_REPEAT;
-
-RETURN(categories);
-      </algorithm>
-
-    </function>
 
   </schema>
 

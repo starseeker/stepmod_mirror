@@ -1,5 +1,5 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.30 2003/02/25 06:04:24 thendrix Exp $ -->
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.33 2003/05/11 03:54:57 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,19 +12,19 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.30"
+    version="1.33"
     source="../data/modules/generic_expression/arm.exp"/>
 
   <schema name="Generic_expression_arm">
+
     <interface
       kind="use"
       schema="Expression_arm">
     </interface>
-
     <entity
       name="Generic_expression"
       abstract.supertype="YES"
-      super.expression="(ONEOF(Simple_generic_expression,			    Unary_generic_expression,			    Binary_generic_expression,			    Multiple_arity_generic_expression))">
+      super.expression="(ONEOF(Simple_generic_expression, Unary_generic_expression, Binary_generic_expression, Multiple_arity_generic_expression))">
       <where
         label="WR1"
         expression="Is_Acyclic(SELF)">
@@ -59,7 +59,7 @@
     <entity
       name="Variable"
       abstract.supertype="YES"
-      super.expression="(ONEOF (Numeric_variable,				Boolean_variable,				String_variable))"
+      super.expression="(ONEOF (Numeric_variable, Boolean_variable, String_variable))"
       supertypes="Generic_variable">
     </entity>
 
@@ -72,8 +72,8 @@
       name="Environment">
       <explicit
         name="syntactic_representation">
-        <typename
-          name="Generic_variable"/>
+        <builtintype
+          type="GENERIC"/>
       </explicit>
       <explicit
         name="semantics">
@@ -88,8 +88,8 @@
       supertypes="Generic_expression">
       <explicit
         name="operand">
-        <typename
-          name="Generic_expression"/>
+        <builtintype
+          type="GENERIC"/>
       </explicit>
     </entity>
 
@@ -103,8 +103,8 @@
           type="LIST"
           lower="2"
           upper="2"/>
-        <typename
-          name="Generic_expression"/>
+        <builtintype
+          type="GENERIC"/>
       </explicit>
     </entity>
 
@@ -118,8 +118,8 @@
           type="LIST"
           lower="2"
           upper="?"/>
-        <typename
-          name="Generic_expression"/>
+        <builtintype
+          type="GENERIC"/>
       </explicit>
     </entity>
 
@@ -127,137 +127,127 @@
       name="Is_Acyclic">
       <parameter
         name="arg">
-        <typename
-          name="Generic_expression"/>
+        <builtintype
+          type="GENERIC"/>
       </parameter>
       <builtintype
         type="BOOLEAN"/>
       <algorithm>
-RETURN (Acyclic (arg, []));
-      </algorithm>
-
+RETURN (Acyclic (arg, []));      </algorithm>
     </function>
 
     <function
       name="Acyclic">
       <parameter
         name="arg1">
-        <typename
-          name="Generic_expression"/>
+        <builtintype
+          type="GENERIC"/>
       </parameter>
       <parameter
         name="arg2">
         <aggregate
           type="SET"/>
-        <typename
-          name="Generic_expression"/>
+        <builtintype
+          type="GENERIC"/>
       </parameter>
       <builtintype
         type="BOOLEAN"/>
       <algorithm>
 LOCAL
-	result: BOOLEAN;
+result: BOOLEAN;
 END_LOCAL;
 
 IF ('GENERIC_EXPRESSION_ARM.SIMPLE_GENERIC_EXPRESSION'
-	IN TYPEOF (arg1)) 
+IN TYPEOF (arg1))
 THEN
-	RETURN (TRUE);
+RETURN (TRUE);
 END_IF;
 
-IF arg1 IN arg2 
-THEN 
-	RETURN (FALSE);
+IF arg1 IN arg2
+THEN
+RETURN (FALSE);
 END_IF;
 
-IF 'GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg1) 
-THEN 
-	RETURN 
-	(Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
+IF 'GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION'
+IN TYPEOF (arg1)
+THEN
+RETURN
+(Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
 END_IF;
 
-IF 'GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg1) 
-THEN 
-	RETURN 
-	(Acyclic(arg1\Binary_generic_expression.operands[1],arg2+[arg1])
-	AND
-	Acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
+IF 'GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION'
+IN TYPEOF (arg1)
+THEN
+RETURN
+(Acyclic(arg1\Binary_generic_expression.operands[1],arg2+[arg1])
+AND
+Acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
 END_IF;
 
-IF 
-'GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg1) 
-THEN 
-	result := TRUE;
-	REPEAT i := 1 TO 
-			SIZEOF (arg1\Multiple_arity_generic_expression.operands);
-		result := result AND
-		Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2+[arg1]);
-	END_REPEAT;
+IF
+'GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION'
+IN TYPEOF (arg1)
+THEN
+result := TRUE;
+REPEAT i := 1 TO
+SIZEOF (arg1\Multiple_arity_generic_expression.operands);
+result := result AND
+Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2+[arg1]);
+END_REPEAT;
 
-	RETURN (result);
-END_IF;
-
-      </algorithm>
-
+RETURN (result);
+END_IF;      </algorithm>
     </function>
 
     <function
       name="Used_variables">
       <parameter
         name="arg">
-        <typename
-          name="Generic_expression"/>
+        <builtintype
+          type="GENERIC"/>
       </parameter>
       <aggregate
         type="SET"/>
-      <typename
-        name="Generic_variable"/>
+      <builtintype
+        type="GENERIC"/>
       <algorithm>
-
 LOCAL
-	result : SET OF Generic_variable := [];
+result : SET OF Generic_variable := [];
 END_LOCAL;
 
-IF 'GENERIC_EXPRESSION_ARM.GENERIC_VARIABLE' 
-	IN TYPEOF (arg) 
-THEN 
-	RETURN ([arg]);
+IF 'GENERIC_EXPRESSION_ARM.GENERIC_VARIABLE'
+IN TYPEOF (arg)
+THEN
+RETURN ([arg]);
 END_IF;
 
-IF 'GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg)
-THEN 
-	RETURN (Used_variables (arg\Unary_generic_expression.operand));
+IF 'GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION'
+IN TYPEOF (arg)
+THEN
+RETURN (Used_variables (arg\Unary_generic_expression.operand));
 END_IF;
 
 IF 'GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION'
-	IN TYPEOF (arg)
-THEN 
-	RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
-		+ Used_variables (arg\Binary_generic_expression.operands[2]));
+IN TYPEOF (arg)
+THEN
+RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
++ Used_variables (arg\Binary_generic_expression.operands[2]));
 END_IF;
 
 IF
-'GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION' 
-	IN TYPEOF (arg)
+'GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION'
+IN TYPEOF (arg)
 THEN
-	REPEAT i := 1 TO 
-		SIZEOF(arg\Multiple_arity_generic_expression.operands);
-		result := result + Used_variables(
-			arg\Multiple_arity_generic_expression.operands[i]);
-	END_REPEAT;
-	
-	RETURN (result);
-END_IF;
-RETURN ([ ]);      
-			            
-      </algorithm>
+REPEAT i := 1 TO
+SIZEOF(arg\Multiple_arity_generic_expression.operands);
+result := result + Used_variables(
+arg\Multiple_arity_generic_expression.operands[i]);
+END_REPEAT;
 
+RETURN (result);
+END_IF;
+RETURN ([ ]);      </algorithm>
     </function>
 
   </schema>
-
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.14 2003/02/26 21:47:07 thendrix Exp $
+$Id: sect_contents.xsl,v 1.15 2003/03/16 01:26:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -190,8 +190,8 @@ $Id: sect_contents.xsl,v 1.14 2003/02/26 21:47:07 thendrix Exp $
    <xsl:variable name="xref">
      <xsl:value-of select="concat('./',$clause_no,'_schema',$FILE_EXT,'#',$aname)"/>
    </xsl:variable>
-
-     &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+   <xsl:text>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</xsl:text>
+     
      <A HREF="{$xref}">
        <xsl:value-of select="concat($clause_no,$clause_number, '.', position(), ' ', @name)"/>
      </A>
@@ -408,13 +408,13 @@ $Id: sect_contents.xsl,v 1.14 2003/02/26 21:47:07 thendrix Exp $
      <xsl:value-of select="concat($clause_no,' ',$resource_display_name)"/></A>
      <br/>
 
-   &#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#intro">
+   &#160;  &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#intro">
            <xsl:value-of select="concat(string($clause_no),'.1 Introduction')"/>
            </A><BR/>
 
            <!-- fundamental concepts - seems to always be there -->
 
-           &#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon">
+           &#160; &#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon">
            <xsl:value-of select="concat($clause_no,'.2 Fundamental concepts and assumptions')"/>
            </A>
  <br/>
@@ -714,10 +714,14 @@ $Id: sect_contents.xsl,v 1.14 2003/02/26 21:47:07 thendrix Exp $
 
 
  <xsl:template match="resource" mode="copyright">
+  <!-- the copyright is already at the bottom of the page from
+       module_clause.xsl 
+
    <p>
      &#169;ISO
      <xsl:value-of select="@publication.year"/>
    </p>
+-->
 <a name="copyright"/>
    <p>
      All rights reserved. Unless otherwise specified, no part of this

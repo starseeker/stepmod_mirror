@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: resource_clause.xsl,v 1.3 2003/01/24 21:00:24 thendrix Exp $
+$Id: resource_clause.xsl,v 1.4 2003/03/16 01:26:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -64,6 +64,9 @@ $Id: resource_clause.xsl,v 1.3 2003/01/24 21:00:24 thendrix Exp $
            <xsl:apply-templates select="$resource_xml/resource"/>
          </xsl:otherwise>
        </xsl:choose>
+        <br/><br/>
+        <p>&#169; ISO <xsl:value-of select="$resource_xml/resource/@publication.year"/> &#8212; All rights reserved</p>
+
 </BODY>
     </HTML>
   </xsl:template>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.2 2002/10/19 00:44:47 thendrix Exp $
+$Id: sect_b_obj_reg.xsl,v 1.3 2003/03/16 01:26:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -62,7 +62,7 @@ $Id: sect_b_obj_reg.xsl,v 1.2 2002/10/19 00:44:47 thendrix Exp $
  <xsl:for-each select="./schema">
    <xsl:variable name="schema" select="@name"/>
 
-   <h2>B.2.<xsl:value-of select="position()"/> <xsl:value-of select="$schema"/> schema identification</h2>
+   <h2>B.2.<xsl:value-of select="concat(position(),  ' ')"/><xsl:value-of select="$schema"/> schema identification</h2>
 
   <p>
     To provide for unambiguous identification of the schema specifications

@@ -53,66 +53,84 @@
         name="type_check_function"/>
     </interface>
 
-    <type name="list_of_two_representation_items">
-      <typename
-        name="list_representation_item"/>
-
-      <where
-        label="WR1"
-        expression="HIINDEX(SELF) = 2">
-      </where>
-    </type>
     <entity
       name="double_toleranced_measure_item"
       supertypes="compound_representation_item">
-      <explicit
-        name="item_element">
-        <redeclaration
-          entity-ref="compound_representation_item"/>
-          <typename
-            name="list_of_two_representation_items"/>
-        </explicit>
-        <derived
-          name="tolerance_range"
-          expression="SELF\compound_representation_item.item_element[2]">
-          <typename
-            name="value_range"/>
-        </derived>
-        <derived
-          name="toleranced_measure_value"
-          expression="SELF\compound_representation_item.item_element[1]">
-          <typename
-            name="measure_representation_item"/>
-        </derived>
-      </entity>
+      <derived
+        name="tolerance_range"
+        expression="SELF\compound_representation_item.item_element[2]">
+        <typename
+          name="value_range"/>
+      </derived>
+      <derived
+        name="toleranced_measure_value"
+        expression="SELF\compound_representation_item.item_element[1]">
+        <typename
+          name="measure_representation_item"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF(SELF\compound_representation_item.item_element) = 2">
+      </where>
+      <where
+        label="WR2"
+        expression="'LIST_REPRESENTATION_ITEM' IN TYPEOF(SELF\compound_representation_item.item_element)">
+      </where>
+    </entity>
 
-      <entity
-        name="value_range"
-        supertypes="compound_representation_item">
-        <where
-          label="WR1"
-          expression="( 'EXTENDED_MEASURE_REPRESENTATION_MIM.'+ 'SET_REPRESENTATION_ITEM' IN     TYPEOF ( item_element ) ) AND value_range_wr1 (item_element )">
-        </where>
-        <where
-          label="WR2"
-          expression="value_range_wr2 ( item_element )">
-        </where>
-        <where
-          label="WR3"
-          expression="value_range_wr3 ( item_element )">
-        </where>
-      </entity>
+    <entity
+      name="value_range"
+      supertypes="compound_representation_item">
+      <where
+        label="WR1"
+        expression="( 'EXTENDED_MEASURE_REPRESENTATION_MIM.'+ 'SET_REPRESENTATION_ITEM' IN TYPEOF ( item_element ) ) AND value_range_wr1 (item_element )">
+      </where>
+      <where
+        label="WR2"
+        expression="value_range_wr2 ( item_element )">
+      </where>
+      <where
+        label="WR3"
+        expression="value_range_wr3 ( item_element )">
+      </where>
+    </entity>
 
-      <function
-        name="value_range_wr1">
-        <parameter
-          name="agg">
-          <typename
-            name="AGGREGATE OF representation_item"/>
-        </parameter>
-        <builtintype
-          type="BOOLEAN"/>
-        <algorithm>
+    <rule
+      name="subtype_exclusiveness_representation_item"
+      appliesto="representation_item">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY (cri &lt;* representation_item | NOT (type_check_function(cri, ['EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM', 'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_REPRESENTATION_ITEM', 'EXTENDED_MEASURE_REPRESENTATION_MIM.COMPOUND_REPRESENTATION_ITEM'] , 3 ) ))) = 0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="subtype_exclusiveness_compound_representation_item"
+      appliesto="compound_representation_item">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY (cri &lt;* compound_representation_item | NOT (type_check_function(cri, ['EXTENDED_MEASURE_REPRESENTATION_MIM.DOUBLE_TOLERANCED_MEASURE_ITEM', 'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_RANGE'] , 3 ) ))) = 0">
+      </where>
+
+    </rule>
+
+    <function
+      name="value_range_wr1">
+      <parameter
+        name="agg">
+        <typename
+          name="AGGREGATE OF representation_item"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
   BEGIN
     IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY ( i1 &lt;* agg | (
     'EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
@@ -125,20 +143,20 @@
       RETURN(FALSE);
     END_IF;
   END;
-        </algorithm>
+      </algorithm>
 
-      </function>
+    </function>
 
-      <function
-        name="value_range_wr2">
-        <parameter
-          name="agg">
-          <typename
-            name="AGGREGATE OF representation_item"/>
-        </parameter>
-        <builtintype
-          type="BOOLEAN"/>
-        <algorithm>
+    <function
+      name="value_range_wr2">
+      <parameter
+        name="agg">
+        <typename
+          name="AGGREGATE OF representation_item"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
   BEGIN
     IF (SIZEOF(QUERY ( i &lt;* agg | (i.name = 'upper limit') )) = 1)
     AND (SIZEOF(QUERY ( i &lt;* agg | (i.name = 'lower limit') )) = 1)
@@ -148,20 +166,20 @@
       RETURN(FALSE);
     END_IF;
   END;
-        </algorithm>
+      </algorithm>
 
-      </function>
+    </function>
 
-      <function
-        name="value_range_wr3">
-        <parameter
-          name="agg">
-          <typename
-            name="AGGREGATE OF representation_item"/>
-        </parameter>
-        <builtintype
-          type="BOOLEAN"/>
-        <algorithm>
+    <function
+      name="value_range_wr3">
+      <parameter
+        name="agg">
+        <typename
+          name="AGGREGATE OF representation_item"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
 BEGIN 
   IF (SIZEOF(QUERY( i1 &lt;* agg | 
     ('EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i1)) AND 
@@ -174,38 +192,10 @@ BEGIN
       RETURN (FALSE); 
   END_IF; 
 END; 
-        </algorithm>
+      </algorithm>
 
-      </function>
+    </function>
 
-      <rule
-        name="subtype_exclusiveness_representation_item"
-        appliesto="representation_item">
-        <algorithm>
+  </schema>
 
-        </algorithm>
-
-        <where
-          label="WR1"
-          expression="SIZEOF(QUERY (cri &lt;* representation_item |                    NOT (type_check_function(cri,                       ['EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM',                        'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_REPRESENTATION_ITEM',                        'EXTENDED_MEASURE_REPRESENTATION_MIM.COMPOUND_REPRESENTATION_ITEM'] , 3 )               ))) = 0">
-        </where>
-
-      </rule>
-
-      <rule
-        name="subtype_exclusiveness_compound_representation_item"
-        appliesto="compound_representation_item">
-        <algorithm>
-
-        </algorithm>
-
-        <where
-          label="WR1"
-          expression="SIZEOF(QUERY (cri &lt;* compound_representation_item |       NOT (type_check_function(cri,                 ['EXTENDED_MEASURE_REPRESENTATION_MIM.DOUBLE_TOLERANCED_MEASURE_ITEM',                  'EXTENDED_MEASURE_REPRESENTATION_MIM.VALUE_RANGE'] , 3 ) ))) = 0">
-        </where>
-
-      </rule>
-
-    </schema>
-
-  </express>
+</express>

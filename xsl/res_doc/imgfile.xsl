@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.20 2002/09/11 12:27:05 robbod Exp $
+$Id: imgfile.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -34,7 +34,7 @@ $Id: imgfile.xsl,v 1.20 2002/09/11 12:27:05 robbod Exp $
 
   <xsl:variable name="resdoc_file" select="concat($resdoc_dir,'/resource.xml')"/>
 
-  <!-- if a file is specified then can deduce the figure title -->
+  <!-- if a file is specified then might be able to deduce the figure title -->
   <xsl:variable name="fig_title">
     <xsl:choose>
       <xsl:when test="./@file">
@@ -50,6 +50,11 @@ $Id: imgfile.xsl,v 1.20 2002/09/11 12:27:05 robbod Exp $
               select="concat('Figure 1. ', 
                       ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture')" />
       </xsl:when>
+      <xsl:when test="contains(@file,'schemaexpg')">       
+            <xsl:value-of 
+              select="concat('Figure D. ', 
+                      ' &#8212; Place calculated title here')" />
+            </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="@title"/>
       </xsl:otherwise>
@@ -171,9 +176,25 @@ $Id: imgfile.xsl,v 1.20 2002/09/11 12:27:05 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
+        <!--        <xsl:when test="../../schema">-->
+        <xsl:when test="contains(@file,'schemaexpg')">
+          <xsl:variable name="schname" select="substring-before(@file,'expg')" />
+          <xsl:choose>
+            <xsl:when test="$number=1">
+              <xsl:value-of 
+                select="concat('Figure D.',$number, 
+                        ' &#8212; Entity level diagram of ', $schname, '( page ', $number,' )' )" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of 
+                select="concat('Figure D.',$number, 
+                        ' &#8212; Entity level diagram of ', $schname, ($number - 1)) "/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
         <xsl:otherwise>
                       <xsl:value-of 
-              select="concat('Figure 1. ',
+              select="concat('Figure  1. ',
                       ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture')" />
         </xsl:otherwise>
       </xsl:choose>

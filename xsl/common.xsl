@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.103 2003/07/28 08:45:39 robbod Exp $
+$Id: common.xsl,v 1.104 2003/07/28 17:09:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2215,7 +2215,7 @@ $Id: common.xsl,v 1.103 2003/07/28 08:45:39 robbod Exp $
          -->
     <xsl:variable name="pub_year">
       <xsl:choose>
-        <xsl:when test="$status='CD' or $status='CD-TS'">-</xsl:when>
+        <xsl:when test="$status='CD' or $status='CD-TS'">&#8212;</xsl:when>
         <xsl:when test="string-length($application_protocol/@publication.year)">
           <xsl:value-of select="$application_protocol/@publication.year"/>
         </xsl:when>

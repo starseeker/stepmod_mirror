@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.104 2003/07/28 17:09:21 robbod Exp $
+$Id: common.xsl,v 1.105 2003/07/29 07:59:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -709,11 +709,27 @@ $Id: common.xsl,v 1.104 2003/07/28 17:09:21 robbod Exp $
      A list item
      -->
 <xsl:template match="li">
-  <xsl:variable name="item" select="normalize-space(.)"/>
+  <!-- get the text or the text of the last paragraph. Ignore examples and
+       notes -->
+  <xsl:variable name="item1">
+    <xsl:apply-templates select=".|*" mode="flatten"/>
+  </xsl:variable>
+  <xsl:variable name="item" select="normalize-space($item1)"/>
+
+  <xsl:variable name="position">
+    <!-- use number rather than position as SAXON gives wrong results -->
+    <xsl:number/>
+  </xsl:variable>
+  <!-- use count rather than last as SAXON gives wrong results -->
+  <xsl:variable name="last" select="count(../li)"/>
   <xsl:variable name="terminator">
     <xsl:choose>
-      <xsl:when test="position()=last()">.</xsl:when>
-      <xsl:otherwise>;</xsl:otherwise>
+      <xsl:when test="$position=$last">
+        <xsl:value-of select="'.'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="';'"/>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>  
   <li>
@@ -3683,6 +3699,11 @@ is case sensitive.')"/>
         select="'Error aam1: definition should be a phrase and so should not end in a period.'"/>
     </xsl:call-template>
   </xsl:if>
+</xsl:template>
+
+<xsl:template match="example|note" mode="flatten"/>
+<xsl:template match="p" mode="flatten">
+  <xsl:value-of select="."/>
 </xsl:template>
 
 </xsl:stylesheet>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.14 2003/08/24 22:10:35 thendrix Exp $
+$Id: res_toc.xsl,v 1.15 2003/08/29 22:33:07 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -39,7 +39,8 @@ $Id: res_toc.xsl,v 1.14 2003/08/24 22:10:35 thendrix Exp $
 -->
   <xsl:variable name="schema_name" select="@name"/>
 
-  <xsl:variable name="clauseno" select="3+position()"/>
+  <!--  <xsl:variable name="clauseno" select="3+position()"/> -->
+  <xsl:variable name="clauseno" select="$schema_no"/>
 
         <!-- Output a Schema clause TOC 
 NEED TO FIX up the hrefs -->
@@ -330,29 +331,78 @@ NEED TO FIX up the hrefs -->
             </A>            
           </xsl:otherwise>
         </xsl:choose>
-      </p> 
-      </TD>
+
+   
+        <xsl:variable name="n" > 
+          <xsl:value-of select="count(schema)"/>
+        </xsl:variable>
+
+        <xsl:variable name="col1" > 
+          <xsl:choose>
+            <xsl:when test="$n &gt; 4" >
+          <xsl:value-of select="ceiling(($n - 3 ) div 3 )"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="0"/>    
+        </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+
+        <xsl:variable name="col2" > 
+          <xsl:choose>
+            <xsl:when test="$n &gt; 4" >
+          <xsl:value-of select="$col1 + $col1 + 1"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$n"/>    
+        </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
 
 
-      <xsl:if test="count(schema)>0" >
+      <xsl:if test="$col1 &gt; 0 ">
+        <br/>
+        <xsl:for-each select="./schema[position() &lt;= $col1 ]">          
+        <xsl:call-template name="schema_section">
+          <xsl:with-param name="schema_no" select="position()+ 3" />
+          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
+        </xsl:call-template>
+        </xsl:for-each>
+     </xsl:if>
+ 
+     </p> 
+
+   </TD>
+
 
       <TD valign="TOP">
         <p class="toc">
 
-        <xsl:for-each select="./schema">          
+        <xsl:for-each select="./schema[(position() &gt;= ($col1 + 1 )) and ( position() &lt;= $col2)]">          
         <xsl:call-template name="schema_section">
-          <xsl:with-param name="schema_no" select="position()+3" />
+          <xsl:with-param name="schema_no" select="position()+ 3 + $col1" />
           <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
         </xsl:call-template>
         </xsl:for-each>
       </p>
       </TD>
 
-
-      </xsl:if>         
-
       <TD valign="TOP">
+
         <p class="toc">
+
+        <xsl:if test="$col2 &lt; $n" >
+                      
+            <xsl:for-each select="./schema[(position() &gt; $col2) and (position() &lt;= $n)]">          
+            <xsl:call-template name="schema_section">
+              <xsl:with-param name="schema_no" select="position()+ 3 + $col2" />
+                <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
+              </xsl:call-template>
+            </xsl:for-each>
+    
+    </xsl:if>
+  
+
         <!-- use #annexa to link direct -->
         <A HREF="{$resdoc_root}/sys/a_short_names{$FILE_EXT}">A Short names of entities</A><BR/>
         <!-- use #annexb to link direct -->

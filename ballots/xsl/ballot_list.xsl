@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_list.xsl,v 1.5 2002/08/16 14:05:23 robbod Exp $
+$Id: ballot_list.xsl,v 1.6 2003/01/22 01:50:49 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -85,6 +85,7 @@ $Id: ballot_list.xsl,v 1.5 2002/08/16 14:05:23 robbod Exp $
   <xsl:variable name="bpaname" select="concat(@id,'-',@name)"/>
   <h3>
     <a name="{$bpaname}">
+Ballot package: 
       <xsl:choose>
         <xsl:when test="@id">
           <xsl:value-of select="concat(@id,' - ',@name)"/>    

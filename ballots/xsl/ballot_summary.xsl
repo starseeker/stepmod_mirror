@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.18 2003/06/20 09:41:34 robbod Exp $
+$Id: ballot_summary.xsl,v 1.19 2003/06/25 10:47:30 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -65,7 +65,7 @@ $Id: ballot_summary.xsl,v 1.18 2003/06/20 09:41:34 robbod Exp $
       <hr/>
       <table>
         <tr>
-          <td>Ballot package name:</td>
+          <td>Ballot cycle name:</td>
           <td><xsl:value-of select="@name"/></td>
         </tr>
         <tr>
@@ -91,11 +91,11 @@ $Id: ballot_summary.xsl,v 1.18 2003/06/20 09:41:34 robbod Exp $
           <td><xsl:value-of select="@description"/><xsl:value-of select="./description"/></td>
         </tr>
         <tr>
-          <td>Ballot package WG number:</td>
+          <td>Ballot cycle  WG number:</td>
           <td><xsl:value-of select="@wg.number.ballot_package"/></td>
         </tr>
         <tr>
-          <td>Ballot package project leader:</td>
+          <td>Ballot cycle project leader:</td>
           <td>
               <xsl:apply-templates select="./contacts/projlead"
                 mode="no_address"/>
@@ -103,7 +103,7 @@ $Id: ballot_summary.xsl,v 1.18 2003/06/20 09:41:34 robbod Exp $
         </tr>
 
         <tr>
-          <td>Ballot package comments:</td>
+          <td>Ballot cycle comments:</td>
           <td><xsl:value-of select="@wg.number.ballot_package_comment"/></td>
         </tr>
       </table>
@@ -131,9 +131,9 @@ $Id: ballot_summary.xsl,v 1.18 2003/06/20 09:41:34 robbod Exp $
       <td><b>AP document part package</b></td>
       <td><b>AP document part</b></td>
       <td><b>Part</b></td>
-      <td><b>Version</b></td>
-      <td><b>Status</b></td>
-      <td><b>Year</b></td>
+      <td><b>Edition</b></td>
+      <td><b>Stage</b></td>
+      <td><b>Year of<br/>Publication</b></td>
       <td><b>Abstract</b></td>
     </tr>
     <xsl:apply-templates select="//*/ap_doc"/>
@@ -262,9 +262,9 @@ $Id: ballot_summary.xsl,v 1.18 2003/06/20 09:41:34 robbod Exp $
       <td><b>Resource part package</b></td>
       <td><b>Resource part</b></td>
       <td><b>Part</b></td>
-      <td><b>Version</b></td>
-      <td><b>Status</b></td>
-      <td><b>Year</b></td>
+      <td><b>Edition</b></td>
+      <td><b>Stage</b></td>
+      <td><b>Year of<br/>Publication</b></td>
     </tr>
     <xsl:apply-templates select="//*/resource"/>
   </table>
@@ -406,9 +406,9 @@ $Id: ballot_summary.xsl,v 1.18 2003/06/20 09:41:34 robbod Exp $
       <td><b>Module package</b></td>
       <td><b>Module</b></td>
       <td><b>Part</b></td>
-      <td><b>Version</b></td>
-      <td><b>Status</b></td>
-      <td><b>Year</b></td>
+      <td><b>Edition</b></td>
+      <td><b>Stage</b></td>
+      <td><b>Year of<br/>Publication</b></td>
       <td><b>Abstract</b></td>
       <td><b>ARM EXPRESS</b></td>
       <td><b>ARM LF EXPRESS</b></td>          

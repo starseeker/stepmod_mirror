@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.6 2004/06/14 16:17:28 joshualubell Exp $ -->
+<!-- $Id: build.xml,v 1.1 2004/09/20 21:02:44 joshualubell Exp $ -->
 
 <!-- ================================================================
 
@@ -12,14 +12,53 @@ For use with the Ant build tool, version 1.6.1 or higher
 
 ================================================================ -->
 
-<project name="spec" default="all" basedir=".">
+<project name="spec" default="html" basedir=".">
 
-  <description>$Date: 2004/06/14 16:17:28 $</description>
+  <description>$Date: 2004/09/20 21:02:44 $</description>
 
-  <target name="all">
-    <java classname="nu.xom.samples.XIncludeDriver" output="foo.xml">
+  <target name="init" description="initialize variables">
+    <tstamp/>
+    <property name="TRANG" value="..\..\..\..\..\rng\trang.jar" />
+  </target>
+
+  <target name="antschema" depends="init" 
+description="generate DTD and RELAX NG schema for editing Ant build file">
+    <antstructure output="ant.dtd"/>
+    <java jar="${TRANG}" fork="true">
+      <arg line="ant.dtd ant.rnc"/>
+    </java>
+  </target>
+
+  <target name="clean" depends="init" description="delete generated files">
+    <delete>
+      <fileset dir="." includes="*.rng, merged.*, schemadoc.xml"/>
+    </delete>
+  </target>
+
+  <target name="rnc2rng" depends="init" description=
+"generate XML syntax from EXPRESS model compact syntax RELAX NG schema">
+    <java jar="${TRANG}" fork="true">
+      <arg line="express_model.rnc express_model.rng"/>
+    </java>
+  </target>
+
+  <target name="rng2docbook" depends="rnc2rng" 
+	  description="generate DocBook section from RELAX NG">
+    <xslt extension=".xml" in="express_model.rng" out="schemadoc.xml"
+	  style="rngdoc.xsl"/>
+  </target>
+
+  <target name="merge" depends="rng2docbook" description=
+	  "merge non-generated DocBook with generated DocBook section">
+    <java classname="nu.xom.samples.XIncludeDriver" output="merged.xml">
       <arg value="express_model.xml"/>
     </java>
+  </target>
+
+  <target name="html" depends="merge" 
+	  description="generate HTML from DocBook XML">
+    <xslt extension=".html" in="merged.xml" out="merged.html"
+	  style="express_model.xsl"/>
   </target>
 
 </project>

@@ -165,11 +165,13 @@
 
 	<TR>
 		<TD valign="Top" width="40%">
-			<a href="data/resources/{$schema_name}/{$schema_name}{$FILE_EXT}#{$schema_name}.{$ent_name}">
+                  <!-- RB - corrected URL -->
+                  <a href="../data/resources/{$schema_name}/{$schema_name}{$FILE_EXT}#{$schema_name}.{$ent_name}">
 				<xsl:value-of select="@name" />
 			</a>
 			<br/>
-			[ <a href="data/resources/{$schema_name}/{$schema_name}{$FILE_EXT}">
+                        <!-- RB - corrected URL -->
+                        [ <a href="../data/resources/{$schema_name}/{$schema_name}{$FILE_EXT}">
 			<xsl:value-of select="$schema_name" /> </a> ]
 
 			 <xsl:if test="$DETAILS='TRUE' and ./explicit" >

@@ -1,4 +1,4 @@
-//$Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
+//$Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate the default XML for the module.
@@ -108,17 +108,54 @@ function MakeNavFldr(module) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var modFldr = GetModuleDir(module);
     var modNavFldr = modFldr+"nav/";
-    var developerXML = modNavFldr+"developer.xml";
     if (!fso.FolderExists(modNavFldr)) 
 	fso.CreateFolder(modNavFldr);
-    if (!fso.FileExists(developerXML)) { 
-	fso.CreateTextFile(developerXML, true);
-	f = fso.GetFile(developerXML);
-	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+
+    var developerXML = modNavFldr+"developer.xml";
+
+    MakeNavFile(modNavFldr+"developer.xml", module, "developer.xsl");
+    MakeNavFile(modNavFldr+"summary.xml", module, "summary.xsl");
+
+    // MakeNavFile(modNavFldr+"arm.xml", module, "arm.xsl");
+    // MakeNavFile(modNavFldr+"arm_frame.xml", module,"nav_main.xsl","");
+    // MakeNavFile(modNavFldr+"mim.xml", module, "mim.xsl");
+    // MakeNavFile(modNavFldr+"mim_frame.xml", module,"nav_main.xsl","");
+
+    //decided not to use these yet
+//     MakeNavFile(modNavFldr+"scope_intro.xml", module, "scope_intro.xsl");
+//     MakeNavFile(modNavFldr+"scope_intro_frame.xml", module,"nav_main.xsl","scope_intro");
+
+//     MakeNavFile(modNavFldr+"summary_frame.xml", module,"nav_main.xsl","");
+
+//     MakeNavFile(modNavFldr+"armepxg.xml", module, "armepxg.xsl");
+//     MakeNavFile(modNavFldr+"armepxg_frame.xml", module,"nav_main.xsl","");
+
+//     MakeNavFile(modNavFldr+"mimepxg.xml", module, "mimepxg.xsl");
+//     MakeNavFile(modNavFldr+"mimepxg_frame.xml", module,"nav_main.xsl","");
+
+//     MakeNavFile(modNavFldr+"mapping.xml", module, "mapping.xsl");
+//     MakeNavFile(modNavFldr+"mapping_frame.xml", module,"nav_main.xsl","");
+
+}
+
+
+function MakeNavFile(file, module, stylesheet, body) {
+    userMessage("MakeNavFile"+file);
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (!fso.FileExists(file)) { 
+	fso.CreateTextFile(file, true);
+	var f = fso.GetFile(file);
+	var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
-	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../nav/xsl/developer.xsl\"?>");
-	ts.WriteLine("<stylesheet_application directory=\""+module+"\"/>");
+	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $ -->");
+	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../nav/xsl/"+stylesheet+"\"?>");
+	if (body) {
+	    ts.WriteLine("<stylesheet_application directory=\""+module+"\" body=\""+body+"\"/>");
+	} else {
+	    ts.WriteLine("<stylesheet_application directory=\""+module+"\"/>");
+	}
 	ts.Close();
     }
 }
@@ -148,7 +185,7 @@ function MakeDvlpFldr(module) {
 	f = fso.GetFile(projmgXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $ -->");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/projmg.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE management SYSTEM \"../../../../dtd/projmg/projmg.dtd\">");
 	ts.WriteLine("<management module=\""+module+"\"");
@@ -322,7 +359,7 @@ function MakeDvlpFldr(module) {
 	f = fso.GetFile(issuesXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+	ts.WriteLine("<!-- $Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $ -->");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/issues_file.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE issues SYSTEM \"../../../../dtd/projmg/issues.dtd\">");
 	ts.WriteLine("<issues module=\""+module+"\">");
@@ -391,7 +428,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -414,7 +451,7 @@ function MakeModuleXML(module, long_form, partNo) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     //ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     //ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -566,7 +603,7 @@ function MakeExpressG(module, expgfile, title) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("    href=\"../../../xsl/imgfile.xsl\"?>");
@@ -597,7 +634,7 @@ function MakeExpress(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("(*");
-    ts.WriteLine("   $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $");
+    ts.WriteLine("   $Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $");
     ts.Write("   N - ISO/CD-TS - 10303- ");
     ts.Write(module);
     ts.Write(" - EXPRESS ");
@@ -624,14 +661,14 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.22 2002/09/15 21:41:52 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
     ts.WriteLine("<express");
     ts.WriteLine("   language_version=\"2\"");
-    ts.WriteLine("   rcs.date=\"$Date: 2002/08/20 13:43:56 $\"");
-    ts.WriteLine("   rcs.revision=\"$Revision: 1.21 $\">");
+    ts.WriteLine("   rcs.date=\"$Date: 2002/09/15 21:41:52 $\"");
+    ts.WriteLine("   rcs.revision=\"$Revision: 1.22 $\">");
     var schema = schemaName(module,armOrMim);
     ts.WriteLine("  <schema name=\""+schema+"\">");
     ts.WriteLine("  </schema>");

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.8 2003/07/28 07:31:55 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.9 2003/07/28 12:32:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -410,8 +410,9 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
 
 <xsl:template match="interface" mode="interface-schemas">
   <xsl:param name="done"/>
-  <xsl:if test="not(contains($done,@schema))">
-    <xsl:value-of select="concat(' ',@schema,' ')"/> 
+  <xsl:variable name="schema" select="concat(' ',@schema,' ')"/>
+  <xsl:if test="not(contains($done,$schema))">
+    <xsl:value-of select="$schema"/> 
   </xsl:if>
 </xsl:template>
 

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_express_modules_inner.xsl,v 1.3 2003/06/16 16:41:27 robbod Exp $
+$Id: index_express_modules_inner.xsl,v 1.4 2003/07/28 07:31:54 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -238,12 +238,13 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 
 </xsl:template>
 
-<xsl:template match="interface" mode="interface-schemas" >
-	<xsl:param name="done" />
-	<xsl:if test="not(contains($done,@schema))" >
-		<xsl:value-of select="concat(' ',@schema,' ')" /> 
-	</xsl:if>
-</xsl:template>
 
+<xsl:template match="interface" mode="interface-schemas">
+  <xsl:param name="done"/>
+  <xsl:variable name="schema" select="concat(' ',@schema,' ')"/>
+  <xsl:if test="not(contains($done,$schema))">
+    <xsl:value-of select="$schema"/> 
+  </xsl:if>
+</xsl:template>
 
 </xsl:stylesheet>

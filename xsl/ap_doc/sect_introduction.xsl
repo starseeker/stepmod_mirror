@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.13 2003/06/06 10:28:22 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.14 2003/06/06 12:52:15 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -215,7 +215,7 @@
     <p>
       Additional requirements for specific implementation methods are given in
       annex 
-      <a href="{$FILE_EXT}">C</a>.
+      <a href="annex_imp_meth{$FILE_EXT}">C</a>.
     </p>
 
     <xsl:if test="not( string-length(normalize-space(.)) > 85)" >

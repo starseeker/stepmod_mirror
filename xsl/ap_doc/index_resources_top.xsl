@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_top.xsl,v 1.5 2003/07/28 07:31:55 robbod Exp $
+$Id: index_resources_top.xsl,v 1.6 2003/07/31 08:57:56 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -256,14 +256,12 @@ $Id: index_resources_top.xsl,v 1.5 2003/07/28 07:31:55 robbod Exp $
 
 </xsl:template>
 
-
-
-
-<xsl:template match="interface" mode="interface-schemas" >
-	<xsl:param name="done" />
-	<xsl:if test="not(contains($done,@schema))" >
-		<xsl:value-of select="concat(' ',@schema,' ')" /> 
-	</xsl:if>
+<xsl:template match="interface" mode="interface-schemas">
+  <xsl:param name="done"/>
+  <xsl:variable name="schema" select="concat(' ',@schema,' ')"/>
+  <xsl:if test="not(contains($done,$schema))">
+    <xsl:value-of select="$schema"/> 
+  </xsl:if>
 </xsl:template>
 
 <xsl:template name="alph-index" >

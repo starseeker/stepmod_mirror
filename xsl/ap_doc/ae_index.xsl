@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="document_xsl.xsl" ?>
 <!--
-$Id: ae_index.xsl,v 1.2 2003/03/03 17:15:23 goset1 Exp $
+$Id: ae_index.xsl,v 1.3 2003/07/28 07:31:54 robbod Exp $
 -->
 
 <xsl:stylesheet 
@@ -207,11 +207,12 @@ $Id: ae_index.xsl,v 1.2 2003/03/03 17:15:23 goset1 Exp $
 </xsl:template>
 
 
-<xsl:template match="interface" mode="interface-schemas" >
-	<xsl:param name="done" />
-	<xsl:if test="not(contains($done,@schema))" >
-		<xsl:value-of select="concat(' ',@schema,' ')" /> 
-	</xsl:if>
+<xsl:template match="interface" mode="interface-schemas">
+  <xsl:param name="done"/>
+  <xsl:variable name="schema" select="concat(' ',@schema,' ')"/>
+  <xsl:if test="not(contains($done,$schema))" >
+    <xsl:value-of select="$schema"/> 
+  </xsl:if>
 </xsl:template>
 
 <xsl:template name="depends-on-recurse-no-list-x" >
@@ -296,10 +297,11 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 </xsl:template>
 
 <xsl:template match="interface" mode="interface-schemas-x" >
-	<xsl:param name="done" />
-	<xsl:if test="not(contains($done,@schema))" >
-		<x><xsl:value-of select="@schema" /></x> 
-	</xsl:if>
+  <xsl:param name="done"/>
+  <xsl:variable name="schema" select="concat(' ',@schema,' ')"/>
+  <xsl:if test="not(contains($done,$schema))" >
+    <x><xsl:value-of select="@schema" /></x> 
+  </xsl:if>
 </xsl:template>
 
 <!-- ROB added link to schemas 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
+$Id: banner.xsl,v 1.2 2002/09/09 08:25:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -40,14 +40,14 @@ $Id: banner.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
                 <p class="bannertitleitem">
                   <xsl:choose>
                     <xsl:when test="$FILE_EXT='.xml'">
-                      <A HREF="../html/module.htm" Target="_top">HTML</A>
+                      <A HREF="./index.htm" Target="_top">HTML</A>
                     </xsl:when>
                     <xsl:otherwise>
-                      <A HREF="../model/module.xml" Target="_top">XML</A>
+                      <A HREF="./index.xml" Target="_top">XML</A>
                     </xsl:otherwise>
                   </xsl:choose>
                   &#160;&#160;&#160;
-                  <a href="../help/index{$FILE_EXT}" Target="content">Help</a>
+                  <a href="../help/index.htm" Target="content">Help</a>
                 </p>
               </td>
               <td align="left" valign="top">
@@ -118,16 +118,11 @@ $Id: banner.xsl,v 1.1 2002/09/09 07:28:47 robbod Exp $
               <td align="left" valign="top">
                 <p class="bannermenu">Ballots</p>
                 <p class="bannermenuitem">
-                  Alphabetical list
-                </p>
-                <p class="bannermenuitem">
-                  Project leader list
-                </p>
-                <p class="bannermenuitem">
-                  Part number list
+                  <a href="ballot_modules{$FILE_EXT}" target="index">
+                    Ballots
+                  </a>
                 </p>
               </td>
-
             </tr>
           </table>
         </div>

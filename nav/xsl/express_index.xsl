@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-$Id: module.xsl,v 1.19 2002/01/06 08:46:40 robbod Exp $
+$Id: express_index.xsl,v 1.1 2002/09/03 14:21:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -10,6 +10,7 @@ $Id: module.xsl,v 1.19 2002/01/06 08:46:40 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   xmlns:saxon="http://icl.com/saxon"
+  extension-element-prefixes="msxsl saxon"
   version="1.0">
 
   <xsl:import href="../../xsl/common.xsl"/>
@@ -39,8 +40,32 @@ $Id: module.xsl,v 1.19 2002/01/06 08:46:40 robbod Exp $
     </xsl:choose>
   </xsl:variable>
   
-  <xsl:variable name="objects-node-set" select="msxsl:node-set($objects)"/>
+
+  <xsl:choose>
+    <xsl:when test="function-available('msxsl:node-set')">
+      <xsl:variable name="objects-node-set" 
+        select="msxsl:node-set($objects)"/>
+      <xsl:apply-templates select="." mode="node_set">
+        <xsl:with-param name="arm_mim" select="$arm_mim"/>
+        <xsl:with-param name="objects-node-set" select="$objects-node-set"/>
+      </xsl:apply-templates>
+    </xsl:when>
+    <xsl:when test="function-available('saxon:node-set')">
+      <xsl:apply-templates select="." mode="node_set">
+        <xsl:with-param name="arm_mim" select="$arm_mim"/>
+        <xsl:with-param name="objects-node-set" select="$objects"/>
+      </xsl:apply-templates>      
+    </xsl:when>
+    <xsl:otherwise>
+      XSL require node-set function.
+      Currently checks for SAXON MSXML3
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
   
+<xsl:template match="repository_index" mode="node_set">
+  <xsl:param name="objects-node-set"/>
+  <xsl:param name="arm_mim"/>
   <xsl:variable name="title">
     <xsl:choose>
       <xsl:when test="$arm_mim='arm'">

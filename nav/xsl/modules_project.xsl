@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_project.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
+$Id: modules_project.xsl,v 1.2 2002/09/09 08:25:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an alphabetical list of modules.
@@ -9,6 +9,7 @@ $Id: modules_project.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   xmlns:saxon="http://icl.com/saxon"
+  extension-element-prefixes="msxsl saxon"
   version="1.0">
 
 
@@ -26,19 +27,41 @@ $Id: modules_project.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
     </xsl:element>
   </xsl:variable>
 
-  <xsl:variable name="modules-node-set" select="msxsl:node-set($modules)"/>
+  <xsl:choose>
+    <xsl:when test="function-available('msxsl:node-set')">
 
-  <!-- now sort the modules -->
-  <xsl:variable name="sorted">
-    <xsl:element name="modules">
-      <xsl:apply-templates select="$modules-node-set/modules/module" mode="copy">
-        <xsl:sort select="@projlead"/>
-      </xsl:apply-templates>
-    </xsl:element>
-  </xsl:variable>
+      <xsl:variable name="modules-node-set" select="msxsl:node-set($modules)"/>
+      
+      <!-- now sort the modules -->
+      <xsl:variable name="sorted">
+        <xsl:element name="modules">
+          <xsl:apply-templates select="$modules-node-set/modules/module" mode="copy">
+            <xsl:sort select="@projlead"/>
+          </xsl:apply-templates>
+        </xsl:element>
+      </xsl:variable>
 
-  <xsl:variable name="sorted-node-set" select="msxsl:node-set($sorted)"/>
-  <xsl:apply-templates select="$sorted-node-set/modules/module" mode="projlead"/>
+      <xsl:variable name="sorted-node-set" select="msxsl:node-set($sorted)"/>
+      <xsl:apply-templates select="$sorted-node-set/modules/module" mode="projlead"/>
+    </xsl:when>
+
+    <xsl:when test="function-available('saxon:node-set')">
+      <!-- now sort the modules -->
+      <xsl:variable name="sorted">
+        <xsl:element name="modules">
+          <xsl:apply-templates select="$modules/modules/module" mode="copy">
+            <xsl:sort select="@projlead"/>
+          </xsl:apply-templates>
+        </xsl:element>
+      </xsl:variable>
+      
+      <xsl:apply-templates select="$sorted/modules/module" mode="projlead"/>
+    </xsl:when>
+    <xsl:otherwise>
+      XSL require node-set function.
+      Currently checks for SAXON MSXML3
+    </xsl:otherwise>
+  </xsl:choose>
 
   <!--
   <xsl:apply-templates select="$modules-node-set/modules/module" mode="projlead">

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: summary.xsl,v 1.4 2003/01/10 16:02:32 robbod Exp $
+$Id: summary.xsl,v 1.5 2003/07/01 08:52:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -441,6 +442,8 @@ $Id: summary.xsl,v 1.4 2003/01/10 16:02:32 robbod Exp $
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
+    <xsl:with-param name="type" select="@name"/>
+    <xsl:with-param name="rule" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
@@ -489,6 +492,8 @@ $Id: summary.xsl,v 1.4 2003/01/10 16:02:32 robbod Exp $
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
+    <xsl:with-param name="type" select="@name"/>
+    <xsl:with-param name="function" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>

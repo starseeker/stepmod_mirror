@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.32 2005/01/10 22:09:47 thomasrthurman Exp $
+   $Id: arm.exp,v 1.35 2005/01/19 17:54:48 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -379,14 +379,19 @@ USE FROM Basic_curve_arm;
     DERIVE
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
+    INVERSE
+      deposition_material : material_identification FOR items;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
+      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
+(*
 	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
 	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
 	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
 	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
 	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
+*)
   END_ENTITY;
 
   ENTITY Default_passage_based_land_physical_template
@@ -434,15 +439,20 @@ USE FROM Basic_curve_arm;
     DERIVE
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
+    INVERSE
+      deposition_material : material_identification FOR items;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
       (** Deposition_material *)
+      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
+(*
 	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
 	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
 	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
 	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
 	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
+*)
   END_ENTITY;
 
   ENTITY Design_layer_stratum

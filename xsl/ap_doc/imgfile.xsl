@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: imgfile.xsl,v 1.9 2003/05/27 08:01:41 robbod Exp $
+$Id: imgfile.xsl,v 1.10 2003/05/27 08:08:48 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -136,12 +136,12 @@ $Id: imgfile.xsl,v 1.9 2003/05/27 08:01:41 robbod Exp $
     <xsl:variable name="figure_count">
       <xsl:call-template name="count_figures_from_fundamentals"/>
     </xsl:variable>
-    <xsl:value-of select="concat('Figure ', $figure_count+$number ' Data planning model')"/>
+    <xsl:value-of select="concat('Figure ', $figure_count+$number, ' Data planning model')"/>
   </xsl:template>
   
   <xsl:template match="purpose" mode="imgfiletitle">
     <xsl:param name="number"/>
-    <xsl:value-of select="concat('Figure '$number, ' Data planning model')"/>
+    <xsl:value-of select="concat('Figure ', $number, ' Data planning model')"/>
   </xsl:template>
 
 
@@ -169,7 +169,7 @@ $Id: imgfile.xsl,v 1.9 2003/05/27 08:01:41 robbod Exp $
     <xsl:variable name="node" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@node"/>
     <xsl:variable name="fig_title"
       select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>    
-    <xsl:value-of select="concat('Figure E.'$fig_no, ' - ', $node, ' ', $fig_title)"/>
+    <xsl:value-of select="concat('Figure E.', $fig_no, ' - ', $node, ' ', $fig_title)"/>
   </xsl:template>
 	
   <xsl:template match="imgfile" mode="nav_arrows">

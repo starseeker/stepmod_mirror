@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.65 2002/08/09 08:55:52 robbod Exp $
+$Id: common.xsl,v 1.66 2002/08/09 10:23:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2176,6 +2176,10 @@ $Id: common.xsl,v 1.65 2002/08/09 08:55:52 robbod Exp $
       <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1][@schema_file='mim.xml']">
         <xsl:value-of select="concat('5_mim',$FILE_EXT)"/>
       </xsl:when>
+      <xsl:when test="$table_fig_node/ancestor::usage_guide[1]">
+        <xsl:value-of select="concat('f_guide',$FILE_EXT)"/>
+      </xsl:when>
+
     </xsl:choose>
   </xsl:template>
 

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: projmg.xsl,v 1.4 2002/10/08 10:19:07 mikeward Exp $
+     $Id: projmg.xsl,v 1.5 2002/10/08 16:05:46 mikeward Exp $
 -->
 
 <xsl:stylesheet 

@@ -1,10 +1,10 @@
 (*
- $Id: arm.exp,v 1.10 2003/10/09 15:41:51 robbod Exp $
+ $Id: arm.exp,v 1.11 2003/10/31 10:09:44 robbod Exp $
  ISO TC184/SC4/WG12 N2273 - ISO/TS 10303-1251 Interface - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N1367
 *) 
 
-SCHEMA Interface_arm; 
+SCHEMA Interface_arm;
 
 USE FROM Product_identification_arm;    -- ISO/TS 10303-1017
 
@@ -15,23 +15,33 @@ USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
 USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
 
 
+TYPE connection_definition_items = SELECT
+   (Interface_connector_definition);
+END_TYPE; 
+
+TYPE connection_items = SELECT
+   (Interface_connector_definition, 
+    Interface_connector_occurrence, 
+    View_definition_relationship);
+END_TYPE; 
+
 TYPE connector_on_item = EXTENSIBLE SELECT
    (Product_view_definition, 
     View_definition_relationship);
 END_TYPE; 
 
-ENTITY Connector_on;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-  connector : Interface_connector_definition;
-  item : connector_on_item;
+TYPE interface_definition_item = SELECT
+   (Interface_connector_occurrence, 
+    Product_view_definition);
+END_TYPE; 
+
+ENTITY Hierarchical_interface_connection
+  SUBTYPE OF (Interface_connection);
 END_ENTITY;
 
-ENTITY Interface_connection
-  SUBTYPE OF (View_definition_relationship);
-  SELF\View_definition_relationship.relating_view RENAMED connecting : Interface_connector_definition;
-  SELF\View_definition_relationship.related_view RENAMED connected : Interface_connector_definition;
+ENTITY Interface_connection;
+  connecting : connection_items;
+  connected : connection_items;
 END_ENTITY;
 
 ENTITY Interface_connector
@@ -40,7 +50,16 @@ END_ENTITY;
 
 ENTITY Interface_connector_definition
   SUBTYPE OF (Product_view_definition);
+  connector_on : Product_view_definition;
   SELF\Product_view_definition.defined_version : Interface_connector_version;
+END_ENTITY;
+
+ENTITY Interface_connector_occurrence;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  occurence_of : Interface_connector_definition;
+  connector_on : connector_on_item;
 END_ENTITY;
 
 ENTITY Interface_connector_version
@@ -48,12 +67,17 @@ ENTITY Interface_connector_version
   SELF\Product_version.of_product : Interface_connector;
 END_ENTITY;
 
+ENTITY Interface_definition_connection;
+  connecting : connection_definition_items;
+  connected : connection_definition_items;
+END_ENTITY;
+
 ENTITY Interface_definition_for;
   id : STRING;
   name : STRING;
   description : OPTIONAL STRING;
   interface : Interface_specification_definition;
-  interface_component : Product_view_definition;
+  interface_component : interface_definition_item;
 END_ENTITY;
 
 ENTITY Interface_specification
@@ -71,4 +95,3 @@ ENTITY Interface_specification_version
 END_ENTITY;
 
 END_SCHEMA;  -- Interface_arm
-

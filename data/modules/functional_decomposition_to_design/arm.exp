@@ -2,6 +2,74 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Functional decomposition to design - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Functional_decomposition_to_design_arm;
+
+USE FROM Design_management_arm (change_design_object_management_relationship);
+
+USE FROM Physical_unit_design_view_arm;
+
+USE FROM Characteristic_arm;
+
+USE FROM Network_functional_design_view_arm (
+	functional_unit,
+	functional_unit_terminal_node_assignment);
+
+  ENTITY Reference_functional_unit_assignment_to_part;
+      functional_design_definition_path : reference_composition_path;
+      implementation                    : part_view_definition;
+      of_property                       : OPTIONAL SET[1:?] OF coordinated_characteristic;
+      path_alias                        : STRING; --ee_name;
+      swap_code                         : OPTIONAL STRING;
+    UNIQUE
+      ur1 : implementation,
+ path_alias;
+  END_ENTITY; 
+
+  ENTITY Design_functional_unit_allocation_to_reference_functional_unit;
+      reference_definition_path : reference_composition_path;
+      design_definition_path    : design_composition_path;
+  END_ENTITY; -- design_functional_unit_allocation_to_reference_functional_unit
+
+  ENTITY Reference_composition_path;
+      path_element              : SET[1:?] OF functional_unit;
+      reference_functional_unit : functional_unit;
+  END_ENTITY; -- reference_composition_path
+
+  ENTITY Component_swap_specification
+    SUBTYPE OF (Change_design_object_management_relationship);
+      SELF\change_design_object_management_relationship.current_design_object  : design_functional_unit_allocation_to_assembly_component;
+      SELF\change_design_object_management_relationship.previous_design_object : design_functional_unit_allocation_to_assembly_component;
+  END_ENTITY; -- component_swap_specification
+
+  ENTITY Design_functional_unit_allocation_to_assembly_component;
+      functional_design_definition_path : design_composition_path;
+      implementation                    : assembly_component;
+      global_swappable                  : BOOLEAN;
+      local_swappable                   : BOOLEAN;
+      of_property                       : OPTIONAL SET[1:?] OF coordinated_characteristic;
+      path_alias                        : STRING; --ee_name;
+      swap_code                         : STRING;
+    UNIQUE
+      ur1 : implementation,
+ path_alias;
+  END_ENTITY; -- design_functional_unit_allocation_to_assembly_component
+
+  ENTITY Design_composition_path;
+      path_element           : SET[1:?] OF functional_unit;
+      design_functional_unit : functional_unit;
+  END_ENTITY; -- design_composition_path
+
+  ENTITY Gate_path_swap_specification
+    SUBTYPE OF (Change_design_object_management_relationship);
+      SELF\change_design_object_management_relationship.current_design_object  : design_functional_unit_allocation_to_reference_functional_unit;
+      SELF\change_design_object_management_relationship.previous_design_object : design_functional_unit_allocation_to_reference_functional_unit;
+  END_ENTITY; -- gate_path_swap_specification
+
+  ENTITY Terminal_swap_specification
+    SUBTYPE OF (Change_design_object_management_relationship);
+      SELF\change_design_object_management_relationship.previous_design_object : functional_unit_terminal_node_assignment;
+      SELF\change_design_object_management_relationship.current_design_object  : functional_unit_terminal_node_assignment;
+  END_ENTITY; -- terminal_swap_specification
+
 END_SCHEMA;

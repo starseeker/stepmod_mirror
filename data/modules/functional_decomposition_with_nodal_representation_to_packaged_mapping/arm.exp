@@ -2,6 +2,38 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Functional decomposition with nodal representation to packaged mapping - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Functional_decomposition_with_nodal_representation_to_packaged_mapping_arm;
-END_SCHEMA;
+
+USE FROM Part_external_reference_arm;
+
+USE FROM Functional_decomposition_to_design_arm;
+
+USE FROM Functional_design_elaboration_arm;
+
+ 
+  TYPE design_composition_path_or_root = SELECT
+    (design_composition_path,
+     functional_unit_network_definition);
+  END_TYPE; -- design_composition_path_or_root
+
+  ENTITY Aggregate_connectivity_requirement;
+      connectivity_requirement : functional_unit_network_node_definition;
+      design_definition_path   : design_composition_path_or_root;
+    UNIQUE
+      ur1 : design_definition_path,
+ connectivity_requirement;
+    WHERE
+      wr1 : NOT ('AP210_ARM.FUNCTIONAL_UNIT_NETWORK_DEFINITION' IN TYPEOF(design_definition_path)) OR (connectivity_requirement.associated_functional_unit_definition = design_definition_path);
+      wr2 : NOT ('AP210_ARM.DESIGN_COMPOSITION_PATH' IN TYPEOF(design_definition_path)) OR (connectivity_requirement.associated_functional_unit_definition = design_definition_path.design_functional_unit.definition);
+  END_ENTITY; -- aggregate_connectivity_requirement
+
+  ENTITY Connectivity_allocation;
+      implementation           : physical_connectivity_definition;
+      connectivity_requirement : aggregate_connectivity_requirement;
+    UNIQUE
+      ur1 : implementation;
+  END_ENTITY; -- connectivity_allocation
+
+END_SCHEMA; -- Functional_decomposition_with_nodal_representation_to_packaged_mapping_arm
+

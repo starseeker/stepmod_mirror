@@ -2,6 +2,37 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Functional decomposition to interconnect design - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Functional_decomposition_to_interconnect_design_arm;
-END_SCHEMA;
+
+USE FROM Functional_decomposition_to_design_arm;
+
+USE FROM Fabrication_joint_arm;
+
+USE FROM Layered_interconnect_module_with_printed_component_design_arm;
+	
+USE FROM Network_functional_design_view_arm;
+	
+
+  ENTITY Design_functional_unit_allocation_to_fabrication_joint;
+      functional_design_definition_path : design_composition_path;
+      implementation                    : fabrication_joint;
+    UNIQUE
+      ur1 : functional_design_definition_path;
+  END_ENTITY; -- design_functional_unit_allocation_to_fabrication_joint
+
+  ENTITY Transmission_line_functional_unit_terminal_allocation;
+      implementation                             : printed_component_join_terminal;
+      transmission_line_functional_unit_terminal : functional_unit_terminal;
+      functional_unit_design_path                : transmission_line_functional_unit_to_routed_printed_component_allocation;
+    UNIQUE
+      ur1 : implementation,
+ transmission_line_functional_unit_terminal;
+  END_ENTITY; -- transmission_line_functional_unit_terminal_allocation
+
+  ENTITY Transmission_line_functional_unit_to_routed_printed_component_allocation
+    SUBTYPE OF (Design_functional_unit_allocation_to_assembly_component);
+      SELF\design_functional_unit_allocation_to_assembly_component.implementation : routed_printed_component;
+  END_ENTITY; -- transmission_line_functional_unit_to_routed_printed_component_allocation
+
+END_SCHEMA; -- Functional_decomposition_to_interconnect_design_arm

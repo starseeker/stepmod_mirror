@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.21 2002/06/07 15:32:00 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -294,7 +294,7 @@ $Id: sect_5_mapping.xsl,v 1.21 2002/06/07 15:32:00 robbod Exp $
         tree structure 
       </td>
     </tr>
-
+    <!-- we do not use or support templates yet
     <tr>
       <td valign="top">//</td>
       <td valign="top">
@@ -302,7 +302,7 @@ $Id: sect_5_mapping.xsl,v 1.21 2002/06/07 15:32:00 robbod Exp $
         defined in 5.1.1 below; 
       </td>
     </tr>
-    
+    -->
     <tr>
       <td valign="top">--</td>
       <td valign="top">
@@ -492,7 +492,7 @@ $Id: sect_5_mapping.xsl,v 1.21 2002/06/07 15:32:00 robbod Exp $
 
 <xsl:template match="refpath" mode="specification">
   <tr valign="top">
-    <td>Refpath:</td>
+    <td>Reference path:</td>
     <xsl:apply-templates select="." mode="check_ref_path"/>
     <td>
       <xsl:call-template name="output_string_with_linebreaks">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.3 2002/10/23 04:30:02 thendrix Exp $
+$Id: resource.xsl,v 1.4 2002/10/23 06:42:43 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1090,7 +1090,6 @@ defined in annex D of ISO 10303-11.
   </xsl:variable>
   <xsl:variable name="express_xml" select="concat($resource_dir,'/',@name,'.xml')"/>
 
-
   <!-- there is only one schema in a schema clause of an IR -->
   <xsl:variable 
     name="schema_name" 
@@ -1129,8 +1128,6 @@ defined in annex D of ISO 10303-11.
   <xsl:apply-templates 
     select="document($express_xml)/express/schema/interface"/>
 
-
-
   <!-- output the intro and fundamental contants.! -->
   <xsl:call-template name="clause_header">
     <xsl:with-param name="heading" 
@@ -1155,29 +1152,32 @@ defined in annex D of ISO 10303-11.
   <!-- display the EXPRESS for the types in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($express_xml)/express/schema/type"/>
-  
-  <!-- display the EXPRESS for the entities in the ARM.
+    select="document($express_xml)/express/schema/type">
+    <xsl:with-param name="main_clause" select="($schema_no+3)" />
+    </xsl:apply-templates>
+  <!-- display the EXPRESS for the entities in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($express_xml)/express/schema/entity"/>
+    select="document($express_xml)/express/schema/entity">
+    <xsl:with-param name="main_clause" select="$schema_no+3" />
+  </xsl:apply-templates>
 
-  <!-- display the EXPRESS for the subtype.contraints in the ARM.
+  <!-- display the EXPRESS for the subtype.contraints in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($express_xml)/express/schema/subtype.constraint"/>
 
-  <!-- display the EXPRESS for the functions in the ARM
+  <!-- display the EXPRESS for the functions in the schema
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($express_xml)/express/schema/function"/>
 
-  <!-- display the EXPRESS for the entities in the ARM. 
+  <!-- display the EXPRESS for the entities in the schema. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($express_xml)/express/schema/rule"/>
 
-  <!-- display the EXPRESS for the procedures in the ARM. 
+  <!-- display the EXPRESS for the procedures in the schema. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($express_xml)/express/schema/procedure"/>
@@ -1552,7 +1552,8 @@ defined in annex D of ISO 10303-11.
             
             <!-- output the normative reference derived from the resource -->
             <xsl:variable name="normref">
-              <xsl:if test="$resource_ok='true'">
+
+<xsl:if test="$resource_ok='true'">
                 <xsl:apply-templates 
                   select="document($resource_xml)/resource"
                   mode="prune_normrefs_list"/>
@@ -2916,7 +2917,6 @@ $resource_ok,' Check the normatives references')"/>
   <xsl:apply-templates select=".." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'tech_discussion'"/>
   </xsl:apply-templates>
-
   <xsl:apply-templates/>
 </xsl:template>
 
@@ -2925,7 +2925,6 @@ $resource_ok,' Check the normatives references')"/>
   <xsl:apply-templates select=".." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'examples'"/>
   </xsl:apply-templates>
-
   <xsl:apply-templates/>
 </xsl:template>
 

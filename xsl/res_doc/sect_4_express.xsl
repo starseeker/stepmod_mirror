@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.69 2002/09/16 07:29:05 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -153,9 +153,6 @@
 
     </xsl:if>
   <p>
-  <!--  start blockquote - i removed tagging inside 
-        comments because I misunderstood an  error from xmlspy 
-  -->
     <code>
 
       <xsl:choose>
@@ -510,7 +507,7 @@
 </xsl:template>
 
 <xsl:template match="type" >
-
+  <xsl:param name="main_clause"/>
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -521,13 +518,16 @@
 
   <xsl:variable name="clause_number">
     <xsl:call-template name="express_clause_number">
+      <xsl:with-param name="main_clause" select="$main_clause"/>
       <xsl:with-param name="clause" select="'type'"/>
       <xsl:with-param name="schema_name" select="$schema_name"/>
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="position()=1">
+
     <xsl:variable name="clause_header">
-          <xsl:value-of select="concat($clause_number,' ',$schema_name,' type definitions')"/>
+          <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' type definitions')"/>
+
     </xsl:variable>
 
     <xsl:variable name="clause_intro" select="''"/>
@@ -548,7 +548,7 @@
   </xsl:variable>    
   <h3>
     <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
+      <xsl:value-of select="concat($main_clause,$clause_number, '.', position(), ' ', @name)"/>
     </A>
     <xsl:apply-templates select="." mode="expressg_icon"/>
   </h3>
@@ -655,7 +655,7 @@
   </xsl:if>
 
   <xsl:if test="@genericentity='YES' or @genericentity='yes'">
-    GENERIC_ENTITY
+    GENERIC_ENTITY.'
   </xsl:if>
 
   SELECT<xsl:if test="@basedon">
@@ -722,11 +722,13 @@
 
 
 <xsl:template match="entity">
+  <xsl:param name="main_clause"/>
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
   <xsl:variable name="clause_number">
     <xsl:call-template name="express_clause_number">
+      <xsl:with-param name="main_clause" select="$main_clause"/>
       <xsl:with-param name="clause" select="'entity'"/>
       <xsl:with-param name="schema_name" select="$schema_name"/>
     </xsl:call-template>
@@ -734,7 +736,7 @@
 
   <xsl:if test="position()=1">
     <xsl:variable name="clause_header">
-          <xsl:value-of select="concat($clause_number,' ',$schema_name,' entity definitions')"/>
+          <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' entity definitions')"/>
     </xsl:variable>
 
     <xsl:variable name="clause_intro" select="''"/>
@@ -756,7 +758,7 @@
 
   <h3>
     <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+     <xsl:value-of select="concat($main_clause,$clause_number,'.',position(),' ',@name)"/>
     </A>
     <xsl:apply-templates select="." mode="expressg_icon"/>
     <xsl:if test="substring($schema_name, string-length($schema_name)-3)=
@@ -1328,9 +1330,7 @@
 
 
 <xsl:template match="subtype.constraint">
-  <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
+  <xsl:variable name="schema_name" select="../@name"/>      
   <xsl:variable name="clause_number">
     <xsl:call-template name="express_clause_number">
       <xsl:with-param name="clause" select="'subtype.constraint'"/>
@@ -1824,7 +1824,7 @@
   
   <!-- output the EXPRESS -->
   <p><u>EXPRESS specification:</u></p>
-  <p>
+ <p>
   <!-- start blockquote -->
     <code>
       *)<br/>
@@ -1914,8 +1914,12 @@
      imported_function imported_rule imported_procedure
 -->
 <xsl:template name="express_clause_present">
+  <xsl:param name="main_clause" />
   <xsl:param name="clause"/>
   <xsl:param name="schema_name"/>
+  <xsl:message >
+main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
+  </xsl:message>
 
   <xsl:variable name="resource_dir">
     <xsl:call-template name="resource_directory">
@@ -1949,6 +1953,7 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/interface">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
               <xsl:with-param name="clause" select="'interface'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -1966,6 +1971,7 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/constant">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
               <xsl:with-param name="clause" select="'constant'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -1983,6 +1989,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/type">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'type'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -1993,6 +2001,7 @@
         </xsl:choose>
       </xsl:when>
 
+
       <xsl:when test="$clause='entity'">
         <xsl:choose>          
           <!-- There seems to be a bug in MXSL3. 
@@ -2000,6 +2009,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/entity">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'entity'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2017,6 +2028,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/subtype.constraint">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'subtype.constraint'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2035,6 +2048,7 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/function">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
               <xsl:with-param name="clause" select="'function'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2052,6 +2066,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/rule">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'rule'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2069,6 +2085,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/procedure">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'procedure'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2086,6 +2104,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/interface/described.item[@kind='CONSTANT']">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'imported_constant'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2103,6 +2123,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/interface/described.item[@kind='TYPE']">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'imported_type'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2120,6 +2142,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/interface/described.item[@kind='ENTITY']">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'imported_entity'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2137,6 +2161,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/interface/described.item[@kind='FUNCTION']">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'imported_function'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2154,6 +2180,8 @@
           <xsl:when
             test="document(string($xml_file))/express/schema/interface/described.item[@kind='RULE']">
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
+
               <xsl:with-param name="clause" select="'imported_rule'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2171,6 +2199,7 @@
         <xsl:when
             test="document(string($xml_file))/express/schema/interface/described.item[@kind='PROCEDURE']"> 
             <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$main_clause"/>
               <xsl:with-param name="clause" select="'imported_procedure'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>              
@@ -2184,11 +2213,10 @@
     </xsl:choose>
   </xsl:variable>
   <xsl:value-of select="$clause_present"/>
+  <xsl:message>
+  clause_present :<xsl:value-of select="$clause_present"/>    
+  </xsl:message>
 </xsl:template>
-
-
-
-
 
 
 <!--
@@ -2222,8 +2250,13 @@
      imported_function imported_rule imported_procedure
 -->
 <xsl:template name="express_clause_number">
+  <xsl:param name="main_clause" />
   <xsl:param name="clause"/>
   <xsl:param name="schema_name"/>
+
+  <xsl:message>
+    main_clause  in express_cl_num  :<xsl:value-of select="$main_clause"/>
+  </xsl:message>
 
   <xsl:variable name="resource_dir">
     <xsl:call-template name="resource_directory">
@@ -2249,9 +2282,7 @@
        -->
   <xsl:variable name="interface_clause">
     <xsl:choose>
-      <!-- IRs  put USE/REFERENCE FROMs in the introduction
-           clause -->
-      <xsl:when test="contains($schema_name,'_arm')">
+      <xsl:when test="contains($schema_name,'_schema')">
         <xsl:choose>
           <xsl:when
             test="document(string($xml_file))/express/schema/interface">
@@ -2429,6 +2460,7 @@
 
   <!-- now add the clause variables together according to which clause
        number is required -->
+
   <xsl:variable name="clause_number">
     <xsl:choose>
       <xsl:when test="$clause='interface'">
@@ -2459,6 +2491,15 @@
                               $constant_clause + $imported_constant_clause +
                               $type_clause + $imported_type_clause +
                               $entity_clause"/>
+
+        <xsl:message>
+          in clause number
+        <xsl:value-of select="$interface_clause + 
+                              $constant_clause + $imported_constant_clause +
+                              $type_clause + $imported_type_clause +
+                              $entity_clause"/>
+          
+        </xsl:message>
       </xsl:when>
       <xsl:when test="$clause='imported_entity'">
         <xsl:value-of select="$interface_clause + 
@@ -2534,8 +2575,13 @@
 
     </xsl:choose>    
   </xsl:variable>
-
-
+  <!-- if the schema ends in _arm then it is clause 4
+       if it ends in _mim then it is clause 5.2
+       -->
+  <xsl:message>
+    main_clause  :<xsl:value-of select="$main_clause" />   
+  </xsl:message>
+  <xsl:value-of select="concat('.',$clause_number+1)"/>
 </xsl:template>
 
 
@@ -2559,7 +2605,7 @@
 
         <xsl:variable name="clause_header">
           <xsl:choose>
-            <xsl:when test="contains($schema_name,'_arm')">
+            <xsl:when test="contains($schema_name,'_schema')">
               <xsl:value-of select="concat($clause_number, 
                                     ' ARM EXPRESS imported ',
                                     $lkind,' modifications')"/>

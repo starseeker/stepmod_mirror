@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.2 2002/10/17 19:21:56 thendrix Exp $
+$Id: res_toc.xsl,v 1.3 2002/10/19 00:44:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -13,6 +13,7 @@ $Id: res_toc.xsl,v 1.2 2002/10/17 19:21:56 thendrix Exp $
 
 
 <xsl:template name="schema_section">
+  <xsl:param name="schema_no" />
   <xsl:param name="resdoc_root" select="'..'"/>
   <xsl:variable name="resource_name">
    <xsl:call-template name="resource_name">
@@ -27,7 +28,9 @@ $Id: res_toc.xsl,v 1.2 2002/10/17 19:21:56 thendrix Exp $
   </xsl:variable>
 
   <xsl:message>
+    schema_section template
     resource_name :<xsl:value-of select="$resource_name"/>
+    schema_no :<xsl:value-of select="$schema_no"/>
   </xsl:message>
   <xsl:message>
     resource_display_name :<xsl:value-of select="$resource_display_name"/>
@@ -45,28 +48,26 @@ NEED TO FIX up the hrefs -->
 
 </A><BR/>
         <small>
-          &#160;&#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#intro">
+          &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#intro">
           <xsl:value-of select="concat($clauseno,'.1 Introduction')"/>
           </A><BR/>
 
           <!-- fundamendal concepts - seems to always be there -->
-          &#160;&#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#funcon">
-          <xsl:value-of select="concat($clauseno,'.2 Fundamental conceps and assumptions')"/>
+          &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#funcon">
+          <xsl:value-of select="concat($clauseno,'.2 Fundamental concepts and assumptions')"/>
           </A><BR/>
 
-          <!-- only output if there are interfaces defined and therefore a
-               section -->
-          
           <!-- only output if there are constants defined and therefore a
                section -->
           <xsl:variable name="constant_clause">
             <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="main_clause" select="$schema_no"/>
               <xsl:with-param name="clause" select="'constant'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$constant_clause != 0">
-            &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#constants">
+            &#160; &#160;&#160;&#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#constants">
               <xsl:value-of select="concat($clauseno, ' ',$constant_clause,
                                     $resource_display_name, ' constant definitions')"/>
             </A><BR/>
@@ -76,6 +77,7 @@ NEED TO FIX up the hrefs -->
                therefore a section -->
           <xsl:variable name="imported_constant_clause">
             <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="main_clause" select="$schema_no"/>
               <xsl:with-param name="clause" select="'imported_constant'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>
@@ -92,6 +94,7 @@ NEED TO FIX up the hrefs -->
                section -->
           <xsl:variable name="type_clause">
             <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="main_clause" select="$schema_no"/>
               <xsl:with-param name="clause" select="'type'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>
@@ -107,6 +110,7 @@ NEED TO FIX up the hrefs -->
                therefore a section -->
           <xsl:variable name="imported_type_clause">
             <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="main_clause" select="$schema_no"/>
               <xsl:with-param name="clause" select="'imported_type'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>
@@ -123,13 +127,7 @@ NEED TO FIX up the hrefs -->
                section -->
           <xsl:variable name="entity_clause">
             <xsl:call-template name="express_clause_present">
-              <xsl:with-param name="clause" select="'entity'"/>
-              <xsl:with-param name="schema_name" select="$schema_name"/>
-            </xsl:call-template>
-          </xsl:variable>
-
-          <xsl:variable name="express_clause_number">        
-            <xsl:call-template name="express_clause_number">
+              <xsl:with-param name="main_clause" select="$schema_no"/>
               <xsl:with-param name="clause" select="'entity'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>
@@ -137,7 +135,7 @@ NEED TO FIX up the hrefs -->
 
           <xsl:if test="$entity_clause != 0">
             &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#entities">
-              <xsl:value-of select="concat($clauseno, $express_clause_number,' ',
+              <xsl:value-of select="concat($clauseno, $entity_clause,' ',
                                     $resource_display_name,' entity definitions')"/>
             </A><BR/>
           </xsl:if>
@@ -150,6 +148,7 @@ NEED TO FIX up the hrefs -->
                therefore a section -->
           <xsl:variable name="imported_entity_clause">
             <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="main_clause" select="$schema_no"/>
               <xsl:with-param name="clause" select="'imported_entity'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>
@@ -167,6 +166,7 @@ NEED TO FIX up the hrefs -->
                therefore a section -->
           <xsl:variable name="subtype_constraint_clause">
             <xsl:call-template name="express_clause_present">
+              <xsl:with-param name="main_clause" select="$schema_no"/>
               <xsl:with-param name="clause" select="'subtype.constraint'"/>
               <xsl:with-param name="schema_name" select="$schema_name"/>
             </xsl:call-template>
@@ -332,6 +332,7 @@ NEED TO FIX up the hrefs -->
 
         <xsl:for-each select="./schema">          
         <xsl:call-template name="schema_section">
+          <xsl:with-param name="schema_no" select="position()+3" />
           <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
         </xsl:call-template>
         </xsl:for-each>

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.6 2002/06/05 12:53:20 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.1 2002/06/20 12:49:08 robbod Exp $ -->
 <!-- ================================================= -->
 <!-- build.xml for the ballot packages of              -->
 <!-- STEP modules repository                           -->
@@ -23,45 +23,58 @@ Usage:
      
 -->
 
-<project name="ballothtml" default="all" basedir=".">
+<project name="ballothtml" default="all" basedir="../..">
 
   <target name="init" description="initialize variables">
     <tstamp/>
-    <property name="STYLES" value="../../xsl"/>
-    <property name="STEPMODSTYLES" value="../../../xsl"/>
-    <property name="DTDDIR" value="../../dtd"/>
+    <property name="STYLES" value="xsl"/>
+    <property name="STEPMODSTYLES" value="../xsl"/>
+    <property name="DTDDIR" value="dtd"/>
+    <property name="BALLOTDIR" value="ballots/pdm_ballot_072002"/>
     <property name="BALLOTMENU" 
       value="./ballots/ballots/pdm_ballot_072002/menubar_ballot.xml"/>
     <property name="ARCHIVE" value="pdm_ballot_072002-${DSTAMP}"/>
   </target>
 
+  <target name="index" depends="init" 
+    description="generate ballot index">
+    <dependset>
+      <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="index.htm*"/>
+    </dependset>
 
-  <target name="all" depends="init" 
+    <style includes="index.xml" destdir="."
+	   extension=".htm"
+	   style="${STYLES}/index.xsl">
+      <param name="output_type" expression="HTM"/>
+    </style>
+  </target>
+
+
+  <target name="all" depends="index" 
           description="generate ballot indices">
     <dependset>
       <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
       <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
       <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
-      <targetfileset dir="." includes="**/*.htm*"/>
+      <targetfileset dir="." includes="${BALLOTDIR}/*.htm*"/>
     </dependset>
 
-
-    <style includes="start.xml" 
+    <style includes="${BALLOTDIR}/start.xml" 
       destdir="." extension=".htm"
       style="${STYLES}/ballot_start.xsl">
       <param name="output_type" expression="HTM"/>
       <param name="menubar_file" expression="${BALLOTMENU}"/>
     </style>
 
-
-    <style includes="ballot_summary.xml" 
+    <style includes="${BALLOTDIR}/ballot_summary.xml" 
       destdir="." extension=".htm"
       style="${STYLES}/ballot_summary.xsl">
       <param name="output_type" expression="HTM"/>
       <param name="menubar_file" expression="${BALLOTMENU}"/>
     </style>
 
-    <style includes="ballot_list.xml" 
+    <style includes="${BALLOTDIR}/ballot_list.xml" 
       destdir="." extension=".htm"
       style="${STYLES}/ballot_list.xsl">
       <param name="output_type" expression="HTM"/>

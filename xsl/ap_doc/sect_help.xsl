@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_1_scope.xsl,v 1.13 2003/07/28 12:32:41 robbod Exp $
+$Id: sect_help.xsl,v 1.1 2003/07/31 07:30:30 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -34,6 +34,21 @@ $Id: sect_1_scope.xsl,v 1.13 2003/07/28 12:32:41 robbod Exp $
       </head>
       <body>
         <h2>Help</h2>
+        <p>
+          This is the collection of HTML pages that make up the AP document
+          for:
+        </p>
+        <p>
+          All of the modules that are used by this AP are also included.
+        </p>
+        <p>
+          The document is presented as frames as described in the Figure below.
+        </p>
+        <img alt="frame and menu layout" 
+          border="0"
+          align="middle"
+          src="../../../../images/ap_doc/ap_help.png"/>
+
       </body>
     </html>
   </xsl:template> 

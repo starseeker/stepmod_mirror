@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.50 2002/06/19 12:45:32 robbod Exp $
+$Id: common.xsl,v 1.51 2002/06/19 14:41:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1571,13 +1571,15 @@ $Id: common.xsl,v 1.50 2002/06/19 12:45:32 robbod Exp $
     <xsl:when test="contains($path,'.')">
       <xsl:call-template name="get_last_section">
         <xsl:with-param name="path" select="substring-after($path,'.')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$path"/>
-      </xsl:otherwise>
-    </xsl:choose>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="$path"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
+
+
 
 <!-- 
      Return an error message if the linkend of an express_ref is incorrect 
@@ -1655,15 +1657,6 @@ $Id: common.xsl,v 1.50 2002/06/19 12:45:32 robbod Exp $
 <xsl:template name="check_express_path">
   <xsl:param name="linkend"/>
 
-  <xsl:variable 
-    name="nlinkend"
-    select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
-  
-  <xsl:variable 
-    name="express_ref" 
-    select="translate(substring-after(substring-after($nlinkend,':'),':'),
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
-  
 
 </xsl:template>
 

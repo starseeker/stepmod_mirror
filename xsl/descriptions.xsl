@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<!--
+$Id: module.xsl,v 1.74 2002/06/19 16:07:45 robbod Exp $
+  Author:  Rob Bodington, Eurostep Limited
+  Owner:   Developed by Eurostep.
+  Purpose: To display the ARM or MIM external descriptions file.
+     
+-->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
@@ -55,14 +62,11 @@
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="express_ref_ok">
-      <xsl:call-template name="check_express_path">
-        <xsl:with-param name="linkend" select="@linkend"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <!--
-    xxx<xsl:value-of select="$express_ref_ok"/>zzz
-         -->
+    <xsl:call-template name="check_valid_linkend">
+      <xsl:with-param name="linkend" select="@linkend"/>
+    </xsl:call-template>
+
+
     <xsl:choose>
       <xsl:when test="$href=''">
         <xsl:call-template name="error_message">
@@ -144,6 +148,59 @@
 
   </xsl:template>
 
+
+  <!-- NOT YET IMPLIMENETD -->
+<xsl:template name="check_valid_linkend">
+  <xsl:param name="linkend"/>
+
+  <xsl:variable name="no_dots">
+    <xsl:call-template name="count_substring">
+      <xsl:with-param name="substring" select="'.'"/>
+      <xsl:with-param name="string" select="@linkend"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="model" select="document(../../@schema_file)"/>
+  <xsl:choose>
+
+    <xsl:when test="$no_dots=0">
+      <!-- schema -->
+      <xsl:variable name="schema" select="$linkend"/>
+      <xsl:variable name="schema_node" 
+        select="document(../../@schema_file)"/>
+          xx{<xsl:value-of select="$schema_node"/>}
+      <xsl:choose>
+        <xsl:when test="$schema_node">
+
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of 
+                select="concat('Error D1: ',$linkend, 
+                        ' does not specify an entity in ', ../../@schema_file)"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:when>
+
+
+    <xsl:when test="$no_dots=1">
+      <!-- entity or type or rule or function or procedure -->
+    </xsl:when>
+    <xsl:when test="$no_dots=2">
+      <!-- attribute or where rule -->
+      <xsl:choose>
+        <xsl:when test="contains($linkend,':')">
+          <!-- where or unique rule -->
+        </xsl:when>
+        <xsl:otherwise>
+          <!-- attribute -->
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:when>
+  </xsl:choose>
+
+</xsl:template>
 
 
 </xsl:stylesheet>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.2 2002/06/20 13:04:38 robbod Exp $
+$Id: ballot_summary.xsl,v 1.3 2002/06/20 17:06:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -68,112 +68,12 @@ $Id: ballot_summary.xsl,v 1.2 2002/06/20 13:04:38 robbod Exp $
       <hr/>
       <table border="1">
         <tr>
-          <td>Ballot package</td>
-          <td>Module</td>
-          <td>Part</td>
-          <td>Version</td>
-          <td>Status</td>
-          <td>Year</td>
-          <td>Published</td>
-          <td>Doc WGn</td>
-          <td>Superseded Doc WGn</td>
-          <td>MIM WGn</td>
-          <td>ARM WGn</td>
-          <td>Internal checklist WGn</td>
-          <td>Project leader checklist WGn</td>
-          <td>Convener leader checklist WGn</td>
-          <td>Project leader</td>
-          <td>Project editor</td>
-        </tr>
-        <tr>
-          <td><small><i>&#160;</i></small></td>
-          <td align="right"><small>file:</small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-          <td><small><i>module.xml</i></small></td>
-        </tr>
-        <tr>
-          <td><small><i>&#160;</i></small></td>
-          <td align="right"><small>attribute:</small></td>
-        <td><small><i>
-          /module/@part
-        </i></small></td>
-
-        <!-- Version -->
-        <td><small><i>
-          /module/@version
-        </i></small></td>
-
-        <!-- Status -->
-        <td><small><i>
-          /module/@status
-        </i></small></td>
-
-        <!-- Year -->
-        <td><small><i>
-          /module/@publication.year
-        </i></small></td>
-
-        <!-- Published -->
-        <td><small><i>
-          /module/@published
-        </i></small></td>
-
-        <!-- Doc WGn -->
-        <td><small><i>
-          /module/@wg.number
-        </i></small></td>
-
-        <!-- Superceded Doc WGn -->
-        <td><small><i>
-          /module/@wg.number.supersedes
-        </i></small></td>
-        
-        <!-- MIM WGn -->
-        <td><small><i>
-          /module/@wg.number.mim
-        </i></small></td>
-
-        <!-- ARM WGn -->
-        <td><small><i>
-          /module/@wg.number.arm
-        </i></small></td>
-
-        <!-- Internal checklist WGn -->
-        <td><small><i>
-          /module/@checklist.internal_review
-        </i></small></td>
-        
-        <!-- Project leader checklist WGn -->
-        <td><small><i>
-          module/@checklist.project_leader
-        </i></small></td>
-
-        <!-- Convener leader checklist WGn -->
-        <td><small><i>
-          module/@checklist.convener"/>
-        </i></small></td>
-        
-        <!-- Project leader -->
-        <td><small><i>
-          module/contacts/projlead/@ref
-        </i></small></td>
-
-        <!-- Project editor -->
-        <td><small><i>
-          module/contacts/editor/@ref
-        </i></small></td>
+          <td><b>Ballot package</b></td>
+          <td><b>Module</b></td>
+          <td><b>Part</b></td>
+          <td><b>Version</b></td>
+          <td><b>Status</b></td>
+          <td><b>Year</b></td>
         </tr>
         <xsl:apply-templates select="./*/module"/>
       </table>
@@ -199,7 +99,14 @@ $Id: ballot_summary.xsl,v 1.2 2002/06/20 13:04:38 robbod Exp $
       <tr>
         <!-- Ballot package -->
         <td>
-          <xsl:value-of select="../@name"/>
+          <xsl:choose>
+            <xsl:when test="../@id">
+              <xsl:value-of select="concat(../@id,' - ',../@name)"/>    
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="../@name"/> 
+            </xsl:otherwise>
+          </xsl:choose>
         </td>
 
         <!-- Module -->
@@ -276,130 +183,6 @@ $Id: ballot_summary.xsl,v 1.2 2002/06/20 13:04:38 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
         </td>
-
-        <!-- Published -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@published))>0">
-              <xsl:value-of select="$module_node/@published"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-
-        <!-- Doc WGn -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@wg.number))>0">
-              <xsl:value-of select="$module_node/@wg.number"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-
-        <!-- Superceded Doc WGn -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@wg.number.supersedes))>0">
-              <xsl:value-of select="$module_node/@wg.number.supersedes"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-        
-        <!-- MIM WGn -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@wg.number.mim))>0">
-              <xsl:value-of select="$module_node/@wg.number.mim"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-
-        <!-- ARM WGn -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@wg.number.arm))>0">
-              <xsl:value-of select="$module_node/@wg.number.arm"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-
-        <!-- Internal checklist WGn -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@checklist.internal_review))>0">
-              <xsl:value-of select="$module_node/@checklist.internal_review"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-        
-        <!-- Project leader checklist WGn -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@checklist.project_leader))>0">
-              <xsl:value-of select="$module_node/@checklist.project_leader"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-
-        <!-- Convener leader checklist WGn -->
-        <td>
-          <xsl:choose>
-            <xsl:when 
-              test="string-length(normalize-space($module_node/@checklist.convener))>0">
-              <xsl:value-of select="$module_node/@checklist.convener"/>
-            </xsl:when>
-            <xsl:otherwise>
-              -
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-        
-        <!-- Project leader -->
-        <xsl:variable name="projlead_ref" 
-          select="$module_node/contacts/projlead/@ref"/>        
-        <td>
-          <xsl:call-template name="get_contact_name">
-            <xsl:with-param name="ref" select="$projlead_ref"/>
-          </xsl:call-template>
-        </td>
-
-        <!-- Project editor -->
-        <xsl:variable name="projed_ref" 
-          select="$module_node/contacts/editor/@ref"/>
-        <td>
-          <xsl:call-template name="get_contact_name">
-            <xsl:with-param name="ref" select="$projed_ref"/>
-          </xsl:call-template>
-        </td>
-
-
       </tr>
     </xsl:when>
 
@@ -417,14 +200,6 @@ $Id: ballot_summary.xsl,v 1.2 2002/06/20 13:04:38 robbod Exp $
             </xsl:with-param>
           </xsl:call-template>
         </td>
-        <td>&#160;</td>
-        <td>&#160;</td>
-        <td>&#160;</td>
-        <td>&#160;</td>
-        <td>&#160;</td>
-        <td>&#160;</td>
-        <td>&#160;</td>
-        <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>
         <td>&#160;</td>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
+$Id: ballot_start.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a the modules order according to ballot packages
@@ -62,10 +62,17 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
 
 <xsl:template match="ballot_package">
   <xsl:variable name="xref"
-    select="concat('./ballot_list',$FILE_EXT,'#',@name)"/>
+    select="concat('./ballot_list',$FILE_EXT,'#',@id,'-',@name)"/>
   <li>
     <a href="{$xref}">
-      <xsl:value-of select="@name"/>
+      <xsl:choose>
+        <xsl:when test="@id">
+          <xsl:value-of select="concat(@id,' - ',@name)"/>    
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@name"/> 
+        </xsl:otherwise>
+      </xsl:choose>
     </a>
   </li>
 </xsl:template>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_list.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
+$Id: ballot_list.xsl,v 1.2 2002/07/09 10:32:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -56,10 +56,17 @@ $Id: ballot_list.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
 
 
 <xsl:template match="ballot_package" mode="TOC">
-  <xsl:variable name="bpxref" select="@name"/>
+  <xsl:variable name="bpxref" select="concat(@id,'-',@name)"/>
   <small>
     <a href="#{$bpxref}">
-      <xsl:value-of select="@name"/>
+      <xsl:choose>
+        <xsl:when test="@id">
+          <xsl:value-of select="concat(@id,' - ',@name)"/>    
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@name"/> 
+        </xsl:otherwise>
+      </xsl:choose>
     </a>
   </small>
     <xsl:if test="position() != last()">
@@ -70,10 +77,17 @@ $Id: ballot_list.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
 
 
 <xsl:template match="ballot_package">
-  <xsl:variable name="bpaname" select="@name"/>
+  <xsl:variable name="bpaname" select="concat(@id,'-',@name)"/>
   <h3>
     <a name="{$bpaname}">
-      <xsl:value-of select="@name"/>
+      <xsl:choose>
+        <xsl:when test="@id">
+          <xsl:value-of select="concat(@id,' - ',@name)"/>    
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="@name"/> 
+        </xsl:otherwise>
+      </xsl:choose>
     </a>
   </h3>
 

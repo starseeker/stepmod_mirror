@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.16 2002/08/02 15:58:46 robbod Exp $
+$Id: imgfile.xsl,v 1.17 2002/08/05 06:23:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -203,7 +203,7 @@ $Id: imgfile.xsl,v 1.16 2002/08/02 15:58:46 robbod Exp $
           <img align="middle" border="0" 
             alt="First page" src="../../../images/start.gif"/>
         </a>
-        <xsl:variable name="prevpos" select="position()-1"/>
+        <xsl:variable name="prevpos" select="$img_position - 1"/>
         <xsl:variable name="previous">
           <xsl:call-template name="set_file_ext">
             <xsl:with-param name="filename" 

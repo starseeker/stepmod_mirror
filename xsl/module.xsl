@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.89 2002/08/05 15:02:26 robbod Exp $
+$Id: module.xsl,v 1.90 2002/08/05 16:34:48 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -934,7 +934,7 @@ o=isocs; s=central<br/>
     The following typographical convention is used to distinguish between
     these. If a word or phrase occurs in the same typeface as narrative
     text, the referent is the object or concept. If the word or phrase
-    occurs in a bold typeface or as an hyperlink, the referent is the
+    occurs in a bold typeface or as a hyperlink, the referent is the
     EXPRESS data type. 
   </p>
   <p>
@@ -964,7 +964,7 @@ o=isocs; s=central<br/>
     This part of ISO 10303 specifies the application module for 
     <xsl:value-of select="$module_name"/>.
     <a name="inscope"/>
-    The following are within scope of this part of ISO 10303: 
+    The following are within the scope of this part of ISO 10303: 
   </p>
   <ul>
     <xsl:apply-templates/>

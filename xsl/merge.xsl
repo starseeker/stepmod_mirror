@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
 <!--
-$Id: merge.xsl,v 1.1 2001/11/23 12:35:00 robbod Exp $
+$Id: merge.xsl,v 1.2 2001/11/23 12:45:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Merges descriptions into EXPRESS and then outputs new XML.

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+
 <!--
-$Id: module_toc.xsl,v 1.5 2002/01/23 14:24:56 robbod Exp $
+$Id: module_toc.xsl,v 1.6 2002/02/07 17:05:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -41,7 +43,7 @@ $Id: module_toc.xsl,v 1.5 2002/01/23 14:24:56 robbod Exp $
         <!-- Output Section 4. Only set up the index to express clauses that
              exist. -->
         <A HREF="4_info_reqs{$FILE_EXT}#arm">4 Information requirements</A><BR/>
-        <font size="2">
+        <small>
           <A HREF="4_info_reqs{$FILE_EXT}#uof">
             <xsl:value-of select="concat('&#160;&#160;',' 4.1 Units of functionality')"/>
           </A><BR/>
@@ -246,11 +248,11 @@ $Id: module_toc.xsl,v 1.5 2002/01/23 14:24:56 robbod Exp $
             </A><BR/>
           </xsl:if>
 
-        </font>
+        </small>
 
         <!-- Output clause 5 index -->
         <A HREF="5_mim{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
-        <font size="2">
+        <small>
           <A HREF="5_mim{$FILE_EXT}#mapping">&#160; &#160;5.1 Mapping specification</A><BR/>
           <A HREF="5_mim{$FILE_EXT}#mim_express">&#160; &#160;5.2 MIM EXPRESS short listing</A><BR/>
           <!-- only output if there are constants defined and therefore a
@@ -440,7 +442,7 @@ $Id: module_toc.xsl,v 1.5 2002/01/23 14:24:56 robbod Exp $
           </xsl:if>
 
 
-        </font>
+        </small>
       </TD>
       <TD valign="TOP">
         <A HREF="a_short_names{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>

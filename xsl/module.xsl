@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet 
-  type="text/xsl" 
-  href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.33 2002/02/22 17:43:34 robbod Exp $
+$Id: module.xsl,v 1.34 2002/02/24 23:14:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -548,11 +546,11 @@ $Id: module.xsl,v 1.33 2002/02/22 17:43:34 robbod Exp $
   </blockquote>
   
   <b>
-    <font size="4">
+
       <p align="center">
         Table E.1 - ARM to MIM EXPRESS short and long form listing
       </p>
-    </font>
+
   </b>
   <br/>
 

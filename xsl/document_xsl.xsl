@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet 
-  type="text/xsl" 
-  href="./document_xsl.xsl" ?>
+<xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                version="1.0">
 <!--
-$Id: module.xsl,v 1.20 2002/01/12 08:45:39 robbod Exp $
+$Id: document_xsl.xsl,v 1.1 2002/01/12 08:48:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
      Purpose: To display the import/includes in stylesheets
               Derived from XSL progammers reference, M.Kay
 -->
+
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="./document_xsl.xsl" ?>
 
 <xsl:template match="/">
   <html><body>

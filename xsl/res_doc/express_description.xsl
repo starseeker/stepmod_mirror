@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.4 2004/09/14 22:00:15 thendrix Exp $
+$Id: express_description.xsl,v 1.5 2004/09/27 19:22:25 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -268,8 +268,8 @@ and
         <xsl:variable name="raw_phrase">
           <xsl:apply-templates select="$description" mode="phrase_text"/>
         </xsl:variable>
-        <!--        <xsl:variable name="phrase" select="normalize-space($description/text())"/> -->
         <xsl:variable name="phrase" select="normalize-space($raw_phrase)"/>
+        <!--        <xsl:variable name="phrase" select="normalize-space($description/text())"/> -->
         <xsl:variable name="first_word"
           select="substring-before($phrase,' ')"/>
         <xsl:variable name="second_word"
@@ -549,6 +549,15 @@ and  string is more than the schema name ( hence not the  schema )
 </xsl:if>  
      </xsl:template>
 
+<xsl:template match="text()|b|p" mode="flatten_description">
+  <xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="express_ref" mode="flatten_description">
+  <xsl:variable name="express_ref" select="substring-after(@linkend,'.')"/>
+  <xsl:value-of select="concat('ext{',$express_ref,'}')"/>
+</xsl:template>
+
 <xsl:template match="text" mode="phrase_text">
   <xsl:apply-templates mode="phrase_text"/>
 </xsl:template>
@@ -556,7 +565,6 @@ and  string is more than the schema name ( hence not the  schema )
 <xsl:template match="express_ref" mode="phrase_text">
   <xsl:value-of select="substring-after(./@linkend,'.')" />
 </xsl:template>
-
 
 <xsl:template match="p" mode="phrase_text">
   <xsl:apply-templates mode="phrase_text"/>

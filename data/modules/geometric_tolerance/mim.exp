@@ -14,7 +14,8 @@ USE FROM Elemental_geometric_shape_mim;    -- ISO/TS 10303-1004
 USE FROM Measure_representation_mim;    -- ISO/TS 10303-1118
 
 USE FROM product_property_representation_schema   -- ISO 10303-41
-  (shape_representation); 
+  (property_definition_representation,
+   shape_representation); 
 
 USE FROM qualified_measure_schema   -- ISO 10303-45
   (measure_qualification,
@@ -35,6 +36,8 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
 
 ENTITY placed_datum_target_feature
   SUBTYPE OF (datum_target);
+DERIVE
+  representation_associations : SET[0:?] OF property_definition_representation := property_definition_representation := get_shape_aspect_property_definition_representations(SELF);
 WHERE
   WR1: SELF.description IN ['point','line','rectangle','circle', 'circular line'];
   WR2: SIZEOF (QUERY (pdr <* representation_associations | 'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF (pdr.used_representation) )) = 1;
@@ -139,4 +142,3 @@ OTHERWISE : RETURN(FALSE);
 END_CASE;      END_FUNCTION; 
 
 END_SCHEMA;  -- Geometric_tolerance_mim
-

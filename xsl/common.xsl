@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.114 2003/08/07 07:50:21 robbod Exp $
+$Id: common.xsl,v 1.115 2003/08/07 13:58:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -715,10 +715,9 @@ $Id: common.xsl,v 1.114 2003/08/07 07:50:21 robbod Exp $
       <!-- get the text or the text of the last paragraph. Ignore examples and
            notes -->
       <xsl:variable name="item1">
-        <xsl:apply-templates select=".|*" mode="flatten"/>
+        <xsl:apply-templates select="." mode="flatten"/>
       </xsl:variable>
       <xsl:variable name="item" select="normalize-space($item1)"/>
-      
       <xsl:variable name="position">
         <!-- use number rather than position as SAXON gives wrong results -->
         <xsl:number/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.26 2002/03/04 07:54:06 robbod Exp $
+$Id: common.xsl,v 1.27 2002/03/19 13:26:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -275,12 +275,13 @@ $Id: common.xsl,v 1.26 2002/03/04 07:54:06 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  
-  <blockquote>
-    <a name="{$aname}">
-      <xsl:value-of select="concat('NOTE ',./@number,' ')"/></a>&#160;&#160;
-    <xsl:apply-templates/>
-  </blockquote>
+  <p>
+    <small>
+      <a name="{$aname}">
+        <xsl:value-of select="concat('NOTE ',./@number,' ')"/></a>&#160;&#160;
+        <xsl:apply-templates/>
+    </small>
+  </p>
 </xsl:template>
 
 <xsl:template match="example" >
@@ -295,11 +296,13 @@ $Id: common.xsl,v 1.26 2002/03/04 07:54:06 robbod Exp $
     </xsl:choose>
   </xsl:variable>
 
-  <blockquote>
+  <p>
+    <small>
     <a name="{$aname}">
       <xsl:value-of select="concat('EXAMPLE ',@number,' ')"/></a>&#160;&#160;
     <xsl:apply-templates/>
-  </blockquote>
+  </small>
+</p>
 </xsl:template>
 
 

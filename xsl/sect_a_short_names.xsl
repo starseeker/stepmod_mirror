@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.3 2002/01/14 13:28:57 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -33,8 +33,8 @@ $Id: sect_a_short_names.xsl,v 1.3 2002/01/14 13:28:57 robbod Exp $
   Entity names in this part of ISO 10303 have been defined in other parts of
   ISO 10303. Requirements on the use of the short names are found in the
   implementation methods included in ISO 10303.  
-  
-  <blockquote>
+  <p>
+  <small>
     NOTE The EXPRESS entity names are available from Internet:<br/> 
 
     <xsl:variable name="UPPER"
@@ -51,7 +51,8 @@ $Id: sect_a_short_names.xsl,v 1.3 2002/01/14 13:28:57 robbod Exp $
     <a href="{$names_url}">
       <xsl:value-of select="$names_url"/>
     </a>
-  </blockquote>
+  </small>
+</p>
 
 </xsl:template>
   

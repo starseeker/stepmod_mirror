@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.36 2002/03/11 17:17:19 robbod Exp $
+$Id: module.xsl,v 1.37 2002/03/19 13:26:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -588,13 +588,13 @@ $Id: module.xsl,v 1.36 2002/03/11 17:17:19 robbod Exp $
       Secretariat or contact the ISO TC184/SC4 Secretariat directly at:
       sc4sec@cme.nist.gov.
     </P>
-
-    <BLOCKQUOTE>
+    <p>
+    <small>
       NOTE The information provided in computer-interpretable form at the
       above URLs is informative. The information that is contained in the body of
       this part of ISO 10303 is normative. 
-    </BLOCKQUOTE>
-
+    </small>
+  </p>
 </xsl:template>
 
 
@@ -624,21 +624,23 @@ $Id: module.xsl,v 1.36 2002/03/11 17:17:19 robbod Exp $
     defined using the terminology of the subject area of this application
     module. 
   </p>
-  <blockquote>
+  <p>
+  <small>
     NOTE 1 A graphical representation of the information requirements is
     given in 
     <a href="{$c_expg}">Annex C</a>.
-  </blockquote>
-
-  <blockquote>
+  </small>
+</p>
+<p>
+  <small>
     NOTE 2 The mapping specification is specified in 
     <a href="{$sect51}#mapping">5.1</a> which shows how
     the information requirements are met using the integrated resources of ISO
     10303. The use of the integrated resources introduces additional
     requirements which are common to application modules and application
     protocols. 
-  </blockquote>
-
+  </small>
+</p>
   <xsl:variable name="module_dir">
     <xsl:call-template name="module_directory">
       <xsl:with-param name="module" select="../@name"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.42 2004/12/21 01:37:44 thendrix Exp $
+$Id: sect_contents.xsl,v 1.43 2004/12/21 22:38:30 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -405,7 +405,7 @@ $Id: sect_contents.xsl,v 1.42 2004/12/21 01:37:44 thendrix Exp $
         </a>
       </xsl:otherwise>
     </xsl:choose>
-
+    <br/>
 
     <xsl:apply-templates select="//usage_guide//table" mode="toc">
       <xsl:with-param name="target" select="$target"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.10 2004/10/14 20:04:42 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.11 2004/10/19 15:57:13 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -155,7 +155,9 @@
     <xsl:apply-templates select="//rng:define[@name=$name]"
 			 mode="content"/>
     <xsl:if test="local-name(..)='choice' and following-sibling::*">
-      <xsl:text> | </xsl:text>
+      <literal>
+	<xsl:text> | </xsl:text>
+      </literal>
     </xsl:if>
   </xsl:template>
 
@@ -163,7 +165,9 @@
     <xsl:if test="not(rng:empty)">
       <xsl:apply-templates mode="content"/>
       <xsl:if test="local-name(..)='choice' and following-sibling::*">
-	<xsl:text> | </xsl:text>
+	<literal>
+	  <xsl:text> | </xsl:text>
+	</literal>
       </xsl:if>
     </xsl:if>
   </xsl:template>
@@ -175,40 +179,54 @@
       </link>
     </literal>
     <xsl:if test="local-name(..)='choice' and following-sibling::*">
-      <xsl:text> | </xsl:text>
+      <literal>
+	<xsl:text> | </xsl:text>
+      </literal>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:text" mode="content">
-    <xsl:text> #PCDATA </xsl:text>
-    <xsl:if test="local-name(..)='choice' and following-sibling::*">
-      <xsl:text> | </xsl:text>
-    </xsl:if>
+    <literal>
+      <xsl:text> #PCDATA </xsl:text>
+      <xsl:if test="local-name(..)='choice' and following-sibling::*">
+	<xsl:text> | </xsl:text>
+      </xsl:if>
+    </literal>
   </xsl:template>
 
   <xsl:template match="rng:empty" mode="content">
     <xsl:text> EMPTY </xsl:text>
     <xsl:if test="local-name(..)='choice' and following-sibling::*">
-      <xsl:text> | </xsl:text>
+      <literal>
+	<xsl:text> | </xsl:text>
+      </literal>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:zeroOrMore" mode="content">
-    <xsl:text>(</xsl:text>
+    <literal>
+      <xsl:text>(</xsl:text>
+    </literal>
     <xsl:apply-templates mode="content"/>
-    <xsl:text>)*</xsl:text>
-    <xsl:if test="local-name(..)='choice' and following-sibling::*">
-      <xsl:text> | </xsl:text>
-    </xsl:if>
+    <literal>
+      <xsl:text>)*</xsl:text>
+      <xsl:if test="local-name(..)='choice' and following-sibling::*">
+	<xsl:text> | </xsl:text>
+      </xsl:if>
+    </literal>
   </xsl:template>
 
   <xsl:template match="rng:oneOrMore" mode="content">
-    <xsl:text>(</xsl:text>
+    <literal>
+      <xsl:text>(</xsl:text>
+    </literal>
     <xsl:apply-templates mode="content"/>
-    <xsl:text>)+</xsl:text>
-    <xsl:if test="local-name(..)='choice' and following-sibling::*">
-      <xsl:text> | </xsl:text>
-    </xsl:if>
+    <literal>
+      <xsl:text>)+</xsl:text>
+      <xsl:if test="local-name(..)='choice' and following-sibling::*">
+	<xsl:text> | </xsl:text>
+      </xsl:if>
+    </literal>
   </xsl:template>
 
   <xsl:template match="rng:optional" mode="content">
@@ -217,18 +235,24 @@
 	<xsl:apply-templates mode="content"/>
       </emphasis>
       <xsl:if test="local-name(..)='choice' and following-sibling::*">
-	<xsl:text> | </xsl:text>
+	<literal>
+	  <xsl:text> | </xsl:text>
+	</literal>
       </xsl:if>
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:choice" mode="content">
-    <xsl:text>(</xsl:text>
+    <literal>
+      <xsl:text>(</xsl:text>
+    </literal>
     <xsl:apply-templates mode="content"/>
-    <xsl:text>)</xsl:text>
-    <xsl:if test="local-name(..)='choice' and following-sibling::*">
-      <xsl:text> | </xsl:text>
-    </xsl:if>
+    <literal>
+      <xsl:text>)</xsl:text>
+      <xsl:if test="local-name(..)='choice' and following-sibling::*">
+	<xsl:text> | </xsl:text>
+      </xsl:if>
+    </literal>
   </xsl:template>
 
   <xsl:template match="rng:attribute | a:documentation" mode="content"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.4 2002/02/24 23:14:01 robbod Exp $
+     $Id: parameters.xsl,v 1.5 2002/03/04 07:54:16 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -39,8 +39,11 @@
        Used by:
        xsl:template name="error_message" in common.xsl
        -->
-  <xsl:param name="INLINE_ERRORS" select="'no'"/>
+  <xsl:param name="INLINE_ERRORS" select="'yes'"/>
 
+  <!-- when YES issues will be read from the issues.xml file stored in the
+       module directory -->
+  <xsl:param name="output_issues" select="'YES'"/>
 
 
 </xsl:stylesheet>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.1 2002/03/19 13:21:28 robbod Exp $
+     $Id: express_description.xsl,v 1.2 2002/03/27 09:38:09 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -146,16 +146,17 @@
           <xsl:value-of select="$return2"/>
         </xsl:variable> <!-- xref -->
 
-        <!-- debug
-        <xsl:message>
-          <xsl:value-of select="concat('Searching: ',$description_file,' - ',$xref)"/></xsl:message>
-        -->
+
 
         <xsl:variable name="description"
           select="document($description_file)/ext_descriptions/ext_description[@linkend=$xref]"/>
+        <!-- debug
+        <xsl:message>
+          <xsl:value-of select="concat($xref,' -',string-length($description))"/></xsl:message>
+          -->
 
         <xsl:choose>
-          <xsl:when test="$description">
+          <xsl:when test="$description and string-length($description)>1">
             <xsl:value-of select="'true'"/>
           </xsl:when>
           <xsl:otherwise>

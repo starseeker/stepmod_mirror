@@ -55,6 +55,14 @@
       </xsl:call-template>
     </xsl:variable>
 
+    <xsl:variable name="express_ref_ok">
+      <xsl:call-template name="check_express_path">
+        <xsl:with-param name="linkend" select="@linkend"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <!--
+    xxx<xsl:value-of select="$express_ref_ok"/>zzz
+         -->
     <xsl:choose>
       <xsl:when test="$href=''">
         <xsl:call-template name="error_message">
@@ -99,24 +107,41 @@
       </xsl:call-template>
     </xsl:variable>
 
+    <xsl:variable name="item">
+      <xsl:call-template name="get_last_section">
+        <xsl:with-param name="path" select="@linkend"/>
+      </xsl:call-template>
+    </xsl:variable>
     <xsl:choose>
       <xsl:when test="$href=''">
         <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="warning_gif"
-            select="'../../../images/warning.gif'"/>
           <xsl:with-param 
             name="message" 
             select="concat('express_ref linkend', 
                     @linkend, 
                     ' is incorrectly specified')"/>
         </xsl:call-template>
-        <xsl:apply-templates/>
+        <xsl:choose>
+          <xsl:when test="string-length(.)>0">
+            <b><xsl:apply-templates/></b>
+          </xsl:when>
+          <xsl:otherwise>
+            <b><xsl:value-of select="$item"/></b>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-        <a href="{$href}"><xsl:apply-templates/></a>
+        <xsl:choose>
+          <xsl:when test="string-length(.)>0">
+            <a href="{$href}"><b><xsl:apply-templates/></b></a>
+          </xsl:when>
+          <xsl:otherwise>
+            <a href="{$href}"><b><xsl:value-of select="$item"/></b></a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
+
   </xsl:template>
 
 

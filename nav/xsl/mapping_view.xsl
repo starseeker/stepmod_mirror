@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.10 2002/11/29 12:35:41 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.11 2002/12/09 11:08:57 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -986,9 +986,157 @@ $Id: mapping_view.xsl,v 1.10 2002/11/29 12:35:41 nigelshaw Exp $
 		<xsl:with-param name="schemas" select="$schemas" />
 	</xsl:apply-templates>
 
+	<xsl:apply-templates select="is-extension-from | is-extension-of" mode="test" >
+		<xsl:with-param name="schemas" select="$schemas" />
+	</xsl:apply-templates>
+	
+	<xsl:apply-templates select="equals" mode="test" >
+		<xsl:with-param name="schemas" select="$schemas" />
+	</xsl:apply-templates>
+
+
 	</blockquote>
 
 </xsl:template>
+
+<xsl:template match="equals" mode="test">
+	<xsl:param name="schemas" />	
+	<!-- test that types are properly related -->
+
+	<xsl:variable name="first" select="string(preceding-sibling::*[not(name() ='new-line')][1])" />
+	<xsl:variable name="second" select="string(following-sibling::*[not(name() ='new-line')][1])" />
+
+	<xsl:choose>
+		<xsl:when test="name(following-sibling::*[1])='quote'" >
+
+			<!-- do nothing - just eliminate the possibility that test is on a quoted string -->
+
+		</xsl:when>
+		<xsl:when test="name(preceding-sibling::*[1])='end-bracket'" >
+
+			<!-- do nothing - just eliminate the possibility that test is on aggregate member -->
+
+		</xsl:when>
+		<xsl:when test="contains(concat($first,$second),'.')" >
+
+			<!-- do nothing - just eliminate the possibility that test is on an attribute -->
+
+		</xsl:when>
+		<xsl:when test="string-length(translate($second,'0123456789.','')) = 0 " >
+
+			<!-- do nothing - just eliminate the possibility that test is on a number -->
+
+		</xsl:when>
+		<xsl:when test="not($first or $second)" >
+
+			<!-- Probable syntax error!!! <br/> -->
+		
+		</xsl:when>
+		<xsl:when test="$mim_node//type[@name=$first][select/@basedon]" >
+
+			<!-- check that second is contained in selectitems list -->
+			
+			<xsl:choose>
+				<xsl:when test="not($mim_node//type[@name=$first]/select[
+					contains(concat(' ',@selectitems,' '),
+					concat(' ',$second,' '))])" >
+
+					<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+				            select="concat('Error Map31: TYPE ',$first,
+					    ' does not include ',$second,' as select item')"/>
+					</xsl:call-template>    
+				</xsl:when>
+				<xsl:otherwise>
+					<br/>
+					TYPE <xsl:value-of select="$first"/> includes 
+					<xsl:value-of select="$second"/> as select item 
+					<br/>
+				</xsl:otherwise>
+			</xsl:choose>	
+		</xsl:when>
+		<xsl:otherwise>
+		</xsl:otherwise>
+	</xsl:choose>
+	
+</xsl:template>
+
+<xsl:template match="is-extension-from" mode="test">
+	<xsl:param name="schemas" />	
+	<!-- test that types are properly related -->
+
+	<xsl:variable name="based-on-type" select="string(preceding-sibling::*[not(name() ='new-line')][1])" />
+	<xsl:variable name="derived-type" select="string(following-sibling::*[not(name() ='new-line')][1])" />
+
+	<xsl:choose>
+		<xsl:when test="not($based-on-type)" >
+
+			NO type specified at start of reference path !!! <br/>
+		
+		</xsl:when>
+		<xsl:when test="not($schemas//type[@name=$derived-type][select/@basedon=$based-on-type])" >
+
+<!--			TYPE <xsl:value-of select="$derived-type"/> not found 
+			or not based on <xsl:value-of select="$based-on-type"/> !!! <br/> 
+-->
+					<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+				            select="concat('Error Map32: TYPE ',$derived-type,
+					    ' not found or not based on ',$based-on-type)"/>
+					</xsl:call-template>    
+		</xsl:when>
+		<xsl:otherwise>
+			<br/>
+			TYPE <xsl:value-of select="$derived-type"/> found 
+			and based on <xsl:value-of select="$based-on-type"/>
+			<br/>		
+		</xsl:otherwise>
+	</xsl:choose>
+	
+</xsl:template>
+
+<xsl:template match="is-extension-of" mode="test">
+	<xsl:param name="schemas" />	
+	<!-- test that types are properly related -->
+
+	<xsl:variable name="based-on-type" select="string(following-sibling::*[not(name() ='new-line')][1])" />
+	<xsl:variable name="derived-type" select="string(preceding-sibling::*[not(name() ='new-line')][1])" />
+
+	<xsl:choose>
+		<xsl:when test="not($derived-type)" >
+
+			NO type specified at start of reference path !!! <br/>
+		
+		</xsl:when>
+		<xsl:when test="not($schemas//type[@name=$derived-type][select/@basedon=$based-on-type])" >
+<!--			TYPE <xsl:value-of select="$derived-type"/> not found 
+			or not based on <xsl:value-of select="$based-on-type"/> !!! <br/> 
+-->
+					<xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+				            select="concat('Error Map33: TYPE ',$derived-type,
+					    ' not found or not based on ',$based-on-type)"/>
+					</xsl:call-template>    
+		</xsl:when>
+		<xsl:otherwise>
+			<br/>
+			TYPE <xsl:value-of select="$derived-type"/> found 
+			and based on <xsl:value-of select="$based-on-type"/>
+			<br/>		
+		</xsl:otherwise>
+	</xsl:choose>
+	
+</xsl:template>
+
 
 <xsl:template match="word" mode="test">
 	<xsl:param name="schemas" />	

@@ -635,44 +635,57 @@
 		</xs:element>
 		<xsl:text>&#xa;</xsl:text>
 		<xsl:text>&#xa;</xsl:text>
-		<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE MAPPING  TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/>
+		<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE MAPPING TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/>
 		</xsl:comment>
 		<xsl:text>&#xa;</xsl:text>
 		<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
 			<xs:complexContent>
-				<xs:extension base="{$ext_base_sub_grp}">
-					<xsl:if test="./explicit">
-						<xs:sequence>
+				<!-- xs:extension base="{$ext_base_sub_grp}" -->
+					<xsl:choose>
+										
+					<xsl:when test="./explicit">
+						<!-- xs:sequence -->
 							<!-- xsl:text>&#xa;</xsl:text -->
 							<xsl:choose>
 								<!-- test for redeclared attributes that are not renamed and which are not accompanied by normal attributes -->
 								<xsl:when test="./explicit/redeclaration">
 									<xsl:choose>
-										<xsl:when test="./explicit[not(redeclaration)]"><xsl:apply-templates select="explicit"/></xsl:when>
-										<xsl:when test="(./explicit/redeclaration/@old_name)"><xsl:apply-templates select="explicit"/></xsl:when>
+										<xsl:when test="./explicit[not(redeclaration)]">
+											<xs:extension base="{$ext_base_sub_grp}">
+												<xs:sequence><xsl:apply-templates select="explicit"/></xs:sequence>
+											</xs:extension>
+										</xsl:when>
+										<xsl:when test="(./explicit/redeclaration/@old_name)">
+											<xs:extension base="{$ext_base_sub_grp}">
+												<xs:sequence><xsl:apply-templates select="explicit"/></xs:sequence>
+											</xs:extension>
+										</xsl:when>
 										<xsl:otherwise>
-											<xsl:variable name="non_temp_redeclared_attribute_names">
-												<xsl:for-each select="//entity[@name=$raw_entity_name_param]/explicit/redeclaration">
-													<xsl:value-of select="string(concat(' ', ../@name))"/>
-												</xsl:for-each>
-											</xsl:variable>
-											<xs:sequence>
-												<xsl:call-template name="collect_attributes_from_supertypes_but_weed_out_those_redeclared_here">
-													<!-- xsl:with-param name="raw_supertype_param" select="$raw_supertype_name_param"/ -->
-													<xsl:with-param name="raw_entity_param" select="$raw_entity_name_param"/>
-													<!-- xsl:with-param name="redeclared_attributes_param" select="concat(' ', normalize-space		($non_temp_redeclared_attribute_names), ' ')"/ -->
-													<xsl:with-param name="redeclared_attributes_param" select="string(' ')"/>
-												</xsl:call-template>
-											</xs:sequence>
-											<xs:sequence><xsl:apply-templates select="explicit"/></xs:sequence>
+											<xs:restriction base="{$ext_base_sub_grp}">
+												<xs:sequence>
+													<xs:sequence>
+														<xsl:call-template name="collect_attributes_from_supertypes_but_weed_out_those_redeclared_here">
+															<xsl:with-param name="raw_entity_param" select="$raw_entity_name_param"/>
+															<xsl:with-param name="redeclared_attributes_param" select="string(' ')"/>
+														</xsl:call-template>
+													</xs:sequence>
+													<xs:sequence><xsl:apply-templates select="explicit"/></xs:sequence>
+												</xs:sequence>
+											</xs:restriction>
 										</xsl:otherwise>
 									</xsl:choose>
 								</xsl:when>
-								<xsl:otherwise><xsl:apply-templates select="explicit"/></xsl:otherwise>
+								<xsl:otherwise>
+									<xs:extension base="{$ext_base_sub_grp}">
+										<xs:sequence><xsl:apply-templates select="explicit"/></xs:sequence>
+									</xs:extension>
+								</xsl:otherwise>
 							</xsl:choose>
-						</xs:sequence>
-					</xsl:if>
-				</xs:extension>
+						<!-- /xs:sequence -->
+					</xsl:when>
+					<xsl:otherwise><xs:extension base="{$ext_base_sub_grp}"/></xsl:otherwise>
+					</xsl:choose>
+				<!-- /xs:extension -->
 			</xs:complexContent>
 		</xs:complexType>
 		<xsl:text>&#xa;</xsl:text>
@@ -1340,13 +1353,59 @@
 					</xsl:variable>
 					<xsl:choose>
 						<xsl:when test="./typename">
-							<xsl:variable name="raw_type_name" select="./typename/@name"/>
+							<xsl:variable name="target" select="./typename/@name"/>
+							<xsl:variable name="corrected_target_name">
+								<xsl:call-template name="put_into_lower_case">
+									<xsl:with-param name="raw_item_name_param" select="$target"/>
+								</xsl:call-template>
+							</xsl:variable>
+							<xsl:choose>
+								<xsl:when test="$target = //type[select]/@name">
+									<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
+										<xs:complexType>
+											<xs:group ref="{$namespace_prefix}{$corrected_target_name}"/>
+										</xs:complexType>
+									</xs:element>
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:text>&#xa;</xsl:text>
+								</xsl:when>
+								<xsl:when test="$target = //entity/@name">
+									<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element ref="{$namespace_prefix}{$corrected_target_name}"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:text>&#xa;</xsl:text>
+								</xsl:when>
+								<xsl:otherwise>
+									<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$optionality}"/>
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:text>&#xa;</xsl:text>
+								</xsl:otherwise>
+							</xsl:choose>
+						
+						
+						
+						
+							<!-- xsl:variable name="raw_type_name" select="./typename/@name"/>
 							<xsl:variable name="corrected_type_name">
 								<xsl:call-template name="put_into_lower_case">
 									<xsl:with-param name="raw_item_name_param" select="$raw_type_name"/>
 								</xsl:call-template>
 							</xsl:variable>
-							<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_type_name}" minOccurs="{$optionality}"/>
+					
+						<xs:element name="{$corrected_attribute_name}">
+							<xs:complexType>
+									<xs:sequence>
+										<xs:element ref="{$namespace_prefix}{$corrected_type_name}"/>
+									</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+							
+							<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_type_name}" minOccurs="{$optionality}"/ -->
 						</xsl:when>
 						<xsl:when test="./builtintype">
 							<xsl:call-template name="generate_attribute_to_simple_datatype">

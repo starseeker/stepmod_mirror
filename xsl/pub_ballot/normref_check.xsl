@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normref_check.xsl,v 1.2 2004/11/18 15:46:08 robbod Exp $
+$Id: normref_check.xsl,v 1.3 2004/12/01 09:26:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep.
   Purpose:
@@ -58,6 +58,11 @@ $Id: normref_check.xsl,v 1.2 2004/11/18 15:46:08 robbod Exp $
           It should be used to check that the normative references are correct.
         </p>
         <xsl:apply-templates select="/" mode="process_modules"/>
+
+        <!-- to avoid a link error,  output a footnote to say that the normative reference has not been
+             published -->
+        <xsl:call-template name="output_unpublished_normrefs_footnote"/>
+
       </body>
     </HTML>
   </xsl:template>
@@ -104,6 +109,8 @@ $Id: normref_check.xsl,v 1.2 2004/11/18 15:46:08 robbod Exp $
         <xsl:apply-templates select="$normrefs_nodes/normref_node" mode="display_normref"/>
       </xsl:when>
     </xsl:choose>
+
+
   </xsl:template>
 
   <!-- applies to ap_doc in ballot_publication_index -->
@@ -203,6 +210,13 @@ $Id: normref_check.xsl,v 1.2 2004/11/18 15:46:08 robbod Exp $
   </xsl:template>
 
 
+<xsl:template name="output_unpublished_normrefs_footnote">
+  <p>
+      <a name="tobepub">
+        <sup>1)</sup> To be published.
+      </a>      
+    </p>
+</xsl:template>
 
 
 </xsl:stylesheet>

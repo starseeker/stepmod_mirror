@@ -1,0 +1,54 @@
+(* $Id: $
+N	ISO/WD 10303-	Classification with attributes - Express ARM *)
+
+
+SCHEMA Classification_with_attributes_arm;
+
+USE FROM Class_arm;
+
+USE FROM External_class_arm;
+	-- note: enables Class_wth_attributes to be an external_class
+
+USE FROM Plib_class_reference_arm;
+	-- note: that inclusion extends class_source_select with Plib_class_reference
+
+USE FROM Part_and_version_identification_arm;
+
+USE FROM Part_view_definition_arm;
+
+TYPE classified_element_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+TYPE definable_objects = SELECT ( Part, Part_version, Part_view_definition);
+END_TYPE;
+
+ENTITY Class_with_attributes
+SUBTYPE OF (Class);
+  version_id: OPTIONAL STRING;
+  used_classification_system: OPTIONAL  Classification_system;
+  characterization_attributes: SET[0:?] OF Classification_attibute;
+END_ENTITY;
+
+ENTITY Classification_association;
+   associated_classification: Class;
+   classified_element: classified_element_select;
+   role : STRING;
+   definitional: LOGICAL;
+WHERE
+   WR1: ('CLASSIFICATION_WITH_ATTRIBUTES_ARM.DEFINABLE_OBJECTS' IN TYPEOF(classified_element)) OR 
+	NOT definitional;
+END_ENTITY;
+
+ENTITY Classification_attribute;
+   id: STRING;
+   name: OPTIONAL STRING;
+   description: OPTIONAL STRING;
+   allowed_values: SET[0:?] OF Measure_item;
+END_ENTITY;
+
+ENTITY Classification_system;
+  id: STRING;
+ description: OPTIONAL STRING;
+END_ENTITY;
+
+END_SCHEMA;

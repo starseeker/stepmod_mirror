@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.10 2003/06/02 14:12:49 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.11 2003/06/06 16:45:28 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+		xmlns:exslt="http://exslt.org/common"
+                version="1.0">
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/>
   <xsl:output method="html"/>
@@ -77,51 +80,37 @@ $Id: sect_6_ccs.xsl,v 1.10 2003/06/02 14:12:49 robbod Exp $
       in that class.
     </p>
 
+
     <xsl:variable name="table_count">
       <xsl:apply-templates select="." mode="table_count_cc"/>
     </xsl:variable>
 
-    <xsl:choose>
-      <xsl:when test="$ccs_xml/conformance/mims_in_ccs">
-        <p>
-          Conformance to a particular class requires that all ARM elements
-          defined as part of that class be supported. 
-          Table 
-          <a href="#cc_arm_table">
-            <xsl:value-of select="$table_count+1"/>
-          </a>
-          defines the classes to which each ARM element belongs.
-          Table 
-          <a href="#cc_mim_table">
-            <xsl:value-of select="$table_count+2"/>
-          </a>
-          defines the classes to which each MIM element belongs.
-        </p>
-      </xsl:when>
-      <xsl:otherwise>
-        <p>
-          Conformance to a particular class requires that all ARM elements
-          defined as part of that class be supported. 
-          Table 
-          <a href="#cc_arm_table">
-            <xsl:value-of select="$table_count+1"/>
-          </a>
-          defines the classes to which each ARM element belongs.
-        </p>        
-      </xsl:otherwise>
-    </xsl:choose>
-    <xsl:apply-templates select="$ccs_xml/conformance/cc" mode="scope"/>    
-    <xsl:apply-templates select="$ccs_xml/conformance/arms_in_ccs" mode="table">
+    <!-- the first conformance class is always the complete AP module -->
+    <p>
+      Conformance to a particular class requires that all ARM elements
+      defined as part of that class be supported. 
+      Table 
+      <a href="#cc_arm_table">
+        <xsl:value-of select="$table_count+1"/>
+      </a>
+      defines the classes to which each ARM element belongs.
+      Table 
+      <a href="#cc_mim_table">
+        <xsl:value-of select="$table_count+2"/>
+      </a>
+      defines the classes to which each MIM element belongs.
+    </p>    
+
+    <xsl:apply-templates select="$ccs_xml/conformance/cc" mode="scope"/>
+
+    <xsl:apply-templates select="$ccs_xml/conformance" mode="tables">
       <xsl:with-param name="table_number" select="$table_count+1"/>
     </xsl:apply-templates>
-    <xsl:apply-templates select="$ccs_xml/conformance/mims_in_ccs" mode="table">
-      <xsl:with-param name="table_number" select="$table_count+2"/>
-    </xsl:apply-templates>
+    
   </xsl:template>
 
-  <xsl:template match="arms_in_ccs" mode="table">
+  <xsl:template match="conformance" mode="tables">
     <xsl:param name="table_number" select="0"/>
-    <xsl:variable name="no_of_ccs" select="count(/conformance/cc)"/>
     <div align="center">
       <p>
         <b>
@@ -133,6 +122,24 @@ $Id: sect_6_ccs.xsl,v 1.10 2003/06/02 14:12:49 robbod Exp $
         </b>
       </p>
     </div>
+    <xsl:apply-templates select="." mode="arm_table"/>
+
+    <div align="center">
+      <p>
+        <b>
+          <a name="cc_mim_table">
+            Table 
+            <xsl:value-of select="$table_number+1"/>
+            &#8212; Conformance class MIM elements
+          </a>
+        </b>
+      </p>
+    </div>
+    <xsl:apply-templates select="." mode="mim_table"/>
+  </xsl:template>
+
+  <xsl:template match="conformance" mode="arm_table">
+    <xsl:variable name="no_of_ccs" select="count(/conformance/cc)"/>
     <div align="center">
       <table border="1" cellspacing="1">
         <tr>
@@ -144,26 +151,13 @@ $Id: sect_6_ccs.xsl,v 1.10 2003/06/02 14:12:49 robbod Exp $
         <tr>
           <xsl:apply-templates select="/conformance/cc" mode="td_title"/>
         </tr>
-        <xsl:apply-templates select="arm_entity_in_cc" mode="cc_table"/>
+        <xsl:apply-templates select="." mode="cc_arm_table"/>
       </table>
     </div>
   </xsl:template>
 
-
-  <xsl:template match="mims_in_ccs" mode="table">
-    <xsl:param name="table_number" select="0"/>
+  <xsl:template match="conformance" mode="mim_table">
     <xsl:variable name="no_of_ccs" select="count(/conformance/cc)"/>
-    <div align="center">
-      <p>
-        <b>
-          <a name="cc_mim_table">
-            Table 
-            <xsl:value-of select="$table_number"/>
-            &#8212; Conformance class MIM elements
-          </a>
-        </b>
-      </p>
-    </div>
     <div align="center">
       <table border="1" cellspacing="1">
         <tr>
@@ -175,40 +169,297 @@ $Id: sect_6_ccs.xsl,v 1.10 2003/06/02 14:12:49 robbod Exp $
         <tr>
           <xsl:apply-templates select="/conformance/cc" mode="td_title"/>
         </tr>
-        <xsl:apply-templates select="mim_entity_in_cc" mode="cc_table"/>
+        <xsl:apply-templates select="." mode="cc_mim_table"/>
       </table>
     </div>
   </xsl:template>
 
 
+  
+  <!-- the first conformance class is the complete module, so list all the
+       entities from the long form -->
+  <xsl:template match="conformance" mode="cc_arm_table">
+    <xsl:variable name="cc1_module" select="cc[1]/@module"/>
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="$cc1_module"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$module_ok='true'">
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="ap_module_directory">
+            <xsl:with-param name="application_protocol" select="$cc1_module"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="arm_lf"
+          select="document(concat($module_dir,'/arm_lf.xml'))"/>
+        <xsl:if test="count($arm_lf//entity)=0">
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error APCC2: The module
+                                    ',$cc1_module,' does not have an ARM
+long form defined. This is required in order to present the first
+conformance class')"/>
+          </xsl:with-param>
+        </xsl:call-template>
 
+        </xsl:if>
+        
+        <!-- collect entities and sort -->
+        <xsl:variable name="entities">
+          <xsl:for-each select="$arm_lf//entity">
+            <xsl:element name="entity">
+              <xsl:attribute name="name">
+                <xsl:value-of select="@name"/>
+              </xsl:attribute>
+              <xsl:attribute name="cc">
+                <xsl:value-of select="1"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:for-each>
+          <xsl:for-each select="//arm_entity_in_cc">
+            <!-- only add if not in cc1 long form -->
+            <xsl:variable name="lname" select="@name"/>
+            <xsl:if test="not($arm_lf//entity[@name=$lname])">
+              <xsl:element name="entity">
+                <xsl:attribute name="name">
+                  <xsl:value-of select="$lname"/>
+                </xsl:attribute>
+                <xsl:attribute name="cc">
+                  <xsl:value-of select="'?'"/>
+                </xsl:attribute>
+              </xsl:element>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:variable>
 
-  <xsl:template match="arm_entity_in_cc|mim_entity_in_cc" mode="cc_table">
-    <tr>
-      <td align="left">
-        <xsl:value-of select="@name"/>
-      </td>
-      <xsl:apply-templates select="/conformance/cc" mode="td_arm_entity">
+        <xsl:choose>
+          <xsl:when test="function-available('msxsl:node-set')">
+            <xsl:variable name="entities_node_set" select="msxsl:node-set($entities)"/>
+            <xsl:call-template name="output_cc_arm_row">
+              <xsl:with-param name="entities_node_set" select="$entities_node_set"/>
+              <xsl:with-param name="conformance_node_set" select="/conformance"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="function-available('exslt:node-set')">
+            <xsl:variable name="entities_node_set" select="exslt:node-set($entities)"/>
+            <xsl:call-template name="output_cc_arm_row">
+              <xsl:with-param name="entities_node_set" select="$entities_node_set"/>
+              <xsl:with-param name="conformance_node_set" select="/conformance"/>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error APCC1: The module ',$cc1_module,' does not exist.',
+                                  '  Correct CC module_name in ccs.xml')"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- the first conformance class is the complete module, so list all the
+       entities from the long form -->
+  <xsl:template match="conformance" mode="cc_mim_table">
+    <xsl:variable name="cc1_module" select="cc[1]/@module"/>
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="$cc1_module"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$module_ok='true'">
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="ap_module_directory">
+            <xsl:with-param name="application_protocol" select="$cc1_module"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="mim_lf"
+          select="document(concat($module_dir,'/mim_lf.xml'))"/>
+        <xsl:if test="count($mim_lf//entity)=0">
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error APCC2: The module
+                                    ',$cc1_module,' does not have an MIM
+long form defined. This is required in order to present the first
+conformance class')"/>
+          </xsl:with-param>
+        </xsl:call-template>
+
+        </xsl:if>
+        
+        <!-- collect entities and sort -->
+        <xsl:variable name="entities">
+          <xsl:for-each select="$mim_lf//entity">
+            <xsl:element name="entity">
+              <xsl:attribute name="name">
+                <xsl:value-of select="@name"/>
+              </xsl:attribute>
+              <xsl:attribute name="cc">
+                <xsl:value-of select="'1'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:for-each>
+          <xsl:for-each select="//mim_entity_in_cc">
+            <!-- only add if not in cc1 long form -->
+            <xsl:variable name="lname" select="@name"/>
+            <xsl:if test="not($mim_lf//entity[@name=$lname])">
+              <xsl:element name="entity">
+                <xsl:attribute name="name">
+                  <xsl:value-of select="$lname"/>
+                </xsl:attribute>
+                <xsl:attribute name="cc">
+                  <xsl:value-of select="'?'"/>
+                </xsl:attribute>
+              </xsl:element>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:variable>
+
+        <xsl:choose>
+          <xsl:when test="function-available('msxsl:node-set')">
+            <xsl:variable name="entities_node_set" select="msxsl:node-set($entities)"/>
+            <xsl:call-template name="output_cc_mim_row">
+              <xsl:with-param name="entities_node_set" select="$entities_node_set"/>
+              <xsl:with-param name="conformance_node_set" select="/conformance"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="function-available('exslt:node-set')">
+            <xsl:variable name="entities_node_set" select="exslt:node-set($entities)"/>
+            <xsl:call-template name="output_cc_mim_row">
+              <xsl:with-param name="entities_node_set" select="$entities_node_set"/>
+              <xsl:with-param name="conformance_node_set" select="/conformance"/>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:otherwise>
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error APCC1: The module ',$cc1_module,' does not exist.',
+                                  '  Correct CC module_name in ccs.xml')"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="output_cc_arm_row">
+    <xsl:param name="entities_node_set"/>
+    <xsl:param name="conformance_node_set"/>
+    <xsl:variable name="ccs" select="$conformance_node_set/cc"/>
+    <xsl:variable name="arms_in_ccs" select="$conformance_node_set/arms_in_ccs"/>
+    <xsl:for-each select="$entities_node_set/*">
+      <xsl:sort select="@name"/>
+      <xsl:variable name="lname" select="@name"/>
+      <tr>
+        <td align="left">
+          <xsl:value-of select="$lname"/>
+        </td>
+        <!-- output CC1 -->
+        <xsl:choose>
+          <xsl:when test="@cc='1'">
+            <td>
+              <img align="middle" border="0" alt="X"
+                src="../../../../images/bullet.gif"/>
+            </td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>&#160;</td>
+          </xsl:otherwise>
+        </xsl:choose>
+        <!-- output rest of CCs 
+             check if the entity is referenced in CCs other than 1
+             -->
+        <xsl:choose>
+          <xsl:when test="$arms_in_ccs/arm_entity_in_cc[@name=$lname]">
+            <xsl:apply-templates select="$arms_in_ccs/arm_entity_in_cc[@name=$lname]" mode="cc_table1"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="$ccs" mode="blanks"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </tr>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template name="output_cc_mim_row">
+    <xsl:param name="entities_node_set"/>
+    <xsl:param name="conformance_node_set"/>
+    <xsl:variable name="ccs" select="$conformance_node_set/cc"/>
+    <xsl:variable name="mims_in_ccs" select="$conformance_node_set/arms_in_ccs"/>
+    <xsl:for-each select="$entities_node_set/*">
+      <xsl:sort select="@name"/>
+      <xsl:variable name="lname" select="@name"/>
+      <tr>
+        <td align="left">
+          <xsl:value-of select="$lname"/>
+        </td>
+        <!-- output CC1 -->
+        <xsl:choose>
+          <xsl:when test="@cc='1'">
+            <td>
+              <img align="middle" border="0" alt="X"
+                src="../../../../images/bullet.gif"/>
+            </td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>&#160;</td>
+          </xsl:otherwise>
+        </xsl:choose>
+        <!-- output rest of CCs 
+             check if the entity is referenced in CCs other than 1
+             -->
+        <xsl:choose>
+          <xsl:when test="$mims_in_ccs/mim_entity_in_cc[@name=$lname]">
+            <xsl:apply-templates select="$mims_in_ccs/mim_entity_in_cc[@name=$lname]" mode="cc_table1"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="$ccs" mode="blanks"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </tr>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template match="cc" mode="blanks">
+    <xsl:if test="position() != 1">
+      <td>&#160;</td>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="arm_entity_in_cc|mim_entity_in_cc" mode="cc_table1">
+      <xsl:apply-templates select="/conformance/cc" mode="td_entity">
         <xsl:with-param name="entity_in_cc" select="current()"/>
       </xsl:apply-templates>
-    </tr>
   </xsl:template>
 
 
-  <xsl:template match="cc" mode="td_arm_entity">
+
+  <xsl:template match="cc" mode="td_entity">
     <xsl:param name="entity_in_cc"/>
     <xsl:variable name="cc_id" select="@id"/>
-    <td>
-      <xsl:choose>
-        <xsl:when test="$entity_in_cc/cc_id[@id=$cc_id]">
-          <img align="middle" border="0" alt="X" src="../../../../images/bullet.gif"/>
-        </xsl:when>
-        <xsl:otherwise>
-          &#160;
-        </xsl:otherwise>
-      </xsl:choose>
-    </td>
+    <!-- ignore first CC -->
+    <xsl:if test="position() != 1">
+      <td>
+        <xsl:choose>
+          <xsl:when test="$entity_in_cc/cc_id[@id=$cc_id]">
+            <img align="middle" border="0" alt="X" src="../../../../images/bullet.gif"/>
+          </xsl:when>
+          <xsl:otherwise>
+            &#160;
+          </xsl:otherwise>
+        </xsl:choose>
+      </td>
+    </xsl:if>
   </xsl:template>
+
 
   <xsl:template match="cc" mode="td_title">
     <xsl:variable name="href" select="concat('cc_',@id)"/>
@@ -253,6 +504,38 @@ $Id: sect_6_ccs.xsl,v 1.10 2003/06/02 14:12:49 robbod Exp $
       </a>
     </h2>
 
+    <p>
+      The conformance class, 
+      <b>
+        <xsl:value-of select="@name"/>
+      </b>
+      has been declared against the module: 
+      <xsl:choose>
+        <xsl:when test="$module_ok='true'">
+          <xsl:variable name="module_dir">
+            <xsl:call-template name="ap_module_directory">
+              <xsl:with-param name="application_protocol" select="$module"/>
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:variable name="module_node"
+            select="document(concat($module_dir,'/module.xml'))/module"/>
+          <a href="../../../modules/{$module}/sys/cover{$FILE_EXT}">
+            <xsl:call-template name="module_display_name">
+              <xsl:with-param name="module" select="$module_node/@name"/>
+            </xsl:call-template>
+          </a>
+          (ISO 10303-<xsl:value-of select="$module_node/@part"/>).
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error APCC1: The module ',$module,' does not exist.',
+                                    '  Correct CC module_name in ccs.xml')"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </p>
     <xsl:apply-templates select="./inscope"/>
   </xsl:template>
 

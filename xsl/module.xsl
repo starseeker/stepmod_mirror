@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.10 2001/11/16 09:16:59 robbod Exp $
+$Id: module.xsl,v 1.11 2001/11/21 08:11:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -136,8 +136,10 @@ $Id: module.xsl,v 1.10 2001/11/16 09:16:59 robbod Exp $
 
 
 <xsl:template match="module" mode="annexe">
-  <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Annex E'"/>
+  <xsl:call-template name="annex_header">
+    <xsl:with-param name="annex_no" select="'E'"/>
+    <xsl:with-param name="heading" 
+      select="'Computer Interpretable Listings'"/>
     <xsl:with-param name="aname" select="'annexe'"/>
   </xsl:call-template>
 
@@ -174,7 +176,6 @@ $Id: module.xsl,v 1.10 2001/11/16 09:16:59 robbod Exp $
     </xsl:choose>
   </xsl:variable>
 
-  <h3>Computer Interpretable Listings</h3>
   <p>
     This annex references a listing of the EXPRESS entity names and
     corresponding short names as specified or referenced in this part of ISO
@@ -258,7 +259,7 @@ $Id: module.xsl,v 1.10 2001/11/16 09:16:59 robbod Exp $
     <xsl:with-param name="aname" select="'arm'"/>
   </xsl:call-template>
   <xsl:variable name="c_expg"
-    select="concat('./sys/c_arm_expg',$FILE_EXT)"/>
+    select="concat('./c_arm_expg',$FILE_EXT)"/>
   <xsl:variable name="sect51" 
     select="concat('./5_mim',$FILE_EXT)"/>
 
@@ -275,7 +276,7 @@ $Id: module.xsl,v 1.10 2001/11/16 09:16:59 robbod Exp $
   <blockquote>
     NOTE 1 A graphical representation of the information requirements is
     given in 
-    <a href="{$c_expg}">annex C</a>.
+    <a href="{$c_expg}">Annex C</a>.
   </blockquote>
 
   <blockquote>
@@ -605,5 +606,11 @@ $Id: module.xsl,v 1.10 2001/11/16 09:16:59 robbod Exp $
     </i>
   </p>
 </xsl:template>
+
+
+<xsl:template match="usage_guide">
+  <xsl:apply-templates/>
+</xsl:template>
+  
 
 </xsl:stylesheet>

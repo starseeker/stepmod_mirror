@@ -1,10 +1,12 @@
 (*
- $Id: mim.exp,v 1.20 2003/10/21 13:09:08 robbod Exp $
+ $Id: mim.exp,v 1.21 2003/11/14 08:55:18 robbod Exp $
  ISO TC184/SC4/WG12 N2310 - ISO/TS 10303-1297 AP239 document management - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N1720
 *)
 
-SCHEMA Ap239_document_management_mim; 
+SCHEMA Ap239_document_management_mim;
+
+USE FROM Alias_identification_mim;    -- ISO/TS 10303-1025
 
 USE FROM Ap239_management_resource_information_mim;    -- ISO/TS 10303-1289
 
@@ -32,7 +34,7 @@ USE FROM contract_schema   -- ISO 10303-41
 
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 
-USE FROM Document_and_version_identification_mim;    -- ISO/TS 10303-1121
+USE FROM Document_and_version_identification_mim;    -- ISO/TS 10303-2956
 
 USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
 
@@ -54,8 +56,7 @@ USE FROM External_item_identification_assignment_mim;    -- ISO/TS 10303-1128
 
 USE FROM File_identification_mim;    -- ISO/TS 10303-1127
 
-USE FROM Identification_assignment_mim   -- ISO/TS 10303-1021
-  (applied_identification_assignment); 
+USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
 
 USE FROM Information_rights_mim;    -- ISO/TS 10303-1241
 
@@ -81,6 +82,11 @@ USE FROM product_definition_schema   -- ISO 10303-41
    product_definition_formation,
    product_definition_relationship); 
 
+USE FROM product_property_definition_schema   -- ISO 10303-41
+  (characterized_object); 
+
+USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
+
 USE FROM qualified_measure_schema   -- ISO 10303-45
   (descriptive_representation_item,
    measure_representation_item); 
@@ -98,9 +104,16 @@ USE FROM State_definition_mim;    -- ISO/TS 10303-1255
 USE FROM State_observed_mim;    -- ISO/TS 10303-1256
 
 
-TYPE ap239_dm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
+TYPE ap239_dm_aliasable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON aliasable_item WITH 
    (applied_document_reference, 
     applied_document_usage_constraint_assignment);
+END_TYPE; 
+
+TYPE ap239_dm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
+   (applied_document_reference, 
+    applied_document_usage_constraint_assignment, 
+    descriptive_representation_item, 
+    measure_representation_item);
 END_TYPE; 
 
 TYPE ap239_dm_attribute_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON attribute_classification_item WITH 
@@ -164,6 +177,8 @@ TYPE ap239_dm_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON dat
    (applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_usage_right, 
+    descriptive_representation_item, 
+    measure_representation_item, 
     product);
 END_TYPE; 
 
@@ -171,6 +186,8 @@ TYPE ap239_dm_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WI
    (applied_document_reference, 
     applied_document_usage_constraint_assignment, 
     applied_usage_right, 
+    descriptive_representation_item, 
+    measure_representation_item, 
     product);
 END_TYPE; 
 
@@ -184,11 +201,18 @@ TYPE ap239_dm_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_O
     approval, 
     certification, 
     contract, 
+    descriptive_representation_item, 
     information_right, 
     information_usage_right, 
+    measure_representation_item, 
     organization, 
     person, 
     structured_message);
+END_TYPE; 
+
+TYPE ap239_dm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
+   (applied_document_reference, 
+    applied_document_usage_constraint_assignment);
 END_TYPE; 
 
 TYPE ap239_dm_ir_usage_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ir_usage_item WITH 
@@ -214,12 +238,16 @@ END_TYPE;
 
 TYPE ap239_dm_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
    (applied_document_reference, 
-    applied_document_usage_constraint_assignment);
+    applied_document_usage_constraint_assignment, 
+    descriptive_representation_item, 
+    measure_representation_item);
 END_TYPE; 
 
 TYPE ap239_dm_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
    (applied_document_reference, 
-    applied_document_usage_constraint_assignment);
+    applied_document_usage_constraint_assignment, 
+    descriptive_representation_item, 
+    measure_representation_item);
 END_TYPE; 
 
 TYPE ap239_dm_security_classification_item = EXTENSIBLE SELECT BASED_ON security_classification_item WITH 
@@ -242,5 +270,13 @@ TYPE ap239_dm_state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON sta
     product_definition, 
     product_definition_formation);
 END_TYPE; 
+
+ENTITY characterized_applied_document_reference
+  SUBTYPE OF (applied_document_reference, characterized_object);
+END_ENTITY;
+
+ENTITY characterized_applied_document_usage_constraint_assignment
+  SUBTYPE OF (applied_document_usage_constraint_assignment, characterized_object);
+END_ENTITY;
 
 END_SCHEMA;  -- Ap239_document_management_mim

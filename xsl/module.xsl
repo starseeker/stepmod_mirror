@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.113 2002/12/11 15:17:07 robbod Exp $
+$Id: module.xsl,v 1.114 2002/12/24 09:56:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1643,7 +1643,7 @@ o=isocs; s=central<br/>
     <a name="mim_express">5.2 MIM EXPRESS short listing</a>
   </h3>
   <p>
-    This clause specifies the EXPRESS schema that uses elements from the
+    This clause specifies the EXPRESS schema derived from the mapping-table. It uses elements from the
     common resources or from other application
     modules and contains the types, entity specializations, rules, and
     functions that are specific to this part of ISO 10303.</p> 
@@ -1696,7 +1696,7 @@ o=isocs; s=central<br/>
   </a>
 </code>
 
-
+ 
   <!-- display the EXPRESS for the interfaces in the MIM.
        The template is in sect4_express.xsl -->
   <!-- there is only one schema in a module -->
@@ -3524,16 +3524,66 @@ $module_ok,' Check the normatives references')"/>
   <xsl:template match="def">
     <xsl:apply-templates/>
   </xsl:template>
-
+	
 <xsl:template match="usage_guide">
+
+  <xsl:apply-templates />
   <!-- output any issues -->
   <xsl:apply-templates select=".." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'usage_guide'"/>
   </xsl:apply-templates>
 
-  <xsl:apply-templates/>
 </xsl:template>
 
+
+<xsl:template match="usage_guide[.//guide_subclause]">
+  <xsl:for-each select="./guide_subclause">		
+		<xsl:variable name="sect_no">
+			<xsl:number/>
+		</xsl:variable>
+	  <xsl:apply-templates select=".">
+      <xsl:with-param name="sect_no" select="$sect_no" />
+  	</xsl:apply-templates>
+  </xsl:for-each>
+
+ <!-- output any issues -->
+  <xsl:apply-templates select=".." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'usage_guide'"/>
+  </xsl:apply-templates>
+
+</xsl:template>
+
+
+ <xsl:template match="guide_subclause">
+    <xsl:param name="sect_no"/>
+		
+		<H3><xsl:value-of select="concat('F.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></H3>			
+		 <xsl:apply-templates/>
+</xsl:template>
+
+<xsl:template match="guide_subclause[.//guide_subclause]">
+    <xsl:param name="sect_no"/>
+		
+		<H3><xsl:value-of select="concat('F.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></H3>
+			
+			<xsl:variable name="sect_sup">
+		<xsl:value-of select="concat('F.',$sect_no,'.')"/>
+			</xsl:variable>
+			<xsl:for-each select="./guide_subclause">	
+						<xsl:variable name="sect_nos">
+						<xsl:number/>
+						</xsl:variable>
+										
+						<H4>
+						<xsl:value-of select="concat($sect_sup,$sect_nos,' ')"/>
+						<xsl:value-of select="@title"/></H4>
+			      <xsl:apply-templates/>
+				</xsl:for-each>
+
+</xsl:template>	
+	
 <xsl:template match="express-g">
   <ul>
     <xsl:apply-templates select="imgfile|img" mode="expressg"/>

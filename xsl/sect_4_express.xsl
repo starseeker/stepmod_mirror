@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.76 2002/12/11 07:58:38 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.77 2002/12/12 15:17:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -447,7 +447,7 @@
 
   <xsl:variable name="clause_number">
     <xsl:call-template name="express_clause_number">
-      <xsl:with-param name="clause" select="'interface'"/>
+      <xsl:with-param name="clause" select="'constant'"/>
       <xsl:with-param name="schema_name" select="$schema_name"/>
     </xsl:call-template>
   </xsl:variable>
@@ -459,7 +459,7 @@
           <xsl:value-of select="concat($clause_number, ' ARM constant definitions')"/>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM constant defnitions')"/>
+          <xsl:value-of select="concat($clause_number, ' MIM constant definitions')"/>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -488,9 +488,7 @@
     <p>
     <!-- <blockquote> -->
       <code>
-        *)<br/>
-        CONSTANT
-      <br/>(*
+        *)<br/>CONSTANT<br/>(*
       </code>
     <!-- </blockquote> -->
   </p>

@@ -1,0 +1,208 @@
+{ iso standard 10303 part (11) version (4) }
+
+(******************************************************************************)
+(*                                                                            *)
+(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* Original model: wg11n085.vsd *)
+(* Title: wg11n085 *)
+(* Author: thendrix *)
+(* Comments :
+ *)
+
+SCHEMA s1;
+
+   TYPE approval_objects = EXTENSIBLE SELECT ;
+   END_TYPE;
+
+   TYPE attachment_method = EXTENSIBLE SELECT  (nail, screw);
+   END_TYPE;
+
+   TYPE colour = EXTENSIBLE ENUMERATION ;
+   END_TYPE;
+
+   TYPE general_approval = EXTENSIBLE ENUMERATION OF (approved, rejected);
+   END_TYPE;
+
+   TYPE stop_light = ENUMERATION OF (red, yellow, green);
+   END_TYPE;
+
+   ENTITY approval;
+      approved_items : SET [1 : ?] OF approval_objects;
+   END_ENTITY;
+
+   ENTITY binary_entity_relationship ABSTRACT;
+   END_ENTITY;
+
+   ENTITY binary_entity_relationshp;
+      end_one : e1;
+      end_two : e2;
+   END_ENTITY;
+
+   ENTITY e1;
+   END_ENTITY;
+
+   ENTITY e2;
+   END_ENTITY;
+
+   ENTITY female
+   SUBTYPE OF (person);
+   END_ENTITY;
+
+   ENTITY male
+   SUBTYPE OF (person);
+   END_ENTITY;
+
+   ENTITY nail;
+   END_ENTITY;
+
+   ENTITY organization;
+   END_ENTITY;
+
+   ENTITY person;
+      role_of_person : STRING;
+   END_ENTITY;
+
+   ENTITY person_in_organization
+   SUBTYPE OF (binary_entity_relationshp);
+      SELF\binary_entity_relationshp.end_two RENAMED the_organization : organization;
+      SELF\binary_entity_relationshp.end_one RENAMED the_person : person;
+   END_ENTITY;
+
+   ENTITY product;
+   END_ENTITY;
+
+   ENTITY product_category;
+   END_ENTITY;
+
+   ENTITY product_to_category_relationship
+   SUBTYPE OF (binary_entity_relationshp);
+      product : product;
+      SELF\binary_entity_relationshp.end_one RENAMED the_category : product_category;
+   END_ENTITY;
+
+   ENTITY screw;
+   END_ENTITY;
+
+   ENTITY step_expert
+   SUBTYPE OF (person);
+   END_ENTITY;
+
+   ENTITY xml_expert
+   SUBTYPE OF (person);
+   END_ENTITY;
+
+   ENTITY e1_is_in;
+   END_ENTITY;
+
+   ENTITY e2_is_in;
+   END_ENTITY;
+
+   ENTITY e_is_out;
+   END_ENTITY;
+   
+  RULE r1 FOR (e1_is_in, e_is_out);
+    WHERE f1(e2_is_in);
+  END_RULE;
+
+  FUNCTION f1(par1: e2_is_in): BOOLEAN;
+    LOCAL 
+      var1 : e1_is_in;
+      var2 : e_is_out;
+    END_LOCAL;
+    RETURN (TRUE);
+  END_FUNCTION;
+
+  SUBTYPE_CONSTRAINT sub_mandatory_and_more FOR person;
+    ABSTRACT SUPERTYPE;
+    TOTAL_OVER ( female, male);
+    ONEOF (male, female);
+  END_SUBTYPE_CONSTRAINT;
+
+END_SCHEMA;
+
+SCHEMA s2;
+
+   USE FROM s1(e1_is_in, attachment_method, general_approval, product_to_category_relationship,approval, step_expert,xml_expert);
+
+   TYPE canadian_flag = ENUMERATION BASED_ON colour WITH (red, white);
+   END_TYPE;
+
+   TYPE domain2_approval = EXTENSIBLE ENUMERATION BASED_ON general_approval WITH (rejected, pending);
+   END_TYPE;
+
+   TYPE my_approval_objects = SELECT BASED_ON approval_objects WITH (product, product_category, product_to_category_relationship);
+   END_TYPE;
+
+   TYPE permanent_attachment_method = SELECT BASED_ON attachment_method WITH (glue, weld);
+   END_TYPE;
+
+   TYPE simple_attachment = SELECT BASED_ON attachment_method WITH (needle, tape);
+   END_TYPE;
+
+   ENTITY approval_by_person_in_organization
+   SUBTYPE OF (approval);
+   END_ENTITY;
+
+   ENTITY glue;
+   END_ENTITY;
+
+   ENTITY needle;
+   END_ENTITY;
+
+   ENTITY tape;
+   END_ENTITY;
+
+   ENTITY weld;
+   END_ENTITY;
+
+   SUBTYPE_CONSTRAINT expertise_for_person FOR person;
+     ABSTRACT SUPERTYPE;
+     ONEOF (step_expert, xml_expert);
+   END_SUBTYPE_CONSTRAINT;
+
+END_SCHEMA;
+
+SCHEMA s3;
+
+   USE FROM s1;
+
+   TYPE domain3_approval = EXTENSIBLE ENUMERATION BASED_ON general_approval WITH (cancelled);
+   END_TYPE;
+
+END_SCHEMA;
+
+SCHEMA s4 'version_1';
+
+   USE FROM s2;
+
+   REFERENCE FROM s2(expertise_for_person);
+
+   TYPE specific_approval = ENUMERATION BASED_ON domain2_approval WITH (rework);
+   END_TYPE;
+
+END_SCHEMA;
+
+SCHEMA s4 'version_2';
+
+   USE FROM s2;
+
+   TYPE specific_approval = ENUMERATION BASED_ON domain2_approval WITH (rework);
+   END_TYPE;
+
+END_SCHEMA;
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,5 +1,5 @@
 (* 
-   $Id: arm.exp,v 1.11 2003/02/12 16:38:37 rocc Exp $
+   $Id: arm.exp,v 1.12 2003/02/17 08:07:46 rocc Exp $
    ISO/TC184/SC4 WG12N1796 - ISO/CD-TS 10303-1342 Expression - Express ARM 
 *)
 
@@ -63,7 +63,7 @@ ABSTRACT SUPERTYPE OF (ONEOF (Simple_numeric_expression,
 				Multiple_arity_numeric_expression,
 				Length_function,
 				Value_function))
-SUBTYPE OF (expression);
+SUBTYPE OF (Expression);
 DERIVE
 	is_int: BOOLEAN := Is_int_expr (SELF);
 	sql_mappable: BOOLEAN := Is_sql_mappable (SELF);
@@ -174,11 +174,11 @@ SUBTYPE OF (Simple_string_expression, Generic_literal);
 END_ENTITY;
 
 ENTITY Index_expression
-SUBTYPE OF (String_expression, binary_generic_expression);
+SUBTYPE OF (String_expression, Binary_generic_expression);
 
 DERIVE
-	operand:generic_expression:= SELF\binary_generic_expression.operands[1];
-	index:generic_expression:= SELF\binary_generic_expression.operands[2];
+	operand:Generic_expression:= SELF\binary_generic_expression.operands[1];
+	index:Generic_expression:= SELF\binary_generic_expression.operands[2];
 WHERE
 WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(operand))
 		AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(index));
@@ -189,9 +189,9 @@ ENTITY Substring_expression
 SUBTYPE OF (String_expression, multiple_arity_generic_expression);
 
 DERIVE
-	operand:generic_expression:=SELF\multiple_arity_generic_expression.operands[1];
-	index1:generic_expression:=SELF\multiple_arity_generic_expression.operands[2];
-	index2:generic_expression:=SELF\multiple_arity_generic_expression.operands[3]; 
+	operand:Generic_expression:=SELF\Multiple_arity_generic_expression.operands[1];
+	index1:Generic_expression:=SELF\Multiple_arity_generic_expression.operands[2];
+	index2:Generic_expression:=SELF\Multiple_arity_generic_expression.operands[3]; 
 WHERE
 	WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' 
 					IN TYPEOF(operand))
@@ -199,7 +199,7 @@ WHERE
 					IN TYPEOF(index1))
 			AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 
 					IN TYPEOF(index2));
-	WR2: SIZEOF(SELF\multiple_arity_generic_expression.operands)=3;
+	WR2: SIZEOF(SELF\Multiple_arity_generic_expression.operands)=3;
 	WR3: is_int_expr (index1);
 	WR4: is_int_expr (index2);
 END_ENTITY;
@@ -212,8 +212,8 @@ END_ENTITY;
 ENTITY Format_function
 SUBTYPE OF (String_expression, binary_generic_expression);
 DERIVE
-	value_to_format: generic_expression:=SELF\binary_generic_expression.operands[1];
-	format_string:generic_expression:=SELF\binary_generic_expression.operands[2];
+	value_to_format: Generic_expression:=SELF\Binary_generic_expression.operands[1];
+	format_string:Generic_expression:=SELF\Binary_generic_expression.operands[2];
 WHERE
 	WR1: (('EXPRESSION_ARM.NUMERIC_EXPRESSION') 
 					IN TYPEOF(value_to_format)) 
@@ -238,7 +238,7 @@ SUBTYPE OF (Boolean_expression, Simple_generic_expression);
 END_ENTITY;
 
 ENTITY Boolean_literal
-SUBTYPE OF (Simple_Boolean_expression, Generic_literal);
+SUBTYPE OF (Simple_boolean_expression, Generic_literal);
 	the_value: BOOLEAN;
 END_ENTITY;
 
@@ -248,7 +248,7 @@ SUBTYPE OF (Boolean_expression, Unary_generic_expression);
 END_ENTITY;
 
 ENTITY Not_expression
-SUBTYPE OF (Unary_Boolean_expression);
+SUBTYPE OF (Unary_boolean_expression);
 SELF\Unary_generic_expression.operand: Boolean_expression;
 END_ENTITY;
 
@@ -347,11 +347,11 @@ END_ENTITY;
 ENTITY Interval_expression
 SUBTYPE OF (Boolean_expression, Multiple_arity_generic_expression) ;
 DERIVE
-	interval_low: generic_expression
+	interval_low: Generic_expression
 			:= SELF\Multiple_arity_generic_expression.operands[1];
-	interval_item: generic_expression
+	interval_item: Generic_expression
 			:= SELF\Multiple_arity_generic_expression.operands[2];
-	interval_high: generic_expression
+	interval_high: Generic_expression
 			:= SELF\Multiple_arity_generic_expression.operands[3];
 WHERE
 	WR1:('EXPRESSION_ARM.EXPRESSION' 
@@ -640,11 +640,11 @@ THEN
 END_IF;
 IF 'EXPRESSION_ARM.INTERVAL_EXPRESSION' IN TYPEOF(arg) 
 THEN 
-	RETURN (Is_sql_mappable(arg\interval_expression.interval_low) 
-		AND Is_sql_mappable(arg\interval_expression.interval_high)
-		AND Is_sql_mappable(arg\interval_expression.interval_item));
+	RETURN (Is_sql_mappable(arg\Interval_expression.interval_low) 
+		AND Is_sql_mappable(arg\Interval_expression.interval_high)
+		AND Is_sql_mappable(arg\Interval_expression.interval_item));
 END_IF;
-IF ('EXPRESSION_ARM.NUMERIC_DEFINED_FUNCTION' 
+IF ('NUMERIC_FUNCTION_ARM.NUMERIC_DEFINED_FUNCTION' 
 								IN TYPEOF(arg)) 
 		OR ('EXPRESSION_ARM.BOOLEAN_DEFINED_FUNCTION' 
 								IN TYPEOF(arg))

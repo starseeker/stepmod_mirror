@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.151 2005/01/28 23:45:53 thendrix Exp $
+$Id: common.xsl,v 1.152 2005/02/02 17:20:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -156,6 +156,14 @@ $Id: common.xsl,v 1.151 2005/01/28 23:45:53 thendrix Exp $
     <xsl:with-param name="content" select="$dc.dates"/>
   </xsl:call-template>
 
+  <xsl:variable name="published"
+    select="@publication.date"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Published'"/>
+    <xsl:with-param name="content" select="$published"/>
+  </xsl:call-template>
+
+
   <xsl:variable name="editor_ref" select="./contacts/editor/@ref"/>
   <xsl:variable name="editor_contact"
     select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$editor_ref]"/>
@@ -206,6 +214,37 @@ $Id: common.xsl,v 1.151 2005/01/28 23:45:53 thendrix Exp $
     <xsl:with-param name="content" select="$id"/>
   </xsl:call-template>
 
+  <xsl:variable name="supersedes"
+    select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@wg.number.supersedes)"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Replaces'"/>
+    <xsl:with-param name="content" select="$supersedes"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'SC4.version'"/>
+    <xsl:with-param name="content" select="./@version"/>
+  </xsl:call-template>
+
+  <xsl:variable name="checklist.internal_review" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.internal_review)"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'SC4.checklist.internal_review'"/>
+    <xsl:with-param name="content" select="$checklist.internal_review"/>
+  </xsl:call-template>
+
+  <xsl:variable name="checklist.project_leader" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.project_leader)"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'SC4.checklist.project_leader'"/>
+    <xsl:with-param name="content" select="$checklist.project_leader"/>
+  </xsl:call-template>
+
+  <xsl:variable name="checklist.convener" select="concat('ISO TC184/SC4/WG',$wg_group,' N',./@checklist.convener)"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'SC4.checklist.convener'"/>
+    <xsl:with-param name="content" select="$checklist.convener"/>
+  </xsl:call-template>
+
+      
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'STEPMOD.module.rcs.date'"/>
     <xsl:with-param name="content" select="normalize-space(translate(./@rcs.date,'$/',' -'))"/>

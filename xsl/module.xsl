@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.178 2005/02/04 00:09:37 thendrix Exp $
+$Id: module.xsl,v 1.179 2005/02/09 22:11:26 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -158,7 +158,6 @@ $Id: module.xsl,v 1.178 2005/02/04 00:09:37 thendrix Exp $
         </td>
       </tr>
     </xsl:if>
-
 
     <xsl:if test="@wg.number.supersedes">      
       <tr>
@@ -384,37 +383,59 @@ o=isocs; s=central<br/>
           </xsl:with-param>
         </xsl:call-template>            
       </xsl:if>
-
       
       <h3>COMMENTS TO READER:</h3>
+      <xsl:apply-templates select="." mode="comments_to_reader"/>
+    </td>
+  </tr>
+ 
+  <tr>
+    <td width="50%" valign="TOP" height="88">
+      <a name="contacts"/>
+      <xsl:apply-templates select="./contacts/projlead"/>
+    </td>
+    <td width="50%" valign="TOP" height="88">
+      <xsl:apply-templates select="./contacts/editor"/>
+    </td>
+  </tr>
+  </table>
+</xsl:template>
 
-      <xsl:variable name="ballot_cycle_or_pub">
-        <xsl:choose>
-          <xsl:when test="$status='CD-TS'">
-            this ballot cycle
-          </xsl:when>
-          <xsl:when test="$status='TS'">
-            publication
-          </xsl:when>
-        </xsl:choose>
-      </xsl:variable>
-  
-      <xsl:if test="$status='CD-TS'">
-        <p>
-          Recipients of this draft are invited to submit, with their comments,
-          notification of any relevant patent rights of which they are aware and to
-          provide supporting documentation.
-        </p>
-      </xsl:if>
+<!-- Outputs the comments to reader -->
+<xsl:template match="module" mode="comments_to_reader">
+  <xsl:variable name="status" select="string(@status)"/>
+  <xsl:variable name="wg_group">
+    <xsl:call-template name="get_module_wg_group"/>
+  </xsl:variable>
 
-      This document has been reviewed using the internal review checklist 
-      <xsl:choose>
-        <xsl:when test="@checklist.working_group">
-          (see <xsl:value-of select="concat('WG',@checklist.working_group,'&#160;N',@checklist.internal_review)"/>),
-        </xsl:when>
-        <xsl:otherwise>
-          (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.internal_review)"/>),
-        </xsl:otherwise>
+
+  <xsl:variable name="ballot_cycle_or_pub">
+    <xsl:choose>
+      <xsl:when test="$status='CD-TS'">
+        this ballot cycle
+      </xsl:when>
+      <xsl:when test="$status='TS'">
+        publication
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+      
+  <xsl:if test="$status='CD-TS'">
+    <p>
+      Recipients of this draft are invited to submit, with their comments,
+      notification of any relevant patent rights of which they are aware and to
+      provide supporting documentation.
+    </p>
+  </xsl:if>
+
+  This document has been reviewed using the internal review checklist 
+  <xsl:choose>
+    <xsl:when test="@checklist.working_group">
+      (see <xsl:value-of select="concat('WG',@checklist.working_group,'&#160;N',@checklist.internal_review)"/>),
+  </xsl:when>
+  <xsl:otherwise>
+    (see <xsl:value-of select="concat('WG',$wg_group,'&#160;N',@checklist.internal_review)"/>),
+</xsl:otherwise>
       </xsl:choose>
       <!-- test the checklist WG number for checklist.internal_review -->
       <xsl:variable name="test_cl_internal_review">
@@ -548,21 +569,6 @@ o=isocs; s=central<br/>
           </p>
         </xsl:if>
       </xsl:if>
-
-    </td>
-  </tr>
- 
-  <tr>
-    <td width="50%" valign="TOP" height="88">
-      <a name="contacts"/>
-      <xsl:apply-templates select="./contacts/projlead"/>
-    </td>
-    <td width="50%" valign="TOP" height="88">
-      <xsl:apply-templates select="./contacts/editor"/>
-    </td>
-  </tr>
-  </table>
-
 </xsl:template>
 
 <xsl:template match="issue" mode="seds_cover">
@@ -1397,12 +1403,12 @@ provided  that links throught SC4ONLINE to a new repository -->
     <tr>
       <td>&#160;&#160;</td>
       <td>Short names:</td>
-      <td>&lt;<a href="{$names_url}"  target="_blank"><xsl:value-of select="$names_url"/></a>&gt;</td>
+      <td><a href="{$names_url}"  target="_blank"><xsl:value-of select="$names_url"/></a></td>
   </tr>
   <tr>
     <td>&#160;&#160;</td>
     <td>EXPRESS:</td>
-     <td>&lt;<a href="{$parts_url}" target="_blank" ><xsl:value-of select="$parts_url"/></a>&gt;</td>
+     <td><a href="{$parts_url}" target="_blank" ><xsl:value-of select="$parts_url"/></a></td>
    </tr>
   </table>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.35 2004/11/04 15:02:18 robbod Exp $
+$Id: sect_contents.xsl,v 1.36 2004/11/04 16:47:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -996,33 +996,6 @@ $Id: sect_contents.xsl,v 1.35 2004/11/04 15:02:18 robbod Exp $
   <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
   <xsl:variable name="mim_desc_xml" select="document($mim_xml)/express/@description.file"/>
 
-  <h2>Tables</h2>
-  <xsl:apply-templates select="./purpose//table" mode="toc"/>
-  <xsl:apply-templates select="./inscope//table" mode="toc"/>
-  <xsl:apply-templates select="./outscope//table" mode="toc"/>
-  <xsl:choose>
-    <xsl:when test="$arm_desc_xml">
-      <xsl:apply-templates select="document($arm_desc_xml)//table" mode="toc"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:apply-templates select="document($arm_xml)//table" mode="toc"/>
-    </xsl:otherwise>
-  </xsl:choose>
-  <xsl:choose>
-    <xsl:when test="$mim_desc_xml">
-      <xsl:apply-templates select="document($mim_desc_xml)//table" mode="toc"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:apply-templates select="document($mim_xml)//table" mode="toc"/>
-    </xsl:otherwise>
-  </xsl:choose>
-  <xsl:apply-templates select="./mim/shortnames" mode="toc"/>
-    <a href="./e_exp{$FILE_EXT}#table_e1">
-      Table E.1 &#8212; ARM and MIM EXPRESS listings
-    </a>
-  <br/>
-  <xsl:apply-templates select="./usage_guide//table" mode="toc"/>
- 
  <h2>Figures</h2>
   <!-- collect up the figures from the Module -->
   <xsl:apply-templates select="./purpose//figure" mode="toc"/>
@@ -1051,7 +1024,34 @@ $Id: sect_contents.xsl,v 1.35 2004/11/04 15:02:18 robbod Exp $
   <xsl:apply-templates 
     select="./mim/express-g/imgfile" mode="expressg_figure"/>
   <xsl:apply-templates select="./usage_guide//figure" mode="toc"/>
-</xsl:template>
+
+  <h2>Tables</h2>
+  <xsl:apply-templates select="./purpose//table" mode="toc"/>
+  <xsl:apply-templates select="./inscope//table" mode="toc"/>
+  <xsl:apply-templates select="./outscope//table" mode="toc"/>
+  <xsl:choose>
+    <xsl:when test="$arm_desc_xml">
+      <xsl:apply-templates select="document($arm_desc_xml)//table" mode="toc"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="document($arm_xml)//table" mode="toc"/>
+    </xsl:otherwise>
+  </xsl:choose>
+  <xsl:choose>
+    <xsl:when test="$mim_desc_xml">
+      <xsl:apply-templates select="document($mim_desc_xml)//table" mode="toc"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="document($mim_xml)//table" mode="toc"/>
+    </xsl:otherwise>
+  </xsl:choose>
+  <xsl:apply-templates select="./mim/shortnames" mode="toc"/>
+    <a href="./e_exp{$FILE_EXT}#table_e1">
+      Table E.1 &#8212; ARM and MIM EXPRESS listings
+    </a>
+  <br/>
+  <xsl:apply-templates select="./usage_guide//table" mode="toc"/>
+ </xsl:template>
 
 
 <xsl:template match="table|figure" mode="toc">

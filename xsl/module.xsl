@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.79 2002/08/01 16:37:40 robbod Exp $
+$Id: module.xsl,v 1.81 2002/08/02 15:58:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -898,6 +898,33 @@ o=isocs; s=central<br/>
     for archiving.
   </p>
   <xsl:apply-templates/>
+
+  <p>
+    Clause <a href="1_scope{$FILE_EXT}">1</a> defines the scope of the
+    application module and summarizes the functionality and data covered. 
+
+    Clause <a href="3_defs{$FILE_EXT}">3</a> lists the words defined in
+    this part of ISO 10303 and gives pointers to words defined elsewhere. 
+
+    The information requirements of the application are specified in clause 
+    <a href="4_info_reqs{$FILE_EXT}">4</a> using terminology appropriate to
+    the application. 
+
+    A graphical representation of the information requirements, referred to
+    as the application reference model, is given in annex 
+    <a href="c_arm_expg{$FILE_EXT}">C</a>. 
+
+    Resource constructs are interpreted to meet the information
+    requirements. 
+    This interpretation produces the application interpreted model (MIM). 
+    This interpretation, given in <a href="5_mapping{$FILE_EXT}">5.1</a>,
+    shows the correspondence between the information requirements and the
+    MIM. The short listing of the MIM specifies the interface to the
+    resources and is given in <a href="5_mim{$FILE_EXT}">5.2</a>.  
+
+    A graphical representation of the short listing of the MIM is given
+    in annex <a href="d_mim_expg{$FILE_EXT}">D</a>.
+  </p>
   <p>
     In this International Standard, the same English language words may be
     used to refer to an object in the real world or concept, and as the

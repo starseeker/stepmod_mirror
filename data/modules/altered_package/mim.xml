@@ -2,12 +2,27 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-29T17:21:30" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-14T12:24:13" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="altered_package_mim schema_instance"/>
    <schema name="Altered_package_mim">
-      <interface kind="use" schema="External_item_identification_assignment_mim"/>
-      <interface kind="use" schema="Package_mim"/>
-      <interface kind="use" schema="Specification_document_mim"/>
-      <interface kind="use" schema="Value_with_unit_extension_mim"/>
+      <interface kind="use" schema="EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM"/>
+      <interface kind="use" schema="PACKAGE_MIM"/>
+      <interface kind="use" schema="SPECIFICATION_DOCUMENT_MIM"/>
+      <interface kind="use" schema="VALUE_WITH_UNIT_EXTENSION_MIM"/>
+      <entity name="altered_package_terminal" abstract.supertype="YES" supertypes="package_terminal" super.expression="(shape_formed_terminal ANDOR surface_prepped_terminal) ANDOR length_trimmed_terminal">
+         <where label="wr1" expression=" sizeof ( query ( sar &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'shape_aspect_relationship.related_shape_aspect' ) | sar \ shape_aspect_relationship . name = 'terminal to be altered' ) ) = 1 "/>
+         <where label="wr2" expression=" ( self . of_shape . definition \ product_definition . description = 'altered package' ) "/>
+      </entity>
+      <entity name="length_trimmed_terminal" supertypes="altered_package_terminal">
+         <where label="wr1" expression=" ( sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | sizeof ( query ( it &lt;* pdr . used_representation . items | sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' , 'electronic_assembly_interconnect_and_packaging_design.' + 'length_measure_with_unit' ] * typeof ( it ) ) = 2 ) ) = 2 ) ) = 1 ) ) ) = 0 ) "/>
+         <where label="wr2" expression=" ( sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | sizeof ( query ( it &lt;* pdr . used_representation . items | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' , 'electronic_assembly_interconnect_and_packaging_design.' + 'length_measure_with_unit' ] * typeof ( it ) ) = 2 ) and ( it \ representation_item . name = 'maximum trimmed length' ) ) ) = 1 ) ) = 1 ) ) ) = 0 ) "/>
+         <where label="wr3" expression=" ( sizeof ( query ( pd &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition.definition' ) | not ( sizeof ( query ( pdr &lt;* usedin ( pd , 'electronic_assembly_interconnect_and_packaging_design.' + 'property_definition_representation.definition' ) | sizeof ( query ( it &lt;* pdr . used_representation . items | ( sizeof ( [ 'electronic_assembly_interconnect_and_packaging_design.' + 'measure_representation_item' , 'electronic_assembly_interconnect_and_packaging_design.' + 'length_measure_with_unit' ] * typeof ( it ) ) = 2 ) and ( it \ representation_item . name = 'minimum trimmed length' ) ) ) = 1 ) ) = 1 ) ) ) = 0 ) "/>
+      </entity>
+      <entity name="shape_formed_terminal" supertypes="altered_package_terminal">
+         <where label="wr1" expression=" ( sizeof ( query ( ada &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_document_reference.items' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'ee_specification' in typeof ( ada . assigned_document ) ) and ( ada . assigned_document . kind \ document_type . product_data_type = 'lead form specification' ) and ( sizeof ( query ( dr &lt;* usedin ( ada . assigned_document , 'electronic_assembly_interconnect_and_packaging_design.' + 'document_relationship.related_document' ) | dr . relating_document . kind \ document_type . product_data_type = 'material specification' ) ) = 1 ) ) ) = 1 ) "/>
+      </entity>
+      <entity name="surface_prepped_terminal" supertypes="altered_package_terminal">
+         <where label="wr2" expression=" ( sizeof ( query ( ada &lt;* usedin ( self , 'electronic_assembly_interconnect_and_packaging_design.' + 'applied_document_reference.items' ) | ( 'electronic_assembly_interconnect_and_packaging_design.' + 'ee_specification' in typeof ( ada . assigned_document ) ) and ( ada . assigned_document . kind \ document_type . product_data_type = 'surface finish specification' ) ) ) = 1 ) "/>
+      </entity>
    </schema>
 </express>

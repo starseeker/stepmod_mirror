@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.19 2002/07/30 10:30:30 robbod Exp $
+//$Id: testRepositoryIndexMain.js,v 1.1 2002/07/30 13:14:15 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -102,5 +102,5 @@ function outputModuleList() {
 	userMessage("No errors found");
 }
 
-outputModuleList();
+//outputModuleList();
 

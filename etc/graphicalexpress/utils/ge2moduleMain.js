@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.1 2002-06-06 09:16:19+01 rob Exp rob $
+//$Id: ge2moduleMain.js,v 1.1 2002/10/22 08:12:32 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -166,16 +166,19 @@ function copyAllImgMaps(geDir, dstDir) {
 	var fExt = getFileExt(f);
 	var fName = fso.GetFileName(f);
 
-	if ( (fExt == '.xml') 
+	// Need to make sure only pick up files that are graphics*.xml
+	var re = /^graphics/;
+
+	if ( (fExt == '.xml')
+	     && (fName.match(re))
 	     && (fName != "model.xml") 
 	     && (fName !="graphics1.xml") ) {
 	    var imgXmlFile = f.Path.toString();
-  
 	    // Load in the graphics.xml file
 	    var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
 	    xml.async = false;
 	    xml.load(imgXmlFile);
-	    
+
 	    // Get the name of the schema and hence the module name
 	    var expr = "/imgfile.content";
 	    var imgfileNodes = xml.selectNodes(expr);
@@ -244,7 +247,6 @@ function renameAllImgMaps(dstDir) {
 	    var graphicsFExt = getFileExt(graphicsF);
 	    var graphicsFName = fso.GetFileName(graphicsF);
 	    var re = /graphics/;
-
 	    if ( (graphicsFExt == '.xml') 		 
 		 && (re.test(graphicsFName) ) ) {
 		imgArray[imgCnt] = graphicsF.Path;
@@ -390,7 +392,6 @@ function convertHrefSchema(href,schemaName) {
 // If a schemaname is given, then it is a schema page
 function convertImgFile(imgFile, newImgFile, schemaName) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");    
-
     // Load in the image xml file    
     var imgXml = new ActiveXObject("Msxml2.DOMDocument.3.0");
     imgXml.async = false;
@@ -427,7 +428,6 @@ function convertImgFile(imgFile, newImgFile, schemaName) {
     expr="/imgfile.content";
     var moduleName = getModuleName(schemaName);
     var newImgFileName = fso.GetFileName(newImgFile);
-    userMessage("xx:"+newImgFileName + " " + moduleName );
     // Now add file and module attributes
 
 
@@ -466,7 +466,7 @@ function convertImgFile(imgFile, newImgFile, schemaName) {
 function convertSchemaPage(geDir,schemaName) {
     //passed schema name in as a parameter instead
     //var schemaName = getSchemaNameFromXML(geDir);
-    userMessage(schemaName);
+    //userMessage(schemaName);
     // setup the schema directory
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var modDir = geDir+"/modules";
@@ -529,7 +529,6 @@ function extractSchemaFromXML(geDir,expr) {
     // Get the schema out of model.xml
     var schemaNodes = xml.selectNodes(expr);
     var members = schemaNodes.length;
-    //userMessage(modelXmlFile);
     for (var i = 0; i < members; i++) {	
 	var node = schemaNodes(i);
 	var schemaName = node.attributes.getNamedItem("name").nodeValue;
@@ -619,7 +618,7 @@ function checkSchema(geDir, schemaName) {
     xml.load(modelXmlFile);
     var expr = "//express/schema[@name=\""+schemaName+"\"]";
     var schemaNamedNodes = xml.selectNodes(expr);
-    userMessage(expr);
+    //userMessage(expr);
     if (schemaNamedNodes.length != 1) {
 	expr = "//express/schema";
 	var schemaNodes = xml.selectNodes(expr);
@@ -767,4 +766,7 @@ function Main() {
 
 
 //copyToModuleDir("E:\\rbn\\1export","External_class_mim");
+
+
+//convertSchema("d:\\rbn\\1export", "Interface_arm");
 

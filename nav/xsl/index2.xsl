@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: index.xsl,v 1.4 2002/09/17 06:52:38 robbod Exp $
+$Id: index2.xsl,v 1.1 2003/02/24 09:25:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up the main frames
@@ -38,14 +38,13 @@ $Id: index.xsl,v 1.4 2002/09/17 06:52:38 robbod Exp $
        function updateModuleIndexTitleFrame(title) {
          var divTT = top.module_index_title.document.all.DIVmoduleindextitle;
          if (divTT) {
-           divTT.innerText=title;
+           divTT.innerHTML=title;
          }
        }
-
       ]]></script>
     </head>
 
-    <frameset framespacing="1" border="0" rows="13%,*" frameborder="0">
+    <frameset framespacing="1" border="0" rows="76,*" frameborder="0">
       <frame name="banner" 
         src="banner{$FILE_EXT}"
         marginwidth="2" marginheight="0" scrolling="auto"/>

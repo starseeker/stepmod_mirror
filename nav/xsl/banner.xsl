@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.14 2002/10/22 13:20:18 robbod Exp $
+$Id: banner.xsl,v 1.15 2002/12/24 16:50:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -14,6 +14,8 @@ $Id: banner.xsl,v 1.14 2002/10/22 13:20:18 robbod Exp $
 
   <xsl:output method="html"/>
 
+  <!-- hack to disable module index while being developed -->
+  <xsl:variable name="index2" select="'NO'"/>
 
   <xsl:template match="/" >
     <xsl:apply-templates select="./stylesheet_application"/>
@@ -26,6 +28,20 @@ $Id: banner.xsl,v 1.14 2002/10/22 13:20:18 robbod Exp $
         <title>
           Banner
         </title>
+      <script language="JavaScript"><![CDATA[
+     function closeModuleIndexFrame() {
+	var oFramesets=window.parent.document.getElementsByTagName("frameset");
+     	oFramesets.item(1).cols="15%,0%,*";
+        closed_menu.style.display="block";
+        open_menu.style.display="none";
+      }
+      function openModuleIndexFrame() {
+	var oFramesets=window.parent.document.getElementsByTagName("frameset");
+     	oFramesets.item(1).cols="15%,15%,70%";
+        closed_menu.style.display="none";
+        open_menu.style.display="block";
+      }
+      ]]></script>
         </head>
         <body>
           <div class="bannerbackground">
@@ -37,7 +53,8 @@ $Id: banner.xsl,v 1.14 2002/10/22 13:20:18 robbod Exp $
                     STEPmod
                   </a>
                 </p>
-                <p class="bannertitleitem">
+                <p class="bannermenuitem">&#160;</p>
+                <p class="bannermenuitem">
                   <xsl:choose>
                     <xsl:when test="$FILE_EXT='.xml'">
                       <A HREF="./index.htm" Target="_top">HTML</A>
@@ -47,7 +64,28 @@ $Id: banner.xsl,v 1.14 2002/10/22 13:20:18 robbod Exp $
                     </xsl:otherwise>
                   </xsl:choose>
                   &#160;&#160;&#160;
-                  <a href="../help/index.htm" Target="content">Help</a>
+                  <a href="../help/index.htm"
+                    Target="content">Help</a><br/>
+                  <xsl:if test="$index2 != 'NO'">
+                  <div id="closed_menu" style="display:none">
+                    <p class="bannermenuitem">
+                      Module menu
+                      <a href="javascript:openModuleIndexFrame();">
+                        <img src="../images/nocross.gif" alt="Open Module menu" 
+                          border="false" align="middle"/> 
+                      </a>
+                    </p>
+                  </div>
+                  <div id="open_menu">
+                    <p class="bannermenuitem">
+                      Module menu
+                      <a href="javascript:closeModuleIndexFrame();">
+                        <img src="../images/cross.gif" alt="Close module menu" 
+                          border="false" align="middle"/> 
+                      </a>
+                    </p>
+                  </div>
+                </xsl:if>
                 </p>
               </td>
               <td align="left" valign="top">

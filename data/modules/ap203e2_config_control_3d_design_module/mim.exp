@@ -1,36 +1,40 @@
 SCHEMA Ap203e2_config_control_3d_design_module_mim;
 
-
-USE FROM Approval_mim ;
-USE FROM Multi_linguism_mim;
-USE FROM Management_resource_information_mim;
-USE FROM Material_property_definition_schema; 
-USE FROM Independent_property_mim; 
-USE FROM Management_resources_schema;
-USE FROM Material_aspect_mim;
-USE FROM Product_class_mim;
+-- ?? in scope ?? USE FROM Material_aspect_mim;
 USE FROM Advanced_boundary_representation_mim ;
-USE FROM Ap203e2_configuration_management_mim;
 USE FROM Associative_text_mim ;
 USE FROM Construction_geometry_mim;
 USE FROM Constructive_solid_geometry_3d_mim;
 USE FROM Default_tolerance_mim ;
 USE FROM Derived_shape_element_mim ;
 USE FROM Dimension_tolerance_mim ;
-USE FROM Document_management_mim;
 USE FROM Edge_based_wireframe_mim;
 USE FROM Faceted_boundary_representation_mim;
 USE FROM Geometric_tolerance_mim ;
 USE FROM Geometric_validation_property_representation_mim;
 USE FROM Geometrically_bounded_surface_mim;
 USE FROM Geometrically_bounded_wireframe_mim;
-USE FROM Incomplete_data_reference_mechanism_mim;
 USE FROM Manifold_surface_mim;
-USE FROM Product_structure_mim ;
 USE FROM Representation_with_uncertainty_mim; 
 USE FROM Shape_appearance_layers_mim;
 USE FROM Shell_based_wireframe_mim;
-USE FROM Work_management_mim;
+
+USE FROM Management_resource_information_mim;
+USE FROM Effectivity_application_mim ;
+USE FROM Event_mim ;
+USE FROM Time_interval_mim ;
+USE FROM Document_management_mim ;
+USE FROM Product_structure_mim;
+USE FROM Configuration_effectivity_mim ;
+USE FROM Configuration_item_mim ;
+USE FROM Product_concept_identification_mim ;
+USE FROM Activity_mim ;
+USE FROM Activity_method_mim ;
+USE FROM Process_property_assignment_mim ;
+USE FROM Work_order_mim ;
+USE FROM Work_request_mim ;
+USE FROM Incomplete_data_reference_mechanism_mim;
+
 
 TYPE action_item_203e2 = SELECT BASED_ON action_items WITH
       (configuration_effectivity,product_definition,
@@ -87,7 +91,6 @@ TYPE attribute_language_item_203e2 = SELECT BASED_ON attribute_language_item WIT
    product_definition_substitute,
    product_related_product_category,
    property_definition,
-   property_definition_relationship,
    representation,
    representation_relationship,
    security_classification,
@@ -196,7 +199,6 @@ TYPE multi_language_attribute_item_203e2 = SELECT BASED_ON multi_language_attrib
    product_definition_substitute,
    product_related_product_category,
    property_definition,
-   property_definition_relationship,
    representation,
    representation_relationship,
    security_classification,
@@ -232,13 +234,10 @@ END_TYPE;
 (* BA changed name from ap203_cc1_time_interval_item to 
 time_interval_item_203e2 *)
 
-TYPE time_interval_item_203e2 = SELECT BASED_ON time_interval_item WITH (time_interval_based_effectivity);
+TYPE time_interval_item_203e2 = SELECT BASED_ON time_interval_item WITH 
+	(time_interval_based_effectivity);
 END_TYPE;
  
-
-(*BA added rules on 01/28/03 from Jochen's email of 01/22/03*)
-
-
 RULE approval_person_organization_requires_date_time 
     FOR (approval_person_organization);
 WHERE
@@ -255,37 +254,12 @@ WR1: SIZEOF ( QUERY ( a <* approval |
 	SIZEOF(USEDIN( a, schema_name + '.APPROVAL_ASSIGNMENT.ASSIGNED_APPROVAL' )) =  0 )) =  0;
 END_RULE;
 
-(*BA commented out 201/28/03 since this rule is in Representation_with_uncertainty_mim - in the USE FROM list  
-
-RULE consistent_uncertainty 
-      FOR (global_uncertainty_assigned_context,
-           qualified_representation_item,
-           uncertainty_assigned_representation);
-WHERE
-WR1: SIZEOF ( QUERY ( guac <* global_uncertainty_assigned_context | 
-    SIZEOF ( QUERY ( u1 <* guac.uncertainty | 
-	SIZEOF ( QUERY ( u2 <* guac.uncertainty | u2.name =  u1.name ) ) >1 ) ) >0 ) ) =  0 ;
-WR2: SIZEOF ( QUERY ( uar <* uncertainty_assigned_representation | 
-	SIZEOF ( QUERY ( u1<* uar.uncertainty | 
-	SIZEOF ( QUERY ( u2 <* uar.uncertainty | u2.name =  u1.name ) ) >0 ) ) >0 ) ) =  0;
-WR3: SIZEOF ( QUERY ( qri <* qualified_representation_item |
-     SIZEOF ( QUERY ( u1 <* qri.qualifiers | (
-     schema_name + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u1 ) ) AND 
-	( SIZEOF ( QUERY ( u2 <* qri.qualifiers |
-     ( schema_name + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u2 ) ) AND 
-	( u2\uncertainty_qualifier.measure_name =  u1\uncertainty_qualifier.measure_name ) )
-     ) >0 ) ) ) >0 ) ) =  0;
-END_RULE; 
-
-*)
-
 RULE coordinated_assembly_and_shape FOR
 (next_assembly_usage_occurrence);
 WHERE
-  WR1: SIZEOF ( QUERY ( nauo <* next_assembly_usage_occurrence| NOT ( assembly_shape_is_defined ( nauo ) ) ) ) = 0;
+WR1: SIZEOF ( QUERY ( nauo <* next_assembly_usage_occurrence| 
+	NOT ( assembly_shape_is_defined ( nauo ) ) ) ) = 0;
 END_RULE;
-
-
 
 RULE dependent_instantiable_action_directive FOR
     (action_directive);
@@ -336,14 +310,12 @@ WHERE
      NOT ( SIZEOF ( USEDIN ( p , '' ) ) >0 ) ) ) =0;
 END_RULE;
 
-
-  RULE dependent_instantiable_shape_representation FOR (
+RULE dependent_instantiable_shape_representation FOR (
              shape_representation);
-  WHERE
-    wr1: (SIZEOF(QUERY ( sr <* shape_representation | (NOT (SIZEOF(USEDIN(
+WHERE
+WR1: (SIZEOF(QUERY ( sr <* shape_representation | (NOT (SIZEOF(USEDIN(
              sr,'')) >= 1)) )) = 0);
-  END_RULE;
-
+END_RULE;
 
 RULE dependent_instantiable_standard_uncertainty FOR
     (standard_uncertainty);
@@ -392,18 +364,17 @@ RULE executed_action_requires_action_status FOR
     (executed_action);
 WHERE
 WR1: SIZEOF ( QUERY ( ea <* executed_action | 
-	SIZEOF ( USEDIN (ea , schema_name +'.ACTION_STATUS.ASSIGNED_ACTION' ) ) >1 ) ) =0;
+	SIZEOF ( USEDIN (ea , schema_name + '.ACTION_STATUS.ASSIGNED_ACTION' ) ) >1 ) ) =0;
 END_RULE;
 
 RULE geometric_representation_item_3d FOR (geometric_representation_item);
-  WHERE
-    wr1: (SIZEOF(QUERY ( gri <* geometric_representation_item | (NOT ((
-             dimension_of(gri) = 3) OR (SIZEOF(bag_to_set(USEDIN(gri,'')) -
-              bag_to_set(USEDIN(gri,
-             'SMCH_PLUS_203_SCHEMA.DEFINITIONAL_REPRESENTATION.ITEMS'))) = 0))) ))              = 0);
-
-  END_RULE;
-
+WHERE
+WR1: (SIZEOF(QUERY ( gri <* geometric_representation_item | 
+	(NOT ((dimension_of(gri) = 3) OR 
+	(SIZEOF(bag_to_set(USEDIN(gri,'')) -
+        bag_to_set(USEDIN(gri,schema_name + '.DEFINITIONAL_REPRESENTATION.ITEMS'))) = 0))) ))
+       = 0);
+END_RULE;
 
 RULE global_length_and_angle_units_2d_or_3d FOR
     (global_unit_assigned_context);
@@ -420,35 +391,29 @@ END_RULE;
 (*BA  commenting out next two rules per Jochen's email on 01/22/03 since need entity design_make_from_relationship defined in 203 e1  
 
 RULE no_shape_for_make_from FOR (design_make_from_relationship);
-  WHERE
+WHERE
+WR1: (SIZEOF(QUERY ( dmfr <* design_make_from_relationship | (NOT (
 
-    wr1: (SIZEOF(QUERY ( dmfr <* design_make_from_relationship | (NOT (
+             SIZEOF(QUERY ( pd <* USEDIN(dmfr,schema_name +
 
-             SIZEOF(QUERY ( pd <* USEDIN(dmfr,'SMCH_PLUS_203_SCHEMA.' +
+             '.PROPERTY_DEFINITION.DEFINITION') | (
 
-             'PROPERTY_DEFINITION.DEFINITION') | (
-
-             'SMCH_PLUS_203_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)) ))
+             schema_name + '.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)) ))
              = 0)) )) = 0);
+END_RULE;
 
-  END_RULE;
+RULE no_shape_for_supplied_part FOR (supplied_part_relationship);
+WHERE
+WR1: (SIZEOF(QUERY ( spr <* supplied_part_relationship | (NOT (SIZEOF(
 
-  RULE no_shape_for_supplied_part FOR (supplied_part_relationship);
+             QUERY ( pd <* USEDIN(spr,schema_name +
 
-  WHERE
+             '.PROPERTY_DEFINITION.DEFINITION') | (
 
-    wr1: (SIZEOF(QUERY ( spr <* supplied_part_relationship | (NOT (SIZEOF(
-
-             QUERY ( pd <* USEDIN(spr,'SMCH_PLUS_203_SCHEMA.' +
-
-             'PROPERTY_DEFINITION.DEFINITION') | (
-
-             'SMCH_PLUS_203_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)) ))
+             schema_name + '.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)) ))
 
              = 0)) )) = 0);
-
-  END_RULE;
-
+END_RULE;
 *)
 
 RULE person_requires_person_and_organization FOR (person);
@@ -456,19 +421,6 @@ WHERE
 WR1: SIZEOF ( QUERY ( p <* person | 
 	SIZEOF ( USEDIN ( p ,schema_name + '.PERSON_AND_ORGANIZATION.THE_PERSON' )) =  0 )) =  0;
 END_RULE; 
-
-RULE product_requires_category FOR (product,product_related_product_category);
-  WHERE
-   wr1 : SIZEOF(QUERY(p <* product | SIZEOF(USEDIN(p,'CONFIG_CONTROL_3D_DESIGN_CC1_MIM.' + 
-         'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')) = 0)) = 0;
- END_RULE;
-
- RULE product_requires_version FOR (product);
-  WHERE
-   wr1 : SIZEOF(QUERY(prod <* product | (SIZEOF(USEDIN(prod,'CONFIG_CONTROL_3D_DESIGN_CC1_MIM.' + 
-         'PRODUCT_DEFINITION_FORMATION.' + 'OF_PRODUCT')) = 0))) = 0;
- END_RULE;
-
 
 RULE restrict_applied_action_assignment FOR
     (applied_action_assignment);
@@ -1257,18 +1209,13 @@ WHERE
 	[schema_name + '.DOCUMENT_PRODUCT_EQUIVALENCE'] , 0 ) ) ) ) =0;
 END_RULE;
 
-(*BA added RULE valid_context_partitions 25 Jan 03  *)
-
-RULE valid_context_partitions FOR (product_definition);
+RULE versioned_action_request_requires_status FOR 
+	(versioned_action_request);
 WHERE
-WR1: SIZEOF (QUERY(pd <* product_definition | initial_context_is_additional(pd)))) = 0;
+WR1: SIZEOF ( QUERY ( ar <* versioned_action_request | NOT (
+     SIZEOF ( QUERY ( ars <* action_request_status | ar:=:ars.assigned_request )) =1 ))) 
+	=0;
 END_RULE;
-
-RULE versioned_action_request_requires_status FOR (versioned_action_request,
-                                                    action_request_status);
-  WHERE
-   wr1 : SIZEOF(QUERY(ar <* versioned_action_request | (NOT (SIZEOF(QUERY(ars <*
-         action_request_status | (ar :=: ars.assigned_request))) = 1)))) = 0;
 
 
 FUNCTION at_most_one_version_id (ent: GENERIC_ENTITY): LOGICAL;
@@ -1326,7 +1273,6 @@ END_REPEAT;
 RETURN(TRUE);
 END_FUNCTION;
 
-
 FUNCTION value_range_aggregate_rep_item (agg : AGGREGATE OF representation_item) : BOOLEAN; 
   FUNCTION cri (agg : AGGREGATE OF representation_item) : BOOLEAN; 
   BEGIN 
@@ -1348,6 +1294,5 @@ FUNCTION value_range_aggregate_rep_item (agg : AGGREGATE OF representation_item)
    END_IF; 
    END; 
 END_FUNCTION; 
-
 
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.5 2002/08/05 12:39:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -25,6 +25,7 @@ $Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
 <xsl:template match="module">
   <xsl:call-template name="output_normrefs">
     <xsl:with-param name="module_number" select="./@part"/>
+    <xsl:with-param name="current_module" select="."/>
   </xsl:call-template>
 </xsl:template>
 

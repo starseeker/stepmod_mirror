@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.60 2002/08/05 06:23:41 robbod Exp $
+$Id: common.xsl,v 1.61 2002/08/05 09:41:09 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2328,6 +2328,55 @@ $Id: common.xsl,v 1.60 2002/08/05 06:23:41 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+
+  <!-- given a string, return the first word, where any non ALPHA character 
+       is a word space-->
+  <xsl:template name="get_word">
+    <xsl:param name="str"/>
+
+    <xsl:variable name="nstr" 
+      select="translate(normalize-space($str),
+              '[](){}+=-,; ',
+              '************')"/>
+    <!-- if string starts with * there is some leading white space -->
+    <xsl:choose>
+      <xsl:when test="substring($nstr,1,1)='*'">
+        <xsl:call-template name="get_word">
+          <xsl:with-param name="str" select="substring-after($nstr,'*')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="substring-before($nstr,'*')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+  <!-- given a string, delete the first word, and return the rest of the
+       string where any non ALPHA character is a word space-->
+  <xsl:template name="get_after_word">
+    <xsl:param name="str"/>
+    <xsl:variable name="word">
+      <xsl:call-template name="get_word">
+        <xsl:with-param name="str" select="$str"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="substring-after($str,$word)"/>
+  </xsl:template>
+
+  <!-- given a string, return all non ALPHA character upto first ALPH
+       character -->
+  <xsl:template name="get_before_word">
+    <xsl:param name="str"/>
+    <xsl:variable name="word">
+      <xsl:call-template name="get_word">
+        <xsl:with-param name="str" select="$str"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="substring-before($str,$word)"/>
+  </xsl:template>
+
 
 </xsl:stylesheet>
 

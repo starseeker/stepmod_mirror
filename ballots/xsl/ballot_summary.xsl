@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.19 2003/06/25 10:47:30 robbod Exp $
+$Id: ballot_summary.xsl,v 1.20 2003/07/25 00:33:31 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -32,6 +32,9 @@ $Id: ballot_summary.xsl,v 1.19 2003/06/25 10:47:30 robbod Exp $
 
   <!-- force the application of the stylesheet to the file specified in the
        file attribute -->
+
+
+
   <xsl:template match="/">
     <xsl:variable name="ballot_index" 
       select="concat('../ballots/',./ballot/@directory,'/ballot_index.xml')"/>
@@ -41,8 +44,18 @@ $Id: ballot_summary.xsl,v 1.19 2003/06/25 10:47:30 robbod Exp $
 
 
 <xsl:template match="ballot_index">
+
+  <xsl:variable name="resdoc_xref"
+    select="concat($stepmodhome,'/data/resource_docs/',.//resource/@name,'/sys/cover',$FILE_EXT)"/>
+  
+
+
   <HTML>
     <head>
+      <xsl:if test="./ballot_package/resource">
+          <meta http-equiv="Refresh" content="0;URL={$resdoc_xref}"/>
+      </xsl:if>
+
       <title>
             <xsl:choose>
               <xsl:when test="@title or ./title">
@@ -277,6 +290,9 @@ $Id: ballot_summary.xsl,v 1.19 2003/06/25 10:47:30 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
+  <xsl:variable name="resdoc_xref"
+    select="concat($stepmodhome,'/data/resource_docs/',@name,'/sys/cover',$FILE_EXT)"/>
+
   <xsl:choose>
     <xsl:when test="$resdoc_ok='true'">
       <xsl:variable name="resdoc_file"
@@ -297,9 +313,6 @@ $Id: ballot_summary.xsl,v 1.19 2003/06/25 10:47:30 robbod Exp $
         </td>
         <!-- Resource part -->
         <td>
-          <xsl:variable name="resdoc_xref"
-            select="concat($stepmodhome,'/data/resource_docs/',@name,'/sys/cover',$FILE_EXT)"/>
-          <meta http-equiv="Refresh" content="0;URL={$resdoc_xref}"/>
           <a href="{$resdoc_xref}">
             <xsl:value-of select="@name"/>
           </a>

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.98 2003/06/08 19:30:04 thendrix Exp $
+$Id: common.xsl,v 1.99 2003/06/09 11:07:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
      Templates that are common to most other stylesheets
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+		xmlns:exslt="http://exslt.org/common"
                 version="1.0">
 
   <!--
@@ -3581,6 +3583,61 @@ is case sensitive.')"/>
 </xsl:template>
 
 
+<!-- given a space separated list, return an alphabetically sorted list -->
+<xsl:template name="sort_list">
+  <xsl:param name="list"/>
+
+  <xsl:variable name="nodes">
+    <xsl:call-template name="list_to_nodes">
+      <xsl:with-param name="string" select="$list"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="sorted">
+    <xsl:choose>
+      <xsl:when test="function-available('msxsl:node-set')">
+        <xsl:variable name="nodes_set" select="msxsl:node-set($nodes)"/>
+        <xsl:for-each select="$nodes_set//x">
+          <xsl:sort/>
+          <xsl:value-of select="concat(' ',.,' ')"/>
+        </xsl:for-each>
+      </xsl:when>
+      <xsl:when test="function-available('exslt:node-set')">
+        <xsl:variable name="nodes_set" select="exslt:node-set($nodes)"/>
+        <xsl:for-each select="$nodes//x">
+          <xsl:sort/>
+          <xsl:value-of select="concat(' ',.,' ')"/>
+        </xsl:for-each>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:value-of select="normalize-space($sorted)"/>
+</xsl:template>
+
+<!-- used by sort_list to convert a space separated list into a list of
+     nodes -->
+<xsl:template name="list_to_nodes">
+  <xsl:param name="string"/>
+  <xsl:variable name="nstring" select="normalize-space($string)"/>
+  <xsl:choose>
+    <xsl:when test="contains($nstring,' ')">
+      <xsl:variable
+        name="first"
+        select="substring-before($nstring,' ')"/>
+      <xsl:variable
+        name="rest"
+        select="substring-after($nstring,' ')"/>
+      
+      <x><xsl:value-of select="$first"/></x>
+      <xsl:call-template name="list_to_nodes">
+        <xsl:with-param name="string" select="$rest"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <x><xsl:value-of select="$nstring"/></x>
+    </xsl:otherwise>
+  </xsl:choose>  
+</xsl:template>
 
 </xsl:stylesheet>
 

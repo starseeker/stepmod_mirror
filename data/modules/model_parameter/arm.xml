@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-06T19:54:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-11T10:12:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="model_parameter_arm schema_instance"/>
    <schema name="Model_parameter_arm">
       <interface kind="use" schema="Classification_with_attributes_arm"/>
@@ -27,7 +27,11 @@
          <explicit name="default_value" optional="YES">
             <typename name="scalar_or_coordinated_characteristics"/>
          </explicit>
-         <inverse name="reference_document" entity="Document_assignment" attribute="is_assigned_to"/>
+         <derived name="reference_document" expression=" QUERY ( rd &lt;* QUERY ( da &lt;* USEDIN ( SELF , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( da . role = 'reference document' ) ) | 'DOCUMENT_DEFINITION_ARM.' + 'DOCUMENT_DEFINITION' IN TYPEOF ( rd . assigned_document ) ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Document_definition"/>
+         </derived>
+         <where label="WR1" expression=" EXISTS ( reference_document ) AND SIZEOF ( reference_document ) = 1 "/>
       </entity>
       <entity name="Parameter_assignment" supertypes="Independent_property_representation">
          <explicit name="property">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-06T19:54:11" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-11T10:12:56" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Document_assignment_arm"/>
@@ -45,7 +45,11 @@
          <where label="WR1" expression=" NOT EXISTS ( identifier_in_target_context ) OR ( SIZEOF ( target_product_object ) = 1 ) "/>
       </entity>
       <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
-         <inverse name="source" entity="Organization_or_person_in_organization_assignment" attribute="items"/>
+         <derived name="source" expression=" QUERY ( temp &lt;* USEDIN ( SELF , 'PERSON_ORGANIZATION_ASSIGNMENT_ARM.' + 'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( temp . role = 'document source' ) ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Organization_or_person_in_organization_assignment"/>
+         </derived>
+         <where label="WR1" expression=" EXISTS ( source ) AND sizeof ( source ) = 1 "/>
       </entity>
       <entity name="Structured_text" supertypes="Document_definition">
          <explicit name="plain_text_content" optional="YES">

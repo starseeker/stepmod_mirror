@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-06T19:54:10" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-11T10:12:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_3d_shape_arm schema_instance"/>
    <schema name="Physical_unit_3d_shape_arm">
       <interface kind="use" schema="Physical_unit_shape_with_parameters_arm"/>
@@ -22,6 +22,11 @@
          <explicit name="shape_classification">
             <typename name="shape_class"/>
          </explicit>
+         <derived name="application_technology_constraint" expression=" QUERY ( atc &lt;* QUERY ( ra &lt;* USEDIN ( SELF , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( ra . id = 'application technology constraint' ) ) | 'REQUIREMENT_VIEW_DEFINITION_ARM.' + 'REQUIREMENT_VIEW_DEFINITION' IN TYPEOF ( atc . assigned_requirement ) ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Requirement_view_definition"/>
+         </derived>
+         <where label="WR1" expression=" NOT EXISTS ( application_technology_constraint ) OR SIZEOF ( application_technology_constraint ) = 1 "/>
       </entity>
       <entity name="Physical_unit_3d_shape" supertypes="Feature_shape_definition Physical_unit_shape">
          <explicit name="shape_purpose" optional="YES">
@@ -30,10 +35,15 @@
          <explicit name="shape_classification">
             <typename name="shape_class"/>
          </explicit>
+         <derived name="application_technology_constraint" expression=" QUERY ( atc &lt;* QUERY ( ra &lt;* USEDIN ( SELF , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( ra . id = 'application technology constraint' ) ) | 'REQUIREMENT_VIEW_DEFINITION_ARM.' + 'REQUIREMENT_VIEW_DEFINITION' IN TYPEOF ( atc . assigned_requirement ) ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Requirement_view_definition"/>
+         </derived>
          <inverse name="external_shape_purpose" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression=" ( EXISTS ( shape_purpose ) ) XOR ( ( SIZEOF ( external_shape_purpose ) ) = 1 ) "/>
+         <where label="WR2" expression=" NOT EXISTS ( application_technology_constraint ) OR SIZEOF ( application_technology_constraint ) = 1 "/>
       </entity>
    </schema>
 </express>

@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.4 2002/02/13 09:45:50 robbod Exp $ -->
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 09:45:50 $"
-  rcs.revision="$Revision: 1.4 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $"
+  description.file="arm_descriptions.xml">
 
   <application
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.6"
+    version="1.9"
     source="../data/modules/product_version/arm.exp"/>
 
   <schema name="Product_version_arm">
@@ -20,143 +21,30 @@
       schema="Product_identification_arm">
     </interface>
 
-    <interface
-      kind="use"
-      schema="Approval_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Contract_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Person_organization_assignment_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Security_classification_arm">
-    </interface>
-
-    <type name="product_version_security_classification_item">
-      <description>This select is extends a security_classification_assignment to apply to <b>Product_version</b> instances.</description>
-      <select
-        basedon="security_classification_item"
-        selectitems="Product_version">
-      </select>
-
-    </type>
-    <type name="product_version_organization_or_person_in_organization_item">
-      <description>This select extends the assignment of an organization or a person in an organization to Product_version.</description>
-      <select
-        basedon="organization_or_person_in_organization_item"
-        selectitems="Product_version">
-      </select>
-
-    </type>
-    <type name="product_version_approval_item">
-      <description>This select extends an approval_assignment to apply to <b>Product_version</b> instances.</description>
-      <select
-        basedon="approval_item"
-        selectitems="Product_version">
-      </select>
-
-    </type>
-    <type name="product_version_contract_item">
-      <description>This select extends an contract_assignment to apply to Product_version instances.</description>
-      <select
-        basedon="contract_item"
-        selectitems="Product_version">
-      </select>
-
-    </type>
     <entity
       name="Product_version">
-      <description>A <b>Product_version</b> is the identification of a variant incarnation of a <b>Product</b> which is form, fit and functionally equivalent to it predecessors. The set of all versions of a product represents the history of the product.</description>
       <explicit
         name="id">
-        <description>the identification of the version</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description">
-        <description>the words used to describe the version</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="of_product">
-        <description></description>
         <typename
           name="Product"/>
       </explicit>
-      <inverse
-        name="security"
-        entity="Security_classification_assignment"
-        attribute="items">
-        <description>the <b>Security_classification</b> of the version</description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="creator"
-        entity="Organization_or_person_in_organization_assignment"
-        attribute="items">
-        <description>the organization (and person) that initially defined the version</description>
-      </inverse>
-      <inverse
-        name="custodian"
-        entity="Organization_or_person_in_organization_assignment"
-        attribute="items">
-        <description>the organization (and person) controls the master documentation of the version</description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <inverse
-        name="approval"
-        entity="Approval_assignment"
-        attribute="items">
-        <description>the approval(s) of the version</description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-      </inverse>
-      <inverse
-        name="contracts"
-        entity="Contract_assignment"
-        attribute="items">
-        <description>the contract(s) sponsoring the version</description>
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-      </inverse>
       <unique
         label="UR1">
-        <description>the combination of the <b>id</b> and <b>product</b> reference shall be unique</description>
         <unique.attribute
           attribute="id"/>
         <unique.attribute
           attribute="of_product"/>
       </unique>
-      <where
-        label="WR1"
-        expression="SELF.creator.role = 'creator'">
-        <description>the creator role shall be 'creator'</description>
-      </where>
-      <where
-        label="WR2"
-        expression="SELF.custodian.role = 'design supplier' OR NOT EXISTS(custodian)">
-        <description>if the custodian exists, the custodian role shall be 'design supplier'</description>
-      </where>
     </entity>
 
   </schema>

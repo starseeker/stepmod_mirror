@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.26 2003/07/31 07:29:41 robbod Exp $
+$Id: common.xsl,v 1.27 2003/08/11 09:13:52 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -749,6 +749,7 @@ $Id: common.xsl,v 1.26 2003/07/31 07:29:41 robbod Exp $
         <xsl:when test="$section_tmp='purpose'
                        or $section_tmp='scope'
                        or $section_tmp='inforeqt'
+                       or $section_tmp='fundamentals'
                        or $section_tmp='aam'
                        or $section_tmp='imp_meths'
                        or $section_tmp='usage_guide'
@@ -876,7 +877,7 @@ $Id: common.xsl,v 1.26 2003/07/31 07:29:41 robbod Exp $
             <a href="1_scope{$FILE_EXT}"><xsl:apply-templates/></a>
           </xsl:when>
           <xsl:otherwise>
-            Clause<a href="1_scope{$FILE_EXT}">1</a>
+            Clause <a href="1_scope{$FILE_EXT}">1</a>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -900,7 +901,31 @@ $Id: common.xsl,v 1.26 2003/07/31 07:29:41 robbod Exp $
             <a href="4_info_reqs{$FILE_EXT}"><xsl:apply-templates/></a>
           </xsl:when>
           <xsl:otherwise>
-            Clause<a href="4_info_reqs{$FILE_EXT}">4</a>
+            Clause <a href="4_info_reqs{$FILE_EXT}">4</a>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$section='fundamentals'">
+        <xsl:choose>
+          <xsl:when test="$construct='data_plan'">
+            <xsl:variable name="dp_file">
+              <xsl:call-template name="set_file_ext">
+                <xsl:with-param name="filename" 
+                  select="//inforeqt/fundamentals/data_plan/imgfile[$id]/@file"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="figure_count">
+              <xsl:call-template name="count_figures_from_fundamentals"/>
+            </xsl:variable>
+            Figure <a href="../{$dp_file}"><xsl:value-of select="$figure_count+1"/></a>
+          </xsl:when>
+
+          <xsl:when test="string-length($construct)">
+            <a href="4_info_reqs{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Clause <a href="4_info_reqs{$FILE_EXT}">4.1</a>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

@@ -1,4 +1,4 @@
-//$Id: xml2html.js,v 1.3 2002/01/03 11:20:07 robbod Exp $
+//$Id: xml2html.js,v 1.4 2002/01/14 13:30:15 robbod Exp $
 // JScript to convert the module XML to HTML
 //
 // This script uses The Saxon XSLT processor:
@@ -148,6 +148,87 @@ function runSaxon(xmlFile, htmFile) {
     }
 }
 
+function getAttribute(attr,element) {
+    element = element.replace(/\s*=\s*/g,"=");
+    var reg = new RegExp("\\b"+attr+"=","i");
+    var pos = element.search(reg);
+    if (pos != -1) {
+	element = element.substr(pos+attr.length+2);
+	element = element.replace(/\".*/g,"");
+    } else {
+	element="";
+    }
+    return(element);
+}
+
+function elementName(element) {
+    var name = "";
+    var reg = /<\/.*\b/;
+    name = element.match(reg);
+    if (name) {
+	name = null;
+    } else {
+	reg = /<.*\b/;
+	name = element.match(reg);
+	name = name.toString();
+	name = name.substr(1);
+	name = name.replace(/ .*/,"");
+	name = name.toLowerCase();
+    }
+    return(name);
+}
+
+function readElement(tStream) {
+    var element, inElement=0;
+    while (!tStream.AtEndOfStream) {
+	var c = tStream.Read(1);
+	switch (c) {
+	case "<" :
+	    inElement=1;
+	    element = element+c;
+	    break;
+	case ">" :
+	    return(element+c);
+	    break;
+	default:
+	    if (inElement==1)
+		element = element+c;
+	}
+    }
+    return(element);
+}
+
+function makeHtmlExpressG(module) {
+    var moduleFile = stepmodHome + "/data/modules/" + module + "/module.xml";
+    fso = new ActiveXObject("Scripting.FileSystemObject");
+    if (fso.FileExists(moduleFile)) {
+	f = fso.GetFile(moduleFile);
+	var xmlTs = f.OpenAsTextStream(ForReading, TristateUseDefault);
+	var i=0;
+	while (!xmlTs.AtEndOfStream) {
+	    var l = xmlTs.ReadLine();
+	    var reg = /<express-g>/;
+	    var m = l.match(reg);
+	    if (m) {
+		var element = readElement(xmlTs);
+		var eName;
+		if (element) {
+		    eName = elementName(element);
+		}
+		switch (eName) {
+		case "imgfile" :
+		    var imgfile = getAttribute("file",element);
+		    userMessage(imgfile);
+		    var htmlImgfile = imgfile.replace(/.xml/,".htm");
+		    htmlImgfile = stepmodHome+"/data/modules/"+module+"/"+htmlImgfile;
+		    var xmlImgfile = stepmodHome+"/data/modules/"+module+"/"+imgfile;
+		    runSaxon(xmlImgfile, htmlImgfile);
+		    break;
+		}
+	    }
+	}
+    }
+}
 
 function makeHtmlIndex()
 {
@@ -168,6 +249,8 @@ function makeHtmlResource(resource)
 
 function makeHtmlModule(module)
 {
+    makeHtmlExpressG(module);
+
     var moduleHome = stepmodHome + "/data/modules/" + module;
     var xmlFile, htmFile;
 
@@ -301,6 +384,3 @@ function Main() {
 }
 
 Main();
-
-
-

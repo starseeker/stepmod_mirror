@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.1 2004/10/11 14:16:02 thendrix Exp $
+$Id: sect_isocover.xsl,v 1.1 2004/10/11 21:55:06 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -518,9 +518,11 @@ $Id: sect_isocover.xsl,v 1.1 2004/10/11 14:16:02 thendrix Exp $
 
   <xsl:template match="module" mode="display_name_french">
     Module d'application: 
-    <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@name"/>
+    <xsl:if test="@name.french">
+          <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="@name.french"/>
     </xsl:call-template>
+    </xsl:if>
   </xsl:template>
 
 

@@ -703,7 +703,7 @@
 		<xs:element 
 			name="{$corrected_entity_name_param}" 
 			type="{$namespace_prefix}{$corrected_entity_name_param}"
-			block="extension"
+			block="extension restriction"
 			substitutionGroup="{$ext_base_sub_grp}"
 			nillable="true">
 		</xs:element>

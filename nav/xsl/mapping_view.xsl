@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.11 2002/12/09 11:08:57 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.12 2003/03/03 11:20:30 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -236,9 +236,11 @@ $Id: mapping_view.xsl,v 1.11 2002/12/09 11:08:57 nigelshaw Exp $
 				<br/>
 
 				<xsl:variable name="this_sel" select="@assertion_to" />
+				<xsl:variable name="this_sel_space" select="concat(' ',@assertion_to,' ')" />
 				
 				<xsl:if test="not($arm_node//type[@name=$this_sel][select]
-				        | $arm_node//typename[@name=$this_sel])" >
+				        | $arm_node//typename[@name=$this_sel]
+					| $arm_node//type/select[contains(concat(' ',@selectitems,' '), $this_sel_space)])" >
 					<xsl:call-template name="error_message">
 					  <xsl:with-param name="inline" select="'yes'"/>
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>

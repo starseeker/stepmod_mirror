@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.5 2003/02/14 10:45:21 nigelshaw Exp $
+$Id: mapping_view_with_test.xsl,v 1.6 2003/03/03 11:32:09 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -246,9 +246,11 @@ $Id: mapping_view_with_test.xsl,v 1.5 2003/02/14 10:45:21 nigelshaw Exp $
 				<br/>
 
 				<xsl:variable name="this_sel" select="@assertion_to" />
+				<xsl:variable name="this_sel_space" select="concat(' ',@assertion_to,' ')" />
 				
 				<xsl:if test="not($arm_node//type[@name=$this_sel][select]
-				        | $arm_node//typename[@name=$this_sel])" >
+				        | $arm_node//typename[@name=$this_sel]
+					| $arm_node//type/select[contains(concat(' ',@selectitems,' '), $this_sel_space)])" >
 					<xsl:call-template name="error_message">
 					  <xsl:with-param name="inline" select="'yes'"/>
 					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -1772,6 +1774,11 @@ $Id: mapping_view_with_test.xsl,v 1.5 2003/02/14 10:45:21 nigelshaw Exp $
     name="schema_name" 
     select="../@name"/>      
 
+  <xsl:variable 
+    name="this_type_name" 
+    select="@name"/>      
+
+
   <xsl:variable name="aname">
     <xsl:call-template name="express_a_name">
       <xsl:with-param name="section1" select="$schema_name"/>
@@ -1791,9 +1798,29 @@ check whether the variable exists.
 -->
 
 	<xsl:choose>
+<!--	<xsl:when test="select/@basedon and not(
+					$schemas//*[typename/@name=$this_type_name])" >
+	
+	<p>
+		(*
+		TYPE <xsl:value-of select="@name" /> Not referenced in long form !!!
+		*)
+	</p>
+
+
+	</xsl:when>	
+-->
 	<xsl:when test="select/@basedon" >
 		<br/>
-		  <A NAME="{$aname}">TYPE </A><b><xsl:value-of select="@name"/></b> =
+		<xsl:if test="not( $schemas//*[typename/@name=$this_type_name])" >
+			(*
+			Warning TYPE <xsl:value-of select="@name" /> not referenced in long form !!!
+			*)
+			<br/>
+			<br/>
+		</xsl:if>	
+
+		<A NAME="{$aname}">TYPE </A><b><xsl:value-of select="@name"/></b> =
 		      <xsl:call-template name="link_object">
 		        <xsl:with-param name="object_name" select="select/@basedon"/>
 		        <xsl:with-param name="object_used_in_schema_name" 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.15 2003/08/13 08:08:33 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.16 2003/08/15 07:15:03 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -17,6 +17,7 @@ $Id: sect_2_refs.xsl,v 1.15 2003/08/13 08:08:33 robbod Exp $
     <h2>
       2 Normative references
     </h2>
+    <!-- replace with ISO Directives, Part 2: as requested by WG3 conver 24/2/2004
     <p>
       The following normative documents contain provisions which, through
       reference in this text, constitute provisions of this International
@@ -27,6 +28,13 @@ $Id: sect_2_refs.xsl,v 1.15 2003/08/13 08:08:33 robbod Exp $
       indicated below. For undated references, the latest edition of the
       normative document referred to applies. Members of ISO and IEC maintain
       registers of currently valid International Standards.
+    </p> -->
+    
+    <p>
+      The following referenced documents are indispensable for the application of
+      this document. For dated references, only the edition cited applies. For
+      undated references, the latest edition of the referenced document
+      (including any amendments) applies.
     </p>
 
     <xsl:apply-templates select="." mode="output_default_normrefs"/>

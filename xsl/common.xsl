@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.51 2002/06/19 14:41:39 robbod Exp $
+$Id: common.xsl,v 1.52 2002/06/20 13:05:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -849,6 +849,21 @@ $Id: common.xsl,v 1.51 2002/06/19 14:41:39 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
     <xsl:value-of select="concat('../data/modules/',$mod_dir)"/>
+  </xsl:template>
+
+
+
+  <!-- given the name of a module, return the name of the arm or mim schema
+       -->
+  <xsl:template name="schema_name">
+    <xsl:param name="module_name"/>
+    <xsl:param name="arm_mim" select="'arm'"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="first_char" 
+      select="translate(substring($module_name,1,1),$LOWER,$UPPER)"/>
+    <xsl:value-of 
+      select="concat($first_char,substring($module_name,2),'_',$arm_mim)"/>
   </xsl:template>
 
   <!-- return the target for an express entity
@@ -2016,6 +2031,53 @@ $Id: common.xsl,v 1.51 2002/06/19 14:41:39 robbod Exp $
     </xsl:choose>
   </xsl:template>
 
+
+  <!-- display the expressg Icon for an express construct -->
+  <xsl:template match="entity|type|schema|constant" mode="expressg_icon">
+    <xsl:variable name="schema" select="../@name"/>
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="$schema"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="module_file"
+      select="concat($module_dir,'/module.xml')"/> 
+
+    <xsl:variable name="href_expg">
+      <xsl:choose>
+        <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
+          <xsl:choose>
+            <xsl:when test="./graphic.element/@page">
+              <xsl:value-of select="concat('../armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat('../armexpg1',$FILE_EXT)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+          
+        </xsl:when>
+        <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
+          <xsl:choose>
+            <xsl:when test="./graphic.element/@page">
+              <xsl:value-of select="concat('../mimexpg',./graphic.element/@page,$FILE_EXT)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat('../mimexpg1',$FILE_EXT)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+
+    &#160;&#160;<a href="{$href_expg}">
+      <img align="middle" border="0" 
+        alt="EXPRESS-G" src="../../../../images/expg.gif"/>
+    </a>
+
+  </xsl:template>
+
+
   <xsl:template name="expressg_icon">
     <xsl:param name="schema"/>
     <xsl:param name="entity"/>
@@ -2032,8 +2094,6 @@ $Id: common.xsl,v 1.51 2002/06/19 14:41:39 robbod Exp $
     <xsl:variable name="href_expg">
       <xsl:choose>
         <xsl:when test="$entity">
-          <!-- temporary hack -need to search for the page on which the entity
-               is displayed -->
           <xsl:choose>
             <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
               <xsl:choose>

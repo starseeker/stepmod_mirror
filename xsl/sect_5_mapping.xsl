@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.26 2002/06/19 06:54:38 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.27 2002/06/20 13:49:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -340,10 +340,14 @@ $Id: sect_5_mapping.xsl,v 1.26 2002/06/19 06:54:38 robbod Exp $
   </xsl:variable>
   <xsl:variable name="aname" select="@entity"/>
 
-  <xsl:variable 
-    name="schema_name" 
-    select="concat(../../../module/@name,'_arm')"/>
-    <xsl:variable name="ae_aname">
+  <xsl:variable name="schema_name">
+    <xsl:call-template name="schema_name">
+      <xsl:with-param name="module_name" select="../../../module/@name"/>
+      <xsl:with-param name="arm_mim" select="'arm'"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="ae_aname">
     <xsl:call-template name="express_a_name">
       <xsl:with-param name="section1" select="$schema_name"/>
       <xsl:with-param name="section2" select="@entity"/>
@@ -384,6 +388,9 @@ $Id: sect_5_mapping.xsl,v 1.26 2002/06/19 06:54:38 robbod Exp $
     <a href="{$ae_xref}">
       <xsl:value-of select="$ae"/>
     </a>
+    <xsl:variable name="entity_node"
+      select="document($arm_xml)/express/schema/entity[@name=$arm_entity]"/>
+    <xsl:apply-templates select="$entity_node" mode="expressg_icon"/>
   </h3>
 
   <xsl:apply-templates select="./alt"/>
@@ -469,6 +476,16 @@ $Id: sect_5_mapping.xsl,v 1.26 2002/06/19 06:54:38 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </a>
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="../../../../module/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+  <xsl:variable name="ae" select="../@entity"/>
+  <xsl:variable name="entity_node"
+      select="document($arm_xml)/express/schema/entity[@name=$ae]"/>
+  <xsl:apply-templates select="$entity_node" mode="expressg_icon"/>
   </h3>
   <xsl:apply-templates select="./alt"/>
   <table>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.11 2002/06/17 15:48:54 robbod Exp $
+$Id: imgfile.xsl,v 1.12 2002/06/19 16:07:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -148,7 +148,7 @@ $Id: imgfile.xsl,v 1.11 2002/06/17 15:48:54 robbod Exp $
 <xsl:template match="imgfile" mode="nav_arrows">
   <xsl:param name="file"/>
   <xsl:if test="$file=@file">
-      Page navigation:&#160; 
+    <!-- Page navigation:&#160; -->
       <xsl:variable name="maphref" 
         select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
       <a href="{$maphref}">
@@ -176,8 +176,10 @@ $Id: imgfile.xsl,v 1.11 2002/06/17 15:48:54 robbod Exp $
           alt="Index of Express-G pages" src="../../../images/home.gif"/>
       </a>
 
-      
-      <xsl:if test="position() != 1">
+      <xsl:variable name="img_position">
+        <xsl:number/>
+      </xsl:variable>
+      <xsl:if test="$img_position != 1">
         <!-- not first page, so start page and previous page -->
         <xsl:variable name="start">
           <xsl:call-template name="set_file_ext">

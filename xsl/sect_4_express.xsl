@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.44 2002/06/17 15:48:54 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.45 2002/06/18 07:56:41 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -596,11 +596,7 @@ select="document($module_file)/module/arm/express-g/imgfile">
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
     </A>
-    <xsl:call-template name="expressg_icon">
-      <xsl:with-param name="module_root" select="'..'"/>
-      <xsl:with-param name="schema" select="$schema_name"/>
-      <xsl:with-param name="entity" select="@name"/>      
-    </xsl:call-template>
+    <xsl:apply-templates select="." mode="expressg_icon"/>
   </h3>
 
   <xsl:call-template name="check_type_name">
@@ -794,12 +790,7 @@ select="document($module_file)/module/arm/express-g/imgfile">
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
-    <xsl:call-template name="expressg_icon">
-      <xsl:with-param name="module_root" select="'..'"/>
-      <xsl:with-param name="schema" select="$schema_name"/>
-      <xsl:with-param name="entity" select="@name"/>      
-    </xsl:call-template>
-
+    <xsl:apply-templates select="." mode="expressg_icon"/>
     <xsl:if test="substring($schema_name, string-length($schema_name)-3)= '_arm'">
       <xsl:variable name="maphref" 
         select="concat('./5_mapping',$FILE_EXT,'#',@name)"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.9 2004/11/10 20:28:03 thendrix Exp $
+     $Id: express_code.xsl,v 1.10 2004/11/11 09:22:11 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -218,29 +218,76 @@ data/resources/',$resource,'/',$resource,'.xml.')"/>
 
 </xsl:template>
 
-
 <xsl:template match="constant" mode="code">
   <code>
-  <xsl:variable 
-    name="schema_name" 
-    select="../@name"/>      
+    <xsl:variable 
+      name="schema_name" 
+      select="../@name"/>      
+    
+    <xsl:variable name="aname">
+      <xsl:call-template name="express_a_name">
+        <xsl:with-param name="section1" select="$schema_name"/>
+        <xsl:with-param name="section2" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>    
+    <br/>
+    <xsl:if test="position()=1">CONSTANT<br/></xsl:if>
+    <A NAME="{$aname}"></A>
+    &#160;&#160;<xsl:value-of select="@name"/> : <xsl:apply-templates select="./*" mode="underlyingconstant"/><xsl:apply-templates select="./*" mode="underlying"/> := <xsl:choose>
+    
+    <xsl:when test="./aggregate and contains(@expression,',')"><br/>
+      &#160;&#160;&#160;<xsl:value-of select="concat(substring-before(@expression,','),',')"/>
+      <xsl:call-template name="output_constant_expression">
+        <xsl:with-param name="expression" select="substring-after(@expression,',')"/>
+      </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@expression"/>;
+      </xsl:otherwise>
+  </xsl:choose>
+    <xsl:if test="position()=last()">
+      <br/>
+      END_CONSTANT;
+      <br/>
+    </xsl:if>
+  </code>
+</xsl:template>
 
-  <xsl:variable name="aname">
-    <xsl:call-template name="express_a_name">
-      <xsl:with-param name="section1" select="$schema_name"/>
-      <xsl:with-param name="section2" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>    
-  <br/>
-  <xsl:if test="position()=1">CONSTANT</xsl:if>
-  <A NAME="{$aname}"></A>
-  &#160;&#160;<xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/>
-  <xsl:if test="position()=last()">
+<!-- THX added to support constants that are aggregates -->
+
+
+<xsl:template name="output_constant_expression">
+  <xsl:param name="expression"/>
+  <!--  <xsl:value-of select="','" /> -->
     <br/>
-    END_CONSTANT;
-    <br/>
-  </xsl:if>
-</code>
+    &#160;&#160;&#160;&#160;<xsl:value-of select="substring-before($expression,',')"/>
+    
+    <xsl:choose>
+      <xsl:when test="contains($expression,',')">,
+        <xsl:call-template name="output_constant_expression">
+          <xsl:with-param name="expression" select="substring-after($expression,',')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$expression"/>;
+      </xsl:otherwise>
+    </xsl:choose>
+
+
+</xsl:template>
+
+<xsl:template match="description" mode="underlyingconstant">
+<!-- keeps description if any from printing out -->
+</xsl:template>
+<xsl:template match="aggregate" mode="underlyingconstant">
+  <xsl:choose>
+    <xsl:when test="@lower">
+      <xsl:value-of select="concat(@type, '[', @lower, ':', @upper, '] OF ')"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="concat(@type, ' OF ')"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 

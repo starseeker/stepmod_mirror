@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
+$Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -486,10 +486,20 @@ $Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$constant_clause != 0">
- &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#constants">
-         <xsl:value-of select="concat($clause_no,$constant_clause,' ',$resource_display_name,
+	 <xsl:choose>
+	   <xsl:when test="count($express_xml/express/schema/constant)>1">
+ &#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#constants">
+         <xsl:value-of select="concat($clause_no,$constant_clause,' ', $resource_display_name,
                                ' constant definitions')"/>
-       </A>
+          </A>
+      </xsl:when>
+      <xsl:otherwise>
+ &#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#constants">
+         <xsl:value-of select="concat($clause_no,$constant_clause,' ', $resource_display_name,
+                               ' constant definition')"/>
+          </A>
+      </xsl:otherwise>
+    </xsl:choose>
      <br/>
      <xsl:apply-templates 
        select="$express_xml/express/schema/constant" mode="contents">
@@ -509,6 +519,7 @@ $Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$imported_constant_clause != 0">
+
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#imported_constant">
          <xsl:value-of select="concat($clause_no,$imported_constant_clause,' ',$resource_display_name,' imported constant modifications')"/>
        </A>
@@ -528,10 +539,20 @@ $Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
    </xsl:variable>
 
    <xsl:if test="$type_clause != 0">
+	 <xsl:choose>
+	   <xsl:when test="count($express_xml/express/schema/type)>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#types">
          <xsl:value-of select="concat($clause_no,$type_clause,' ', $resource_display_name,
                                ' type definitions')"/>
-       </A>
+          </A>
+      </xsl:when>
+      <xsl:otherwise>
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#types">
+         <xsl:value-of select="concat($clause_no,$type_clause,' ', $resource_display_name,
+                               ' type definition')"/>
+          </A>
+      </xsl:otherwise>
+    </xsl:choose>
      <br/>    
      <xsl:apply-templates 
        select="$express_xml/express/schema/type" mode="contents">
@@ -569,11 +590,20 @@ $Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$entity_clause != 0">
-      &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#entities">
-         <xsl:value-of select="concat($clause_no,$entity_clause,' ',
-                               $resource_display_name,
+	 <xsl:choose>
+	   <xsl:when test="count($express_xml/express/schema/entity)>1">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#entities">
+         <xsl:value-of select="concat($clause_no,$entity_clause,' ', $resource_display_name,
                                ' entity definitions')"/>
-       </A>
+          </A>
+      </xsl:when>
+      <xsl:otherwise>
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#entities">
+         <xsl:value-of select="concat($clause_no,$entity_clause,' ', $resource_display_name,
+                               ' entity definition')"/>
+          </A>
+      </xsl:otherwise>
+    </xsl:choose>
        <br/>
 
     <xsl:apply-templates 
@@ -613,10 +643,20 @@ $Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$subtype_constraint_clause != 0">
+	 <xsl:choose>
+	   <xsl:when test="count($express_xml/express/schema/subtype.constraint)>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#subtype_constraints">
-         <xsl:value-of select="concat($clause_no,$subtype_constraint_clause,' ',$resource_display_name,
+         <xsl:value-of select="concat($clause_no,$subtype_constraint_clause,' ', $resource_display_name,
                                ' subtype constraint definitions')"/>
-       </A>
+          </A>
+      </xsl:when>
+      <xsl:otherwise>
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#subtype_constraints">
+         <xsl:value-of select="concat($clause_no,$subtype_constraint_clause,' ', $resource_display_name,
+                               ' subtype constraint definition')"/>
+          </A>
+      </xsl:otherwise>
+    </xsl:choose>
        <br/>
     <xsl:apply-templates 
        select="$express_xml/express/schema/subtype.constraint" mode="contents">
@@ -636,10 +676,20 @@ $Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$function_clause !=0">
+	 <xsl:choose>
+	   <xsl:when test="count($express_xml/express/schema/function)>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#functions">
-         <xsl:value-of select="concat($clause_no,$function_clause,' ',$resource_display_name,
+         <xsl:value-of select="concat($clause_no,$function_clause,' ', $resource_display_name,
                                ' function definitions')"/>
-       </A>
+          </A>
+      </xsl:when>
+      <xsl:otherwise>
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#functions">
+         <xsl:value-of select="concat($clause_no,$function_clause,' ', $resource_display_name,
+                               ' function definition')"/>
+          </A>
+      </xsl:otherwise>
+    </xsl:choose>
      <br/>
      <xsl:apply-templates 
        select="$express_xml/express/schema/function" mode="contents">
@@ -676,10 +726,20 @@ $Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$rule_clause !=0">
+	 <xsl:choose>
+	   <xsl:when test="count($express_xml/express/schema/rule)>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#rules">
-         <xsl:value-of select="concat($clause_no,$rule_clause,' ',$resource_display_name,
+         <xsl:value-of select="concat($clause_no,$rule_clause,' ', $resource_display_name,
                                ' rule definitions')"/>
-       </A>
+          </A>
+      </xsl:when>
+      <xsl:otherwise>
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#rules">
+         <xsl:value-of select="concat($clause_no,$rule_clause,' ', $resource_display_name,
+                               ' rule definition')"/>
+          </A>
+      </xsl:otherwise>
+    </xsl:choose>
        <br/>
     <xsl:apply-templates 
        select="$express_xml/express/schema/rule" mode="contents">
@@ -715,10 +775,20 @@ $Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$procedure_clause != 0">
-       &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#procedures">
-         <xsl:value-of select="concat($clause_no,$procedure_clause,' ',$resource_display_name,
+	 <xsl:choose>
+	   <xsl:when test="count($express_xml/express/schema/procedure)>1">
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#procedures">
+         <xsl:value-of select="concat($clause_no,$procedure_clause,' ', $resource_display_name,
                                ' procedure definitions')"/>
-       </A>
+          </A>
+      </xsl:when>
+      <xsl:otherwise>
+ &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#procedures">
+         <xsl:value-of select="concat($clause_no,$procedure_clause,' ', $resource_display_name,
+                               ' procedure definition')"/>
+          </A>
+      </xsl:otherwise>
+    </xsl:choose>
      <br/>
      <xsl:apply-templates 
        select="$express_xml/express/schema/procedure" mode="contents">

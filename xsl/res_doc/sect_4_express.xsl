@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.23 2004/11/10 01:35:16 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.24 2004/11/11 01:11:19 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -18,6 +18,7 @@
 
   <xsl:import href="express_link.xsl"/> 
   <xsl:import href="express_description.xsl"/> 
+  <xsl:import href="express_code.xsl"/> 
 
   <xsl:import href="../projmg/resource_issues.xsl"/> 
 
@@ -422,6 +423,7 @@
 
 <xsl:template match="constant">
   <!-- some day add the support for constant that is aggregate. -->
+  <xsl:param name="main_clause"/>
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
@@ -431,15 +433,23 @@
     select="''"/>
 
   <xsl:variable name="clause_number">
-    <xsl:call-template name="express_clause_number">
-      <xsl:with-param name="clause" select="'interface'"/>
-      <xsl:with-param name="schema_name" select="$schema_name"/>
-    </xsl:call-template>
+	<xsl:call-template name="express_clause_number">
+	  <xsl:with-param name="main_clause" select="$main_clause"/>
+	  <xsl:with-param name="clause" select="'constant'"/>
+	  <xsl:with-param name="schema_name" select="$schema_name"/>
+	</xsl:call-template>
   </xsl:variable>
 
   <xsl:if test="position()=1">
     <xsl:variable name="clause_header">
-          <xsl:value-of select="concat($clause_number,' ',$schema_name,' constant definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../constant)>1">
+			  <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' constant definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+			  <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' constant definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
     </xsl:variable>
 
     <xsl:variable name="clause_intro" select="''"/>
@@ -473,7 +483,7 @@
   </xsl:variable>    
   <h2>
     <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+      <xsl:value-of select="concat($main_clause, $clause_number,'.',position(),' ',@name)"/>
     </A>
   </h2>
 
@@ -508,6 +518,7 @@
   </p>
   <!-- output any issue against constant   -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="./@name"/>
   </xsl:call-template> 
@@ -519,8 +530,20 @@
     <!--  start blockquote -->
       <code>
         *)<br/>
-        &#160;&#160;<xsl:value-of select="@name"/> : <xsl:value-of select="@expression"/>
-      <br/>(*
+        &#160;&#160;<xsl:value-of select="@name"/> 
+: <xsl:apply-templates select="./*" mode="underlyingconstant"/><xsl:apply-templates select="./*" mode="underlying"/> := <xsl:choose>
+    
+    <xsl:when test="./aggregate and contains(@expression,',')"><br/>
+      &#160;&#160;&#160;<xsl:value-of select="concat(substring-before(@expression,','),',')"/>
+      <xsl:call-template name="output_constant_expression">
+        <xsl:with-param name="expression" select="substring-after(@expression,',')"/>
+      </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@expression"/>;
+      </xsl:otherwise>
+  </xsl:choose>
+     <br/>(*
       </code>
     <!-- end blockquote  -->
     </p>
@@ -560,8 +583,14 @@
   <xsl:if test="position()=1">
 
     <xsl:variable name="clause_header">
-          <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' type definitions')"/>
-
+          <xsl:choose>
+            <xsl:when test="count(../type)>1">
+			  <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' type definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+			  <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' type definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
     </xsl:variable>
 
     <xsl:variable name="clause_intro" select="''"/>
@@ -856,8 +885,15 @@
 
   <xsl:if test="position()=1">
     <xsl:variable name="clause_header">
-          <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' entity definitions')"/>
-    </xsl:variable>
+	<xsl:choose>
+	  <xsl:when test="count(../type)>1">
+		<xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' entity definitions')"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+		<xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' entity definition')"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+	</xsl:variable>
 
     <xsl:variable name="clause_intro" select="''"/>
 
@@ -2131,12 +2167,14 @@
 <xsl:template match="algorithm" mode="underlying"/>
 
 
-<xsl:template match="rule">  
+<xsl:template match="rule">
+  <xsl:param name="main_clause"/>  
   <xsl:variable 
     name="schema_name" 
     select="../@name"/>      
   <xsl:variable name="clause_number">
     <xsl:call-template name="express_clause_number">
+      <xsl:with-param name="main_clause" select="$main_clause"/>
       <xsl:with-param name="clause" select="'rule'"/>
       <xsl:with-param name="schema_name" select="$schema_name"/>
     </xsl:call-template>
@@ -2144,7 +2182,15 @@
   <xsl:if test="position()=1">
     <!-- first rule so output the intro -->
     <xsl:variable name="clause_header">
-          <xsl:value-of select="concat($clause_number,' ',$schema_name,' rule definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../type)>1">
+			  <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' rule definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+			  <xsl:value-of select="concat($main_clause,$clause_number,' ',$schema_name,' rule definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
+
     </xsl:variable>
 
     <xsl:variable name="clause_intro">
@@ -2173,7 +2219,7 @@
 
   <h2>
     <A NAME="{$aname}">
-      <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+      <xsl:value-of select="concat($main_clause, $clause_number,'.',position(),' ',@name)"/>
     </A>
   </h2>
 

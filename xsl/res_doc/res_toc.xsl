@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.19 2004/10/11 14:06:56 thendrix Exp $
+$Id: res_toc.xsl,v 1.20 2004/10/15 02:23:35 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -29,6 +29,12 @@ $Id: res_toc.xsl,v 1.19 2004/10/11 14:06:56 thendrix Exp $
   </xsl:variable>
 
 
+   <xsl:variable name="resource_dir">
+     <xsl:call-template name="resource_directory">
+       <xsl:with-param name="resource" select="@name"/>
+     </xsl:call-template>
+   </xsl:variable>
+
 
 
   <!--
@@ -41,6 +47,10 @@ $Id: res_toc.xsl,v 1.19 2004/10/11 14:06:56 thendrix Exp $
     resource_display_name :<xsl:value-of select="$resource_display_name"/>
   </xsl:message>
 -->
+
+   <xsl:variable name="express_xml" select="document(concat($resource_dir,'/',$resource_name,'_schema.xml'))" />
+
+
   <xsl:variable name="schema_name" select="@name"/>
 
   <!--  <xsl:variable name="clauseno" select="3+position()"/> -->
@@ -73,11 +83,22 @@ NEED TO FIX up the hrefs -->
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$constant_clause != 0">
-            &#160; &#160;&#160;&#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#constants">
-              <xsl:value-of select="concat($clauseno, $constant_clause,
-' ',                                    $resource_display_name, ' constant definitions')"/>
-            </A><BR/>
-          </xsl:if>
+			<xsl:choose>
+			  <xsl:when test="count($express_xml/express/schema/constant)>1">
+				&#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#constants">
+				<xsl:value-of select="concat($clauseno, $constant_clause, ' ',
+									  $resource_display_name, ' constant definitions')"/>
+			  </A>
+			  </xsl:when>
+			  <xsl:otherwise>
+				&#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#constants">
+				<xsl:value-of select="concat($clauseno, $constant_clause, ' ',
+									  $resource_display_name, ' constant definition')"/>
+			  </A>
+			  </xsl:otherwise>
+			</xsl:choose>
+			<BR/>
+		  </xsl:if>
 
           <!-- only output if there are imported constants defined and 
                therefore a section -->
@@ -106,10 +127,21 @@ NEED TO FIX up the hrefs -->
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$type_clause != 0">
-            &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#types">
-              <xsl:value-of select="concat($clauseno, $type_clause, ' ',
-                                    $resource_display_name,' type definitions')"/>
-            </A><BR/>
+			<xsl:choose>
+			  <xsl:when test="count($express_xml/express/schema/type)>1">
+				&#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#types">
+				<xsl:value-of select="concat($clauseno, $type_clause, ' ',
+									  $resource_display_name, ' type definitions')"/>
+			  </A>
+			  </xsl:when>
+			  <xsl:otherwise>
+				&#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#types">
+				<xsl:value-of select="concat($clauseno, $type_clause, ' ',
+									  $resource_display_name, ' type definition')"/>
+			  </A>
+			  </xsl:otherwise>
+			</xsl:choose>
+			<BR/>
           </xsl:if>
 
           <!-- only output if there are imported types defined and 
@@ -140,10 +172,21 @@ NEED TO FIX up the hrefs -->
           </xsl:variable>
 
           <xsl:if test="$entity_clause != 0">
-            &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#entities">
-              <xsl:value-of select="concat($clauseno, $entity_clause,' ',
-                                    $resource_display_name,' entity definitions')"/>
-            </A><BR/>
+			<xsl:choose>
+			  <xsl:when test="count($express_xml/express/schema/entity)>1">
+				&#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#entities">
+				<xsl:value-of select="concat($clauseno, $entity_clause, ' ',
+									  $resource_display_name, ' entity definitions')"/>
+			  </A>
+			  </xsl:when>
+			  <xsl:otherwise>
+				&#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#entities">
+				<xsl:value-of select="concat($clauseno, $entity_clause, ' ',
+									  $resource_display_name, ' entity definition')"/>
+			  </A>
+			  </xsl:otherwise>
+			</xsl:choose>
+			<BR/>
           </xsl:if>
           <!--
           <xsl:message>
@@ -179,10 +222,21 @@ NEED TO FIX up the hrefs -->
             </xsl:call-template>
           </xsl:variable>          
           <xsl:if test="$subtype_constraint_clause != 0">
-            &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#subtype_constraints">
-              <xsl:value-of select="concat($clauseno, $subtype_constraint_clause, ' ',
-                                   $resource_display_name, ' subtype constraint definitions')"/>
-            </A><BR/>
+			<xsl:choose>
+			  <xsl:when test="count($express_xml/express/schema/subtype.constraint)>1">
+				&#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#subtype_constraints">
+				<xsl:value-of select="concat($clauseno, $subtype_constraint_clause, ' ',
+									  $resource_display_name, ' subtype constraint definitions')"/>
+			  </A>
+			  </xsl:when>
+			  <xsl:otherwise>
+				&#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#subtype_constraints">
+				<xsl:value-of select="concat($clauseno, $subtype_constraint_clause, ' ',
+									  $resource_display_name, ' subtype constraint definition')"/>
+			  </A>
+			  </xsl:otherwise>
+			</xsl:choose>
+			<BR/>
           </xsl:if>
 
           <!-- only output if there are functions defined and therefore a

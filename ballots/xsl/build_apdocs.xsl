@@ -138,6 +138,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="property">
+          <xsl:attribute name="name">EXPRESSDIR</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:value-of select="concat('ballots/isohtml/',@name,'/express')"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="property">
           <xsl:attribute name="name">APDOCMENU</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_build.xml')"/>
@@ -241,7 +247,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:choose>
       </xsl:variable>
 
-      <xsl:variable name="all_target" select="concat($all_target3,', copy_abstracts')"/>
+      <xsl:variable name="all_target" select="concat($all_target3,', copy_abstracts, copy_express')"/>
       <target
         xsl:extension-element-prefixes="exslt"        
         name="all" depends="{$all_target}" 
@@ -367,6 +373,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       </xsl:if>
       <xsl:apply-templates select="." mode="resources_target"/>      
       <xsl:apply-templates select="." mode="abstracts_target"/>      
+      <xsl:apply-templates select="." mode="express_target"/>      
     </project>
 
   </xsl:template>
@@ -10714,6 +10721,70 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     </xsl:for-each>
    </target>
 </xsl:template>
+
+
+<xsl:template match="ballot_index" mode="express_target">
+   <target 
+     xsl:extension-element-prefixes="exslt"
+     name="copy_express" 
+     depends="init" 
+     description="Copy ballot module express to ISOHTML">
+
+    <xsl:for-each select="/ballot_index/ballot_package/module">
+      <xsl:variable name="module" select="@name"/>
+      <xsl:variable name="module_xml"
+        select="document(concat('../../data/modules/',$module,'/module.xml'))"/>
+
+      <xsl:variable name="part" select="$module_xml/module/@part"/>
+      <xsl:variable name="wg.number.arm" select="$module_xml/module/@wg.number.arm"/>
+      <xsl:variable name="wg.number.arm_lf" select="$module_xml/module/@wg.number.arm_lf"/>
+      <xsl:variable name="wg.number.mim" select="$module_xml/module/@wg.number.mim"/> 
+      <xsl:variable name="wg.number.mim_lf" select="$module_xml/module/@wg.number.mim_lf"/>
+      <xsl:variable name="status" 
+        select="translate(translate($module_xml/module/@status,$UPPER,$LOWER),'-','')"/>
+      <xsl:variable name="wg" select="$module_xml/module/@sc4.working_group"/>
+      <xsl:variable name="prefix" select="concat('part',$part,$status,'_wg',$wg,'n')"/>
+
+     <xsl:element name="copy">
+       <xsl:attribute name="file">
+         <xsl:value-of select="concat('data/modules/',@name,'/arm.exp')"/>
+       </xsl:attribute>
+       <xsl:attribute name="tofile">
+         <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.arm,'arm.exp')"/>
+       </xsl:attribute>
+     </xsl:element>
+
+     <xsl:element name="copy">
+       <xsl:attribute name="file">
+         <xsl:value-of select="concat('data/modules/',@name,'/arm_lf.exp')"/>
+       </xsl:attribute>
+       <xsl:attribute name="tofile">
+         <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.arm_lf,'arm_lf.exp')"/>
+       </xsl:attribute>
+     </xsl:element>
+
+     <xsl:element name="copy">
+       <xsl:attribute name="file">
+         <xsl:value-of select="concat('data/modules/',@name,'/mim.exp')"/>
+       </xsl:attribute>
+       <xsl:attribute name="tofile">
+         <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.mim,'mim.exp')"/>
+       </xsl:attribute>
+     </xsl:element>
+
+     <xsl:element name="copy">
+       <xsl:attribute name="file">
+         <xsl:value-of select="concat('data/modules/',@name,'/mim_lf.exp')"/>
+       </xsl:attribute>
+       <xsl:attribute name="tofile">
+         <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.mim_lf,'mim_lf.exp')"/>
+       </xsl:attribute>
+     </xsl:element>
+
+    </xsl:for-each>
+   </target>
+</xsl:template>
+
 
 <xsl:template match="ballot_index" mode="abstract_variable">
 </xsl:template>

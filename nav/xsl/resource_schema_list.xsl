@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: resource_schema_list.xsl,v 1.1 2002/09/11 08:27:38 robbod Exp $
+$Id: resource_schema_list.xsl,v 1.2 2002/09/16 09:25:31 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of resource schemas
@@ -91,13 +91,22 @@ $Id: resource_schema_list.xsl,v 1.1 2002/09/11 08:27:38 robbod Exp $
     </p>
   <xsl:variable name="dvlpref" 
     select="concat('../data/resources/',@name,'/developer',$FILE_EXT)"/>
+  <xsl:variable name="mappingref" 
+    select="concat('../data/resources/',@name,'/resource_map',$FILE_EXT)"/>
 
     <p class="menuitem">
       <a href="{$dvlpref}" target="content">
         Developer view
       </a>
     </p>
-    
+  
+    <p class="menuitem">
+      <a href="{$mappingref}" target="content">
+        Mapping view
+      </a>
+    </p>
+
+  
   </div>
   
   <div id="{$NoMenu}">

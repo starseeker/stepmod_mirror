@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.26"
+    source="../data/modules/representation_with_uncertainty/mim.exp"/>
+
+  <schema name="Representation_with_uncertainty_mim">
+    <interface
+      kind="use"
+      schema="Foundation_representation_mim">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="qualified_measure_schema">
+      <interfaced.item
+        name="qualified_representation_item"/>
+      <interfaced.item
+        name="standard_uncertainty"/>
+      <interfaced.item
+        name="uncertainty_qualifier"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="representation_schema">
+      <interfaced.item
+        name="uncertainty_assigned_representation"/>
+    </interface>
+
+    <rule
+      name="consistent_uncertainty"
+      appliesto="global_uncertainty_assigned_context qualified_representation_item uncertainty_assigned_representation">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF ( QUERY ( guac &lt;* global_uncertainty_assigned_context |     SIZEOF ( QUERY ( u1 &lt;* guac.uncertainty | 	SIZEOF ( QUERY ( u2 &lt;* guac.uncertainty | u2.name =  u1.name ) ) &gt;1 ) ) &gt;0 ) ) =  0 ">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF ( QUERY ( uar &lt;* uncertainty_assigned_representation | 	SIZEOF ( QUERY ( u1&lt;* uar.uncertainty | 	SIZEOF ( QUERY ( u2 &lt;* uar.uncertainty | u2.name =  u1.name ) ) &gt;1 ) ) &gt;0 ) ) =  0">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF ( QUERY ( qri &lt;* qualified_representation_item |     SIZEOF ( QUERY ( u1 &lt;* qri.qualifiers |     (schema_name + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u1 ) ) AND 	( SIZEOF ( QUERY ( u2 &lt;* qri.qualifiers |     ( schema_name + '.UNCERTAINTY_QUALIFIER' IN TYPEOF ( u2 ) ) AND 	( u2\uncertainty_qualifier.measure_name =  u1\uncertainty_qualifier.measure_name ) )     ) &gt;1 ) ) ) &gt;0 ) ) =  0">
+      </where>
+
+    </rule>
+
+  </schema>
+
+</express>

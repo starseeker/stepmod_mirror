@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.7 2003/01/24 11:12:18 robbod Exp $
+$Id: select_view.xsl,v 1.8 2003/02/03 12:29:06 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -197,23 +197,6 @@ $Id: select_view.xsl,v 1.7 2003/01/24 11:12:18 robbod Exp $
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
 					<xsl:with-param name="done" select="concat(' ',$this_select,' ')" />
 				</xsl:apply-templates>
-<!--				<br/>
-				USED BY (direct):
-				<blockquote>
-				<xsl:apply-templates 
-					select="$this-schema//explicit[typename/@name = $this_select] |
-					$called-schemas//explicit[typename/@name = $this_select]" 
-					mode="used-by" />
-				</blockquote>
-				USED BY (based on):
-				<blockquote>
-				<xsl:apply-templates 
-					select="$this-schema//explicit[typename/@name = $this_base] |
-					$called-schemas//explicit[typename/@name = $this_base]" 
-					mode="used-by" />
-				</blockquote>
-
--->
 			</blockquote>
 
 	</xsl:for-each>
@@ -236,7 +219,7 @@ $Id: select_view.xsl,v 1.7 2003/01/24 11:12:18 robbod Exp $
 		          <xsl:with-param 
 		            name="message" 
 		            select="concat('Error Sel1: the SELECT type ', $this_basedon,
-			    		' is referenced as BASED_ON by ',@name,' but not found.')"/>
+			    		' is referenced as BASED_ON by ',@name,' but has not been found.')"/>
 		        </xsl:call-template>   
 
 
@@ -309,6 +292,107 @@ $Id: select_view.xsl,v 1.7 2003/01/24 11:12:18 robbod Exp $
 			</xsl:apply-templates>
 		</blockquote>
 
+		<!-- check that mappings have been provided for select items 
+		2 possibilities. 
+		1) The type is declared in this schema and any extensions too.
+		2) The attribute references a select type defined in a used schema 
+		(which may be extended in this schema)
+		-->
+
+		<xsl:for-each select="$this-schema//explicit[typename/@name]" >
+
+			<xsl:variable name="this-type-name" select="./typename/@name" />
+			<xsl:variable name="current-attrib" select="." />
+			<xsl:variable name="this-ent" select="../@name" />
+
+			<xsl:variable name="this-type" 
+				select="$this-schema//type[@name=$this-type-name][select] | 
+				$called-schemas//type[@name=$this-type-name][select]" />
+
+			<xsl:choose>
+				<xsl:when test="$this-schema//type[select][@name= $this-type/@name]" >
+
+			<!-- note this will only deal with one layer of extension of the select type in the top schema -->
+					<xsl:variable name="extensions" >
+						<xsl:value-of select="concat(' ',
+						  $this-schema//type[@name=$this-type-name]/select/@selectitems,' ')" />
+
+						<xsl:for-each 
+						  select="$this-schema//type[select/@basedon=$this-type-name]" >
+							<xsl:value-of select="concat(' ',select/@selectitems,' ')" />
+						</xsl:for-each>
+					</xsl:variable>
+
+					<xsl:variable name="the-assertions-mapped" >
+						<xsl:for-each 
+							select="($module_node//mapping_table/ae[@entity=$this-ent]
+							/aa[@attribute=$current-attrib/@name])" >
+							<xsl:value-of select="concat(' ',@assertion_to,' ')"/>
+						</xsl:for-each>
+					</xsl:variable>
+
+					<xsl:variable name="not-found-assertions" >
+						<xsl:call-template name="filter-word-list-negated" >
+							<xsl:with-param name="allowed-list" select="$the-assertions-mapped" />
+							<xsl:with-param name="word-list" select="$extensions" />
+						</xsl:call-template>
+					</xsl:variable>
+
+<!--		FFFF<xsl:value-of select="concat($extensions,' XX ',$the-assertions-mapped,' YY ',$this-type-name)" />FFFF<br/> -->
+
+					<xsl:if test="string-length($not-found-assertions) > 3" >
+		        			<xsl:call-template name="error_message">
+						  <xsl:with-param name="inline" select="'yes'"/>
+						  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			        		  <xsl:with-param 
+				        	    name="message" 
+				        	    select="concat('Error Sel8: Mapping not defined in this module for ',
+					    		../@name,'.',@name,
+							    ' for SELECT extensions: ',$not-found-assertions)"/>
+				        	</xsl:call-template>    
+<!--	
+				<br/>
+				Template for required mapping:
+				<br/>
+				<br/>
+				&lt;ae entity="<xsl:value-of select="../@name"/>" 
+				  original_module=
+				  "<xsl:value-of select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>"
+				  &gt;
+				  <br/>
+				<xsl:call-template name="select-attribute-mappings" >
+					<xsl:with-param name="select-items" select="$not-found-assertions" />
+					<xsl:with-param name="this-attribute" select="@name" />
+					<xsl:with-param name="this-entity" select="../@name" />
+					<xsl:with-param name="this-module" select="$this-mod" />
+				</xsl:call-template>
+				<br/>
+				&lt;/ae&gt;
+				<br/>
+-->				
+					</xsl:if>
+
+
+	
+				</xsl:when>
+				<xsl:when test="$called-schemas//type[select][@name= $this-type/@name]" >
+	
+				<!-- can use check for called schema attributes here -->
+	
+					<blockquote>
+					<xsl:apply-templates select="$current-attrib" mode="used-by-check" >
+						<xsl:with-param name="top-schema" select="$this-schema" />
+						<xsl:with-param name="called-schemas" select="$called-schemas" />
+					</xsl:apply-templates>
+					</blockquote>
+	
+				</xsl:when>
+			<!-- Otherwise type of attribute is not a select type -->
+			</xsl:choose>
+		
+		</xsl:for-each>
+
+
 	</xsl:if>
 
 	<xsl:if test="$called-schemas//schema" >
@@ -322,15 +406,24 @@ $Id: select_view.xsl,v 1.7 2003/01/24 11:12:18 robbod Exp $
 
 		
 		<xsl:if test="$this-schema//type[select/@basedon]" >
+
+			<blockquote>
+			<xsl:apply-templates select="$called-schemas//explicit[typename/@name]" mode="used-by-check" >
+				<xsl:with-param name="top-schema" select="$this-schema" />
+				<xsl:with-param name="called-schemas" select="$called-schemas" />
+			</xsl:apply-templates>
+			</blockquote>
+		
 			<hr/>
-			Template mappings for Attributes that reference a SELECT which is extended in this schema:
+			
+<!--			Template mappings for Attributes that reference a SELECT which is extended in this schema:
 			<blockquote>
 				<xsl:apply-templates select="$this-schema//type[select/@basedon]" mode="mapping" >
 					<xsl:with-param name="top-schema" select="$this-schema" />
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
 				</xsl:apply-templates>
 			</blockquote>
-
+-->
 		</xsl:if>
 	</xsl:if>
 
@@ -385,76 +478,6 @@ $Id: select_view.xsl,v 1.7 2003/01/24 11:12:18 robbod Exp $
 	        </xsl:call-template>    
 
 	</xsl:if>
-
-	<xsl:variable name="this-select-items" select="concat(' ',$this-select/select/@selectitems,' ')" />
-
-<!--
-	<xsl:for-each select="($module_node//mapping_table/ae[@entity=$this-ent][@original_module=$this-mod]/aa[@attribute=$this-attr])" >
-		<xsl:if test="not(contains($this-select-items,concat(' ',@assertion_to ,' ')))" >
-		        <xsl:call-template name="error_message">
-			  <xsl:with-param name="inline" select="'yes'"/>
-			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-		          <xsl:with-param 
-		            name="message" 
-	        	    select="concat('Error Sel5: Mapping defined in module ',//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
-			    ' assertion_to (',@assertion_to,') not member of SELECT extensions')"/>
-		        </xsl:call-template>    
-		</xsl:if>
-	</xsl:for-each>
--->
-
-	<!-- now need to loop through the select items making sure there is a mapping for each extension -->
-
-	<!-- construct list of names of assertions that are mapped -->
-	
-	<xsl:variable name="the-assertions-mapped" >
-		<xsl:for-each 
-			select="($module_node//mapping_table/ae[@entity=$this-ent]
-					[@original_module=$this-mod]/aa[@attribute=$this-attr])" >
-				<xsl:value-of select="concat(' ',@assertion_to,' ')"/>
-		</xsl:for-each>
-	</xsl:variable>
-	
-	<!-- now compare the list with the select items -->
-
-	<xsl:variable name="not-found-assertions" >
-		<xsl:call-template name="filter-word-list-negated" >
-			<xsl:with-param name="allowed-list" select="$the-assertions-mapped" />
-			<xsl:with-param name="word-list" select="$this-select-items" />
-		</xsl:call-template>
-	</xsl:variable>
-		
-		<xsl:if test="string-length($not-found-assertions) > 3" >
-		        <xsl:call-template name="error_message">
-			  <xsl:with-param name="inline" select="'yes'"/>
-			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-		          <xsl:with-param 
-		            name="message" 
-	        	    select="concat('Error Sel6: Mapping not defined in module ',//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
-			    ' for SELECT extensions: ',$not-found-assertions)"/>
-		        </xsl:call-template>    
-		</xsl:if>
-
-
-
-	<xsl:variable name="extra-assertions" >
-		<xsl:call-template name="filter-word-list-negated" >
-			<xsl:with-param name="allowed-list" select="$this-select-items" />
-			<xsl:with-param name="word-list" select="$the-assertions-mapped" />
-		</xsl:call-template>
-	</xsl:variable>
-		
-<!--	ZYYY<xsl:value-of select="$extra-assertions" /> VVVV -->
-		<xsl:if test="string-length($extra-assertions) > 3" >
-		        <xsl:call-template name="error_message">
-			  <xsl:with-param name="inline" select="'yes'"/>
-			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-		          <xsl:with-param 
-		            name="message" 
-	        	    select="concat('Error Sel7: Mapping defined in module ',//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
-			    ' for assertion_to that is not needed : ',$extra-assertions)"/>
-		        </xsl:call-template>    
-		</xsl:if>
 
 	<br/>
 	
@@ -776,6 +799,151 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 
 	</xsl:if>
 
+</xsl:template>
+
+
+<xsl:template match="explicit" mode="used-by-check">
+	<xsl:param name="top-schema" />
+	<xsl:param name="called-schemas" />
+
+	<xsl:variable name="this-type" select="typename/@name" /> 
+<!--		RRRR<xsl:value-of select="$this-type" />RRRR<br/> -->
+
+	<xsl:choose>
+	<xsl:when test="$top-schema//type[select][@name=$this-type]">
+
+	<!-- type is declared in this schema so mapping checks are handled elsewhere -->
+
+	</xsl:when>
+	<xsl:when test="$called-schemas//type[select][@name=$this-type]">
+
+		<!-- find the extending type in the top schema - if there is one (or more) -->
+
+		<xsl:variable name="top-selects">
+			<xsl:apply-templates select="$called-schemas//type[select/@basedon=$this-type]" 
+					mode="find-top-select">
+				<xsl:with-param name="top-schema" select="$top-schema" />
+				<xsl:with-param name="called-schemas" select="$called-schemas" />		
+		</xsl:apply-templates>
+		</xsl:variable>
+
+<!--		QQQQ <xsl:value-of select="concat(../@name,'.',@name,': ',$top-selects)" /> QQQQ<br/> -->
+
+		<!-- find the mappings for the extended type 
+		& check if the current attribute is mapped for each extension -->
+
+		<xsl:if test="string-length($top-selects) > 3" >
+
+			<xsl:variable name="extensions" >
+				<xsl:for-each select="$top-schema//type[select][contains($top-selects,@name)]" >
+					<xsl:value-of select="concat(' ',select/@selectitems,' ')" />
+				</xsl:for-each>
+			</xsl:variable>
+
+			<xsl:variable name="this-ent" select="../@name" /> 
+			<xsl:variable name="this-attr" select="@name" /> 
+			<xsl:variable name="this-mod" 
+				select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
+
+
+			<xsl:variable name="the-assertions-mapped" >
+				<xsl:for-each 
+					select="($module_node//mapping_table/ae[@entity=$this-ent]
+							[@original_module=$this-mod]/aa[@attribute=$this-attr])" >
+						<xsl:value-of select="concat(' ',@assertion_to,' ')"/>
+				</xsl:for-each>
+			</xsl:variable>
+
+			<xsl:variable name="not-found-assertions" >
+				<xsl:call-template name="filter-word-list-negated" >
+					<xsl:with-param name="allowed-list" select="$the-assertions-mapped" />
+					<xsl:with-param name="word-list" select="$extensions" />
+				</xsl:call-template>
+			</xsl:variable>
+
+<!--		FFFF<xsl:value-of select="concat($extensions,' XX ',$the-assertions-mapped,' YY ',$top-selects)" />FFFF<br/> -->
+
+			<xsl:if test="string-length($not-found-assertions) > 3" >
+		        	<xsl:call-template name="error_message">
+				  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+			          <xsl:with-param 
+		        	    name="message" 
+		        	    select="concat('Error Sel6: Mapping not defined in module ',
+					    //stylesheet_application[1]/@directory,' for ',../@name,'.',@name,
+					    ' for SELECT extensions: ',$not-found-assertions)"/>
+		        	</xsl:call-template>    
+	
+				<br/>
+				Template for required mapping:
+				<br/>
+				<br/>
+				&lt;ae entity="<xsl:value-of select="../@name"/>" 
+				  original_module=
+				  "<xsl:value-of select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>"
+				  &gt;
+				  <br/>
+				<xsl:call-template name="select-attribute-mappings" >
+					<xsl:with-param name="select-items" select="$not-found-assertions" />
+					<xsl:with-param name="this-attribute" select="@name" />
+					<xsl:with-param name="this-entity" select="../@name" />
+					<xsl:with-param name="this-module" select="$this-mod" />
+				</xsl:call-template>
+				<br/>
+				&lt;/ae&gt;
+				<br/>
+				
+			</xsl:if>
+
+			<xsl:variable name="extra-assertions" >
+				<xsl:call-template name="filter-word-list-negated" >
+					<xsl:with-param name="allowed-list" select="$extensions" />
+					<xsl:with-param name="word-list" select="$the-assertions-mapped" />
+				</xsl:call-template>
+			</xsl:variable>
+		
+<!--	ZYYY<xsl:value-of select="$extra-assertions" /> VVVV <br/> -->
+
+				<xsl:if test="string-length($extra-assertions) > 3" >
+				        <xsl:call-template name="error_message">
+					  <xsl:with-param name="inline" select="'yes'"/>
+					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+				          <xsl:with-param 
+				            name="message" 
+			        	    select="concat('Error Sel7: Mapping defined in module ',
+					    	//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
+						    ' for assertion_to that is not needed : ',$extra-assertions)"/>
+		        		</xsl:call-template>    
+				</xsl:if>
+
+		</xsl:if>
+
+
+	</xsl:when>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="type" mode="find-top-select">
+	<xsl:param name="top-schema" />
+	<xsl:param name="called-schemas" />
+
+	<xsl:variable name="this-select" select="@name" />
+<!--		PP<xsl:value-of select="$this-select" />PP<br/> -->
+
+	<xsl:if test="$top-schema//type[select/@basedon=$this-select]">
+
+		<xsl:for-each select="$top-schema//type[select/@basedon=$this-select]">
+			<xsl:value-of select="concat(' ',@name,' ')" />
+		</xsl:for-each>
+
+
+	</xsl:if>
+
+		<xsl:apply-templates select="$called-schemas//type[select/@basedon=$this-select]" mode="find-top-select">
+			<xsl:with-param name="top-schema" select="$top-schema" />
+			<xsl:with-param name="called-schemas" select="$called-schemas" />		
+		</xsl:apply-templates>
+	
 </xsl:template>
 
 

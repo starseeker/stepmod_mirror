@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.87 2003/03/16 01:35:47 thendrix Exp $
+$Id: common.xsl,v 1.88 2003/03/18 14:28:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -631,12 +631,15 @@ $Id: common.xsl,v 1.87 2003/03/16 01:35:47 thendrix Exp $
     </xsl:choose>
   </xsl:variable>
   <xsl:variable name="coords" select="@coords"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
   <xsl:variable name="href">
     <xsl:choose>
       <xsl:when test="contains(@href,'xml')">
-        <xsl:value-of select="concat(substring-before(@href,'.xml'),
+        <xsl:value-of select="translate(concat(substring-before(@href,'.xml'),
                               $FILE_EXT,
-                              substring-after(@href,'.xml'))"/>
+                              substring-after(@href,'.xml')),$UPPER,$LOWER)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="@href"/>

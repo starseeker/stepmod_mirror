@@ -1,5 +1,7 @@
-(* Nxxx  ISO/CD TS 10303-1051
-$Id: $ *)
+(*
+  $Id: $
+  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-ZZZZ Geometric_tolerance *)
+
 SCHEMA Geometric_tolerance_mim;
 
 USE FROM aic_geometric_tolerances;
@@ -8,6 +10,93 @@ USE FROM Derived_shape_element_mim;
 
 USE FROM Elemental_geometric_shape_mim;
 
+USE FROM Measure_representation_mim;
+
 USE FROM Shape_property_assignment_mim;
+
+USE FROM Value_with_unit_mim;
+
+ENTITY placed_datum_target_feature
+SUBTYPE OF (datum_target);
+WHERE
+  WR1: SELF.description IN ['point','line','rectangle','circle', 'circular line'];
+  WR2: SIZEOF (QUERY (pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS'
+               IN TYPEOF (pdr.used_representation)
+              )) = 1;
+  WR3: SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+             ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              TYPEOF(pdr.used_representation)) AND
+             (SIZEOF( QUERY( i <* pdr.used_representation.items |
+               (i.name='orientation') AND
+               ('GEOMETRIC_TOLERANCE_MIM.PLACEMENT' IN TYPEOF(i))
+              )) = 1)
+             )) = 1;
+  WR4: (SELF.description <> 'point') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF(pdr.used_representation.items)
+                = 1)
+              )) = 1);
+  WR5: (SELF.description <> 'circle') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF(pdr.used_representation.items)
+                = 2)
+              )) = 1);
+  WR6: (SELF.description <> 'rectangle') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF(pdr.used_representation.items)
+                = 3)
+              )) = 1);
+  WR7: (SELF.description <> 'circle') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='target diameter') AND
+                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
+'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) = 1);
+  WR8: (SELF.description <> 'line') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='target length') AND
+                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
+'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) = 1);
+  WR9: (SELF.description <> 'rectangle') OR
+             (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+              ('GEOMETRIC_TOLERANCE.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+               TYPEOF(pdr.used_representation)) AND
+              (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                (i.name='target length') AND
+                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
+GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                 ) = 2)
+               )) = 1)
+              )) = 1);
+  WR10: (SELF.description <> 'rectangle') OR
+              (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
+               ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+                TYPEOF(pdr.used_representation)) AND
+               (SIZEOF( QUERY( i <* pdr.used_representation.items |
+                 (i.name='target width') AND
+                 (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
+ 'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+                  ) = 2)
+                )) = 1)
+               )) = 1);
+END_ENTITY;
 
 END_SCHEMA;

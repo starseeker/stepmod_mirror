@@ -3,7 +3,9 @@
   type="text/xsl" 
   href="../../../xsl/express.xsl"
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $"
+  description.file="mim_descriptions.xml"
+>
 <application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="mim.vsd" />
 <schema name="Geometric_tolerance_mim">
 <description>
@@ -16,8 +18,35 @@ $Id: $
 </interface>
 <interface kind="use" schema="Elemental_geometric_shape_mim">
 </interface>
+<interface kind="use" schema="Measure_representation_mim">
+</interface>
 <interface kind="use" schema="Shape_property_assignment_mim">
 </interface>
-<graphic.element page="1" xcoord="120" ycoord="744" />
+<interface kind="use" schema="Value_with_unit_mim">
+</interface>
+<entity name="placed_datum_target_feature" supertypes="datum_target">
+<where label="WR1" expression="SELF.description IN ['point','line','rectangle','circle', 'circular line']">
+</where>
+<where label="WR2" expression="SIZEOF (QUERY (pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;              'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS'&#xA;               IN TYPEOF (pdr.used_representation)&#xA;              )) = 1">
+</where>
+<where label="WR3" expression="SIZEOF( QUERY( pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;             ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN &#xA;              TYPEOF(pdr.used_representation)) AND&#xA;             (SIZEOF( QUERY( i &lt;* pdr.used_representation.items |&#xA;               (i.name='orientation') AND&#xA;               ('GEOMETRIC_TOLERANCE_MIM.PLACEMENT' IN TYPEOF(i))&#xA;              )) = 1)&#xA;             )) = 1">
+</where>
+<where label="WR4" expression="(SELF.description &lt;&gt; 'point') OR&#xA;             (SIZEOF( QUERY( pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN &#xA;               TYPEOF(pdr.used_representation)) AND&#xA;              (SIZEOF(pdr.used_representation.items)&#xA;                = 1)&#xA;              )) = 1)">
+</where>
+<where label="WR5" expression="(SELF.description &lt;&gt; 'circle') OR&#xA;             (SIZEOF( QUERY( pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN &#xA;               TYPEOF(pdr.used_representation)) AND&#xA;              (SIZEOF(pdr.used_representation.items)&#xA;                = 2)&#xA;              )) = 1)">
+</where>
+<where label="WR6" expression="(SELF.description &lt;&gt; 'rectangle') OR&#xA;             (SIZEOF( QUERY( pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN &#xA;               TYPEOF(pdr.used_representation)) AND&#xA;              (SIZEOF(pdr.used_representation.items)&#xA;                = 3)&#xA;              )) = 1)">
+</where>
+<where label="WR7" expression="(SELF.description &lt;&gt; 'circle') OR&#xA;             (SIZEOF( QUERY( pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN &#xA;               TYPEOF(pdr.used_representation)) AND&#xA;              (SIZEOF( QUERY( i &lt;* pdr.used_representation.items |&#xA;                (i.name='target diameter') AND&#xA;                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',&#xA;'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)&#xA;                 ) = 2)&#xA;               )) = 1)&#xA;              )) = 1)">
+</where>
+<where label="WR8" expression="(SELF.description &lt;&gt; 'line') OR&#xA;             (SIZEOF( QUERY( pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN &#xA;               TYPEOF(pdr.used_representation)) AND&#xA;              (SIZEOF( QUERY( i &lt;* pdr.used_representation.items |&#xA;                (i.name='target length') AND&#xA;                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',&#xA;'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)&#xA;                 ) = 2)&#xA;               )) = 1)&#xA;              )) = 1)">
+</where>
+<where label="WR9" expression="(SELF.description &lt;&gt; 'rectangle') OR&#xA;             (SIZEOF( QUERY( pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;              ('GEOMETRIC_TOLERANCE.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN &#xA;               TYPEOF(pdr.used_representation)) AND&#xA;              (SIZEOF( QUERY( i &lt;* pdr.used_representation.items |&#xA;                (i.name='target length') AND&#xA;                (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',&#xA;GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)&#xA;                 ) = 2)&#xA;               )) = 1)&#xA;              )) = 1)">
+</where>
+<where label="WR10" expression="(SELF.description &lt;&gt; 'rectangle') OR&#xA;              (SIZEOF( QUERY( pdr &lt;* get_shape_aspect_property_definition_representations(SELF) |&#xA;               ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN &#xA;                TYPEOF(pdr.used_representation)) AND&#xA;               (SIZEOF( QUERY( i &lt;* pdr.used_representation.items |&#xA;                 (i.name='target width') AND&#xA;                 (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',&#xA; 'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)&#xA;                  ) = 2)&#xA;                )) = 1)&#xA;               )) = 1)">
+</where>
+<graphic.element page="2" xcoord="106" ycoord="666" />
+</entity>
+<graphic.element page="1" xcoord="106" ycoord="644" />
 </schema>
 </express>

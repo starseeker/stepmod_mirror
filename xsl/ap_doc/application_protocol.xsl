@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.18 2003/03/06 15:06:38 goset1 Exp $
+     $Id: application_protocol.xsl,v 1.19 2003/05/21 13:18:32 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -66,24 +66,87 @@
 	</xsl:template>
 
   <xsl:template match="inscope">
-		<p>
-			<a name="inscope"/> 
-			The following are within the scope of this part of ISO 10303: 
-			</p>
-      <ul>
-				<xsl:apply-templates/>
-			</ul>
-		</xsl:template>
+    <p>
+      <a name="inscope"/> 
+      The following are within the scope of this part of ISO 10303: 
+    </p>
+
+    <xsl:variable name="module" select="/application_protocol/@module_name"/>
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="/application_protocol/@module_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:if test="./@from_module!='NO'">
+      <!-- output the scope statements from the module -->
+      <xsl:choose>
+        <xsl:when test="$module_ok='true'">
+            <xsl:variable name="module_dir">
+              <xsl:call-template name="ap_module_directory">
+                <xsl:with-param name="application_protocol" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:apply-templates
+              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error AP1: The module',$module,' does not exist.'
+                                    '  Correct application_protocol module_name in application_protocol.xml')"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+        
+    <!-- output the scope statements from the AP doc -->
+    <xsl:if test="./li">
+      <xsl:apply-templates select="li"/>
+    </xsl:if>
+  </xsl:template>
 		
-	<xsl:template match="outscope">
-   <p>
-    <a name="outscope"/>
-    The following are outside the scope of this part of ISO 10303: 
-  </p>
-  <ul>
-    <xsl:apply-templates/>
-  </ul>
-</xsl:template> 
+  <xsl:template match="outscope">
+    <p>
+      <a name="outscope"/>
+      The following are outside the scope of this part of ISO 10303: 
+    </p>
+    <xsl:variable name="module" select="/application_protocol/@module_name"/>
+    <xsl:variable name="module_ok">
+      <xsl:call-template name="check_module_exists">
+        <xsl:with-param name="module" select="/application_protocol/@module_name"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:if test="./@from_module!='NO'">
+      <!-- output the scope statements from the module -->
+      <xsl:choose>
+        <xsl:when test="$module_ok='true'">
+            <xsl:variable name="module_dir">
+              <xsl:call-template name="ap_module_directory">
+                <xsl:with-param name="application_protocol" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:apply-templates
+              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error AP1: The module',$module,' does not exist.'
+                                    '  Correct application_protocol module_name in application_protocol.xml')"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+        
+    <!-- output the scope statements from the AP doc -->
+    <xsl:if test="./li">
+      <xsl:apply-templates select="li"/>
+    </xsl:if>
+  </xsl:template> 
 
 <!-- Annex G -->
 	<xsl:template match="application_protocol" mode="annexg">

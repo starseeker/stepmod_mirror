@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
+$Id: sect_1_scope.xsl,v 1.8 2003/05/21 13:18:32 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -36,11 +36,9 @@ $Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
 This part of ISO 10303 specifies an application protocol for the exchange of information between the applications that support 
 				<xsl:value-of select="$application_protocol_name"/>.
 			</p>	
-</xsl:template>
+          <xsl:apply-templates select="./inscope"/> 
+          <xsl:apply-templates select="./outscope"/>             
+        </xsl:template>
 
-	<xsl:template match="module">
-		<xsl:apply-templates select="./inscope"/>
-		<xsl:apply-templates select="./outscope"/>
-	</xsl:template>
 
 </xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
+$Id: application_protocol_clause.xsl,v 1.8 2003/05/21 13:18:32 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -18,9 +18,11 @@ $Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
     <xsl:variable name="application_protocol_xml_file" 
       select="concat('../../data/application_protocols/',@directory,'/application_protocol.xml')"/>
     
+    <!-- RBN don't think that we need this
     <xsl:variable name="module_xml_file" 
       select="concat('../../data/modules/',@module_directory,'/module.xml')"/>
-		
+    -->
+
     <html>
       <head>
         <title>
@@ -28,13 +30,14 @@ $Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
             select="document($application_protocol_xml_file)/application_protocol" mode="title"/>
         </title>
       </head>
-      <body>
+      <body bgcolor="#FAFAFA">
         
         <xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol" mode="TOCmultiplePage"/>
         <xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol"/>
         
+        <!-- RBN don't think that we need this
         <xsl:apply-templates select="document($module_xml_file)/module"/>
-
+        -->
       </body>
     </html>
   </xsl:template>

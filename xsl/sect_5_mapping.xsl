@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.49 2002/10/03 15:39:04 goset1 Exp $
+$Id: sect_5_mapping.xsl,v 1.50 2002/10/14 10:33:52 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1146,6 +1146,7 @@ the mapping specification')"/>
 <!-- This is the main template to output the mapping specification -->
 <xsl:template match="sc|alt_scmap" mode="output_mapping">
   <table>
+	  <xsl:apply-templates select="./description"/>
     <xsl:apply-templates select="./rules"  mode="specification"/>
     <xsl:apply-templates select="./constraint"  mode="specification"/>
     <xsl:apply-templates select="./source"  mode="specification"/>

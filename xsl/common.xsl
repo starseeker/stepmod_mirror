@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.108 2003/07/29 13:00:49 robbod Exp $
+$Id: common.xsl,v 1.109 2003/07/29 16:24:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -656,14 +656,12 @@ $Id: common.xsl,v 1.108 2003/07/29 13:00:49 robbod Exp $
 <!--
      An unordered list
      -->
-<xsl:template match="ul" >
+<xsl:template match="ul|UL">
+  <xsl:param name="check_punctuation" select="'no'"/>
   <ul>
-    <xsl:apply-templates/>
-  </ul>
-</xsl:template>
-<xsl:template match="UL" >
-  <ul>
-    <xsl:apply-templates/>
+    <xsl:apply-templates>
+      <xsl:with-param name="check_punctuation" select="$check_punctuation"/>
+    </xsl:apply-templates>
   </ul>
 </xsl:template>
 
@@ -706,53 +704,64 @@ $Id: common.xsl,v 1.108 2003/07/29 13:00:49 robbod Exp $
 </xsl:template>
 
 <!--
-     A list item
+     A list item - called from scope statements where there are clear rules
+     for the punctuation of a list
      -->
-<xsl:template match="li">
-  <!-- get the text or the text of the last paragraph. Ignore examples and
-       notes -->
-  <xsl:variable name="item1">
-    <xsl:apply-templates select=".|*" mode="flatten"/>
-  </xsl:variable>
-  <xsl:variable name="item" select="normalize-space($item1)"/>
+<xsl:template match="li|LI">
+  <xsl:param name="check_punctuation" select="'no'"/>
+  <xsl:choose>
+    <xsl:when test="$check_punctuation = 'no'">
+      <li>
+        <xsl:apply-templates/>
+      </li>
+    </xsl:when>
+    <xsl:otherwise>
+      <!-- get the text or the text of the last paragraph. Ignore examples and
+           notes -->
+      <xsl:variable name="item1">
+        <xsl:apply-templates select=".|*" mode="flatten"/>
+      </xsl:variable>
+      <xsl:variable name="item" select="normalize-space($item1)"/>
+      
+      <xsl:variable name="position">
+        <!-- use number rather than position as SAXON gives wrong results -->
+        <xsl:number/>
+      </xsl:variable>
+      <!-- use count rather than last as SAXON gives wrong results -->
+      <xsl:variable name="last" select="count(../li)"/>
+      <xsl:variable name="terminator">
+        <xsl:choose>
+          <xsl:when test="$position=$last">
+            <xsl:value-of select="'.'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="';'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>  
+      <li>
+        <xsl:choose>
+          <xsl:when test="contains($item,'**')">
+            <!-- the list item contains a sub list, so allow other terminators -->
+          </xsl:when>
+          <xsl:when test="substring($item,string-length($item))!=$terminator">
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Error b1: Item in list should end with',$terminator)"/>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+        <xsl:apply-templates>
+          <xsl:with-param name="check_punctuation" select="$check_punctuation"/>
+        </xsl:apply-templates> 
+      </li>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
-  <xsl:variable name="position">
-    <!-- use number rather than position as SAXON gives wrong results -->
-    <xsl:number/>
-  </xsl:variable>
-  <!-- use count rather than last as SAXON gives wrong results -->
-  <xsl:variable name="last" select="count(../li)"/>
-  <xsl:variable name="terminator">
-    <xsl:choose>
-      <xsl:when test="$position=$last">
-        <xsl:value-of select="'.'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="';'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>  
-  <li>
-    <xsl:choose>
-      <xsl:when test="contains($item,'**')">
-        <!-- the list item contains a sub list, so allow other terminators -->
-      </xsl:when>
-      <xsl:when test="substring($item,string-length($item))!=$terminator">
-        <xsl:call-template name="error_message">
-          <xsl:with-param 
-            name="message" 
-            select="concat('Error b1: Item in list should end with',$terminator)"/>
-        </xsl:call-template>
-      </xsl:when>
-    </xsl:choose>
-    <xsl:apply-templates/>
-  </li>
-</xsl:template>
-<xsl:template match="LI" >
-  <li>
-    <xsl:apply-templates/>
-  </li>
-</xsl:template>
+
+
 
 <xsl:template match="example|note|b|i|sup|sub" mode="flatten"/>
 <xsl:template match="ul" mode="flatten">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.15 2003/05/17 00:48:14 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.16 2003/06/01 14:01:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -150,6 +150,7 @@ $Id: ballot_summary.xsl,v 1.15 2003/05/17 00:48:14 thendrix Exp $
               <td><b>Version</b></td>
               <td><b>Status</b></td>
               <td><b>Year</b></td>
+              <td><b>Abstract</b></td>
             </tr>
             <xsl:apply-templates select="./*/ap_doc"/>
           </table>
@@ -166,8 +167,12 @@ $Id: ballot_summary.xsl,v 1.15 2003/05/17 00:48:14 thendrix Exp $
     <xsl:call-template name="check_apdoc_exists">
       <xsl:with-param name="resdoc" select="@name"/>
     </xsl:call-template> -->
-    'true'
+    <xsl:value-of select="'true'"/>
   </xsl:variable>
+
+  <xsl:variable name="apdoc_file" select="concat('../../data/application_protocols/',@name,'/application_protocol.xml')"/>
+  <xsl:variable name="apdoc_node" select="document($apdoc_file)/application_protocol"/>
+    
   <xsl:choose>
     <xsl:when test="$apdoc_ok='true'">
       <tr>
@@ -182,6 +187,89 @@ $Id: ballot_summary.xsl,v 1.15 2003/05/17 00:48:14 thendrix Exp $
             </xsl:otherwise>
           </xsl:choose>
         </td>
+        <!-- AP document package -->
+        <td>
+          <xsl:variable name="apdoc_xref"
+            select="concat($stepmodhome,'/data/application_protocols/',@name,'/home',$FILE_EXT)"/>
+          <a href="{$apdoc_xref}">
+            <xsl:value-of select="@name"/>
+          </a>
+        </td>
+        <!-- Part -->
+        <td>
+         <xsl:choose>
+           <xsl:when test="$apdoc_node/@part">
+             <xsl:value-of select="concat('10303-',$apdoc_node/@part)"/>
+             
+             <!-- check that the part number in repository_index - that in
+                  module -->
+             <xsl:variable name="apdoc" select="@name"/>
+             <xsl:variable name="repo_apdoc_number"
+               select="document('../../repository_index.xml')/repository_index/application_protocols/application_protocol[@name=$apdoc]/@part"/>
+             <xsl:if test="$repo_apdoc_number != $apdoc_node/@part">
+               <br/>
+               <font color="#FF0000" size="-1">
+                 The part number in repository_index
+                 (<xsl:value-of select="$repo_apdoc_number"/>)
+                 does not equal that in module 
+                 (<xsl:value-of select="$apdoc_node/@part"/>).
+                </font>
+              </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Version -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($apdoc_node/@version))>0">
+              <xsl:value-of select="$apdoc_node/@version"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Status -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($apdoc_node/@status))>0">
+              <xsl:value-of select="$apdoc_node/@status"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Year -->
+        <td>
+          <xsl:choose>
+            <xsl:when 
+              test="string-length(normalize-space($apdoc_node/@publication.year))>0">
+              <xsl:value-of select="$apdoc_node/@publication.year"/>
+            </xsl:when>
+            <xsl:otherwise>
+              -
+            </xsl:otherwise>
+          </xsl:choose>
+        </td>
+
+        <!-- Abstract -->
+        <td>
+          <xsl:variable name="abstract_xref"
+            select="concat('./abstracts/ap_abstract_',@name,$FILE_EXT)"/>
+          <a href="{$abstract_xref}">
+            abstract
+          </a>
+        </td>
+
       </tr>
     </xsl:when>
   </xsl:choose>
@@ -346,7 +434,6 @@ $Id: ballot_summary.xsl,v 1.15 2003/05/17 00:48:14 thendrix Exp $
 
         <!-- Module -->
         <td>
-
           <xsl:variable name="mod_xref"
             select="concat($stepmodhome,'/data/modules/',@name,'/sys/cover',$FILE_EXT)"/>
           <a href="{$mod_xref}">

@@ -1,0 +1,30 @@
+(*
+   $Id: mkmodule.js,v 1.25 2002/10/10 11:56:54 nigelshaw Exp $
+   N - ISO/CD-TS - 10303- text_appearance - EXPRESS MIM*)
+
+SCHEMA Text_appearance_mim;
+
+USE FROM presentation_definition_schema (
+  text_literal);
+
+USE FROM presentation_resource_schema (
+  externally_defined_text_font,
+  pre_defined_text_font);
+
+USE FROM aic_draughting_annotation(
+  draughting_text_literal_with_delineation);
+
+REFERENCE FROM aic_draughting_annotation(
+  check_text_alignment,
+  check_text_font);
+
+RULE text_font_usage FOR (externally_defined_text_font, pre_defined_text_font); 
+WHERE 
+WR1: SIZEOF (QUERY (pdtf <* pre_defined_text_font | 
+	SIZEOF (USEDIN (pdtf, 'TEXT_APPEARANCE_MIM.TEXT_LITERAL.FONT') ) = 0 )) = 0; 
+WR2: SIZEOF (QUERY (edtf <* externally_defined_text_font | 
+	SIZEOF (USEDIN (edtf, 'TEXT_APPEARANCE_MIM.TEXT_LITERAL.FONT') ) = 0 )) = 0; 
+END_RULE; 
+
+
+END_SCHEMA;

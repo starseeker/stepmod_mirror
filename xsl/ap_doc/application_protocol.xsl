@@ -363,10 +363,6 @@ These listings are available in computer-interpretable form from Table G.1 and c
 	
 	
 	<xsl:template match="arm">
-		<xsl:call-template name="clause_header">
-			<xsl:with-param name="heading" select="'4 Information requirements'"/>
-			<xsl:with-param name="aname" select="'arm'"/>
-		</xsl:call-template>
 		<xsl:variable name="f_expg" select="concat('./f_arm_expg',$FILE_EXT)"/>
 		<xsl:variable name="sect51" select="concat('./5_mim',$FILE_EXT)"/>
 		

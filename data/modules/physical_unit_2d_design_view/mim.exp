@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.12 2005/02/10 13:40:23 liutkus Exp $
+   $Id: mim.exp,v 1.13 2005/02/18 19:09:08 liutkus Exp $
    ISO TC184/SC4/WG12 N3547 - ISO/CD-TS 10303-1724 Physical unit 2d design view - EXPRESS MIM
 *)
 
@@ -382,10 +382,14 @@ LOCAL
        srr\representation_relationship.name = 
                             'component part planar shape');
  pass: BOOLEAN := TRUE;
+ grc1: Geometric_representation_context := ?;
+ grc2: Geometric_representation_context := ?;
 END_LOCAL;
 REPEAT i := 1 to SIZEOF(rr) by 1;
-IF ((rr[i].rep_1.context_of_items.coordinate_space_dimension) <>
-          (rr[i].rep_2.context_of_items.coordinate_space_dimension))
+  grc1 := rr[i].rep_1.context_of_items;
+  grc2 := rr[i].rep_2.context_of_items;
+IF ((grc1.coordinate_space_dimension) <>
+          (grc2.coordinate_space_dimension))
 THEN
   pass := FALSE;
 END_IF;
@@ -401,19 +405,26 @@ LOCAL
   pdr : BAG OF property_definition_representation := USEDIN (cl,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION');
+  pd : property_definition := ?;
 END_LOCAL;
    REPEAT i := 1 TO HIINDEX(pdr) BY 1;
-    IF(('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
-        'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN 
-                                  TYPEOF (pdr[i].definition.definition))
-        AND
-       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
-        'COMPONENT_DEFINITION' IN 
-        TYPEOF (pdr[i].definition.definition\product_definition_relationship.
+    IF('PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+        'PROPERTY_DEFINITION' IN 
+                                  TYPEOF (pdr[i].definition))
+      THEN                            
+        pd := pdr[i].definition;
+        IF(('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+          'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN 
+                                    TYPEOF (pd.definition))
+          AND
+          ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+           'COMPONENT_DEFINITION' IN 
+           TYPEOF (pd.definition\product_definition_relationship.
                                                   related_product_definition)))
-     THEN 
-      RETURN(pdr[i].definition.definition\product_definition_relationship.
+        THEN 
+          RETURN(pd.definition\product_definition_relationship.
                                                    related_product_definition);
+      END_IF;                                               
     END_IF;
    END_REPEAT;
  RETURN (?);

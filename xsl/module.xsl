@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.107 2002/10/16 14:20:13 nigelshaw Exp $
+$Id: module.xsl,v 1.108 2002/10/29 09:21:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1418,11 +1418,13 @@ o=isocs; s=central<br/>
       </xsl:call-template>
     </xsl:otherwise>
   </xsl:choose>
-  <p>
-    The following application objects are defined in the
-    <xsl:value-of select="@name"/> UoF: 
-  </p>
 
+  <xsl:if test="uof.ae">
+    <p>
+      The following application objects are defined in the
+      <xsl:value-of select="@name"/> UoF: 
+    </p>
+  </xsl:if>
   <ul>
     <xsl:apply-templates select="uof.ae"/>
   </ul>

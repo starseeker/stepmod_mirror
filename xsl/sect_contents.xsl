@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
+$Id: sect_contents.xsl,v 1.17 2003/03/02 07:46:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -40,6 +40,11 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
       <xsl:with-param name="module" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
+
+  <xsl:variable name="arm_schema_xml"
+    select="document(concat($module_dir,'/arm.xml'))/express/schema"/>
+  <xsl:variable name="mim_schema_xml" 
+    select="document(concat($module_dir,'/mim.xml'))/express/schema"/>
 
   <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
   <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
@@ -109,15 +114,29 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$constant_clause != 0">
-    <p class="content">
-      &#160; &#160;
-      <A HREF="./4_info_reqs{$FILE_EXT}#constants">
-        <xsl:value-of select="concat($constant_clause,
-                              ' ARM constant definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($arm_schema_xml/constant)>1">
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#constants">
+            <xsl:value-of select="concat($constant_clause,
+                                  ' ARM constant definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#constants">
+            <xsl:value-of select="concat($constant_clause,
+                                  ' ARM constant definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
+
     <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/constant" mode="contents"/>
+      select="$arm_schema_xml/constant" mode="contents"/>
   </xsl:if>
 
   <!-- only output if there are imported constants defined and 
@@ -149,15 +168,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
   </xsl:variable>
 
   <xsl:if test="$type_clause != 0">
-    <p class="content">
-      &#160; &#160;
-      <A HREF="./4_info_reqs{$FILE_EXT}#types">
-        <xsl:value-of select="concat($type_clause,
-                              ' ARM type definitions')"/>
-      </A>
-    </p>    
+    <xsl:choose>
+      <xsl:when test="count($arm_schema_xml/type)>1">
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#types">
+            <xsl:value-of select="concat($type_clause,
+                                  ' ARM type definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#types">
+            <xsl:value-of select="concat($type_clause,
+                                  ' ARM type definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/type" mode="contents"/>
+      select="$arm_schema_xml/type" mode="contents"/>
   </xsl:if>
 
   <!-- only output if there are imported types defined and 
@@ -188,15 +220,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$entity_clause != 0">
-    <p class="content">
-      &#160; &#160;
-      <A HREF="./4_info_reqs{$FILE_EXT}#entities">
-        <xsl:value-of select="concat($entity_clause,
-                              ' ARM entity definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($arm_schema_xml/entity)>1">
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#entities">
+            <xsl:value-of select="concat($entity_clause,
+                                  ' ARM entity definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#entities">
+            <xsl:value-of select="concat($entity_clause,
+                                  ' ARM entity definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/entity" mode="contents"/>
+      select="$arm_schema_xml/entity" mode="contents"/>
   </xsl:if>
   
   <!-- only output if there are imported entitys defined and 
@@ -227,15 +272,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$subtype_constraint_clause != 0">
-    <p class="content">
-      &#160; &#160;
-      <A HREF="./4_info_reqs{$FILE_EXT}#subtype_constraints">
-        <xsl:value-of select="concat($subtype_constraint_clause,
-                              ' ARM subtype constraint definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($arm_schema_xml/subtype.constraint)>1">
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#subtype_constraints">
+            <xsl:value-of select="concat($subtype_constraint_clause,
+                                  ' ARM subtype constraint definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#subtype_constraints">
+            <xsl:value-of select="concat($subtype_constraint_clause,
+                                  ' ARM subtype constraint definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/subtype.constraint" mode="contents"/>
+      select="$arm_schema_xml/subtype.constraint" mode="contents"/>
   </xsl:if>
 
 
@@ -248,15 +306,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$function_clause !=0">
-    <p class="content">
-      &#160; &#160;
-      <A HREF="./4_info_reqs{$FILE_EXT}#functions">
-        <xsl:value-of select="concat($function_clause,
-                              ' ARM function definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($arm_schema_xml/function)>1">
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#functions">
+            <xsl:value-of select="concat($function_clause,
+                                  ' ARM function definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#functions">
+            <xsl:value-of select="concat($function_clause,
+                                  ' ARM function definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/function" mode="contents"/>
+      select="$arm_schema_xml/function" mode="contents"/>
   </xsl:if>
   <!-- only output if there are imported functions defined and 
        therefore a section -->
@@ -285,15 +356,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$rule_clause !=0">
-    <p class="content">
-      &#160; &#160;
-      <A HREF="./4_info_reqs{$FILE_EXT}#rules">
-        <xsl:value-of select="concat($rule_clause,
-                              'ARM rule definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($arm_schema_xml/rule)>1">
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#rules">
+            <xsl:value-of select="concat($rule_clause,
+                                  'ARM rule definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#rules">
+            <xsl:value-of select="concat($rule_clause,
+                                  'ARM rule definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/rule" mode="contents"/>
+      select="$arm_schema_xml/rule" mode="contents"/>
   </xsl:if>
   <!-- only output if there are imported rules defined and 
        therefore a section -->
@@ -322,15 +406,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$procedure_clause != 0">
-    <p class="content">
-      &#160; &#160;
-      <A HREF="./4_info_reqs{$FILE_EXT}#procedures">
-        <xsl:value-of select="concat($procedure_clause,
-                              ' ARM procedure definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($arm_schema_xml/procedure)>1">
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#procedures">
+            <xsl:value-of select="concat($procedure_clause,
+                                  ' ARM procedure definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#procedures">
+            <xsl:value-of select="concat($procedure_clause,
+                                  ' ARM procedure definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/procedure" mode="contents"/>
+      select="$arm_schema_xml/procedure" mode="contents"/>
   </xsl:if>
   <!-- only output if there are imported procedures defined and 
        therefore a section -->
@@ -376,15 +473,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
   </xsl:variable>
   
   <xsl:if test="$constant_mim_clause != 0">
-    <p class="content">
-      &#160; &#160; &#160;
-      <A HREF="./5_mim{$FILE_EXT}#constants">
-        <xsl:value-of select="concat($constant_mim_clause,
-                              ' MIM constant definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($mim_schema_xml/constant)>1">
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#constants">
+            <xsl:value-of select="concat($constant_mim_clause,
+                                  ' MIM constant definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#constants">
+            <xsl:value-of select="concat($constant_mim_clause,
+                                  ' MIM constant definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($arm_xml)/express/schema/constant" mode="contents"/>
+      select="$arm_schema_xml/constant" mode="contents"/>
   </xsl:if>          
   <!-- only output if there are imported constants defined and 
        therefore a section -->
@@ -414,15 +524,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$type_mim_clause != 0">
-    <p class="content">
-      &#160; &#160; &#160;
-      <A HREF="./5_mim{$FILE_EXT}#types">
-        <xsl:value-of select="concat($type_mim_clause,
-                              ' MIM type definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($mim_schema_xml/type)>1">
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#types">
+            <xsl:value-of select="concat($type_mim_clause,
+                                  ' MIM type definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#types">
+            <xsl:value-of select="concat($type_mim_clause,
+                                  ' MIM type definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($mim_xml)/express/schema/type" mode="contents"/>
+      select="$mim_schema_xml/type" mode="contents"/>
   </xsl:if>          
   <!-- only output if there are imported types defined and 
        therefore a section -->
@@ -451,15 +574,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$entity_mim_clause != 0">
-    <p class="content">
-      &#160; &#160; &#160;
-      <A HREF="./5_mim{$FILE_EXT}#entities">
-        <xsl:value-of select="concat($entity_mim_clause,
-                              ' MIM entity definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($mim_schema_xml/entity)>1">
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#entities">
+            <xsl:value-of select="concat($entity_mim_clause,
+                                  ' MIM entity definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#entities">
+            <xsl:value-of select="concat($entity_mim_clause,
+                                  ' MIM entity definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($mim_xml)/express/schema/entity" mode="contents"/>
+      select="$mim_schema_xml/entity" mode="contents"/>
   </xsl:if>          
   
   <!-- only output if there are imported entitys defined and 
@@ -489,15 +625,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$subtype_constraint_mim_clause != 0">
-    <p class="content">
-      &#160; &#160; &#160;
-      <A HREF="./5_mim{$FILE_EXT}#subtype_constraints">
-        <xsl:value-of select="concat($subtype_constraint_mim_clause,
-                              ' MIM subtype constraint definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($mim_schema_xml/subtype.constraint)>1">
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#subtype_constraints">
+            <xsl:value-of select="concat($subtype_constraint_mim_clause,
+                                  ' MIM subtype constraint definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#subtype_constraints">
+            <xsl:value-of select="concat($subtype_constraint_mim_clause,
+                                  ' MIM subtype constraint definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($mim_xml)/express/schema/subtype.constraint" mode="contents"/>
+      select="$mim_schema_xml/subtype.constraint" mode="contents"/>
   </xsl:if>
 
   <!-- only output if there are functions defined and therefore a
@@ -509,15 +658,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$function_mim_clause != 0">
-    <p class="content">
-      &#160; &#160; &#160;
-      <A HREF="./5_mim{$FILE_EXT}#functions">
-        <xsl:value-of select="concat($function_mim_clause,
-                              ' MIM function definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($mim_schema_xml/function)>1">
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#functions">
+            <xsl:value-of select="concat($function_mim_clause,
+                                  ' MIM function definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#functions">
+            <xsl:value-of select="concat($function_mim_clause,
+                                  ' MIM function definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($mim_xml)/express/schema/function" mode="contents"/>
+      select="$mim_schema_xml/function" mode="contents"/>
   </xsl:if>          
   <!-- only output if there are imported functions defined and 
        therefore a section -->
@@ -547,15 +709,28 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$rule_mim_clause != 0">
-    <p class="content">
-      &#160; &#160; &#160;
-      <A HREF="./5_mim{$FILE_EXT}#rules">
-        <xsl:value-of select="concat($rule_mim_clause,
-                              ' MIM rule definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($mim_schema_xml/rule)>1">
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#rules">
+            <xsl:value-of select="concat($rule_mim_clause,
+                                  ' MIM rule definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#rules">
+            <xsl:value-of select="concat($rule_mim_clause,
+                                  ' MIM rule definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:apply-templates 
-      select="document($mim_xml)/express/schema/rule" mode="contents"/>
+      select="$mim_schema_xml/rule" mode="contents"/>
   </xsl:if>          
   <!-- only output if there are imported rules defined and 
        therefore a section -->
@@ -584,13 +759,26 @@ $Id: sect_contents.xsl,v 1.16 2003/02/25 17:15:04 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$procedure_mim_clause != 0">
-    <p class="content">
-      &#160; &#160; &#160;
-      <A HREF="./5_mim{$FILE_EXT}#procedures">
-        <xsl:value-of select="concat($procedure_mim_clause,
-                              ' MIM procedure definitions')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($mim_schema_xml/procedure)>1">
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#procedures">
+            <xsl:value-of select="concat($procedure_mim_clause,
+                                  ' MIM procedure definitions')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160; &#160;
+          <A HREF="./5_mim{$FILE_EXT}#procedures">
+            <xsl:value-of select="concat($procedure_mim_clause,
+                                  ' MIM procedure definition')"/>
+          </A>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:if>          
   <!-- only output if there are imported procedures defined and 
        therefore a section -->

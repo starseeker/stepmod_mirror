@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.84 2003/02/27 15:55:16 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.85 2003/03/02 07:46:14 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -472,10 +472,24 @@
     <xsl:variable name="clause_header">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          <xsl:value-of select="concat($clause_number, ' ARM constant definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../constant)>1">
+              <xsl:value-of select="concat($clause_number, ' ARM constant definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' ARM constant definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM constant definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../constant)>1">
+              <xsl:value-of select="concat($clause_number, ' MIM constant definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' MIM constant definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -483,10 +497,32 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          <!-- no intro for the ARM -->
+          <xsl:choose>
+            <xsl:when test="count(../constant)>1">
+              This subclause specifies the ARM constants for 
+              this module. The ARM constants and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the ARM constant for 
+              this module. The ARM constant and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <!-- no intro for the MIM -->
+          <xsl:choose>
+            <xsl:when test="count(../constant)>1">
+              This subclause specifies the MIM constants for 
+              this module. The MIM constants and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the MIM constant for 
+              this module. The MIM constant and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -617,10 +653,24 @@
   <xsl:variable name="clause_header">
     <xsl:choose>
       <xsl:when test="contains($schema_name,'_arm')">
-        <xsl:value-of select="concat($clause_number, ' ARM type definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../type)>1">
+              <xsl:value-of select="concat($clause_number, ' ARM type definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' ARM type definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
       </xsl:when>
       <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM type definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../type)>1">
+              <xsl:value-of select="concat($clause_number, ' MIM type definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' MIM type definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
       </xsl:when>
     </xsl:choose>      
   </xsl:variable>
@@ -628,11 +678,32 @@
   <xsl:variable name="clause_intro">
     <xsl:choose>
       <xsl:when test="contains($schema_name,'_arm')">
-        This subclause specifies the application types for this application module. The
-        application types and their definitions are specified below. 
+        <xsl:choose>
+          <xsl:when test="count(../type)>1">
+            This subclause specifies the ARM types
+            for this application module. The ARM types and 
+            definitions are specified below.         
+          </xsl:when>
+          <xsl:otherwise>
+            This subclause specifies the ARM type
+            for this application module. The ARM type and
+            definition is specified below. 
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:when test="contains($schema_name,'_mim')">
-        <!-- no intro for the MIM -->
+        <xsl:choose>
+          <xsl:when test="count(../type)>1">
+            This subclause specifies the MIM types
+            for this application module. The MIM types and 
+            definitions are specified below.         
+          </xsl:when>
+          <xsl:otherwise>
+            This subclause specifies the MIM type
+            for this application module. The MIM type and
+            definition is specified below. 
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
     </xsl:choose>      
   </xsl:variable>
@@ -934,10 +1005,24 @@
     <xsl:variable name="clause_header">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          <xsl:value-of select="concat($clause_number, ' ARM entity definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../entity)>1">
+              <xsl:value-of select="concat($clause_number, ' ARM entity definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' ARM entity definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM entity definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../entity)>1">
+              <xsl:value-of select="concat($clause_number, ' MIM entity definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' MIM entity definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -945,16 +1030,35 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when 
-          test="substring($schema_name, string-length($schema_name)-3)= '_arm'">
-
-          This subclause specifies the application entities for this
-          module. Each application entity is an atomic element that
-          embodies a unique application concept and contains attributes
-          specifying the data elements of the entity. The application
-          entities and their definitions are specified below. 
+          test="substring($schema_name, string-length($schema_name)-3)='_arm'">
+          <xsl:choose>
+            <xsl:when test="count(../entity)>1">
+              This subclause specifies the ARM entities for this
+              module. Each ARM application entity is an atomic element that
+              embodies a unique application concept and contains attributes
+              specifying the data elements of the entity. The ARM
+              entities and definitions are specified below. 
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the ARM entity for this
+              module. The ARM entity is an atomic element that
+              embodies a unique application concept and contains attributes
+              specifying the data elements of the entity. The ARM
+              entity and definition is specified below. 
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <!-- no intro for the MIM -->
+          <xsl:choose>
+            <xsl:when test="count(../entity)>1">
+              This subclause specifies the MIM entities for this
+              module. The MIM entities and definitions are specified below. 
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the MIM entity for this
+              module. The MIM entity and definition is specified below. 
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1598,10 +1702,24 @@
     <xsl:variable name="clause_header">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          <xsl:value-of select="concat($clause_number, ' ARM subtype constraint definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../subtype.constraint)>1">
+              <xsl:value-of select="concat($clause_number, ' ARM subtype constraint definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' ARM subtype constraint definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM subtype constraints')"/>
+          <xsl:choose>
+            <xsl:when test="count(../subtype.constraint)>1">
+              <xsl:value-of select="concat($clause_number, ' MIM subtype constraint definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' MIM subtype constraint definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1609,13 +1727,42 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          This subclause specifies the application subtype constraints for
-          this module. Each subtype constraint places constraints on the
-          possible super-type / subtype instantiations.
-          The application subtype constraints and their definitions are
-          specified below. 
+          <xsl:choose>
+            <xsl:when test="count(../subtype.constraint)>1">
+              This subclause specifies the ARM
+              subtype constraints for 
+              this module. Each subtype constraint places constraints on the
+              possible super-type / subtype instantiations.
+              The ARM subtype constraints and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the ARM subtype constraint for
+              this module. The subtype constraint places a constraint on the
+              possible super-type / subtype instantiations.
+              The ARM subtype constraint and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
+          <xsl:choose>
+            <xsl:when test="count(../subtype.constraint)>1">
+              This subclause specifies the MIM
+              subtype constraints for 
+              this module. Each subtype constraint places constraints on the
+              possible super-type / subtype instantiations.
+              The MIM subtype constraints and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the MIM subtype constraint for
+              this module. The subtype constraint places a constraint on the
+              possible super-type / subtype instantiations.
+              The MIM subtype constraint and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1761,10 +1908,24 @@
     <xsl:variable name="clause_header">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          <xsl:value-of select="concat($clause_number, ' ARM function definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../function)>1">
+              <xsl:value-of select="concat($clause_number, ' ARM function definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' ARM function definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM function defnitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../function)>1">
+              <xsl:value-of select="concat($clause_number, ' MIM function definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' MIM function definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1772,9 +1933,32 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
+          <xsl:choose>
+            <xsl:when test="count(../function)>1">
+              This subclause specifies the ARM functions for 
+              this module. The ARM functions and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the ARM function for 
+              this module. The ARM function and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <!-- no intro for the MIM -->
+          <xsl:choose>
+            <xsl:when test="count(../function)>1">
+              This subclause specifies the MIM functions for 
+              this module. The MIM functions and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the MIM function for 
+              this module. The MIM function and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1866,10 +2050,24 @@
     <xsl:variable name="clause_header">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          <xsl:value-of select="concat($clause_number, ' ARM procedure definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../procedure)>1">
+              <xsl:value-of select="concat($clause_number, ' ARM procedure definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' ARM procedure definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM procedure definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../procedure)>1">
+              <xsl:value-of select="concat($clause_number, ' MIM procedure definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' MIM procedure definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -1877,9 +2075,32 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
+          <xsl:choose>
+            <xsl:when test="count(../procedure)>1">
+              This subclause specifies the ARM procedures for 
+              this module. The ARM procedures and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the ARM procedure for 
+              this module. The ARM procedure and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <!-- no intro for the MIM -->
+          <xsl:choose>
+            <xsl:when test="count(../procedure)>1">
+              This subclause specifies the MIM procedures for 
+              this module. The MIM procedures and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the MIM procedure for 
+              this module. The MIM procedure and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -2061,10 +2282,24 @@
     <xsl:variable name="clause_header">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          <xsl:value-of select="concat($clause_number, ' ARM rule definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../rule)>1">
+              <xsl:value-of select="concat($clause_number, ' ARM rule definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' ARM rule definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <xsl:value-of select="concat($clause_number, ' MIM rule definitions')"/>
+          <xsl:choose>
+            <xsl:when test="count(../rule)>1">
+              <xsl:value-of select="concat($clause_number, ' MIM rule definitions')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' MIM rule definition')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -2072,9 +2307,32 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
+          <xsl:choose>
+            <xsl:when test="count(../rule)>1">
+              This subclause specifies the ARM rules for 
+              this module. The ARM rules and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the ARM rule for 
+              this module. The ARM rule and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
-          <!-- no intro for the MIM -->
+          <xsl:choose>
+            <xsl:when test="count(../rule)>1">
+              This subclause specifies the ARM rules for 
+              this module. The MIM rules and definitions are
+              specified below.
+            </xsl:when>
+            <xsl:otherwise>
+              This subclause specifies the ARM rule for 
+              this module. The MIM rule and definition is
+              specified below.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
       </xsl:choose>      
     </xsl:variable>
@@ -3108,7 +3366,7 @@
             The <b><xsl:value-of select="$typename"/></b> type is an
             extensible list of alternate data types. It provides a
             mechanism to refer to instances of the data types included in
-            the <b><xsl:value-of select="$typename"/></b> type or in its
+            the <b><xsl:value-of select="$typename"/></b> type or in it's
             extensions.  
             <p class="note">
               <small>

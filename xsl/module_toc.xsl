@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
+$Id: module_toc.xsl,v 1.29 2003/03/10 01:26:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -29,6 +29,17 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
 
   <xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
   <xsl:variable name="mim_schema_name" select="concat(@name,'_mim')"/>
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="/module/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="arm_schema_xml"
+    select="document(concat($module_dir,'/arm.xml'))/express/schema"/>
+  <xsl:variable name="mim_schema_xml" 
+    select="document(concat($module_dir,'/mim.xml'))/express/schema"/>
+  
+
   <TABLE border="1" cellspacing="1" width="100%">
     <TR>
       <TD valign="TOP">
@@ -78,7 +89,7 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
         <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}">4 Information requirements</A><BR/>
         <small>
           &#160;&#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#uof">
-            4.1 Units of functionality
+            4.1 Unit of functionality
           </A><BR/>
 
           <!-- only output if there are interfaces defined and therefore a
@@ -89,6 +100,7 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
+
           <xsl:if test="$interface_clause != 0">
             &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#interfaces">
               <xsl:value-of select="concat($interface_clause,
@@ -105,10 +117,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$constant_clause != 0">
-            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#constants">
-              <xsl:value-of select="concat($constant_clause,
-                                    ' ARM constant definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($arm_schema_xml/constant)>1">
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#constants">
+                <xsl:value-of select="concat($constant_clause,
+                                      ' ARM constant definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#constants">
+                <xsl:value-of select="concat($constant_clause,
+                                      ' ARM constant definition')"/>
+              </A><BR/>              
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
 
           <!-- only output if there are imported constants defined and 
@@ -136,10 +158,21 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$type_clause != 0">
-            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#types">
-              <xsl:value-of select="concat($type_clause,
-                                    ' ARM type definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($arm_schema_xml/type)>1">
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#types">
+                <xsl:value-of select="concat($type_clause,
+                                      ' ARM type definitions')"/>
+                <xsl:value-of select="count($arm_schema_xml/type)"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#types">
+                <xsl:value-of select="concat($type_clause,
+                                      ' ARM type definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
 
           <!-- only output if there are imported types defined and 
@@ -167,10 +200,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$entity_clause != 0">
-            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#entities">
+            <xsl:choose>
+              <xsl:when test="count($arm_schema_xml/entity)>1">
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#entities">
+                <xsl:value-of select="concat($entity_clause,
+                                      ' ARM entity definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#entities">
               <xsl:value-of select="concat($entity_clause,
-                                    ' ARM entity definitions')"/>
+                                    ' ARM entity definition')"/>
             </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
 
          
@@ -200,10 +243,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>          
           <xsl:if test="$subtype_constraint_clause != 0">
-            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#subtype_constraints">
-              <xsl:value-of select="concat($subtype_constraint_clause,
-                                    ' ARM subtype constraint definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($arm_schema_xml/subtype.constraint)>1">
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#subtype_constraints">
+                <xsl:value-of select="concat($subtype_constraint_clause,
+                                      ' ARM subtype constraint definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#subtype_constraints">
+                <xsl:value-of select="concat($subtype_constraint_clause,
+                                      ' ARM subtype constraint definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
 
           <!-- only output if there are functions defined and therefore a
@@ -215,10 +268,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$function_clause !=0">
-            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#functions">
-              <xsl:value-of select="concat($function_clause,
-                                    ' ARM function definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($arm_schema_xml/function)>1">
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#functions">
+                <xsl:value-of select="concat($function_clause,
+                                      ' ARM function definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#functions">
+                <xsl:value-of select="concat($function_clause,
+                                      ' ARM function definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
           <!-- only output if there are imported functions defined and 
                therefore a section -->
@@ -244,10 +307,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$rule_clause !=0">
-            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#rules">
-              <xsl:value-of select="concat($rule_clause,
-                                    ' ARM rule definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($arm_schema_xml/rule)>1">
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#rules">
+                <xsl:value-of select="concat($rule_clause,
+                                      ' ARM rule definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#rules">
+                <xsl:value-of select="concat($rule_clause,
+                                      ' ARM rule definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
           <!-- only output if there are imported rules defined and 
                therefore a section -->
@@ -273,10 +346,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$procedure_clause != 0">
-            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#procedures">
-              <xsl:value-of select="concat($procedure_clause,
-                                    ' ARM procedure definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($arm_schema_xml/procedure)>1">
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#procedures">
+                <xsl:value-of select="concat($procedure_clause,
+                                      ' ARM procedure definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#procedures">
+                <xsl:value-of select="concat($procedure_clause,
+                                      ' ARM procedure definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
           <!-- only output if there are imported procedures defined and 
                therefore a section -->
@@ -311,10 +394,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
           </xsl:variable>
 
           <xsl:if test="$constant_mim_clause != 0">
-            &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#constants">
-              <xsl:value-of select="concat($constant_mim_clause,
-                                    ' MIM constant definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($mim_schema_xml/constant)>1">
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#constants">
+                <xsl:value-of select="concat($constant_mim_clause,
+                                      ' MIM constant definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#constants">
+                <xsl:value-of select="concat($constant_mim_clause,
+                                      ' MIM constant definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>          
           <!-- only output if there are imported constants defined and 
                therefore a section -->
@@ -341,10 +434,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$type_mim_clause != 0">
-            &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#types">
-              <xsl:value-of select="concat($type_mim_clause,
-                                    ' MIM type definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($mim_schema_xml/type)>1">
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#types">
+                <xsl:value-of select="concat($type_mim_clause,
+                                      ' MIM type definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#types">
+                <xsl:value-of select="concat($type_mim_clause,
+                                      ' MIM type definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>          
           <!-- only output if there are imported types defined and 
                therefore a section -->
@@ -370,10 +473,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$entity_mim_clause != 0">
-            &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#entities">
-              <xsl:value-of select="concat($entity_mim_clause,
-                                    ' MIM entity definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($mim_schema_xml/entity)>1">
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#entities">
+                <xsl:value-of select="concat($entity_mim_clause,
+                                      ' MIM entity definition')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#entities">
+                <xsl:value-of select="concat($entity_mim_clause,
+                                      ' MIM entity definitions')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>          
 
           <!-- only output if there are imported entitys defined and 
@@ -401,10 +514,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>          
           <xsl:if test="$subtype_constraint_mim_clause != 0">
-            &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#subtype_constraints">
-              <xsl:value-of select="concat($subtype_constraint_mim_clause,
-                                    ' MIM subtype constraints')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($mim_schema_xml/subtype.constraint)>1">
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#subtype_constraints">
+                <xsl:value-of select="concat($subtype_constraint_mim_clause,
+                                      ' MIM subtype constraints')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#subtype_constraints">
+                <xsl:value-of select="concat($subtype_constraint_mim_clause,
+                                      ' MIM subtype constraint')"/>
+              </A><BR/>
+            </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
 
 
@@ -417,10 +540,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$function_mim_clause != 0">
-            &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#functions">
-              <xsl:value-of select="concat($function_mim_clause,
-                                    ' MIM function definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($mim_schema_xml/function)>1">
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#functions">
+                <xsl:value-of select="concat($function_mim_clause,
+                                      ' MIM function definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#functions">
+                <xsl:value-of select="concat($function_mim_clause,
+                                      ' MIM function definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>          
           <!-- only output if there are imported functions defined and 
                therefore a section -->
@@ -448,10 +581,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$rule_mim_clause != 0">
-            &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#rules">
-              <xsl:value-of select="concat($rule_mim_clause,
-                                    ' MIM rule definitions')"/>
-            </A><BR/>
+            <xsl:choose>
+              <xsl:when test="count($mim_schema_xml/rule)>1">
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#rules">
+                <xsl:value-of select="concat($rule_mim_clause,
+                                      ' MIM rule definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#rules">
+                <xsl:value-of select="concat($rule_mim_clause,
+                                      ' MIM rule definition')"/>
+              </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>          
           <!-- only output if there are imported rules defined and 
                therefore a section -->
@@ -477,10 +620,20 @@ $Id: module_toc.xsl,v 1.28 2002/09/05 07:50:54 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$procedure_mim_clause != 0">
-            &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#procedures">
-              <xsl:value-of select="concat($procedure_mim_clause,
-                                    ' MIM procedure definitions')"/>
+            <xsl:choose>
+              <xsl:when test="count($mim_schema_xml/procedure)>1">
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#procedures">
+                <xsl:value-of select="concat($procedure_mim_clause,
+                                      ' MIM procedure definitions')"/>
+              </A><BR/>
+              </xsl:when>
+              <xsl:otherwise>
+                &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#procedures">
+                <xsl:value-of select="concat($procedure_mim_clause,
+                                      ' MIM procedure definition')"/>
             </A><BR/>
+              </xsl:otherwise>
+            </xsl:choose>            
           </xsl:if>          
           <!-- only output if there are imported procedures defined and 
                therefore a section -->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.129 2003/03/09 16:51:29 robbod Exp $
+$Id: module.xsl,v 1.130 2003/03/10 01:27:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1308,21 +1308,28 @@ o=isocs; s=central<br/>
       <xsl:with-param name="module" select="../@name"/>
     </xsl:call-template>           
   </xsl:variable>
+
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="../@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+
+  <xsl:variable name="arm_node" select="document($arm_xml)"/>
+
+
   <p>
     This clause specifies the information requirements for the 
     <b><xsl:value-of select="$current_module"/></b>
-    application module.
+    application module. The information requirements are specified as a
+    unit of functionality. 
   </p>
   <p>
-    The information requirements are specified as a set of units of
-    functionality and application objects. The information requirements are
-    defined using the terminology of the subject area of this application
-    module. 
-  </p>
-  <p>
-    This clause constitutes the Application Reference Model of the
+    This clause constitutes the Application Reference Model (ARM) of the
     application module.
-  </p> 
+  </p>
   <p class="note">
     <small>
       NOTE&#160;1&#160;&#160;A graphical representation of the information
@@ -1334,29 +1341,35 @@ o=isocs; s=central<br/>
     <small>
       NOTE&#160;2&#160;&#160;The mapping specification is specified in 
       <a href="{$sect51}">5.1</a>. It shows how
-      the information requirements are met, using common resources and
+      the information requirements are met by using common resources and
       constructs defined or imported in the MIM schema of this application
       module. 
     </small>
   </p>
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="module_directory">
-      <xsl:with-param name="module" select="../@name"/>
-    </xsl:call-template>
-  </xsl:variable>
 
-  <xsl:variable name="arm_xml"
-    select="concat($module_dir,'/arm.xml')"/>
+  <p>
+    <xsl:choose>
+      <xsl:when test="$arm_node/express/schema/interface">
+        The following EXPRESS specification begins the 
+        <b><xsl:value-of select="$arm_node/express/schema/@name"/></b>
+        and identifies the necessary external references.
+      </xsl:when>
+      <xsl:otherwise>
+        The following EXPRESS specification begins the 
+        <b><xsl:value-of select="$current_module"/></b>.
+      </xsl:otherwise>
+    </xsl:choose>
+  </p>
 
   <!-- Just display the description of the schema. -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema" mode="description"/>
+    select="$arm_node/express/schema" mode="description"/>
 
 
   <!-- there is only one schema in a module -->
   <xsl:variable 
     name="schema_name" 
-    select="document($arm_xml)/express/schema/@name"/>
+    select="$arm_node/express/schema/@name"/>
 
   <xsl:call-template name="check_schema_name">
     <xsl:with-param name="arm_mim" select="'arm'"/>
@@ -1386,63 +1399,62 @@ o=isocs; s=central<br/>
 
   <h3>
     <a name="uof">
-      4.1&#160;Units of functionality
+      4.1&#160;Unit of functionality
     </a>
   </h3>
+  <!-- Note a UoF section is no longer required so this default text is provided -->
+  This unit of functionality is defined by an application object or set of
+  application objects within the context of this part of ISO 10303.
 
     <!-- Note a UoF section is no longer required so this is commented out -->
     <!-- <xsl:apply-templates select="." mode="uof"/> -->
 
-    <!-- Note a UoF section is no longer required so this default text is provided -->
-    The application objects defined within this part of ISO 10303 
-    <!-- and those imported with the USE FROM statements specified in clause 4.2, -->
-    constitute the units of functionality.      
 
   <!-- output all the EXPRESS specifications -->
   <!-- display the EXPRESS for the interfaces in the ARM.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema/interface"/>
+    select="$arm_node/express/schema/interface"/>
 
   <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema/constant"/>
+    select="$arm_node/express/schema/constant"/>
 
   <!-- display the EXPRESS for the types in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema/type"/>
+    select="$arm_node/express/schema/type"/>
   
   <!-- display the EXPRESS for the entities in the ARM.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema/entity"/>
+    select="$arm_node/express/schema/entity"/>
 
   <!-- display the EXPRESS for the subtype.contraints in the ARM.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema/subtype.constraint"/>
+    select="$arm_node/express/schema/subtype.constraint"/>
 
   <!-- display the EXPRESS for the functions in the ARM
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema/function"/>
+    select="$arm_node/express/schema/function"/>
 
   <!-- display the EXPRESS for the entities in the ARM. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema/rule"/>
+    select="$arm_node/express/schema/rule"/>
 
   <!-- display the EXPRESS for the procedures in the ARM. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($arm_xml)/express/schema/procedure"/>
+    select="$arm_node/express/schema/procedure"/>
 
   
   <code>
     <br/>    <br/>
     *)<br/>
-    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="document($arm_xml)/express/schema/@name"/>
+    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="$arm_node/express/schema/@name"/>
     <br/>(*
   </code>
 
@@ -1756,9 +1768,17 @@ o=isocs; s=central<br/>
     <a name="mim_express">5.2 MIM EXPRESS short listing</a>
   </h3>
   <p>
-    This clause specifies the EXPRESS schema derived from the mapping-table. It uses elements from the
-    common resources or from other application
-    modules and defines the Express constructs that are specific to this part of ISO 10303.</p> 
+    This clause specifies the EXPRESS schema derived from the mapping
+    table. 
+    It uses elements from the common resources or from other application
+    modules and defines the EXPRESS constructs that are specific to this
+    part of ISO 10303.
+  </p> 
+  <p>
+    This clause constitutes the Module Interpreted Module (MIM) of the
+    application module.
+  </p>
+
   <p>This clause also
     specifies the modifications that apply to the constructs 
     imported from the common resources.</p>

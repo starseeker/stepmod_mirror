@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.85 2003/03/02 07:46:14 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.86 2003/03/11 14:48:12 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -119,7 +119,14 @@
     <xsl:variable name="clause_header">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          <xsl:value-of select="concat($clause_number, ' Required AM ARMs')"/>
+          <xsl:choose>
+            <xsl:when test="count(../interface)>1">          
+              <xsl:value-of select="concat($clause_number, ' Required AM ARMs')"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($clause_number, ' Required AM ARM')"/>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
         </xsl:when>
@@ -129,8 +136,16 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          The following EXPRESS interface statements specify the elements
-          imported from the ARMs of other application modules.
+          <xsl:choose>
+            <xsl:when test="count(../interface)>1">          
+              The following EXPRESS interface statements specify the elements
+              imported from the ARMs of other application modules.
+            </xsl:when>
+            <xsl:otherwise>
+              The following EXPRESS interface statement specifies the elements
+              imported from the ARM of another application module.
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
           <!-- no intro for the MIM -->
@@ -3109,7 +3124,7 @@
   <xsl:variable name="main_clause">
     <xsl:choose>
       <xsl:when test="contains($schema_name,'_arm')">
-        <xsl:value-of select="concat('4.',$clause_number+1)"/>
+        <xsl:value-of select="concat('4.',$clause_number)"/>
       </xsl:when>
       <xsl:when test="contains($schema_name,'_mim')">
         <xsl:value-of select="concat('5.2.',$clause_number)"/>

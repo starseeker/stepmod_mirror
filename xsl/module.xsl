@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.130 2003/03/10 01:27:17 robbod Exp $
+$Id: module.xsl,v 1.131 2003/03/11 14:48:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1323,12 +1323,8 @@ o=isocs; s=central<br/>
   <p>
     This clause specifies the information requirements for the 
     <b><xsl:value-of select="$current_module"/></b>
-    application module. The information requirements are specified as a
-    unit of functionality. 
-  </p>
-  <p>
-    This clause constitutes the Application Reference Model (ARM) of the
-    application module.
+    application module. The information requirements are specified as the
+    Application Reference Model (ARM) of this application module.
   </p>
   <p class="note">
     <small>
@@ -1397,17 +1393,13 @@ o=isocs; s=central<br/>
   <br/>(*<br/>
   </code>
 
+  <!-- Note a UoF section is no longer required so this is commented out 
   <h3>
     <a name="uof">
       4.1&#160;Unit of functionality
     </a>
   </h3>
-  <!-- Note a UoF section is no longer required so this default text is provided -->
-  This unit of functionality is defined by an application object or set of
-  application objects within the context of this part of ISO 10303.
-
-    <!-- Note a UoF section is no longer required so this is commented out -->
-    <!-- <xsl:apply-templates select="." mode="uof"/> -->
+  <xsl:apply-templates select="." mode="uof"/> -->
 
 
   <!-- output all the EXPRESS specifications -->

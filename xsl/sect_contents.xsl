@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.17 2003/03/02 07:46:14 robbod Exp $
+$Id: sect_contents.xsl,v 1.18 2003/03/11 14:48:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -82,10 +82,11 @@ $Id: sect_contents.xsl,v 1.17 2003/03/02 07:46:14 robbod Exp $
     <A HREF="./4_info_reqs{$FILE_EXT}">4 Information requirements</A>
   </p>
   
+  <!-- no longer have UoFs
   <p class="content">
     &#160;&#160;
     <A HREF="./4_info_reqs{$FILE_EXT}#uof">4.1 Units of functionality</A>
-  </p>
+  </p> -->
 
   <!-- only output if there are interfaces defined and therefore a
        section -->
@@ -96,13 +97,26 @@ $Id: sect_contents.xsl,v 1.17 2003/03/02 07:46:14 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
   <xsl:if test="$interface_clause != 0">
-    <p class="content">
-      &#160; &#160;
-      <A HREF="./4_info_reqs{$FILE_EXT}#interfaces">
-        <xsl:value-of select="concat($interface_clause,
-                              ' Required AM ARMs')"/>
-      </A>
-    </p>
+    <xsl:choose>
+      <xsl:when test="count($arm_schema_xml/interface)>1">          
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#interfaces">
+            <xsl:value-of select="concat($interface_clause,
+                                  ' Required AM ARMs')"/>
+          </A>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="content">
+          &#160; &#160;
+          <A HREF="./4_info_reqs{$FILE_EXT}#interfaces">
+            <xsl:value-of select="concat($interface_clause,
+                                  ' Required AM ARM')"/>
+          </A>
+        </p>        
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:if>
 
   <!-- only output if there are constants defined and therefore a
@@ -1085,10 +1099,13 @@ $Id: sect_contents.xsl,v 1.17 2003/03/02 07:46:14 robbod Exp $
 
 
 <xsl:template match="module" mode="copyright">
+  <!-- the copyright is already at the bottom of the page from
+       module_clause.xsl 
   <p>
     &#169;ISO
     <xsl:value-of select="@publication.year"/>
   </p>
+  -->
   <p>
     All rights reserved. Unless otherwise specified, no part of this
     publication may be reproduced or utilized in any form or by any means,

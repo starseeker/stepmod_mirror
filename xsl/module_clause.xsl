@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_clause.xsl,v 1.4 2001/11/21 08:11:54 robbod Exp $
+$Id: module_clause.xsl,v 1.5 2002/03/04 07:54:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -22,8 +22,8 @@ $Id: module_clause.xsl,v 1.4 2001/11/21 08:11:54 robbod Exp $
          of this xsl file
          -->
     <xsl:variable 
-      name="module_xml_file"
-      select="concat('../data/modules/',@directory,'/module.xml')"/>
+      name="module_xml"
+      select="document(concat('../data/modules/',@directory,'/module.xml'))"/>
     <HTML>
       <HEAD>
         <!-- apply a cascading stylesheet.
@@ -36,7 +36,7 @@ $Id: module_clause.xsl,v 1.4 2001/11/21 08:11:54 robbod Exp $
         <TITLE>
           <!-- output the module page title -->
           <xsl:apply-templates 
-            select="document($module_xml_file)/module"
+            select="$module_xml/module"
             mode="title"/>
         </TITLE>
       </HEAD>
@@ -44,11 +44,14 @@ $Id: module_clause.xsl,v 1.4 2001/11/21 08:11:54 robbod Exp $
         <!-- debug <xsl:message><xsl:value-of select="$global_xref_list"/></xsl:message> -->
         <!-- output the Table of contents banner -->
         <xsl:apply-templates 
-          select="document($module_xml_file)/module"
+          select="$module_xml/module"
           mode="TOCmultiplePage"/>
 
         <!-- now apply the stylesheet specified in the document -->
-        <xsl:apply-templates select="document($module_xml_file)/module"/>
+        <xsl:apply-templates select="$module_xml/module"/>
+
+        <br/><br/>
+        <p>&#169; ISO <xsl:value-of select="$module_xml/module/@publication.year"/> &#8212; All rights reserved</p>
       </BODY>
     </HTML>
   </xsl:template>

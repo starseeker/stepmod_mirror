@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.29 2003/03/10 01:26:56 robbod Exp $
+$Id: module_toc.xsl,v 1.30 2003/03/11 14:48:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -88,9 +88,11 @@ $Id: module_toc.xsl,v 1.29 2003/03/10 01:26:56 robbod Exp $
              -->
         <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}">4 Information requirements</A><BR/>
         <small>
+          <!-- no longer have units of functionality
           &#160;&#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#uof">
             4.1 Unit of functionality
           </A><BR/>
+          -->
 
           <!-- only output if there are interfaces defined and therefore a
                section -->
@@ -102,10 +104,20 @@ $Id: module_toc.xsl,v 1.29 2003/03/10 01:26:56 robbod Exp $
           </xsl:variable>
 
           <xsl:if test="$interface_clause != 0">
-            &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#interfaces">
+          <xsl:choose>
+            <xsl:when test="count($arm_schema_xml/interface)>1">          
+              &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#interfaces">
               <xsl:value-of select="concat($interface_clause,
                                     ' Required AM ARMs')"/>
             </A><BR/>
+            </xsl:when>
+            <xsl:otherwise>
+              &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#interfaces">
+              <xsl:value-of select="concat($interface_clause,
+                                    ' Required AM ARM')"/>
+            </A><BR/>              
+            </xsl:otherwise>
+          </xsl:choose>
           </xsl:if>
           
           <!-- only output if there are constants defined and therefore a
@@ -163,7 +175,6 @@ $Id: module_toc.xsl,v 1.29 2003/03/10 01:26:56 robbod Exp $
                 &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#types">
                 <xsl:value-of select="concat($type_clause,
                                       ' ARM type definitions')"/>
-                <xsl:value-of select="count($arm_schema_xml/type)"/>
               </A><BR/>
               </xsl:when>
               <xsl:otherwise>

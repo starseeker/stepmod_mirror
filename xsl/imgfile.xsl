@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.20 2002/09/11 12:27:05 robbod Exp $
+$Id: imgfile.xsl,v 1.21 2002/09/27 07:51:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -67,10 +67,12 @@ $Id: imgfile.xsl,v 1.20 2002/09/11 12:27:05 robbod Exp $
     <body>
       <xsl:variable name="module" select="@module"/>
       <xsl:variable name="self" select="."/>
+      <xsl:variable name="module_xml" select="document($module_file)/module"/>
+
       <xsl:choose>
         <xsl:when test="@module">
           <xsl:apply-templates 
-            select="document($module_file)/module"
+            select="$module_xml"
             mode="TOCmultiplePage">
             <xsl:with-param name="module_root" select="'.'"/>
           </xsl:apply-templates>
@@ -125,6 +127,9 @@ $Id: imgfile.xsl,v 1.20 2002/09/11 12:27:05 robbod Exp $
           <div align="center"><br/><br/><b><xsl:value-of select="@title"/></b><br/></div>
         </xsl:otherwise>
       </xsl:choose>
+
+      <br/><br/>
+      <p>&#169; ISO <xsl:value-of select="$module_xml/@publication.year"/> &#8212; All rights reserved</p>
     </body>
   </HTML>
 </xsl:template>

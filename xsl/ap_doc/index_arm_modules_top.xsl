@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules.xsl,v 1.3 2003/05/22 13:26:17 nigelshaw Exp $
+$Id: index_arm_modules_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -141,6 +141,21 @@ $Id: index_arm_modules.xsl,v 1.3 2003/05/22 13:26:17 nigelshaw Exp $
 <!--	<TABLE width="}">
 		<TR >
 			<TD> -->
+
+	<xsl:variable name="schema-names">
+			<xsl:for-each select="$called-schemas//schema" >
+				<xsl:value-of select="concat(' ',@name,' ')" />
+			</xsl:for-each>
+		</xsl:variable>
+
+			<xsl:call-template name="alph-index">
+				<xsl:with-param name="names" select="$schema-names" />
+				<xsl:with-param name="file" select="'index_arm_modules_inner.xml'" />
+				<xsl:with-param name="internal-link-root" select="'letter'" />
+			</xsl:call-template>
+			<br/>
+			<hr/>
+<!--
 	<xsl:for-each select="$called-schemas//schema"  >
 		<xsl:sort select="@name" /> 
 		<xsl:variable name="first-letter" select="substring(@name,1,1)" />
@@ -150,6 +165,7 @@ $Id: index_arm_modules.xsl,v 1.3 2003/05/22 13:26:17 nigelshaw Exp $
 			<xsl:text> </xsl:text>
 		</xsl:if>
 	</xsl:for-each>
+-->
 <!--			</TD>
 			
 		</TR>
@@ -292,6 +308,119 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 	<xsl:if test="not(contains($done,@schema))" >
 		<xsl:value-of select="concat(' ',@schema,' ')" /> 
 	</xsl:if>
+</xsl:template>
+
+<xsl:template name="alph-index" >
+	<xsl:param name="names" />
+	<xsl:param name="file" />
+	<xsl:param name="internal-link-root" />
+
+		<xsl:variable name="name-list" select="translate($names, $LOWER,$UPPER)" />
+
+			<xsl:if test="contains($name-list,' A')" >
+				<A HREF="{$file}#{$internal-link-root}-A" target="toc_inner" >A</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' B')" >
+				<A HREF="{$file}#{$internal-link-root}-B" target="toc_inner" >B</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' C')" >
+				<A HREF="{$file}#{$internal-link-root}-C" target="toc_inner" >C</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' D')" >
+				<A HREF="{$file}#{$internal-link-root}-D" target="toc_inner" >D</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' E')" >
+				<A HREF="{$file}#{$internal-link-root}-E" target="toc_inner" >E</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' F')" >
+				<A HREF="{$file}#{$internal-link-root}-F" target="toc_inner" >F</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' G')" >
+				<A HREF="{$file}#{$internal-link-root}-G" target="toc_inner" >G</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' H')" >
+				<A HREF="{$file}#{$internal-link-root}-H" target="toc_inner" >H</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' I')" >
+				<A HREF="{$file}#{$internal-link-root}-I" target="toc_inner" >I</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' J')" >
+				<A HREF="{$file}#{$internal-link-root}-J" target="toc_inner" >J</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' K')" >
+				<A HREF="{$file}#{$internal-link-root}-K" target="toc_inner" >K</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' L')" >
+				<A HREF="{$file}#{$internal-link-root}-L" target="toc_inner" >L</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' M')" >
+				<A HREF="{$file}#{$internal-link-root}-M" target="toc_inner" >M</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' N')" >
+				<A HREF="{$file}#{$internal-link-root}-N" target="toc_inner" >N</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' O')" >
+				<A HREF="{$file}#{$internal-link-root}-O" target="toc_inner" >O</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' P')" >
+				<A HREF="{$file}#{$internal-link-root}-P" target="toc_inner" >P</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' Q')" >
+				<A HREF="{$file}#{$internal-link-root}-Q" target="toc_inner" >Q</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' R')" >
+				<A HREF="{$file}#{$internal-link-root}-R" target="toc_inner" >R</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' S')" >
+				<A HREF="{$file}#{$internal-link-root}-S" target="toc_inner" >S</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' T')" >
+				<A HREF="{$file}#{$internal-link-root}-T" target="toc_inner" >T</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' U')" >
+				<A HREF="{$file}#{$internal-link-root}-U" target="toc_inner" >U</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' V')" >
+				<A HREF="{$file}#{$internal-link-root}-V" target="toc_inner" >V</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' W')" >
+				<A HREF="{$file}#{$internal-link-root}-W" target="toc_inner" >W</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' X')" >
+				<A HREF="{$file}#{$internal-link-root}-X" target="toc_inner" >X</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' Y')" >
+				<A HREF="{$file}#{$internal-link-root}-Y" target="toc_inner" >Y</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' Z')" >
+				<A HREF="{$file}#{$internal-link-root}-Z" target="toc_inner" >Z</A>
+				<xsl:text> </xsl:text>
+			</xsl:if>
 </xsl:template>
 
 

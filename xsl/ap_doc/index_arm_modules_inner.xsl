@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: select_matrix_view.xsl,v 1.1 2003/03/10 19:19:49 nigelshaw Exp $
+$Id: index_arm_modules_inner.xsl,v 1.1 2003/05/22 09:34:24 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -135,10 +135,15 @@ $Id: select_matrix_view.xsl,v 1.1 2003/03/10 19:19:49 nigelshaw Exp $
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
 
-	<xsl:apply-templates select="$called-schemas//schema" mode="module-index" >
+<!--	<xsl:apply-templates select="$called-schemas//schema" mode="module-index" >
 		<xsl:sort select="@name" />		
 	</xsl:apply-templates>
-	
+-->
+		<xsl:call-template name="alph-list">
+			<xsl:with-param name="items" select="$called-schemas//schema" />
+			<xsl:with-param name="internal-link-root" select="'letter'" />
+		</xsl:call-template>
+
 
 </xsl:template>
 
@@ -149,14 +154,14 @@ $Id: select_matrix_view.xsl,v 1.1 2003/03/10 19:19:49 nigelshaw Exp $
 
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
 
-		<xsl:variable name="first-letter" select="substring(@name,1,1)" />
+<!--		<xsl:variable name="first-letter" select="substring(@name,1,1)" />
 		<xsl:if test="not($first-letter=substring(preceding::schema[1]/@name,1,1))" >
 			<br/>
 			<A NAME="letter-{$first-letter}" ><b><xsl:value-of select="$first-letter" /></b></A>
 			<br/>
 			<br/>
 		</xsl:if>
-
+-->
 		<A HREF="{$mod-dir}/sys/1_scope{$FILE_EXT}" TARGET="content"><xsl:value-of select="$mod-name" /></A>
 		<br/>
 		
@@ -249,6 +254,228 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 		<xsl:value-of select="concat(' ',@schema,' ')" /> 
 	</xsl:if>
 </xsl:template>
+
+<xsl:template name="alph-list" >
+	<xsl:param name="items" />
+	<xsl:param name="internal-link-root" />
+
+		<xsl:variable name="name-list" >
+			<xsl:for-each select="$items">
+				<xsl:value-of select="concat(' ',translate(@name, $LOWER,$UPPER),' ')" />
+			</xsl:for-each>
+		</xsl:variable>
+
+			<xsl:if test="contains($name-list,' A')" >
+				<br/>
+				<A NAME="{$internal-link-root}-A"  ><B>A</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='A']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' B')" >
+				<br/>
+				<A NAME="{$internal-link-root}-B"  ><B>B</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='B']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' C')" >
+				<br/>
+				<A NAME="{$internal-link-root}-C"  ><B>C</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='C']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' D')" >
+				<br/>
+				<A NAME="{$internal-link-root}-D"  ><B>D</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='D']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' E')" >
+				<br/>
+				<A NAME="{$internal-link-root}-E"  ><B>E</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='E']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' F')" >
+				<br/>
+				<A NAME="{$internal-link-root}-F"  ><B>F</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='F']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' G')" >
+				<br/>
+				<A NAME="{$internal-link-root}-G"  ><B>G</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='G']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' H')" >
+				<br/>
+				<A NAME="{$internal-link-root}-H"  ><B>H</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='H']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' I')" >
+				<br/>
+				<A NAME="{$internal-link-root}-I"  ><B>I</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='I']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' J')" >
+				<br/>
+				<A NAME="{$internal-link-root}-J"  ><B>J</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='J']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' K')" >
+				<br/>
+				<A NAME="{$internal-link-root}-K"  ><B>K</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='K']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' L')" >
+				<br/>
+				<A NAME="{$internal-link-root}-L"  ><B>L</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='L']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' M')" >
+				<br/>
+				<A NAME="{$internal-link-root}-M"  ><B>M</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='M']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' N')" >
+				<br/>
+				<A NAME="{$internal-link-root}-N"  ><B>N</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='N']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' O')" >
+				<br/>
+				<A NAME="{$internal-link-root}-O"  ><B>O</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='O']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' P')" >
+				<br/>
+				<A NAME="{$internal-link-root}-P"  ><B>P</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='P']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' Q')" >
+				<br/>
+				<A NAME="{$internal-link-root}-Q"  ><B>Q</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Q']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' R')" >
+				<br/>
+				<A NAME="{$internal-link-root}-R"  ><B>R</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='R']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' S')" >
+				<br/>
+				<A NAME="{$internal-link-root}-S"  ><B>S</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='S']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' T')" >
+				<br/>
+				<A NAME="{$internal-link-root}-T"  ><B>T</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='T']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' U')" >
+				<br/>
+				<A NAME="{$internal-link-root}-U"  ><B>U</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='U']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' V')" >
+			
+				<br/>
+				<A NAME="{$internal-link-root}-V"  ><B>V</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='V']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' W')" >
+				<br/>
+				<A NAME="{$internal-link-root}-W"  ><B>W</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='W']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' X')" >
+				<br/>
+				<A NAME="{$internal-link-root}-X"  ><B>X</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='X']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' Y')" >
+				<br/>
+				<A NAME="{$internal-link-root}-Y"  ><B>Y</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Y']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+			<xsl:if test="contains($name-list,' Z')" >
+				<br/>
+				<A NAME="{$internal-link-root}-Z"  ><B>Z</B></A>
+				<br/>
+				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Z']" mode="module-index" >
+					<xsl:sort select="@name" />
+				</xsl:apply-templates>
+			</xsl:if>
+</xsl:template>
+
 
 
 </xsl:stylesheet>

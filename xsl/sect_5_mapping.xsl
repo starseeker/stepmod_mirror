@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.57 2002/11/29 17:25:25 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.58 2002/12/11 07:55:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1197,6 +1197,15 @@ the mapping specification')"/>
   <xsl:value-of select="$entity"/>
 </xsl:template>
 
+
+<!-- give the A NAME for the mapping of the subtype constraint in sect 5 -->
+<xsl:template match="sc" mode="map_attr_aname">
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:value-of select="translate(concat('scconstraint',@constraint),$UPPER,$LOWER)"/>
+</xsl:template>
+
+
 <!-- give the A NAME for the mapping of the entity in sect 5 -->
 <xsl:template match="ae" mode="map_attr_aname">
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
@@ -1310,9 +1319,8 @@ the mapping specification')"/>
 
   <h3>
     <a name="{$sc_map_aname}">
-      <!--      <xsl:value-of select="concat('5.1.',$ae_count + $sect_no,' ')"/> -->
-</a>
-<xsl:value-of select="concat('5.1.',$ae_count+position(),' ')"/>
+      <xsl:value-of select="concat('5.1.',$ae_count+position(),' ')"/>
+    </a>
     <a href="{$sc_xref}"><xsl:value-of select="$sc"/></a>
   </h3>
 

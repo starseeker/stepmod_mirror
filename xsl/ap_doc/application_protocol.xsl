@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol.xsl,v 1.28 2003/11/03 07:40:47 robbod Exp $
+$Id: application_protocol.xsl,v 1.29 2004/02/05 17:51:07 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -84,20 +84,35 @@ $Id: application_protocol.xsl,v 1.28 2003/11/03 07:40:47 robbod Exp $
       </xsl:when>
       <xsl:otherwise>
         <p>
-          This part of ISO 10303 specifies the application protocol for
+          <xsl:call-template name="get_protocol_dated_stdnumber">
+            <xsl:with-param name="application_protocol" select="."/>
+          </xsl:call-template> specifies the application protocol for
           <xsl:call-template name="protocol_display_name">
             <xsl:with-param name="application_protocol" select="@name"/>
-          </xsl:call-template>.
-        </p>
-        <xsl:apply-templates select="./inscope"/>
+          </xsl:call-template>. 
+        </p>        
+        <xsl:apply-templates select="./inscope">          
+          <xsl:with-param name="abstract" select="'yes'"/>
+        </xsl:apply-templates> 
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
   <xsl:template match="inscope">
+    <xsl:param name="abstract" select="'no'"/>
     <p>
-      <a name="inscope"/> 
-      The following are within the scope of this part of ISO 10303: 
+      <xsl:choose>
+        <xsl:when test="$abstract='yes'">
+          The following are within the scope of
+          <xsl:call-template name="get_protocol_dated_stdnumber">
+            <xsl:with-param name="application_protocol" select=".."/>
+          </xsl:call-template>:
+        </xsl:when>
+        <xsl:otherwise>
+          <a name="inscope"/> 
+          The following are within the scope of this part of ISO 10303:                     
+        </xsl:otherwise>
+      </xsl:choose>
     </p>
 
     <xsl:variable name="module" select="/application_protocol/@module_name"/>

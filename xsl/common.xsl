@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.136 2004/10/30 09:54:12 robbod Exp $
+$Id: common.xsl,v 1.137 2004/11/02 08:28:44 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2461,6 +2461,54 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
 			
 </xsl:template>
+
+
+<xsl:template name="get_protocol_dated_stdnumber">
+  <xsl:param name="application_protocol"/>
+  <xsl:variable name="part">
+    <xsl:choose>
+      <xsl:when test="string-length($application_protocol/@part)>0">
+        <xsl:value-of select="$application_protocol/@part"/>
+      </xsl:when>
+      <xsl:otherwise>
+        &lt;part&gt;
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+   <xsl:variable name="status">
+    <xsl:choose>
+      <xsl:when test="string-length($application_protocol/@status)>0">
+        <xsl:value-of select="string($application_protocol/@status)"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;status&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- 
+         Note, if the standard has a status of CD or CD-TS it has not been
+         published - so overide what ever is the @publication.year 
+         -->
+    <xsl:variable name="pub_year">
+      <xsl:choose>
+        <xsl:when test="$status='CD' or $status='CD-TS'">&#8212;</xsl:when>
+        <xsl:when test="string-length($application_protocol/@publication.year)">
+          <xsl:value-of select="$application_protocol/@publication.year"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;publication.year&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="orgname" select="'ISO'"/>
+    <xsl:value-of 
+      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
+			
+</xsl:template>
+
 
 <xsl:template name="get_protocol_stdnumber">
   <xsl:param name="application_protocol"/>

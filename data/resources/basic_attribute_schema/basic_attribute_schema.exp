@@ -168,6 +168,12 @@ ENTITY role_association;
   item_with_role : role_select;
 END_ENTITY;
 
+RULE attribute_x_not_allowed FOR 
+(entity_type);
+WHERE
+  wr1: SIZEOF (QUERY (ent <* entity_type | EXISTS (ent.x))) = 0;
+END_RULE; 
+
 FUNCTION get_description_value
  (obj : description_attribute_select) : text; 
   LOCAL
@@ -179,19 +185,19 @@ FUNCTION get_description_value
   ELSE
     RETURN (?);
   END_IF;
-      END_FUNCTION; 
+END_FUNCTION; 
 
-  FUNCTION get_id_value (obj : id_attribute_select):identifier;
-    LOCAL
+FUNCTION get_id_value
+ (obj : id_attribute_select) : identifier; 
+LOCAL
       id_bag : BAG OF id_attribute := (USEDIN(obj, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.' + 'IDENTIFIED_ITEM'));
-    END_LOCAL;
-
-    IF SIZEOF(id_bag) = 1 THEN
+END_LOCAL;
+IF SIZEOF(id_bag) = 1 THEN
       RETURN (id_bag[1].attribute_value);
-    ELSE
+ELSE
       RETURN (?);
-    END_IF;
-  END_FUNCTION;
+END_IF;
+END_FUNCTION; 
 
 FUNCTION get_name_value
  (obj : name_attribute_select) : label; 
@@ -204,7 +210,7 @@ FUNCTION get_name_value
   ELSE
     RETURN (?);
   END_IF;
-      END_FUNCTION; 
+END_FUNCTION; 
 
 FUNCTION get_role
  (obj : role_select) : object_role; 
@@ -217,7 +223,7 @@ FUNCTION get_role
   ELSE
     RETURN (?);
   END_IF;
-     			END_FUNCTION; 
+END_FUNCTION; 
 
 END_SCHEMA;  -- basic_attribute_schema
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.13 2003/10/22 10:54:39 robbod Exp $
+     $Id: issues.xsl,v 1.14 2003/10/22 11:21:07 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -197,7 +197,7 @@
                                 string(@id), 
                                 ' by ', string(@by),
                                 ' (', string(@date), 
-                                ') [', string(@category),', ',string(@status), ', ',$resolution']')" />
+                                ') [', string(@category),', ',string(@status), ', ',$resolution,']')" />
         </a>
       </b> 
       <br/>

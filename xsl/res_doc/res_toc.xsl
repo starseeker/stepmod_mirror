@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.15 2003/08/29 22:33:07 thendrix Exp $
+$Id: res_toc.xsl,v 1.16 2004/02/12 16:37:54 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -12,6 +12,7 @@ $Id: res_toc.xsl,v 1.15 2003/08/29 22:33:07 thendrix Exp $
                 version="1.0">
 
 
+   
 <xsl:template name="schema_section">
   <xsl:param name="schema_no" />
   <xsl:param name="resdoc_root" select="'..'"/>
@@ -26,6 +27,9 @@ $Id: res_toc.xsl,v 1.15 2003/08/29 22:33:07 thendrix Exp $
       <xsl:with-param name="res" select="$resource_name"/>
     </xsl:call-template>
   </xsl:variable>
+
+
+
 
   <!--
   <xsl:message>
@@ -280,6 +284,35 @@ NEED TO FIX up the hrefs -->
   <!-- the entry that has been selected -->
   <xsl:param name="selected"/>
   <xsl:param name="resdoc_root" select="'..'"/>
+
+  <xsl:variable name="n" > 
+    <xsl:value-of select="count(schema)"/>
+  </xsl:variable>
+  
+  <xsl:variable name="col1" > 
+    <xsl:choose>
+      <xsl:when test="$n &gt; 4" >
+        <xsl:value-of select="ceiling(($n - 3 ) div 3 )"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="0"/>    
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  
+  <xsl:variable name="col2" > 
+    <xsl:choose>
+      <xsl:when test="$n &gt; 4" >
+        <xsl:value-of select="$col1 + $col1 + 1"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$n"/>    
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+
+
   <xsl:apply-templates select="." mode="TOCbannertitle">
     <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
   </xsl:apply-templates>
@@ -331,33 +364,6 @@ NEED TO FIX up the hrefs -->
             </A>            
           </xsl:otherwise>
         </xsl:choose>
-
-   
-        <xsl:variable name="n" > 
-          <xsl:value-of select="count(schema)"/>
-        </xsl:variable>
-
-        <xsl:variable name="col1" > 
-          <xsl:choose>
-            <xsl:when test="$n &gt; 4" >
-          <xsl:value-of select="ceiling(($n - 3 ) div 3 )"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="0"/>    
-        </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-
-        <xsl:variable name="col2" > 
-          <xsl:choose>
-            <xsl:when test="$n &gt; 4" >
-          <xsl:value-of select="$col1 + $col1 + 1"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$n"/>    
-        </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
 
 
       <xsl:if test="$col1 &gt; 0 ">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.162 2004/02/18 20:04:15 thendrix Exp $
+$Id: module.xsl,v 1.163 2004/02/25 09:15:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2491,6 +2491,7 @@ o=isocs; s=central<br/>
   <xsl:param name="module_number"/>
   <xsl:param name="current_module"/>
   <h2>2 Normative references</h2>
+  <!-- replace with ISO Directives, Part 2: as requested by WG3 conver 24/2/2004
   <p>
     The following normative documents contain provisions which, through
     reference in this text, constitute provisions of this International
@@ -2501,7 +2502,15 @@ o=isocs; s=central<br/>
     indicated below. For undated references, the latest edition of the
     normative document referred to applies. Members of ISO and IEC maintain
     registers of currently valid International Standards. 
-  </p>
+  </p> -->
+
+    <p>
+      The following referenced documents are indispensable for the application of
+      this document. For dated references, only the edition cited applies. For
+      undated references, the latest edition of the referenced document
+      (including any amendments) applies.
+    </p>
+
   <!-- output any issues -->
   <xsl:apply-templates select="." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'normrefs'"/>

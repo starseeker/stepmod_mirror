@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: extract_descriptions.xsl,v 1.7 2002/09/05 07:53:40 robbod Exp $
+     $Id: extract_descriptions.xsl,v 1.8 2002/10/01 17:38:28 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -50,8 +50,11 @@
         <xsl:when test="$type='_mim'">
           <xsl:value-of select="'mim.xml'"/>
         </xsl:when>
+        <xsl:when test="$type='_arm'">
+          <xsl:value-of select="'arm.xml'"/>
+        </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="'arm.xml'"/> 
+          <xsl:value-of select="concat(string(./schema/@name),'.xml')"/> 
         </xsl:otherwise>
       </xsl:choose>
     </xsl:attribute>
@@ -61,10 +64,10 @@
  </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="'$Date: 2002/09/05 07:53:40 $'"/>
+    <xsl:value-of select="'$Date: 2002/10/01 17:38:28 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="'$Revision: 1.7 $'"/>
+    <xsl:value-of select="'$Revision: 1.8 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.69 2002/06/07 15:32:01 robbod Exp $
+$Id: module.xsl,v 1.70 2002/06/17 15:48:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -929,8 +929,8 @@ o=isocs; s=central<br/>
           </xsl:otherwise>
         </xsl:choose>
         <td>
-          <a href="{$arm}">
-            <xsl:value-of select="concat('arm',$FILE_EXT)"/>
+          <a href="{$mim}">
+            <xsl:value-of select="concat('mim',$FILE_EXT)"/>
           </a>
         </td>
         <xsl:call-template name="output_express_links">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.23 2003/06/30 15:52:17 thendrix Exp $
+     $Id: express_description.xsl,v 1.24 2003/06/30 16:33:30 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -60,6 +60,8 @@
   <xsl:variable name="description_file"
     select="/express/@description.file"/>
   
+  <xsl:variable name="object" select="."/>
+
   <!-- 
        only proceed if there is a description file specified in the
        express 
@@ -98,6 +100,19 @@
     
     <xsl:variable name="description"
       select="document($description_file)/ext_descriptions/ext_description[@linkend=$xref]"/>
+
+
+    <xsl:if test="string-length($object/description)>0 and /express/@description.file">
+      <xsl:variable name="arm_mim_file" select="concat(substring-before($description_file,'_'),'.xml')"/>
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error d1: description provided for ',@name, 
+                  ' in ',$arm_mim_file,' and ', $description_file)"/>
+      </xsl:call-template>
+    </xsl:if>
+
+
     <xsl:if test="string-length($attribute)>0">
       <xsl:variable name="attr_start_char"
         select="substring(normalize-space($description),1,1)"/>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.3 2005/01/10 08:40:18 kovaliovas Exp $
+   $Id: arm.exp,v 1.4 2005/01/18 12:03:22 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Fabrication technology - EXPRESS ARM
 *)
 
@@ -215,6 +215,12 @@ USE FROM Part_feature_location_arm;
       design_layer_purpose                                     : layer_purpose;
       SELF\Stratum_technology.minimum_finished_feature_size    : Length_data_element;
       SELF\Stratum_technology.minimum_finished_feature_spacing : Length_data_element;
+   WHERE
+	WR1 : SIZEOF([SELF\stratum_material.electrical_conductivity_classification,
+           SELF\stratum_material.magnetic_conductivity_classification, 
+           SELF\stratum_material.optical_conductivity_classification,  
+           SELF\stratum_material.thermal_conductivity_classification] *
+           ['conductive']) >= 1;
   END_ENTITY;
 
   ENTITY Documentation_layer_technology
@@ -304,14 +310,8 @@ USE FROM Part_feature_location_arm;
       maximum_aspect_ratio                     : OPTIONAL REAL;
       minimum_as_finished_deposition_thickness : OPTIONAL Length_data_element;
       specification                            : OPTIONAL Process_specification;
-	DERIVE 
-  	  deposition_material : SET[0:?] OF Material_identification_with_conductivity_classification := 
-  	  	USEDIN (SELF, 'GENERIC_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION.ITEMS');
     UNIQUE
       UR1 : name;
-	WHERE
-	  WR1: NOT EXISTS(deposition_material) OR SIZEOF(deposition_material) = 1;
-	  WR2: NOT EXISTS(deposition_material) OR get_electrical_conductivity(deposition_material);
   END_ENTITY;
 
   ENTITY Stratum_feature_template
@@ -334,11 +334,14 @@ USE FROM Part_feature_location_arm;
       maximum_feature_size_requirement : OPTIONAL Length_data_element;
       specification                    : OPTIONAL Process_specification;
       surface_specification            : OPTIONAL Surface_finish_specification;
+   INVERSE
+	  stratum_material : material_identification FOR items;      
     UNIQUE
       UR1 : name;
     WHERE
       WR1 : NOT (layer_position = layer_position_type.primary) OR ('FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF));
       WR2 : NOT (layer_position = layer_position_type.secondary) OR ('FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF));
+	  WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (stratum_material);
   END_ENTITY;
 
   ENTITY Stratum_technology_link;

@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.28 2003/02/22 02:04:05 thendrix Exp $
+//$Id: express2xml.js,v 1.29 2003/02/24 05:20:26 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -234,10 +234,11 @@ function isOptional(statement) {
 }
 
 
-//Return true if statment contains OPTIONAL
+//Return true if statement contains SELF
 function isRedeclared(statement) {
     var result = false;
-    var reg = /\bSELF\b/;
+//TEH added lowercase
+    var reg = /\bSELF|self\b/;
     var token = statement.match(reg);
     if (token) result = true;
     return (result);
@@ -351,7 +352,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.28 2003/02/22 02:04:05 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.29 2003/02/24 05:20:26 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -361,7 +362,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.28 $";
+    var appCVSRevision = "$Revision: 1.29 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -579,7 +580,9 @@ function xmlEntityStructure(outTs,expTs,mode) {
 
 	case "derive" :
 	    xmlOpenElement("<derived",outTs);
-
+	    if (isRedeclared(name)) {
+		name=getRedeclaredAttribute(name, outTs);
+	    }
 	    var expression = getAfterEquals(rest);
 	    var reg = /^\s*/;
 	    expression = expression.replace(reg,"");
@@ -589,6 +592,9 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	    xmlAttr("expression",expression,outTs);
 	    outTs.WriteLine(">");
 	    xmlUnderlyingType(typedef,outTs);
+	    if (isRedeclared(name)) {
+            xmlRedeclaredAttribute(statement, outTs);
+	    }
 	    xmlCloseElement("</derived>",outTs);
 	    // process the next attribute
 	    xmlEntityStructure(outTs,expTs,mode);

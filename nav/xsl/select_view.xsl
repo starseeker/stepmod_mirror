@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.10 2003/02/05 17:30:26 nigelshaw Exp $
+$Id: select_view.xsl,v 1.11 2003/02/05 20:50:35 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -529,7 +529,7 @@ $Id: select_view.xsl,v 1.10 2003/02/05 17:30:26 nigelshaw Exp $
 	  <br/>
 	  <xsl:if test="$extensible" >
 		  &lt;!-- Consider using &lt;refpath_extend 
-		  extended_select="<xsl:value-of select="$extended-select"/> 
+		  extended_select="<xsl:value-of select="$extended-select"/>" 
 		  &gt; <br/>
 		  &lt;/refpath_extend&gt;<br/>
 		  --&gt;<br/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
+$Id: select_view.xsl,v 1.16 2003/04/26 23:40:20 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -190,13 +190,38 @@ $Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
 				<xsl:value-of select="select/@selectitems" />
 				<xsl:if test="select/@selectitems"> <br/>
 				</xsl:if>
-				<xsl:apply-templates select="$this-schema//type[@name=$this_base] 
-							| $called-schemas//type[@name=$this_base]"
-						mode="basedon-down">
-					<xsl:with-param name="this-schema" select="$this-schema"/>
-					<xsl:with-param name="called-schemas" select="$called-schemas" />
-					<xsl:with-param name="done" select="concat(' ',$this_select,' ')" />
-				</xsl:apply-templates>
+				<xsl:variable name="based-on-down" >
+					<xsl:apply-templates select="$this-schema//type[@name=$this_base] 
+								| $called-schemas//type[@name=$this_base]"
+							mode="basedon-down">
+						<xsl:with-param name="this-schema" select="$this-schema"/>
+						<xsl:with-param name="called-schemas" select="$called-schemas" />
+						<xsl:with-param name="done" select="concat(' ',$this_select,' ')" />
+					</xsl:apply-templates>
+				</xsl:variable>
+				<xsl:value-of select="based-on-down" />
+
+				<!-- check if select items overlaps with already included types from lower selects -->
+				<!-- should also check against subtypes of previous items ??? -->
+
+				<xsl:variable name="overlap">
+				<xsl:call-template name="filter-word-list" >
+					<xsl:with-param name="allowed-list" select="select/@selectitems"/>
+					<xsl:with-param name="word-list" select="based-on-down" />
+				</xsl:call-template>
+				</xsl:variable>
+
+				<xsl:if test="string-length($overlap) > 2" >
+				        <xsl:call-template name="error_message">
+						  <xsl:with-param name="inline" select="'yes'"/>
+				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+					          <xsl:with-param name="message" 
+					            select="concat('Warning Sel9: Select items ', $overlap,
+					    		' have already been included in a lower SELECT type.')"/>
+				        </xsl:call-template>   
+			
+				</xsl:if>
+	
 			</blockquote>
 
 	</xsl:for-each>
@@ -276,7 +301,15 @@ $Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
 						</xsl:apply-templates>
 					</xsl:variable>
 
-					<xsl:value-of select="$sel-items" />
+
+					<xsl:variable name="sel-items-unique">
+						<xsl:call-template name="filter-word-list-unique" >
+							<xsl:with-param name="word-list" select="$sel-items"/>
+						</xsl:call-template>
+					</xsl:variable>
+
+
+					<xsl:value-of select="$sel-items-unique" />
 
 	<!-- note the following will not find entities with multiple supertypes 
 	Need to change in the long term -->
@@ -592,11 +625,28 @@ $Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
 	<xsl:variable name="this_select" select="@name" />
 
 	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
-	
-		<xsl:if test="select/@selectitems" >
-			<xsl:value-of select="concat(' ',select/@selectitems)" /> <!-- [<xsl:value-of select="./@name" />] -->
-			<br/>
-		</xsl:if>
+
+	<xsl:variable name="items" select="concat(' ',select/@selectitems,' ')" />
+	<xsl:choose>
+		<xsl:when test="select/@selectitems and ($called-schemas//type[contains($items,
+			concat(' ',@name,' '))] or $this-schema//type[contains($items,
+			concat(' ',@name,' '))]) " >
+		<!-- need to recurse to deal with the select-items in this select -->
+
+			<xsl:call-template name="select-item-recurse" >
+				<xsl:with-param name="items" select="$items" />
+				<xsl:with-param name="this-schema" select="$this-schema"/>
+				<xsl:with-param name="called-schemas" select="$called-schemas" />
+				<xsl:with-param name="done" select="concat($done,' ',$this_select,' ')" />
+			</xsl:call-template>
+
+
+		</xsl:when>
+		<xsl:when test="select/@selectitems" >
+			<xsl:value-of select="concat(' ',select/@selectitems)" /> 
+			<br/>			
+		</xsl:when>
+	</xsl:choose>
 
 		<xsl:apply-templates select="$this-schema//type[select/@basedon=$this_select] 
 							| $called-schemas//type[select/@basedon=$this_select]" 
@@ -610,6 +660,73 @@ $Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
 
 </xsl:template>
 
+<xsl:template name="select-item-recurse" >
+	<xsl:param name="items" />
+	<xsl:param name="this-schema" />
+	<xsl:param name="called-schemas" />
+	<xsl:param name="done" select="' '" />
+
+	<!-- get first item -->
+
+	<xsl:variable name="this-item" select="substring-before(concat(normalize-space($items),' '),' ')" />
+
+	<xsl:if test="string-length($this-item)> 0" >
+
+		<xsl:variable name="this-type" select="$this-schema//type[select][@name=$this-item]
+					| $called-schemas//type[select][@name=$this-item]" />
+
+		<xsl:choose>
+			<xsl:when test="$this-type" >
+
+
+<!-- this goes up the tree from the select -->
+				<xsl:apply-templates select="$this-type" 
+						mode="basedon">
+					<xsl:with-param name="this-schema" select="$this-schema"/>
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="done" select="$done" />
+				</xsl:apply-templates>
+
+<!-- this goes down the tree from the select below (if it exists) -->
+
+				<xsl:variable name="this-based-on" select="$this-type/@basedon"/>
+
+				<xsl:if test="$this-based-on" >
+					<xsl:apply-templates select="$this-based-on" mode="basedon-down">
+						<xsl:with-param name="this-schema" select="$this-schema"/>
+						<xsl:with-param name="called-schemas" select="$called-schemas" />
+						<xsl:with-param name="done" select="$done" />
+					</xsl:apply-templates>
+				</xsl:if>
+
+				<xsl:call-template name="select-item-recurse" >
+					<xsl:with-param name="items" select="substring-after($items,$this-item)" />
+					<xsl:with-param name="this-schema" select="$this-schema"/>
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="done" select="concat($done,' ',$this-item,' ')" />
+				</xsl:call-template>
+
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="concat(' ',$this-item)" />
+
+				<xsl:call-template name="select-item-recurse" >
+					<xsl:with-param name="items" select="substring-after($items,$this-item)" />
+					<xsl:with-param name="this-schema" select="$this-schema"/>
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="done" select="$done" />
+				</xsl:call-template>
+
+
+			</xsl:otherwise>
+
+		</xsl:choose>
+
+	</xsl:if>
+	
+</xsl:template>
+
+
 <xsl:template match="type" mode="basedon-down">
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
@@ -621,7 +738,7 @@ $Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
 	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
 	
 		<xsl:if test="select/@selectitems" >
-			<xsl:value-of select="concat(' ',select/@selectitems)" /> <!-- [<xsl:value-of select="./@name" />] -->
+			<xsl:value-of select="concat(' ',select/@selectitems)" /> 
 			<br/>
 		</xsl:if>
 
@@ -873,6 +990,31 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 
 </xsl:template>
 
+<xsl:template name="filter-word-list" >
+	<xsl:param name="allowed-list" />
+	<xsl:param name="word-list" />
+
+	<!-- outputs all words from word-list that are in allowed-list -->
+
+	<!-- get first item in list -->
+
+	<xsl:variable name="first" select="substring-before(concat(normalize-space($word-list),' '),' ')" />
+
+	<xsl:if test="$first" >
+
+		<xsl:if test="contains(concat(' ',$allowed-list,' '),concat(' ',$first,' '))" >
+			<xsl:value-of select="concat(' ',$first,' ')" /> 
+		</xsl:if>
+
+		<xsl:call-template name="filter-word-list">
+			<xsl:with-param name="allowed-list" select="$allowed-list" />
+			<xsl:with-param name="word-list" select="substring-after($word-list,$first)" />
+		</xsl:call-template>
+
+	</xsl:if>
+
+</xsl:template>
+
 
 <xsl:template match="explicit" mode="used-by-check">
 	<xsl:param name="top-schema" />
@@ -1032,5 +1174,28 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 	
 </xsl:template>
 
+<xsl:template name="filter-word-list-unique" >
+	<xsl:param name="word-list" />
+
+	<!-- outputs all unique words from word-list -->
+
+	<!-- get first item in list -->
+
+	<xsl:variable name="first" select="substring-before(concat(normalize-space($word-list),' '),' ')" />
+	<xsl:variable name="rest" select="substring-after($word-list,$first)" />
+
+	<xsl:if test="$first" >
+
+		<xsl:if test="not( contains(concat(' ',$rest,' '),concat(' ',$first,' ')))" >
+			<xsl:value-of select="concat(' ',$first,' ')" /> 
+		</xsl:if>
+
+		<xsl:call-template name="filter-word-list-unique">
+			<xsl:with-param name="word-list" select="$rest" />
+		</xsl:call-template>
+
+	</xsl:if>
+
+</xsl:template>
 
 </xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
+$Id: select_matrix_view.xsl,v 1.1 2003/03/10 19:19:49 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -238,131 +238,7 @@ $Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
   
 </xsl:template>
 
-
-<xsl:template name="select-attribute-mappings" >
-	<xsl:param name="select-items" />
-	<xsl:param name="this-attribute" />
-	<xsl:param name="this-entity" />
-	<xsl:param name="this-module" />
-	<xsl:param name="extended-select" select="XXX" />
-	<xsl:param name="extensible" />
-
-
-	<xsl:variable name="this-item" select="substring-before(concat(normalize-space($select-items),' '),' ')" />
-
-	<xsl:if test="string-length($this-item) > 0" >
-
-	  <blockquote>
-	    &lt;aa attribute="<xsl:value-of select="$this-attribute"/>" 
-	    assertion_to="<xsl:value-of select="$this-item"/>"&gt;
-	  <br/>
-	      &lt;aimelt&gt;PATH&lt;/aimelt&gt;
-	  <br/>
-	      &lt;source&gt; &lt;/source&gt;
-	  <br/>
-	      &lt;refpath&gt; <br/>
-	      &lt;/refpath&gt;
-	  <br/>
-	  <xsl:if test="$extensible" >
-		  &lt;!-- Consider using &lt;refpath_extend 
-		  extended_select="<xsl:value-of select="$extended-select"/>" 
-		  &gt; <br/>
-		  &lt;/refpath_extend&gt;<br/>
-		  --&gt;<br/>
-	  </xsl:if>
-	    &lt;/aa&gt;
-	  <br/>
-<!--	  &lt;/ae&gt;
--->	  
-	  </blockquote>
-
-		<xsl:call-template name="select-attribute-mappings" >
-			<xsl:with-param name="select-items" select="substring-after(normalize-space($select-items),' ')" />
-			<xsl:with-param name="this-attribute" select="$this-attribute" />
-			<xsl:with-param name="this-entity" select="$this-entity" />
-			<xsl:with-param name="this-module" select="$this-module" />
-			<xsl:with-param name="extended-select" select="$extended-select" />
-			<xsl:with-param name="extensible" select="$extensible" />
-		</xsl:call-template>
-
-
-	</xsl:if>
-
-</xsl:template>
-
-
-
-<xsl:template match="type" mode="mapping">
-	<xsl:param name="top-schema" />
-	<xsl:param name="called-schemas" />
-
-	<xsl:variable name="this-base" select="select/@basedon" />
-
-	<xsl:apply-templates select="$called-schemas//explicit[typename/@name = $this-base]" mode="mapping-out" >
-		<xsl:with-param name="this-select" select="." />
-	</xsl:apply-templates>
-
-
-	<!-- now recurse to get any attributes referencing a select extended to be this-base -->
-
-		<xsl:apply-templates select="$called-schemas//type[@name=$this-base][select/@basedon]" mode="mapping" >
-			<xsl:with-param name="top-schema" select="$top-schema" />
-			<xsl:with-param name="called-schemas" select="$called-schemas" />
-		</xsl:apply-templates>
-
-
-</xsl:template>
-
-<xsl:template match="explicit" mode="mapping-out">
-	<xsl:param name="this-select" />
-
-	<br/>
-	
-	For attribute: <xsl:value-of select="concat(' ',../@name,'.',@name)" />
-	<br/>
-	Select type extended by: <xsl:value-of select="$this-select/select/@selectitems" />
-	<br/>
-	<xsl:variable name="this-mod" select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
-	<xsl:variable name="this-attr" select="@name" />
-	<xsl:variable name="this-ent" select="../@name" />
-
-<!-- check if mapping has been defined in the current module-->
-
-<!--	ZZZZ<xsl:value-of select="concat($this-ent,' ',$this-attr,' ',$this-mod)" />ZZZ -->
-
-	<xsl:if test="not($module_node//mapping_table/ae[@entity=$this-ent][@original_module=$this-mod]//aa[@attribute=$this-attr])" >
-	        <xsl:call-template name="error_message">
-		  <xsl:with-param name="inline" select="'yes'"/>
-		  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-	          <xsl:with-param 
-	            name="message" 
-	            select="concat('Error Sel4: No mapping defined in module ',//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
-		    ' Mapping is required after SELECT type has been extended.')"/>
-	        </xsl:call-template>    
-
-	</xsl:if>
-
-	<br/>
-	
-	  &lt;ae entity="<xsl:value-of select="../@name"/>" 
-	  original_module="<xsl:value-of select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>"
-	  &gt;
-	  <br/>
-	<xsl:call-template name="select-attribute-mappings" >
-		<xsl:with-param name="select-items" select="$this-select/select/@selectitems" />
-		<xsl:with-param name="this-attribute" select="@name" />
-		<xsl:with-param name="this-entity" select="../@name" />
-		<xsl:with-param name="this-module" select="$this-mod" />
-		<xsl:with-param name="extended-select"  />
-		<xsl:with-param name="extensible" select="$this-select/select/@basedon" />
-	</xsl:call-template>
-	<br/>
-	&lt;/ae&gt;
-	<br/>
-
-</xsl:template>
-
-
+<!--
 
 <xsl:template match="type" mode="basedon">
 	<xsl:param name="this-schema" />
@@ -374,7 +250,7 @@ $Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
 	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
 	
 		<xsl:if test="select/@selectitems" >
-			<xsl:value-of select="concat(' ',select/@selectitems)" /> <!-- [<xsl:value-of select="./@name" />] -->
+			<xsl:value-of select="concat(' ',select/@selectitems)" /> 
 			<br/>
 		</xsl:if>
 
@@ -389,6 +265,117 @@ $Id: select_view.xsl,v 1.15 2003/03/06 16:29:04 nigelshaw Exp $
 	</xsl:if>
 
 </xsl:template>
+-->
+
+<xsl:template match="type" mode="basedon">
+	<xsl:param name="this-schema" />
+	<xsl:param name="called-schemas" />
+	<xsl:param name="done" select="' '" />
+
+	<xsl:variable name="this_select" select="@name" />
+
+	<xsl:if test="not(contains($done, concat(' ',@name,' ')))" >
+
+	<xsl:variable name="items" select="concat(' ',select/@selectitems,' ')" />
+	<xsl:choose>
+		<xsl:when test="select/@selectitems and ($called-schemas//type[contains($items,
+			concat(' ',@name,' '))] or $this-schema//type[contains($items,
+			concat(' ',@name,' '))]) " >
+		<!-- need to recurse to deal with the select-items in this select -->
+
+			<xsl:call-template name="select-item-recurse" >
+				<xsl:with-param name="items" select="$items" />
+				<xsl:with-param name="this-schema" select="$this-schema"/>
+				<xsl:with-param name="called-schemas" select="$called-schemas" />
+				<xsl:with-param name="done" select="concat($done,' ',$this_select,' ')" />
+			</xsl:call-template>
+
+
+		</xsl:when>
+		<xsl:when test="select/@selectitems" >
+			<xsl:value-of select="concat(' ',select/@selectitems)" /> 
+			<br/>			
+		</xsl:when>
+	</xsl:choose>
+
+		<xsl:apply-templates select="$this-schema//type[select/@basedon=$this_select] 
+							| $called-schemas//type[select/@basedon=$this_select]" 
+						mode="basedon">
+			<xsl:with-param name="this-schema" select="$this-schema"/>
+			<xsl:with-param name="called-schemas" select="$called-schemas" />
+			<xsl:with-param name="done" select="concat($done,' ',$this_select,' ')" />
+		</xsl:apply-templates>
+
+	</xsl:if>
+
+</xsl:template>
+
+<xsl:template name="select-item-recurse" >
+	<xsl:param name="items" />
+	<xsl:param name="this-schema" />
+	<xsl:param name="called-schemas" />
+	<xsl:param name="done" select="' '" />
+
+	<!-- get first item -->
+
+	<xsl:variable name="this-item" select="substring-before(concat(normalize-space($items),' '),' ')" />
+
+	<xsl:if test="string-length($this-item)> 0" >
+
+		<xsl:variable name="this-type" select="$this-schema//type[select][@name=$this-item]
+					| $called-schemas//type[select][@name=$this-item]" />
+
+		<xsl:choose>
+			<xsl:when test="$this-type" >
+
+
+<!-- this goes up the tree from the select -->
+				<xsl:apply-templates select="$this-type" 
+						mode="basedon">
+					<xsl:with-param name="this-schema" select="$this-schema"/>
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="done" select="$done" />
+				</xsl:apply-templates>
+
+<!-- this goes down the tree from the select below (if it exists) -->
+
+				<xsl:variable name="this-based-on" select="$this-type/@basedon"/>
+
+				<xsl:if test="$this-based-on" >
+					<xsl:apply-templates select="$this-based-on" mode="basedon-down">
+						<xsl:with-param name="this-schema" select="$this-schema"/>
+						<xsl:with-param name="called-schemas" select="$called-schemas" />
+						<xsl:with-param name="done" select="$done" />
+					</xsl:apply-templates>
+				</xsl:if>
+
+				<xsl:call-template name="select-item-recurse" >
+					<xsl:with-param name="items" select="substring-after($items,$this-item)" />
+					<xsl:with-param name="this-schema" select="$this-schema"/>
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="done" select="concat($done,' ',$this-item,' ')" />
+				</xsl:call-template>
+
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="concat(' ',$this-item)" />
+
+				<xsl:call-template name="select-item-recurse" >
+					<xsl:with-param name="items" select="substring-after($items,$this-item)" />
+					<xsl:with-param name="this-schema" select="$this-schema"/>
+					<xsl:with-param name="called-schemas" select="$called-schemas" />
+					<xsl:with-param name="done" select="$done" />
+				</xsl:call-template>
+
+
+			</xsl:otherwise>
+
+		</xsl:choose>
+
+	</xsl:if>
+	
+</xsl:template>
+
 
 <xsl:template match="type" mode="basedon-down">
 	<xsl:param name="this-schema" />
@@ -654,129 +641,6 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 </xsl:template>
 
 
-<xsl:template match="explicit" mode="used-by-check">
-	<xsl:param name="top-schema" />
-	<xsl:param name="called-schemas" />
-
-	<xsl:variable name="this-type" select="typename/@name" /> 
-<!--		RRRR<xsl:value-of select="$this-type" />RRRR<br/> -->
-
-	<xsl:choose>
-	<xsl:when test="$top-schema//type[select][@name=$this-type]">
-
-	<!-- type is declared in this schema so mapping checks are handled elsewhere -->
-
-	</xsl:when>
-	<xsl:when test="$called-schemas//type[select][@name=$this-type]">
-
-		<!-- find the extending type in the top schema - if there is one (or more) -->
-
-		<xsl:variable name="top-selects">
-			<xsl:apply-templates select="$called-schemas//type[@name=$this-type][select]" 
-					mode="find-top-select">
-				<xsl:with-param name="top-schema" select="$top-schema" />
-				<xsl:with-param name="called-schemas" select="$called-schemas" />		
-		</xsl:apply-templates>
-		</xsl:variable>
-
-<!--		QQQQ <xsl:value-of select="concat(../@name,'.',@name,': ',$top-selects)" /> QQQQ<br/> -->
-
-		<!-- find the mappings for the extended type 
-		& check if the current attribute is mapped for each extension -->
-
-		<xsl:if test="string-length($top-selects) > 3" >
-
-			<xsl:variable name="extensions" >
-				<xsl:for-each select="$top-schema//type[select][contains($top-selects,@name)]" >
-					<xsl:value-of select="concat(' ',select/@selectitems,' ')" />
-				</xsl:for-each>
-			</xsl:variable>
-
-			<xsl:variable name="this-ent" select="../@name" /> 
-			<xsl:variable name="this-attr" select="@name" /> 
-			<xsl:variable name="this-mod" 
-				select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
-
-
-			<xsl:variable name="the-assertions-mapped" >
-				<xsl:for-each 
-					select="($module_node//mapping_table/ae[@entity=$this-ent]
-							[@original_module=$this-mod]//aa[@attribute=$this-attr])" >
-						<xsl:value-of select="concat(' ',@assertion_to,' ')"/>
-				</xsl:for-each>
-			</xsl:variable>
-
-			<xsl:variable name="not-found-assertions" >
-				<xsl:call-template name="filter-word-list-negated" >
-					<xsl:with-param name="allowed-list" select="$the-assertions-mapped" />
-					<xsl:with-param name="word-list" select="$extensions" />
-				</xsl:call-template>
-			</xsl:variable>
-
-<!--		FFFF<xsl:value-of select="concat($extensions,' XX ',$the-assertions-mapped,' YY ',$top-selects)" />FFFF<br/> -->
-
-			<xsl:if test="string-length($not-found-assertions) > 3" >
-		        	<xsl:call-template name="error_message">
-				  <xsl:with-param name="inline" select="'yes'"/>
-				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-			          <xsl:with-param 
-		        	    name="message" 
-		        	    select="concat('Error Sel6: Mapping not defined in module ',
-					    //stylesheet_application[1]/@directory,' for ',../@name,'.',@name,
-					    ' for SELECT extensions: ',$not-found-assertions)"/>
-		        	</xsl:call-template>    
-	
-				<br/>
-				Template for required mapping:
-				<br/>
-				<br/>
-				&lt;ae entity="<xsl:value-of select="../@name"/>" 
-				  original_module=
-				  "<xsl:value-of select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>"
-				  &gt;
-				  <br/>
-				<xsl:call-template name="select-attribute-mappings" >
-					<xsl:with-param name="select-items" select="$not-found-assertions" />
-					<xsl:with-param name="this-attribute" select="@name" />
-					<xsl:with-param name="this-entity" select="../@name" />
-					<xsl:with-param name="this-module" select="$this-mod" />
-					<xsl:with-param name="extended-select" select="$this-type" />
-					<xsl:with-param name="extensible" 
-						select="$top-schema//type[select][contains($top-selects,@name)]" />
-				</xsl:call-template>
-				<br/>
-				&lt;/ae&gt;
-				<br/>
-				
-			</xsl:if>
-
-			<xsl:variable name="extra-assertions" >
-				<xsl:call-template name="filter-word-list-negated" >
-					<xsl:with-param name="allowed-list" select="$extensions" />
-					<xsl:with-param name="word-list" select="$the-assertions-mapped" />
-				</xsl:call-template>
-			</xsl:variable>
-		
-<!--	ZYYY<xsl:value-of select="$extra-assertions" /> VVVV <br/> -->
-
-				<xsl:if test="string-length($extra-assertions) > 3" >
-				        <xsl:call-template name="error_message">
-					  <xsl:with-param name="inline" select="'yes'"/>
-					  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
-				          <xsl:with-param 
-				            name="message" 
-			        	    select="concat('Error Sel7: Mapping defined in module ',
-					    	//stylesheet_application[1]/@directory,' for ',$this-ent,'.',$this-attr,
-						    ' for assertion_to that is not needed : ',$extra-assertions)"/>
-		        		</xsl:call-template>    
-				</xsl:if>
-
-		</xsl:if>
-
-
-	</xsl:when>
-	</xsl:choose>
-</xsl:template>
 
 <xsl:template match="type" mode="find-top-select">
 	<xsl:param name="top-schema" />

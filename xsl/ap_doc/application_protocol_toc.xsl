@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol_toc.xsl,v 1.10 2002/10/08 10:20:08 mikeward Exp $
+     $Id: application_protocol_toc.xsl,v 1.11 2002/10/29 18:43:10 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -429,6 +429,10 @@
 							</a>
 							<br/>
 						</xsl:if>
+						<a href="{$application_protocol_root}/sys/k_ae_index{$FILE_EXT}">
+							K Application object index
+						</a>
+						<br/>
 						<a href="{$application_protocol_root}/sys/biblio{$FILE_EXT}#biblio">
 							Bibliography
 						</a>
@@ -484,7 +488,10 @@
 		</a>
 		<br/>
 	</xsl:if>
-	
+	<a href="{$application_protocol_root}/sys/k_ae_index{$FILE_EXT}">
+		K Application object index
+	</a>
+	<br/>
 	<!-- use #biblio to link direct -->
 	<a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}">Bibliography</a>
       </td>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.14 2004/02/20 22:24:46 thendrix Exp $
+$Id: common.xsl,v 1.15 2004/09/27 04:43:07 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -931,7 +931,7 @@ $Id: common.xsl,v 1.14 2004/02/20 22:24:46 thendrix Exp $
       <xsl:value-of select="translate($message,'#','&#010;')"/>
     </xsl:message>
     -->
-    <xsl:if test="contains($INLINE_ERRORS,'YES')">
+    <xsl:if test="contains($INLINE_ERRORS,'yes')">
       <xsl:if test="contains($inline,'yes')">
         <br/>
         <IMG

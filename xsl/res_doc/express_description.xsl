@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.3 2004/02/10 23:47:42 thendrix Exp $
+$Id: express_description.xsl,v 1.4 2004/09/14 22:00:15 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -557,6 +557,10 @@ and  string is more than the schema name ( hence not the  schema )
   <xsl:value-of select="substring-after(./@linkend,'.')" />
 </xsl:template>
 
+
+<xsl:template match="p" mode="phrase_text">
+  <xsl:apply-templates mode="phrase_text"/>
+</xsl:template>
 
 
 <xsl:template match="text()" mode="chktxt" >

@@ -1,6 +1,6 @@
 (*
-  $Id: mim.exp,v 1.1 2002/10/31 01:16:05 thendrix Exp $
-  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-ZZZZ Default_tolerance
+  $Id: mim.exp,v 1.2 2002/11/18 13:33:02 goset1 Exp $
+  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS 10303-1052 Default_tolerance
 *)
 
 SCHEMA Default_tolerance_mim;
@@ -17,28 +17,28 @@ ENTITY default_tolerance_table
 SUBTYPE OF (representation);
 WHERE
   WR1: SIZEOF( QUERY( i <* SELF.items | 
-NOT('DEFAULT_TOLERANCES_MIM.DEFAULT_TOLERANCE_TABLE_CELL' IN 
+NOT('DEFAULT_TOLERANCE_MIM.DEFAULT_TOLERANCE_TABLE_CELL' IN 
 TYPEOF(i)) 
 )) = 0;
-  WR2: (SIZEOF( QUERY( rr <* USEDIN(SELF,'DEFAULT_TOLERANCES_MIM.' + 
+  WR2: (SIZEOF( QUERY( rr <* USEDIN(SELF,'DEFAULT_TOLERANCE_MIM.' + 
 'REPRESENTATION_RELATIONSHIP.REP_1') | 
 rr.name < 'general tolerance definition' 
 )) = 0) AND 
-(SIZEOF( QUERY( rr <* USEDIN(SELF,'DEFAULT_TOLERANCES_MIM.' + 
+(SIZEOF( QUERY( rr <* USEDIN(SELF,'DEFAULT_TOLERANCE_MIM.' + 
 'REPRESENTATION_RELATIONSHIP.REP_1') | 
 (rr.name = 'general tolerance definition') AND 
 (rr.rep2.name < 'default tolerance') 
 )) = 0) AND 
-(SIZEOF( USEDIN(SELF,'DEFAULT_TOLERANCES_MIM.' + 
+(SIZEOF( USEDIN(SELF,'DEFAULT_TOLERANCE_MIM.' + 
 'REPRESENTATION_RELATIONSHIP.REP_2') ) = 0);
 END_ENTITY;
 
 ENTITY default_tolerance_table_cell
 SUBTYPE OF (compound_representation_item);
 WHERE
-  WR1: SIZEOF(QUERY( x <* USEDIN(SELF,'DEFAULT_TOLERANCES_MIM.' + 
+  WR1: SIZEOF(QUERY( x <* USEDIN(SELF,'DEFAULT_TOLERANCE_MIM.' + 
 'REPRESENTATION.ITEMS') | 
-'DEFAULT_TOLERANCES_MIM.' + 'DEFAULT_TOLERANCE_TABLE' IN TYPEOF(x)))=1;
+'DEFAULT_TOLERANCE_MIM.' + 'DEFAULT_TOLERANCE_TABLE' IN TYPEOF(x)))=1;
   WR2: default_tolerance_table_cell_wr2(SELF\ 
 compound_representation_item.item_element);
   WR3: default_tolerance_table_cell_wr3(SELF\ 
@@ -64,13 +64,13 @@ FUNCTION default_tolerance_table_cell_wr3(
   agg: AGGREGATE OF representation_item): BOOLEAN; 
 BEGIN 
 IF (SIZEOF(QUERY ( i <* agg | (( 
-'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'significant number of digits')) )) 
 = 1) OR ((SIZEOF(QUERY ( i <* agg | (( 
-'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'lower limit')) )) + SIZEOF( 
 QUERY ( i <* agg | (( 
-'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'upper limit')) ))) = 2) THEN 
 RETURN(TRUE); 
 ELSE 
@@ -83,13 +83,13 @@ FUNCTION default_tolerance_table_cell_wr4(
    agg: AGGREGATE OF representation_item): BOOLEAN; 
 BEGIN 
 IF (SIZEOF(QUERY ( i <* agg | (( 
-'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'plus minus tolerance value')) )) 
 = 1) OR ((SIZEOF(QUERY ( i <* agg | (( 
-'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'lower tolerance value')) )) + 
 SIZEOF(QUERY ( i <* agg | (( 
-'DEFAULT_TOLERANCES_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+'DEFAULT_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'upper tolerance value')) ))) 
 = 2) THEN 
 RETURN(TRUE); 
@@ -103,11 +103,11 @@ FUNCTION default_tolerance_table_cell_wr5(
   agg: AGGREGATE OF representation_item): BOOLEAN; 
 BEGIN 
 IF (SIZEOF(QUERY ( i <* agg | ( 
-'DEFAULT_TOLERANCES_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) 
+'DEFAULT_TOLERANCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) 
 <= 1) AND (SIZEOF(QUERY ( i <* agg | ( 
-'DEFAULT_TOLERANCES_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) 
+'DEFAULT_TOLERANCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) )) 
 = SIZEOF(QUERY ( i <* agg | 
-(( 'DEFAULT_TOLERANCES_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
+(( 'DEFAULT_TOLERANCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(i)) 
 AND (i\representation_item.name = 'cell description')) ))) THEN 
 RETURN(TRUE); 
 ELSE 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.45 2004/02/05 07:42:51 robbod Exp $
+$Id: express_description.xsl,v 1.46 2004/10/09 21:22:28 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -311,7 +311,7 @@ $Id: express_description.xsl,v 1.45 2004/02/05 07:42:51 robbod Exp $
               </xsl:if>
             </xsl:when>
             <xsl:when test="$attribute='description'">
-              <xsl:if test="not(contains($phrase,'the text that provides further information about the'))">
+              <xsl:if test="not(contains($phrase,'the text that provides further information about '))">
                 <xsl:call-template name="error_message">
                   <xsl:with-param 
                     name="message" 
@@ -319,7 +319,7 @@ $Id: express_description.xsl,v 1.45 2004/02/05 07:42:51 robbod Exp $
                             $description/@linkend,
                             '. Description attribute description should be a phrase.#
                             is: &quot;',$phrase,'&quot;#
-                            Usually will start with &quot;the text that provides further information about the&quot;.')"/>
+                            Usually will start with &quot;the text that provides further information about &quot;.')"/>
                 </xsl:call-template>
               </xsl:if>              
             </xsl:when>

@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<?xml-stylesheet type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $" reference="ISO 10303-41" description.file="descriptions.xml">
-	<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="action_schema_v005.vsd"/>
+	<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="Action_schema_v006.vsd"/>
 	<schema name="action_schema">
 		<interface kind="reference" schema="basic_attribute_schema">
 			<interfaced.item name="description_attribute"/>
@@ -55,7 +57,7 @@
 				<aggregate type="SET" lower="1" upper="?"/>
 				<typename name="versioned_action_request"/>
 			</explicit>
-			<graphic.element page="2" xcoord="225" ycoord="228"/>
+			<graphic.element page="2" xcoord="218" ycoord="226"/>
 		</entity>
 		<entity name="action_method">
 			<explicit name="name">
@@ -117,7 +119,7 @@
 			</derived>
 			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
 			<where label="WR2" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1"/>
-			<graphic.element page="2" xcoord="289" ycoord="99"/>
+			<graphic.element page="2" xcoord="283" ycoord="99"/>
 		</entity>
 		<entity name="action_request_status">
 			<explicit name="status">
@@ -126,7 +128,7 @@
 			<explicit name="assigned_request">
 				<typename name="versioned_action_request"/>
 			</explicit>
-			<graphic.element page="2" xcoord="364" ycoord="228"/>
+			<graphic.element page="2" xcoord="357" ycoord="226"/>
 		</entity>
 		<entity name="action_resource">
 			<explicit name="name">
@@ -196,17 +198,17 @@
 			<explicit name="description" optional="YES">
 				<typename name="text"/>
 			</explicit>
-			<graphic.element page="2" xcoord="289" ycoord="318"/>
+			<graphic.element page="2" xcoord="283" ycoord="318"/>
 		</entity>
 		<entity name="versioned_action_request_relationship">
 			<explicit name="id">
-				<builtintype type="STRING"/>
+				<typename name="identifier"/>
 			</explicit>
 			<explicit name="name">
-				<builtintype type="STRING"/>
+				<typename name="label"/>
 			</explicit>
 			<explicit name="description">
-				<builtintype type="STRING"/>
+				<typename name="text"/>
 			</explicit>
 			<explicit name="relating_versioned_action_request">
 				<typename name="versioned_action_request"/>
@@ -214,95 +216,8 @@
 			<explicit name="related_versioned_action_request">
 				<typename name="versioned_action_request"/>
 			</explicit>
-			<graphic.element page="2" xcoord="498" ycoord="375"/>
+			<graphic.element page="2" xcoord="496" ycoord="389"/>
 		</entity>
-		<function name="acyclic_action_method_relationship">
-			<parameter name="relation">
-				<typename name="action_method_relationship"/>
-			</parameter>
-			<parameter name="relatives">
-				<aggregate type="SET" lower="1" upper="?"/>
-				<typename name="action_method"/>
-			</parameter>
-			<parameter name="specific_relation">
-				<builtintype type="STRING"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-  LOCAL
-    x : SET OF action_method_relationship;
-  END_LOCAL;
-
-  IF relation.relating_method IN relatives THEN
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY(am &lt;* bag_to_set(USEDIN(relation.relating_method, 'ACTION_SCHEMA.' + 'ACTION_METHOD_RELATIONSHIP.' + 'RELATED_METHOD')) | specific_relation IN TYPEOF(am));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_action_method_relationship(x[i], relatives + relation.relating_method, specific_relation) THEN
-      RETURN (FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN (TRUE);
-      </algorithm>
-		</function>
-		<function name="acyclic_action_relationship">
-			<parameter name="relation">
-				<typename name="action_relationship"/>
-			</parameter>
-			<parameter name="relatives">
-				<aggregate type="SET" lower="1" upper="?"/>
-				<typename name="action"/>
-			</parameter>
-			<parameter name="specific_relation">
-				<builtintype type="STRING"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-  LOCAL
-      x : SET OF action_relationship;
-    END_LOCAL;
-
-    IF relation.relating_action IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(actn &lt;* bag_to_set(USEDIN(relation.relating_action, 'ACTION_SCHEMA.' + 'ACTION_RELATIONSHIP.' + 'RELATED_ACTION')) | specific_relation IN TYPEOF(actn));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_action_relationship(x[i], relatives + relation.relating_action, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-			</algorithm>
-		</function>
-		<function name="acyclic_action_resource_relationship">
-			<parameter name="relation">
-				<typename name="action_resource_relationship"/>
-			</parameter>
-			<parameter name="relatives">
-				<aggregate type="SET" lower="1" upper="?"/>
-				<typename name="action_resource"/>
-			</parameter>
-			<parameter name="specific_relation">
-				<builtintype type="STRING"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-  LOCAL
-      x : SET OF action_resource_relationship;
-    END_LOCAL;
-
-    IF relation.relating_resource IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(ar &lt;* bag_to_set(USEDIN(relation.relating_resource, 'ACTION_SCHEMA.' + 'ACTION_RESOURCE_RELATIONSHIP.' + 'RELATED_RESOURCE')) | specific_relation IN TYPEOF(ar));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_action_resource_relationship(x[i], relatives + relation.relating_resource, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-      			</algorithm>
-		</function>
 		<graphic.element page="1" xcoord="156" ycoord="149"/>
 	</schema>
 </express>

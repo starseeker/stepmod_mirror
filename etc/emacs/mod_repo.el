@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.18 2004/09/21 11:36:32 robbod Exp $
+;;; $Id: mod_repo.el,v 1.19 2004/11/08 16:33:22 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -75,7 +75,7 @@
 		      month-alist)))
     (setq month (cadr month))
     (format "%s-%s-%s"
-	    (substring (current-time-string) 22 24)
+	    (substring (current-time-string) 20 24)
 	    month
 	    (substring (current-time-string) 8 10)
 	     " ")
@@ -404,7 +404,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.18 2004/09/21 11:36:32 robbod Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.19 2004/11/08 16:33:22 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-org)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")

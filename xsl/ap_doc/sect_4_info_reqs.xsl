@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.7 2003/05/23 21:29:46 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.8 2003/05/24 16:50:31 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -253,7 +253,10 @@ $Id: sect_4_info_reqs.xsl,v 1.7 2003/05/23 21:29:46 robbod Exp $
     <xsl:variable name="dp_figure_count">
       <xsl:value-of select="count(/application_protocol/purpose/data_plan/imgfile)"/>
     </xsl:variable>
-    <xsl:value-of select="$dp_figure_count"/>
+    <xsl:variable name="intro_figure_count">
+      <xsl:value-of select="count(/application_protocol/purpose/figure)"/>
+    </xsl:variable>
+    <xsl:value-of select="$dp_figure_count+$intro_figure_count"/>
   </xsl:template>
 
 

@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.11 2003/03/10 01:27:38 robbod Exp $
+//$Id: getExpressMain.js,v 1.12 2003/03/12 00:09:26 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -637,7 +637,7 @@ function getAbstractFileName(moduleName) {
     if (!fso.FileExists(moduleXmlFile)) {
 	ErrorMessage("The "+moduleXmlFile+" does not exist");
     } else {
-	return(moduleName+"_abstract");
+	return(moduleName+"_abstract.htm");
     }
 }
 
@@ -807,7 +807,7 @@ function MainWindowBallotExpress(ballotName) {
 //MainWindowIrList("..\\ballots\\ballots\\plcs_bp2\\express",  "..\\ballots\\ballots\\plcs_bp2\\modlist.txt", "..\\ballots\\ballots\\plcs_bp2\\irlist.txt");
 //MainWindow("..\\ballots\\ballots\\plcs_bp1\\express_nostate", "..\\ballots\\ballots\\plcs_bp1\\modlist_nostate.txt");
 
-MainWindowBallotExpress("plcs_bp3");
+//MainWindowBallotExpress("plcs_bp3");
 
 //outputModuleList("plcs_bp2");
 //outputModuleList("pdm_ballot_072002");

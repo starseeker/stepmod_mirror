@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.7 2002/07/09 12:30:01 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.8 2002/07/11 16:58:52 robbod Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -42,6 +42,9 @@ generates HTML for all the modules
 "ant -DMODULES=data/modules/[module-name] modules" 
 generates HTML for a single module
 
+"ant ballots" 
+generates HTML for ballot indices
+
 "ant tgz" 
 creates a GNU-compatible .tar.gz file, suitable for distribution,
 containing all HTML files
@@ -83,7 +86,10 @@ tar.gz format)
     <property name="SFTARBALL"
 	      value="http://cvs.sourceforge.net/cvstarballs/stepmod-cvsroot.tar.gz"/>
     <property name="SFCVSROOT"
-	      value="cvs.stepmod.sourceforge.net:/cvsroot/stepmod"/>
+      value="cvs.stepmod.sourceforge.net:/cvsroot/stepmod"/>
+    <property name="BALLOTSTYLES" value="ballots/xsl"/>
+    <property name="BALLOTDTDDIR" value="ballots/dtd"/>
+    <property name="BALLOTS" value="ballots/ballots/**"/>
   </target>
 
   <target name="clean" depends="init" description="delete generated files">
@@ -91,6 +97,7 @@ tar.gz format)
       <fileset dir="." includes="repository_index.htm*"/>
       <fileset dir="${RESOURCESDIR}" includes="**/*.htm*"/>
       <fileset dir="${MODULESDIR}" includes="**/*.htm*"/>
+      <fileset dir="ballots" includes="**/*.htm*"/>
     </delete>
   </target>
 
@@ -100,7 +107,7 @@ tar.gz format)
     </delete>
   </target>
 
-  <target name="index" depends="init" 
+  <target name="index" depends="init, ballots" 
           description="generate repository index">
     <dependset>
       <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
@@ -295,6 +302,60 @@ tar.gz format)
       <param name="output_rcs" expression="${OUTPUT_RCS}"/>
     </style>
     -->
+  </target>
+
+  <target name="ballot_index" depends="init"
+    description="Create HTML for ballot index">
+    <dependset>
+      <srcfileset dir="${BALLOTDTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${BALLOTSTYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="ballots/index.htm"/>
+    </dependset>
+    
+    <style includes="ballots/index.xml" 
+      destdir="." extension=".htm"
+      style="${BALLOTSTYLES}/index.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="stepmodhome" expression="."/>
+    </style>
+  </target>
+
+  <target name="ballots" depends="init, ballot_index"
+    description="Create HTML for all ballot indices">
+    <dependset>
+      <srcfileset dir="${BALLOTDTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${BALLOTSTYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="${BALLOTS}/*.htm*"/>
+    </dependset>
+    
+    <style includes="${BALLOTS}/ballot_summary.xml" 
+      destdir="." extension=".htm"
+      style="${BALLOTSTYLES}/ballot_summary.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="stepmodhome" expression="."/>
+    </style>
+
+    <style includes="${BALLOTS}/ballot_checklist.xml" 
+      destdir="." extension=".htm"
+      style="${BALLOTSTYLES}/ballot_checklist.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="stepmodhome" expression="."/>
+    </style>
+
+    <style includes="${BALLOTS}/ballot_list.xml" 
+      destdir="." extension=".htm"
+      style="${BALLOTSTYLES}/ballot_list.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="stepmodhome" expression="."/>
+    </style>
+
+    <style includes="${BALLOTS}/start.xml" 
+      destdir="." extension=".htm"
+      style="${BALLOTSTYLES}/ballot_start.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="stepmodhome" expression="."/>
+    </style>
+
   </target>
 
 

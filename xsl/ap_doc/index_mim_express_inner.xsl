@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
+$Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -19,7 +19,9 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 <!--	<xsl:import href="../../xsl/express.xsl"/>
 -->
 
-  <xsl:import href="../../xsl/common.xsl"/>
+<!--  <xsl:import href="../../xsl/common.xsl"/> 
+-->
+  <xsl:import href="expressg_icon.xsl"/> 
 
 
   <xsl:variable name="selected_ap" select="/application_protocol/@directory"/>
@@ -128,18 +130,35 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 			<xsl:for-each select="$schemas-node-set//x" >
 				<xsl:sort /> <!-- added sort here which is not in the saxon version below -->
 				<xsl:copy-of select="document(.)" />
-			</xsl:for-each> -->
+			</xsl:for-each> 
 		</xsl:variable>
 
-		<xsl:variable name="dep-schemas" 
-		  	select="msxsl:node-set($dep-schemas3)" />
-				
+                <!-- collect up all the expressg refs into a node-set -->
+                <xsl:variable name="mim_expressg">
+                  <expg_nodes>
+                    <xsl:for-each select="msxsl:node-set($schemas-node-set)//x">
+                      <xsl:variable name="module" 
+                        select="substring-after(substring-before(.,'/mim.xml'),'modules')"/>
+                      <xsl:variable name="module_xml" 
+                        select="concat('../../data/modules',$module,'/module.xml')"/>
+                      <xsl:if test="$module_xml!='../../data/modules/module.xml'">
+                        <!-- ignore resources as they have no graphics -->
+                        <xsl:apply-templates 
+                          select="document($module_xml)/module/mim/express-g/imgfile" mode="mk_node"/>
+                      </xsl:if>
+                    </xsl:for-each> 
+                  </expg_nodes>
+                </xsl:variable>
 
-			<xsl:call-template name="index_mim_express_inner" >
-				<xsl:with-param name="this-schema" select="$mim_lf_node" />
-				<xsl:with-param name="called-schemas" select="$dep-schemas" />
-			</xsl:call-template>
+		<xsl:variable name="dep-schemas" select="msxsl:node-set($dep-schemas3)" />
+                <xsl:variable name="mim_expressg_nodes" select="msxsl:node-set($mim_expressg)"/>
 
+                <xsl:call-template name="index_mim_express_inner" >
+                  <xsl:with-param name="this-schema" select="$mim_lf_node"/>
+                  <xsl:with-param name="called-schemas" select="$dep-schemas"/>
+                  <xsl:with-param name="expressg" select="$mim_expressg_nodes"/>
+                </xsl:call-template>
+                        
 	</xsl:when>
 
 
@@ -155,11 +174,28 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 		      </xsl:choose>
 		    </xsl:variable>
 
+                <!-- collect up all the expressg refs into a node-set -->
+                <xsl:variable name="mim_expressg">
+                  <expg_nodes>
+                    <xsl:for-each select="exslt:node-set($schemas-node-set2)//x">
+                      <xsl:variable name="module_xml" 
+                        select="concat(substring-before(.,'mim.xml'),'module.xml')"/>
+                      <xsl:if test="$module_xml!='module.xml'">
+                        <!-- ignore resources as they have no graphics -->
+                        <xsl:apply-templates 
+                          select="document($module_xml)/module/mim/express-g/imgfile" mode="mk_node"/>
+                      </xsl:if>
+                    </xsl:for-each>
+                  </expg_nodes>
+                </xsl:variable>
+
 		<xsl:variable name="dep-schemas" select="document(exslt:node-set($schemas-node-set2)//x)" />
+                <xsl:variable name="mim_expressg_nodes" select="exslt:node-set($mim_expressg)"/>
 
 			<xsl:call-template name="index_mim_express_inner" >
 				<xsl:with-param name="this-schema" select="$mim_lf_node" />
 				<xsl:with-param name="called-schemas" select="$dep-schemas" />
+				<xsl:with-param name="expressg" select="$mim_expressg_nodes" />
 			</xsl:call-template>
 
 
@@ -176,6 +212,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 <xsl:template name="index_mim_express_inner" >
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
+	<xsl:param name="expressg"/>	
 
 	<xsl:if test="string-length($mim_constant_names) > 2" >
 		<br/>
@@ -185,6 +222,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 			<xsl:with-param name="items" select="$this-schema//constant" />
 			<xsl:with-param name="internal-link-root" select="'constant-letter'" />
 			<xsl:with-param name="called-schemas" select="$called-schemas" />
+                        <xsl:with-param name="expressg" select="$expressg"/>
 		</xsl:call-template>
 	</xsl:if>
 
@@ -196,6 +234,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 			<xsl:with-param name="items" select="$this-schema//type" />
 			<xsl:with-param name="internal-link-root" select="'type-letter'" />
 			<xsl:with-param name="called-schemas" select="$called-schemas" />
+                        <xsl:with-param name="expressg" select="$expressg"/>
 		</xsl:call-template>
 	</xsl:if>
 
@@ -207,6 +246,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 			<xsl:with-param name="items" select="$this-schema//entity" />
 			<xsl:with-param name="internal-link-root" select="'entity-letter'" />
 			<xsl:with-param name="called-schemas" select="$called-schemas" />
+                        <xsl:with-param name="expressg" select="$expressg"/>
 		</xsl:call-template>
 	</xsl:if>
 
@@ -356,6 +396,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 	<xsl:param name="items" />
 	<xsl:param name="internal-link-root" />
 	<xsl:param name="called-schemas" />
+	<xsl:param name="expressg"/>	
 
 		<xsl:variable name="name-list" >
 			<xsl:for-each select="$items">
@@ -369,6 +410,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='A']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -378,6 +420,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='B']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -387,6 +430,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='C']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -396,6 +440,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='D']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -405,6 +450,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='E']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -414,6 +460,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='F']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -423,6 +470,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='G']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -432,6 +480,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='H']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -441,6 +490,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='I']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -450,6 +500,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='J']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -459,6 +510,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='K']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -468,6 +520,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='L']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -477,6 +530,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='M']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -486,6 +540,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='N']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -495,6 +550,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='O']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -504,6 +560,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='P']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -513,6 +570,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Q']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -522,6 +580,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='R']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -531,6 +590,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='S']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -540,6 +600,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='T']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -549,6 +610,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='U']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -559,6 +621,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='V']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -568,6 +631,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='W']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -577,6 +641,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='X']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -586,6 +651,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Y']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -595,6 +661,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Z']" mode="module-index" >
 					<xsl:with-param name="called-schemas" select="$called-schemas" />
+                                        <xsl:with-param name="expressg" select="$expressg"/>
 					<xsl:sort select="@name" />
 				</xsl:apply-templates>
 			</xsl:if>
@@ -602,7 +669,8 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 
 
 
-<xsl:template match="entity" mode="module-index" >
+<xsl:template match="entity" mode="module-index">
+        <xsl:param name="expressg"/>
 	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-ent-name" select="@name" />
@@ -618,6 +686,10 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat('../../../../../stepmod/data/modules/',
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+                          <xsl:apply-templates select="." mode="expressg_icon">
+                            <xsl:with-param name="target" select="'content'"/>
+                            <xsl:with-param name="expressg" select="$expressg"/>
+                          </xsl:apply-templates> 
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -741,6 +813,7 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 
 
 <xsl:template match="type" mode="module-index" >
+        <xsl:param name="expressg"/>
 	<xsl:param name="called-schemas" />
 
 	<xsl:variable name="this-type-name" select="translate(@name,$UPPER, $LOWER)" />
@@ -757,6 +830,10 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat('../../../../../stepmod/data/modules/',
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
+                          <xsl:apply-templates select="." mode="expressg_icon">
+                            <xsl:with-param name="target" select="'content'"/>
+                            <xsl:with-param name="expressg" select="$expressg"/>
+                          </xsl:apply-templates> 
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -801,13 +878,17 @@ $Id: index_mim_express_inner.xsl,v 1.1 2003/06/06 12:42:20 nigelshaw Exp $
 
 
 <xsl:template match="subtype.constraint" mode="module-index" >
+        <xsl:param name="expressg"/>
 	<xsl:param name="called-schemas" />
 
 		<xsl:variable name="mod-name" select="substring-before(../@name,'_mim')" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)"/>
 
-		
+                <xsl:apply-templates select="." mode="expressg_icon">
+                  <xsl:with-param name="target" select="'content'"/>
+                  <xsl:with-param name="expressg" select="$expressg"/>
+                </xsl:apply-templates> 
 		<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{../@name}.{@name}" TARGET="content" >
 		<xsl:value-of select="@name" /></A>
 			<br/>

@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="envelope" schema_file="arm.xml" describe.selects="YES" rcs.date="$Date: 2003/07/07 10:22:47 $" rcs.revision="$Revision: 1.11 $">
+<ext_descriptions module_directory="envelope" schema_file="arm.xml" describe.selects="YES" rcs.date="$Date: 2003/10/01 13:40:13 $" rcs.revision="$Revision: 1.12 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Envelope_arm
    <express_ref linkend="envelope:arm:Envelope_arm"/>
@@ -99,19 +99,23 @@ is an historical record, each <b>Envelope</b> is only used once, and so is not v
   -->
 
 <ext_description linkend="Envelope_arm.Envelope.acknowledge">
-    the acknowledge attribute is used to ask for and provide
-    acknowledgement of receipt of the <b>Envelope</b>. On transmission of a <express_ref linkend="message:arm:Message_arm.Message"/> 
-    <b>acknowledge</b> shall take one of the values "" (blank), "ask message arrival" or "ask message read". 
+  the request for and acknowledgement of receipt of the <b>Envelope</b>. 
+The value of this attribute need not be specified.
+<p>
+  On transmission of a <express_ref
+linkend="message:arm:Message_arm.Message"/> this attribute shall take one of the values "" (blank), "ask message arrival" or "ask message read". 
     A blank value expects no reply. A value of "ask message arrival" asks
     if the <express_ref linkend="message:arm:Message_arm.Message"/> arrived at the recepients' mailbox, and requires the reply
     <b>Envelope</b> to have values "acknowledge arrival" if the <express_ref linkend="message:arm:Message_arm.Message"/> arrives at the
-    destination, or "delivery failure" if failure of the delivery is detected. 
-  <note number = "1"> <b>Envelope</b> is used to provide an audit trail. There is no assumption that the transmission system has any knowledge of <b>Envelope</b> or its usage. However, if it reports some failure, this can then be recorded in the way described. </note>
+    destination, or "delivery failure" if failure of the delivery is
+detected. 
+  </p>
+  <note number="2"> <b>Envelope</b> is used to provide an audit trail. There is no assumption that the transmission system has any knowledge of <b>Envelope</b> or its usage. However, if it reports some failure, this can then be recorded in the way described. </note>
 A value of "ask message read" asks if the recipient has actually opened the <express_ref linkend="message:arm:Message_arm.Message"/> to read it, and expects the reply "acknowledge read" on success, or "contents corrupt" if it is not possible to for it to be read.
 
-<note number = "2"> For any single <b>Envelope</b>, there should be an acknowledgement per recipient. The acknowledgement will not contain a <express_ref linkend="message:arm:Message_arm.Message"/>.</note>
+<note number="3"> For any single <b>Envelope</b>, there should be an acknowledgement per recipient. The acknowledgement will not contain a <express_ref linkend="message:arm:Message_arm.Message"/>.</note>
 
-<note number="3"> The <b>Envelope</b> being acknowledged is referenced using an <express_ref linkend="envelope:arm:Envelope_arm.Envelope_relationship"/>.</note>
+<note number="4"> The <b>Envelope</b> being acknowledged is referenced using an <express_ref linkend="envelope:arm:Envelope_arm.Envelope_relationship"/>.</note>
 </ext_description>
 
 
@@ -124,8 +128,15 @@ A value of "ask message read" asks if the recipient has actually opened the <exp
 
 <ext_description linkend="Envelope_arm.Envelope.id">
   an identifier for the <b>Envelope</b>.
-<note number = "4"> The id is used to identify which <b>Envelope</b> an acknowledgement is referring to. While this needs to be unique, the scope of uniqueness is problematic, since, for example, the scope may be all the NATO defence organisations and their suppliers. </note>
-</ext_description>
+<note number="1"> The id is unique and is used to identify which <b>Envelope</b> an
+acknowledgement is referring to. 
+
+<!-- 
+     While this needs to be unique, the scope of uniqueness is problematic,
+     since, for example, the scope may be all the NATO defence organisations and
+     their suppliers. -->
+</note>
+   </ext_description>
 
 
 <!-- 
@@ -136,7 +147,11 @@ A value of "ask message read" asks if the recipient has actually opened the <exp
   -->
 
 <ext_description linkend="Envelope_arm.Envelope.wrapping">
-<b>wrapping</b> points to the <express_ref linkend="message:arm:Message_arm.Message"/> that the <b>Envelope</b> is wrapping. A <express_ref linkend="message:arm:Message_arm.Message"/> should be present unless the <b>Envelope</b> is being used to carry an acknowledgement.
+the <express_ref linkend="message:arm:Message_arm.Message"/> that the
+<b>Envelope</b> is wrapping. A <express_ref
+linkend="message:arm:Message_arm.Message"/> should be present unless the
+<b>Envelope</b> is being used to carry an acknowledgement. 
+The value of this attribute need not be specified.
 </ext_description>
 
 
@@ -161,7 +176,7 @@ A value of "ask message read" asks if the recipient has actually opened the <exp
   -->
 
 <ext_description linkend="Envelope_arm.Envelope_relationship.related">
-the other of the  <express_ref linkend="envelope:arm:Envelope_arm.Envelope"/> participating in the relationship. If one <express_ref linkend="envelope:arm:Envelope_arm.Envelope"/> participating in the relationship is dependent upon the other, this attribute shall be the dependent one.
+the other instance of the  <express_ref linkend="envelope:arm:Envelope_arm.Envelope"/> participating in the relationship. If one <express_ref linkend="envelope:arm:Envelope_arm.Envelope"/> participating in the relationship is dependent upon the other, this attribute shall be the dependent one.
 </ext_description>
 
 
@@ -173,7 +188,9 @@ the other of the  <express_ref linkend="envelope:arm:Envelope_arm.Envelope"/> pa
   -->
 
 <ext_description linkend="Envelope_arm.Envelope_relationship.relating">
-one of the <express_ref linkend="envelope:arm:Envelope_arm.Envelope"/>  participating in the relationship</ext_description>
+  one of the instances of <express_ref
+  linkend="envelope:arm:Envelope_arm.Envelope"/> participating in the
+relationship</ext_description> 
 
 
 <!-- 
@@ -184,9 +201,9 @@ one of the <express_ref linkend="envelope:arm:Envelope_arm.Envelope"/>  particip
   -->
 
 <ext_description linkend="Envelope_arm.Envelope_relationship.relation_type">
-
-a <b>relation_type</b> may be used to define the role the relationship takes.
-<example> If Envelope with id = 123 gets is acknowledged by Envelope id = 246, then <b>Envelope_relationship.relating</b> points to Envelope.id=123, <b>Envelope_relationship.related</b> points to Envelope.id=246 and <b>Envelope_relationship.relation_type</b>="acknowledges".</example>
+  the role the relationship takes.
+  The value of this attribute need not be specified. 
+  <example> If Envelope with id = 123 gets is acknowledged by Envelope id = 246, then <b>Envelope_relationship.relating</b> points to Envelope.id=123, <b>Envelope_relationship.related</b> points to Envelope.id=246 and <b>Envelope_relationship.relation_type</b>="acknowledges".</example>
 </ext_description>
 
 </ext_descriptions>

@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.4 2002/09/09 10:47:36 robbod Exp $
+//$Id: getExpressMain.js,v 1.5 2002/12/24 15:40:22 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -188,6 +188,69 @@ function GetArmMimExpressOld(expDir) {
     }
 }
 
+// Copy across the Integrated Resource express listed in irList
+// and concatenate them.
+function GetIrListExpress(expDir, irList) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var ForAppending = 8;
+    var ForReading = 1;
+
+    if (!fso.FileExists(irList)) {
+	ErrorMessage("The "+irList+" file does not exist");
+	return(0);
+    }
+
+    var irFldr = fso.GetFolder(expDir+"/resources");
+
+    var resourceFile = expDir+"/resources/resource.exp";    
+    // make sure that the resource.exp file does not exist
+    if (fso.FileExists(resourceFile)) {
+	ErrorMessage("The "+resourceFile+" already exists. Delete to proceed\n"+resourceFile);
+	return(0);
+    }
+
+    var resourceStr = fso.CreateTextFile(resourceFile, true);    
+
+    var irListStr = fso.OpenTextFile(irList,1);
+
+    while (!irListStr.AtEndOfStream) {
+	var resourceName =  irListStr.ReadLine();
+	var src, dst;
+	// Copy across resource express file
+	var resourceFileName = "../data/resources/"+resourceName+"/"+resourceName+".exp";
+	var newResourceFileName = expDir+"/resources/"+resourceName+".exp";
+	//UserMessage(resourceFileName+"->"+newResourceFileName);
+	if (fso.FileExists(resourceFileName)) {
+	    //copy across resource file
+	    src = fso.GetFile(resourceFileName);
+	    dst = newResourceFileName;
+	    src.Copy(dst);
+	    
+	    // append into resources.exp
+	    var srcStr = fso.OpenTextFile(src,ForReading);	
+	    resourceStr.WriteLine("");
+	    resourceStr.WriteLine("");
+	    resourceStr.WriteLine("(*");
+	    resourceStr.WriteLine("   ------------------------------------------------------------");
+	    resourceStr.WriteLine(src);
+	    resourceStr.WriteLine("   ------------------------------------------------------------");
+	    resourceStr.WriteLine("*)");
+	    resourceStr.WriteLine("");
+	    while (!srcStr.AtEndOfStream) {
+		var l =  srcStr.ReadLine();
+		// ignore 
+		// {iso standard 10303 part (11) version (4)} 
+		var reg = /{.*iso\b/;
+		if (!l.match(reg))
+		    resourceStr.WriteLine(l);
+	    }
+	    srcStr.Close();    
+	} else {
+	    UserMessage("File does not exist:\n"+resourceFileName);
+	}
+    }
+}
+
 function GetArmMimExpress(expDir, modList) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var armFldr = fso.GetFolder(expDir+"/arm");
@@ -261,7 +324,7 @@ function AppendFiles(src, dst) {
     dstStr.Close();
 }
 
-// Append the concatenated Mim.exp and resourec.exp
+// Append the concatenated Mim.exp and resource.exp
 function AppendMimResources(expDir) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var ForAppending = 8;
@@ -507,12 +570,28 @@ function MainWindow(expDir, modList) {
     }
 }
 
+function MainWindowIrList(expDir, modList, irList) {
+    if (TestParams(expDir, modList) == 1) {
+	MakeDirs(expDir);
+	GetArmMimExpress(expDir, modList);
+	GetIrListExpress(expDir, irList);
+	var armFile = AppendMimArm("arm",expDir,modList);
+	var mimFile = AppendMimArm("mim",expDir,modList);
+	var resFile = AppendMimResources(expDir);
+	UserMessage("Created directory:\n  "+expDir
+		    + "\nConcatenated ARM EXPRESS: "+armFile
+		    + "\nConcatenated MIM EXPRESS: "+mimFile
+		    + "\nConcatenated MIM+Resource EXPRESS: "+resFile);
+    }
+}
+
 
 //MainWindow("..\\express", "..\\modlist.txt");
 //MainWindow("..\\ballots\\ballots\\plcs_bp1\\express", "..\\ballots\\ballots\\plcs_bp1\\modlist.txt");
+//MainWindowIrList("..\\ballots\\ballots\\plcs_bp2\\express",  "..\\ballots\\ballots\\plcs_bp2\\modlist.txt", "..\\ballots\\ballots\\plcs_bp2\\irlist.txt");
 //MainWindow("..\\ballots\\ballots\\plcs_bp1\\express_nostate", "..\\ballots\\ballots\\plcs_bp1\\modlist_nostate.txt");
 
-//outputModuleList("plcs_bp1");
+//outputModuleList("plcs_bp2");
 //outputModuleList("pdm_ballot_072002");
 
 

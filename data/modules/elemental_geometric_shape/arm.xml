@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.6 2002/01/16 12:11:43 robbod Exp $ -->
+<!-- $Id: arm.xml,v 1.3 2002/01/16 14:23:55 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2002/01/16 14:23:55 $"
+  rcs.revision="$Revision: 1.3 $">
 
   <application
     name="express2xml.js"
@@ -27,8 +27,33 @@
 
     <entity
       name="Cartesian_coordinate_space">
+      <description>
+        A <b>Cartesian_coordinate_space</b> is the coordinate space where
+      geometric elements are defined. It is either two-dimensional or
+      three-dimensional. An origin for coordinate values is implicitly
+      defined. The units applicable to the coordinate values of elements
+      defined in the <b>Cartesian_coordinate_space</b> are specified.  
+      </description>
       <explicit
         name="unit">
+      <description>
+        The unit specifies the various kinds of unit in which values are
+        measured. In the case where geometric elements are defined in the
+        <b>Cartesian_coordinate_space</b> there shall be at least two units
+        specified, the length unit and the plane angle unit. The same
+        length unit is applied to each coordinate direction. Only one unit
+        of a kind shall be specified.   
+        <note>
+          If elements with different units are required they have to be
+          separated into different models with their own
+          <b>Cartesian_coordinate_space</b>.  
+        </note>
+        <example>
+          A length measure unit measured in inches and an angle measure
+          unit measured in degrees are examples for two attributes 'unit'
+          assigned to the same <b>Cartesian_coordinate_space</b>. 
+        </example>
+      </description>
         <aggregate
           type="SET"
           lower="2"
@@ -42,40 +67,102 @@
       name="Detailed_geometric_model_element"
       abstract.supertype="YES"
       supertypes="Representation_item">
+    <description>
+      A Detailed_geometric_model_element is a single element of a model
+      which is any of the general class of elements that represent
+      idealized shape described by mathematical geometry (e.g., points,
+      curves, and surfaces). A Detailed_geometric_model_element is a type
+      of <express_ref linkend="foundation_representation:arm:foundation_representation_arm.representation_item">Representation_item.</express_ref>
+    </description>
+
     </entity>
 
     <entity
       name="Geometric_model"
       supertypes="Representation">
+    <description>
+      A Geometric_model is a representation of shape. A Geometric_model
+      that does not reference any other 
+      <express_ref linkend="elemental_geometric_shape:arm:elemental_geometric_shape_arm.detailed_geometric_model_element">
+        Detailed_geometric_model_element
+      </express_ref>
+      objects through one of the subtypes directly shall reference at least one
+      <express_ref linkend="elemental_geometric_shape:arm:elemental_geometric_shape_arm.Template_instance">
+        Template_instance.
+      </express_ref>
+    </description>
       <explicit
         name="is_defined_in">
+    <description>
+      The is_defined_in specifies the 
+      <express_ref linkend="elemental_geometric_shape:arm:elemental_geometric_shape_arm.Cartesian_coordinate_space">
+        Cartesian_coordinate_space
+      </express_ref>
+      in which
+      the <b>Geometric_model</b> is defined.  
+    </description>
         <typename
           name="Cartesian_coordinate_space"/>
       </explicit>
       <explicit
         name="model_id">
+    <description>
+      The model_id specifies the identifier of the <b>Geometric_model</b>. 
+    </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="version_id"
         optional="YES">
+    <description>
+      The version_id specifies the version identifier of the
+      <b>Geometric_model</b>. 
+    </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description"
         optional="YES">
+    <description>
+      The description specifies additional information about the
+      <b>Geometric_model</b>. The description need not be specified for a
+      particular <b>Geometric_model</b>. If present, there shall be exactly
+      one object that defines the description for a <b>Geometric_model</b>.  
+    </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="role">
+    <description>
+      The role specifies the function performed by the
+      <b>Geometric_model</b>. Where applicable the following values shall
+be used:  
+      <ul>
+        <li>
+        'design shape': The geometry in the <b>Geometric_model</b> represents
+        the shape of an item as designed;  
+      </li>
+      <li>
+        'idealized shape': The geometry in the <b>Geometric_model</b> represents a
+        simplified shape. 
+      </li>
+    </ul>
+      <example>
+        A shape may be simplified for analysis purposes.
+      </example>
+    </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="elements">
+    <description>
+      The elements specifies the Detailed_model_element instances which
+      comprise the <b>Geometric_model</b>.  
+    </description>
         <aggregate
           type="SET"
           lower="1"
@@ -86,18 +173,39 @@
       <explicit
         name="model_extent"
         optional="YES">
+    <description>
+      The model_extent specifies the radius of a sphere that
+      contains all elements of the model and whose centre is at the origin of
+      the 
+      <express_ref linkend="elemental_geometric_shape:arm:elemental_geometric_shape_arm.Cartesian_coordinate_space">
+        Cartesian_coordinate_space
+      </express_ref>
+ of the <b>Geometric_model</b>. The model_extent
+      need not be specified for a particular <b>Geometric_model</b>. 
+    </description>
         <builtintype
           type="REAL"/>
       </explicit>
       <explicit
         name="accuracy"
         optional="YES">
+    <description>
+      The accuracy specifies a distance which forms a zone of
+      closure for elements in the model. The value forms the radius of a
+      sphere around points/ vertices and a cylinder around curves wherein any
+      other element within the zone is deemed to be coincident with the
+      element being checked. 
+    </description>
         <builtintype
           type="REAL"/>
       </explicit>
       <explicit
         name="units"
         optional="YES">
+    <description>
+      The units specifies the optional measure increments in which the
+      model is defined.  
+    </description>
         <aggregate
           type="SET"
           lower="1"
@@ -110,31 +218,93 @@
     <entity
       name="Template_instance"
       supertypes="Detailed_geometric_model_element">
+      <description>
+        A <b>Template_instance</b> is an occurrence of an object that has been
+        defined in a different Cartesian_coordinate_space as a
+        <express_ref
+          linkend="elemental_geometric_shape:arm:elemental_geometric_shape_arm.Geometric_model">
+          Geometric_model
+        </express_ref>.
+        A <b>Template_instance</b> is an image of this template
+        definition into another 
+      <express_ref linkend="elemental_geometric_shape:arm:elemental_geometric_shape_arm.Cartesian_coordinate_space">
+        Cartesian_coordinate_space
+      </express_ref>
+      where only the
+        location of this copy has to be specified. Additionally uniform
+        scaling, rotation, or mirroring information may be applied to this
+        copy. 
+        <note>
+          In the case where the units of the 
+      <express_ref linkend="elemental_geometric_shape:arm:elemental_geometric_shape_arm.Cartesian_coordinate_space">
+        Cartesian_coordinate_space
+      </express_ref>
+          of
+          the definition are different from the units to be applied to the
+      <b>Template_instance</b>, unit conversion is required. In case of length
+          unit conversion this has to be considered in addition to the
+          scale attribute.  
+        </note>
+        <example>
+          In a technical drawing of a mechanical part with several
+          identical drilling holes the hole geometry (circle) together with its
+          annotation elements (diameter dimension and centrelines) is
+          defined once with the name 'annotated drilling hole' and the
+          purpose 'drilling hole representation'. This particular
+          definition is instantiated several times 
+          at different locations by corresponding <b>Template_instance</b>
+        objects.  
+        </example>
+      </description>
+
       <explicit
         name="id">
+    <description>
+      The <b>id</b> specifies the identifier of the <b>Template_instance</b>. 
+    </description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="scale"
         optional="YES">
+    <description>
+      The <b>scale</b> specifies the scaling factor for all cartesian coordinate
+      directions. The scaling factor shall be positive. If the scaling
+      factor is omitted it shall be 1.0. The scale need not be specified
+      for a particular Template_instance.  
+    </description>
         <builtintype
           type="REAL"/>
       </explicit>
       <explicit
         name="template_definition">
+    <description>
+      The <b>template_definition</b> specifies the template to be
+      instantiated. There shall be exactly one object that defines the
+      <b>template_definition</b> for a <b>Template_instance</b>.  
+    </description>
         <typename
           name="Geometric_model"/>
       </explicit>
       <explicit
         name="transformation">
-        <typename
+    <description>
+      The <b>transformation</b> specifies the cartesian transformation applied to
+      the instance. All <b>transformations</b> that can be expressed by an
+      orthonormal 2 x 2 (for 2D) or 3 x 3 (for 3D) matrix can be applied, e.g.,
+      rotation or mirroring operations.  
+    </description>        <typename
           name="Transformation"/>
       </explicit>
     </entity>
 
     <entity
       name="Transformation">
+      <description>
+        A <b>Transformation</b> is a geometric placement and orientation
+      composed of translation and rotation. Scaling is not included.  
+      </description>
     </entity>
 
   </schema>

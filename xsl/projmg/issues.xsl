@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.2 2002/08/21 20:23:50 robbod Exp $
+     $Id: issues.xsl,v 1.3 2002/09/10 08:54:11 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -171,7 +171,7 @@
                                 string(@id), 
                                 ' by ', string(@by),
                                 ' (', string(@date), 
-                                ') [', string(@status)']')" />
+                                ') [', string(@status),']')" />
         </a>
       </b>
       <br/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.5 2002/06/28 14:52:25 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.6 2002/07/05 08:56:54 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -91,10 +91,22 @@ $Id: sect_5_mapping_check.xsl,v 1.5 2002/06/28 14:52:25 robbod Exp $
     <xsl:variable name="arm_entity" select="../@entity"/>
     <xsl:variable name="arm_attr" select="@attribute"/>
     <xsl:variable name="module_dir">
-      <xsl:call-template name="module_directory">
-        <xsl:with-param name="module" select="../../../../module/@name"/>
-      </xsl:call-template>
+      <xsl:choose>
+        <!-- original_module specified then the ARM object is declared in
+             another module -->
+        <xsl:when test="../@original_module">
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="../@original_module"/>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="../../../../module/@name"/>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
+
     <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
 
     <xsl:choose>
@@ -138,7 +150,7 @@ $Id: sect_5_mapping_check.xsl,v 1.5 2002/06/28 14:52:25 robbod Exp $
         <xsl:call-template name="error_message">
           <xsl:with-param name="message"
             select="concat('Error m5: The attribute ', ../@entity,'.',@attribute, 
-                    ' does not exist in the arm as an explicit attribute')"/>
+                    ' does not exist in the arm (',$arm_xml,') as an explicit attribute')"/>
         </xsl:call-template>
       </xsl:when>
     </xsl:choose>

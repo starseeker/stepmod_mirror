@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.35 2002/07/05 09:47:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -342,10 +342,22 @@ $Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
   <xsl:variable name="aname" select="@entity"/>
 
   <xsl:variable name="schema_name">
-    <xsl:call-template name="schema_name">
-      <xsl:with-param name="module_name" select="../../../module/@name"/>
-      <xsl:with-param name="arm_mim" select="'arm'"/>
-    </xsl:call-template>
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="@original_module">
+        <xsl:call-template name="schema_name">
+          <xsl:with-param name="module_name" select="@original_module"/>
+          <xsl:with-param name="arm_mim" select="'arm'"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="schema_name">
+          <xsl:with-param name="module_name" select="../../../module/@name"/>
+          <xsl:with-param name="arm_mim" select="'arm'"/>
+        </xsl:call-template>        
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:variable>
 
   <xsl:variable name="ae_aname">
@@ -355,28 +367,59 @@ $Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable 
-    name="ae_xref"
-    select="concat('./4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
+  <xsl:variable name="ae_xref">
+    <xsl:choose>
+      <!-- if original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="@original_module">
+        <xsl:value-of 
+          select="concat('../../',@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of 
+          select="concat('./4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>        
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
 
   <xsl:variable name="arm_entity" select="@entity"/>
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="module_directory">
-      <xsl:with-param name="module" select="../../../module/@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
-  <xsl:choose>
-    <xsl:when test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity])">
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message"
-          select="concat('Error m1: The entity ', $arm_entity, 
-                  ' does not exist in the arm')"/>
-      </xsl:call-template>
-    </xsl:when>
-  </xsl:choose>
 
-  
+  <xsl:variable name="module_dir">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="@original_module">
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="../../../module/@name"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="module_ok">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="@original_module">
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="../../../module/@name"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
   <xsl:variable name="ae" select="translate(@entity,$LOWER,$UPPER)"/>
@@ -385,14 +428,71 @@ $Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
     <a name="{$aname}">
       <xsl:value-of select="concat('5.1.',$sect_no,' ')"/>
     </a>
-
     <a href="{$ae_xref}">
       <xsl:value-of select="$ae"/>
     </a>
-    <xsl:variable name="entity_node"
-      select="document($arm_xml)/express/schema/entity[@name=$arm_entity]"/>
-    <xsl:apply-templates select="$entity_node" mode="expressg_icon"/>
+    <xsl:if test="$module_ok='true'">
+      <xsl:variable name="entity_node"
+        select="document($arm_xml)/express/schema/entity[@name=$arm_entity]"/>
+      <xsl:apply-templates select="$entity_node" mode="expressg_icon">
+        <xsl:with-param name="original_schema" select="$schema_name"/>
+      </xsl:apply-templates>
+    </xsl:if>
   </h3>
+
+
+  <xsl:choose>
+    <xsl:when test="$module_ok!='true'">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message"
+          select="concat('Error m1a: The module specified in the
+@orginal_module attribute (', @original_module,
+                  ') does not exist in stepmod/repository_index.xml')"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:when test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity])">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message"
+          select="concat('Error m1: The entity ', $arm_entity, 
+                  ' does not exist in the arm (',$arm_xml,')')"/>
+      </xsl:call-template>
+    </xsl:when>
+  </xsl:choose>
+  
+  <!-- original_module specified then the ARM object is declared in
+       another module -->
+  <xsl:if test="@original_module">
+    <xsl:variable name="map_xref"
+      select="concat('../../',@original_module,'/sys/5_mapping',$FILE_EXT,'#',$aname)"/>
+
+    <p>
+      This application object,
+      <a href="{$ae_xref}">
+        <xsl:value-of select="@entity"/>
+      </a>,
+      is defined in the module
+      <a href="{$ae_xref}">
+        <xsl:value-of select="@original_module"/>
+      </a>.
+      This mapping section extends the 
+      <a href="{$map_xref}"> mapping of <xsl:value-of select="@entity"/></a>,
+      to include assertions defined in this module.  
+    </p>
+  </xsl:if>
+
+  <xsl:if test="@extensible='YES'">
+    This section specifies the mapping of the entity 
+    <a href="{$ae_xref}">
+      <xsl:value-of select="@entity"/>
+    </a>
+    for the case where it maps onto the resource entity 
+    <xsl:value-of select="./aimelt"/>.    
+    Depending on the extensions of the Select type
+    property_assignment_select, this mapping may be superseded in the
+    application modules that define these extensions. 
+  </xsl:if>
+
+
 
   <xsl:apply-templates select="./alt" mode="specification"/>
   <!-- now layout the aim element -->
@@ -415,9 +515,19 @@ $Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
 
 <xsl:template match="aa" mode="specification">
   <xsl:param name="sect"/>
-  <xsl:variable 
-    name="schema_name" 
-    select="concat(../../../../module/@name,'_arm')"/>
+
+  <xsl:variable name="schema_name">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="../@original_module">
+        <xsl:value-of select="concat(../@original_module,'_arm')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat(../../../../module/@name,'_arm')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
 
   <xsl:variable name="attr">
     <!-- the attribute may be redeclared i.e. SELF\product.of_product -->
@@ -434,14 +544,37 @@ $Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable 
-    name="aa_xref"
-    select="concat('./4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
+  <xsl:variable name="aa_xref">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="../@original_module">
+        <xsl:value-of 
+          select="concat('../../',../@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
+
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat('./4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>        
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
 
   <xsl:variable name="module_dir">
-    <xsl:call-template name="module_directory">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="../@original_module">
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="../@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="module_directory">
       <xsl:with-param name="module" select="../../../../module/@name"/>
-    </xsl:call-template>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:variable>
 
   <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
@@ -462,8 +595,21 @@ $Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
             <xsl:with-param name="section2" select="../@entity"/>
           </xsl:call-template>
         </xsl:variable>
-        <xsl:variable name="ae_xref"
-          select="concat('./4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
+        <xsl:variable name="ae_xref">
+          <xsl:choose>
+            <!-- if original_module specified then the ARM object is
+                 declared in another module -->
+            <xsl:when test="../@original_module">
+              <xsl:value-of 
+                select="concat('../../',../@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of 
+                select="concat('./4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>        
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+
         <xsl:value-of select="concat($sect_no,' ')"/>
         <a href="{$ae_xref}">
           <xsl:value-of select="../@entity"/>
@@ -484,13 +630,37 @@ $Id: sect_5_mapping.xsl,v 1.34 2002/07/05 08:56:54 robbod Exp $
     </xsl:choose>
   </a>
 
-  <xsl:variable name="ae" select="../@entity"/>
-  <xsl:variable name="entity_node"
-      select="document($arm_xml)/express/schema/entity[@name=$ae]"/>
-  <xsl:apply-templates select="$entity_node" mode="expressg_icon"/>
+
+  <xsl:variable name="module_ok">
+    <xsl:choose>
+      <!-- original_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="../@original_module">
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="../@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="../../../../module/@name"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:if test="$module_ok='true'">
+    <xsl:variable name="ae" select="../@entity"/>
+    <xsl:variable name="entity_node"
+      select="document($arm_xml)/express/schema/entity[@name=$ae]"/>      
+    <xsl:apply-templates select="$entity_node" mode="expressg_icon">
+      <xsl:with-param name="original_schema" select="$schema_name"/>
+    </xsl:apply-templates>
+  </xsl:if>
   </h3>
 
-  <xsl:apply-templates select="." mode="check_valid_attribute"/>
+  <xsl:if test="$module_ok='true'">
+    <xsl:apply-templates select="." mode="check_valid_attribute"/>
+  </xsl:if>
 
   <xsl:apply-templates select="./alt" mode="specification"/>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.72 2002/06/19 06:46:48 robbod Exp $
+$Id: module.xsl,v 1.73 2002/06/19 14:41:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2845,6 +2845,20 @@ defines it. Use: normref.inc')"/>
 </xsl:template>
 
 <xsl:template match="imgfile" mode="expressg">
+  <xsl:variable name="file">
+    <xsl:call-template name="set_file_ext">
+      <xsl:with-param name="filename" select="@file"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="href" select="concat('../',$file)"/>
+  <li>
+    <a href="{$href}">
+      <xsl:apply-templates select="." mode="title"/>
+    </a>
+  </li>
+</xsl:template>
+
+<xsl:template match="imgfile" mode="title">
   <xsl:variable name="number">
     <xsl:number/>
   </xsl:variable>
@@ -2880,15 +2894,7 @@ defines it. Use: normref.inc')"/>
       </xsl:when>
     </xsl:choose>
   </xsl:variable>
-  <xsl:variable name="file">
-    <xsl:call-template name="set_file_ext">
-      <xsl:with-param name="filename" select="@file"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="href" select="concat('../',$file)"/>
-  <li>
-    <a href="{$href}"><xsl:value-of select="$fig_no"/></a>
-  </li>
+  <xsl:value-of select="$fig_no"/>
 </xsl:template>
 
 

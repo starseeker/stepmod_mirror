@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.10 2002/05/21 16:20:47 robbod Exp $
+$Id: imgfile.xsl,v 1.11 2002/06/17 15:48:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -67,7 +67,25 @@ $Id: imgfile.xsl,v 1.10 2002/05/21 16:20:47 robbod Exp $
 
           <!-- now display the image -->
           <xsl:apply-templates select="img"/>
-          <div align="center"><h3><xsl:value-of select="@title"/></h3></div>
+
+          
+          <!-- if a file is specified then can deduce the figure title -->
+          <xsl:choose>
+            <xsl:when test="./@file">
+              <div align="center">
+                <h3>
+                  <xsl:apply-templates 
+                    select="document($module_file)/module/*/express-g/imgfile"
+                    mode="title">
+                    <xsl:with-param name="file" select="@file"/>
+                  </xsl:apply-templates>
+                </h3>
+              </div>
+            </xsl:when>
+            <xsl:otherwise>
+              <div align="center"><h3><xsl:value-of select="@title"/></h3></div>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">
@@ -84,6 +102,47 @@ $Id: imgfile.xsl,v 1.10 2002/05/21 16:20:47 robbod Exp $
   </HTML>
 </xsl:template>
 
+<xsl:template match="imgfile" mode="title">
+  <xsl:param name="file"/>
+  <xsl:if test="$file=@file">
+    <xsl:variable name="number">
+      <xsl:number/>
+    </xsl:variable>
+    <xsl:variable name="fig_no">
+      <xsl:choose>
+        <xsl:when test="name(../..)='arm'">
+          <xsl:choose>
+            <xsl:when test="$number=1">
+              <xsl:value-of 
+                select="concat('Figure C.',$number, 
+                        ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of 
+                select="concat('Figure C.',$number, 
+                        ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:when test="name(../..)='mim'">
+          <xsl:choose>
+            <xsl:when test="$number=1">
+              <xsl:value-of 
+                select="concat('Figure D.',$number, 
+                        ' - MIM Schema level EXPRESS-G diagram ',$number)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of 
+                select="concat('Figure D.',$number, 
+                        ' - MIM Entity level EXPRESS-G diagram ',($number - 1))"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$fig_no"/>
+  </xsl:if>
+</xsl:template>
 
 
 <xsl:template match="imgfile" mode="nav_arrows">

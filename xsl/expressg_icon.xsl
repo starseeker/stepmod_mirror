@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.2 2003/05/29 06:35:38 robbod Exp $
+$Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -157,11 +157,12 @@ $Id: expressg_icon.xsl,v 1.2 2003/05/29 06:35:38 robbod Exp $
             <xsl:value-of select="$object"/>
           </xsl:attribute>
           <xsl:attribute name="href">
-            <xsl:value-of select="concat('../../',$module,'/',$file,'#',$schema,'.',$object)"/>
+            <xsl:value-of select="concat('../../',$module,'/',$file)"/>
           </xsl:attribute>
         </xsl:element>
       </xsl:if>
     </xsl:if>
+
   </xsl:template>
   
 

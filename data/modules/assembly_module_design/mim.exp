@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.5 2004/12/17 12:49:25 liutkus Exp $
+   $Id: mim.exp,v 1.6 2004/12/30 09:29:21 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module design - EXPRESS MIM *)
 (* UNDER DEVELOPMENT *)
 SCHEMA Assembly_module_design_mim;
@@ -15,46 +15,46 @@ USE FROM Physical_unit_design_view_mim;
 ENTITY component_mounting_feature
   SUBTYPE OF (shape_aspect);
 WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: 'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'COMPONENT_DEFINITION' IN
        TYPEOF (SELF.of_shape.definition);
-  WR2: (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: (SIZEOF (['ASSEMBLY_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROBE_ACCESS_AREA',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'LAND'] * 
        TYPEOF (SELF)) = 0);
   WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'SHAPE_REPRESENTATION'
        IN TYPEOF (pdr.used_representation)) |
        sr_pdr.used_representation\representation.name = 
        'planar projected shape')) 
        <= 1))) = 0;
   WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'SHAPE_REPRESENTATION'
        IN TYPEOF (pdr.used_representation)) |
        sr_pdr.used_representation\representation.name = '3d bound volume shape')) 
        <= 1))) = 0;
   WR5: (NOT (SELF\shape_aspect.description IN ['component feature'])) OR
        (SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'design usage')) <= 1);
   WR6: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature')) <= 1;
 END_ENTITY; -- component_mounting_feature
@@ -63,78 +63,78 @@ ENTITY packaged_component
   SUBTYPE OF (component_definition);
 WHERE
   WR1: SIZEOF (QUERY (ip <* QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
        pdr\product_definition_relationship.name = 'instantiated part') |
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PACKAGED_PART',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGED_PART',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'LIBRARY_DEFINED_PACKAGED_PART'] *
        TYPEOF (ip.relating_product_definition)) = 1) AND
        (ip.relating_product_definition.frame_of_reference.name =
        'physical design usage'))) = 1;
   WR2: SIZEOF (QUERY (pa <* QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
        pdr\product_definition_relationship.name = 'package alternate') |
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'LIBRARY_DEFINED_PACKAGE'] *
        TYPEOF (pa.relating_product_definition)) = 1) AND
        (pa.relating_product_definition\product_definition.description =
        'altered package'))) <= 1;
   WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ASSEMBLY_MODULE_DESIGN_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (sa)) AND
        (sa\shape_aspect.description = 'packaged component join terminal'))) >= 1))) = 0;
   WR4: (NOT (SELF\product_definition.description = 'packaged connector component')) OR
        (SIZEOF (QUERY (ip <* QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
        pdr\product_definition_relationship.name = 'instantiated part') |
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PACKAGED_PART',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGED_PART',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'LIBRARY_DEFINED_PACKAGED_PART'] *
        TYPEOF (ip.relating_product_definition)) = 1) AND
        (TRUE))) = 1);
   WR5: (NOT (SELF\product_definition.description = 'packaged connector component')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ASSEMBLY_MODULE_DESIGN_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (sa)) AND
        (sa\shape_aspect.description = 'packaged component join terminal'))) 
         >= 1))) = 0);
   WR6: (NOT (SELF\product_definition.description = 'routed packaged component')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
        SIZEOF (QUERY (pd <* USEDIN (sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (USEDIN (pd, 
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) 
        = 1)) = 1)) = 1))) = 0);
 END_ENTITY; -- packaged_component
@@ -143,10 +143,10 @@ ENTITY routed_physical_component
   SUBTYPE OF (component_definition);
 WHERE
   WR1: SIZEOF (QUERY (ip <* QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
        pdr\product_definition_relationship.name = 'instantiated part') |
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['ASSEMBLY_MODULE_DESIGN_MIM.' +
        'PHYSICAL_UNIT'] *
        TYPEOF (ip.relating_product_definition)) = 1) AND
        (ip.relating_product_definition.frame_of_reference.name =
@@ -184,7 +184,7 @@ REPEAT i := 1 to SIZEOF(desc_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     rep_bag := QUERY( r <* USEDIN( dri_bag[j],
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'ASSEMBLY_MODULE_DESIGN_MIM.' +
 'REPRESENTATION.ITEMS' ) | (r\representation.name = 'component external reference' ) );
     REPEAT k := 1 to SIZEOF(rep_bag) by 1;
       IF EXISTS( rep_bag[k] ) THEN
@@ -208,31 +208,31 @@ WHERE
    WR1: SIZEOF( QUERY( rep <* representation | (rep\representation.name =
         'component external reference') AND 
         (SIZEOF( QUERY( dri <* rep.items | NOT(
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('ASSEMBLY_MODULE_DESIGN_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
         (dri\representation_item.name = 'design owner')))) = 1)))=0;
    WR2: SIZEOF(QUERY (rep <* representation |
         (rep\representation.name = 'component external reference') AND 
         (SIZEOF (QUERY (dri <* rep.items | 
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        NOT(('ASSEMBLY_MODULE_DESIGN_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
         (dri\representation_item.name = 'part number')))) = 1)))=0;
    WR3: SIZEOF(QUERY (rep <* representation |
         (rep\representation.name = 'component external reference') AND 
         (SIZEOF (QUERY (dri <* rep.items | 
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        NOT(('ASSEMBLY_MODULE_DESIGN_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
         (dri\representation_item.name = 'revision code')))) = 1)))=0;
    WR4: SIZEOF(QUERY (rep <* representation |
         (rep\representation.name = 'component external reference') AND 
         (SIZEOF (QUERY (dri <* rep.items | 
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        NOT(('ASSEMBLY_MODULE_DESIGN_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
         (dri\representation_item.name = 'product definition id')))) = 1)))=0;
    WR5: SIZEOF(QUERY (rep <* representation |
         (rep\representation.name = 'component external reference') AND 
         (SIZEOF (QUERY (dri <* rep.items | 
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        NOT(('ASSEMBLY_MODULE_DESIGN_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND 
         (dri\representation_item.name = 'reference designation')))) = 1)))=0;
 END_RULE; -- component_external_reference_constraint
@@ -243,7 +243,7 @@ WHERE
   WR1: SIZEOF(QUERY(rep <* representation |
        (rep\representation.name = 'mounting clearance')
        AND (SIZEOF(QUERY(lmwu <* rep.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       ('ASSEMBLY_MODULE_DESIGN_MIM.'
        + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(lmwu))
        AND (lmwu\representation_item.name = 'minimum height')
        )) = 0))) = 0;
@@ -255,10 +255,11 @@ WHERE
   WR1: SIZEOF(QUERY(rep <* representation |
        (rep\representation.name = 'overlap clearance')
        AND (SIZEOF(QUERY(lmwu <* rep.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       ('ASSEMBLY_MODULE_DESIGN_MIM.'
        + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(lmwu))
        AND (lmwu\representation_item.name = 'minimum clearance')
        )) = 0))) = 0;
 END_RULE; -- component_overlap_relationship_constraint
 
 END_SCHEMA;
+

@@ -13,25 +13,25 @@ WHERE
    WR1: SIZEOF (QUERY (rep <* representation |
         (rep\representation.name = 'package external reference') AND 
         (SIZEOF (QUERY (dri <* rep.items |
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        NOT(('PART_EXTERNAL_REFERENCE_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
         (dri\representation_item.name = 'design owner')))) = 1)))=0;
    WR2: SIZEOF (QUERY (rep <* representation |
         (rep\representation.name = 'package external reference') AND 
         (SIZEOF (QUERY (dri <* rep.items |
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        NOT(('PART_EXTERNAL_REFERENCE_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
         (dri\representation_item.name = 'part number')))) = 1)))=0;
    WR3: SIZEOF (QUERY (rep <* representation |
         (rep\representation.name = 'package external reference') AND 
         (SIZEOF (QUERY (dri <* rep.items |
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        NOT(('PART_EXTERNAL_REFERENCE_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
         (dri\representation_item.name = 'revision code')))) = 1)))=0;
    WR4: SIZEOF (QUERY (rep <* representation |
         (rep\representation.name = 'package external reference') AND 
         (SIZEOF (QUERY (dri <* rep.items |
-        NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        NOT(('PART_EXTERNAL_REFERENCE_MIM.' +
         'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
         (dri\representation_item.name = 'product definition id')))) = 1)))=0;
 END_RULE; -- package_external_reference_constraint
@@ -42,7 +42,7 @@ WHERE
   WR1: SIZEOF(QUERY(dri <* descriptive_representation_item |
        (dri\representation_item.name = 'package terminal external reference')
        AND (SIZEOF(QUERY(rep <* USEDIN(dri,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       'PART_EXTERNAL_REFERENCE_MIM.'
        + 'REPRESENTATION.ITEMS') |
        (rep\representation.name = 'package external reference'))) = 0)
        )) = 0;
@@ -78,7 +78,7 @@ REPEAT i := 1 to SIZEOF(desc_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     rep_bag := QUERY( r <* USEDIN( dri_bag[j],
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PART_EXTERNAL_REFERENCE_MIM.' +
 'REPRESENTATION.ITEMS' ) | (r\representation.name = 'package external reference') );
     REPEAT k := 1 to SIZEOF(rep_bag) by 1;
       IF EXISTS( rep_bag[k] ) THEN
@@ -111,7 +111,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(pter) by 1;
   REPEAT j := 1 to SIZEOF(pter[i].items) by 1;
-    IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( 'PART_EXTERNAL_REFERENCE_MIM.' +
 'DESCRIPTIVE_REPRESENTATION_ITEM' IN 
 TYPEOF(pter[i].items[j]) ) THEN
       IF ( (pter[i].items[j]\representation_item.name = 'feature name') AND 
@@ -146,11 +146,11 @@ ft_bag[j]) AND (ri\representation_item.name = 'feature type')) ) )>0) AND
       IF ( NOT pass ) THEN ESCAPE;
       END_IF;
       pdr_bag := USEDIN( r_bag[k], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PART_EXTERNAL_REFERENCE_MIM.' +
 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION' );
       REPEAT l:= 1 to SIZEOF(pdr_bag) by 1;
         IF EXISTS( pdr_bag[l].definition.definition ) THEN
-          IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+          IF ( 'PART_EXTERNAL_REFERENCE_MIM.' +
 'PHYSICAL_UNIT' IN TYPEOF( pdr_bag[l].definition.definition ) ) THEN
             IF ( pdr_bag[l].definition.definition IN ptd_bag ) THEN
               pass := FALSE;
@@ -169,4 +169,5 @@ WHERE
 END_RULE; -- part_terminal_external_reference_unique_constraint
 	
 END_SCHEMA;
+
 

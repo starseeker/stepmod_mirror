@@ -26,7 +26,7 @@ WHERE
    WR2: SIZEOF (QUERY (pdr <* product_definition_relationship |
    (pdr\product_definition_relationship.name = 'design functional unit allocation to assembly component')
                AND
-     (NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+     (NOT('FUNCTIONAL_DECOMPOSITION_TO_DESIGN_MIM.' +
      'COMPONENT_DEFINITION' IN TYPEOF (pdr.related_product_definition))) 
                )) = 0;
 END_RULE; -- design_functional_unit_allocation_to_assembly_component_constraint
@@ -46,7 +46,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(dfuatac) by 1;
   IF EXISTS( dfuatac[i].related_product_definition ) THEN
-    IF( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF( 'FUNCTIONAL_DECOMPOSITION_TO_DESIGN_MIM.' +
 'COMPONENT_DEFINITION' IN 
 TYPEOF(dfuatac[i].related_product_definition) ) THEN
       IF( NOT( dfuatac[i].related_product_definition IN cd_bag ) ) THEN
@@ -83,7 +83,7 @@ WHERE
   WR1: SIZEOF(QUERY(pdr <* product_definition_relationship |
        (pdr\product_definition_relationship.name = 'reference composition path')
        AND NOT(
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       ('FUNCTIONAL_DECOMPOSITION_TO_DESIGN_MIM.'
        + 'COMPONENT_FUNCTIONAL_UNIT' IN 
            TYPEOF(pdr.relating_product_definition))
        AND (pdr.relating_product_definition\product_definition.description = 
@@ -94,7 +94,7 @@ WHERE
   WR2: SIZEOF(QUERY(pdr <* product_definition_relationship |
        (pdr\product_definition_relationship.name = 'reference composition path')
        AND NOT(
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       ('FUNCTIONAL_DECOMPOSITION_TO_DESIGN_MIM.'
        + 'COMPONENT_FUNCTIONAL_UNIT' IN 
          TYPEOF(pdr.related_product_definition))
        AND (pdr.related_product_definition.frame_of_reference.name =
@@ -107,9 +107,9 @@ RULE reference_functional_unit_assignment_to_part_constraint FOR
 WHERE
   WR1: SIZEOF(QUERY( pdr <* product_definition_relationship |
        (pdr\product_definition_relationship.name = 'reference functional unit assignment to part')
-       AND NOT (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       AND NOT (('FUNCTIONAL_DECOMPOSITION_TO_DESIGN_MIM.'
        + 'PRODUCT_DEFINITION' IN TYPEOF(pdr.related_product_definition))
-       AND ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       AND ('FUNCTIONAL_DECOMPOSITION_TO_DESIGN_MIM.'
        + 'APPLICATION_CONTEXT_ELEMENT' IN
        TYPEOF(pdr.related_product_definition.frame_of_reference))
        AND ((pdr.relating_product_definition.frame_of_reference.name
@@ -118,7 +118,7 @@ WHERE
               = 'physical design usage'))))) = 0; 
   WR2: SIZEOF(QUERY( pdr <* product_definition_relationship |
        (pdr\product_definition_relationship.name = 'reference functional unit assignment to part')
-       AND NOT (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       AND NOT (('FUNCTIONAL_DECOMPOSITION_TO_DESIGN_MIM.'
        + 'PRODUCT_DEFINITION' IN TYPEOF(pdr.relating_product_definition))
        AND (pdr.relating_product_definition\product_definition.description = 
           'design definition path')
@@ -170,4 +170,5 @@ WHERE
 END_RULE; -- reference_functional_unit_assignment_to_part_unique_constraint
 	
 END_SCHEMA;
+
 

@@ -23,7 +23,7 @@ ENTITY connector_based_interconnect_definition
 UNIQUE
   UR1: SELF\property_definition.name,SELF\property_definition.definition;
 WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
        'PHYSICAL_INTERCONNECT_DEFINITION' IN 
         TYPEOF(SELF\property_definition.definition);
 END_ENTITY; -- connector_based_interconnect_definition
@@ -33,7 +33,7 @@ ENTITY physical_interconnection_definition
 UNIQUE
   UR1: SELF\property_definition.name,SELF\property_definition.definition;
 WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
        'PHYSICAL_UNIT_INTERCONNECT_DEFINITION' IN 
         TYPEOF(SELF\property_definition.definition);
 END_ENTITY; -- physical_interconnection_definition
@@ -41,7 +41,7 @@ END_ENTITY; -- physical_interconnection_definition
 ENTITY physical_unit_interconnect_definition
  SUBTYPE OF (product_definition);
 WHERE
-  WR1: (NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: (NOT ('PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
        'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
        TYPEOF (SELF))) OR
        (SIZEOF (QUERY (docs <* 
@@ -49,26 +49,26 @@ WHERE
         documentation_ids |
        docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
   WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 
        'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
        adta.role\date_time_role.name = 'creation date')) + 
        SIZEOF (QUERY (ada <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 
        'APPLIED_DATE_ASSIGNMENT.ITEMS') |
        ada.role\date_role.name = 'creation date')) = 1;
   WR3: SIZEOF (USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
        'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
   WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
        'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
        apoa.role\person_and_organization_role.name = 'creator')) +
        SIZEOF (QUERY (apoa <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
        'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
        apoa.role\organization_role.name = 'creator')) >= 1;
   WR5: SIZEOF (USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
        'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
   WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
        SELF\physical_unit_interconnect_definition))) = 0;
@@ -76,4 +76,5 @@ WHERE
 END_ENTITY; -- physical_unit_interconnect_definition
 	
 END_SCHEMA;
+
 

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.5 2004/12/14 16:18:02 liutkus Exp $
+   $Id: mim.exp,v 1.6 2004/12/17 12:49:25 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly module usage view - EXPRESS MIM *)
 (* UNDER DEVELOPMENT *)
 SCHEMA Assembly_module_usage_view_mim;
@@ -17,15 +17,15 @@ WHERE
         (SELF\product_definition.name = 'assembly module');
   WR3: (NOT (SELF.frame_of_reference.name = 'physical design')) OR
        (SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.' +
        'RELATED_PRODUCT_DEFINITION') |
        pdr\product_definition_relationship.name = 'design usage') |
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'ASSEMBLY_DEFINITION', 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'EXTERNALLY_DEFINED_ASSEMBLY_DEFINITION', 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'LIBRARY_DEFINED_ASSEMBLY_DEFINITION'] *
        TYPEOF (du.relating_product_definition)) = 1) AND
        (du.relating_product_definition.frame_of_reference.name = 
@@ -34,12 +34,12 @@ WHERE
         )) = 1);
   WR4: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'ASSEMBLY_MODULE_TERMINAL' IN
        TYPEOF (sa)) AND
        (sa\shape_aspect.description = 'pca terminal'))) >= 2))) = 0);
@@ -57,37 +57,37 @@ WHERE
   WR2: NOT EXISTS(SELF.of_shape.definition\product_definition.name) OR
       (SELF.of_shape.definition\product_definition.name = 'assembly module');
   WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'SHAPE_REPRESENTATION' IN
        TYPEOF (pdr.used_representation))) >= 1))) = 0;
   WR4: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'member connected terminal') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'PART_CONNECTED_TERMINALS_DEFINITION'
        IN TYPEOF (mct.relating_shape_aspect))) <= 1;
   WR5: (NOT (SELF\shape_aspect.description = 'pca terminal')) OR
        ((SIZEOF(TYPEOF (SELF.of_shape.definition) *
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'ASSEMBLY_DEFINITION',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'EXTERNALLY_DEFINED_ASSEMBLY_DEFINITION',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'LIBRARY_DEFINED_ASSEMBLY_DEFINITION']) >=1)
        AND (SELF.of_shape.definition\product_definition.
        frame_of_reference.name = 'physical design usage'));
   WR6: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1;
   WR7: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar.related_shape_aspect\shape_aspect.description = 'interface terminal')) <= 1;
 END_ENTITY; -- assembly_module_terminal
@@ -100,12 +100,12 @@ WHERE
        (SELF\product_definition.name = 'assembly module');
   WR3: (NOT (SELF.frame_of_reference\application_context_element.name = 'physical design usage')) 
         OR (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'ASSEMBLY_MODULE_TERMINAL' IN
        TYPEOF (sa)) AND
        (sa\shape_aspect.description = 'pca terminal'))) >= 2))) = 0);
@@ -118,15 +118,16 @@ WHERE
   WR2: SELF\product_definition.name = 'assembly module';
   WR3: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
        'ASSEMBLY_MODULE_TERMINAL' IN
        TYPEOF (sa)) AND
        (sa\shape_aspect.description = 'pca terminal'))) >= 2))) = 0);
 END_ENTITY; -- library_defined_assembly_definition
 *)
 END_SCHEMA;
+

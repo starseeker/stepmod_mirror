@@ -18,7 +18,7 @@ UNIQUE
   UR1: SELF\shape_aspect_relationship.related_shape_aspect,
        SELF\shape_aspect_relationship.relating_shape_aspect;
 WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
        'PACKAGED_PART_TERMINAL'
        IN TYPEOF (SELF.relating_shape_aspect);
 END_ENTITY; -- device_terminal_map
@@ -29,13 +29,13 @@ WHERE
    WR1: SIZEOF (QUERY (sar <* shape_aspect_relationship |
                (sar\shape_aspect_relationship.name = 'device terminal map relationship')
                AND
-      (NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      (NOT('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
       'DEVICE_TERMINAL_MAP' IN TYPEOF (sar.relating_shape_aspect)))
                )) = 0;
    WR2: SIZEOF (QUERY (sar <* shape_aspect_relationship |
                (sar\shape_aspect_relationship.name = 'device terminal map relationship')
                AND
-    (NOT('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    (NOT('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
        'DEVICE_TERMINAL_MAP' IN TYPEOF (sar.related_shape_aspect)))
                )) = 0;
 END_RULE; -- device_terminal_map_relationship_constraint
@@ -52,7 +52,7 @@ END_LOCAL;
 REPEAT i := 1 to SIZEOF(property_definition_representation) by 1;
   IF EXISTS( property_definition_representation[i].used_representation )
                                                             THEN
-    IF( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF( 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
 'ANALYTICAL_MODEL_PORT' IN TYPEOF(
 property_definition_representation[i].used_representation) ) THEN
       IF( NOT( property_definition_representation[i].used_representation IN 
@@ -99,7 +99,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(shape_aspect) by 1;
   IF EXISTS( shape_aspect[i].of_shape.definition ) THEN
-    IF( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF( ('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP' IN 
 TYPEOF(shape_aspect[i].of_shape.definition)) AND
 (shape_aspect[i].of_shape.definition.description = 'part device') ) THEN
@@ -121,20 +121,20 @@ REPEAT i := 1 to SIZEOF(pdr_bag) by 1;
     END_IF;
     pd_bag := QUERY( pd <* USEDIN(
 sa_bag[j].of_shape.definition.related_product_definition,
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
 'PROPERTY_DEFINITION.DEFINITION') | (SIZEOF([
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
 'BARE_DIE'
--- ,'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'EXTERNALLY_DEFINED_BARE_DIE',
--- 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'LIBRARY_DEFINED_BARE_DIE'
+-- ,'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'EXTERNALLY_DEFINED_BARE_DIE',
+-- 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'LIBRARY_DEFINED_BARE_DIE'
 ] * TYPEOF(pd.definition))>0) );
     REPEAT k := 1 to SIZEOF(pd_bag) by 1;
       IF ( NOT pass ) THEN ESCAPE;
       END_IF;
       sa := QUERY( bdt <* USEDIN(pd_bag[k],
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
 'SHAPE_ASPECT.OF_SHAPE') |
-('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
 'BARE_DIE_TERMINAL' IN TYPEOF(bdt)) );
       REPEAT l := 1 to SIZEOF(sa) by 1;
         IF EXISTS( sa[l] ) THEN
@@ -168,10 +168,10 @@ REPEAT i := 1 to SIZEOF(pd) by 1;
   IF EXISTS( pd[i].relating_product_definition ) THEN
     IF( (pd[i].relating_product_definition.frame_of_reference.name =
 'physical design usage') AND (SIZEOF(
-['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+['PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
 'PACKAGED_PART'
--- ,'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'EXTERNALLY_DEFINED_PACKAGED_PART',
--- 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 'LIBRARY_DEFINED_PACKAGED_PART'
+-- ,'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'EXTERNALLY_DEFINED_PACKAGED_PART',
+-- 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' + 'LIBRARY_DEFINED_PACKAGED_PART'
 ] * 
 TYPEOF(pd[i].relating_product_definition))>0) ) THEN
       IF( NOT( pd[i].relating_product_definition IN pu_bag ) ) THEN
@@ -203,4 +203,5 @@ WHERE
 END_RULE; -- part_device_unique_constraint
 	
 END_SCHEMA;
+
 

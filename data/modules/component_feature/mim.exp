@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.4 2004/12/17 12:50:28 liutkus Exp $
+   $Id: mim.exp,v 1.5 2004/12/22 06:33:06 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Component feature - EXPRESS MIM *)
 (* UNDER DEVELOPMENT *)
 SCHEMA Component_feature_mim;
@@ -11,11 +11,11 @@ USE FROM Shape_property_assignment_mim;
 ENTITY component_feature
   SUBTYPE OF (shape_aspect);
 WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: 'COMPONENT_FEATURE_MIM.' +
        'COMPONENT_DEFINITION' IN
        TYPEOF (SELF.of_shape.definition);
   WR2: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature')) <= 1;
 END_ENTITY; -- component_feature
@@ -47,35 +47,35 @@ WHERE
        'packaged component join terminal', 
        'printed component join terminal', 'package terminal occurrence',
        'via terminal']) OR
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('COMPONENT_FEATURE_MIM.' +
        'ASSEMBLY_MODULE_MACRO_COMPONENT_JOIN_TERMINAL' IN
        TYPEOF  (SELF)) OR
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('COMPONENT_FEATURE_MIM.' +
        'INTERCONNECT_MODULE_MACRO_COMPONENT_JOIN_TERMINAL' IN
        TYPEOF  (SELF));
-  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: 'COMPONENT_FEATURE_MIM.' +
        'COMPONENT_DEFINITION' IN
        TYPEOF  (SELF.of_shape.definition);
   WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature')) <= 1;
   WR4: SIZEOF (QUERY (at <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated terminals') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PHYSICAL_CONNECTIVITY_DEFINITION' IN
        TYPEOF (at.relating_shape_aspect))) <= 1;
   WR5: SIZEOF (QUERY (cr <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'connectivity requirement') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PHYSICAL_NETWORK' IN
        TYPEOF (cr.relating_shape_aspect))) <= 1;
   WR6: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'design usage')) <= 1;
   WR7: (NOT (SELF\shape_aspect.description IN 
@@ -96,10 +96,10 @@ WHERE
   WR9: (NOT (SELF\shape_aspect.description = 
        'assembly module component terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('COMPONENT_FEATURE_MIM.' +
        'ASSEMBLY_MODULE_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)))) = 1);
  WR10: (NOT (SELF\shape_aspect.description = 
@@ -109,17 +109,17 @@ WHERE
  WR11: (NOT (SELF\shape_aspect.description = 
        'bare die component terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('COMPONENT_FEATURE_MIM.' +
        'BARE_DIE_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)))) = 1);
 (*
  WR12: (NOT (SELF\shape_aspect.description = 
        'component termination passage join terminal')) OR
        (
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('COMPONENT_FEATURE_MIM.' +
        'PLATED_PASSAGE' IN
        TYPEOF (associated_component(SELF))) AND
        (associated_component(SELF).description =
@@ -128,7 +128,7 @@ WHERE
  WR13: (NOT (SELF\shape_aspect.description = 
        'component termination passage join terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
        i_f.relating_shape_aspect\shape_aspect.description =
@@ -136,7 +136,7 @@ WHERE
 (*
   WR14: (NOT (SELF\shape_aspect.description = 
         'conductive interconnect element terminal')) OR
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('COMPONENT_FEATURE_MIM.' +
        'COMPONENT_SHAPE_ASPECT' IN
        TYPEOF (associated_component(SELF)) AND
        ((associated_component(SELF).description =
@@ -150,7 +150,7 @@ WHERE
        'interconnect component join terminal',
        'printed component join terminal'])) OR
        (SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar.related_shape_aspect\shape_aspect.description =
        'connection zone')) <= 1);
@@ -167,40 +167,40 @@ WHERE
  WR17: (NOT (SELF\shape_aspect.description =
        'interconnect module component terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'INTERCONNECT_MODULE_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)
        )) = 1);
  WR18: (NOT (SELF\shape_aspect.description IN
        ['land join terminal', 'non functional land join terminal'])) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('COMPONENT_FEATURE_MIM.' +
        'LAND_TEMPLATE_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)) AND
        (TRUE)))) = 1);
 (*
  WR19: (NOT (SELF\shape_aspect.description = 'land join terminal')) OR
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('COMPONENT_FEATURE_MIM.' +
        'LAND' IN
        TYPEOF (associated_component(SELF)));
 *)
  WR20: (NOT (SELF\shape_aspect.description = 
        'minimally defined terminal')) OR
        (SIZEOF (QUERY (pdr<* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'part terminal external reference')) = 1);
 (*
  WR21: (NOT (SELF\shape_aspect.description = 
        'non functional land join terminal')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('COMPONENT_FEATURE_MIM.' +
        'LAND' IN
        TYPEOF (associated_component(SELF))) AND
        (associated_component(SELF).description IN
@@ -216,16 +216,16 @@ WHERE
  WR22: (NOT (SELF\shape_aspect.description = 
        'package terminal occurrence')) OR
        (SIZEOF (QUERY (ud <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'usage definition') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('COMPONENT_FEATURE_MIM.' +
        'PACKAGE_TERMINAL' IN
        TYPEOF (ud.relating_shape_aspect)))) = 1);
  WR23: (NOT (SELF\shape_aspect.description IN 
        ['package terminal occurrence',
        'packaged component join terminal'])) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('COMPONENT_FEATURE_MIM.' +
        'PACKAGED_COMPONENT' IN
        TYPEOF (SELF.of_shape.definition)) AND
        (SELF.of_shape.definition\product_definition.
@@ -234,10 +234,10 @@ WHERE
  WR24: (NOT (SELF\shape_aspect.description = 
        'packaged component join terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('COMPONENT_FEATURE_MIM.' +
        'PACKAGED_PART_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)) AND
        (i_f.relating_shape_aspect\shape_aspect.description =
@@ -245,47 +245,47 @@ WHERE
  WR25: (NOT (SELF\shape_aspect.description = 
        'packaged component join terminal')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        SIZEOF (QUERY (it <* pdr.used_representation.items |
        SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['COMPONENT_FEATURE_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2)) <= 2)) <= 1)) <= 1); 
  WR26: (NOT (SELF\shape_aspect.description = 
        'packaged component join terminal')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        SIZEOF (QUERY (lmwu <* QUERY (it <* pdr.used_representation.items |
        SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['COMPONENT_FEATURE_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) |
        lmwu\representation_item.name = 'maximum wire length')) <= 1)) <= 1)) <= 1);
  WR27: (NOT (SELF\shape_aspect.description = 
        'packaged component join terminal')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        SIZEOF (QUERY (lmwu <* QUERY (it <* pdr.used_representation.items |
        SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['COMPONENT_FEATURE_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) |
        lmwu\representation_item.name = 'minimum wire length')) <= 1)) <= 1)) <= 1); 
@@ -300,10 +300,10 @@ WHERE
  WR29: (NOT (SELF\shape_aspect.description = 
        'printed component join terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('COMPONENT_FEATURE_MIM.' +
        'PRINTED_PART_TEMPLATE_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)) AND
        (i_f.relating_shape_aspect\shape_aspect.description =
@@ -311,10 +311,10 @@ WHERE
  WR30: (NOT (SELF\shape_aspect.description = 
        'printed component join terminal')) OR
        (SIZEOF (QUERY (i <* QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        pdr\shape_aspect_relationship.name = 'implementation') |
-       ((SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ((SIZEOF (['COMPONENT_FEATURE_MIM.' +
        'COMPONENT_SHAPE_ASPECT'] *
        TYPEOF (i.relating_shape_aspect)) >= 1) AND
        (i.relating_shape_aspect\shape_aspect.description = 
@@ -322,7 +322,7 @@ WHERE
        )) = 1);
 (*
  WR31: (NOT (SELF\shape_aspect.description = 'via terminal')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('COMPONENT_FEATURE_MIM.' +
        'PLATED_PASSAGE' IN
        TYPEOF (associated_component(SELF))) AND
        (associated_component(SELF).description IN
@@ -333,7 +333,7 @@ WHERE
 *)
  WR32: (NOT (SELF\shape_aspect.description = 'via terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
        i_f.relating_shape_aspect\shape_aspect.description =
@@ -348,25 +348,25 @@ WHERE
        'interconnect module component', 'laminate component',
        'packaged component']));
  WR34: SIZEOF(QUERY(pd <* USEDIN(SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') | SIZEOF(QUERY(pdr <* USEDIN(pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
        SIZEOF(QUERY(dri <* pdr.used_representation.items |
        (dri\representation_item.name = 'global swappable') AND 
        (dri\descriptive_representation_item.description IN ['true', 'false']))) = 1)) = 1)) <= 1;
  WR35: SIZEOF(QUERY(pd <* USEDIN(SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') | SIZEOF(QUERY(pdr <* USEDIN(pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
        SIZEOF(QUERY(dri <* pdr.used_representation.items |
        (dri\representation_item.name = 'local swappable') AND 
        (dri\descriptive_representation_item.description IN ['true', 'false']))) = 1)) = 1)) <= 1;
  WR36: SIZEOF(QUERY(pd <* USEDIN(SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') | SIZEOF(QUERY(pdr <* USEDIN(pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
        SIZEOF(QUERY(dri <* pdr.used_representation.items | dri\representation_item.name = 
        'swap code'
@@ -376,28 +376,28 @@ END_ENTITY; -- component_terminal
 ENTITY make_from_feature_relationship
  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 WHERE
-  WR1: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: SIZEOF (['COMPONENT_FEATURE_MIM.' +
        'COMPONENT_TERMINAL',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'COMPONENT_INTERFACE_TERMINAL',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'COMPONENT_SHAPE_ASPECT'] *
        TYPEOF (SELF.relating_shape_aspect)) = 1;
-  WR2: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: SIZEOF (['COMPONENT_FEATURE_MIM.' +
        'COMPONENT_TERMINAL',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'COMPONENT_INTERFACE_TERMINAL',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'COMPONENT_FEATURE_MIM.' +
        'COMPONENT_SHAPE_ASPECT'] *
        TYPEOF (SELF.related_shape_aspect)) = 1;
-  WR3: (NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR3: (NOT ('COMPONENT_FEATURE_MIM.' +
        'COMPONENT_SHAPE_ASPECT' IN
        TYPEOF (SELF.relating_shape_aspect))) OR
        (SELF.relating_shape_aspect\shape_aspect.description IN ['component feature',
        'component termination passage interface terminal', 
        'land or non functional land interface terminal',  
        'printed connector component interface terminal']);
-  WR4: (NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR4: (NOT ('COMPONENT_FEATURE_MIM.' +
        'COMPONENT_SHAPE_ASPECT' IN
        TYPEOF (SELF.related_shape_aspect))) OR
        (SELF.related_shape_aspect\shape_aspect.description IN ['component feature',
@@ -433,7 +433,7 @@ END_LOCAL;
 cf := ct + cit;
 REPEAT i := 1 to SIZEOF(cf) by 1;
   IF EXISTS( cf[i].of_shape.definition ) THEN
-    IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( 'COMPONENT_FEATURE_MIM.' +
 'COMPONENT_DEFINITION' IN TYPEOF(cf[i].of_shape.definition) ) THEN
       IF ( NOT ( cf[i].of_shape.definition IN cd_bag )) THEN
         cd_bag := cd_bag + cf[i].of_shape.definition;
@@ -451,7 +451,7 @@ REPEAT i := 1 to SIZEOF(cd_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     sar_bag := QUERY( sar <* USEDIN( sa_bag[j],
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'COMPONENT_FEATURE_MIM.' +
 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | 
              (sar\shape_aspect_relationship.name = 'instantiated feature') );
     REPEAT k := 1 to SIZEOF(sar_bag) by 1;
@@ -471,3 +471,4 @@ WHERE
 END_RULE; -- component_feature_unique_constraint
 
 END_SCHEMA;
+

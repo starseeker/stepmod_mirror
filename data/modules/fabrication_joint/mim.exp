@@ -13,15 +13,15 @@ ENTITY connection_zone_based_fabrication_joint
   SUBTYPE OF (fabrication_joint);
 WHERE
   WR1: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FABRICATION_JOINT_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'zone 1')) = 1;
   WR2: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FABRICATION_JOINT_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'zone 2')) = 1;
   WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FABRICATION_JOINT_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar.relating_shape_aspect\shape_aspect.description = 'connection zone')) = 2;
 
@@ -30,7 +30,7 @@ END_ENTITY; -- connection_zone_based_fabrication_joint
 ENTITY fabrication_joint
   SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 WHERE
-  WR1: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: (('FABRICATION_JOINT_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (SELF.related_shape_aspect)) AND
        (SELF.related_shape_aspect\shape_aspect.description IN
@@ -38,7 +38,7 @@ WHERE
        'non functional land join terminal',
        'land join terminal', 'conductive interconnect element terminal',
        'component termination passage join terminal']));
-  WR2: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: (('FABRICATION_JOINT_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (SELF.relating_shape_aspect)) AND
        (SELF.relating_shape_aspect\shape_aspect.description IN
@@ -47,22 +47,23 @@ WHERE
        'land join terminal', 'conductive interconnect element terminal',
        'component termination passage join terminal']));
   WR3: SIZEOF (QUERY (ajm <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'FABRICATION_JOINT_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'auxiliary joint material') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('FABRICATION_JOINT_MIM.' +
        'LAND' IN
        TYPEOF (ajm.related_shape_aspect)) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('FABRICATION_JOINT_MIM.' +
        'COMPONENT_SHAPE_ASPECT' IN
        TYPEOF (ajm.related_shape_aspect)) AND
        (ajm.related_shape_aspect\shape_aspect.description =
        'stratum feature template component')))) <= 1;
   WR4: acyclic_shape_aspect_relationship(SELF,
        [SELF\shape_aspect_relationship.related_shape_aspect],
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'+
+       'FABRICATION_JOINT_MIM.'+
        'FABRICATION_JOINT');
 END_ENTITY; -- fabrication_joint
 	
 END_SCHEMA;
+
 

@@ -83,14 +83,14 @@ a subtype of layout_template_definition *)
     UNIQUE
     	UR1 : shape_characterized_footprint_definition;
     WHERE
-      WR1 : NOT (SIZEOF(['AP210_ARM.PHYSICAL_UNIT_3D_SHAPE',
- 'AP210_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR (shape_characterized_footprint_definition.reference_package :=: reference_shape.shape_characterized_physical_unit);
-      WR2 : NOT (SIZEOF(['AP210_ARM.PHYSICAL_UNIT_3D_SHAPE',
- 'AP210_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR ('AP210_ARM.PACKAGE' IN TYPEOF(reference_shape.shape_characterized_physical_unit));
-      WR3 : NOT (SIZEOF(['AP210_ARM.PART_TEMPLATE_3D_SHAPE',
- 'AP210_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR (shape_characterized_footprint_definition.reference_package :=: reference_shape.shape_characterized_part_template);
-      WR4 : NOT (SIZEOF(['AP210_ARM.PART_TEMPLATE_3D_SHAPE',
- 'AP210_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR ('AP210_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape.shape_characterized_part_template));
+      WR1 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR (shape_characterized_footprint_definition.reference_package :=: reference_shape.shape_characterized_physical_unit);
+      WR2 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR ('PART_TEMPLATE_2D_SHAPE_ARM.PACKAGE' IN TYPEOF(reference_shape.shape_characterized_physical_unit));
+      WR3 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR (shape_characterized_footprint_definition.reference_package :=: reference_shape.shape_characterized_part_template);
+      WR4 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape.shape_characterized_part_template));
 			WR5 : (SIZEOF(USEDIN(SELF,
  'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
   END_ENTITY; -- footprint_definition_shape
@@ -105,7 +105,7 @@ a subtype of layout_template_definition *)
       template : SET[1:?] OF part_template_location_in_padstack_definition FOR padstack;
     WHERE
       WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\product_view_definition.defined_version.of_product,
- 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'template model'))) > 0;
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'template model'))) > 0;
   END_ENTITY; -- padstack_definition
 
   ENTITY Padstack_definition_shape
@@ -127,9 +127,9 @@ a subtype of layout_template_definition *)
     INVERSE
       transform : padstack_location_in_footprint_definition_transform FOR reference_location;
     WHERE
-      WR1 : NOT ('AP210_ARM.PART_FEATURE' IN TYPEOF(reference_package_terminal)) OR reference_package_terminal\shape_element.containing_shape :=: footprint.reference_package;
-      WR2 : NOT ('AP210_ARM.PRINTED_PART_TEMPLATE_TERMINAL' IN TYPEOF(reference_package_terminal)) OR reference_package_terminal.associated_definition :=: footprint.reference_package;
-      WR3 : NOT ('AP210_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(footprint.reference_package)) OR ('AP210_ARM.PRINTED_PART_TEMPLATE_INTERFACE_TERMINAL' IN TYPEOF(reference_package_terminal));
+      WR1 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PART_FEATURE' IN TYPEOF(reference_package_terminal)) OR reference_package_terminal\shape_element.containing_shape :=: footprint.reference_package;
+      WR2 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE_TERMINAL' IN TYPEOF(reference_package_terminal)) OR reference_package_terminal.associated_definition :=: footprint.reference_package;
+      WR3 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(footprint.reference_package)) OR ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE_INTERFACE_TERMINAL' IN TYPEOF(reference_package_terminal));
   END_ENTITY; -- padstack_location_in_footprint_definition
 
   ENTITY Padstack_location_in_footprint_definition_transform;
@@ -148,11 +148,11 @@ a subtype of layout_template_definition *)
     INVERSE
       transform : SET[0:1] OF part_template_location_in_padstack_definition_transform FOR reference_location;
     WHERE
-      WR1 : ((SIZEOF(transform) = 1) AND (SIZEOF(['AP210_ARM.SNOWBALL_TEMPLATE',
- 'AP210_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
- 'AP210_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(transform[1].template_shape.shape_characterized_part_template)) = 0)) OR (NOT (SIZEOF(transform) = 1) AND (SIZEOF(['AP210_ARM.SNOWBALL_TEMPLATE',
- 'AP210_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
- 'AP210_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(template.associated_template_occurrence)) = 1));
+      WR1 : ((SIZEOF(transform) = 1) AND (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(transform[1].template_shape.shape_characterized_part_template)) = 0)) OR (NOT (SIZEOF(transform) = 1) AND (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(template.associated_template_occurrence)) = 1));
   END_ENTITY; -- part_template_location_in_padstack_definition
 
   ENTITY Part_template_location_in_padstack_definition_transform;
@@ -215,3 +215,4 @@ a subtype of layout_template_definition *)
   END_FUNCTION; -- get_padstack_arrangement
 
 END_SCHEMA;
+

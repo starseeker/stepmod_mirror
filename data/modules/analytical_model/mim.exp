@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.9 2004/12/29 14:39:06 liutkus Exp $
+   $Id: mim.exp,v 1.10 2004/12/30 10:42:08 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Analytical model - EXPRESS MIM
 *)
 
@@ -32,22 +32,22 @@ UNIQUE
   UR1: SELF\representation.name;
 WHERE
   WR1: SIZEOF (USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 2;
   WR2: SIZEOF (QUERY (dr <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
        dr.assigned_document.kind\document_type.product_data_type = 
        'language reference manual')) = 1;
   WR3: SIZEOF (QUERY (it <* SELF.items |
-       NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       NOT ('ANALYTICAL_MODEL_MIM.' +
        'MODEL_PARAMETER' IN 
        TYPEOF (it)))) = 0;
   WR4: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_1') |
        (rr\representation_relationship.name = 'access mechanism') AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL_PORT' IN
        TYPEOF (rr.rep_2)))) >= 1;
 END_ENTITY; -- analytical_model
@@ -55,7 +55,7 @@ END_ENTITY; -- analytical_model
 ENTITY analytical_model_definition
  SUBTYPE OF (product_definition);
 WHERE
-  WR1: (NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: (NOT ('ANALYTICAL_MODEL_MIM.' +
        'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
        TYPEOF (SELF))) OR
        (SIZEOF (QUERY (docs <* 
@@ -63,26 +63,26 @@ WHERE
         documentation_ids |
        docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
   WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'ANALYTICAL_MODEL_MIM.' + 
        'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
        adta.role\date_time_role.name = 'creation date')) + 
        SIZEOF (QUERY (ada <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'ANALYTICAL_MODEL_MIM.' + 
        'APPLIED_DATE_ASSIGNMENT.ITEMS') |
        ada.role\date_role.name = 'creation date')) = 1;
   WR3: SIZEOF (USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
   WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
        apoa.role\person_and_organization_role.name = 'creator')) +
        SIZEOF (QUERY (apoa <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
        apoa.role\organization_role.name = 'creator')) >= 1;
   WR5: SIZEOF (USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
   WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
        SELF\analytical_model_definition))) = 0;
@@ -93,24 +93,24 @@ ENTITY analytical_model_make_from_relationship
 UNIQUE
   UR1: SELF\representation_relationship.rep_1, SELF\representation_relationship.rep_2;
 WHERE
-  WR1: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL'] *
        TYPEOF (SELF.rep_1)) = 1;
-  WR2: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL'] *
        TYPEOF (SELF.rep_2)) = 1;
   WR3: SIZEOF( QUERY(rr <* USEDIN(SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_1') |NOT(
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'MAKE_FROM_MODEL_PORT_RELATIONSHIP' IN TYPEOF(rr.rep_2))))) = 0;
   WR4: SIZEOF( QUERY(rr <* USEDIN(SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_1') |NOT(
        (rr\representation_relationship.name = 'associated make from') AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'MAKE_FROM_MODEL_PORT_RELATIONSHIP' IN TYPEOF(rr.rep_2))))) = 0;
-  WR5: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR5: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL'] *
        TYPEOF (SELF)) = 0;
   WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||
@@ -122,9 +122,9 @@ ENTITY analytical_model_parameter
  SUBTYPE OF (model_parameter);
 WHERE
   WR1: SIZEOF (QUERY (cri <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'REPRESENTATION.ITEMS') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL' IN TYPEOF(cri)) 
        )) = 1;
 END_ENTITY; -- analytical_model_parameter
@@ -135,10 +135,10 @@ ENTITY analytical_model_port
   SUBTYPE OF (representation);
   WHERE
   WR1: SIZEOF (QUERY (am <* QUERY (rr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'ANALYTICAL_MODEL_MIM.' + 
        'REPRESENTATION_RELATIONSHIP.REP_2') |
        rr\representation_relationship.name = 'access mechanism') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL' IN 
        TYPEOF (am.rep_1))) = 1;
 END_ENTITY; -- analytical_model_port
@@ -151,11 +151,11 @@ ENTITY analytical_model_scalar_port
   SUBTYPE OF (analytical_model_vector_port);
 WHERE
   WR1: SIZEOF (QUERY (it <* SELF.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'MEASURE_REPRESENTATION_ITEM'
        IN TYPEOF (it)) AND
        (it\representation_item.name = 'size') AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'COUNT_MEASURE' IN
        TYPEOF (it\measure_with_unit.value_component)) AND
        (it\measure_with_unit.value_component = 1))) = 1;
@@ -165,14 +165,14 @@ ENTITY analytical_model_vector_port
   SUBTYPE OF (analytical_model_port);
 WHERE
   WR1: (SIZEOF (QUERY (it <* SELF.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'MEASURE_REPRESENTATION_ITEM'
        IN TYPEOF (it)) AND
        (it\representation_item.name = 'size') AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'COUNT_MEASURE' IN
        TYPEOF (it\measure_with_unit.value_component)) AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'CONTEXT_DEPENDENT_UNIT' IN
        TYPEOF (it\measure_with_unit.unit_component)))) = 1);
 END_ENTITY; -- analytical_model_vector_port
@@ -183,15 +183,15 @@ UNIQUE
   UR1: SELF\representation.name;
 WHERE
   WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_1') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'PARAMETER_ASSIGNMENT_REPRESENTATION' IN
        TYPEOF (rr.rep_2))) >= 1;
   WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'ANALYTICAL_MODEL_MIM.' + 
        'REPRESENTATION_RELATIONSHIP.REP_2') | 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL' IN TYPEOF (rr.rep_1))) = 1;
 END_ENTITY; -- analytical_representation
 
@@ -199,7 +199,7 @@ ENTITY digital_analytical_model_port
   SUBTYPE OF (analytical_model_port);
 WHERE
   WR2: SIZEOF (QUERY (it <* SELF.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'DESCRIPTIVE_REPRESENTATION_ITEM'
        IN TYPEOF (it)) AND
        (it\representation_item.name = 'nominal signal flow direction') AND
@@ -207,7 +207,7 @@ WHERE
        ['input direction',
        'output direction', 'bidirectional', 'unknown direction']))) = 1;
   WR3: SIZEOF (QUERY (it <* SELF.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'DESCRIPTIVE_REPRESENTATION_ITEM'
        IN TYPEOF (it)) AND
        (it\representation_item.name = 'port type') AND
@@ -223,10 +223,10 @@ UNIQUE
   UR1: SELF\representation_relationship.rep_1, 
        SELF\representation_relationship.rep_2;
 WHERE
-  WR1: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL_PORT'] *
        TYPEOF (SELF.rep_1)) = 1;
-  WR2: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL_PORT'] *
        TYPEOF (SELF.rep_2)) = 1;
   WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
@@ -234,17 +234,17 @@ WHERE
        SELF\make_from_model_port_relationship)) = 0;
   WR4: rep_1 :<>: rep_2;
   WR5: SIZEOF(QUERY( rr1 <* USEDIN(SELF.rep_1,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_2') |
         (SIZEOF(QUERY(rr2 <* USEDIN(SELF.rep_2,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_2') | 
         (rr1.rep_1 :=: rr2.rep_1)
         )) = 0))) = 1;
   WR6: SIZEOF (QUERY( rr <* USEDIN(SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ANALYTICAL_MODEL_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_2') | 
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('ANALYTICAL_MODEL_MIM.' +
        'ANALYTICAL_MODEL_MAKE_FROM_RELATIONSHIP') IN TYPEOF (rr.rep_1))
        )) = 1; 
        
@@ -263,7 +263,7 @@ ENTITY transform_port_variable
   SUBTYPE OF (port_variable);
 WHERE
   WR1: (SIZEOF (QUERY (it <* SELF.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ANALYTICAL_MODEL_MIM.' +
        'DESCRIPTIVE_REPRESENTATION_ITEM'
        IN TYPEOF (it)) AND
        (it\representation_item.name = 'nominal signal flow direction') AND
@@ -300,10 +300,10 @@ REPEAT i := 1 to SIZEOF(name_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     rr_bag := QUERY( rr <* USEDIN( amp_bag[j], 
-               'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+               'ANALYTICAL_MODEL_MIM.'
 + 'REPRESENTATION_RELATIONSHIP.REP_2' ) | ((rr\representation_relationship.name = 'access mechanism') 
  AND
-('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+('ANALYTICAL_MODEL_MIM.'
 + 'ANALYTICAL_MODEL' IN TYPEOF(rr.rep_1))) );
     REPEAT k := 1 to SIZEOF(rr_bag) by 1;
       IF EXISTS( rr_bag[k].rep_1 ) THEN
@@ -322,4 +322,5 @@ WHERE
 END_RULE; -- analytical_model_port_unique_constraint
 
 END_SCHEMA;
+
 

@@ -19,23 +19,23 @@ ENTITY packaged_connector
   SUBTYPE OF (packaged_part);
 WHERE
   WR1: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_MODEL_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_MODEL_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGED_CONNECTOR_MODEL_MIM.' +
        'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' IN
        TYPEOF (sa)))) = 1))) >= 1;
 
   WR2: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_MODEL_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_MODEL_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
        (SIZEOF (QUERY ( sar <* USEDIN(sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+       'PACKAGED_CONNECTOR_MODEL_MIM.' + 
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
         sar\shape_aspect_relationship.name = 'interface plane')) = 1)
        )) = 1)
@@ -43,12 +43,12 @@ WHERE
        ) <= 1;
 
   WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_MODEL_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_MODEL_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGED_CONNECTOR_MODEL_MIM.' +
        'SEATING_PLANE' IN
        TYPEOF (sa)))) = 1))) <= 1;
 END_ENTITY; -- packaged_connector
@@ -57,21 +57,21 @@ ENTITY packaged_connector_terminal_relationship
  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 WHERE
   WR1: (SIZEOF (TYPEOF (SELF.of_shape.definition) *
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['PACKAGED_CONNECTOR_MODEL_MIM.' +
        'PACKAGED_PART',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_MODEL_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGED_PART',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGED_CONNECTOR_MODEL_MIM.' +
        'LIBRARY_DEFINED_PACKAGED_PART']) 
        = 1) AND
        (SELF.of_shape.definition\product_definition.description =
        'packaged connector');
-  WR2: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: (('PACKAGED_CONNECTOR_MODEL_MIM.' +
        'PACKAGED_PART_TERMINAL' IN 
        TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect)) AND
        (SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description 
         = 'interface terminal'));
-  WR3: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR3: (('PACKAGED_CONNECTOR_MODEL_MIM.' +
        'PACKAGED_PART_TERMINAL' IN 
        TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect)) AND
        (SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description 
@@ -92,7 +92,7 @@ END_LOCAL;
 REPEAT i := 1 to SIZEOF(packaged_connector_terminal_relationship) by 1;
   IF EXISTS( packaged_connector_terminal_relationship[i].
                                of_shape.definition ) THEN
-    IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( 'PACKAGED_CONNECTOR_MODEL_MIM.' +
 'PHYSICAL_UNIT' 
    IN TYPEOF(packaged_connector_terminal_relationship[i].
                                of_shape.definition) ) THEN
@@ -117,7 +117,7 @@ REPEAT i := 1 to SIZEOF(pu_bag) by 1;
     IF ( NOT (pass1 OR pass2) ) THEN ESCAPE;
     END_IF;
     IF ( pass1 AND (
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGED_CONNECTOR_MODEL_MIM.' +
 'PACKAGED_PART_TERMINAL' IN TYPEOF(pctr_bag[j].relating_shape_aspect))
 AND (pctr_bag[j].relating_shape_aspect\shape_aspect.description = 'join terminal') ) THEN
       IF EXISTS( pctr_bag[j].relating_shape_aspect ) THEN
@@ -130,7 +130,7 @@ AND (pctr_bag[j].relating_shape_aspect\shape_aspect.description = 'join terminal
       END_IF;
     END_IF;
     IF ( pass2 AND (
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGED_CONNECTOR_MODEL_MIM.' +
 'PACKAGED_PART_TERMINAL' IN TYPEOF(pctr_bag[j].related_shape_aspect))
 AND (pctr_bag[j].related_shape_aspect\shape_aspect.description = 
 'interface terminal') ) THEN
@@ -151,4 +151,5 @@ WHERE
 END_RULE; -- packaged_connector_terminal_relationship_unique_constraint
 	
 END_SCHEMA;
+
 

@@ -18,51 +18,51 @@ ENTITY externally_defined_package
 WHERE
   WR1: SELF.frame_of_reference.name = 'physical design usage';
   WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
                            'registered case style')) >= 1))) = 0;
   WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_REPRESENTATION' IN
        TYPEOF (pdr)) |
        sr_pdr.used_representation\representation.name = 'seating plane')) = 1))) = 0;
   WR4: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PACKAGE_BODY' IN 
        TYPEOF (sa))) <= 1))) = 0;
   WR5: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PACKAGE_TERMINAL' IN 
        TYPEOF (sa))) >= 1))) = 0;
   WR6: (NOT (SELF\product_definition.description = 'altered package')) OR
        (SIZEOF (QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
        (pdr\product_definition_relationship.name = 'package preparation') AND
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['PACKAGE_MIM.' +
        'PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'LIBRARY_DEFINED_PACKAGE'] * 
        TYPEOF (pdr.relating_product_definition)) = 1))) = 1); 
 END_ENTITY; -- externally_defined_package
@@ -80,37 +80,37 @@ ENTITY library_defined_package
 WHERE
   WR1: SELF.frame_of_reference.name = 'physical design usage';
   WR2: SIZEOF(USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION')) > 0;
   WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY(sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SEATING_PLANE' IN
        TYPEOF (sa))) = 1))) = 1;
   WR4: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PACKAGE_BODY' IN 
        TYPEOF (sa))) = 1))) <= 1;
   WR5: NOT(EXISTS(SELF\product_definition.description) AND
         (SELF\product_definition.description = 'altered package')) OR
        (SIZEOF (QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
        (pdr\product_definition_relationship.name = 'package preparation') AND
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['PACKAGE_MIM.' +
        'PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'LIBRARY_DEFINED_PACKAGE'] * 
        TYPEOF (pdr.relating_product_definition)) = 1))) = 1); 
 END_ENTITY; -- library_defined_package
@@ -120,203 +120,203 @@ ENTITY package
 WHERE
   WR1: SELF.frame_of_reference.name = 'physical design usage';
   WR2: SIZEOF (QUERY (prpc <* USEDIN (SELF.formation.of_product,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PRODUCT_RELATED_PRODUCT_CATEGORY.' +
        'PRODUCTS') |
        prpc\product_category.name = 'package')) > 0;
   WR3: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PACKAGE_BODY' IN 
        TYPEOF (sa))) = 1))) <= 1;
   WR4: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PACKAGE_TERMINAL' IN 
        TYPEOF (sa))) >= 1))) >= 1;
   WR5: (NOT (SELF\product_definition.description = 'altered package')) OR
        (SIZEOF (QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
        (pdr\product_definition_relationship.name = 'package alteration') AND
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['PACKAGE_MIM.' +
        'PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'LIBRARY_DEFINED_PACKAGE'] * 
        TYPEOF (pdr.relating_product_definition)) = 1))) = 1); 
   WR6: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 'package mounting data')) = 1))) = 1;
 
   WR7: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (pdr.used_representation\representation.name = 'package mounting data')
        AND (SIZEOF (QUERY (item <* USEDIN( pdr.used_representation,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'REPRESENTATION.ITEMS') | item\representation_item.name =
        'maximum body height above seating plane')) = 1)
        )) = 1))) = 1;
 
   WR8: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (pdr.used_representation\representation.name = 'package mounting data')
        AND (SIZEOF (QUERY (item <* USEDIN( pdr.used_representation,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'REPRESENTATION.ITEMS') | item\representation_item.name =
        'maximum body height below seating plane')) = 1)
        )) = 1))) <= 1;
 
   WR9: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (pdr.used_representation\representation.name = 'package mounting data')
        AND (SIZEOF (QUERY (item <* USEDIN( pdr.used_representation,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'REPRESENTATION.ITEMS') | item\representation_item.name =
        'maximum body clearance above seating plane')) = 1)
        )) = 1))) <= 1;
 
   WR10: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (pdr.used_representation\representation.name = 'package mounting data')
        AND (SIZEOF (QUERY (item <* USEDIN( pdr.used_representation,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'REPRESENTATION.ITEMS') | item\representation_item.name =
        'maximum body clearance below seating plane')) = 1)
        )) = 1))) <= 1;
 
   WR11: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (pdr.used_representation\representation.name = 'package mounting data')
        AND (SIZEOF (QUERY (item <* USEDIN( pdr.used_representation,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'REPRESENTATION.ITEMS') | item\representation_item.name =
        'minimum body clearance above seating plane')) = 1)
        )) = 1))) <= 1;
 
   WR12: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (pdr.used_representation\representation.name = 'package mounting data')
        AND (SIZEOF (QUERY (item <* USEDIN( pdr.used_representation,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'REPRESENTATION.ITEMS') | item\representation_item.name =
        'minimum body clearance below seating plane')) = 1)
        )) = 1))) <= 1;
 
   WR13: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (pdr.used_representation\representation.name = 'package mounting data')
        AND (SIZEOF (QUERY (item <* USEDIN( pdr.used_representation,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'REPRESENTATION.ITEMS') | item\representation_item.name =
        'maximum lead length below seating plane')) = 1)
        )) = 1))) <= 1;
 
   WR14: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (pdr.used_representation\representation.name = 'package mounting data')
        AND (SIZEOF (QUERY (item <* USEDIN( pdr.used_representation,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'REPRESENTATION.ITEMS') | item\representation_item.name =
        'least lead length below seating plane')) = 1)
        )) = 1))) <= 1;
   WR15: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('PACKAGE_MIM.' +
        'SHAPE_ASPECT' IN TYPEOF(sa)) AND
        (SIZEOF (QUERY ( sar <* USEDIN(sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
         ((sar\shape_aspect_relationship.name = 'package seating plane') AND
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('PACKAGE_MIM.' +
        'SEATING_PLANE' IN TYPEOF(sar.related_shape_aspect))) )) = 1))
        )) = 1)
        )
        ) = 1;
 
   WR16: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'SEATING_PLANE' IN
        TYPEOF (sa)))) = 1))) = 1;
 
   WR17: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('PACKAGE_MIM.' +
        'SHAPE_ASPECT' IN TYPEOF(sa)) AND
        (SIZEOF (QUERY ( sar <* USEDIN(sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
         ((sar\shape_aspect_relationship.name = 'of datum reference plane') AND
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('PACKAGE_MIM.' +
        'DATUM_REFERENCE_FRAME' IN TYPEOF(sar.related_shape_aspect))) )) = 1))
        )) = 1)
        )
        ) <= 1;
  WR18: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(sa))
        )) = 1)
        )
@@ -327,14 +327,14 @@ ENTITY package_body
  SUBTYPE OF (shape_aspect);
 WHERE
   WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['PACKAGE_MIM.' +
        'PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'LIBRARY_DEFINED_PACKAGE']) = 1;
   WR2: SIZEOF (USEDIN (SELF, 
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'PACKAGE_MIM.' +
        'MATERIAL_DESIGNATION.DEFINITIONS')) = 1;
 END_ENTITY; -- package_body
 
@@ -345,19 +345,19 @@ END_ENTITY; -- package_body_bottom_surface
 ENTITY package_body_edge_segment_surface
   SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 WHERE
-  wr1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  wr1: 'PACKAGE_MIM.' +
        'EDGE_SEGMENT_VERTEX' IN
        TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
-  wr2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  wr2: 'PACKAGE_MIM.' +
        'EDGE_SEGMENT_VERTEX' IN
        TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
   wr3: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
        SELF\shape_aspect_relationship.related_shape_aspect;
   WR4: SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'composed surface') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF
        (ce.relating_shape_aspect) ))) = 1;
   WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
@@ -382,18 +382,18 @@ ABSTRACT SUPERTYPE OF (ONEOF(package_body_top_surface,
  SUBTYPE OF (shape_aspect);
 WHERE
   WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['PACKAGE_MIM.' +
        'PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'LIBRARY_DEFINED_PACKAGE']) = 1;
   WR2: SELF\shape_aspect.product_definitional;
   WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        (TYPEOF(sar\shape_aspect_relationship.relating_shape_aspect) = 
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['PACKAGE_MIM.' +
        'PACKAGE_BODY']))) = 1;
 END_ENTITY; -- package_body_surface
 
@@ -407,96 +407,96 @@ ENTITY package_terminal
   SUBTYPE OF (shape_aspect);
 WHERE
   WR1: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_REPRESENTATION' IN
        TYPEOF (pdr.used_representation))) >= 1))) = 0;
   WR2: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['PACKAGE_MIM.' +
        'PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'EXTERNALLY_DEFINED_PACKAGE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'LIBRARY_DEFINED_PACKAGE']) = 1;
   WR3: SIZEOF (QUERY (sar <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |(
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PRODUCT_DEFINITION' IN TYPEOF (sar.relating_shape_aspect.of_shape.definition)) AND
        (sar\shape_aspect_relationship.name = 'terminal core material') AND
        (sar.relating_shape_aspect.of_shape.definition.
         frame_of_reference\application_context_element.name = 'material definition') 
        )) <= 1;
   WR4: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |(
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PRODUCT_DEFINITION' IN TYPEOF (sar.relating_shape_aspect.of_shape.definition)) AND
        (sar\shape_aspect_relationship.name = 'terminal surface material') AND
        (sar.relating_shape_aspect.of_shape.definition.
         frame_of_reference\application_context_element.name = 'material definition') 
        )) = 1;
   WR5: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'member connected terminal') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PART_CONNECTED_TERMINALS_DEFINITION'
        IN TYPEOF (mct.relating_shape_aspect))) <= 1;
  WR6: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        (sar\shape_aspect_relationship.name  = 'external connection zone') AND
        (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) >= 0;
  WR7: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        SIZEOF (QUERY (lmwu <* QUERY (it <* pdr.used_representation.items |
        SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['PACKAGE_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) |
        lmwu\representation_item.name = 'maximum terminal diametrical extent')) 
         <= 1)) <= 1)) <= 1;
  WR8: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        SIZEOF (QUERY (lmwu <* QUERY (it <* pdr.used_representation.items |
        SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['PACKAGE_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) |
        lmwu\representation_item.name = 'minimum terminal diametrical extent')) 
          <= 1)) <= 1)) <= 1;
  WR9: SIZEOF(QUERY ( sar <* USEDIN (SELF,
-      'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      'PACKAGE_MIM.' +
       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'precedent feaure' ))
        <= 1;
  WR10: SIZEOF(QUERY ( sar <* USEDIN (SELF,
-      'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      'PACKAGE_MIM.' +
       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'precedent feaure' ))
        <= 1;
  WR11: SIZEOF (QUERY (eca <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'seating plane zone') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'CONNECTION_ZONE_INTERFACE_PLANE_RELATIONSHIP' IN
        TYPEOF (eca.related_shape_aspect))) <= 1;
 END_ENTITY; -- package_terminal
@@ -507,11 +507,11 @@ WHERE
   WR1: SIZEOF (QUERY ( sa <* shape_aspect | NOT(
        NOT (sa\shape_aspect.description = 'polarity indication feature') OR 
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        (sar\shape_aspect_relationship.name = 'associated body vertical extent')
        ) |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_BOTTOM_SURFACE' IN
        TYPEOF (it.relating_shape_aspect))
        )) <= 1) 
@@ -519,11 +519,11 @@ WHERE
   WR2: SIZEOF (QUERY ( sa <* shape_aspect | NOT(
        NOT (sa\shape_aspect.description = 'polarity indication feature') OR 
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        (sar\shape_aspect_relationship.name = 'associated body vertical extent')
        ) |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_TOP_SURFACE' IN
        TYPEOF (it.relating_shape_aspect)) 
        )) <= 1)
@@ -531,11 +531,11 @@ WHERE
   WR3: SIZEOF (QUERY ( sa <* shape_aspect | NOT(
        NOT (sa\shape_aspect.description = 'polarity indication feature') OR 
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        (sar\shape_aspect_relationship.name = 'associated terminal')
        ) |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_TERMINAL' IN
        TYPEOF (it.relating_shape_aspect))
        )) = 1)
@@ -547,18 +547,18 @@ ENTITY primary_orientation_feature
 WHERE
   WR1: SELF\shape_aspect.product_definitional = TRUE;
   WR2: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated body vertical extent') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_BOTTOM_SURFACE' IN
        TYPEOF (it.relating_shape_aspect)) 
        )) <= 1;
   WR3: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated body vertical extent') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_TOP_SURFACE' IN
        TYPEOF (it.relating_shape_aspect)) 
        )) <= 1;
@@ -568,12 +568,12 @@ ENTITY primary_reference_terminal
   SUBTYPE OF (package_terminal);
 WHERE
  WR1: SIZEOF(QUERY ( sar <* USEDIN (SELF,
-      'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      'PACKAGE_MIM.' +
       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'precedent feaure' ))
        = 0;
  WR2: SIZEOF(QUERY ( sar <* USEDIN (SELF,
-      'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      'PACKAGE_MIM.' +
       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'precedent feaure' ))
        <= 1;
@@ -583,30 +583,30 @@ ENTITY secondary_orientation_feature
  SUBTYPE OF (physical_unit_datum_feature);
 WHERE
  WR1:SIZEOF ((TYPEOF (SELF)) * 
-      ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      ['PACKAGE_MIM.' +
        'PRIMARY_ORIENTATION_FEATURE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SEATING_PLANE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'VIEWING_PLANE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PHYSICAL_UNIT_DATUM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'COMPONENT_SHAPE_ASPECT']) = 0;
  WR2: SELF.product_definitional = TRUE;
  WR3: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated body vertical extent') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_BOTTOM_SURFACE' IN
        TYPEOF (it.relating_shape_aspect))
        )) <= 1;
  WR4: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated body vertical extent') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_TOP_SURFACE' IN
        TYPEOF (it.relating_shape_aspect))
        )) <= 1;
@@ -616,32 +616,32 @@ ENTITY tertiary_orientation_feature
  SUBTYPE OF (physical_unit_datum_feature);
 WHERE
  WR1:SIZEOF ((TYPEOF (SELF)) * 
-      ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      ['PACKAGE_MIM.' +
        'PRIMARY_ORIENTATION_FEATURE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SECONDARY_ORIENTATION_FEATURE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SEATING_PLANE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'VIEWING_PLANE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PHYSICAL_UNIT_DATUM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'COMPONENT_SHAPE_ASPECT']) = 0;
  WR2: SELF.product_definitional = TRUE;
  WR3: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated body vertical extent') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_BOTTOM_SURFACE' IN
        TYPEOF (it.relating_shape_aspect))
        )) <= 1;
  WR4: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated body vertical extent') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('PACKAGE_MIM.' +
        'PACKAGE_BODY_TOP_SURFACE' IN
        TYPEOF (it.relating_shape_aspect))
        )) <= 1;
@@ -651,50 +651,50 @@ ENTITY wire_terminal
    SUBTYPE OF (package_terminal);
 WHERE
 WR1: (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (SIZEOF (QUERY (it <* pdr.used_representation.items |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('PACKAGE_MIM.' +
        'MEASURE_REPRESENTATION_ITEM') IN TYPEOF (it))
        AND
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('PACKAGE_MIM.' +
        'LENGTH_UNIT') IN
    TYPEOF (it\measure_with_unit.unit_component)))) = 2))) = 1)) )) = 0);
  WR2: (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (SIZEOF (QUERY (it <* pdr.used_representation.items | (
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) AND
        (it\representation_item.name = 'maximum wire terminal length')
        AND
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('PACKAGE_MIM.' +
        'LENGTH_UNIT') IN
         TYPEOF (it\measure_with_unit.unit_component)))) = 1
                                                ))) = 1)) )) = 0);
  WR3: (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (SIZEOF (QUERY (it <* pdr.used_representation.items | (
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) AND
        (it\representation_item.name = 'minimum wire terminal length')
        AND
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('PACKAGE_MIM.' +
        'LENGTH_UNIT') IN
        TYPEOF (it\measure_with_unit.unit_component)))) = 1)))
                                                      = 1)) )) = 0);
  WR4: (SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'PACKAGE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        (sar\shape_aspect_relationship.name  = 'internal connection zone') AND
        (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) = 1);
@@ -722,13 +722,13 @@ REPEAT i := 1 to SIZEOF(pu) by 1;
   IF ( NOT pass ) THEN ESCAPE;
   END_IF;
   pd_bag := USEDIN( pu[i], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGE_MIM.' +
 'PROPERTY_DEFINITION.DEFINITION' );
   REPEAT j := 1 to SIZEOF(pd_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     pdr_bag := QUERY( pdr <* USEDIN( pd_bag[j], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'PACKAGE_MIM.' +
 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | 
 (pdr.used_representation\representation.name =
 'registered case style') );
@@ -749,4 +749,5 @@ WHERE
 END_RULE; -- package_unique_constraint 
 
 END_SCHEMA;
+
 

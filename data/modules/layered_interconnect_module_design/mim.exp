@@ -31,10 +31,10 @@ ENTITY conductive_interconnect_element_terminal_link
 WHERE
   WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
        SELF\shape_aspect_relationship.relating_shape_aspect;
-  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
-  WR3: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR3: 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
   WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
@@ -42,7 +42,7 @@ WHERE
        SELF\conductive_interconnect_element_terminal_link)) = 0;
   WR5: SELF\shape_aspect.name = '';
   WR6: SELF\shape_aspect_relationship.name = '';
-  WR7: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR7: 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_DEFINITION' IN
        TYPEOF (SELF\shape_aspect.of_shape.definition);
   WR8: SELF\shape_aspect_relationship.related_shape_aspect.description = 'conductive interconnect element terminal';
@@ -54,17 +54,17 @@ ENTITY connected_area_component
  SUBTYPE OF (component_shape_aspect);
 WHERE
  WR1: SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'stratum feature implementation') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
        TYPEOF (sfi.relating_shape_aspect))) = 1;
  WR2: SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated layer connection point') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAYER_CONNECTION_POINT' IN
        TYPEOF (sfi.relating_shape_aspect))) >= 1;
  WR3: SELF\shape_aspect.description = 'stratum feature template component';
@@ -88,7 +88,7 @@ END_ENTITY; -- externally_defined_interconnect_definition
 ENTITY fiducial
   SUBTYPE OF (component_shape_aspect);
 WHERE
-  WR1: (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
           'COMPONENT_DEFINITION') IN TYPEOF(SELF.of_shape.definition))
             AND (SELF.of_shape.definition\product_definition.description = 
                     'laminate component');
@@ -142,22 +142,22 @@ WHERE
        'dielectric material passage', 'cutout edge segment', 
        'interconnect module edge segment', 'interconnect module edge'];
   WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        SIZEOF (QUERY (it <* pdr.used_representation.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'DESCRIPTIVE_REPRESENTATION_ITEM'
        IN TYPEOF (it)) AND
        (it\representation_item.name = 'feature of size') AND
        (it\descriptive_representation_item.description IN ['true', 'false']))) = 1)) = 1))) = 1;
   WR3: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN
        TYPEOF (it.relating_shape_aspect)) AND
        (it.relating_shape_aspect\shape_aspect.description IN
@@ -167,10 +167,10 @@ WHERE
        'unsupported passage template']))) = 1;
   WR4: (NOT (SELF\shape_aspect.description = 'cutout edge segment')) OR
        (SIZEOF (QUERY (cc <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'composed cutout') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE' IN
        TYPEOF (cc.relating_shape_aspect)) AND
        ((cc.relating_shape_aspect\shape_aspect.description =
@@ -181,10 +181,10 @@ WHERE
        'partially plated cutout')))) = 1);
   WR5: (NOT (SELF\shape_aspect.description = 'interconnect module edge segment')) OR
        (SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'composed edge') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE' IN
        TYPEOF (ce.relating_shape_aspect)) AND
        ((ce.relating_shape_aspect\shape_aspect.description =
@@ -194,10 +194,10 @@ WHERE
         ))) = 1);
   WR6: (NOT (SELF\shape_aspect.description = 'dielectric material passage')) OR
        (SIZEOF (QUERY (pp <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'precedent passage') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE' IN
        TYPEOF (pp.relating_shape_aspect)) AND
        ((pp.relating_shape_aspect\shape_aspect.description =
@@ -208,66 +208,66 @@ WHERE
        'partially plated cutout')))) = 1);
   WR7: (NOT (SELF\shape_aspect.description = 'dielectric material passage')) OR
        ((SIZEOF (QUERY (rp <* QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'REQUIREMENTS_PROPERTY' IN
        TYPEOF (pd)) |
        rp\property_definition.name = 'feature material')) <= 1) OR
        (SIZEOF (USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MATERIAL_DESIGNATION.DEFINITIONS')) <= 1));
   WR8: (NOT (SELF\shape_aspect.description = 
        'physical connectivity interrupting cutout')) OR
        (SIZEOF (QUERY (ice <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'interrupted connectivity elements') |
        ice.relating_shape_aspect\shape_aspect.name =
        'conductive interconnect element')) >= 1);
   WR9: (NOT (SELF\shape_aspect.description = 'unsupported passage')) OR
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN
        TYPEOF (it.relating_shape_aspect)) AND
        (it.relating_shape_aspect\shape_aspect.description =
        'unsupported passage template'))) = 1);
  WR10: (NOT (SELF\shape_aspect.description = 'cutout edge segment')) OR
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE' IN
        TYPEOF (it.relating_shape_aspect)))) = 1);
  WR11: (NOT (SELF\shape_aspect.description = 
        'plated cutout edge segment')) OR
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE' IN
        TYPEOF (it.relating_shape_aspect)))) = 1);
  WR12: (NOT (SELF\shape_aspect.description = 
        'interconnect module edge segment')) OR
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE' IN
        TYPEOF (it.relating_shape_aspect)))) = 1);
  WR13: (NOT (SELF\shape_aspect.description = 
        'plated interconnect module edge segment')) OR
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE' IN
        TYPEOF (it.relating_shape_aspect)))) = 1);
 END_ENTITY; -- inter_stratum_feature
@@ -290,57 +290,57 @@ WHERE
   WR1: NOT(SELF\shape_aspect.name IN ['constrained intra layer join',
        'inter stratum join', 'intra stratum join']) OR 
        (SIZEOF (QUERY (cp <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'connected point') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAYER_CONNECTION_POINT' IN
        TYPEOF (cp.related_shape_aspect))) >= 2);
   WR2: SIZEOF (QUERY (nt <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'network topology') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PHYSICAL_NETWORK' IN
        TYPEOF (nt.relating_shape_aspect))) = 1;
   WR3: (NOT (SELF\shape_aspect.name = 'intra stratum join')) OR
        (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'join implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
        TYPEOF (ji.related_shape_aspect)) AND
        (ji.related_shape_aspect\shape_aspect.description = 'conductor'))) <= 1);
   WR4: (NOT (SELF\shape_aspect.name = 'intra stratum join')) OR
        (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'join implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
        TYPEOF (ji.related_shape_aspect)) AND
        (ji.related_shape_aspect\shape_aspect.description = 'connected filled area'))) 
        <= 1);
   WR5: (NOT (SELF\shape_aspect.name = 'inter stratum join')) OR
        (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'join implementation') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_CONCEPT_RELATIONSHIP' IN
        TYPEOF (ji.related_shape_aspect)) AND
        (ji.related_shape_aspect\shape_aspect.description = 
        'physical network supporting stratum feature conductive join')) OR
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PLATED_INTER_STRATUM_FEATURE' IN
        TYPEOF (ji.related_shape_aspect)))) <= 1);
   WR6: NOT(SELF\shape_aspect.name = 'unrouted join') OR
        (SIZEOF (QUERY (cp <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'unrouted terminals') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (cp.related_shape_aspect))) >= 2);
 END_ENTITY; -- join_shape_aspect
@@ -353,17 +353,17 @@ WHERE
        'land interface terminal', 
        'printed connector component interface terminal',
        'non functional land interface terminal'])) OR
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_DEFINITION' IN
        TYPEOF (SELF.of_shape.definition));
   WR2: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature')) = 1;
 (*
   WR3: (NOT (SELF\shape_aspect.description = 
        'component termination passage interface terminal')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PLATED_PASSAGE' IN
        TYPEOF (associated_component(SELF))) AND
        (associated_component(SELF).description =
@@ -372,7 +372,7 @@ WHERE
   WR4: (NOT (SELF\shape_aspect.description = 
        'component termination passage interface terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
        i_f.relating_shape_aspect\shape_aspect.description =
@@ -381,16 +381,16 @@ WHERE
        ['land interface terminal',
        'non functional land interface terminal'])) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAND_TEMPLATE_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)) AND
        (TRUE)))) = 1);
 (*
  WR6: NOT(SELF\shape_aspect.description = 'land interface terminal') OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAND' IN
        TYPEOF (associated_component(SELF))) AND
 (associated_component(SELF).description IN
@@ -399,7 +399,7 @@ WHERE
     'component termination passage and contact size dependent land']));
  WR7: NOT(SELF\shape_aspect.description =
        'non functional land interface terminal') OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAND' IN
        TYPEOF (associated_component(SELF))) AND
 (associated_component(SELF).description IN
@@ -412,7 +412,7 @@ WHERE
        (SELF.product_definitional);
  WR9: (NOT (SELF\shape_aspect.description = 
        'printed connector component interface terminal')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PRINTED_COMPONENT' IN
        TYPEOF (SELF.of_shape.definition)) AND
        (SELF.of_shape.definition\product_definition.description = 
@@ -420,10 +420,10 @@ WHERE
  WR10: (NOT (SELF\shape_aspect.description = 
        'printed connector component interface terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PRINTED_PART_TEMPLATE_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)) AND
        (i_f.relating_shape_aspect\shape_aspect.description =
@@ -431,14 +431,14 @@ WHERE
  WR11: (NOT (SELF\shape_aspect.description =
        'printed connector component interface terminal')) OR
        (SIZEOF (QUERY (i <* QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        pdr\shape_aspect_relationship.name = 'implementation') |
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE'] *
        TYPEOF (i.relating_shape_aspect)) = 1)
        )) = 1);
- WR12: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+ WR12: ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_DEFINITION' IN
        TYPEOF (SELF.of_shape.definition)) AND
        (SELF.of_shape.definition\
@@ -449,23 +449,23 @@ END_ENTITY; -- laminate_component_interface_terminal
 ENTITY laminate_group_component_make_from_relationship
   SUBTYPE OF (make_from_usage_option);
 WHERE
-  WR1: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'ASSEMBLY_GROUP_COMPONENT_DEFINITION'] *
        TYPEOF (SELF.relating_product_definition)) = 1;
-  WR2: SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'ASSEMBLY_GROUP_COMPONENT_DEFINITION'] *
        TYPEOF (SELF.related_product_definition)) = 1;
   WR3: SIZEOF( QUERY(pd <* USEDIN(SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
         (SIZEOF( QUERY(pdr <* USEDIN(SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
        ((pdr.name = 'stratum mapping') AND
        (pdr.related_property_definition\property_definition.
          definition\product_definition_relationship.name = 'stratum make from')
         AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
         'MAKE_FROM_USAGE_OPTION' IN 
          TYPEOF(pdr.related_property_definition\property_definition.definition)))
           )) > 0) 
@@ -478,13 +478,13 @@ UNIQUE
   UR1: SELF\shape_aspect.name;
 WHERE
   WR1: SIZEOF (QUERY (ada <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
        SIZEOF (QUERY (duc <* USEDIN (ada.assigned_document,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |
        duc\document_usage_constraint.subject_element = 'layer definition')) = 1)) <= 1;       
-  WR2: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP'
        IN TYPEOF (SELF.of_shape.definition)) AND
        (SELF.of_shape.definition\product_definition_relationship.name = 
@@ -499,92 +499,92 @@ WHERE
   WR1: SELF\shape_aspect.of_shape.definition\product_definition.
        name = 'design layer';
   WR2: SIZEOF (QUERY (cp <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'connected point') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (cp.relating_shape_aspect)) AND 
        (cp.relating_shape_aspect.name = 'inter stratum join')))) <= 1;
   WR3: SIZEOF (QUERY (cp <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'connected point') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (cp.relating_shape_aspect)) AND 
        (cp.relating_shape_aspect.name = 'intra stratum join')))) = 1;
   WR4: NOT(
        SIZEOF (QUERY (cp <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'connected point') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (cp.relating_shape_aspect)) AND 
        (cp.relating_shape_aspect.name = 'inter stratum join')))) = 1)
        OR
        (SIZEOF (QUERY (cp <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'connected point') |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (cp.relating_shape_aspect)) AND 
        (cp.relating_shape_aspect.name = 'intra stratum join')))) = 1);
   WR5: (NOT (SELF\shape_aspect.description = 'dependently located')) OR
        (SIZEOF (QUERY (ado <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'associated design object') |
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTER_STRATUM_FEATURE',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'INTERCONNECT_MODULE_TERMINAL'] *
        TYPEOF (ado.relating_shape_aspect)) = 1) OR
-       ((SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ((SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_TERMINAL'] *
        TYPEOF (ado.relating_shape_aspect)) = 1) AND
        (ado.relating_shape_aspect.description IN ['printed component join terminal',
         'embedded component terminal']))
        )) = 1);
   WR6: (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_REPRESENTATION' IN 
        TYPEOF (pdr.used_representation)) AND
        (pdr.used_representation\representation.name = 'connection point location 2d') AND
        (SIZEOF (QUERY (it <* pdr.used_representation.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'CARTESIAN_POINT' IN
        TYPEOF (it)) AND (it\geometric_representation_item.dim = 2 )
        )) = 1))) <= 1))) = 0);
   WR7: (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_REPRESENTATION' IN 
        TYPEOF (pdr.used_representation)) AND
        (pdr.used_representation\representation.name = 'connection point location 3d') AND
        (SIZEOF (QUERY (it <* pdr.used_representation.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'CARTESIAN_POINT' IN
        TYPEOF (it)) AND (it\geometric_representation_item.dim = 3 )
        )) = 1))) <= 1))) = 0);
   WR8: (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_REPRESENTATION' IN 
        TYPEOF (pdr.used_representation)) AND
        ((pdr.used_representation\representation.name = 'connection point location 2d')
@@ -593,13 +593,13 @@ WHERE
        )) >= 1))) = 0);
   WR9: (NOT (SELF\shape_aspect.description = 'dependently located')) OR
        (SIZEOF (QUERY (ado <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'reference zone') |
-       (SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT'] *
        TYPEOF (ado.relating_shape_aspect)) = 1) OR
-       ((SIZEOF (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ((SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT'] *
        TYPEOF (ado.relating_shape_aspect)) = 1) AND
        (ado.relating_shape_aspect.description IN ['connection zone']))
@@ -670,25 +670,25 @@ ENTITY passage_technology
 UNIQUE
   UR1: SELF\shape_aspect.name, SELF\shape_aspect.of_shape;
 WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PRODUCT_DEFINITION' IN 
        TYPEOF (SELF.of_shape.definition);
   WR2: SIZEOF (USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MATERIAL_DESIGNATION.DEFINITIONS')) <= 1;
   WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation')) = 1))) = 0;
   WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
@@ -696,10 +696,10 @@ WHERE
           {1 <= SIZEOF (pcr.used_representation.items) <= 8}
                                              ))) = 0))) = 0;
   WR5: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
@@ -712,83 +712,83 @@ WHERE
        'maximum as finished passage extent', 
        'minimum as finished passage extent']))) = 0))) = 0))) = 0;
   WR6: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'RATIO_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 'maximum aspect ratio') AND
        (it\measure_with_unit.value_component > 1.0))) <= 1))) = 0))) = 0;
   WR7: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'DESCRIPTIVE_REPRESENTATION_ITEM' IN
        TYPEOF (it)) AND
        (it\representation_item.name = 'plated passage') AND
        (it\descriptive_representation_item.description IN ['true', 'false']))) = 1))) = 0))) = 0;
   WR8: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 'minimum as finished passage extent')
        )) <= 1))) = 0))) = 0;
   WR9: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 
        'maximum as finished deposition thickness'))) <= 1))) = 0))) = 0;
  WR10: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 
@@ -797,25 +797,25 @@ WHERE
        ['default component termination passage definition',
        'default via definition'])) OR 
        (SIZEOF (USEDIN (SELF, 
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MATERIAL_DESIGNATION.DEFINITIONS')) = 1);
  WR12: (NOT (SELF\shape_aspect.description IN  
        ['default component termination passage definition',
        'default unsupported passage definition',
        'default via definition'])) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 'minimum as finished passage extent'))) 
@@ -823,18 +823,18 @@ WHERE
  WR13: (NOT (SELF\shape_aspect.description =
        'default component termination passage definition')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 
@@ -843,18 +843,18 @@ WHERE
  WR14: (NOT (SELF\shape_aspect.description =
        'default component termination passage definition')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 
@@ -862,47 +862,47 @@ WHERE
  WR15: (NOT (SELF\shape_aspect.description =
        'default component termination passage definition')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 
        'maximum allowed component terminal extent'))) = 1))) = 0))) = 0);
  WR16: (NOT (SELF\shape_aspect.description = 'default via definition')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pcr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        pdr.used_representation\representation.name = 
        'physical characteristics representation') |
        NOT (SIZEOF (QUERY (it <* pcr.used_representation.items |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'MEASURE_REPRESENTATION_ITEM',
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LENGTH_MEASURE_WITH_UNIT'] *
        TYPEOF (it)) = 2) AND
        (it\representation_item.name = 
        'minimum as finished deposition thickness'))) = 1))) = 0))) = 0);
  WR17: SIZEOF (QUERY (rpt <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'as finished inter stratum extent') |
        (rpt.related_shape_aspect.of_shape\property_definition.description =
        'finished stratum extent') AND
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP' 
        IN 
         TYPEOF (rpt.related_shape_aspect.of_shape\property_definition.
@@ -917,10 +917,10 @@ ENTITY physical_network
   SUBTYPE OF (shape_aspect);
 WHERE
   WR1: SIZEOF (QUERY (cr <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'connectivity requirement') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (cr.related_shape_aspect)) AND
 ((cr.related_shape_aspect\shape_aspect.description = 
@@ -933,17 +933,17 @@ WHERE
                  'printed component join terminal'))
 )) >= 2;
   WR2: SIZEOF (QUERY (nt <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'network topology') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (nt.related_shape_aspect))) >= 1;
   WR3: SIZEOF (QUERY (nt <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'reference connected terminals') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PART_CONNECTED_TERMINALS_DEFINITION' IN
        TYPEOF (nt.relating_shape_aspect))) <= 1;
 END_ENTITY; -- physical_network
@@ -960,15 +960,15 @@ WHERE
        'plated conductive base blind via', 
        'plated cutout', 'plated interconnect module edge']) OR 
        (SIZEOF 
-       (['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
 	'PLATED_CUTOUT_EDGE_SEGMENT',
-	'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+	'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
 	'PLATED_INTERCONNECT_MODULE_EDGE_SEGMENT'] * TYPEOF (SELF)) = 1 );
   WR2: SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'join implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (ji.relating_shape_aspect)) AND
        (ji.relating_shape_aspect\shape_aspect.name =
@@ -984,20 +984,20 @@ WHERE
        'plated conductive base blind via'];
   WR2: (NOT (SELF\shape_aspect.description = 'bonded conductive base blind via')) OR
        (SIZEOF (QUERY (fj <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'features join') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_CONCEPT_RELATIONSHIP' IN
        TYPEOF (fj.relating_shape_aspect)) AND
        (fj.relating_shape_aspect\shape_aspect.name =
        'stratum feature conductive join'))) = 1);
   WR3: (NOT (SELF\shape_aspect.description = 'component termination passage')) OR
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN
        TYPEOF (it.relating_shape_aspect)) AND
        (it.relating_shape_aspect\shape_aspect.description =
@@ -1005,14 +1005,14 @@ WHERE
 (*
   WR4: (NOT (SELF\shape_aspect.description = 'component termination passage')) OR
        (SIZEOF (QUERY (at <* associated_terminals(SELF) |
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT' IN
        TYPEOF (at)) AND
        (at\shape_aspect.description =
        'component termination passage interface terminal')))) >= 0);
   WR5: (NOT (SELF\shape_aspect.description = 'component termination passage')) OR
        (SIZEOF (QUERY (at <* associated_terminals(SELF)|
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_TERMINAL' IN
        TYPEOF (at)) AND
        (at\shape_aspect.description =
@@ -1025,10 +1025,10 @@ WHERE
        'non conductive base blind via',
        'plated conductive base blind via'])) OR
        (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN
        TYPEOF (it.relating_shape_aspect)) AND
        (it.relating_shape_aspect\shape_aspect.description =
@@ -1039,29 +1039,29 @@ ENTITY probe_access_area
   SUBTYPE OF (component_shape_aspect);
 WHERE
   WR1: EXISTS(SELF.of_shape.definition\product_definition.name);
-  WR2: ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_DEFINITION' IN
        TYPEOF (SELF.of_shape.definition)) AND
        (SELF.of_shape.definition\product_definition.name = 'interconnect module');
   WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar.related_shape_aspect\shape_aspect.description =
        'connection zone')) = 1;
   WR4: SIZEOF (QUERY (pli <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'probed layout item') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
        TYPEOF (pli.related_shape_aspect))) = 1;
   WR5: (NOT (SELF\shape_aspect.description = 
         'internal probe access area')) OR
        (SIZEOF (QUERY (i <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
        TYPEOF (i.relating_shape_aspect)))) = 1);
 END_ENTITY; -- probe_access_area
@@ -1073,94 +1073,94 @@ UNIQUE
 WHERE
   WR1: EXISTS(SELF\product_definition.name);
   WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (tu <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
        pdr\property_definition_relationship.name = 'technology usage') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_TECHNOLOGY' IN 
        TYPEOF (tu.relating_property_definition.definition))) = 1)) = 1;
   WR3: (SIZEOF (QUERY (ada <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
        SIZEOF (QUERY (duc <* USEDIN (ada.assigned_document,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |
        duc\document_usage_constraint.subject_element = 'attachment region size')) = 1)) <= 1) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (tu <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
        pdr\property_definition_relationship.name = 'stratum usage') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'EXTERNAL_DEFINITION' IN 
        TYPEOF (tu.relating_property_definition))) = 1)) <= 1);
   WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_REPRESENTATION' IN 
        TYPEOF (pdr.used_representation)) |
        sr_pdr.used_representation\representation.name = '3d bound volume shape')) <= 1))) 
        = 0;
   WR5: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_REPRESENTATION' IN 
        TYPEOF (pdr.used_representation)) |
        sr_pdr.used_representation\representation.name = 
                   'planar projected shape')) <= 1))) = 0;
   WR6: SIZEOF (QUERY (acu <* QUERY (pdr <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'ASSEMBLY_COMPONENT_USAGE' IN
        TYPEOF (pdr)) |
        acu\product_definition_relationship.name = 'interconnect module stratum assembly relationship'
        )) >= 1;
   WR7: NOT(SELF\product_definition.name = 'design layer') OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (tu <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
        pdr\property_definition_relationship.name = 'technology usage') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_TECHNOLOGY' IN 
        TYPEOF (tu.relating_property_definition.definition)) AND
        (tu.relating_property_definition.definition\characterized_object.description =
        'design layer'))) = 1)) = 1);
   WR8: NOT(SELF\product_definition.name = 'design layer') OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAYER_CONNECTION_POINT' IN
        TYPEOF (sa))) >= 1)) >= 1);
   WR9: NOT(SELF\product_definition.name = 'documentation layer') OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (tu <* QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
        pdr\property_definition_relationship.name = 'technology usage') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_TECHNOLOGY' IN 
        TYPEOF (tu.relating_property_definition.definition)) AND
        (tu.relating_property_definition.definition\characterized_object.description =
@@ -1168,30 +1168,30 @@ WHERE
   WR10: NOT(SELF\product_definition.name = 'design layer') OR
        ((NOT(SELF\product_definition.description = 'primary design layer stratum') OR 
        (SIZEOF(QUERY(imps <* USEDIN(SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (sa <* USEDIN (imps,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
        SIZEOF (QUERY (sar <* USEDIN (sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT' IN
        TYPEOF (sar.relating_shape_aspect)) AND 
         (sar.relating_shape_aspect\shape_aspect.description = 
        'interconnect module primary surface'))) >= 0)) >= 0)) = 1)) OR 
        (NOT (SELF\product_definition.description = 'non primary design layer stratum') OR
        (SIZEOF(QUERY(imps <* USEDIN(SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (sa <* USEDIN (imps,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
        SIZEOF(QUERY (sar <* USEDIN (sa,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT' IN
        TYPEOF (sar.relating_shape_aspect)) AND
         (sar.relating_shape_aspect\shape_aspect.description =
@@ -1202,50 +1202,50 @@ ENTITY stratum_concept_relationship
   SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 WHERE
   WR1: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'REQUIREMENTS_PROPERTY' IN
        TYPEOF (pd))) >= 1; 
   WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (USEDIN (pd, 
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) = 1)) = 1;
   WR3: (NOT (SELF\shape_aspect_relationship.name = 
        'dielectric crossover area')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN 
        TYPEOF (SELF.relating_shape_aspect)) AND
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
        TYPEOF (SELF.related_shape_aspect)));
   WR4: (NOT (SELF\shape_aspect_relationship.name = 
        'dielectric crossover area')) OR
        (SIZEOF (QUERY (rdc <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'resulting dielectric crossover') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM_FEATURE' IN
        TYPEOF (rdc.relating_shape_aspect)))) = 1);
   WR5: (NOT (SELF\shape_aspect_relationship.name = 
        'stratum feature conductive join')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAND' IN 
        TYPEOF (SELF.relating_shape_aspect)) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_SHAPE_ASPECT' IN
        TYPEOF (SELF.relating_shape_aspect)) AND
        (SELF.relating_shape_aspect\shape_aspect.description = 
        'stratum feature template component')));
   WR6: (NOT (SELF\shape_aspect_relationship.name = 
        'stratum feature conductive join')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'LAND' IN 
        TYPEOF (SELF.related_shape_aspect)) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'COMPONENT_SHAPE_ASPECT' IN
        TYPEOF (SELF.related_shape_aspect)) AND
        (SELF.related_shape_aspect\shape_aspect.description = 
@@ -1253,10 +1253,10 @@ WHERE
   WR7: (NOT (SELF\shape_aspect_relationship.name =
        'stratum feature conductive join')) OR
        (SIZEOF (QUERY (fj <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'features join') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PLATED_PASSAGE' IN
        TYPEOF (fj.related_shape_aspect)) AND
        (fj.related_shape_aspect\shape_aspect.description =
@@ -1266,10 +1266,10 @@ WHERE
        (SELF\shape_aspect_relationship.name =
        'stratum feature conductive join'))) OR
        (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'join implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (ji.relating_shape_aspect)) AND
        (ji.relating_shape_aspect\shape_aspect.name =
@@ -1280,17 +1280,17 @@ ENTITY stratum_feature
   SUPERTYPE OF (fiducial_stratum_feature)
   SUBTYPE OF (shape_aspect);
 WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'STRATUM' IN
        TYPEOF (SELF.of_shape.definition);
   WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        SIZEOF (QUERY (it <* pdr.used_representation.items |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'DESCRIPTIVE_REPRESENTATION_ITEM'
        IN TYPEOF (it)) AND
        (it\representation_item.name = 'feature of size') AND
@@ -1299,10 +1299,10 @@ WHERE
   WR3: (NOT(EXISTS(SELF\shape_aspect.description))) OR
        (NOT (SELF\shape_aspect.description = 'conductor') OR
        (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'join implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (ji.relating_shape_aspect)) AND
        (ji.relating_shape_aspect\shape_aspect.name = 
@@ -1310,10 +1310,10 @@ WHERE
   WR4: (NOT(EXISTS(SELF\shape_aspect.description))) OR
        (NOT (SELF\shape_aspect.description = 'connected filled area') OR
        (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'join implementation') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
        'JOIN_SHAPE_ASPECT' IN
        TYPEOF (ji.relating_shape_aspect)) AND
        (ji.relating_shape_aspect\shape_aspect.name = 
@@ -1345,7 +1345,7 @@ ENTITY stratum_surface
 WHERE
     WR1: SELF\shape_aspect.description IN ['primary surface',
          'secondary surface', 'average surface']; 
-    WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    WR2: 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
          'STRATUM' IN TYPEOF(SELF\shape_aspect.of_shape.definition);
 END_ENTITY; -- stratum_surface
 
@@ -1354,4 +1354,5 @@ ENTITY thermal_isolation_component_shape_aspect
 END_ENTITY; -- thermal_isolation_component_shape_aspect
 
 END_SCHEMA;
+
 

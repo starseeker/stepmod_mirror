@@ -107,11 +107,11 @@ USE FROM Part_feature_location_arm;
       package_tertiary_orientation_feature  : SET[0:1] OF Shape_element FOR containing_shape;
 --      of_datum_reference_frame              : SET[0:?] OF non_feature_shape_element FOR scope;
     WHERE
-      WR1  : NOT (SIZEOF(package_primary_orientation_feature) > 0) OR ('AP210_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(package_primary_orientation_feature[1]));
-      WR2  : NOT (SIZEOF(package_secondary_orientation_feature) > 0) OR ('AP210_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(package_secondary_orientation_feature[1]));
-      WR3  : NOT (SIZEOF(package_tertiary_orientation_feature) > 0) OR ('AP210_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(package_tertiary_orientation_feature[1]));
-      WR4  : 'AP210_ARM.SEATING_PLANE' IN TYPEOF(package_seating_plane);
-      WR5  : 'AP210_ARM.SEATING_PLANE' IN TYPEOF(interface_plane);
+      WR1  : NOT (SIZEOF(package_primary_orientation_feature) > 0) OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(package_primary_orientation_feature[1]));
+      WR2  : NOT (SIZEOF(package_secondary_orientation_feature) > 0) OR ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(package_secondary_orientation_feature[1]));
+      WR3  : NOT (SIZEOF(package_tertiary_orientation_feature) > 0) OR ('PACKAGE_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(package_tertiary_orientation_feature[1]));
+      WR4  : 'PACKAGE_ARM.SEATING_PLANE' IN TYPEOF(package_seating_plane);
+      WR5  : 'PACKAGE_ARM.SEATING_PLANE' IN TYPEOF(interface_plane);
       WR6  : NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)));
       WR7  : NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\value_with_unit.value_component > 0.0);
       WR8  : NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\value_with_unit.value_component > 0.0);
@@ -120,9 +120,9 @@ USE FROM Part_feature_location_arm;
       WR11 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (ip\shape_element.element_name = 'interface plane'))) = 0);
       WR12 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (package_seating_plane <> ip))) = 0);
       WR13 : SIZEOF(QUERY(prpc <* USEDIN(SELF\product_view_definition.defined_version.of_product,
- 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'package'))) > 0;
---      WR14 : NOT (SIZEOF(of_datum_reference_frame) > 0) OR (SIZEOF(QUERY(odrf <* of_datum_reference_frame | NOT ('AP210_ARM.DATUM_REFERENCE_FRAME' IN TYPEOF(odrf)))) = 0);
-      WR14 : SIZEOF(QUERY(pa <* package_accesses | 'AP210_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
+ 'PACKAGE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'package'))) > 0;
+--      WR14 : NOT (SIZEOF(of_datum_reference_frame) > 0) OR (SIZEOF(QUERY(odrf <* of_datum_reference_frame | NOT ('PACKAGE_ARM.DATUM_REFERENCE_FRAME' IN TYPEOF(odrf)))) = 0);
+      WR14 : SIZEOF(QUERY(pa <* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
 	  WR15: (EXISTS (surface_mount_lead_form)) OR ((SIZEOF(external_surface_mount_lead_form)) = 1);      
   END_ENTITY; -- package
 
@@ -131,11 +131,11 @@ USE FROM Part_feature_location_arm;
       SELF\part_feature.associated_definition : package;
     WHERE
       WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('AP210_ARM.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF(pf)))) <= 1;
+ 'PACKAGE_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('PACKAGE_ARM.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF(pf)))) <= 1;
       WR2 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('AP210_ARM.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf)))) <= 1;
+ 'PACKAGE_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('PACKAGE_ARM.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf)))) <= 1;
       WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('AP210_ARM.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
+ 'PACKAGE_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION') | ('PACKAGE_ARM.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
   END_ENTITY; -- package_body
 
   ENTITY Package_body_bottom_surface
@@ -252,3 +252,4 @@ USE FROM Part_feature_location_arm;
   END_FUNCTION; -- max_data_element
 
 END_SCHEMA; -- Package_arm
+

@@ -20,7 +20,7 @@ ENTITY add_design_object_assignment
      items : SET [1:?] OF managed_design_object;
 WHERE
    WR1: SIZEOF(QUERY(it <* SELF.items |
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('DESIGN_MANAGEMENT_MIM.' +
         'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(it))
         AND (it\product_definition_relationship.name = 
                        'design object addition'))) = 1;
@@ -31,7 +31,7 @@ ENTITY add_design_object_request_assignment
      items : SET [1:?] OF managed_design_object;
 WHERE
    WR1: SIZEOF(QUERY(it <* SELF.items |
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('DESIGN_MANAGEMENT_MIM.' +
         'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(it))
         AND (it\product_definition_relationship.name = 
                          'design object addition'))) = 1;
@@ -42,9 +42,9 @@ ENTITY change_from_design_object_assignment
      items : SET [1:?] OF managed_design_object;
 WHERE
    WR1: SIZEOF(QUERY(aa <* USEDIN(SELF\action_assignment.assigned_action,
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESIGN_MANAGEMENT_MIM.' +
         'ACTION_ASSIGNMENT.ASSIGNED_ACTION')
-        |'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        |'DESIGN_MANAGEMENT_MIM.' +
          'CHANGE_TO_DESIGN_OBJECT_ASSIGNMENT' IN TYPEOF(aa))) >= 1;
 END_ENTITY; -- change_from_design_object_assignment
 
@@ -54,9 +54,9 @@ ENTITY change_from_design_object_request_assignment
 WHERE
    WR1: SIZEOF(QUERY(aa <*
         USEDIN(SELF\action_request_assignment.assigned_action_request,
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESIGN_MANAGEMENT_MIM.' +
         'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST')
-        |'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        |'DESIGN_MANAGEMENT_MIM.' +
          'CHANGE_TO_DESIGN_OBJECT_REQUEST_ASSIGNMENT' IN TYPEOF(aa))) >= 1;
 END_ENTITY; -- change_from_design_object_request_assignment
 
@@ -65,12 +65,12 @@ ENTITY change_to_design_object_assignment
      items : SET [1:?] OF managed_design_object;
 WHERE
    WR1: SIZEOF(QUERY(aa <* USEDIN(SELF\action_assignment.assigned_action,
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESIGN_MANAGEMENT_MIM.' +
         'ACTION_ASSIGNMENT.ASSIGNED_ACTION')
-        |'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        |'DESIGN_MANAGEMENT_MIM.' +
          'CHANGE_FROM_DESIGN_OBJECT_ASSIGNMENT' IN TYPEOF(aa))) >= 1;
    WR2: SIZEOF(QUERY ( pdr <* SELF.items | 
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('DESIGN_MANAGEMENT_MIM.' +
         'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(pdr)) AND
         (pdr\product_definition_relationship.name = 'design object change'))) = 1;
 END_ENTITY; -- change_to_design_object_assignment
@@ -81,13 +81,13 @@ ENTITY change_to_design_object_request_assignment
 WHERE
    WR1: SIZEOF(QUERY(aa <* 
         USEDIN(SELF\action_request_assignment.assigned_action_request,
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'DESIGN_MANAGEMENT_MIM.' +
         'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST')
-        |'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        |'DESIGN_MANAGEMENT_MIM.' +
          'CHANGE_FROM_DESIGN_OBJECT_REQUEST_ASSIGNMENT' 
          IN TYPEOF(aa))) >= 1;
    WR2: SIZEOF(QUERY ( pdr <* SELF.items | 
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('DESIGN_MANAGEMENT_MIM.' +
         'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(pdr)) AND
         (pdr\product_definition_relationship.name = 'design object change'))) = 1;
 END_ENTITY; -- change_to_design_object_request_assignment
@@ -97,7 +97,7 @@ ENTITY delete_design_object_assignment
      items : SET [1:?] OF managed_design_object;
 WHERE
    WR1: SIZEOF(QUERY(it <* SELF.items |
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('DESIGN_MANAGEMENT_MIM.' +
         'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(it))
         AND (it\product_definition_relationship.name = 'design object deletion'))) = 1;
 END_ENTITY; -- delete_design_object_assignment
@@ -107,7 +107,7 @@ ENTITY delete_design_object_request_assignment
      items : SET [1:?] OF managed_design_object;
 WHERE
    WR1: SIZEOF(QUERY(it <* SELF.items |
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('DESIGN_MANAGEMENT_MIM.' +
         'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(it))
         AND (it\product_definition_relationship.name = 'design object deletion'))) = 1;
 END_ENTITY; -- delete_design_object_request_assignment
@@ -132,7 +132,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(add_design_object_assignment) by 1;
   REPEAT j := 1 TO SIZEOF(add_design_object_assignment[i].items) by 1;
-    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( ('DESIGN_MANAGEMENT_MIM.' +
    'PRODUCT_DEFINITION_RELATIONSHIP' IN 
       TYPEOF(add_design_object_assignment[i].items[j]))
     AND (add_design_object_assignment[i].items[j].name = 
@@ -155,7 +155,7 @@ END_REPEAT;
 REPEAT i := 1 to SIZEOF(add_design_object_request_assignment) by 1;
   REPEAT j := 1 TO 
         SIZEOF(add_design_object_request_assignment[i].items) by 1;
-    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( ('DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP' IN 
            TYPEOF(add_design_object_request_assignment[i].items[j]))
 AND (add_design_object_request_assignment[i].items[j].name = 
@@ -182,7 +182,7 @@ REPEAT i := 1 to SIZEOF(pd_bag) by 1;
   END_IF;
   mdo_bag := [];
   pdr_bag := QUERY( pdr <* USEDIN(pd_bag[i], 
-            'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+            'DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
                          (pdr\product_definition_relationship.name = 'design object addition') );
   REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
@@ -248,7 +248,7 @@ END_LOCAL;
 REPEAT i := 1 to SIZEOF(change_from_design_object_assignment) by 1;
   REPEAT j := 1 TO 
           SIZEOF(change_from_design_object_assignment[i].items) by 1;
-    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( ('DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP' IN 
      TYPEOF(change_from_design_object_assignment[i].items[j]))
 AND (change_from_design_object_assignment[i].items[j].name = 
@@ -274,7 +274,7 @@ REPEAT i := 1 to
          SIZEOF(change_from_design_object_request_assignment) by 1;
   REPEAT j := 1 TO 
        SIZEOF(change_from_design_object_request_assignment[i].items) by 1;
-    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( ('DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP' IN 
       TYPEOF(change_from_design_object_request_assignment[i].items[j]))
 AND (change_from_design_object_request_assignment[i].items[j].name = 
@@ -302,7 +302,7 @@ REPEAT i := 1 to SIZEOF(pd_bag) by 1;
   IF ( pass1 ) THEN
     mdo_bag := [];
     pdr_bag := QUERY( pdr <* USEDIN(pd_bag[i], 
-   'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+   'DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
         (pdr\product_definition_relationship.name = 'design object change') );
     REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
@@ -350,7 +350,7 @@ REPEAT i := 1 to SIZEOF(pd_bag) by 1;
   IF ( pass2 ) THEN
     mdo_bag := [];
     pdr_bag := QUERY( pdr <* USEDIN(pd_bag[i], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') | 
    (pdr\product_definition_relationship.name = 'design object change') );
     REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
@@ -415,7 +415,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(delete_design_object_assignment) by 1;
   REPEAT j := 1 TO SIZEOF(delete_design_object_assignment[i].items) by 1;
-    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( ('DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP' 
         IN TYPEOF(delete_design_object_assignment[i].items[j]))
 AND (delete_design_object_assignment[i].items[j].name = 
@@ -438,7 +438,7 @@ END_REPEAT;
 REPEAT i := 1 to SIZEOF(delete_design_object_request_assignment) by 1;
   REPEAT j := 1 TO 
          SIZEOF(delete_design_object_request_assignment[i].items) by 1;
-    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( ('DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP' 
          IN TYPEOF(delete_design_object_request_assignment[i].items[j]))
 AND (delete_design_object_request_assignment[i].items[j].name = 
@@ -465,7 +465,7 @@ REPEAT i := 1 to SIZEOF(pd_bag) by 1;
   END_IF;
   mdo_bag := [];
   pdr_bag := QUERY( pdr <* USEDIN(pd_bag[i], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'DESIGN_MANAGEMENT_MIM.' +
 'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') | 
                         (pdr\product_definition_relationship.name = 'design object deletion') );
   REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
@@ -515,4 +515,5 @@ WHERE
 END_RULE; -- delete_design_object_management_relationship_unique_constraint
 	
 END_SCHEMA;
+
 

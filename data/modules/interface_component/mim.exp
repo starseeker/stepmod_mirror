@@ -14,20 +14,20 @@ WHERE
   WR1: SELF\shape_aspect.description IN [
        'interconnect component interface terminal',
        'packaged connector component interface terminal'];
-  WR2: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR2: 'INTERFACE_COMPONENT_MIM.' +
        'COMPONENT_DEFINITION' IN 
        TYPEOF (SELF.of_shape.definition);
   WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERFACE_COMPONENT_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature')) <= 1;
   WR4: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERFACE_COMPONENT_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'design usage')) <= 1;
   WR5: (NOT (SELF\shape_aspect.description = 
        'packaged connector component interface terminal')) OR
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('INTERFACE_COMPONENT_MIM.' +
        'INTERFACE_COMPONENT_DEFINITION' IN 
        TYPEOF (SELF.of_shape.definition));
   WR6: (NOT (SELF\shape_aspect.description = 
@@ -38,7 +38,7 @@ WHERE
   WR7: (NOT (SELF\shape_aspect.description = 
        'interconnect component interface terminal')) OR
        ((SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERFACE_COMPONENT_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
        (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) = 1)
        AND 
@@ -51,7 +51,7 @@ WHERE
        (SELF.product_definitional);
   WR9: (NOT (SELF\shape_aspect.description = 
        'packaged connector component interface terminal')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       (('INTERFACE_COMPONENT_MIM.' +
        'PACKAGED_COMPONENT' IN
        TYPEOF (SELF.of_shape.definition)) AND
        (SELF.of_shape.definition\product_definition.description = 
@@ -62,10 +62,10 @@ WHERE
  WR10: (NOT (SELF\shape_aspect.description = 
        'packaged connector component interface terminal')) OR
        (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERFACE_COMPONENT_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar\shape_aspect_relationship.name = 'instantiated feature') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('INTERFACE_COMPONENT_MIM.' +
        'PACKAGED_PART_TERMINAL' IN
        TYPEOF (i_f.relating_shape_aspect)) AND
        (i_f.relating_shape_aspect\shape_aspect.description =
@@ -76,12 +76,12 @@ ENTITY interface_component_definition
   SUBTYPE OF (component_definition);
 WHERE
   WR1: (SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERFACE_COMPONENT_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'INTERFACE_COMPONENT_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('INTERFACE_COMPONENT_MIM.' +
        'COMPONENT_INTERFACE_TERMINAL' IN 
        TYPEOF (sa)) AND
        (sa\shape_aspect.description IN ['interconnect component interface terminal',
@@ -89,4 +89,5 @@ WHERE
 END_ENTITY; -- interface_component_definition
 	
 END_SCHEMA;
+
 

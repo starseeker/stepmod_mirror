@@ -26,10 +26,10 @@ RULE junction_vertex_allocation_constraint FOR
 WHERE
   WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
        (sar\shape_aspect_relationship.name = 'junction vertex allocation')
-       AND NOT ((('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       AND NOT ((('INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.'
         + 'LAYER_CONNECTION_POINT' IN TYPEOF(sar.related_shape_aspect))
        AND (sar.related_shape_aspect\shape_aspect.description = 'explicitly located')) OR
-       (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       (('INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.'
         + 'JOIN_SHAPE_ASPECT' IN TYPEOF(sar.related_shape_aspect))
        AND (sar.related_shape_aspect\shape_aspect.name = 'inter stratum join'))
        ))) = 0;
@@ -81,7 +81,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(pcam) by 1;
   IF EXISTS( pcam[i].related_shape_aspect ) THEN
-    IF ( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( 'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
 'PHYSICAL_CONNECTIVITY_ELEMENT' IN 
 TYPEOF(pcam[i].related_shape_aspect) ) THEN
       IF ( NOT ( pcam[i].related_shape_aspect IN pce_bag )) THEN
@@ -101,7 +101,7 @@ REPEAT i := 1 to SIZEOF(pce_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     IF ( (
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
 'COMPONENT_SHAPE_ASPECT' IN 
 TYPEOF(sar_bag[j].relating_shape_aspect))
 AND (sar_bag[j].relating_shape_aspect\shape_aspect.description IN [
@@ -136,10 +136,10 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(tj) by 1;
   sar_bag := QUERY( sar <* USEDIN( tj[i], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | 
 ((sar\shape_aspect_relationship.name = 'topological junction scope') AND
-(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' + 
+(('INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' + 
 'PHYSICAL_CONNECTIVITY_DEFINITION') IN
 TYPEOF(sar.relating_shape_aspect)) ) );
   REPEAT j := 1 to SIZEOF(sar_bag) by 1;
@@ -155,7 +155,7 @@ REPEAT i := 1 to SIZEOF(s_bag) by 1;
   IF ( NOT pass ) THEN ESCAPE;
   END_IF;
   sar_bag := QUERY( sar <* USEDIN( s_bag[i], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT' ) | 
 (sar\shape_aspect_relationship.name = 'topological junction scope') );
   name_bag := [];
@@ -190,7 +190,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(ellcp) by 1;
   IF EXISTS( ellcp[i].of_shape.definition ) THEN
-    IF( 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF( 'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
 'STRATUM' IN TYPEOF(ellcp[i].of_shape.definition) ) THEN
       IF( NOT( ellcp[i].of_shape.definition IN s_bag ) ) THEN
         s_bag := s_bag + ellcp[i].of_shape.definition;
@@ -209,17 +209,17 @@ REPEAT i := 1 to SIZEOF(s_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     pd_bag := USEDIN( lcp_bag[j], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.'
 + 'PROPERTY_DEFINITION.DEFINITION');
     REPEAT k := 1 to SIZEOF(pd_bag) by 1;
       IF ( NOT pass ) THEN ESCAPE;
       END_IF;
       pdr_bag := QUERY( pdr <* USEDIN( pd_bag[k],
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
 ((pdr.used_representation\representation.name =
 'connection point location') AND (
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
 'CARTESIAN_POINT' IN TYPEOF(pdr.used_representation.items[1]))) );
       REPEAT l := 1 to SIZEOF(pdr_bag) by 1;
         IF EXISTS( pdr_bag[l].used_representation.items[1] ) THEN
@@ -239,4 +239,5 @@ WHERE
 END_RULE; -- explicitly_located_layer_connection_point_unique_constraint
 	
 END_SCHEMA;
+
 

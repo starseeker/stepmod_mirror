@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.5 2004/12/24 14:21:25 liutkus Exp $
+   $Id: mim.exp,v 1.6 2004/12/28 08:52:15 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly functional interface requirement - EXPRESS MIM *)
 (* UNDER DEVELOPMENT *)
 SCHEMA Assembly_functional_interface_requirement_mim;
@@ -16,12 +16,12 @@ ENTITY minimally_defined_connector
   SUBTYPE OF (packaged_part);
 WHERE
   WR1: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_MIM.' +
        'PACKAGED_PART_TERMINAL' IN TYPEOF (sa)) AND 
        (sa.description = 'interface terminal')
        )) >= 0))) >= 0;
@@ -34,7 +34,7 @@ END_ENTITY; -- protocol_physical_layer_definition
 ENTITY protocol_requirement_allocation_to_part_terminal
   SUBTYPE OF (requirement_assignment, requirement_allocation_group);
 WHERE
-  WR1: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR1: 'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_MIM.' +
        'REQUIREMENTS_PROPERTY' IN TYPEOF 
    (SELF\property_definition_relationship.relating_property_definition);
 END_ENTITY; -- protocol_requirement_allocation_to_part_terminal
@@ -43,7 +43,7 @@ RULE mating_connector_termination_constraint FOR ( shape_aspect );
 WHERE
   WR1: SIZEOF(QUERY(sa <* shape_aspect |
        (sa\shape_aspect.description = 'mating connector termination')
-       AND NOT(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       AND NOT(('ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_MIM.'
        + 'COMPONENT_DEFINITION' IN TYPEOF(sa.of_shape.definition))
        AND (sa.of_shape.definition\product_definition.description = 
                                            'mating connector')))) = 0;
@@ -63,7 +63,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(mct) by 1;
   IF EXISTS( mct[i].of_shape.definition ) THEN
-    IF ( ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    IF ( ('ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_MIM.' +
 'COMPONENT_DEFINITION' IN TYPEOF(mct[i].of_shape.definition)) AND
 (mct[i].of_shape.definition\product_definition.description = 'mating connector') ) THEN
       IF( NOT( mct[i].of_shape.definition IN cd_bag ) ) THEN
@@ -82,10 +82,10 @@ REPEAT i := 1 to SIZEOF(cd_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     sar_bag := QUERY( sar <* USEDIN(sa_bag[j],
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_MIM.' +
 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
 ((sar\shape_aspect_relationship.name = 'instantiated terminal') AND (
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_MIM.' +
 'PACKAGED_PART_TERMINAL' IN TYPEOF(sar.relating_shape_aspect))) );
     REPEAT k := 1 to SIZEOF(sar_bag) by 1;
       IF EXISTS( sar_bag[k].relating_shape_aspect ) THEN
@@ -104,3 +104,4 @@ WHERE
 END_RULE; -- mating_connector_termination_unique_constraint
 
 END_SCHEMA;
+

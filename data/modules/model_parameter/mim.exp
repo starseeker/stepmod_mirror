@@ -28,12 +28,12 @@ ENTITY model_parameter
   items : OPTIONAL SET [1:1] OF model_parameter_assigned_item;
 WHERE
   WR1: SIZEOF (USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MODEL_PARAMETER_MIM.' +
        'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1;
   WR2: SIZEOF (QUERY (aga <* USEDIN (SELF, 
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MODEL_PARAMETER_MIM.' +
        'APPLIED_GROUP_ASSIGNMENT.ITEMS') |
-       ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ('MODEL_PARAMETER_MIM.' +
        'PARAMETER_TYPE' IN 
        TYPEOF (aga.assigned_group)) AND
        (aga.assigned_group\group.name IN ['string property type', 
@@ -53,9 +53,9 @@ WHERE
        SELF\representation_relationship.rep_2;
   WR3: SELF\representation_relationship.name = '';
   WR4: SELF\representation.name = '';
-  WR5: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR5: 'MODEL_PARAMETER_MIM.' +
        'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_1);
-  WR6: 'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR6: 'MODEL_PARAMETER_MIM.' +
        'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_2);
 END_ENTITY; -- parameter_assignment_override 
 
@@ -65,20 +65,20 @@ WHERE
   WR1: SIZEOF (SELF.items) = 2;
   WR2: SIZEOF (QUERY (it <* SELF.items |
        (SIZEOF (TYPEOF (it) *
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['MODEL_PARAMETER_MIM.' +
        'MODEL_PARAMETER']) 
        = 1))) = 1;
   WR3: SIZEOF (QUERY (it <* SELF.items |
        (SIZEOF (TYPEOF (it) *
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['MODEL_PARAMETER_MIM.' +
        'COORDINATED_REPRESENTATION_ITEM']) 
        = 1))) <= 1;
   WR4: SIZEOF (QUERY (it <* SELF.items |
         (SIZEOF (QUERY(aga <* USEDIN (it,
-        'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        'MODEL_PARAMETER_MIM.' +
         'APPLIED_GROUP_ASSIGNMENT.ITEMS') |
              (SIZEOF (TYPEOF ( aga\group_assignment.assigned_group) *
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['MODEL_PARAMETER_MIM.' +
        'CHARACTERISTIC_TYPE']) = 1))) 
        = 1))) <= 1;
   WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
@@ -91,18 +91,18 @@ ENTITY product_specific_parameter_value_assignment
 WHERE
   WR1: SIZEOF(SELF\product_related_product_category.products) = 1;
   WR2: SIZEOF(QUERY(pd <* USEDIN(SELF,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MODEL_PARAMETER_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
        (pd\property_definition.description = 
                                 'assigned parameter') AND
        (SIZEOF(QUERY(pdr <* USEDIN(pd,
-       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       'MODEL_PARAMETER_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
        (SIZEOF (
-       ['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+       ['MODEL_PARAMETER_MIM.' +
        'PARAMETER_ASSIGNMENT_REPRESENTATION'] *
        TYPEOF (pdr.used_representation)) = 1))) = 1))) = 1;
-  WR3: NOT ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+  WR3: NOT ('MODEL_PARAMETER_MIM.' +
        'CHARACTERIZED_PRODUCT_CATEGORY' IN
        TYPEOF(SELF));  
   WR4: SELF\characterized_object.name = SELF\product_category.name;  
@@ -139,7 +139,7 @@ REPEAT i := 1 to SIZEOF(name_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     adr_bag := USEDIN( mp_bag[j], 
-'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+'MODEL_PARAMETER_MIM.'
 + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' );
     REPEAT k := 1 to SIZEOF(adr_bag) by 1;
       IF EXISTS( adr_bag[k].assigned_document ) THEN
@@ -158,4 +158,5 @@ WHERE
 END_RULE; -- model_parameter_unique_constraint
 
 END_SCHEMA;
+
 

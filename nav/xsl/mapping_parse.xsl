@@ -203,8 +203,21 @@
 		<xsl:when test="$first-char=']'">
 			<xsl:text> ] </xsl:text>
 		</xsl:when>
+		<xsl:when test="$first-char='|'">
+			<xsl:text> | </xsl:text>
+		</xsl:when>
 		<xsl:when test="$first-char='*'">
-			<xsl:text> * </xsl:text>
+			<xsl:choose>
+				<xsl:when test="$last='&lt;'">
+					<xsl:text>* </xsl:text>
+				</xsl:when>
+				<xsl:when test="substring($path,2,1)='&gt;'">
+					<xsl:text> *</xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text> * </xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
 		</xsl:when>
 		<xsl:when test="$first-char='\'">
 			<!-- continuation line, so do nothing -->
@@ -268,6 +281,9 @@
 			<xsl:when test="$word=']'">
 				<xsl:element name="end-bracket" />
 			</xsl:when>
+			<xsl:when test="$word='|'">
+				<xsl:element name="vertical-bar" />
+			</xsl:when>
 			<xsl:when test="$word='&lt;-'">
 				<xsl:element name="is-pointed-at-by" />
 			</xsl:when>
@@ -285,6 +301,12 @@
 			</xsl:when>
 			<xsl:when test="$word='='">
 				<xsl:element name="equals" />
+			</xsl:when>
+			<xsl:when test="$word='&lt;*'">
+				<xsl:element name="is-extension-of" />
+			</xsl:when>
+			<xsl:when test="$word='*&gt;'">
+				<xsl:element name="is-extension-from" />
 			</xsl:when>
 
 			<xsl:otherwise>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.7 2003/01/24 21:00:28 thendrix Exp $
+$Id: common.xsl,v 1.8 2003/03/16 01:26:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -87,34 +87,19 @@ $Id: common.xsl,v 1.7 2003/01/24 21:00:28 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-  <!--
-  <xsl:choose>
-    <xsl:when test="$output_rcs">
-      <xsl:variable
-        name="date"
-        select="translate(@rcs.date,'$','')"/>
-      <xsl:variable
-        name="rev"
-        select="translate(@rcs.revision,'$','')"/>
-      <xsl:value-of
-        select="concat($lpart,' :- ',@name,'  (',$date,' ',$rev,')')"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:value-of
-        select="concat($lpart,' :- ',@name)"/>
-    </xsl:otherwise>
-  </xsl:choose>
--->
-  <xsl:choose>
-    <xsl:when test="$output_rcs">
-      <xsl:value-of
-        select="concat(@status,' ',$lpart,' :- ',@name)"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:value-of
-        select="concat($lpart,' :- ',@name)"/>
-    </xsl:otherwise>
-  </xsl:choose> 
+  <xsl:variable name="stdnumber">
+    <xsl:call-template name="get_resdoc_stdnumber">
+      <xsl:with-param name="resdoc" select="."/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="resdoc_name">
+    <xsl:call-template name="res_display_name">
+      <xsl:with-param name="res" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:value-of select="concat($stdnumber,' ',$resdoc_name)"/>
+
 
 </xsl:template>
 
@@ -136,6 +121,7 @@ $Id: common.xsl,v 1.7 2003/01/24 21:00:28 thendrix Exp $
       <xsl:with-param name="resdoc" select="."/>
     </xsl:call-template>
   </xsl:variable>
+
   <xsl:variable name="resdoc_title">
     <xsl:value-of select="concat('Product data representation and exchange: Generic integrated resource: ', $resdoc_name)"/>
   </xsl:variable>

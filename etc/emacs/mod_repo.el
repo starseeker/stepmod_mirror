@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.10 2003/01/21 11:00:50 robbod Exp $
+;;; $Id: mod_repo.el,v 1.11 2003/02/06 07:38:58 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -103,6 +103,10 @@
     )
 )
 
+(defun modrep-ant-build-module ()
+  (insert "ant -emacs -q -DMODULES=data/modules/[module-name] modules")
+    )
+
 (defun modrep-issue-ref()
   (format "%s%s"
 	  modrep-issue-prefix
@@ -202,7 +206,8 @@
 
     (insert "   linkend=\"")
     (cond ((or (equalp type "arm")
-	       (equalp type "mim"))
+	       (equalp type "mim")
+	       )
 	   (setq beg (point))
 	   (insert (format "%s_%s" module type))
 	   (capitalize-region beg (+ 1 beg))
@@ -211,7 +216,17 @@
 	   (insert "ae entity=")
 	   )
 	  )
-    (insert "\"\n")
+    (cond ((or (equalp type "schema_intro")
+	       (equalp type "fund_cons")
+	       (equalp type "express_doc")
+	       (equalp type "express)
+	       (equalp type "expg"))
+	   (setq beg (point))
+
+	   (insert "xxx_schema")
+	   )
+	  )
+        (insert "\"\n")
     (insert "   status=\"open\"\n")
     (insert "   category=\"editorial\"\n")
     (insert "   by=\"")
@@ -283,7 +298,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.10 2003/01/21 11:00:50 robbod Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.11 2003/02/06 07:38:58 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-org)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")
@@ -543,6 +558,7 @@
      ["insert purpose issue" (modrep-insert-issue "purpose") t] 
      ["insert usage_guide issue" (modrep-insert-issue "usage_guide ") t]
 
+     ["insert bibliography issue" (modrep-insert-issue "bibliography") t]
 
 ;     ["Open issues/issue1.xml" 
 ;      (find-file (concat modrep-home "../issues/issue1.xml")) t]
@@ -551,15 +567,54 @@
      ["Close issue" (modrep-issue-close) t]
      ["Close and <comment> issue" (modrep-issue-close-and-comment) t]
      )
+
+   ("Issues-resources"
+
+     ["insert general issue" (modrep-insert-issue "general") t]
+
+
+     ["insert abstract issue" (modrep-insert-issue "abstract") t] 
+     ["insert keywords issue" (modrep-insert-issue "keywords") t] 
+     ["insert contacts issue" (modrep-insert-issue "contacts") t] 
+
+     ["insert intro issue" (modrep-insert-issue "purpose") t] 
+     ["insert schema_diag issue" (modrep-insert-issue "schema_diag") t] 
+     ["insert inscope issue" (modrep-insert-issue "inscope") t] 
+     ["insert outscope issue" (modrep-insert-issue "outscope") t]
+
+     ["insert normrefs issue" (modrep-insert-issue "normrefs") t] 
+     ["insert definition issue" (modrep-insert-issue "definition") t] 
+     ["insert abbreviations issue" (modrep-insert-issue "abbreviations") t] 
+
+     ["insert schema_intro issue" (modrep-insert-issue "schema_intro") t]
+     ["insert fund_cons issue" (modrep-insert-issue "fund_cons") t]
+     ["insert express documentation issue" (modrep-insert-issue "express_doc") t]
+     ["insert express-g issue" (modrep-insert-issue "expg") t]
+     ["insert express issue" (modrep-insert-issue "express") t]
+
+     ["insert short names issue" (modrep-insert-issue "short_names") t]
+     ["insert obj register issue" (modrep-insert-issue "obj register") t]
+     ["insert express listings" (modrep-insert-issue "listings") t]
+     ["insert tech_discussion issue" (modrep-insert-issue "tech_discussion") t]
+     ["insert examples issue" (modrep-insert-issue "examples") t]
+     ["insert add_scope issue" (modrep-insert-issue "add_scope") t]
+
+     ["insert bibliography issue" (modrep-insert-issue "bibliography") t]
+
+     ["insert other issue" (modrep-insert-issue "other") t]
+)
+
+("ant" ["ant build module"
+  (modrep-ant-build-module) t]
+)
    ["Insert development folder" 
     (modrep-insert-development-folder) t]
-  ["Insert ARM description file" 
-   (modrep-insert-ext-arm-description-file) t]
-  ["Insert MIM description file" 
-   (modrep-insert-ext-mim-description-file) t]
-
+  ["Insert description file" 
+   (modrep-insert-ext-description-file) t]
   ["Insert Enable Select boiler plates text" 
    (modrep-insert-describe-selects) t]
+  ["Insert Enable SUBTYPE_CONSTRAINT boiler plates text" 
+   (modrep-insert-describe-subtype_constraint) t]
 
   ["Insert EXPRESS-G module/file attributes" 
    (modrep-update-imgfile-content) t]

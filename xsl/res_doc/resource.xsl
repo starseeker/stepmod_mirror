@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.24 2003/03/27 21:08:37 thendrix Exp $
+$Id: resource.xsl,v 1.25 2003/04/01 02:45:09 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1286,35 +1286,49 @@ defined in annex D of ISO 10303-11.
     <xsl:with-param name="aname" select="'intro'"/>
   </xsl:call-template>
 
+  <!-- output any issues -->
+  <xsl:apply-templates select=".." mode="output_schema_clause_issue">
+    <xsl:with-param name="clause" select="'schema_intro'"/>
+    <xsl:with-param name="schema" select="$schema_name"/>
+  </xsl:apply-templates>
+
+
   <xsl:apply-templates select="./introduction"/>
   
   <!--	<a name="funcon{$schema_no+3}" />  -->
 
 <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" 
+  <xsl:with-param name="heading" 
       select="concat(($schema_no+3),'.2 Fundamental concepts and assumptions')"/>
-    <!--    <xsl:with-param name="aname" select="concat('schema','position()')"/> -->
-    <xsl:with-param name="aname" select="'funcon'"/>
-  </xsl:call-template>
+  <!--    <xsl:with-param name="aname" select="concat('schema','position()')"/> -->
+  <xsl:with-param name="aname" select="'funcon'"/>
+</xsl:call-template>
 
-  <xsl:apply-templates select="./fund_cons"/>
+  <!-- output any issues -->
+  <xsl:apply-templates select=".." mode="output_schema_clause_issue">
+    <xsl:with-param name="clause" select="'fund_cons'"/>
+    <xsl:with-param name="schema" select="$schema_name"/>
+  </xsl:apply-templates>
 
-  <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="document($express_xml)/express/schema/constant"/>
 
-  <!-- display the EXPRESS for the types in the schema.
-       The template is in sect4_express.xsl -->
-  <xsl:apply-templates 
-    select="document($express_xml)/express/schema/type">
-    <xsl:with-param name="main_clause" select="($schema_no+3)" />
-    </xsl:apply-templates>
+<xsl:apply-templates select="./fund_cons"/>
+
+<!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
+<xsl:apply-templates 
+  select="document($express_xml)/express/schema/constant"/>
+
+<!-- display the EXPRESS for the types in the schema.
+     The template is in sect4_express.xsl -->
+<xsl:apply-templates 
+  select="document($express_xml)/express/schema/type">
+  <xsl:with-param name="main_clause" select="($schema_no+3)" />
+  </xsl:apply-templates>
   <!-- display the EXPRESS for the entities in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
     select="document($express_xml)/express/schema/entity">
     <xsl:with-param name="main_clause" select="$schema_no+3" />
-  </xsl:apply-templates>
+    </xsl:apply-templates>
 
   <!-- display the EXPRESS for the subtype.contraints in the schema.
        The template is in sect4_express.xsl -->
@@ -3106,6 +3120,7 @@ $resource_ok,' Check the normatives references')"/>
 
   <xsl:apply-templates/>
 </xsl:template>
+
 
 <xsl:template match="express-g">
   <ul>

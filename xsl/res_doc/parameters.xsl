@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.11 2002/06/23 07:52:10 robbod Exp $
+     $Id: parameters.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -47,24 +47,11 @@
        Used by:
        xsl:template name="error_message" in common.xsl
        -->
-  <xsl:param name="INLINE_ERRORS" select="'yes'"/>
-
-
-  <!-- When 
-          'yes' the mapping tables will be checked and errors will be
-                displayed in the HTML 
-          'no'  NO checking is done 
-       Turning off mapping checking will speed up display of mapping
-       tables as a list of all mim and integrated resources are loaded into
-       global variables.      
-       Used by:
-       sect5_mapping.xsl
-       -->
-  <xsl:param name="check_mapping" select="'no'"/>
+  <xsl:param name="INLINE_ERRORS" select="'YES'"/>
 
 
   <!-- when YES issues will be read from the issues.xml file stored in the
        resource directory -->
-  <xsl:param name="output_issues" select="''"/>
+  <xsl:param name="output_issues" select="'YES'"/>
 
 </xsl:stylesheet>

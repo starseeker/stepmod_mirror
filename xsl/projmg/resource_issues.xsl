@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: issues.xsl,v 1.5 2002/09/13 08:31:25 robbod Exp $
+     $Id: resource_issues.xsl,v 1.1 2002/10/16 20:47:53 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -26,26 +26,52 @@
        -->
 <xsl:template match="resource" mode="output_clause_issue">
   <xsl:param name="clause"/>
-  <xsl:variable name="resdoc_dir">
-    <xsl:call-template name="resdoc_directory">
-      <xsl:with-param name="resdoc" select="@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="dvlp_fldr" select="@development.folder"/>
-  <xsl:if test="string-length($dvlp_fldr)>0">
-    <xsl:variable name="issue_file" 
-      select="concat($resdoc_dir,'/dvlp/issues.xml')"/>
-    <xsl:apply-templates
-      select="document($issue_file)/issues/issue[@type=$clause]" 
-      mode="inline_issue">
-      <xsl:sort select="@status" order="descending"/>
-    </xsl:apply-templates>
+  <xsl:if test="$output_issues='YES'">
+    <xsl:variable name="resdoc_dir">
+      <xsl:call-template name="resdoc_directory">
+        <xsl:with-param name="resdoc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="dvlp_fldr" select="@development.folder"/>
+    <xsl:if test="string-length($dvlp_fldr)>0">
+      <xsl:variable name="issue_file" 
+        select="concat($resdoc_dir,'/dvlp/issues.xml')"/>
+      <xsl:apply-templates
+        select="document($issue_file)/issues/issue[@type=$clause]" 
+        mode="inline_issue">
+        <xsl:sort select="@status" order="descending"/>
+      </xsl:apply-templates>
+    </xsl:if>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="resource" mode="output_schema_clause_issue">
+  <xsl:param name="clause"/>
+  <xsl:param name="schema"/>
+  <xsl:if test="$output_issues='YES'">
+    <xsl:variable name="resdoc_dir">
+      <xsl:call-template name="resdoc_directory">
+        <xsl:with-param name="resdoc" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="dvlp_fldr" select="@development.folder"/>
+    <xsl:if test="string-length($dvlp_fldr)>0">
+      <xsl:variable name="issue_file" 
+        select="concat($resdoc_dir,'/dvlp/issues.xml')"/>
+      <xsl:apply-templates
+        select="document($issue_file)/issues/issue[@type=$clause and @linkend=$schema]" 
+        mode="inline_issue">
+        <xsl:sort select="@status" order="descending"/>
+      </xsl:apply-templates>
+    </xsl:if>
   </xsl:if>
 </xsl:template>
 
 
-
 <xsl:template name="output_express_issue">
+  <!--       The name of the resource document 
+       Compulsory parameter -->
+    <xsl:param name="resdoc_name"/>
   <!--
        The name of the express schema 
        Compulsory parameter -->
@@ -83,7 +109,7 @@
     </xsl:variable>
 
     <xsl:variable name="resdoc_xml"
-      select="concat('../',$resdoc_dir,'/resource.xml')"/>
+      select="concat('../../data/resource_docs/',$resdoc_name,'/resource.xml')"/>
     
     <xsl:variable name="dvlp_fldr"
       select="string(document($resdoc_xml)/resource/@development.folder)"/> 
@@ -138,7 +164,8 @@
     </xsl:variable>
 
 
-    <xsl:variable name="issue_file" select="concat('../',$resdoc_dir,'/dvlp/issues.xml')"/>
+    <xsl:variable name="issue_file" select="concat('../../data/resource_docs/',$resdoc_name,'/dvlp/issues.xml')"/>
+
     <xsl:apply-templates
       select="document($issue_file)/issues/issue[@type='ir' and @linkend=$xref]" mode="inline_issue">
       <xsl:sort select="@status" order="descending"/>

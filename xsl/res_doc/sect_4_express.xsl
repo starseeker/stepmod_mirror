@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.8 2003/01/24 22:48:14 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.9 2003/03/16 01:26:38 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -26,6 +26,18 @@
   <!-- +++++++++++++++++++
          Global variables
        +++++++++++++++++++ -->
+
+  <xsl:variable name="resdoc_name_1">
+    <xsl:choose>  
+      <xsl:when test="/resource_clause">
+        <xsl:value-of select="/resource_clause/@directory" />
+      </xsl:when>
+      <xsl:when test="/resource">
+            <xsl:value-of select="/resource/@name"/>
+          </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+
 
   <!-- 
        Global variable used in express_link.xsl by:
@@ -596,12 +608,13 @@
     </xsl:choose>
   </p>
   <!-- output any issue against type -->
-  <!--
+ 
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../@name"/>
-    <xsl:with-param name="entity" select="./@name"/>
+    <xsl:with-param name="entity" select="@name"/>
   </xsl:call-template> 
--->
+
   <p><u>EXPRESS specification:</u></p>
   <p>
   <!-- start blockquote -->
@@ -812,7 +825,9 @@
   </p>
 
   <!-- output any issue against entity   -->
+
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="./@name"/>
   </xsl:call-template> 
@@ -1067,11 +1082,11 @@
 
   <!-- output any issue against attribute  -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
-  </xsl:call-template> 
-
+  </xsl:call-template>
 </p>
 </xsl:template>
 
@@ -1128,6 +1143,7 @@
   </p>
   <!-- output any issues against derived attributes -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
@@ -1187,6 +1203,7 @@
   </p>
   <!-- output any issues against inverse attribute -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
@@ -1248,6 +1265,7 @@
   </p>
     <!-- output issues against unique rule -->
     <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
       <xsl:with-param name="schema" select="../../@name"/>
       <xsl:with-param name="entity" select="../@name"/>
       <xsl:with-param name="unique" select="./@label"/>
@@ -1321,6 +1339,7 @@
   </p>
   <!-- output issue against entity -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="where" select="@label"/>
@@ -1406,7 +1425,8 @@
 
   <!-- output express issues against supertype constraint -->
   <xsl:call-template name="output_express_issue">
-    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
+    <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="@name"/>
   </xsl:call-template>
 
@@ -1533,6 +1553,7 @@
 
   <!-- output issues against function -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="@name"/>
   </xsl:call-template>
@@ -1630,6 +1651,7 @@
   </xsl:choose>
   <!-- output any issue against procedure -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="./@name"/>
   </xsl:call-template> 
@@ -1723,6 +1745,7 @@
 </p>
   <!-- output issues against parameter -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
@@ -1818,6 +1841,7 @@
 
   <!-- output any issue against algorithm -->
   <xsl:call-template name="output_express_issue">
+    <xsl:with-param name="resdoc_name" select="$resdoc_name_1"/>
     <xsl:with-param name="schema" select="../@name"/>
     <xsl:with-param name="entity" select="./@name"/>
   </xsl:call-template> 

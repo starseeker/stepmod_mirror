@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_a_short_names.xsl,v 1.2 2002/10/19 00:44:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -119,6 +119,12 @@ $Id: sect_a_short_names.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
       </p>
     </small>
   </p>
+
+  <!-- output any issues -->
+  <xsl:apply-templates select=".." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'shortnames'"/>
+  </xsl:apply-templates>
+
   <p align="center">
     <b>
       Table A.1 - Short names of entities 

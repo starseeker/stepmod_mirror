@@ -18,12 +18,9 @@ SCHEMA Physical_layout_template_mim;
 	USE FROM Application_context_schema(application_context_element);
 		
 ENTITY part_template_definition
-  SUBTYPE OF (shape_aspect);
+  SUBTYPE OF (product_definition);
 WHERE
-  WR1: SELF\
-       shape_aspect.of_shape\
-       property_definition.definition.frame_of_reference\
-       application_context_element.name = 'template definition';
+  WR1: frame_of_reference\application_context_element.name = 'template definition';
 
   WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
@@ -37,29 +34,29 @@ WHERE
        (pdr.used_representation\representation.name = 'part template analytical model'))) 
        <= 1))) = 0;       
 
-  WR3: (NOT (SELF\shape_aspect.description = 
+  WR3: (NOT (SELF\product_definition.description = 
          'component termination passage template')) OR
-       (SIZEOF (QUERY (ctpt <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (ctpt <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'inter stratum feature passage technology') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'inter stratum feature passage technology') |
        ('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PASSAGE_TECHNOLOGY' IN
-       TYPEOF (ctpt.relating_shape_aspect)) AND
-       (ctpt.relating_shape_aspect\shape_aspect.description = 
+       TYPEOF (ctpt.relating_product_definition)) AND
+       (ctpt.relating_product_definition\product_definition.description = 
        'default component termination passage definition'))) = 1);
 
-  WR4: (NOT (SELF\shape_aspect.description = 
+  WR4: (NOT (SELF\product_definition.description = 
         'component termination passage template')) OR
-       (SIZEOF (QUERY (am <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (am <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'access mechanism') |
-       am.related_shape_aspect\shape_aspect.description IN 
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'access mechanism') |
+       am.related_product_definition\product_definition.description IN 
        ['component termination passage template interface terminal',
        'component termination passage template join terminal'])) >= 2);
 
-  WR5: (NOT (SELF\shape_aspect.description = 'default trace template')) OR
+  WR5: (NOT (SELF\product_definition.description = 'default trace template')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -71,23 +68,23 @@ WHERE
        'STRATUM_TECHNOLOGY' IN 
        TYPEOF (tu.relating_property_definition.definition))) = 1)) = 1);
 
-  WR6: (NOT (SELF\shape_aspect.description = 'inter stratum feature template')) OR
-       (SIZEOF (QUERY (isfpt <* QUERY (sar <* USEDIN (SELF,
+  WR6: (NOT (SELF\product_definition.description = 'inter stratum feature template')) OR
+       (SIZEOF (QUERY (isfpt <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'inter stratum feature passage technology') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'inter stratum feature passage technology') |
        ('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PASSAGE_TECHNOLOGY' IN
-       TYPEOF (isfpt.relating_shape_aspect)))) = 1);
+       TYPEOF (isfpt.relating_product_definition)))) = 1);
 
-  WR7: (NOT (SELF\shape_aspect.description = 'printed connector template')) OR
-       (SIZEOF (QUERY (sar <* USEDIN (SELF, 
+  WR7: (NOT (SELF\product_definition.description = 'printed connector template')) OR
+       (SIZEOF (QUERY (pdr <* USEDIN (SELF, 
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name IN 
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name IN 
        ['connector'])) >= 1);
 
-  WR8: (NOT (SELF\shape_aspect.description = 'printed part cross section template')) OR
+  WR8: (NOT (SELF\product_definition.description = 'printed part cross section template')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -100,7 +97,7 @@ WHERE
        (pdr.used_representation\representation.name = 'transmission line model'))) 
        = 1))) = 0);
 
-  WR9: (NOT (SELF\shape_aspect.description = 'printed part cross section template')) OR
+  WR9: (NOT (SELF\product_definition.description = 'printed part cross section template')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -115,7 +112,7 @@ WHERE
        'LENGTH_MEASURE_WITH_UNIT'] * 
        TYPEOF (it)) = 2)) = 2)) = 1))) = 0);
 
- WR10: (NOT (SELF\shape_aspect.description = 'printed part cross section template')) OR
+ WR10: (NOT (SELF\product_definition.description = 'printed part cross section template')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -131,7 +128,7 @@ WHERE
        TYPEOF (it)) = 2) AND (it\representation_item.name = 'maximum width'))) = 1
        )) = 1))) = 0);
 
- WR11: (NOT (SELF\shape_aspect.description = 'printed part cross section template')) OR
+ WR11: (NOT (SELF\product_definition.description = 'printed part cross section template')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -147,9 +144,9 @@ WHERE
        TYPEOF (it)) = 2) AND (it\representation_item.name = 'minimum width'))) = 1
        )) = 1))) = 0);
 
- WR12: (NOT (SELF\shape_aspect.description = 'printed part template')) OR
+ WR12: (NOT (SELF\product_definition.description = 'printed part template')) OR
        (SIZEOF (QUERY (impl_func <* QUERY (pdr <* 
-       USEDIN (SELF.of_shape.definition,
+       USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.' +
        'RELATED_PRODUCT_DEFINITION') |
@@ -160,18 +157,18 @@ WHERE
        (impl_func.relating_product_definition.frame_of_reference.name =
        'functional design usage'))) = 1);
  
- WR13: (NOT (SELF\shape_aspect.description = 'printed part template')) OR
-       (SIZEOF (QUERY (ad <* QUERY (sar <* USEDIN (SELF, 
+ WR13: (NOT (SELF\product_definition.description = 'printed part template')) OR
+       (SIZEOF (QUERY (ad <* QUERY (pdr <* USEDIN (SELF, 
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'associated definition') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'associated definition') |
        ('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PRINTED_PART_TEMPLATE_TERMINAL' IN 
-       TYPEOF (ad.related_shape_aspect)) AND
-       (ad.related_shape_aspect\shape_aspect.description IN 
+       TYPEOF (ad.related_product_definition)) AND
+       (ad.related_product_definition\product_definition.description IN 
        ['interface terminal', 'join terminal']))) >= 2);
 
- WR14: (NOT (SELF\shape_aspect.description = 'trace template')) OR
+ WR14: (NOT (SELF\product_definition.description = 'trace template')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -181,39 +178,39 @@ WHERE
        pdr.used_representation\representation.name = 'curve style parameters'
        )) = 1 ) )) = 1 );  
 
- WR15: (NOT (SELF\shape_aspect.description = 'unsupported passage template')) OR
-       (SIZEOF (QUERY (upt <* QUERY (sar <* USEDIN (SELF, 
+ WR15: (NOT (SELF\product_definition.description = 'unsupported passage template')) OR
+       (SIZEOF (QUERY (upt <* QUERY (pdr <* USEDIN (SELF, 
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'inter stratum feature passage technology') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'inter stratum feature passage technology') |
        ('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PASSAGE_TECHNOLOGY' IN 
-       TYPEOF (upt.relating_shape_aspect)) AND
-       (upt.relating_shape_aspect\shape_aspect.description = 
+       TYPEOF (upt.relating_product_definition)) AND
+       (upt.relating_product_definition\product_definition.description = 
        'default unsupported passage definition'))) = 1);
 
- WR16: (NOT (SELF\shape_aspect.description = 'via template')) OR
-       (SIZEOF (QUERY (vpt <* QUERY (sar <* USEDIN (SELF, 
+ WR16: (NOT (SELF\product_definition.description = 'via template')) OR
+       (SIZEOF (QUERY (vpt <* QUERY (pdr <* USEDIN (SELF, 
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'inter stratum feature passage technology') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'inter stratum feature passage technology') |
        ('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PASSAGE_TECHNOLOGY' IN 
-       TYPEOF (vpt.relating_shape_aspect)) AND
-       (vpt.relating_shape_aspect\shape_aspect.description = 
+       TYPEOF (vpt.relating_product_definition)) AND
+       (vpt.relating_product_definition\product_definition.description = 
        'default via definition'))) = 1);
 
- WR17: (NOT (SELF\shape_aspect.description = 'via template')) OR
-       (SIZEOF (QUERY (am <* QUERY (sar <* USEDIN (SELF,
+ WR17: (NOT (SELF\product_definition.description = 'via template')) OR
+       (SIZEOF (QUERY (am <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'access mechanism') |
-       am.related_shape_aspect\shape_aspect.description =
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'access mechanism') |
+       am.related_product_definition\product_definition.description =
                                  'via template terminal')) >= 2);
 
- WR18: EXISTS(SELF\shape_aspect.name);
+ WR18: EXISTS(SELF\product_definition.name);
 
- WR19: (NOT (SELF\shape_aspect.description = 'non conductive cross section template')) OR
+ WR19: (NOT (SELF\product_definition.description = 'non conductive cross section template')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -225,7 +222,7 @@ WHERE
        'STRATUM_TECHNOLOGY' IN
        TYPEOF (tu.relating_property_definition.definition)))) = 1)) = 1);
 
- WR20: (NOT (SELF\shape_aspect.description = 'non conductive cross section template')) OR
+ WR20: (NOT (SELF\product_definition.description = 'non conductive cross section template')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PROPERTY_DEFINITION.DEFINITION') |
@@ -241,81 +238,80 @@ WHERE
        TYPEOF (it)) = 2) AND (it\representation_item.name = 'nominal width'))) = 1
        )) = 1))) = 0);
 
- WR21: (NOT (SELF\shape_aspect.description = 'printed connector template')) OR
-       (SIZEOF (QUERY (ad <* QUERY (sar <* USEDIN (SELF,
+ WR21: (NOT (SELF\product_definition.description = 'printed connector template')) OR
+       (SIZEOF (QUERY (ad <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'associated definition') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'associated definition') |
        ('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PRINTED_PART_TEMPLATE_TERMINAL' IN
-       TYPEOF (ad.related_shape_aspect)) AND
-       (ad.relating_shape_aspect\shape_aspect.description IN
+       TYPEOF (ad.related_product_definition)) AND
+       (ad.relating_product_definition\product_definition.description IN
        ['interface terminal', 'join terminal']))) >= 2);
 
- WR22: (NOT (SELF\shape_aspect.description = 
+ WR22: (NOT (SELF\product_definition.description = 
                          'printed part cross section template')) OR
-       (SIZEOF (QUERY (ad <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (ad <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'horizontal material link') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'horizontal material link') |
        NOT(('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PRINTED_PART_TEMPLATE_MATERIAL_LINK' IN
-       TYPEOF (ad.relating_shape_aspect)) AND
+       TYPEOF (ad.relating_product_definition)) AND
        (('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY' IN
-       TYPEOF (ad.relating_shape_aspect\shape_aspect_relationship.
-                                                   related_shape_aspect)) AND
-       (ad.relating_shape_aspect\shape_aspect_relationship.
-                 related_shape_aspect\shape_aspect.description = 'left'))))) = 0); 
+       TYPEOF (ad.relating_product_definition\product_definition_relationship.
+                                                   related_product_definition)) AND
+       (ad.relating_product_definition\product_definition_relationship.
+                 related_product_definition\product_definition.description = 'left'))))) = 0); 
 
- WR23: (NOT (SELF\shape_aspect.description = 
+ WR23: (NOT (SELF\product_definition.description = 
                         'printed part cross section template')) OR
-       (SIZEOF (QUERY (ad <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (ad <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'horizontal material link') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'horizontal material link') |
        NOT(('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PRINTED_PART_TEMPLATE_MATERIAL_LINK' IN
-       TYPEOF (ad.relating_shape_aspect)) AND
+       TYPEOF (ad.relating_product_definition)) AND
        (('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY' IN
-       TYPEOF (ad.relating_shape_aspect\shape_aspect_relationship.
-                                                 relating_shape_aspect)) AND
-       (ad.relating_shape_aspect\shape_aspect_relationship.
-              relating_shape_aspect\shape_aspect.description = 'right'))))) = 0); 
+       TYPEOF (ad.relating_product_definition\product_definition_relationship.
+                                                 relating_product_definition)) AND
+       (ad.relating_product_definition\product_definition_relationship.
+              relating_product_definition\product_definition.description = 'right'))))) = 0); 
 
- WR24: (NOT (SELF\shape_aspect.description = 
+ WR24: (NOT (SELF\product_definition.description = 
                                 'printed part cross section template')) OR
-       (SIZEOF (QUERY (ad <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (ad <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'vertical material link') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'vertical material link') |
        NOT(('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PRINTED_PART_TEMPLATE_MATERIAL_LINK' IN
-       TYPEOF (ad.relating_shape_aspect)) AND
+       TYPEOF (ad.relating_product_definition)) AND
        (('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY' IN
-       TYPEOF (ad.relating_shape_aspect\shape_aspect_relationship.
-                                              related_shape_aspect)) AND
-       (ad.relating_shape_aspect\shape_aspect_relationship.
-          related_shape_aspect\shape_aspect.description = 'bottom'))))) = 0); 
+       TYPEOF (ad.relating_product_definition\product_definition_relationship.
+                                              related_product_definition)) AND
+       (ad.relating_product_definition\product_definition_relationship.
+          related_product_definition\product_definition.description = 'bottom'))))) = 0); 
 
- WR25: (NOT (SELF\shape_aspect.description = 
+ WR25: (NOT (SELF\product_definition.description = 
                                  'printed part cross section template')) OR
-       (SIZEOF (QUERY (ad <* QUERY (sar <* USEDIN (SELF,
+       (SIZEOF (QUERY (ad <* QUERY (pdr <* USEDIN (SELF,
        'PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'vertical material link') |
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'vertical material link') |
        NOT(('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PRINTED_PART_TEMPLATE_MATERIAL_LINK' IN
-       TYPEOF (ad.relating_shape_aspect)) AND
+       TYPEOF (ad.relating_product_definition)) AND
        (('PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY' IN
-       TYPEOF (ad.relating_shape_aspect\shape_aspect_relationship.
-                                          relating_shape_aspect)) AND
-       (ad.relating_shape_aspect\shape_aspect_relationship.
-          relating_shape_aspect\shape_aspect.description = 'top'))))) = 0); 
- WR26: SELF\shape_aspect.name = 'NULL';
+       TYPEOF (ad.relating_product_definition\product_definition_relationship.
+                                          relating_product_definition)) AND
+       (ad.relating_product_definition\product_definition_relationship.
+          relating_product_definition\product_definition.description = 'top'))))) = 0); 
 END_ENTITY;	
 	
 END_SCHEMA;

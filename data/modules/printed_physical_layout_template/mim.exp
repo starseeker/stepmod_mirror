@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.9 2005/02/02 14:44:44 budreckytej Exp $
+   $Id: mim.exp,v 1.10 2005/02/04 16:07:25 budreckytej Exp $
    ISO TC184/SC4/WG12 N3583 - ISO/CD-TS 10303-1737 Printed physical layout template - EXPRESS MIM
 *)
 
@@ -49,17 +49,18 @@ END_ENTITY;
 ENTITY printed_part_cross_section_template_terminal
   SUBTYPE OF (printed_part_template_terminal);
 WHERE
+(* invalid csa
   WR1: 
-       SIZEOF (QUERY (am <* QUERY (sar <* USEDIN (SELF,
+       SIZEOF (QUERY (am <* QUERY (pdr <* USEDIN (SELF,
        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'cross section definition') |
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\shape_aspect_relationship.name = 'cross section definition') |
        ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (am.relating_shape_aspect)) AND
-       (am.relating_shape_aspect\shape_aspect.description = 
+       TYPEOF (am.relating_product_definition)) AND
+       (am.relating_product_definition\shape_aspect.description = 
        'printed part cross section template'))) = 1;
-
+*)
   WR2: SIZEOF (QUERY (ga <* USEDIN (SELF,
        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'APPLIED_GROUP_ASSIGNMENT.ITEMS') |
@@ -283,24 +284,24 @@ WHERE
 END_ENTITY;
 
 ENTITY printed_part_template_link
-  SUBTYPE OF (stratum_technology_link,shape_aspect_relationship);
+  SUBTYPE OF (stratum_technology_link,product_definition_relationship);
 WHERE
-  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
-       SELF\shape_aspect_relationship.relating_shape_aspect;
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
   WR2: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\property_definition_relationship ||
        SELF\printed_part_template_link || SELF\property_definition ||
-       SELF\stratum_technology_link || SELF\shape_aspect_relationship)) = 0;
+       SELF\stratum_technology_link || SELF\product_definition_relationship)) = 0;
   WR3: 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN 
-    TYPEOF(SELF\shape_aspect_relationship.related_shape_aspect);
+    TYPEOF(SELF\product_definition_relationship.related_product_definition);
   WR4: 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'PART_TEMPLATE_DEFINITION' IN 
-    TYPEOF(SELF\shape_aspect_relationship.relating_shape_aspect);
-  WR5: SELF\shape_aspect_relationship.name = '';
-  WR6: SELF\shape_aspect_relationship.description = '';
-  WR7: SELF\shape_aspect_relationship.related_shape_aspect.description =
+    TYPEOF(SELF\product_definition_relationship.relating_product_definition);
+  WR5: SELF\product_definition_relationship.name = '';
+  WR6: SELF\product_definition_relationship.description = '';
+  WR7: SELF\product_definition_relationship.related_product_definition.description =
        'printed part template';
-  WR8: SELF\shape_aspect_relationship.relating_shape_aspect.description =
+  WR8: SELF\product_definition_relationship.relating_product_definition.description =
        'printed part template';
 END_ENTITY;
 
@@ -428,17 +429,10 @@ WHERE
        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'SHAPE_REPRESENTATION' IN
        TYPEOF (pdr.used_representation))) >= 1))) = 0;
-  WR5: SIZEOF (QUERY (ad <* QUERY (sar <* USEDIN (SELF,
-       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'associated definition') |
-       ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-       'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (ad.relating_shape_aspect)) AND
-       ((ad.relating_shape_aspect\shape_aspect.description = 'printed part template')
+  WR5: SIZEOF ((SELF\shape_aspect.of_shape.definition\product_definition.description = 'printed part template')
        OR
-       (ad.relating_shape_aspect\shape_aspect.description = 'printed connector template'))
-       )) = 1;
+       (SELF\shape_aspect.of_shape.definition\product_definition.description = 'printed connector template'))
+        = 1;
   WR6: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
@@ -466,7 +460,7 @@ WHERE
   WR3: SELF\shape_aspect.description IN
        ['top', 'left', 'right', 'bottom'];
 END_ENTITY;
-
+(* invalid csa
 RULE printed_connector_template_terminal_relationship_unique_constraint FOR
  ( printed_connector_template_terminal_relationship );
 LOCAL
@@ -553,7 +547,7 @@ WHERE
   WR1: pass1;
   WR2: pass2;
 END_RULE;
-
+*)
 RULE printed_part_template_terminal_relationship_constraint FOR 
 ( shape_aspect_relationship );
 WHERE
@@ -640,7 +634,7 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE;
-
+(* invalid csa
 RULE printed_part_template_terminal_unique_constraint FOR
  ( printed_part_template_terminal );
 LOCAL
@@ -690,7 +684,7 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE;
-
+*)
   FUNCTION printed_part_template_access_mechanisms(
     input : SET OF printed_part_template_link
   ) : SET OF printed_part_template_terminal;

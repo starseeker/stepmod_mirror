@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.11 2005/02/02 14:45:24 budreckytej Exp $
+   $Id: mim.exp,v 1.12 2005/02/04 16:02:34 budreckytej Exp $
    ISO TC184/SC4/WG12 N3568 - ISO/CD-TS 10303-1728 Physical unit design view - EXPRESS MIM
 *)
 
@@ -92,6 +92,7 @@ WHERE
        'physical design usage') AND
         (SELF\product_definition.name = 'interconnect module')
        )) = 1);
+(* invalid csa       
   WR7: (NOT (SELF\product_definition.description = 'mating connector')) OR
        ((('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' + 
        'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
@@ -129,7 +130,7 @@ WHERE
        'LIBRARY_DEFINED_PACKAGED_PART'] *
        TYPEOF (ip.relating_product_definition)) = 1) AND
        (ip.relating_product_definition\product_definition.description =
-       'packaged connector'))) = 1));
+       'packaged connector'))) = 1)); *)
   WR8: (NOT (SELF\product_definition.description = 'mating connector')) OR
        (SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
@@ -241,232 +242,12 @@ WHERE
        (SELF.frame_of_reference.name = 'physical occurrence'));
 END_ENTITY;
 
-ENTITY component_shape_aspect
-  SUPERTYPE OF (thermal_component_shape_aspect)
-  SUBTYPE OF (shape_aspect);
-WHERE
-  WR1: 'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'COMPONENT_DEFINITION' IN
-       TYPEOF (SELF.of_shape.definition);
-  WR2: (SIZEOF (['PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'INTER_STRATUM_FEATURE',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'FIDUCIAL',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'CONNECTED_AREA_COMPONENT',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'ASSEMBLY_GROUP_COMPONENT_SHAPE_ASPECT',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'THERMAL_COMPONENT_SHAPE_ASPECT',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'MATERIAL_REMOVAL_COMPONENT_SHAPE_ASPECT',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'INTEGRAL_SHIELD',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PROBE_ACCESS_AREA',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'LAND'] * 
-       TYPEOF (SELF)) >= 1) OR
-       (SELF\shape_aspect.description IN [
-       'part template occurrence', 
-       'laminate component', 
-       'laminate text component', 
-       'laminate text string component', 
-       'conductive interconnect element with pre defined transitions', 
-       'join 2 physical connectivity definition supporting',
-     'conductive interconnect element with user defined single transition',
-      'special symbol laminate component', 
-       'primary stratum indicator symbol', 
-       'stratum feature template component']);
-  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_REPRESENTATION'
-       IN TYPEOF (pdr.used_representation)) |
-       sr_pdr.used_representation\representation.name = 'planar projected shape')) 
-       <= 1))) = 0;
-  WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       NOT (SIZEOF (QUERY (sr_pdr <* QUERY (pdr <* USEDIN (pd,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_REPRESENTATION'
-       IN TYPEOF (pdr.used_representation)) |
-       sr_pdr.used_representation\representation.name = '3d bound volume shape')) 
-       <= 1))) = 0;
-  WR5: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN ['laminate text component', 
-       'laminate text string component', 
-       'special symbol laminate component', 
-       'primary stratum indicator symbol',  
-       'stratum feature template component']) OR
-       (('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'COMPONENT_DEFINITION' IN
-       TYPEOF (SELF.of_shape.definition)) AND
-       (SELF.of_shape.definition\product_definition.description = 
-                  'laminate component')
-       ));
-  WR6: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description = 
-       'laminate text component') OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
-       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PART_TEXT_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)))) = 1));
-  WR7: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['stratum feature template component']) OR
-       (SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'stratum feature implementation') |
-       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'STRATUM_FEATURE' IN
-       TYPEOF (sfi.relating_shape_aspect)))) = 1));
-  WR8: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['conductive interconnect element with pre defined transitions', 
-       'join 2 physical connectivity definition supporting',
-       'conductive interconnect element with ' +
-       'user defined single transition']) OR
-       (SIZEOF (QUERY (cc <* QUERY (sar <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed conductor') |
-       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'STRATUM_FEATURE' IN
-       TYPEOF (cc.related_shape_aspect)))) = 1));
-(*
-  WR9: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['conductive interconnect element with pre defined transitions', 
-       'join 2 physical connectivity definition supporting',
-       'conductive interconnect element with user ' +
-       'defined single transition']) OR
-       (SIZEOF (QUERY (at <* associated_terminals(SELF)|
-       (('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'COMPONENT_TERMINAL' IN
-       TYPEOF (at)) AND
-       (at\shape_aspect.description =
-       'conductive interconnect element terminal')))) >= 2));
-*)
- WR10: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['special symbol laminate component',
-       'primary stratum indicator symbol']) OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
-       (('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.related_shape_aspect\shape_aspect.description =
-       'special symbol part template')))) = 1));
- WR11: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description = 
-       'stratum feature template component') OR
-       (SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template') |
-       (('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PART_TEMPLATE_DEFINITION' IN
-       TYPEOF (it.relating_shape_aspect)) AND
-       (it.relating_shape_aspect\shape_aspect.description =
-       'stratum feature template')) OR
-       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'LAND_PHYSICAL_TEMPLATE' IN
-       TYPEOF (it.relating_shape_aspect)))) <= 1));
- WR12: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description IN
-       ['laminate text component']) OR
-       (SIZEOF (QUERY (sfi <* QUERY (sar <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'stratum feature implementation') |
-       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'STRATUM_FEATURE' IN
-       TYPEOF (sfi.relating_shape_aspect)))) >= 1));
- WR13: NOT ((SIZEOF (['PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'INTER_STRATUM_FEATURE',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'FIDUCIAL',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'CONNECTED_AREA_COMPONENT',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'ASSEMBLY_GROUP_COMPONENT_SHAPE_ASPECT',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'THERMAL_COMPONENT_SHAPE_ASPECT',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'MATERIAL_REMOVAL_COMPONENT_SHAPE_ASPECT',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'INTEGRAL_SHIELD',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PROBE_ACCESS_AREA',
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'LAND'] *
-       TYPEOF (SELF)) >= 1) OR
-       (SELF\shape_aspect.description IN [
-       'laminate component',
-       'laminate text component',
-       'laminate text string component',
-       'conductive interconnect element with pre defined transitions', 
-       'join 2 physical connectivity definition supporting',
-     'conductive interconnect element with user defined single transition',
-      'special symbol laminate component',
-       'primary stratum indicator symbol',
-       'stratum feature template component'])) OR
-       (('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'COMPONENT_DEFINITION' IN
-       TYPEOF (SELF.of_shape.definition)) AND
-       (SELF.of_shape.definition\
-        product_definition.frame_of_reference\
-        application_context_element.name = 'layout occurrence'));
- WR14: SIZEOF (QUERY (sar <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'instantiated template')) <= 1;
- WR15: NOT(EXISTS(SELF\shape_aspect.description)) OR 
-       (NOT (SELF\shape_aspect.description =
-       'join 2 physical connectivity definition supporting') OR
-       (SIZEOF ( QUERY (propd <* USEDIN (SELF,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       (SIZEOF (QUERY (ri <* QUERY (propdr <* USEDIN (propd,
-       'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
-       propdr\property_definition_relationship.name = 'requirement implementation') |
-       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP' IN
-       TYPEOF (ri.relating_property_definition.definition)) AND
-       (ri.relating_property_definition.definition\shape_aspect_relationship.name =
-       'ordered physical connectivity definition') AND
-       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PHYSICAL_CONNECTIVITY_DEFINITION'
-       IN TYPEOF (ri.relating_property_definition.definition.
-       related_shape_aspect)) AND
-       ('PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
-       'PHYSICAL_CONNECTIVITY_DEFINITION' IN TYPEOF
-       (ri.relating_property_definition.definition.
-       relating_shape_aspect)))) = 1))) = 1));
+ENTITY assembly_component
+  SUBTYPE OF (component_definition, product_definition_shape);
 END_ENTITY;
 
 ENTITY thermal_component
-  SUBTYPE OF (component_definition);
-END_ENTITY;
-
-ENTITY thermal_component_shape_aspect
-  SUBTYPE OF (component_shape_aspect);
+  SUBTYPE OF (assembly_component);
 END_ENTITY;
 
 FUNCTION is_assembly_module_macro_occurrence ( pd : product_definition) : BOOLEAN; 

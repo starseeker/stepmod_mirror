@@ -1,5 +1,5 @@
-<?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.16 2002/07/05 11:10:27 robbod Exp $ -->
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.33 2003/05/11 03:54:57 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
@@ -12,29 +12,31 @@
     name="express2xml.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.16"
+    version="1.33"
     source="../data/modules/alias_identification/mim.exp"/>
 
   <schema name="Alias_identification_mim">
+
     <interface
       kind="use"
       schema="Identification_assignment_mim">
+    
     </interface>
-
     <type name="aliasable_item">
       <select
         extensible="YES">
       </select>
-
     </type>
+
     <rule
       name="aliases_are_valid"
       appliesto="applied_identification_assignment">
+      <algorithm>
+      </algorithm>
       <where
         label="WR1"
-        expression="SIZEOF(QUERY(aia &lt;* applied_identification_assignment | 		NOT alias_assignment_is_valid(aia)))=0">
+        expression="SIZEOF(QUERY(aia &lt;* applied_identification_assignment | NOT alias_assignment_is_valid(aia)))=0">
       </where>
-
     </rule>
 
     <function
@@ -48,29 +50,26 @@
         type="BOOLEAN"/>
       <algorithm>
 LOCAL
-  item: identification_item;
-  role: identification_role;
+item: identification_item;
+role: identification_role;
 END_LOCAL;
 
 role:= aia.role;
 IF role.name='alias' THEN
-  REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
-    item:= aia.items[i];
+REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
+item:= aia.items[i];
 
-    IF (SIZEOF(['ALIAS_IDENTIFICATION_MIM.' + 'ALIASABLE_ITEM']*TYPEOF(item))=0) THEN
--- item invalid if item does not belong to aliasable types
-	RETURN(FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-
-ELSE		-- case where aia does not convey an alias
-  RETURN(TRUE);
+IF (SIZEOF(['ALIAS_IDENTIFICATION_MIM.' + 'ALIASABLE_ITEM']*TYPEOF(item))=0) THEN
+(* item invalid if item does not belong to aliasable types *)
+RETURN(FALSE);
 END_IF;
-      </algorithm>
+END_REPEAT;
+RETURN(TRUE);
 
+ELSE		 (* case where aia does not convey an alias *)
+RETURN(TRUE);
+END_IF;      </algorithm>
     </function>
 
   </schema>
-
 </express>

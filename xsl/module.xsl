@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.70 2002/06/17 15:48:54 robbod Exp $
+$Id: module.xsl,v 1.71 2002/06/18 07:57:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -993,7 +993,7 @@ o=isocs; s=central<br/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('WG',$wgnumber)"/>
+        <xsl:value-of select="concat('WG12 N',$wgnumber)"/>
       </xsl:otherwise>
     </xsl:choose>    
   </td>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.23 2002/06/18 08:29:50 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.24 2002/06/18 11:33:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -563,7 +563,7 @@ $Id: sect_5_mapping.xsl,v 1.23 2002/06/18 08:29:50 robbod Exp $
         <xsl:with-param 
           name="message" 
           select="concat('Error mc1: the entity ',$entity,' has not been
-                  interfaced from an integrated resoure or MIM.')"/>
+                  interfaced from an integrated resource or MIM.')"/>
       </xsl:call-template>    
     </xsl:if>
   </xsl:if>

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_inner.xsl,v 1.12 2003/07/31 08:57:56 robbod Exp $
+$Id: index_arm_express_inner.xsl,v 1.13 2003/08/01 08:58:23 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -268,7 +268,7 @@ $Id: index_arm_express_inner.xsl,v 1.12 2003/07/31 08:57:56 robbod Exp $
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
-		
+                  &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
                   <br/>
@@ -319,10 +319,10 @@ $Id: index_arm_express_inner.xsl,v 1.12 2003/07/31 08:57:56 robbod Exp $
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
-		
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
-		<xsl:value-of select="@name" /></A>
-			<br/>
+                  &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info">
+                  <xsl:value-of select="@name" /></A>
+                  <br/>
 		
 </xsl:template>
 
@@ -335,7 +335,7 @@ $Id: index_arm_express_inner.xsl,v 1.12 2003/07/31 08:57:56 robbod Exp $
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
-		
+                  &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>
@@ -349,7 +349,7 @@ $Id: index_arm_express_inner.xsl,v 1.12 2003/07/31 08:57:56 robbod Exp $
 		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
-		
+                  &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
 		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
 		<xsl:value-of select="@name" /></A>
 			<br/>

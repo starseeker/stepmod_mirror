@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:26:46" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_with_printed_component_design_arm schema_instance"/>
+   <schema name="Layered_interconnect_module_with_printed_component_design_arm">
+      <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
+      <type name="limwpcd_external_identification_item">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_external_identification_item" selectitems="Printed_component"/>
+      </type>
+      <entity name="Routed_printed_component" supertypes="Printed_component">
+         <explicit name="component_extent">
+            <typename name="Inter_stratum_extent"/>
+         </explicit>
+         <explicit name="derived_from">
+            <typename name="Printed_part_cross_section_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
+         </explicit>
+         <explicit name="routed_centreline_shape">
+            <typename name="Curve"/>
+         </explicit>
+      </entity>
+      <entity name="Printed_component" supertypes="Assembly_component">
+         <explicit name="footprint_implementation" optional="YES">
+            <typename name="Footprint_occurrence"/>
+         </explicit>
+         <explicit name="required_material_stack" optional="YES">
+            <typename name="Laminate_layer"/>
+         </explicit>
+         <explicit name="printed_component_stack" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Printed_component_link"/>
+         </explicit>
+         <explicit name="derived_from">
+            <typename name="printed_part_template_or_printed_part_cross_section_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
+         </explicit>
+         <explicit name="stratum_feature_implementation" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Stratum_feature"/>
+         </explicit>
+         <derived name="access_mechanism" expression=" raw_access_mechanism + printed_component_access_mechanisms ( printed_component_stack ) ">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Printed_component_join_terminal"/>
+         </derived>
+         <inverse name="cad_layer" entity="External_source_identification" attribute="item">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="associated_subsequent_link" entity="Printed_component_link" attribute="subsequent_printed_component">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="associated_precedent_link" entity="Printed_component_link" attribute="precedent_printed_component">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="raw_access_mechanism" entity="Printed_component_join_terminal" attribute="associated_component">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
+         <where label="WR10" expression=" NOT EXISTS ( footprint_implementation ) OR NOT ( 'AP210_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF ( SELF ) ) "/>
+         <where label="WR9" expression=" NOT EXISTS ( footprint_implementation ) OR ( ( 'AP210_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF ( footprint_implementation . derived_from . reference_package ) ) AND ( derived_from = footprint_implementation . derived_from . reference_package ) ) "/>
+         <where label="WR8" expression=" SIZEOF ( access_mechanism ) &gt; 0 "/>
+         <where label="WR7" expression=" NOT ( 'AP210_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF ( SELF \ definition_based_product_occurrence . derived_from ) ) OR ( 'AP210_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF ( SELF ) ) "/>
+         <where label="WR6" expression=" NOT ( 'AP210_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF ( SELF ) ) OR ( 'AP210_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF ( SELF \ definition_based_product_occurrence . derived_from ) ) "/>
+         <where label="WR5" expression=" NOT EXISTS ( printed_component_stack ) OR consistent_stack_definition ( SELF \ definition_based_product_occurrence . derived_from , printed_component_stack ) "/>
+         <where label="WR4" expression=" NOT EXISTS ( SELF \ definition_based_product_occurrence . derived_from . printed_part_template_stack ) OR EXISTS ( printed_component_stack ) "/>
+         <where label="WR3" expression=" NOT EXISTS ( SELF \ definition_based_product_occurrence . derived_from . material_stack ) OR EXISTS ( required_material_stack ) "/>
+         <where label="WR2" expression=" NOT EXISTS ( SELF \ definition_based_product_occurrence . derived_from . of_stratum_technology ) OR EXISTS ( stratum_feature_implementation ) "/>
+         <where label="WR1" expression=" NOT EXISTS ( stratum_feature_implementation ) OR same_stratum ( stratum_feature_implementation ) "/>
+      </entity>
+      <entity name="Printed_component_join_terminal" supertypes="Laminate_component_join_terminal">
+         <explicit name="stratum_concept_implementation">
+            <typename name="Stratum_feature_template_component"/>
+         </explicit>
+         <explicit name="associated_component">
+            <typename name="Printed_component"/>
+            <redeclaration entity-ref="Component_feature" old_name="associated_component"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="Printed_part_template_join_terminal"/>
+            <redeclaration entity-ref="Component_feature" old_name="definition"/>
+         </explicit>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( sf &lt;* SELF \ component_feature . associated_component \ printed_component . stratum_feature_implementation | sf = stratum_concept_implementation . stratum_feature_implementation ) ) = 1 "/>
+      </entity>
+      <entity name="Printed_component_link">
+         <explicit name="definition">
+            <typename name="Printed_part_template_link"/>
+         </explicit>
+         <explicit name="subsequent_printed_component">
+            <typename name="Printed_component"/>
+         </explicit>
+         <explicit name="precedent_printed_component">
+            <typename name="Printed_component"/>
+         </explicit>
+         <inverse name="associated_printed_component" entity="Printed_component" attribute="printed_component_stack"/>
+         <where label="WR3" expression=" precedent_printed_component &lt;&gt; subsequent_printed_component "/>
+         <where label="WR2" expression=" subsequent_printed_component \ definition_based_product_occurrence . derived_from = definition . subsequent_printed_part_template "/>
+         <where label="WR1" expression=" precedent_printed_component \ definition_based_product_occurrence . derived_from = definition . precedent_printed_part_template "/>
+      </entity>
+      <entity name="Printed_connector_component" supertypes="Printed_component">
+         <explicit name="derived_from">
+            <typename name="Printed_connector_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
+         </explicit>
+         <inverse name="interface_access_mechanism" entity="Printed_connector_component_interface_terminal" attribute="associated_component">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
+      </entity>
+      <entity name="Printed_connector_component_interface_terminal" supertypes="Laminate_component_interface_terminal">
+         <explicit name="stratum_concept_implementation">
+            <typename name="Stratum_feature_template_component"/>
+         </explicit>
+         <explicit name="associated_component">
+            <typename name="Printed_connector_component"/>
+            <redeclaration entity-ref="Component_feature" old_name="associated_component"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="Printed_part_template_interface_terminal"/>
+            <redeclaration entity-ref="Component_feature" old_name="definition"/>
+         </explicit>
+         <where label="WR1" expression=" NOT EXISTS ( SELF \ component_feature . associated_component \ printed_component . stratum_feature_implementation ) OR ( SIZEOF ( QUERY ( temp &lt;* SELF \ component_feature . associated_component \ printed_component . stratum_feature_implementation | temp :=: stratum_concept_implementation . stratum_feature_implementation ) ) = 1 ) "/>
+      </entity>
+      <function name="consistent_stack_definition">
+         <parameter name="input1">
+            <typename name="Printed_part_template"/>
+         </parameter>
+         <parameter name="input2">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Printed_component_link"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> LOCAL pass : BOOLEAN := FALSE ; END_LOCAL ; REPEAT i := 1 TO SIZEOF ( input2 ) BY 1 ; pass := input2 [ i ] . definition . associated_printed_part_template :=: input1 ; END_REPEAT ; RETURN ( pass ) ; </algorithm>
+      </function>
+      <function name="printed_component_access_mechanisms">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Printed_component_link"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Printed_component_join_terminal"/>
+         <algorithm> LOCAL pcjt : SET OF printed_component_join_terminal := [ ] ; END_LOCAL ; REPEAT i := 1 TO SIZEOF ( input ) BY 1 ; pcjt := input [ i ] . precedent_printed_component . raw_access_mechanism + pcjt ; pcjt := input [ i ] . subsequent_printed_component . raw_access_mechanism + pcjt ; END_REPEAT ; RETURN ( pcjt ) ; </algorithm>
+      </function>
+   </schema>
+</express>

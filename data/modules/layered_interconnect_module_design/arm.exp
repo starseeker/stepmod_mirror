@@ -845,18 +845,26 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 		SUPERTYPE OF (ONEOF (Default_via_definition,
  			Default_component_termination_passage_definition,
  			Default_unsupported_passage_definition));
-      name                                     : STRING; --ee_name;   			
+      name                              : STRING; --ee_name;   			
 	  of_technology						: Passage_technology_parameters;
       associated_definition				: Interconnect_module;
       as_finished_inter_stratum_extent	: Inter_stratum_extent;      
+   INVERSE
+	  deposition_material : set [0:1] OF material_identification FOR items;      
       UNIQUE
        UR1 : name, associated_definition;
 	  WHERE
-	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
-	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
-	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
-	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) <= 1);
+	  WR1 : NOT (SIZEOF(deposition_material) = 1) OR
+            ('CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material));
+      WR2: NOT (of_technology.plated_passage) OR (SIZEOF(deposition_material) = 1);
+      WR3: NOT (of_technology.maximum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
+      WR4: NOT (of_technology.minimum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
+      WR5: NOT (of_technology.plated_passage) OR
+           SIZEOF([SELF\stratum_material.electrical_conductivity_classification,
+                   SELF\stratum_material.magnetic_conductivity_classification, 
+                   SELF\stratum_material.optical_conductivity_classification,  
+                   SELF\stratum_material.thermal_conductivity_classification] *
+                  ['conductive']) >= 1;
 	END_ENTITY;
 
   ENTITY Pcb

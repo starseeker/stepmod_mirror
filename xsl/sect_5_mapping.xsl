@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.68 2003/05/06 06:40:47 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.69 2003/05/28 09:27:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -119,11 +119,18 @@ $Id: sect_5_mapping.xsl,v 1.68 2003/05/06 06:40:47 robbod Exp $
   <h2>
     <a name="mapping">5.1 Mapping specification</a>
   </h2>
-  <xsl:call-template name="mapping_syntax"/>
   <a name="mappings"/>
-  <xsl:apply-templates select="./mapping_table" mode="check_all_arm_mapped"/>
-  <xsl:apply-templates select="./mapping_table/ae" mode="specification"/>
-  <xsl:apply-templates select="./mapping_table/sc" mode="specification"/>
+  <xsl:choose>
+    <xsl:when test="./mapping_table/ae or ./mapping_table/sc">
+      <xsl:call-template name="mapping_syntax"/>
+      <xsl:apply-templates select="./mapping_table" mode="check_all_arm_mapped"/>
+      <xsl:apply-templates select="./mapping_table/ae" mode="specification"/>
+      <xsl:apply-templates select="./mapping_table/sc" mode="specification"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="mapping_syntax"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 

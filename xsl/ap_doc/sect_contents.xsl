@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.12 2003/05/23 16:27:59 robbod Exp $
+$Id: sect_contents.xsl,v 1.13 2003/05/29 21:29:06 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -85,7 +85,9 @@ $Id: sect_contents.xsl,v 1.12 2003/05/23 16:27:59 robbod Exp $
     &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
     <a href="./4_info_reqs{$FILE_EXT}#421" target="{$target}">4.2.1 Model overview</a>
     <br/>
-    <xsl:apply-templates select="inforeqt/reqtover" mode="toc"/>
+    <xsl:apply-templates select="inforeqt/reqtover" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+    </xsl:apply-templates>
     <a href="./5_main{$FILE_EXT}" target="{$target}">5 Application interpreted model</a>
     <br/>
     <a href="./sys/6_ccs{$FILE_EXT}" target="{$target}">6 Conformance requirements</a>
@@ -318,6 +320,7 @@ $Id: sect_contents.xsl,v 1.12 2003/05/23 16:27:59 robbod Exp $
 
 
 <xsl:template match="reqtover" mode="toc">
+  <xsl:param name="target" select="'_self'"/>
   <xsl:variable name="module" select="@module"/>
   <xsl:variable name="module_ok">
     <xsl:call-template name="check_module_exists">
@@ -337,7 +340,7 @@ $Id: sect_contents.xsl,v 1.12 2003/05/23 16:27:59 robbod Exp $
       <xsl:variable name="clause_hdr"
         select="concat('4.2.',position()+1,'&#160;XXXXX:&#160;',$module_name)"/>
       &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-      <a href="./4_info_reqs{$FILE_EXT}#{$clause_aname}">
+      <a href="./4_info_reqs{$FILE_EXT}#{$clause_aname}" target="{$target}">
         <xsl:value-of select="$clause_hdr"/>
       </a>
       <br/>
@@ -357,7 +360,7 @@ $Id: sect_contents.xsl,v 1.12 2003/05/23 16:27:59 robbod Exp $
       <xsl:variable name="clause_hdr"
         select="concat('4.2.',position()+1,'&#160;',$module_partno,':&#160;',$module_name)"/>
       &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
-      <a href="./4_info_reqs{$FILE_EXT}#{$clause_aname}">
+      <a href="./4_info_reqs{$FILE_EXT}#{$clause_aname}" target="{$target}">
         <xsl:value-of select="$clause_hdr"/>
       </a>
       <br/>

@@ -1,4 +1,4 @@
-//$Id: mkapballot_main.js,v 1.2 2003/06/01 08:04:16 robbod Exp $
+//$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to PDES and NIST under contract.
 //  Purpose:  JScript to generate a ballot package for an AP Document
@@ -46,7 +46,7 @@ function mkBallotXsl(ballot,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkapballot_main.js,v 1.2 2003/06/01 08:04:16 robbod Exp $");
+    ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: A grouping of AP docs into ballot packages");
@@ -75,7 +75,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE ballot_index SYSTEM \"../../dtd/ballot_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkapballot_main.js,v 1.2 2003/06/01 08:04:16 robbod Exp $");
+	ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A grouping of AP docs into ballot packages");
@@ -156,7 +156,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkapballot_main.js,v 1.2 2003/06/01 08:04:16 robbod Exp $");
+	ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar for packages");
@@ -204,7 +204,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkapballot_main.js,v 1.2 2003/06/01 08:04:16 robbod Exp $");
+	ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -228,7 +228,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkapballot_main.js,v 1.2 2003/06/01 08:04:16 robbod Exp $");
+	ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");
@@ -272,11 +272,8 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("     stepmod/ballots/isohtml/"+ballot);
 	ts.WriteLine("");
 
-	ts.WriteLine("4) Add the EXPRESS files into a separate directory for the ballot process:");
-	ts.WriteLine("   Run stepmod/utils/getBallotExpress.wsf");
-	ts.WriteLine("");
-	ts.WriteLine("   This will copy all the arm.exp and mim.exp files from the modules for");
-	ts.WriteLine("   ballot into a directory:");
+	ts.WriteLine("   Note the EXPRESS files (arm.exp, mim.exp, arm_lf.exp, mim_lf.exp) of any module to ");
+	ts.WriteLine("   be balloted will have been copied into a separate directory for the ballot process:");
 	ts.WriteLine("     stepmod/ballots/isohtml/"+ballot+"/express");
 	ts.WriteLine("");
 	ts.WriteLine("   Each file will be renamed: ");
@@ -293,14 +290,14 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("   arm.exp, one containing all the mim.exp and one containing all the");
 	ts.WriteLine("   mim.exp and the common resources.");
 	ts.WriteLine("");
-	ts.WriteLine("5) Create a zip file of the ballot package.");
+	ts.WriteLine("4) Create a zip file of the ballot package.");
 	ts.WriteLine("    ant zip");
 	ts.WriteLine("");
 	ts.WriteLine("   This will create a zip file:");
 	ts.WriteLine("     stepmod/ballots/isohtml/"+ballot+"/"+ballot+"yyyymmdd.zip");
 	ts.WriteLine("   where ");
 	ts.WriteLine("");
-	ts.WriteLine("6) If the package is being released for team QC review, convener review or");
+	ts.WriteLine("5) If the package is being released for team QC review, convener review or");
 	ts.WriteLine("   submission for ballot, a CVS tag should be created.");
 	ts.WriteLine("");
 	ts.WriteLine("   First add the name of the tag and a description to");

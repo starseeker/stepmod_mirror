@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.82 2002/08/02 16:43:32 robbod Exp $
+$Id: module.xsl,v 1.83 2002/08/02 16:54:38 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -556,6 +556,17 @@ o=isocs; s=central<br/>
 
 <!-- Outputs the foreword -->
 <xsl:template match="module" mode="foreword">
+    <xsl:variable name="part_no">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          ISO/TS 10303-XXXX
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
   <h3>
     <a name="foreword">
       Foreword
@@ -622,18 +633,7 @@ o=isocs; s=central<br/>
     held responsible for identifying any or all such patent rights.
   </p>    
   
-  <p>
-    <xsl:variable name="part_no">
-      <xsl:choose>
-        <xsl:when test="string-length(@part)>0">
-          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          ISO/TS 10303-XXXX
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-  
+  <p>  
     <xsl:value-of select="$part_no"/>
     was prepared by Technical Committee ISO/TC 184, 
     <i>Industrial automation systems and integration,</i>

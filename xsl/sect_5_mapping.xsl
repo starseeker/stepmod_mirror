@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.51 2002/10/21 13:16:45 goset1 Exp $
+$Id: sect_5_mapping.xsl,v 1.52 2002/10/27 18:25:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -245,41 +245,37 @@ $Id: sect_5_mapping.xsl,v 1.51 2002/10/21 13:16:45 goset1 Exp $
       <tr valign="top">
         <td valign="top">-&gt;</td>
         <td valign="top">
-          attribute references the entity or select type given in
-          the following row;
+          the attribute, whose name precedes the -&gt; symbol, references the entity or select type whose name follows the -&gt; symbol;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">&lt;-</td>
         <td valign="top">
-          entity or select type is referenced by the attribute in
-          the following row;
+          the entity or select type, whose name precedes the &lt;- symbol, is referenced by the entity attribute whose name follows the &lt;- symbol;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">[i]</td>
         <td valign="top">
-          attribute is an aggregation of which a single member is
-          given in the following row;
+          the attribute, whose name precedes the [i] symbol, is an aggregate; any element of that aggregate is referred to;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">[n]</td>
         <td valign="top">
-          attribute is an aggregation of which member n is given in
-        the following row;
+          the attribute, whose name precedes the [n] symbol, is an ordered aggregate; member n of that aggregate is referred to;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">=&gt;</td>
         <td valign="top">
-          entity is a supertype of the entity given in the following row;
+          the entity, whose name precedes the =&gt; symbol, is a supertype of the entity whose name follows the =&gt; symbol;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">&lt;=</td>
         <td valign="top">
-          entity is a subtype of the entity given in the following row;
+          the entity, whose name precedes the &lt;= symbol, is a subtype of the entity whose name follows the &lt;= symbol;
         </td>
       </tr>
       <tr valign="top">
@@ -297,9 +293,8 @@ $Id: sect_5_mapping.xsl,v 1.51 2002/10/21 13:16:45 goset1 Exp $
       <tr valign="top">
         <td valign="top">*</td>
         <td valign="top">
-          used in conjunction with braces to indicate that any
-          number of relationship entity data types may be assembled in a
-          relationship tree structure.
+one or more instances of the relationship entity data type may be assembled in a
+relationship tree structure. The path between the relationship entity and the related entities, is enclosed with braces;
         </td>
       </tr>
       <tr valign="top">
@@ -311,15 +306,15 @@ $Id: sect_5_mapping.xsl,v 1.51 2002/10/21 13:16:45 goset1 Exp $
       <tr valign="top">
         <td valign="top">*&gt;</td>
         <td valign="top">
-          the select, or enumeration type before the symbol is
-          extended into the select or enumeration type after the symbol;
+the select or enumeration type, whose name precedes the *&gt; symbol, is
+          extended into the select or enumeration type whose name follows the *&gt; symbol;
         </td>
       </tr>
       <tr valign="top">
         <td valign="top">&lt;*</td>
         <td valign="top">
-          the select, or enumeration type before the symbol is an
-          extension of the select or enumeration type after the symbol.
+the select or enumeration type, whose name precedes the &lt;* symbol, is an
+          extension of the select or enumeration type whose name follows the &lt;* symbol.
         </td>
       </tr>
 

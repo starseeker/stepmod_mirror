@@ -1,8 +1,44 @@
-   
-SCHEMA Constructive_solid_geometry_2d_mim;
-USE FROM @@fix@@ -- ISO 10303-@@fix@@
-  (@@fix@@,
-   @@fix@@);
-END_SCHEMA;
+(*
+ $Id: mim.exp,v 1.12 2004/11/02 23:20:50 thendrix Exp $
+ISO TC184/SC4/WG12 N2979 - ISO/TS 10303-1068 Constructive solid geometry 2d - EXPRESS MIM
+*) 
 
-(* Last update -  15 Aug 2001 *)
+
+SCHEMA Constructive_solid_geometry_2d_mim;
+
+USE FROM Area_2d_mim;    
+
+ENTITY csg_2d_shape_representation
+  SUBTYPE OF (shape_representation);
+   WHERE 
+ WR1: SELF.context_of_items\
+  geometric_representation_context.coordinate_space_dimension = 2;
+
+ WR2 : SIZEOF (QUERY (it <* SELF.items| NOT
+     (SIZEOF(['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.CSG_SOLID', 
+     'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.MAPPED_ITEM', 
+     'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.AXIS2_PLACEMENT_2D'] 
+     * TYPEOF(it)) = 1 ))) = 0;
+
+ WR3: SIZEOF(QUERY ( it <* SELF.items | 
+    (SIZEOF(['ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.CSG_SOLID']
+	* TYPEOF(it)) = 1) 
+	OR 
+	(('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.MAPPED_ITEM' 
+	IN TYPEOF(it)) AND
+	('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+	'CSG_2D_SHAPE_REPRESENTATION' 
+	  IN TYPEOF(it\mapped_item.mapping_source.mapped_representation))) 
+       )) >= 1;
+
+ WR4: SIZEOF(QUERY ( it <* SELF.items | 
+     (('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.MAPPED_ITEM' 
+     IN TYPEOF(it)) AND (NOT (( 
+      'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+      'CSG_2D_SHAPE_REPRESENTATION') 
+      IN TYPEOF(it\mapped_item.mapping_source.mapped_representation)))) )) = 0;
+ WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_representation ||
+      SELF\csg_2d_shape_representation || SELF\representation)) = 0;
+END_ENTITY; -- csg_2d_shape_representation 
+
+END_SCHEMA;  -- Constructive_solid_geometry_2d_mim

@@ -2,6 +2,60 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit 2d design view - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Physical_unit_2d_design_view_arm;
+  
+USE FROM Physical_unit_design_view_arm;  
+
+USE FROM Layered_2d_shape_representation_relationship_arm;
+
+  ENTITY Assembly_component_2d_shape
+    SUBTYPE OF (planar_projected_shape);
+      shape_characterized_component : SET[1:?] OF assembly_component;
+		WHERE
+			WR1 : (SIZEOF(USEDIN(SELF,
+ 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+  END_ENTITY; -- assembly_component_2d_shape
+
+ 	TYPE conductive_interconnect_terminal_or_interconnect_component_join_terminal = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Component_part_2d_geometric_representation_relationship
+    SUBTYPE OF (Geometric_model_relationship);
+    DERIVE
+      part_shape      : part_template_or_physical_unit_2d_shape_select := SELF\Geometric_model_relationship.rep_1;
+      component_shape : assembly_component_2d_shape := SELF\Geometric_model_relationship.rep_2;
+  END_ENTITY; -- component_part_2d_geometric_representation_relationship
+
+  ENTITY Component_2d_location;
+        placement_fixed 				: BOOLEAN;
+      transformation  					: cartesian_transformation_2d;
+    -- Add attributes from original component_assembly_2d_position as discussed on SEDS-1227
+      component_model        		: assembly_component_2d_shape;
+      assembly_model         		: physical_unit_planar_shape;
+      component									: next_assembly_usage;
+			DERIVE
+    		substrate_location   : BOOLEAN := substrate_in_assembly(SELF);
+    		the_context : geometric_coordinate_space :=
+				assembly_model\geometric_model\representation.context_of_items;
+			WHERE
+ 				wr1: NOT('AP210_ARM.LAMINATE_COMPONENT' IN TYPEOF(component.relating_view)) OR (transformation.mirror = FALSE);
+ 				wr2: NOT(substrate_location) OR (transformation.mirror = FALSE);
+ 				wr3: (transformation.scale - 1.0) < 0.001 ;
+  END_ENTITY; -- component_2d_location
+
+  FUNCTION substrate_in_assembly(
+    c2dl : component_2d_location
+  ) : BOOLEAN;
+
+    RETURN(TRUE);
+  END_FUNCTION; -- substrate_in_assembly
+
+  ENTITY Design_view_terminal_component_shape_relationship;
+      associating_component_shape          : feature_shape_definition;
+      associated_usage                     : conductive_interconnect_terminal_or_interconnect_component_join_terminal;
+      associated_terminal_shape_definition : feature_shape_definition;
+      associated_usage_placement           : axis_placement;--
+  END_ENTITY; -- design_view_terminal_component_shape_relationship
+
 END_SCHEMA;

@@ -2,6 +2,32 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit 3d design view - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Physical_unit_3d_design_view_arm;
+  
+USE FROM Physical_unit_design_view_arm;  
+
+USE FROM Layered_3d_shape_representation_relationship_arm;
+  
+  ENTITY Assembly_component_3d_shape
+    SUBTYPE OF (Feature_shape_definition);
+      shape_characterized_component : SET[1:?] OF assembly_component;
+  END_ENTITY; -- assembly_component_3d_shape
+
+  ENTITY Component_part_3d_geometric_representation_relationship
+    SUBTYPE OF (Geometric_model_relationship);
+    DERIVE
+      part_shape      : part_template_or_physical_unit_3d_shape_select := SELF\Geometric_model_relationship.rep_1;
+      component_shape : assembly_component_3d_shape := SELF\Geometric_model_relationship.rep_2;
+  END_ENTITY; -- component_part_3d_geometric_representation_relationship
+
+  ENTITY Component_3d_location;
+      transformation  : axis_placement_3d;
+      placement_fixed	: BOOLEAN;
+    -- Add attributes from original component_assembly_2d_position as discussed on SEDS-1227
+      component_model	: assembly_component_3d_shape;
+      assembly_model  : physical_unit_3d_shape;
+      component       : next_assembly_usage;
+  END_ENTITY; -- component_3d_location
+
 END_SCHEMA;

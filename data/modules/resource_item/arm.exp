@@ -1,0 +1,52 @@
+{ iso standard 10303 part (11) version (4) }
+
+(******************************************************************************)
+(*                                                                            *)
+(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* Original model: resource item.vsd *)
+(* Title: resource item ver 2 *)
+(* Author: LEGY *)
+(* Comments :
+ *)
+
+SCHEMA Resource_item_arm;
+
+USE FROM Classification_arm;
+
+USE FROM Value_with_unit_arm;
+
+TYPE resource_item_classified_select = SELECT BASED_ON classified_select WITH
+  (Resource_group_item_relationship,
+   Resource_item);
+END_TYPE;
+
+TYPE resource_item_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+ENTITY Resource_group
+SUBTYPE OF (Resource_item);
+END_ENTITY;
+
+ENTITY Resource_group_item_relationship;
+  relating : Resource_group;
+  related : Resource_item;
+  quantity : Value_with_unit;
+END_ENTITY;
+
+ENTITY Resource_item
+ABSTRACT SUPERTYPE OF (ONEOF(Resource_group, Single_resource_item));
+  name : STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Single_resource_item
+SUBTYPE OF (Resource_item);
+  resource_item : resource_item_select;
+END_ENTITY;
+
+END_SCHEMA;
+
+

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.4 2003/03/28 20:36:47 magnevs Exp $
+   $Id: mim.exp,v 1.5 2003/04/04 14:26:15 magnevs Exp $
    N1479 - ISO/CD-TS - 10303-1271 state_characterized - EXPRESS MIM*)
    
 SCHEMA State_characterized_mim; 
@@ -19,6 +19,11 @@ USE FROM Condition_evaluation_mim;    -- ISO/CD-TS 10303-1254
 USE FROM Condition_mim;    -- ISO/CD-TS 10303-1253
 
 USE FROM Management_resource_information_mim;    -- ISO/CD-TS 10303-1288
+
+USE FROM product_property_definition_schema   -- ISO 10303-41
+  (characterized_object); 
+
+USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
 
 USE FROM State_definition_mim;    -- ISO/CD-TS 10303-1255
 
@@ -82,7 +87,10 @@ TYPE statechar_mri_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON mri_dat
 END_TYPE; 
 
 TYPE statechar_mri_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON mri_identification_item WITH 
-   (state_observed, 
+   (applied_state_assignment, 
+    applied_state_type_assignment, 
+    ascribable_state, 
+    state_observed, 
     state_observed_relationship, 
     state_type, 
     state_type_relationship);
@@ -114,5 +122,29 @@ TYPE statechar_mri_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELE
     state_type, 
     state_type_relationship);
 END_TYPE; 
+
+ENTITY statechar_applied_object
+  SUBTYPE OF (applied_state_assignment, characterized_object);
+END_ENTITY;
+
+ENTITY statechar_object
+  SUBTYPE OF (characterized_object, state_observed);
+END_ENTITY;
+
+ENTITY statechar_relationship_object
+  SUBTYPE OF (characterized_object, state_observed_relationship);
+END_ENTITY;
+
+ENTITY statechar_type_applied_object
+  SUBTYPE OF (applied_state_type_assignment, characterized_object);
+END_ENTITY;
+
+ENTITY statechar_type_object
+  SUBTYPE OF (characterized_object, state_type);
+END_ENTITY;
+
+ENTITY statechar_type_relationship_object
+  SUBTYPE OF (characterized_object, state_type_relationship);
+END_ENTITY;
 
 END_SCHEMA;  -- State_characterized_mim

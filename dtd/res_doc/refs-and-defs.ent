@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     $Id: refs-and-defs.ent,v 1.9 2002/09/05 09:08:45 robbod Exp $
+                                                                   -->
+
+<!--                    bibliographic elements                     -->
+<!ENTITY % bib-elts    "
+  #PCDATA
+  | orgname
+  | pubdate
+  | stdnumber
+  | subtitle
+  | stdtitle
+  | ulink
+"                                                                    >
+
+<!-- 
+        The normative references used in a module 
+        Either listed explicitly or referenced for inclusion through
+        normref.inc
+-->
+<!ELEMENT normrefs (normref*, normref.inc*) >
+
+<!--                    normative reference                        -->
+<!ELEMENT  normref      (stdref, term*)                              >
+<!ATTLIST  normref
+             url        CDATA                              #IMPLIED
+             id         CDATA                              #REQUIRED
+             docbook-atts
+                        CDATA                  #FIXED "url #DEFAULT"
+             docbook    NMTOKEN                 #FIXED "bibliomixed" >
+
+<!-- normative reference inclusion -->
+<!ELEMENT  normref.inc (term.ref*)>
+<!-- the id of a normative reference to be included -->
+<!ATTLIST  normref.inc normref NMTOKEN #IMPLIED>
+<!-- the name of a module to be included as a normative reference -->
+<!ATTLIST  normref.inc module.name NMTOKEN #IMPLIED>
+<!-- the name of an integrated resource  to be included as a normative reference --> 
+<!ATTLIST  normref.inc resource.name NMTOKEN #IMPLIED>
+
+<!-- A list of normative references that can be included in module.xml -->
+<!ELEMENT normref.list (normref+) >
+
+
+<!--                    standard reference                         -->
+<!ELEMENT  stdref       (%bib-elts;)*                                >
+<!-- If y then the standard has been published                     -->
+<!ATTLIST  stdref       published               (y | n) "y"          >
+
+<!--                    organization name                          -->
+<!ELEMENT  orgname      (#PCDATA)                                    >
+<!ATTLIST  orgname
+             docbook    NMTOKEN                     #FIXED "orgname" >
+
+<!--                    publication date                           -->
+<!ELEMENT  pubdate      (#PCDATA)                                    >
+<!ATTLIST  pubdate
+             docbook    NMTOKEN                     #FIXED "pubdate" >
+
+<!--                    release information                        -->
+<!ELEMENT  stdnumber  (#PCDATA)                                      >
+<!ATTLIST  stdnumber
+             docbook    NMTOKEN                 #FIXED "stdnumber"   >
+
+<!--                    subtitle                                   -->
+<!ELEMENT  subtitle     (#PCDATA)                                    >
+<!ATTLIST  subtitle
+             docbook    NMTOKEN                    #FIXED "subtitle" >
+
+<!--                    title of standard                          -->
+<!ELEMENT  stdtitle     (#PCDATA)                                    >
+<!ATTLIST  stdtitle
+             docbook    NMTOKEN                       #FIXED "title" >
+
+<!--                    link to URL                                -->
+<!ELEMENT  ulink        (#PCDATA)                                    >
+<!ATTLIST  ulink
+             docbook    NMTOKEN                       #FIXED "ulink"
+             url        CDATA                              #REQUIRED >
+
+
+
+<!--                    term                                       -->
+<!ELEMENT  term         (#PCDATA)                                    >
+<!ATTLIST  term
+             id         CDATA                              #IMPLIED
+             linkend    IDREF                              #IMPLIED
+             url        CDATA                              #IMPLIED  >
+
+<!-- a reference to the term that has been defined elsewhere:
+     either in a normative reference, a module or an integrated resource -->
+<!ELEMENT  term.ref     EMPTY>
+<!ATTLIST  term.ref     linkend            NMTOKEN         #REQUIRED
+                        normref            NMTOKEN         #IMPLIED>
+
+<!ELEMENT synonym       (#PCDATA)                                    >
+
+<!--                    definition                                 -->
+<!ELEMENT  definition   (term, synonym*, def)                                  >
+<!ATTLIST  definition
+             id         CDATA                              #IMPLIED  >
+
+<!--                    definition of a term                       -->
+<!ELEMENT  def          (%text-elts;  | %block-elts; | %single-block-elts;)*                               >
+
+<!--                    abbreviation                               -->
+<!ELEMENT  abbreviation (acronym, (term | term.ref))                   >
+<!ATTLIST  abbreviation
+             id         ID                                 #IMPLIED  >
+
+<!-- The abbreviations used in a module -->
+<!ELEMENT abbreviations (abbreviation*, abbreviation.inc*)+ >
+
+<!-- abbreviation inclusion -->
+<!ELEMENT abbreviation.inc EMPTY>
+<!ATTLIST abbreviation.inc linkend NMTOKEN #REQUIRED>
+
+<!-- A list of abbreviations that can be included in module.xml -->
+<!ELEMENT abbreviation.list (abbreviation+) >
+
+
+<!--                    acronym                                    -->
+<!ELEMENT  acronym      (#PCDATA)                                    >

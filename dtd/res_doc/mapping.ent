@@ -1,0 +1,112 @@
+<!--
+     $Id: mapping.ent,v 1.13 2002/07/29 15:16:29 robbod Exp $
+                                                                   -->
+
+<!--                    Mapping specification markup
+                        declarations                               -->
+
+<!--                    Requires text.ent markup
+                        declarations for representing 'description'-->
+
+<!--                    descriptive text                           -->
+<!ENTITY % desctext    SYSTEM "text.ent"                             >
+%desctext;
+
+<!-- use the %description.content defined in text.ent              -->
+<!ELEMENT description (%description.content;)*>
+
+
+
+<!--                    mapping specification row                  -->
+<!--                    express_ref must contain a rule name       -->
+<!ENTITY % mapping     "alt?, description?, aimelt?, source?, express_ref*, refpath?" >
+
+
+<!--                    A mapping table                            -->
+<!ELEMENT  mapping_table (ae+,sc*)                                       >
+
+<!--                    application entity                         -->
+<!ELEMENT  ae           (%mapping;, alt_map*, aa*)                             >
+<!ATTLIST  ae
+             entity     NMTOKEN                            #REQUIRED 
+    	     extensible (YES | NO) "NO"
+             original_module NMTOKEN                      #IMPLIED> 
+
+
+<!--                    application attribute                      -->
+<!--description?, alt*, ) -->
+<!ELEMENT  aa           (%mapping;, alt_map*)              >
+<!ATTLIST  aa
+             attribute  NMTOKEN                            #REQUIRED 
+             assertion_to NMTOKEN                          #IMPLIED  
+             inherited_from_module NMTOKEN                #IMPLIED 
+             inherited_from_entity NMTOKEN                #IMPLIED >
+
+
+<!--                    contains explanatory text describing the
+                        alternative                                
+                        THIS IS DEPRECATED - USE alt_map           -->
+<!ELEMENT  alt          (#PCDATA)                                    >
+
+
+<!--                    alternative mapping              -->
+<!ELEMENT  alt_map          (%mapping;)                    >
+<!ATTLIST  alt_map
+             id            CDATA                         #IMPLIED  
+             alt_map.inc   CDATA                         #IMPLIED  >
+  
+<!--                    AIM element                                -->
+<!ELEMENT  aimelt       (#PCDATA)*                     >
+<!ATTLIST  aimelt
+             xml:space  (preserve)                 #FIXED "preserve" >
+
+<!--                    ISO part number                            -->
+<!ELEMENT  source       (#PCDATA)                                    >
+<!ATTLIST  source
+             xml:space  (preserve)                 #FIXED "preserve" >
+
+<!--                    reference path                             -->
+<!ELEMENT  refpath      (#PCDATA)*                     >
+<!ATTLIST  refpath
+             xml:space  (preserve)                 #FIXED "preserve" >
+<!--                    reference path                             -->
+
+<!--                    mapping specification row                  -->
+<!ENTITY % scmapping     "(description?,(constraint|rules),source)"
+>
+
+
+
+<!--                    ARM subtype constraint                     -->
+<!--                    not sure if original_module attr needed.   -->
+<!ELEMENT  sc           (%scmapping;| alt_scmap+)                             >
+<!ATTLIST  sc
+             constraint      NMTOKEN                      #REQUIRED 
+             original_module NMTOKEN                      #IMPLIED> 
+
+
+<!--                    rules for mapping subtype_constraint       -->
+<!ELEMENT rules (express_ref+)
+>
+
+<!--                    constraint for mapping subtype_constraint  -->
+<!ELEMENT constraint (express_ref+)
+>
+
+<!--                 alternative mapping  for subtype_constraint   -->
+<!ELEMENT  alt_scmap          %scmapping;                    >
+<!ATTLIST  alt_scmap
+             id            CDATA                         #IMPLIED  
+             alt_scmap.inc   CDATA                         #IMPLIED  >
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,11 +1,11 @@
 (*
-$Id: $
+$Id: arm.exp,v 1.10 2003/10/09 14:14:20 mikeward Exp $
 ISO TC184/SC4/WG12 N2387 - ISO/TS 10303-1276 Location - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1589
 *) 
 
 
-SCHEMA Location_arm; 
+SCHEMA Location_arm;
 
 USE FROM Classification_assignment_arm;    -- ISO/TS 10303-1114
 
@@ -15,32 +15,24 @@ USE FROM Product_identification_arm;    -- ISO/TS 10303-1017
 
 USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
 
-USE FROM Zonal_breakdown_arm;    -- ISO/TS 10303-1217
-
 
 TYPE location_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
    (Location, 
     Location_relationship);
 END_TYPE; 
 
-TYPE location_representation = EXTENSIBLE GENERIC_ENTITY SELECT
-   (Address_based_location_representation, 
-    Global_location_representation, 
-    Organization_based_location_representation, 
-    Product_based_location_identification, 
-    Regional_grid_location_representation);
-END_TYPE; 
-
 TYPE product_based_location_representation = EXTENSIBLE GENERIC_ENTITY SELECT
    (Product, 
-    Zone_element);
+    Product_version);
 END_TYPE; 
 
-ENTITY Address_based_location_representation;
-  postal_address : Address_assignment;
+ENTITY Address_based_location_representation
+  SUBTYPE OF (Location_representation);
+  postal_address : Address;
 END_ENTITY;
 
-ENTITY Global_location_representation;
+ENTITY Global_location_representation
+  SUBTYPE OF (Location_representation);
   altitude : OPTIONAL Value_with_unit;
   geographical_area : OPTIONAL STRING;
   latitude : Value_with_unit;
@@ -50,7 +42,7 @@ END_ENTITY;
 ENTITY Location;
   name : STRING;
   description : OPTIONAL STRING;
-  alternative_location_representations : location_representation;
+  alternative_location_representations : SET[0:?] OF Location_representation;
 END_ENTITY;
 
 ENTITY Location_relationship;
@@ -60,8 +52,17 @@ ENTITY Location_relationship;
   related : Location;
 END_ENTITY;
 
-ENTITY Organization_based_location_representation;
-  location_identifications : Organizational_location_identification;
+ENTITY Location_representation
+  ABSTRACT SUPERTYPE OF (ONEOF (Address_based_location_representation,
+                                Global_location_representation,
+                                Organization_based_location_representation,
+                                Product_based_location_identification,
+                                Regional_grid_location_representation));
+END_ENTITY;
+
+ENTITY Organization_based_location_representation
+  SUBTYPE OF (Location_representation);
+  location_identifications : LIST[0:?] OF Organizational_location_identification;
   organization_for_location : Organization;
 END_ENTITY;
 
@@ -70,9 +71,10 @@ ENTITY Organizational_location_identification;
   location_value : STRING;
 END_ENTITY;
 
-ENTITY Product_based_location_identification;
+ENTITY Product_based_location_identification
+  SUBTYPE OF (Location_representation);
   location_identification : STRING;
-  location_value : STRING;
+  location_name : OPTIONAL STRING;
   referenced_product : product_based_location_representation;
 END_ENTITY;
 
@@ -82,7 +84,8 @@ ENTITY Regional_coordinate;
   grid_system : Regional_grid_location_representation;
 END_ENTITY;
 
-ENTITY Regional_grid_location_representation;
+ENTITY Regional_grid_location_representation
+  SUBTYPE OF (Location_representation);
   name : STRING;
   description : OPTIONAL STRING;
 END_ENTITY;

@@ -222,17 +222,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
-          <xsl:attribute name="name">RESDOCISSUESXML</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/resource">
-              <xsl:with-param name="prefix" select="'data/resource_docs/'"/>
-              <xsl:with-param name="suffix" select="'/dvlp/issues.xml'"/>
-            </xsl:apply-templates>
-          </xsl:attribute>
-        </xsl:element>
-
-
-        <xsl:element name="property">
           <xsl:attribute name="name">RESDOCABSTRACTXML</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:apply-templates select="ballot_package/resource">

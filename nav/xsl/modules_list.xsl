@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.6 2002/09/29 08:46:22 robbod Exp $
+$Id: modules_list.xsl,v 1.7 2002/09/30 10:29:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -93,7 +93,7 @@ $Id: modules_list.xsl,v 1.6 2002/09/29 08:46:22 robbod Exp $
           &#160;&#160;<img src="../images/minus.gif" alt="Close menu" 
             border="false" align="middle"/>    
         </a>
-        <a href="{$iso_href}" target="content">ISO View</a>
+        <a href="{$iso_href}" target="content">ISO view</a>
       </p>
       <xsl:variable name="scope" 
         select="concat('../data/modules/',@name,'/sys/1_scope',$FILE_EXT)"/>
@@ -108,7 +108,7 @@ $Id: modules_list.xsl,v 1.6 2002/09/29 08:46:22 robbod Exp $
         select="concat('../data/modules/',@name,'/armexpg1',$FILE_EXT)"/>
       <p class="menuitem">
         &#160;&#160;<a href="{$arm}" target="content">ARM</a>
-        &#160;
+        &#160;&#160;&#160;
         <a href="{$armg}" target="content">EXPRESS-G</a>
       </p>
 
@@ -124,8 +124,8 @@ $Id: modules_list.xsl,v 1.6 2002/09/29 08:46:22 robbod Exp $
         select="concat('../data/modules/',@name,'/mimexpg1',$FILE_EXT)"/>
       <p class="menuitem">
         &#160;&#160;<a href="{$mim}" target="content">MIM</a>
-        &#160;
-        &#160;&#160;<a href="{$mimg}" target="content">EXPRESS-G</a>
+        &#160;&#160;&#160;
+        <a href="{$mimg}" target="content">EXPRESS-G</a>
       </p>
 
     </div>
@@ -137,29 +137,79 @@ $Id: modules_list.xsl,v 1.6 2002/09/29 08:46:22 robbod Exp $
           &#160;&#160;<img src="../images/plus.gif" alt="Open menu" 
             border="false" align="middle"/> 
         </a>
-        <a href="{$iso_href}" target="content">ISO View</a>
+        <a href="{$iso_href}" target="content">ISO view</a>
+      </p>
+    </div>
+
+
+    <!-- Summary view menu (OPEN) -->
+    <xsl:variable name="summary" 
+      select="concat('../data/modules/',@name,'/nav/summary',$FILE_EXT)"/>
+    <div id="{$Menu}summary" style="display:none">
+      <p class="menulist">
+        <a href="javascript:swap({$NoMenu}summary, {$Menu}summary);">
+          &#160;&#160;<img src="../images/minus.gif" alt="Close menu" 
+            border="false" align="middle"/>    
+        </a>
+        <a href="{$summary}" target="content">Summary view</a>
+      </p>
+      <p class="menuitem">
+        &#160;&#160;<a href="{$summary}" target="content">Summary</a>
+      </p>
+      <p class="menuitem">
+        &#160;&#160;<a href="{$summary}#arm_dict_types" target="content">ARM dictionary
+      </a>
+      </p>
+      <!-- would need to determin whether the ARM actually had these
+           sections, which would slow everything down 
+      <p class="menuitem">
+        &#160;&#160;<a href="{$summary}#arm_dict_types" target="content">ARM Type dictionary
+      </a>
+      </p>
+      <p class="menuitem">
+        &#160;&#160;<a href="{$summary}#arm_dict_entities" target="content">ARM Entity dictionary
+      </a>
+      </p>
+      <p class="menuitem">
+        &#160;&#160;<a href="{$summary}#arm_dict_rules" target="content">ARM Rule dictionary
+      </a>
+      </p>
+      <p class="menuitem">
+        &#160;&#160;<a href="{$summary}#arm_dict_functions" target="content">ARM Function dictionary
+      </a>
+      </p>
+      <p class="menuitem">
+        &#160;&#160;<a href="{$summary}#arm_dict_procedures" target="content">ARM Procedure dictionary
+      </a>
+      </p>
+      -->
+    </div>
+    
+    <!-- Summary view menu (CLOSED) -->
+    <div id="{$NoMenu}summary">
+      <p class="menulist">
+        <a href="javascript:swap({$Menu}summary, {$NoMenu}summary);">
+          &#160;&#160;<img src="../images/plus.gif" alt="Open menu" 
+            border="false" align="middle"/> 
+        </a>
+        <a href="{$summary}" target="content">Summary view</a>
       </p>
     </div>
 
 
     <!-- Developer view menu (OPEN) -->
-    <xsl:variable name="summary" 
-      select="concat('../data/modules/',@name,'/nav/summary',$FILE_EXT)"/>
+    <xsl:variable name="developer" 
+      select="concat('../data/modules/',@name,'/nav/developer',$FILE_EXT)"/>
     <div id="{$Menu}Developer" style="display:none">
       <p class="menulist">
         <a href="javascript:swap({$NoMenu}Developer, {$Menu}Developer);">
           &#160;&#160;<img src="../images/minus.gif" alt="Close menu" 
             border="false" align="middle"/>    
         </a>
-        <a href="{$summary}" target="content">Developer View</a>
-      </p>
-      <p class="menuitem">
-        &#160;&#160;<a href="{$summary}" target="content">Summary</a>
+        <a href="{$developer}" target="content">Developer View</a>
       </p>
 
       <p class="menuitem">
-        <xsl:variable name="developer" 
-          select="concat('../data/modules/',@name,'/nav/developer',$FILE_EXT)"/>
         &#160;&#160;<a href="{$developer}" target="content">XML references</a>
       </p>
 

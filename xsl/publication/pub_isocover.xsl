@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: pub_isocover.xsl,v 1.5 2004/09/25 11:12:04 robbod Exp $
+$Id: pub_isocover.xsl,v 1.6 2004/09/28 23:31:49 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -291,7 +291,7 @@ $Id: pub_isocover.xsl,v 1.5 2004/09/25 11:12:04 robbod Exp $
 
   <xsl:template match="module|application_protocol|resource" mode="dis_copyright">
     <xsl:param name="stage" select="'Draft'"/>
-
+      
     <!-- ICS number -->
     <div align="center" style="margin-top:30pt">
       <span style="font-size:14; font-family:sans-serif;">
@@ -455,6 +455,9 @@ $Id: pub_isocover.xsl,v 1.5 2004/09/25 11:12:04 robbod Exp $
   </xsl:template>
 
   <xsl:template match="module|application_protocol|resource" mode="is_ts_copyright">
+    <xsl:variable name="page_count">
+              <xsl:apply-templates select="." mode="page_count"/> 
+    </xsl:variable>
     <hr/>      
     <table border="0" align="center">
         <tr>
@@ -474,7 +477,7 @@ $Id: pub_isocover.xsl,v 1.5 2004/09/25 11:12:04 robbod Exp $
 
           <td width="220" align="right" valign="top">
             <span style="font-size:14; font-family:sans-serif;">
-              <b>Price based on ## pages</b> 
+              <b>Price based on <xsl:value-of select="$page_count"/>  pages</b> 
             </span>
           </td>
         </tr>
@@ -530,9 +533,29 @@ $Id: pub_isocover.xsl,v 1.5 2004/09/25 11:12:04 robbod Exp $
   <xsl:template match="resource" mode="display_name_french">
     Ressources g&#233;n&#233;riques int&#233;gr&#233;es: 
     <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@name"/>
+      <xsl:with-param name="module" select="@french.name"/>
     </xsl:call-template>
   </xsl:template>
+
+  <xsl:template match="resource" mode="page_count">
+    <xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />
+      <xsl:variable name="schema_count" select="count(.//schema)" />
+      <xsl:variable name="tech_disc_count" select="count(.//tech_discussion)" />
+      <xsl:variable name="add_scope" select="count(.//add_scope)" />
+        <xsl:value-of select="$expg_count + $schema_count + $schema_count  + 16" />
+        </xsl:template>
+        
+<xsl:template match="module" mode="page_count">
+    <xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />
+      <xsl:variable name="usage_guide" select="count(.//usage_guide)" />
+          <xsl:value-of select="$expg_count   + 28" />
+        </xsl:template>
+
+  <xsl:template match="application_protocol" mode="page_count">
+    <xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />
+      <xsl:variable name="schema_count" select="count(.//schema)" />
+          <xsl:value-of select="$expg_count + $schema_count + 15" />
+        </xsl:template>
 
 
   <xsl:template match="application_protocol" mode="display_name">

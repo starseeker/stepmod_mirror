@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.10 2004/11/02 09:51:32 robbod Exp $
+$Id: sect_b_obj_reg.xsl,v 1.11 2004/11/02 09:56:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -59,14 +59,18 @@ $Id: sect_b_obj_reg.xsl,v 1.10 2004/11/02 09:51:32 robbod Exp $
       B.1 Document identification
     </a>
   </h2>
-  To provide for unambiguous identification of an information object in an
-  open system, the object identifier
+  <p>
+    To provide for unambiguous identification of an information object in an
+    open system, the object identifier
+  </p>
   <p align="center">
     <xsl:value-of 
       select="concat($object_reg,' }' )"/>
   </p>
-  is assigned to this part of ISO 10303. The meaning of this value is defined
-  in ISO/IEC 8824-1, and is described in ISO 10303-1.  
+  <p>
+    is assigned to this part of ISO 10303. The meaning of this value is defined
+    in ISO/IEC 8824-1, and is described in ISO 10303-1.  
+  </p>
 
   <h2>
     <a name="b2">

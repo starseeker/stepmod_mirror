@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.12 2005/01/04 08:08:37 liutkus Exp $
+   $Id: mim.exp,v 1.13 2005/01/31 08:59:10 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Part occurrence - EXPRESS MIM
 *)
 
@@ -34,24 +34,24 @@ END_LOCAL;
   part_occurrences := QUERY(pd <* product_definition | 
 	( pd.frame_of_reference.name = 'part occurrence' ));
 WHERE
-wr1: SIZEOF ( QUERY ( pd <* part_occurrences | 
+WR1: SIZEOF ( QUERY ( pd <* part_occurrences | 
 	( NOT( pd.name IN 
 ['single instance' , 'selected instance' ,'quantified instance' , 'specified instance' ] ) ) ) ) = 0;
-wr2: SIZEOF ( QUERY ( pd <* part_occurrences | 
+WR2: SIZEOF ( QUERY ( pd <* part_occurrences | 
  	(SIZEOF ( QUERY ( pdr <* USEDIN ( pd ,
 'PART_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
 	pdr.name = 'definition usage' ) ) <>1 ) AND 
 	( SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'PART_OCCURRENCE_MIM.' + 'CONFIGURATION_DESIGN.DESIGN' ) | 
 	( cd.name = 'occurrence usage definition' ) AND 
 	( NOT ('PART_OCCURRENCE_MIM.' + 'PRODUCT_IDENTIFICATION' IN TYPEOF( cd.configuration ) ) ) ) ) <>1 ) ) ) = 0;
-wr3: SIZEOF ( QUERY ( pd <* part_occurrences |  
+WR3: SIZEOF ( QUERY ( pd <* part_occurrences |  
 	(SIZEOF ( QUERY ( cd <* USEDIN ( pd , 'PART_OCCURRENCE_MIM.'+ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) |
  	( 'PART_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_USAGE' IN TYPEOF ( cd ) ) ) ) = 0 )AND
  	( SIZEOF ( USEDIN ( pd , 'PART_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) ) = 0 ) ) ) = 0;
-wr4: SIZEOF ( QUERY ( pd <* part_occurrences | 
+WR4: SIZEOF ( QUERY ( pd <* part_occurrences | 
 	( pd.name = 'selected instance' ) AND 
 	NOT valid_selected_instance_representation(pd) ))=0;
-wr5: SIZEOF ( QUERY ( pd <* part_occurrences | 
+WR5: SIZEOF ( QUERY ( pd <* part_occurrences | 
  	( pd.name = 'quantified instance' ) AND 
 	( SIZEOF ( QUERY (ppd <* USEDIN ( pd , 'PART_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION.DEFINITION' ) |
  	( ppd.name ='occurrence quantity' ) AND 
@@ -61,7 +61,7 @@ wr5: SIZEOF ( QUERY ( pd <* part_occurrences |
  	(SIZEOF ( QUERY ( i <* pdr.used_representation.items | 
 	('PART_OCCURRENCE_MIM.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
 	( i.name = 'quantity measure' ) ) ) = 1)))= 1 )))= 0 )))= 0;
-wr6: SIZEOF ( QUERY ( pd <* part_occurrences | 
+WR6: SIZEOF ( QUERY ( pd <* part_occurrences | 
 	( pd.name = 'specified instance' ) AND 
 	( SIZEOF ( QUERY (
 pdor <* USEDIN ( pd , 'PART_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) | 

@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.15 2003/04/14 03:33:44 thendrix Exp $
+//$Id: getExpressMain.js,v 1.16 2003/04/23 15:00:47 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -129,21 +129,21 @@ function GetIrExpress(expDir) {
 	    
 	    // append into resources.exp
 	    var srcStr = fso.OpenTextFile(src,ForReading);	
-	    resourceStr.WriteLine("");
-	    resourceStr.WriteLine("");
-	    resourceStr.WriteLine("(*");
-	    resourceStr.WriteLine("   ------------------------------------------------------------");
-	    resourceStr.WriteLine(src);
-	    resourceStr.WriteLine("   ------------------------------------------------------------");
-	    resourceStr.WriteLine("*)");
-	    resourceStr.WriteLine("");
+	    resourceStr.Write("\n");
+	    resourceStr.Write("\n");
+	    resourceStr.Write("(*\n");
+	    resourceStr.Write("   ------------------------------------------------------------\n");
+	    resourceStr.Write(src+"\n");
+	    resourceStr.Write("   ------------------------------------------------------------\n");
+	    resourceStr.Write("*)\n");
+	    resourceStr.Write("\n");
 	    while (!srcStr.AtEndOfStream) {
 		var l =  srcStr.ReadLine();
 		// ignore 
 		// {iso standard 10303 part (11) version (4)} 
 		var reg = /{.*iso\b/;
 		if (!l.match(reg))
-		    resourceStr.WriteLine(l);
+		    resourceStr.Write(l+"\n");
 	    }
 	    srcStr.Close();    
 	} else {
@@ -247,21 +247,21 @@ function GetIrListExpress(expDir, irList) {
 		
 		// append into resources.exp
 		var srcStr = fso.OpenTextFile(src,ForReading);	
-		resourceStr.WriteLine("");
-		resourceStr.WriteLine("");
-		resourceStr.WriteLine("(*");
-		resourceStr.WriteLine("   ------------------------------------------------------------");
-		resourceStr.WriteLine(src);
-		resourceStr.WriteLine("   ------------------------------------------------------------");
-		resourceStr.WriteLine("*)");
-		resourceStr.WriteLine("");
+		resourceStr.Write("\n");
+		resourceStr.Write("\n");
+		resourceStr.Write("(*\n");
+		resourceStr.Write("   ------------------------------------------------------------\n");
+		resourceStr.Write(src+"\n");
+		resourceStr.Write("   ------------------------------------------------------------\n");
+		resourceStr.Write("*)\n");
+		resourceStr.Write("\n");
 		while (!srcStr.AtEndOfStream) {
 		    var l =  srcStr.ReadLine();
 		    // ignore 
 		    // {iso standard 10303 part (11) version (4)} 
 		    var reg = /{.*iso\b/;
 				if (!l.match(reg))
-				resourceStr.WriteLine(l);
+				resourceStr.Write(l+"\n");
 		    }
 		    srcStr.Close();    
 		} else {
@@ -347,7 +347,7 @@ function AppendFiles(src, dst) {
 
     while (!srcStr.AtEndOfStream) {
 	var l =  srcStr.ReadLine();
-	dstStr.WriteLine(l);
+	dstStr.Write(l+'\n');
     }
     srcStr.Close();
     dstStr.Close();
@@ -366,34 +366,34 @@ function AppendMimResources(expDir) {
 
     var mimResFile = expDir+"\\mim\\mim_resources"+dateSuffix+".exp";
     var mimResStr = fso.CreateTextFile(mimResFile, true);	
-
+   
     var resourceFile = expDir+"/resources/resource.exp";
     var resourceStr = fso.OpenTextFile(resourceFile, ForReading);
 
-    mimResStr.WriteLine("");
-    mimResStr.WriteLine("(*");
-    mimResStr.WriteLine("   ------------------------------------------------------------");
-    mimResStr.WriteLine("    MIM SCHEMAS ");
-    mimResStr.WriteLine("   ------------------------------------------------------------");
-    mimResStr.WriteLine("*)");
-    mimResStr.WriteLine("");
+    mimResStr.Write("\n");
+    mimResStr.Write("(*\n");
+    mimResStr.Write("   ------------------------------------------------------------\n");
+    mimResStr.Write("    MIM SCHEMAS \n");
+    mimResStr.Write("   ------------------------------------------------------------\n");
+    mimResStr.Write("*)\n");
+    mimResStr.Write("\n");
 
     while (!mimStr.AtEndOfStream) {
 	var l =  mimStr.ReadLine();
-	mimResStr.WriteLine(l);
+	mimResStr.Write(l+"\n");
     }
 
-    mimResStr.WriteLine("");
-    mimResStr.WriteLine("(*");
-    mimResStr.WriteLine("   ------------------------------------------------------------");
-    mimResStr.WriteLine("    COMMON RESOURCE SCHEMAS");
-    mimResStr.WriteLine("   ------------------------------------------------------------");
-    mimResStr.WriteLine("*)");
-    mimResStr.WriteLine("");
+    mimResStr.Write("\n");
+    mimResStr.Write("(*\n");
+    mimResStr.Write("   ------------------------------------------------------------\n");
+    mimResStr.Write("    COMMON RESOURCE SCHEMAS\n");
+    mimResStr.Write("   ------------------------------------------------------------\n");
+    mimResStr.Write("*)\n");
+    mimResStr.Write("\n");
 
     while (!resourceStr.AtEndOfStream) {
 	var l =  resourceStr.ReadLine();
-	mimResStr.WriteLine(l);
+	mimResStr.Write(l+'\n');
     }
 
     mimStr.Close();
@@ -438,20 +438,20 @@ function AppendMimArm(armOrMim, expDir, modList) {
 	    src = srcPath+"\\"+armOrMim+"\\"+src+"_"+armOrMim+".exp";
 	    if (fso.FileExists(src)) {
 		var srcStr = fso.OpenTextFile(src,ForReading);	
-		armStr.WriteLine("");
-		armStr.WriteLine("");
-		armStr.WriteLine("(*");
-		armStr.WriteLine("   ------------------------------------------------------------");
-		armStr.WriteLine(src);
-		armStr.WriteLine("   ------------------------------------------------------------");
-		armStr.WriteLine("*)");
-		armStr.WriteLine("");
+		armStr.Write("\n");
+		armStr.Write("\n");
+		armStr.Write("(*\n");
+		armStr.Write    ("   ------------------------------------------------------------\n");
+		armStr.Write(src+'\n');
+		armStr.Write("   ------------------------------------------------------------\n");
+		armStr.Write("*)\n");
+		armStr.Write("\n");
 		while (!srcStr.AtEndOfStream) {
 		    var l =  srcStr.ReadLine();
 		    // ignore 
 		    // {iso standard 10303 part (11) version (4)} 
 		    if (!l.match(reg))
-			armStr.WriteLine(l);
+			armStr.Write(l+'\n');
 		}
 		srcStr.Close();    
 	    }
@@ -489,20 +489,19 @@ function AppendMimArmOld(armOrMim, expDir, modList) {
     for (var i=0; i<schemaArr.length; i++) {	
 	var src = schemaArr[i];
 	var srcStr = fso.OpenTextFile(src,ForReading);
-	armStr.WriteLine("");
-	armStr.WriteLine("");
-	armStr.WriteLine("(*");
-	armStr.WriteLine("   ------------------------------------------------------------");
-	armStr.WriteLine(src);
-	armStr.WriteLine("   ------------------------------------------------------------");
-	armStr.WriteLine("*)");
-	armStr.WriteLine("");
+	armStr.Write("\n\n");
+	armStr.Write("(*\n");
+	armStr.Write("   ------------------------------------------------------------\n");
+	armStr.Write(src+'\n');
+	armStr.Write("   ------------------------------------------------------------\n");
+	armStr.Write("*)\n");
+	armStr.Write("\n");
 	while (!srcStr.AtEndOfStream) {
 	    var l =  srcStr.ReadLine();
 	    // ignore 
 	    // {iso standard 10303 part (11) version (4)} 
 	    if (!l.match(reg))
-		armStr.WriteLine(l);
+		armStr.Write(l+'\n');
 	}
 	srcStr.Close();    
     }
@@ -654,16 +653,6 @@ function getResdocAbstractFileName(resdocName) {
     }
 }
 
-function getResdocIssuesFileName(resdocName) {
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
-    var resdocXmlFile = "../data/resource_docs/"+resdocName+"/resource.xml";
-    var fileName ="";
-    if (!fso.FileExists(resdocXmlFile)) {
-	ErrorMessage("The "+resdocXmlFile+" does not exist");
-    } else {
-	return(resdocName+"_issues.htm");
-    }
-}
 
 
 function getExpressFileName(moduleName, arm_or_mim) {
@@ -860,31 +849,7 @@ function MainWindowBallotExpress(ballotName) {
 		ErrorMessage("File does not exist: "+abstractFile);
 	    }
 
-//issues
-	    var issuesFile ="../data/resource_docs/"+resdocName+"/dvlp/issues.htm";
-
-	    var ballotIssuesFldr =  "../ballots/isohtml/"+ballotName+"/data/resource_docs/"+resdocName+"/issues";
-    	if (fso.FolderExists(ballotIssuesFldr)) {
-		ErrorMessage("Directory exists:\n"+ballotIssuesFldr);
-		return(-1);
-    	}
-		ErrorMessage("ballotIssuesFldr:\n"+ballotIssuesFldr);
-    	fso.CreateFolder(ballotIssuesFldr);
-
-
-	    if (fso.FileExists(issuesFile)) {
-		fileName = getResdocIssuesFileName(resdocName, "issues");
-		if (fileName != "") {
-		    dst = ballotIssuesFldr+"/"+fileName;
-		    src = fso.GetFile(issuesFile);
-		    //UserMessage(src+" -> "+dst);
-		    src.Copy(dst);
-		UserMessage("Copied Issues to:\n  "+ballotIssuesFldr);
-		}
-	    } else {
-		ErrorMessage("File does not exist: "+issuesFile);
-	    }
-
+//issues - actual/y we dont need
 	}
      }
 

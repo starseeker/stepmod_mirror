@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:24:18" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_placement_requirements_arm schema_instance"/>
+   <schema name="Interconnect_placement_requirements_arm">
+      <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
+      <interface kind="use" schema="Non_feature_shape_element_arm"/>
+      <interface kind="use" schema="Requirement_decomposition_arm"/>
+      <interface kind="use" schema="Part_template_extension_arm"/>
+      <interface kind="use" schema="Assembly_component_placement_requirements_arm"/>
+      <interface kind="use" schema="Characteristic_arm"/>
+      <type name="assembly_or_interconnect_design_object_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <type name="interconnect_module_design_object_category">
+         <enumeration items="interconnect_module_via interconnect_module_inter_stratum_feature interconnect_module_cutout interconnect_module_fill_area interconnect_module_stratum_feature"/>
+      </type>
+      <type name="interconnect_module_design_object_select">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <entity name="Interconnect_module_constraint_region" supertypes="Non_feature_shape_element">
+         <explicit name="constrained_design_object_category">
+            <typename name="interconnect_module_design_object_category"/>
+         </explicit>
+         <explicit name="associated_stratum_extent">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Inter_stratum_extent"/>
+         </explicit>
+         <explicit name="design_specific_purpose">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="scope">
+            <typename name="Interconnect_module"/>
+            <redeclaration entity-ref="Non_feature_shape_element" old_name="scope"/>
+         </explicit>
+         <explicit name="non_conformant_interconnect_module_design_object" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="interconnect_module_design_object_select"/>
+         </explicit>
+         <explicit name="keepout">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <inverse name="precedent_version_constraint_region" entity="Non_feature_shape_element_relationship" attribute="related">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <where label="WR2" expression=" NOT ( SIZEOF ( precedent_version_constraint_region ) = 1 ) OR ( 'AP210_ARM.INTERCONNECT_MODULE_CONSTRAINT_REGION' IN TYPEOF ( precedent_version_constraint_region [ 1 ] \ non_feature_shape_element_relationship . relating ) ) "/>
+         <where label="WR1" expression=" ( 'AP210_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF ( SELF \ non_feature_shape_element . element_shape ) ) OR ( 'AP210_ARM.THREE_DIMENSIONAL_SHAPE' IN TYPEOF ( SELF \ non_feature_shape_element . element_shape ) ) "/>
+      </entity>
+      <entity name="Layer_qualified_layout_spacing_requirement_occurrence" supertypes="Layout_spacing_requirement_occurrence">
+         <explicit name="layer_context">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Inter_stratum_extent"/>
+         </explicit>
+      </entity>
+      <entity name="Layout_spacing_requirement_non_conforming_design_object">
+         <explicit name="design_requirement">
+            <typename name="Layout_spacing_requirement_occurrence"/>
+         </explicit>
+         <explicit name="reference_design_object">
+            <typename name="assembly_or_interconnect_design_object_select"/>
+         </explicit>
+         <explicit name="non_conformant_design_object">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="assembly_or_interconnect_design_object_select"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

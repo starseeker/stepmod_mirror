@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:23:53" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_module_connection_routing_arm schema_instance"/>
+   <schema name="Interconnect_module_connection_routing_arm">
+      <interface kind="use" schema="Layered_interconnect_module_with_design_intend_modifications_arm"/>
+      <interface kind="use" schema="Fabrication_joint_arm"/>
+      <interface kind="use" schema="Functional_design_elaboration_arm"/>
+      <type name="terminal_or_inter_stratum_feature">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <type name="trace_junction_or_via">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <entity name="Dependently_located_layer_connection_point" supertypes="Layer_connection_point">
+         <explicit name="reference_zone" optional="YES">
+            <typename name="Connection_zone_in_design_view"/>
+         </explicit>
+         <explicit name="associated_design_object">
+            <typename name="terminal_or_inter_stratum_feature"/>
+         </explicit>
+      </entity>
+      <entity name="Dielectric_crossover_area" supertypes="Stratum_concept_relationship">
+         <explicit name="resulting_dielectric_crossover">
+            <typename name="Stratum_feature"/>
+         </explicit>
+         <explicit name="relating_concept">
+            <typename name="Stratum_feature"/>
+         </explicit>
+         <explicit name="related_concept">
+            <typename name="Stratum_feature"/>
+         </explicit>
+      </entity>
+      <entity name="Direct_stratum_component_join_implementation">
+         <explicit name="topological_requirement">
+            <typename name="Stratum_embedded_component_join_relationship"/>
+         </explicit>
+         <explicit name="implementing_joint">
+            <typename name="Fabrication_joint"/>
+         </explicit>
+      </entity>
+      <entity name="Explicitly_located_layer_connection_point" supertypes="Layer_connection_point"/>
+      <entity name="Indirect_stratum_component_join_implementation" supertypes="Plated_inter_stratum_feature">
+         <explicit name="implementing_joint">
+            <typename name="Fabrication_joint"/>
+         </explicit>
+         <explicit name="indirect_topological_requirement">
+            <typename name="Stratum_embedded_component_join_relationship"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Indirect_stratum_component_join_implementation" attribute="indirect_topological_requirement"/>
+            <unique.attribute entity-ref="Indirect_stratum_component_join_implementation" attribute="implementing_joint"/>
+         </unique>
+      </entity>
+      <entity name="Inter_stratum_join_implementation" abstract.entity="YES" super.expression="ONEOF (Physical_network_supporting_stratum_feature_conductive_join, Physical_network_supporting_inter_stratum_feature)">
+         <explicit name="topological_requirement">
+            <typename name="Inter_stratum_join_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="Junction_vertex_allocation">
+         <explicit name="required_vertex">
+            <typename name="Topological_junction"/>
+         </explicit>
+         <explicit name="implementation_point">
+            <typename name="trace_junction_or_via"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Junction_vertex_allocation" attribute="required_vertex"/>
+         </unique>
+      </entity>
+      <entity name="Physical_connectivity_abstraction_map">
+         <explicit name="geometric_context_based_definition">
+            <typename name="Conductive_interconnect_element"/>
+         </explicit>
+         <explicit name="name_space_context_based_definition">
+            <typename name="Physical_connectivity_element"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Physical_connectivity_abstraction_map" attribute="name_space_context_based_definition"/>
+            <unique.attribute entity-ref="Physical_connectivity_abstraction_map" attribute="geometric_context_based_definition"/>
+         </unique>
+      </entity>
+      <entity name="Physical_network_supporting_inter_stratum_feature" supertypes="Plated_inter_stratum_feature Inter_stratum_join_implementation" super.expression="Join_two_physical_connectivity_definition_supporting_inter_stratum_feature"/>
+      <entity name="Join_two_physical_connectivity_definition_supporting_inter_stratum_feature" supertypes="Physical_network_supporting_inter_stratum_feature">
+         <explicit name="joined_definitions">
+            <aggregate type="SET" lower="2" upper="2"/>
+            <typename name="Physical_connectivity_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Physical_network_supporting_stratum_feature_conductive_join" supertypes="Stratum_feature_conductive_join Inter_stratum_join_implementation"/>
+      <entity name="Stratum_feature_conductive_join" supertypes="Stratum_concept_relationship" super.expression="Physical_network_supporting_stratum_feature_conductive_join">
+         <explicit name="relating_concept">
+            <typename name="Stratum_feature_template_component"/>
+         </explicit>
+         <explicit name="related_concept">
+            <typename name="Stratum_feature_template_component"/>
+         </explicit>
+         <where label="wr1" expression=" related_concept . stratum_feature_implementation . resident_stratum :&lt;&gt;: relating_concept . stratum_feature_implementation . resident_stratum "/>
+      </entity>
+      <entity name="Topological_junction">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="scope">
+            <typename name="Physical_connectivity_structure_definition"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Topological_junction" attribute="name"/>
+            <unique.attribute entity-ref="Topological_junction" attribute="scope"/>
+         </unique>
+      </entity>
+      <subtype.constraint name="Stratum_concept_relationship_subtypes" entity="Stratum_concept_relationship" super.expression="ONEOF (Stratum_feature_conductive_join, Dielectric_crossover_area)"/>
+   </schema>
+</express>

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
 $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
@@ -17,6 +18,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
   <xsl:output method="text" encoding="us-ascii"/>
 
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 
   <xsl:template match="module">
     <xsl:variable name="module_full_no">
@@ -49,17 +52,17 @@ To expand the document, unzip the file into an empty directory.
 NOTE - if you already purchased other Application modules, then unzip the
 file into the same directory as the other modules.
 If asked when unzipping the file, you should overwrite any file in the images directory.
-      <xsl:variable name="prefix" select="concat('part',@part,@status,'_wg',@wg,'n')"/>
-      <xsl:variable name="arm_exp" select="concat('express/',$prefix,@wg.number.arm,'arm.exp')"/>
+      <xsl:variable name="prefix" select="translate(concat('part',@part,@status,'_wg',@wg,'n'),$UPPER,$LOWER)"/>
+      <xsl:variable name="arm_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.arm,'arm.exp')"/>
 The ARM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$arm_exp"/>
       <xsl:if test="./arm_lf">        
-        <xsl:variable name="armlf_exp" select="concat('express/',$prefix,@wg.number.arm_lf,'arm_lf.exp')"/>
+        <xsl:variable name="armlf_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.arm_lf,'arm_lf.exp')"/>
 The ARM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$armlf_exp"/>
       </xsl:if>
-      <xsl:variable name="mim_exp" select="concat('express/',$prefix,@wg.number.mim,'mim.exp')"/>
+      <xsl:variable name="mim_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.mim,'mim.exp')"/>
 The MIM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mim_exp"/>
       <xsl:if test="./mim_lf">        
-        <xsl:variable name="mimlf_exp" select="concat('express/',$prefix,@wg.number.mim_lf,'mim_lf.exp')"/>
+        <xsl:variable name="mimlf_exp" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.mim_lf,'mim_lf.exp')"/>
 The MIM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mimlf_exp"/>
       </xsl:if>
 
@@ -98,7 +101,7 @@ open the file "iso10303_<xsl:value-of select="@part"/>.htm".
 The folders 
   "data"
   "images"
-contains the various components of the main document.
+contain the various components of the main document.
 
 To expand the document, unzip the file into an empty directory.
 NOTE - if you already purchased other Application modules, then unzip the
@@ -147,26 +150,16 @@ open the file "iso10303_<xsl:value-of select="@part"/>.htm".
 The folders 
   "data"
   "images"
-contains the various components of the main document.
+contain the various components of the main document.
 
 To expand the document, unzip the file into an empty directory.
 NOTE - if you already purchased other parts, then unzip the
-file into the same directory as the other modules.
+file into the same directory as the other parts.
 If asked when unzipping the file, you should overwrite any file in the images directory.
-      <xsl:variable name="prefix" select="concat('part',@part,@status,'_wg',@wg,'n')"/>
-      <xsl:variable name="arm_exp" select="concat('express/',$prefix,@wg.number.arm,'arm.exp')"/>
-The ARM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$arm_exp"/>
-      <xsl:if test="./arm_lf">        
-        <xsl:variable name="armlf_exp" select="concat('express/',$prefix,@wg.number.arm_lf,'arm_lf.exp')"/>
-The ARM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$armlf_exp"/>
-      </xsl:if>
-      <xsl:variable name="mim_exp" select="concat('express/',$prefix,@wg.number.mim,'mim.exp')"/>
-The MIM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mim_exp"/>
-      <xsl:if test="./mim_lf">        
-        <xsl:variable name="mimlf_exp" select="concat('express/',$prefix,@wg.number.mim_lf,'mim_lf.exp')"/>
-The MIM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mimlf_exp"/>
-      </xsl:if>
-
+      <xsl:variable name="prefix" select="translate(concat('part',@part,@status,'_wg',@wg,'n'),$UPPER,$LOWER)"/>
+      <xsl:variable name="express" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.express,'.exp')"/>
+The EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$express"/>
+`
 The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/module_abstract_',@part,'.htm')"/>
   </xsl:template>
 

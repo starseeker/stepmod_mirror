@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_aptitle.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
+$Id: frame_aptitle.xsl,v 1.2 2003/05/22 14:57:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -29,16 +29,18 @@ $Id: frame_aptitle.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
       </head>
       <body>
         <table align="left" width="100%">
-          <tr>
+          <tr align="left">
             <td>
             <xsl:apply-templates
               select="$application_protocol_xml_file/application_protocol"
               mode="title"/>
           </td>
-          <td>
-            <a href="frame_toc{$FILE_EXT}" target="toc">contents</a>
+          <td align="right">
+            <a href="1_scope{$FILE_EXT}" target="content">AP scope</a>
             &#160;|&#160;
-            <a href="frame_index{$FILE_EXT}" target="toc">index</a>
+            <a href="frame_toc{$FILE_EXT}" target="toc">AP contents</a>
+            &#160;|&#160;
+            <a href="frame_index{$FILE_EXT}" target="toc">AP index</a>
           </td>
         </tr>
         </table>

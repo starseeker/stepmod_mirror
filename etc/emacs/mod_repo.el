@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.5 2002/09/06 08:03:21 robbod Exp $
+;;; $Id: mod_repo.el,v 1.6 2002/09/10 18:46:45 thendrix Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -263,7 +263,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.5 2002/09/06 08:03:21 robbod Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.6 2002/09/10 18:46:45 thendrix Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-org)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")
@@ -513,7 +513,7 @@
      ["insert general issue" (modrep-insert-issue "general") t] 
      ["insert inscope issue" (modrep-insert-issue "inscope") t] 
      ["insert keywords issue" (modrep-insert-issue "keywords") t] 
-     ["insert mapping_table  issue" (modrep-insert-issue "mapping_table ") t]
+     ["insert mapping_table  issue" (modrep-insert-issue "mapping_table") t]
      ["insert mim issue" (modrep-insert-issue "mim") t]  
      ["insert mim_lf issue" (modrep-insert-issue "mim_lf") t]
      ["insert mimexpg issue" (modrep-insert-issue "mimexpg") t] 

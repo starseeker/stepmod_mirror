@@ -1,84 +1,168 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+
+   $Id: arm.exp,v 1.8 2005/01/06 14:08:40 liutkus Exp $
+
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Part template extension - EXPRESS ARM
+
 *)
+
+
 
 SCHEMA Part_template_extension_arm;
 
+
+
 USE FROM Styled_text_arm;
+
+
 
 USE FROM Fabrication_technology_arm;
 
+
+
 USE FROM Styled_curve_arm;
+
+
 
 REFERENCE FROM Layered_interconnect_module_design_arm (Interconnect_module);
 
+
+
 	SUBTYPE_CONSTRAINT material_addition_feature_template_subtypes FOR Material_addition_feature_template; 
+
 		(ONEOF (Snowball_template,
+
 		 Teardrop_by_angle_template,
+
 		 Teardrop_by_length_template));
+
 	END_SUBTYPE_CONSTRAINT; 
 
+
+
   ENTITY Default_trace_template
+
     SUBTYPE OF (Trace_template);
+
       of_stratum_technology : Stratum_technology;
+
   END_ENTITY;
+
+
 
   ENTITY Part_text_template
+
     SUBTYPE OF (Layout_template_definition);
+
       font                                    : OPTIONAL font_select;
+
       maximum_font_positive_horizontal_extent : OPTIONAL Length_data_element;
+
       maximum_font_positive_vertical_extent   : OPTIONAL Length_data_element;
+
       maximum_font_negative_horizontal_extent : OPTIONAL Length_data_element;
+
       maximum_font_negative_vertical_extent   : OPTIONAL Length_data_element;
+
       slant_angle                             : OPTIONAL Angle_data_element;
+
       stroke_width                            : OPTIONAL Length_data_element;
+
     WHERE
+
       WR1 : EXISTS(maximum_font_positive_horizontal_extent) OR EXISTS(maximum_font_positive_vertical_extent) OR EXISTS(maximum_font_negative_horizontal_extent) OR EXISTS(maximum_font_negative_vertical_extent) OR EXISTS(slant_angle) OR EXISTS(stroke_width) OR EXISTS(font);
+
   END_ENTITY;
+
+
 
   ENTITY Reference_packaged_part_interconnect_implementation
+
     SUBTYPE OF (Interconnect_module);
+
     WHERE
-      WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\product_view_definition.defined_version.of_product,
+
+      WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
+
  'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | NOT (SIZEOF(QUERY(epcr <* USEDIN(prpc,
- 'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY') | (epcr.sub_category\product_category.name = 'template model'))) = 1))) = 0;
+
+ 'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY') | (epcr.sub_category\Product_category.name = 'template model'))) = 1))) = 0;
+
   END_ENTITY;
+
+
 
   ENTITY Snowball_template
+
     SUBTYPE OF (Material_addition_feature_template);
+
       snowball_start_distance     : Length_data_element;
+
       snowball_end_distance       : OPTIONAL Length_data_element;
+
       snowball_initial_spacing    : OPTIONAL Length_data_element;
+
       snowball_end_spacing        : OPTIONAL Length_data_element;
+
       snowball_initial_radius     : Length_data_element;
+
       snowball_end_radius         : OPTIONAL Length_data_element;
+
       snowball_quantity_per_trace : INTEGER; -- positive_integer;
+
     WHERE
+
       WR1 : NOT (snowball_quantity_per_trace > 1) OR (EXISTS(snowball_initial_spacing) AND EXISTS(snowball_end_spacing) AND EXISTS(snowball_end_distance) AND EXISTS(snowball_end_radius));
+
   END_ENTITY;
+
+
 
   ENTITY Special_symbol_part_template
+
     SUBTYPE OF (Layout_template_definition);
+
       of_stratum_technology : OPTIONAL SET[1:?] OF Stratum_technology;
+
   END_ENTITY;
+
+
 
   ENTITY Teardrop_by_angle_template
+
     SUBTYPE OF (Material_addition_feature_template);
+
       teardrop_angle : Angle_data_element;
+
   END_ENTITY;
+
+
 
   ENTITY Teardrop_by_length_template
+
     SUBTYPE OF (Material_addition_feature_template);
+
       teardrop_taper_start_distance : Length_data_element;
+
       teardrop_taper_end_distance   : Length_data_element;
+
   END_ENTITY;
+
+
 
   ENTITY Trace_template
+
     SUPERTYPE OF (Default_trace_template)
+
     SUBTYPE OF (Layout_template_definition);
+
       trace_style : Curve_style;
+
   END_ENTITY;
 
+
+
 END_SCHEMA;
+
+
 

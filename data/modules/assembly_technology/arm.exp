@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.17 2005/01/06 14:05:27 liutkus Exp $
+   $Id: arm.exp,v 1.18 2005/01/09 18:32:22 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly technology - EXPRESS ARM *)
 
 SCHEMA Assembly_technology_arm;
@@ -55,13 +55,13 @@ USE FROM Product_identification_extension_arm;
     SUBTYPE OF (Assembly_joint);
       default_bond_definition : Assembly_bond_definition;
     WHERE
-      WR1 : SELF\assembly_joint.assembly_features_1.definition :=: default_bond_definition.bonded_feature_1;
-      WR2 : SELF\assembly_joint.assembly_features_2.definition :=: default_bond_definition.bonded_feature_2;
+      WR1 : SELF\Assembly_joint.assembly_features_1.definition :=: default_bond_definition.bonded_feature_1;
+      WR2 : SELF\Assembly_joint.assembly_features_2.definition :=: default_bond_definition.bonded_feature_2;
   END_ENTITY;
 
   ENTITY Assembled_with_fasteners
     SUBTYPE OF (Assembly_joint);
-      SELF\assembly_joint.associated_assembly : Assembly_group_component;
+      SELF\Assembly_joint.associated_assembly : Assembly_group_component;
   END_ENTITY;
 
   ENTITY Assembly_bond_definition;
@@ -97,8 +97,8 @@ USE FROM Product_identification_extension_arm;
  associated_assembly;
     WHERE
       WR1 : assembly_features_1 :<>: assembly_features_2;
-      WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_1)) AND (SIZEOF(QUERY(ay <* assembly_features_1\component_feature.associated_component\definition_based_product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
-      WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_2)) AND (SIZEOF(QUERY(ay <* assembly_features_2\component_feature.associated_component\definition_based_product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+      WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_1)) AND (SIZEOF(QUERY(ay <* assembly_features_1\Component_feature.associated_component\Definition_based_product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+      WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_2)) AND (SIZEOF(QUERY(ay <* assembly_features_2\Component_feature.associated_component\Definition_based_product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
   END_ENTITY;
 
   ENTITY Assembly_technology_specification
@@ -132,10 +132,10 @@ USE FROM Product_identification_extension_arm;
     SUBTYPE OF (Assembly_module);
 
     WHERE
-      WR1 : SIZEOF(QUERY(pca <* USEDIN(SELF\product_view_definition.defined_version.of_product,
+      WR1 : SIZEOF(QUERY(pca <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
  'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | 
- NOT (SIZEOF(QUERY(pch <* USEDIN(pca.category,'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY') | 
- (pch.sub_category\product_category.name = 'template model'))) = 1))) = 0;
+ NOT (SIZEOF(QUERY(pch <* USEDIN(Pca.category,'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY') | 
+ (pch.sub_category\Product_category.name = 'template model'))) = 1))) = 0;
   END_ENTITY;
 
 END_SCHEMA;

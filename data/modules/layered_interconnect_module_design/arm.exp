@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.29 2005/01/06 09:36:30 liutkus Exp $
+   $Id: arm.exp,v 1.30 2005/01/06 14:07:58 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -222,7 +222,7 @@ USE FROM Basic_curve_arm;
 
   ENTITY Component_termination_passage
     SUBTYPE OF (Plated_passage);
-      SELF\definition_based_product_occurrence.derived_from : Component_termination_passage_template;
+      SELF\Definition_based_product_occurrence.derived_from : Component_termination_passage_template;
     INVERSE
       access_mechanism           : SET[1:?] OF component_termination_passage_join_terminal FOR associated_component;
       interface_access_mechanism : component_termination_passage_interface_terminal FOR associated_component;
@@ -230,19 +230,19 @@ USE FROM Basic_curve_arm;
 
   ENTITY Component_termination_passage_interface_terminal
     SUBTYPE OF (Laminate_component_interface_terminal);
-      SELF\component_feature.definition           : Component_termination_passage_template_interface_terminal;
-      SELF\component_feature.associated_component : Component_termination_passage;
+      SELF\Component_feature.definition           : Component_termination_passage_template_interface_terminal;
+      SELF\Component_feature.associated_component : Component_termination_passage;
   END_ENTITY;
 
   ENTITY Component_termination_passage_join_terminal
     SUBTYPE OF (Laminate_component_join_terminal);
-      SELF\component_feature.definition           : Component_termination_passage_template_join_terminal;
-      SELF\component_feature.associated_component : Component_termination_passage;
+      SELF\Component_feature.definition           : Component_termination_passage_template_join_terminal;
+      SELF\Component_feature.associated_component : Component_termination_passage;
   END_ENTITY;
 
   ENTITY Component_termination_passage_template
     SUBTYPE OF (Inter_stratum_feature_template);
-      SELF\inter_stratum_feature_template.of_passage_technology : Default_component_termination_passage_definition;
+      SELF\Inter_stratum_feature_template.of_passage_technology : Default_component_termination_passage_definition;
     INVERSE
       access_mechanisms : SET[2:?] OF component_termination_passage_template_terminal FOR associated_definition;
   END_ENTITY;
@@ -265,7 +265,7 @@ USE FROM Basic_curve_arm;
     INVERSE
       terminal_shape : SET[0:1] OF usage_concept_usage_relationship FOR associated_usage;
     UNIQUE
-      UR1 : SELF\shape_element.element_name,
+      UR1 : SELF\Shape_element.element_name,
  associated_definition;
   END_ENTITY;
 
@@ -286,14 +286,14 @@ USE FROM Basic_curve_arm;
   ENTITY Conductive_interconnect_element_terminal
     SUBTYPE OF (Laminate_component_feature);
       name                                        : STRING;    
-      SELF\component_feature.associated_component : Conductive_interconnect_element;
+      SELF\Component_feature.associated_component : Conductive_interconnect_element;
       connection                                  : OPTIONAL Connection_zone_in_design_view;
       location                                    : Layer_connection_point;
     UNIQUE
       UR1 : name,
- SELF\component_feature.associated_component;
+ SELF\Component_feature.associated_component;
     WHERE
-      WR1 : NOT (EXISTS(SELF\component_feature.associated_component\conductive_interconnect_element.composed_conductor)) OR (location.resident_design_layer_stratum = SELF\component_feature.associated_component\conductive_interconnect_element.composed_conductor.resident_stratum);
+      WR1 : NOT (EXISTS(SELF\Component_feature.associated_component\Conductive_interconnect_element.composed_conductor)) OR (location.resident_design_layer_stratum = SELF\Component_feature.associated_component\Conductive_interconnect_element.composed_conductor.resident_stratum);
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_terminal_link;
@@ -312,20 +312,20 @@ USE FROM Basic_curve_arm;
   ENTITY Conductive_interconnect_element_with_pre_defined_transitions
     SUPERTYPE OF (Join_two_physical_connectivity_definition_supporting_printed_component)
     SUBTYPE OF (Conductive_interconnect_element);
-      SELF\definition_based_product_occurrence.derived_from                : Trace_template;
+      SELF\Definition_based_product_occurrence.derived_from                : Trace_template;
       centreline_shape                                        : Curve;
-      SELF\conductive_interconnect_element.composed_conductor : Stratum_feature;
+      SELF\Conductive_interconnect_element.composed_conductor : Stratum_feature;
     INVERSE
       connected_points : SET[1:?] OF conductive_interconnect_element_terminal_link FOR associated_element;
     WHERE
-      WR1 : SIZEOF(connected_points) = SIZEOF(SELF\conductive_interconnect_element.access_mechanisms) - 1;
-      WR2 : correlated_terminals(SELF\conductive_interconnect_element.access_mechanisms,
+      WR1 : SIZEOF(connected_points) = SIZEOF(SELF\Conductive_interconnect_element.access_mechanisms) - 1;
+      WR2 : correlated_terminals(SELF\Conductive_interconnect_element.access_mechanisms,
  connected_points);
   END_ENTITY;
 
   ENTITY Conductor
     SUBTYPE OF (Stratum_feature);
-      SELF\stratum_feature.resident_stratum : Design_layer_stratum;
+      SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
       implementation_requirement            : Intra_stratum_join_relationship;
   END_ENTITY;
 
@@ -333,12 +333,12 @@ USE FROM Basic_curve_arm;
     SUBTYPE OF (Stratum_feature_template_component);
       associated_layer_connection_point : SET[1:?] OF Layer_connection_point;
     WHERE
-      WR1 : NOT (EXISTS(SELF\definition_based_product_occurrence.derived_from));
+      WR1 : NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from));
   END_ENTITY;
 
   ENTITY Connected_filled_area
     SUBTYPE OF (Conductive_filled_area);
-      SELF\stratum_feature.resident_stratum : Design_layer_stratum;
+      SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
       implementation_requirement            : Intra_stratum_join_relationship;
   END_ENTITY;
 
@@ -368,7 +368,7 @@ USE FROM Basic_curve_arm;
   ENTITY Default_component_termination_passage_based_land_physical_template
     SUPERTYPE OF (Default_attachment_size_and_component_termination_passage_based_land_physical_template)
     SUBTYPE OF (Default_passage_based_land_physical_template);
-      SELF\default_passage_based_land_physical_template.of_passage_technology : Default_component_termination_passage_definition;
+      SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_component_termination_passage_definition;
   END_ENTITY;
 
   ENTITY Default_component_termination_passage_definition
@@ -376,8 +376,8 @@ USE FROM Basic_curve_arm;
       minimum_allowed_component_terminal_extent	: Length_data_element;
       maximum_allowed_component_terminal_extent	: Length_data_element;
     DERIVE
-      minimum_as_finished_deposition_thickness 	: length_data_element := SELF\passage_technology.of_technology;
-      minimum_as_finished_passage_extent       	: length_data_element := SELF\passage_technology.of_technology.minimum_as_finished_passage_extent;
+      minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology;
+      minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
@@ -399,24 +399,24 @@ USE FROM Basic_curve_arm;
       minimum_annular_ring          : Length_data_element;
     UNIQUE
       UR1 : of_passage_technology,
- SELF\stratum_feature_template.of_stratum_technology;
+ SELF\Stratum_feature_template.of_stratum_technology;
   END_ENTITY;
 
 	ENTITY Default_plated_passage_based_land_physical_template
 	  SUBTYPE OF (Default_passage_based_land_physical_template);
-	 SELF\default_passage_based_land_physical_template.of_passage_technology :
+	 SELF\Default_passage_based_land_physical_template.of_passage_technology :
 		Default_via_definition;
 	END_ENTITY;
 
   ENTITY Default_unsupported_passage_based_land_physical_template
     SUBTYPE OF (Default_passage_based_land_physical_template);
-      SELF\default_passage_based_land_physical_template.of_passage_technology : Default_unsupported_passage_definition;
+      SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_unsupported_passage_definition;
   END_ENTITY;
 
   ENTITY Default_unsupported_passage_definition
     SUBTYPE OF (Passage_technology);
     DERIVE
-      minimum_as_finished_passage_extent				: length_data_element := SELF\passage_technology.minimum_as_finished_passage_extent;
+      minimum_as_finished_passage_extent				: length_data_element := SELF\Passage_technology.minimum_as_finished_passage_extent;
     WHERE
       WR1 : EXISTS(minimum_as_finished_passage_extent);
   END_ENTITY;
@@ -424,15 +424,15 @@ USE FROM Basic_curve_arm;
   ENTITY Default_via_based_land_physical_template
     SUPERTYPE OF (Default_attachment_size_and_via_based_land_physical_template)
     SUBTYPE OF (Default_passage_based_land_physical_template);
-      SELF\default_passage_based_land_physical_template.of_passage_technology : Default_via_definition;
+      SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_via_definition;
   END_ENTITY;
 
 
   ENTITY Default_via_definition
     SUBTYPE OF (Passage_technology);
     DERIVE
-      minimum_as_finished_deposition_thickness 	: length_data_element := SELF\passage_technology.of_technology;
-      minimum_as_finished_passage_extent       	: length_data_element := SELF\passage_technology.of_technology.minimum_as_finished_passage_extent;
+      minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology;
+      minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
@@ -447,7 +447,7 @@ USE FROM Basic_curve_arm;
   ENTITY Design_layer_stratum
     SUBTYPE OF (Stratum);
       primary_design_layer_stratum : BOOLEAN;
-      SELF\stratum.of_technology   : Design_layer_technology;
+      SELF\Stratum.of_technology   : Design_layer_technology;
     INVERSE
       existence_dependence : SET[1:?] OF layer_connection_point FOR resident_design_layer_stratum;
       library_definition    : SET[0:1] OF view_definition_relationship FOR related_view;
@@ -459,20 +459,20 @@ USE FROM Basic_curve_arm;
 
   ENTITY Documentation_layer_stratum
     SUBTYPE OF (Stratum);
-      SELF\stratum.of_technology : Documentation_layer_technology;
+      SELF\Stratum.of_technology : Documentation_layer_technology;
     INVERSE
       library_definition : SET[0:1] OF view_definition_relationship FOR related_view;
   END_ENTITY;
 
   ENTITY Electrical_isolation_laminate_component
     SUBTYPE OF (Filled_area_material_removal_laminate_component);
-      SELF\definition_based_product_occurrence.derived_from : Electrical_isolation_removal_template;
+      SELF\Definition_based_product_occurrence.derived_from : Electrical_isolation_removal_template;
   END_ENTITY;
 
   ENTITY Embedded_component_terminal
     SUBTYPE OF (Laminate_component_join_terminal);
-      SELF\component_feature.definition           : bare_die_terminal_or_packaged_part_terminal;
-      SELF\component_feature.associated_component : bare_die_component_or_packaged_component;
+      SELF\Component_feature.definition           : bare_die_terminal_or_packaged_part_terminal;
+      SELF\Component_feature.associated_component : bare_die_component_or_packaged_component;
   END_ENTITY;
 
   ENTITY Fiducial
@@ -488,12 +488,12 @@ USE FROM Basic_curve_arm;
  Thermal_isolation_laminate_component))
     SUBTYPE OF (Material_removal_laminate_component);
     WHERE
-      WR1 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN TYPEOF(SELF\material_removal_laminate_component.design_intent));
+      WR1 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN TYPEOF(SELF\Material_removal_laminate_component.design_intent));
   END_ENTITY;
 
   ENTITY Footprint_occurrence
     SUBTYPE OF (Assembly_group_component);
-      SELF\definition_based_product_occurrence.derived_from : Footprint_definition;
+      SELF\Definition_based_product_occurrence.derived_from : Footprint_definition;
     INVERSE
       component : SET[1:?] OF footprint_occurrence_sub_assembly_relationship FOR relating_view; --relating_component;
     WHERE
@@ -510,8 +510,8 @@ USE FROM Basic_curve_arm;
 
   ENTITY Footprint_occurrence_sub_assembly_relationship
 	SUBTYPE OF (Part_occurrence_definition_relationship);  
-      SELF\view_definition_relationship.relating_view                 : Footprint_occurrence;	
-      SELF\view_definition_relationship.related_view                  : Laminate_component;
+      SELF\View_definition_relationship.relating_view                 : Footprint_occurrence;	
+      SELF\View_definition_relationship.related_view                  : Laminate_component;
       sub_assembly_reference_designation : Part_template_location_in_padstack_definition;
       terminal_location                  : Padstack_location_in_footprint_definition;
     UNIQUE
@@ -521,7 +521,7 @@ USE FROM Basic_curve_arm;
     WHERE
       WR1 : terminal_location.footprint :=: relating_view.dervied_from;
       WR2 : sub_assembly_reference_designation.padstack :=: terminal_location.padstack;
-      WR3 : related_view\definition_based_product_occurrence.derived_from :=: sub_assembly_reference_designation.template.associated_template_occurrence;
+      WR3 : related_view\Definition_based_product_occurrence.derived_from :=: sub_assembly_reference_designation.Template.associated_template_occurrence;
   END_ENTITY;
 
   ENTITY Generic_physical_network
@@ -554,7 +554,7 @@ USE FROM Basic_curve_arm;
 			))  
     SUBTYPE OF (Laminate_component);
       feature_of_size                          : BOOLEAN;
-      SELF\definition_based_product_occurrence.derived_from : Inter_stratum_feature_template;
+      SELF\Definition_based_product_occurrence.derived_from : Inter_stratum_feature_template;
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_template
@@ -582,9 +582,9 @@ USE FROM Basic_curve_arm;
     INVERSE
       of_fabrication_thickness_requirement : SET[0:?] OF requirement_assignment FOR assigned_to;
     WHERE
-      WR1 : SIZEOF(QUERY(ftr <* of_fabrication_thickness_requirement | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\requirement_assignment.assigned_requirement)))) = 0;
+      WR1 : SIZEOF(QUERY(ftr <* of_fabrication_thickness_requirement | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement)))) = 0;
       WR2 : SIZEOF(QUERY(imsar <* USEDIN(SELF,
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND (imsar.component\design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1;
+ 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1;
   END_ENTITY;
 
   ENTITY Interconnect_module_join_terminal
@@ -670,17 +670,17 @@ USE FROM Basic_curve_arm;
 			Laminate_text_string_component) ANDOR
 			Fiducial)
     SUBTYPE OF (Assembly_component);
-      SELF\definition_based_product_occurrence.derived_from : OPTIONAL Layout_template_definition;
+      SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Layout_template_definition;
     INVERSE
       padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view; --related_component;      
       footprint_occurrence_assembly : SET[0:1] OF footprint_occurrence_sub_assembly_relationship FOR related_view;
 	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      
     WHERE
-      WR1 : ((SIZEOF(padstack_occurrence_assembly) = SIZEOF(footprint_occurrence_assembly)) AND (SIZEOF(padstack_occurrence_assembly) = 0) AND (SIZEOF(SELF\definition_based_product_occurrence.occurrence_contexts) > 0)) OR ((SIZEOF(padstack_occurrence_assembly) <> SIZEOF(footprint_occurrence_assembly)) AND (SIZEOF(SELF\definition_based_product_occurrence.occurrence_contexts) = 0));
+      WR1 : ((SIZEOF(padstack_occurrence_assembly) = SIZEOF(footprint_occurrence_assembly)) AND (SIZEOF(padstack_occurrence_assembly) = 0) AND (SIZEOF(SELF\Definition_based_product_occurrence.occurrence_contexts) > 0)) OR ((SIZEOF(padstack_occurrence_assembly) <> SIZEOF(footprint_occurrence_assembly)) AND (SIZEOF(SELF\Definition_based_product_occurrence.occurrence_contexts) = 0));
       -- SEDS 1351
       WR2 : NOT (SIZEOF(occurrence_contexts) = 0) OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(SELF));
-      WR3 : NOT (SIZEOF(occurrence_contexts) = 0) OR (SIZEOF(SELF\laminate_component.padstack_occurrence_assembly) + SIZEOF(SELF\laminate_component.footprint_occurrence_assembly) = 1);
-      WR4 : (SIZEOF(occurrence_contexts) > 0) OR (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(SELF)) AND (SIZEOF(SELF\laminate_component.padstack_occurrence_assembly) + SIZEOF(SELF\laminate_component.footprint_occurrence_assembly) = 1));
+      WR3 : NOT (SIZEOF(occurrence_contexts) = 0) OR (SIZEOF(SELF\Laminate_component.padstack_occurrence_assembly) + SIZEOF(SELF\Laminate_component.footprint_occurrence_assembly) = 1);
+      WR4 : (SIZEOF(occurrence_contexts) > 0) OR (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(SELF)) AND (SIZEOF(SELF\Laminate_component.padstack_occurrence_assembly) + SIZEOF(SELF\Laminate_component.footprint_occurrence_assembly) = 1));
   END_ENTITY;
 
   ENTITY Laminate_component_feature
@@ -706,12 +706,12 @@ USE FROM Basic_curve_arm;
 
   ENTITY Laminate_group_component_make_from_relationship
     SUBTYPE OF (Component_make_from_relationship);
-      SELF\component_make_from_relationship.reusable_component  : Assembly_group_component;
-      SELF\component_make_from_relationship.resultant_component : Assembly_group_component;
+      SELF\Component_make_from_relationship.reusable_component  : Assembly_group_component;
+      SELF\Component_make_from_relationship.resultant_component : Assembly_group_component;
       stratum_mapping                                           : SET[1:?] OF Part_definition_relationship; --stratum_make_from_relationship;
     WHERE
-      WR1 : SIZEOF(QUERY(sar <* SELF\component_make_from_relationship.reusable_component.assembly | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_component)))) = 0;
-      WR2 : SIZEOF(QUERY(sar <* SELF\component_make_from_relationship.resultant_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_component)))) = 0;
+      WR1 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.reusable_component.assembly | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_component)))) = 0;
+      WR2 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.resultant_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_component)))) = 0;
   END_ENTITY;
 
   ENTITY Laminate_layer;
@@ -726,7 +726,7 @@ USE FROM Basic_curve_arm;
   ENTITY Laminate_text_component
     SUBTYPE OF (Laminate_component);
       of_character                             : STRING (1) FIXED;
-      SELF\definition_based_product_occurrence.derived_from : OPTIONAL Part_text_template;
+      SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Part_text_template;
       stratum_feature_implementation           : SET[1:?] OF Stratum_feature;
   END_ENTITY;
 
@@ -737,7 +737,7 @@ USE FROM Basic_curve_arm;
       of_horizontal_justification : horizontal_justification;
       of_vertical_justification   : vertical_justification;
     WHERE
-      WR1 : SIZEOF(QUERY(sar <* SELF\assembly_group_component.components | TYPEOF(sar.related_component) <> 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT')) = 0;
+      WR1 : SIZEOF(QUERY(sar <* SELF\Assembly_group_component.components | TYPEOF(sar.related_component) <> 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT')) = 0;
   END_ENTITY;
 
   ENTITY Layer_connection_point
@@ -760,8 +760,8 @@ USE FROM Basic_curve_arm;
  resident_design_layer_stratum;
     WHERE
       WR1 : EXISTS(location_2d) OR EXISTS(location_3d);
-      WR2 : NOT (EXISTS(location_2d)) OR ((SIZEOF(location_2d\cartesian_point.coordinates)) = 2);
-      WR3 : NOT (EXISTS(location_3d)) OR ((SIZEOF(location_3d\cartesian_point.coordinates)) = 3);
+      WR2 : NOT (EXISTS(location_2d)) OR ((SIZEOF(location_2d\Cartesian_point.coordinates)) = 2);
+      WR3 : NOT (EXISTS(location_3d)) OR ((SIZEOF(location_3d\Cartesian_point.coordinates)) = 3);
       WR4 : SIZEOF(QUERY(jr <* aggregate_join | jr.network_topology <> reference_network)) = 0;
       WR5 : EXISTS(reference_network); 
   END_ENTITY;
@@ -783,7 +783,7 @@ USE FROM Basic_curve_arm;
   ENTITY Material_removal_laminate_component
     SUPERTYPE OF (Filled_area_material_removal_laminate_component)
     SUBTYPE OF (Laminate_component);
-      SELF\definition_based_product_occurrence.derived_from : Material_removal_feature_template;
+      SELF\Definition_based_product_occurrence.derived_from : Material_removal_feature_template;
       design_intent                            							: stratum_feature_or_stratum_feature_template_component;
   END_ENTITY;
 
@@ -804,7 +804,7 @@ USE FROM Basic_curve_arm;
 
   ENTITY Padstack_occurrence
     SUBTYPE OF (Assembly_group_component);
-      SELF\definition_based_product_occurrence.derived_from : Padstack_definition;
+      SELF\Definition_based_product_occurrence.derived_from : Padstack_definition;
     INVERSE
       component : SET[1:?] OF padstack_occurrence_sub_assembly_relationship FOR relating_view; --relating_component;
     WHERE
@@ -816,8 +816,8 @@ USE FROM Basic_curve_arm;
 
   ENTITY Padstack_occurrence_sub_assembly_relationship
 	SUBTYPE OF (Part_occurrence_definition_relationship);  
-      SELF\view_definition_relationship.relating_view                 : Padstack_occurrence;	
-      SELF\view_definition_relationship.related_view                  : Laminate_component;
+      SELF\View_definition_relationship.relating_view                 : Padstack_occurrence;	
+      SELF\View_definition_relationship.related_view                  : Laminate_component;
       sub_assembly_reference_designation : Part_template_location_in_padstack_definition;
     UNIQUE
       UR1 : sub_assembly_reference_designation,
@@ -852,7 +852,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 
   ENTITY Pcb
     SUBTYPE OF (Interconnect_module);
-      SELF\part_design_view.usage_view : OPTIONAL Pcb_usage_view;
+      SELF\Part_design_view.usage_view : OPTIONAL Pcb_usage_view;
   END_ENTITY;
 
   ENTITY Physical_laminate_component
@@ -879,7 +879,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
   ENTITY Probe_access_area
     SUPERTYPE OF (Internal_probe_access_area)
     SUBTYPE OF (Laminate_component);
-    	SELF\definition_based_product_occurrence.derived_from : OPTIONAL Stratum_feature_template;
+    	SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Stratum_feature_template;
       probed_layout_item 																		: Stratum_feature;
       probe_contact_zone 																		: Connection_zone_in_design_view;
     	stratum_feature_material_stackup											: OPTIONAL Multi_layer_stratum_feature;
@@ -896,17 +896,17 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     DERIVE
     	complete																			: BOOLEAN := EXISTS(unrouted_connectivity_requirement_element);
     WHERE
-      WR1 : SIZEOF(QUERY(cre <* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND',
+      WR1 : SIZEOF(QUERY(cre <* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_CONTACT_SIZE_DEPENDENT_LAND',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_AND_CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0;
-      WR2 : SIZEOF(QUERY(cre <* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.NON_FUNCTIONAL_LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_' + 'CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND',
+      WR2 : SIZEOF(QUERY(cre <* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.NON_FUNCTIONAL_LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_' + 'CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'VIA_AND_CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND']) = 1)))) = 0;      
   END_ENTITY; 
 
   ENTITY Special_symbol_laminate_component
     SUPERTYPE OF (Primary_stratum_indicator_symbol)
     SUBTYPE OF (Laminate_component);
-      SELF\definition_based_product_occurrence.derived_from : Special_symbol_part_template;
+      SELF\Definition_based_product_occurrence.derived_from : Special_symbol_part_template;
       stratum_feature_implementation           							: Stratum_feature;
   END_ENTITY;
 
@@ -916,7 +916,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     SUBTYPE OF (Part_view_definition);
       of_technology 												: Stratum_technology;
     DERIVE
-      name : STRING := SELF\product_view_definition.product_definition_id;
+      name : STRING := SELF\Product_view_definition.product_definition_id;
     INVERSE
       of_average_surface 	: SET[0:1] OF stratum_average_surface FOR of_stratum;
       of_surface         	: SET[1:2] OF stratum_surface FOR of_stratum;
@@ -941,7 +941,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
       terminal_to_be_connected : SET[1:?] OF Embedded_component_terminal;
       point_to_be_connected    : SET[1:?] OF Layer_connection_point;
     DERIVE
-      associated_component : assembly_component := terminal_to_be_connected[1]\component_feature.associated_component;
+      associated_component : assembly_component := terminal_to_be_connected[1]\Component_feature.associated_component;
     WHERE
       WR1 : SIZEOF(QUERY(t <* terminal_to_be_connected | t.associated_component <> associated_component)) = 0;
   END_ENTITY;
@@ -953,13 +953,13 @@ It is a summary of all vertical elements of particular kind, similar like stratu
       resident_stratum        : Stratum;
       feature_of_size         : BOOLEAN;
     UNIQUE
-      UR1 : SELF\shape_element.element_name,
+      UR1 : SELF\Shape_element.element_name,
  resident_stratum;
   END_ENTITY;
 
   ENTITY Stratum_feature_template_component
     SUBTYPE OF (Laminate_component);
-      SELF\definition_based_product_occurrence.derived_from : OPTIONAL Stratum_feature_template;
+      SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Stratum_feature_template;
       stratum_feature_implementation           : Stratum_feature;
   END_ENTITY;
 
@@ -969,7 +969,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     WHERE
       WR1 : SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(SELF\part_template_location_in_padstack_definition.template.associated_template_occurrence)) = 1;
+ 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(SELF\Part_template_location_in_padstack_definition.Template.associated_template_occurrence)) = 1;
   END_ENTITY;
 
   ENTITY Stratum_surface;
@@ -982,7 +982,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 
   ENTITY Thermal_isolation_laminate_component
     SUBTYPE OF (Filled_area_material_removal_laminate_component);
-      SELF\definition_based_product_occurrence.derived_from : Thermal_isolation_removal_template;
+      SELF\Definition_based_product_occurrence.derived_from : Thermal_isolation_removal_template;
   END_ENTITY;
 
   ENTITY Unrouted_conductive_interconnect_element
@@ -990,8 +990,8 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     INVERSE
       connected_points : SET[1:?] OF conductive_interconnect_element_terminal_link FOR associated_element;
     WHERE
-      WR1 : NOT (EXISTS(SELF\conductive_interconnect_element.composed_conductor));
-      WR2 : correlated_terminals(SELF\conductive_interconnect_element.access_mechanisms,
+      WR1 : NOT (EXISTS(SELF\Conductive_interconnect_element.composed_conductor));
+      WR2 : correlated_terminals(SELF\Conductive_interconnect_element.access_mechanisms,
  connected_points);
   END_ENTITY;
 
@@ -1012,7 +1012,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 
   ENTITY Unsupported_passage
     SUBTYPE OF (Inter_stratum_feature);
-      SELF\definition_based_product_occurrence.derived_from : Unsupported_passage_template;
+      SELF\Definition_based_product_occurrence.derived_from : Unsupported_passage_template;
   END_ENTITY;
 
   ENTITY Unsupported_passage_template
@@ -1020,18 +1020,18 @@ It is a summary of all vertical elements of particular kind, similar like stratu
  Countersunk_passage_template,
  Blind_passage_template))
     SUBTYPE OF (Inter_stratum_feature_template);
-      SELF\inter_stratum_feature_template.of_passage_technology : Default_unsupported_passage_definition;
+      SELF\Inter_stratum_feature_template.of_passage_technology : Default_unsupported_passage_definition;
   END_ENTITY;
 
   ENTITY Via
     ABSTRACT SUPERTYPE
     SUBTYPE OF (Plated_passage);
-      SELF\definition_based_product_occurrence.derived_from : Via_template;
+      SELF\Definition_based_product_occurrence.derived_from : Via_template;
   END_ENTITY;
 
   ENTITY Via_template
     SUBTYPE OF (Inter_stratum_feature_template);
-      SELF\inter_stratum_feature_template.of_passage_technology : Default_via_definition;
+      SELF\Inter_stratum_feature_template.of_passage_technology : Default_via_definition;
     INVERSE
       access_mechanisms : SET[2:?] OF via_template_terminal FOR associated_definition;
   END_ENTITY;
@@ -1044,14 +1044,14 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     INVERSE
       terminal_shape : SET[0:1] OF usage_concept_usage_relationship FOR associated_usage;
     UNIQUE
-      UR1 : SELF\shape_element.element_name,
+      UR1 : SELF\Shape_element.element_name,
  associated_definition;
   END_ENTITY;
 
   ENTITY Via_terminal
     SUBTYPE OF (Laminate_component_feature);
-      SELF\component_feature.definition           : Via_template_terminal;
-      SELF\component_feature.associated_component : Via;
+      SELF\Component_feature.definition           : Via_template_terminal;
+      SELF\Component_feature.associated_component : Via;
   END_ENTITY;
 
   FUNCTION correlated_terminals(

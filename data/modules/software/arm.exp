@@ -1,46 +1,92 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+
+   $Id: arm.exp,v 1.7 2005/01/04 07:11:24 kovaliovas Exp $
+
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Software - EXPRESS ARM
+
 *)
+
+
 
 SCHEMA Software_arm;
 
+
+
 USE FROM Document_definition_arm;
+
+
 
 USE FROM Document_and_version_identification_arm;
 
+
+
 USE FROM Product_view_definition_arm;
 
+
+
 REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017 
+
         types_of_product 
+
 ); 
 
+
+
   ENTITY Software 
+
     SUBTYPE OF (Document);
+
   	WHERE 
+
   		WR1 : SIZEOF([ 'software', 'analytical model', 'rule' ] * types_of_product(SELF))= 1 ;
+
   END_ENTITY;
+
+
 
   ENTITY Software_definition 
+
     SUBTYPE OF (Digital_document_definition);
-    SELF\product_view_definition.defined_version : Software_version;
+
+    SELF\Product_view_definition.defined_version : Software_version;
+
   END_ENTITY;
+
+
 
   ENTITY Software_version
+
     SUBTYPE OF (Document_version);
-    SELF\product_version.of_product : Software;
+
+    SELF\Product_version.of_product : Software;
+
   END_ENTITY;
 
+
+
 RULE software_version_constraint FOR 
+
 (Product_version);
+
 WHERE
+
   WR1: SIZEOF ( QUERY ( pv <* Software_version | ( NOT ( 'SOFTWARE_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'SOFTWARE_ARM.' + 'SOFTWARE' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
+
 END_RULE; 
+
+
 
 RULE software_definition_constraint FOR 
+
 (Product_view_definition);
+
 WHERE
+
   WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'SOFTWARE_ARM.' + 'SOFTWARE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'SOFTWARE_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
+
 END_RULE; 
 
+
+
 END_SCHEMA;
+

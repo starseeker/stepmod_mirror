@@ -1,140 +1,280 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+
+   $Id: arm.exp,v 1.9 2005/01/04 07:11:18 kovaliovas Exp $
+
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered interconnect module with printed component design - EXPRESS ARM
+
 *)
+
+
 
 SCHEMA Layered_interconnect_module_with_printed_component_design_arm;   
 
+
+
 USE FROM Layered_interconnect_module_design_arm;
 
+
+
  	TYPE limwpcd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+
 		(Printed_component);
+
 	END_TYPE;
 
+
+
 	SUBTYPE_CONSTRAINT limwpcd_assembly_component_subtypes FOR Assembly_component; 
+
 	    (ONEOF (Physical_component,
+
 		 Printed_component,
+
 	 	Laminate_component));
+
 	END_SUBTYPE_CONSTRAINT;
 
+
+
   ENTITY Printed_component
+
     SUBTYPE OF (Assembly_component);
+
       stratum_feature_implementation           : OPTIONAL SET[1:?] OF Stratum_feature;
-      SELF\definition_based_product_occurrence.derived_from : printed_part_template_or_printed_part_cross_section_template;
+
+      SELF\Definition_based_product_occurrence.derived_from : printed_part_template_or_printed_part_cross_section_template;
+
       printed_component_stack                  : OPTIONAL SET[1:?] OF Printed_component_link;
+
       required_material_stack                  : OPTIONAL Laminate_layer;
+
       footprint_implementation                 : OPTIONAL Footprint_occurrence;
+
     DERIVE
+
       access_mechanism : SET[1:?] OF printed_component_join_terminal := raw_access_mechanism + printed_component_access_mechanisms(printed_component_stack);
+
     INVERSE
+
       raw_access_mechanism       	: SET[1:?] OF printed_component_join_terminal FOR associated_component;
+
       associated_precedent_link  	: SET[0:1] OF printed_component_link FOR precedent_printed_component;
+
       associated_subsequent_link 	: SET[0:1] OF printed_component_link FOR subsequent_printed_component;
+
       cad_layer										: SET[0:1] OF External_source_identification FOR item;
+
     WHERE
+
       WR1  : NOT EXISTS(stratum_feature_implementation) OR same_stratum(stratum_feature_implementation);
-      WR2  : NOT EXISTS(SELF\definition_based_product_occurrence.derived_from.of_stratum_technology) OR EXISTS(stratum_feature_implementation);
-      WR3  : NOT EXISTS(SELF\definition_based_product_occurrence.derived_from.material_stack) OR EXISTS(required_material_stack);
-      WR4  : NOT EXISTS(SELF\definition_based_product_occurrence.derived_from.printed_part_template_stack) OR EXISTS(printed_component_stack);
-      WR5  : NOT EXISTS(printed_component_stack) OR consistent_stack_definition(SELF\definition_based_product_occurrence.derived_from,
+
+      WR2  : NOT EXISTS(SELF\Definition_based_product_occurrence.derived_from.of_stratum_technology) OR EXISTS(stratum_feature_implementation);
+
+      WR3  : NOT EXISTS(SELF\Definition_based_product_occurrence.derived_from.material_stack) OR EXISTS(required_material_stack);
+
+      WR4  : NOT EXISTS(SELF\Definition_based_product_occurrence.derived_from.printed_part_template_stack) OR EXISTS(printed_component_stack);
+
+      WR5  : NOT EXISTS(printed_component_stack) OR consistent_stack_definition(SELF\Definition_based_product_occurrence.derived_from,
+
  printed_component_stack);
-      WR6  : NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\definition_based_product_occurrence.derived_from));
-      WR7  : NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\definition_based_product_occurrence.derived_from)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF));
+
+      WR6  : NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from));
+
+      WR7  : NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF));
+
       WR8  : SIZEOF(access_mechanism) > 0;
+
       WR9  : NOT EXISTS(footprint_implementation) OR (('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(footprint_implementation.derived_from.reference_package)) AND (derived_from = footprint_implementation.derived_from.reference_package));
+
       WR10 : NOT EXISTS(footprint_implementation) OR NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF));
+
   END_ENTITY;
+
+
 
   ENTITY Printed_component_join_terminal
+
     SUBTYPE OF (Laminate_component_join_terminal);
-      SELF\component_feature.definition           : Printed_part_template_join_terminal;
-      SELF\component_feature.associated_component : Printed_component;
+
+      SELF\Component_feature.definition           : Printed_part_template_join_terminal;
+
+      SELF\Component_feature.associated_component : Printed_component;
+
       stratum_concept_implementation              : Stratum_feature_template_component;
+
     WHERE
-      WR1 : SIZEOF(QUERY(sf <* SELF\component_feature.associated_component\printed_component.stratum_feature_implementation | sf = stratum_concept_implementation.stratum_feature_implementation)) = 1;
+
+      WR1 : SIZEOF(QUERY(sf <* SELF\Component_feature.associated_component\Printed_component.stratum_feature_implementation | sf = stratum_concept_implementation.stratum_feature_implementation)) = 1;
+
   END_ENTITY;
+
+
 
   ENTITY Printed_component_link;
+
       precedent_printed_component  : Printed_component;
+
       subsequent_printed_component : Printed_component;
+
       definition                   : Printed_part_template_link;
+
     INVERSE
+
       associated_printed_component : printed_component FOR printed_component_stack;
+
     WHERE
-      WR1 : precedent_printed_component\definition_based_product_occurrence.derived_from = definition.precedent_printed_part_template;
-      WR2 : subsequent_printed_component\definition_based_product_occurrence.derived_from = definition.subsequent_printed_part_template;
+
+      WR1 : precedent_printed_component\Definition_based_product_occurrence.derived_from = definition.precedent_printed_part_template;
+
+      WR2 : subsequent_printed_component\Definition_based_product_occurrence.derived_from = definition.subsequent_printed_part_template;
+
       WR3 : precedent_printed_component <> subsequent_printed_component;
+
   END_ENTITY;
+
+
 
   ENTITY Printed_connector_component
+
     SUBTYPE OF (Printed_component);
-      SELF\definition_based_product_occurrence.derived_from : Printed_connector_template;
+
+      SELF\Definition_based_product_occurrence.derived_from : Printed_connector_template;
+
     INVERSE
+
       interface_access_mechanism : SET[1:?] OF printed_connector_component_interface_terminal FOR associated_component;
+
   END_ENTITY;
+
+
 
   ENTITY Printed_connector_component_interface_terminal
+
     SUBTYPE OF (Laminate_component_interface_terminal);
-      SELF\component_feature.definition           : Printed_part_template_interface_terminal;
-      SELF\component_feature.associated_component : Printed_connector_component;
+
+      SELF\Component_feature.definition           : Printed_part_template_interface_terminal;
+
+      SELF\Component_feature.associated_component : Printed_connector_component;
+
       stratum_concept_implementation              : Stratum_feature_template_component;
+
     WHERE
-      WR1 : NOT EXISTS(SELF\component_feature.associated_component\printed_component.stratum_feature_implementation) OR (SIZEOF(QUERY(temp <* SELF\component_feature.associated_component\printed_component.stratum_feature_implementation | temp :=: stratum_concept_implementation.stratum_feature_implementation)) = 1);
+
+      WR1 : NOT EXISTS(SELF\Component_feature.associated_component\Printed_component.stratum_feature_implementation) OR (SIZEOF(QUERY(temp <* SELF\Component_feature.associated_component\Printed_component.stratum_feature_implementation | temp :=: stratum_concept_implementation.stratum_feature_implementation)) = 1);
+
   END_ENTITY;
+
+
 
   ENTITY Routed_printed_component
+
     SUBTYPE OF (Printed_component);
+
       routed_centreline_shape                  : Curve;
-      SELF\definition_based_product_occurrence.derived_from : Printed_part_cross_section_template;
+
+      SELF\Definition_based_product_occurrence.derived_from : Printed_part_cross_section_template;
+
       component_extent                         : Inter_stratum_extent;
+
   END_ENTITY;
 
+
+
   FUNCTION consistent_stack_definition(
+
     input1 : Printed_part_template ;
+
     input2 : SET OF Printed_component_link
+
   ) : BOOLEAN;
 
+
+
     LOCAL
+
       pass : BOOLEAN := FALSE;
+
     END_LOCAL;
+
+
 
     REPEAT i := 1 TO SIZEOF(input2) BY 1;
+
       pass := input2[i].definition.associated_printed_part_template :=: input1;
+
     END_REPEAT;
+
     RETURN(pass);
+
   END_FUNCTION;
+
+
 
   FUNCTION printed_component_access_mechanisms(
+
     input : SET OF Printed_component_link
+
   ) : SET OF Printed_component_join_terminal;
 
+
+
     LOCAL
+
       pcjt : SET OF printed_component_join_terminal := [];
+
     END_LOCAL;
 
+
+
     REPEAT i := 1 TO SIZEOF(input) BY 1;
+
       pcjt := input[i].precedent_printed_component.raw_access_mechanism + pcjt;
+
       pcjt := input[i].subsequent_printed_component.raw_access_mechanism + pcjt;
+
     END_REPEAT;
+
     RETURN(pcjt);
+
   END_FUNCTION;
+
+
 
   FUNCTION same_stratum(
+
     input : SET OF Stratum_feature
+
   ) : BOOLEAN;
 
+
+
     LOCAL
+
       pass : BOOLEAN := FALSE;
+
       s    : SET OF stratum := [];
+
       pptt : SET OF printed_part_template_terminal := [];
+
     END_LOCAL;
 
+
+
     REPEAT i := 1 TO SIZEOF(input) BY 1;
+
       s := input[i].resident_stratum + s;
+
     END_REPEAT;
+
     pass := (SIZEOF(s) = 1);
+
     RETURN(pass);
+
   END_FUNCTION;
 
+
+
 END_SCHEMA; 
+
+
 

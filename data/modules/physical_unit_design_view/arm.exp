@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2005/01/06 08:40:01 liutkus Exp $
+   $Id: arm.exp,v 1.14 2005/01/10 08:10:25 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit design view - EXPRESS ARM
 *)
 
@@ -36,9 +36,9 @@ USE FROM Part_occurrence_arm;
 
   ENTITY Assembly_component
    SUBTYPE OF (Definition_based_product_occurrence, Item_shape);
-	SELF\definition_based_product_occurrence.derived_from : physical_unit_or_part_template_or_fp_or_pd;
+	SELF\Definition_based_product_occurrence.derived_from : physical_unit_or_part_template_or_fp_or_pd;
     DERIVE
-    	SELF\item_shape.described_element : shapeable_item := SELF;
+    	SELF\Item_shape.described_element : shapeable_item := SELF;
     INVERSE
       SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF assembly_component_relationship FOR related_view;
 (** Need to encode it as Global rules TODO for Tom
@@ -47,7 +47,7 @@ USE FROM Part_occurrence_arm;
       component_non_planar_shape : SET[0:1] OF assembly_component_non_planar_shape FOR shape_characterized_component;
 *)      
     WHERE
-      WR1 : NOT (EXISTS(SELF\definition_based_product_occurrence.derived_from)) OR ((('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\definition_based_product_occurrence.derived_from))) OR (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\definition_based_product_occurrence.derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\definition_based_product_occurrence.derived_from))));
+      WR1 : NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR ((('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))));
   END_ENTITY;
 
   ENTITY Assembly_item_number;
@@ -55,12 +55,12 @@ USE FROM Part_occurrence_arm;
       item_number    : STRING; --ee_name;
     DERIVE
       assembly : part_design_view := assembly_usage[1].related_view;
-      part     : product:= assembly_usage[1].relating_view\definition_based_product_occurrence.derived_from\product_view_definition.defined_version.of_product;
+      part     : product:= assembly_usage[1].relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product;
     UNIQUE
       UR1 : assembly,
  item_number;
     WHERE
-      WR1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\definition_based_product_occurrence.derived_from\product_view_definition.defined_version.of_product = Part))) = 0;
+      WR1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0;
       WR2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.related_view = assembly))) = 0;
   END_ENTITY;
 
@@ -82,14 +82,14 @@ USE FROM Part_occurrence_arm;
 
   ENTITY Connection_zone_in_design_view
   	SUBTYPE OF (Connection_zone);
-  	SELF\part_feature.associated_definition : Part_design_view;
+  	SELF\Part_feature.associated_definition : Part_design_view;
   END_ENTITY; 
 
   ENTITY Part_design_view
     SUBTYPE OF (Assembly_definition, Item_shape, Part_view_definition);
       usage_view : OPTIONAL Part_usage_view;
     DERIVE
-    	SELF\item_shape.described_element : shapeable_item := SELF;
+    	SELF\Item_shape.described_element : shapeable_item := SELF;
     WHERE
       WR1 : ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view);
   END_ENTITY;

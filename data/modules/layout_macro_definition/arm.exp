@@ -1,61 +1,122 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+
+   $Id: arm.exp,v 1.8 2005/01/04 07:11:18 kovaliovas Exp $
+
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layout macro definition - EXPRESS ARM
+
 *)
+
+
 
 SCHEMA Layout_macro_definition_arm; 
 
+
+
 USE FROM Printed_physical_layout_template_arm;
+
 USE FROM Fabrication_joint_arm;
+
 USE FROM Layered_interconnect_module_with_printed_component_design_arm;
+
 USE FROM Physical_unit_design_view_arm;
 
+
+
 	SUBTYPE_CONSTRAINT printed_part_template_subtypes FOR Printed_part_template;  
+
 		 (ONEOF (Layout_macro_floor_plan_template,
+
 		 Printed_connector_template));
+
 	END_SUBTYPE_CONSTRAINT;
 
+
+
   ENTITY Layout_macro_component
+
     SUBTYPE OF (Printed_component);
+
       design_definition                       	: Layout_macro_definition;
-      SELF\printed_component.derived_from		: Layout_macro_floor_plan_template;
+
+      SELF\Printed_component.derived_from		: Layout_macro_floor_plan_template;
+
     WHERE
-      WR1 : NOT (EXISTS(SELF\printed_component.stratum_feature_implementation)) AND NOT (EXISTS(SELF\printed_component.printed_component_stack)) AND NOT (EXISTS(SELF\printed_component.associated_precedent_link)) AND NOT (EXISTS(SELF\printed_component.associated_subsequent_link)) AND NOT (EXISTS(SELF\printed_component.required_material_stack));
-      WR2 : NOT (EXISTS(SELF\printed_component.footprint_implementation));
+
+      WR1 : NOT (EXISTS(SELF\Printed_component.stratum_feature_implementation)) AND NOT (EXISTS(SELF\Printed_component.printed_component_stack)) AND NOT (EXISTS(SELF\Printed_component.associated_precedent_link)) AND NOT (EXISTS(SELF\Printed_component.associated_subsequent_link)) AND NOT (EXISTS(SELF\Printed_component.required_material_stack));
+
+      WR2 : NOT (EXISTS(SELF\Printed_component.footprint_implementation));
+
   END_ENTITY;
+
+
 
   ENTITY Layout_macro_definition
+
     SUBTYPE OF (Pcb);
+
       floor_layout_view : Layout_macro_floor_plan_template;
+
     WHERE
-      WR1 : NOT (EXISTS(SELF\part_design_view.usage_view));
-      -- WR2 : NOT (EXISTS(SELF\interconnect_module.assembly_design_requirement));
+
+      WR1 : NOT (EXISTS(SELF\Part_design_view.usage_view));
+
+      -- WR2 : NOT (EXISTS(SELF\Interconnect_module.assembly_design_requirement));
+
       WR2 : SIZEOF(USEDIN(SELF,
+
  'LAYOUT_MACRO_DEFINITION_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE.DERIVED_FROM')) = 0;
+
   END_ENTITY;
+
+
 
   ENTITY Layout_macro_definition_terminal_to_usage_terminal_assignment;
+
       defined_template_feature : Printed_part_template_terminal;
+
       assigned_design_object   : fabricated_feature_select;
+
     WHERE
+
       WR1 : SIZEOF(USEDIN(SELF,
+
  'LAYOUT_MACRO_DEFINITION_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE.ACCESS_MAPS')) = 1;
+
   END_ENTITY;
+
+
 
   ENTITY Layout_macro_floor_plan_template
+
     SUBTYPE OF (Printed_part_template);
+
       access_maps : SET[1:?] OF Layout_macro_definition_terminal_to_usage_terminal_assignment;
+
     INVERSE
+
       macro_definition : SET[0:1] OF layout_macro_definition FOR floor_layout_view;
+
     WHERE
-      WR1 : NOT (EXISTS(SELF\printed_part_template.of_stratum_technology)) AND NOT (EXISTS(SELF\printed_part_template.material_stack)) AND NOT (EXISTS(SELF\printed_part_template.printed_part_template_stack));
+
+      WR1 : NOT (EXISTS(SELF\Printed_part_template.of_stratum_technology)) AND NOT (EXISTS(SELF\Printed_part_template.material_stack)) AND NOT (EXISTS(SELF\Printed_part_template.printed_part_template_stack));
+
   END_ENTITY;
 
+
+
 SUBTYPE_CONSTRAINT printed_component_subtypes FOR Printed_component;  
+
 (ONEOF (Layout_macro_component,
+
  Printed_connector_component,
+
  Routed_printed_component));
+
 END_SUBTYPE_CONSTRAINT;  
 
+
+
 END_SCHEMA;
+
+
 

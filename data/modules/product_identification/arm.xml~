@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.5 2001/12/28 15:59:29 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.5"
+    source="../data/modules/product_identification/arm.exp"/>
+
+  <schema name="Product_identification_arm">
+    <interface
+      kind="use"
+      schema="Person_organisation_assignment_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Product_categorisation_arm">
+    </interface>
+
+    <type name="product_organisation_or_person_in_organisation_item">
+      <select
+        basedon="organisation_or_person_in_organisation_item"
+        selectitems="Product">
+      </select>
+
+    </type>
+    <entity
+      name="Product">
+      <explicit
+        name="id">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="product_type">
+        <typename
+          name="Product_category"/>
+      </explicit>
+      <explicit
+        name="categories">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="Product_category"/>
+      </explicit>
+      <inverse
+        name="identifier"
+        entity="Organisation_or_person_in_organisation_assignment"
+        attribute="items">
+      </inverse>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="id"/>
+        <unique.attribute
+          attribute="identifier"/>
+        <unique.attribute
+          attribute="product_type"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="SELF.identifer.role = 'id owner'">
+      </where>
+      <where
+        label="WR2"
+        expression="SELF.product_type.name IN ['part', 'raw material',       'document', 'functionality', 'requirement']">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
+$Id: ballot_list.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -137,10 +137,32 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
   <xsl:variable name="module_file"
     select="concat('../../data/modules/',@name,'/module.xml')"/>
 
-  <xsl:variable name="module_node"
-    select="document($module_file)/module[@name=$module_name]"/>
-  <xsl:variable name="part" select="$module_node/@part"/>
-  (<xsl:value-of select="$part"/>)
+  <xsl:variable name="in_repo"
+    select="document('../../repository_index.xml')/repository_index/modules/module[@name=$module_name]"/>
+  <xsl:choose>
+    <!-- the module is present in the STEP mod repository -->
+    <xsl:when test="$in_repo">
+      <xsl:variable name="module_node"
+        select="document($module_file)/module[@name=$module_name]"/>
+      <xsl:variable name="part" select="$module_node/@part"/>
+      (<xsl:value-of select="$part"/>)
+    </xsl:when>
+
+    <xsl:otherwise>
+      <p>
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="warning_gif"
+            select="'../../../images/warning.gif'"/>
+          
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error B1: Module ',
+                                  $module_name,
+                                  ' does not exist in stepmod/repsotory_index.xml')"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </p>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.19 2002/09/30 10:30:30 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.20 2002/09/30 12:57:43 robbod Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -29,6 +29,27 @@ deletes all generated HTML files
 
 "ant -DMODULES=data/modules/[module-name] clean_module" 
 deletes all HTML generated for a single module
+
+"ant wf"
+checks all XML documents for well-formedness
+
+"ant wf_basic"
+checks basic XML files for well-formedness
+
+"ant wf_xsl"
+checks XSLT stylesheet files for well-formedness
+
+"ant wf_resources"
+checks resource XML files for well-formedness
+
+"ant wf_modules"
+checks module XML files for well-formedness
+
+"ant wf_aps"
+checks AP XML files for well-formedness
+
+"ant wf_nav"
+checks navigation XML and XSL files for well-formedness
 
 "ant index" 
 generates HTML for repository_index.xml
@@ -95,6 +116,7 @@ tar.gz format)
     <!-- YES means that the rcs info is displayed on every module -->
     <property name="OUTPUT_RCS" value="NO"/>
     <property name="DTDDIR" value="dtd"/>
+    <property name="BASICDIR" value="data/basic"/>
     <property name="RESOURCESDIR" value="data/resources"/>
     <property name="RESOURCES" value="${RESOURCESDIR}/**"/>
     <property name="MODULESDIR" value="data/modules"/>
@@ -153,6 +175,58 @@ tar.gz format)
     <delete>
       <fileset dir="${APDOCS}" includes="**/*.htm*"/>
     </delete>
+  </target>
+
+  <target name="wf" depends="wf_basic, wf_xsl, wf_resources,
+	  wf_modules, wf_aps, wf_nav" 
+	  description="check well-formedness"/>
+
+  <target name="wf_basic" depends="init" 
+	  description="check basic files for well-formedness">
+    <echo level="info">Checking files in ${BASICDIR} for well-formedness...</echo>
+    <xmlvalidate lenient="yes" warn="yes" failonerror="no">
+      <fileset dir="${BASICDIR}" includes="**/*.xml, **/*.xsl"/>
+    </xmlvalidate>
+  </target>
+
+  <target name="wf_xsl" depends="init" 
+	  description="check XSL files for well-formedness">
+    <echo level="info">Checking files in ${STYLES} for well-formedness...</echo>
+    <xmlvalidate lenient="yes" warn="yes" failonerror="no">
+      <fileset dir="${STYLES}" includes="**/*.xml, **/*.xsl"/>
+    </xmlvalidate>
+  </target>
+
+  <target name="wf_resources" depends="init" 
+	  description="check resources for well-formedness">
+    <echo level="info">Checking files in ${RESOURCESDIR} for well-formedness...</echo>
+    <xmlvalidate lenient="yes" warn="yes" failonerror="no">
+      <fileset dir="${RESOURCESDIR}" includes="**/*.xml, **/*.xsl"/>
+    </xmlvalidate>
+  </target>
+
+  <target name="wf_modules" depends="init" 
+	  description="check modules for well-formedness">
+    <echo level="info">Checking files in ${MODULESDIR} for well-formedness...</echo>
+    <xmlvalidate lenient="yes" warn="yes" failonerror="no">
+      <fileset dir="${MODULESDIR}" includes="**/*.xml, **/*.xsl"/>
+    </xmlvalidate>
+  </target>
+
+  <target name="wf_aps" depends="init" 
+	  description="check APs for well-formedness">
+    <echo level="info">Checking files in ${APDIR} for well-formedness...</echo>
+    <xmlvalidate lenient="yes" warn="yes" failonerror="no">
+      <fileset dir="${APDIR}" includes="**/*.xml, **/*.xsl"/>
+    </xmlvalidate>
+  </target>
+
+  <target name="wf_nav" depends="init" 
+	  description="check navigation files for well-formedness">
+    <echo level="info">Checking files in ${NAVDIR} for well-formedness...</echo>
+    <xmlvalidate lenient="yes" warn="yes" failonerror="no">
+      <fileset dir="${NAVDIR}" includes="**/*.xml, **/*.xsl"/>
+    </xmlvalidate>
   </target>
 
   <target name="index" depends="init, ballots, nav" 

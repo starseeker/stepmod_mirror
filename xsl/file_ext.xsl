@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: file_ext.xsl,v 1.2 2001/12/27 07:46:53 robbod Exp $
+$Id: file_ext.xsl,v 1.3 2002/03/04 07:54:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -22,12 +22,12 @@ $Id: file_ext.xsl,v 1.2 2001/12/27 07:46:53 robbod Exp $
 <xsl:param name="output_type" />
   
 <!-- A global variable either .xml or .htm -->
-<xsl:variable name="FILE_EXT" >
-  <xsl:call-template name="file_ext"/>
+<xsl:variable name="FILE_EXT">
+	<xsl:call-template name="file_ext"/>
 </xsl:variable>
 
 <xsl:template name="file_ext">
-  <xsl:choose>
+ <xsl:choose>
     <xsl:when test="$output_type='HTM'">
       <xsl:value-of select="'.htm'" /> 
     </xsl:when>

@@ -1,4 +1,4 @@
-$Id: mkapdoc_main.js,v 1.12 2003/05/28 14:39:27 robbod Exp $
+$Id: readme.txt,v 1.1 2003/05/29 15:21:48 robbod Exp $
 
       -----------------------------
       Application Protocol document
@@ -22,5 +22,5 @@ dvlp/issues.xml
   contains all issues raised against the application protocol
 
 sys
-  DO NOT EDIT FILES IN THIS DIRECTORY
+  DO NOT EDIT FILES IN THIS DIRECTORY!
   contains files used by XSL to generate clauses for application protocol

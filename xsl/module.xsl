@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.165 2004/05/01 09:05:56 robbod Exp $
+$Id: module.xsl,v 1.166 2004/05/05 15:31:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4226,12 +4226,12 @@ $module_ok,' Check the normatives references')"/>
 
 <xsl:template match="subtitle">
 <xsl:text>, </xsl:text>
-<xsl:value-of select="."/>
+<xsl:value-of select="normalize-space(.)"/>
 </xsl:template>
 
 <xsl:template match="pubdate">
 <xsl:text>, </xsl:text>
-<xsl:value-of select="."/>
+<xsl:value-of select="normalize-space(.)"/>
 <xsl:text>.</xsl:text>
 </xsl:template>
 

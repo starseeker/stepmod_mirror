@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.9 2004/10/13 19:18:16 mikeward Exp $
+$Id: p28xsd.xsl,v 1.10 2004/11/09 14:38:49 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -76,7 +76,7 @@ $Id: p28xsd.xsl,v 1.9 2004/10/13 19:18:16 mikeward Exp $
               </xsl:when>
             </xsl:choose>
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:otherwise><xsl:value-of select="string(concat('../../data/modules/',@directory,'/arm_lf.xml'))"/>
             <xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 

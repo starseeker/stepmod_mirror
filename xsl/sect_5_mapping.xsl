@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.52 2002/10/27 18:25:50 thendrix Exp $
+$Id: sect_5_mapping.xsl,v 1.53 2002/10/28 08:47:46 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -128,85 +128,93 @@ $Id: sect_5_mapping.xsl,v 1.52 2002/10/27 18:25:50 thendrix Exp $
   <xsl:variable name="sect52" 
     select="concat('5_mim',$FILE_EXT,'#mim_express')"/>
   <p>
-    This clause contains the mapping specification that shows how each UoF and
-    application object of this part of ISO 10303 (see clause 
-    <a href="{$sect4}">4</a>) maps to one
-    or more MIM constructs (see clause <a href="{$sect52}">5.2</a>)
-  </p>
-
-  <p>
     In the following, &quot;Application element&quot; designates any entity data
-    type defined in clause <a href="{$sect4}">4</a> and any of its 
-    explicit attributes. 
+    type defined in clause <a href="{$sect4}">4</a>, any of its 
+    explicit attributes and any subtype constraint. 
     &quot;MIM element&quot; designates any entity data type defined in 
     clause <a href="{$sect52}">5.2</a> or imported with a USE FROM
-    statement, from another EXPRESS schema and any of its 
-    attributes.
+    statement, from another EXPRESS schema, any of its 
+    attributes and any subtype constraint defined in clause <a href="{$sect52}">5.2</a> or imported with a USE FROM
+    statement.
   </p>
   <p>
-    Each mapping specification sub-clause specifies up to five elements.
+    This clause contains the mapping specification that defines how each UoF and
+    application element of this part of ISO 10303 (see clause <a href="{$sect4}">4</a>) maps to one
+    or more MIM elements (see clause <a href="{$sect52}">5.2</a>).
+  </p>
+
+	<p>
+The mapping for each application element is specified in a separate sub-clause below. 
+The mapping specification of an attribute of an ARM entity is a sub-clause of the clause that contains the mapping specification of this entity.
+    Each mapping specification sub-clause contains up to five elements.
   </p>
   <p>
-    <b>Application element:</b>
-    The mapping for each application element is
-    specified in a separate sub-clause below. ARM entity names are given in
-    title case. Attribute names and assertions are listed after the
-    application object to which they belong and are given in lower case.
-  </p>
+    <b>Title:</b>
+The clause title contains:</p>
+<ul>
+<li>the name of the considered ARM entity or subtype constraint, or </li>
+<li>the name of the considered ARM entity atribute when this attribute refers to a type that is not an entity data type or a SELECT type that contains or may contain entity data types, or</li>
+<li>a composite expression, &lt;attribute name&gt; to &lt;referred type&gt;, when this attribute refers to a type that is not an entity data type or a SELECT type that contains or may contain entity data types.</li>
+</ul>
+
 
   <p>
     <b>MIM element:</b> 
-    The name of one or more MIM entity data types , the term
-    &quot;IDENTICAL MAPPING&quot;, or the term &quot;PATH&quot;. Entity
-    data type names are presented in lower case. Attributes of MIM entity
-    data types are referred to as &lt;entity name&gt;.&lt;attribute
-    name&gt;. The mapping of an application element may involve more than
-    one MIM element. Each of these MIM elements is 
-    presented on a separate line in the mapping specification. The term
-    &quot;IDENTICAL MAPPING&quot; indicates that both application objects
-    involved in an application assertion map to the same instance of a MIM
-    entity data type. 
-    The term &quot;PATH&quot; indicates that the application assertion maps
-    to a collection of related MIM entity instances specified by the entire
-    reference path.
-  </p>
-
-
+    This section contains, depending on the considered application element:</p>
+		<ul>
+<li>the name of one or more MIM entity data types;</li>
+		<li>the name of a MIM entity attribute, presented with the syntax &lt;entity name&gt;.&lt;attribute name&gt;, when the considered ARM attribute refers to a type that is not an entity data type or a SELECT type that contains or may contain entity data types;</li>
+		<li>the term PATH, when the considered ARM entity attribute refers to an entity data type or to a SELECT type that contains or may contain entity data types;</li>
+		<li>the term IDENTICAL MAPPING, when both application objects
+    involved in an application assertion map to the same instance of a MIM entity data type;</li>
+		<li>the syntax /SUPERTYPE(&lt;supertype name&gt;)/, when the considered ARM entity is mapped as its supertype;</li>
+		<li>one or more constructs /SUBTYPE(&lt;subtype name&gt;)/, when the mapping of the considered ARM entity is the union of the mapping of its subtypes.</li>
+		</ul>
+		<p>
+When the mapping of an application element involves more than one MIM element, each of these MIM elements is 
+    presented on a separate line in the mapping specification, enclosed between parentheses or brackets. 
+</p>
   <p>
-    <b>Source:</b> 
-    For those MIM elements that are interpreted from any common
-    resource, this is the ISO standard number and part number in which the
-    resource is defined. For those MIM elements that are created for the
-    purpose of this part of ISO 10303, this is the ISO standard number and
-    part number of this part.
+    <b>Source:</b> This section contains:</p>
+		<ul>
+<li>the ISO standard number and part number in which the
+    MIM element is defined, for those MIM elements that are defined in a common
+    resource document;</li>
+<li>the ISO standard number and
+    part number of this part of ISO 10303, for those MIM elements that are defined in the MIM schema of this part.</li>
+</ul><p>
+		This section is omitted when the keywords PATH or IDENTICAL MAPPING are used in the MIM element section.
   </p> 
   <p>
     <b>Rules:</b> 
-    One or more global rules may be specified that apply to the
-    population of the MIM entity data types specified as the MIM element or
-    in the reference path. For rules that are derived from relationships
-    between application objects, the same rule is referred to by the
-    mapping entries of all the involved MIM elements. A reference to a
-    global rule may be accompanied by a reference to the sub-clause in
+    This section contains the name of one or more global rules that apply to the
+    population of the MIM entity data types listed in the MIM element section or
+    in the reference path. When no rule applies, this section is omitted.
+		</p>
+		<p>A reference to a
+    global rule may be followed by a reference to the sub-clause in
     which the rule is defined.
   </p> 
   <p>
-    <b>Reference path:</b> 
-    To fully describe the mapping of an application element, it may be
-    necessary to specify a reference path involving several related MIM
-    elements. Two or more such related MIM elements define the
-    interpretation of the common resources that satisfies the requirement
-    specified by the application element. Each line in the reference path
+    <b>Reference path:</b> This section contains:</p>
+		<ul>
+<li>the reference path to its supertypes in the common resources, 
+for each MIM element created within this part of ISO 10303; 
+</li>
+<li>
+the specification of the relationships between MIM elements, when the mapping of an application element requires to relate instances of several
+ MIM entity data types. In such a case, each line in the reference path
     documents the role of a MIM element relative to the referring MIM
-    element or to the next referred MIM element. For each MIM element
-    that has been created within this part of ISO 10303, a
-    reference path to its supertype from a common resource 
-    is specified. For the expression of reference paths and the
-    relationships between MIM elements, the following notational conventions
+    element or to the next referred MIM element. 
+		</li>
+		</ul>
+
+		<p>For the expression of reference paths and of the
+    constraints between MIM elements, the following notational conventions
     apply:
   </p> 
 
-  <table cellspacing="4">
+  <table cellspacing="6">
     <tbody>
       <tr valign="top">
         <td valign="top">[]</td>

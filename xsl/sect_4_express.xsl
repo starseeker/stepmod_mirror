@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.72 2002/10/04 07:05:56 goset1 Exp $
+     $Id: sect_4_express.xsl,v 1.73 2002/10/14 10:33:52 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2951,7 +2951,7 @@
         </xsl:if>
         <p class="note">
           <small>
-            NOTE&#160;&#160;The list of entity data types will be
+            NOTE&#160;&#160;The list of entity data types may be
             extended in application modules that use the constructs of
             this module.                 
           </small>
@@ -3008,7 +3008,7 @@
             extensions.  
             <p class="note">
               <small>
-                NOTE&#160;&#160;The list of entity data types will be
+                NOTE&#160;&#160;The list of entity data types may be
                 extended in application modules that use the constructs of
                 this module.                 
               </small>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: convert_imgfile.xsl,v 1.0 2002-06-06 07:58:26+01 rob Exp rob $
+     $Id: convert_imgfile.xsl,v 1.1 2002/10/22 08:12:32 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -26,12 +26,24 @@
   <!-- input from ge2moduleMain -->
   <xsl:param name="file" select="'qqq'"/>
   <xsl:param name="module" select="'qqq'"/>
+  <xsl:param name="source" select="'qqq'"/>
 
+  <xsl:variable name="xslhref">
+    <xsl:choose >
+      <xsl:when test="contains($source, $module)">
+          <xsl:value-of select="'../../../xsl/imgfile.xsl'" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'../../../xsl/res_doc/imgfile.xsl'" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  
   <xsl:template match="/">
-    <xsl:processing-instruction name="xml-stylesheet">
-      type="text/xsl" 
-      href="../../../xsl/imgfile.xsl"
-    </xsl:processing-instruction>
+        <xsl:processing-instruction name="xml-stylesheet">
+          type="text/xsl" 
+          <xsl:value-of select="concat('href=&quot;',$xslhref,'&quot;')"/>
+        </xsl:processing-instruction>
     <xsl:text>
 
     </xsl:text>
@@ -46,17 +58,30 @@
         <xsl:with-param name="module" select="@schema"/>
       </xsl:call-template>
     </xsl:variable>
-    -->
-
+-->
     <xsl:element name="imgfile.content">
+
+    <xsl:choose>
+      <xsl:when test="contains($source,$module)">
       <xsl:attribute name="module">
         <xsl:value-of select="$module"/>
       </xsl:attribute>
+      </xsl:when>
+      <xsl:otherwise>
+      <xsl:attribute name="module">
+        <xsl:value-of select="substring-before($source,'_v0')"/>
+      </xsl:attribute>
+    </xsl:otherwise>
+    </xsl:choose>
+
       <xsl:attribute name="file">
         <xsl:value-of select="$file"/>
       </xsl:attribute>
+
       <xsl:apply-templates/>
+
     </xsl:element>
+
   </xsl:template>
 
   <xsl:template match="img">

@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.4 2003/01/14 08:48:11 robbod Exp $
+//$Id: ge2moduleMain.js,v 1.5 2003/02/10 08:36:06 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -28,6 +28,8 @@ var outputUsermessage = -1;
 
 // If you do not run mkmodule from this directory
 var stepmodHome = "..\\..\\..";
+
+var sourceFile  =""
 
 
 // ------------------------------------------------------------
@@ -351,6 +353,7 @@ function convertHref(href,newImgFile) {
 	var module;
 	var armpos = schema.lastIndexOf('_arm');
 	var mimpos = schema.lastIndexOf('_mim');
+ 	var isResource ='false'; //thx added 2004-12-13 
 	if (armpos > 1) {
 	    module = getModuleName(schema);
 	    href = "../"+module+"/sys/4_info_reqs.xml#"+expressRef;
@@ -360,6 +363,7 @@ function convertHref(href,newImgFile) {
 	} else {
 	    // must be an Integrated Resource
 	    href = "../../resources/"+schema+"/"+schema+".xml#"+expressRef;
+	    isResource ='true';
 	}
     } else {
 	// must be an object proxy
@@ -459,7 +463,6 @@ function convertImgFile(imgFile, newImgFile, schemaName) {
     var newImgFileName = fso.GetFileName(newImgFile);
     // Now add file and module attributes
 
-
     // Load style sheet.
     var xsl = "./convert_imgfile.xsl";
     var objStyle = new ActiveXObject("Msxml2.FreeThreadedDOMDocument");
@@ -471,8 +474,12 @@ function convertImgFile(imgFile, newImgFile, schemaName) {
     objTransformer.stylesheet = objStyle.documentElement;
     var objProcessor = objTransformer.createProcessor();
     objProcessor.input = imgXml;
+//file is the name of the image file
     objProcessor.addParameter("file",newImgFileName, "");
+//module is module name or ir doc name
     objProcessor.addParameter("module",moduleName, "");
+//source is the GE file name
+    objProcessor.addParameter("source",sourceFile, "");
     objProcessor.transform();
 
     // The resulting XML
@@ -556,22 +563,93 @@ function extractSchemaFromXML(geDir,expr) {
     stylesheet.async = false;
     stylesheet.load(xsl);
 
+   //get  source file name
+  
+    var applicationNodes = xml.selectNodes("/express/application");
+    var node = applicationNodes(0);
+    sourceFile = node.attributes.getNamedItem("source").nodeValue;
+
+
     // Get the schema out of model.xml
     var schemaNodes = xml.selectNodes(expr);
     var members = schemaNodes.length;
     for (var i = 0; i < members; i++) {	
 	var node = schemaNodes(i);
 	var schemaName = node.attributes.getNamedItem("name").nodeValue;
-	
+
 	// create a directory to store the schema in
 	var moduleDir = dstDir+"/"+schemaName;
 	var moduleFldr = fso.CreateFolder(moduleDir);    
 	var schemaXmlFile = moduleFldr.Path.toString()+"\\"+getArmMimXml(schemaName)+'.xml';
 
+
+	// THX add reference and description.file attributes
+  
+	if (getArmMimXml(schemaName)=='arm' ){
+	  var expressNode = xml.selectSingleNode("express");
+       
+	  Attr = xml.createAttribute("description.file");
+	  Text = xml.createTextNode("arm_descriptions.xml");
+	  Attr.appendChild(Text);   
+	  expressNode.setAttributeNode(Attr);
+	}
+
+	if (getArmMimXml(schemaName)=='mim' ){
+	  var expressNode = xml.selectSingleNode("express");
+       
+	  Attr = xml.createAttribute("description.file");
+	  Text = xml.createTextNode("mim_descriptions.xml");
+	  Attr.appendChild(Text);   
+	  expressNode.setAttributeNode(Attr);
+	}
+
+	if (getArmMimXml(schemaName)!='arm' && getArmMimXml(schemaName) !='mim'  ){
+	  var expressNode = xml.selectSingleNode("express");
+       
+	  Attr = xml.createAttribute("description.file");
+	  Text = xml.createTextNode("descriptions.xml");
+	  Attr.appendChild(Text);   
+	  expressNode.setAttributeNode(Attr);
+	  
+	  //get the part number.
+	  //this assumes the express-g file is named for the resource_part,
+	  //  e.g. state_v011.vsd
+
+	  var re=/_v[0-9]+\.vsd/;
+	  //	  var pos = sourceFile.indexOf(re);
+	  var pos = sourceFile.search(re);
+
+	  if (pos > 1){
+	    var resdocName  = sourceFile.substring(0,pos);
+	    //debug	    popupInform("resdocName: "+resdocName);
+	    //  load repository_index
+	    var repo_index_xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
+	      repo_index_xml.async = false;
+	      var repoIndexXmlFile = "..\\..\\..\\repository_index.xml";
+	      repo_index_xml.load(repoIndexXmlFile);
+	      checkXMLParse(repo_index_xml);
+	      var expr1 = "repository_index/resource_docs/resource_doc[@name=\""+resdocName+"\"]";
+	      var resdocNode = repo_index_xml.selectSingleNode(expr1);
+	      if(resdocNode){
+		var partNo = resdocNode.attributes.getNamedItem("part").nodeValue;
+		if(partNo){
+		  Attr = xml.createAttribute("reference");
+		  Text = xml.createTextNode("ISO 10303-"+partNo);
+		  Attr.appendChild(Text);      
+		  expressNode.setAttributeNode(Attr);
+		} else {
+		  popupInform("Cant find value of attribute "+partNo+" for "+resdocName+"in repository_index.xml");}
+	      }  else {
+		popupInform("Cant find "+expr1+" in repository_index.xml");
+	      }
+	  }
+	}
+
 	// Extract the schema to a file
 	var schemaXml = fso.CreateTextFile( schemaXmlFile, replace, unicode );
-	var theXml = node.transformNode( stylesheet );
 
+
+	var theXml = node.transformNode( stylesheet );
 
 	// Set up the resulting document.
 	var result = new ActiveXObject("Msxml2.DOMDocument");
